@@ -2,6 +2,14 @@
 
 ![Multaqa Logo](./public/multaqa-logo.svg)
 
+## 🚀 Quick Start
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
 ## 🎓 About
 
 **Multaqa** is a comprehensive university event management platform designed for the German University in Cairo (GUC). This frontend application enables students, staff, doctors, and external companies to discover, register for, and manage various campus events including bazaars, trips, competitions, workshops, and conferences.
