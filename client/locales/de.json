@@ -1,0 +1,18 @@
+{
+  "HomePage": {
+    "title": "Willkommen bei Multaqa",
+    "description": "Ihr Zugang zu Universitätsveranstaltungen an der GUC"
+  },
+  "Navigation": {
+    "home": "Startseite",
+    "events": "Veranstaltungen",
+    "about": "Über uns",
+    "contact": "Kontakt"
+  },
+  "Events": {
+    "title": "Campus Veranstaltungen",
+    "browse": "Veranstaltungen durchsuchen",
+    "register": "Registrieren",
+    "upcoming": "Kommende Veranstaltungen"
+  }
+}
