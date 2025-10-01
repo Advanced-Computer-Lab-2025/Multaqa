@@ -2,7 +2,7 @@
 
 ## How to run backend server
 
-- You need to make a .env file first and give it the key PORT={anyValidPortNumber} (without the curly brackets ofc)
+- You need to make a .env file first and give it the key PORT={anyValidPortNumber} (without the curly brackets ofc) and MONGO_URI={yourMongoDBAtlasClusterLink} we will discuss this later bs ghaleban i think we should all connect to the same cluster
 
 - Inside /backend directory, run `npm install`
 
