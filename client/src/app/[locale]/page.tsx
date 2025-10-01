@@ -1,3 +1,4 @@
+import { Button } from "@/components/shared/mui";
 
 export default function HomePage() {
   return (
@@ -9,6 +10,10 @@ export default function HomePage() {
         <p className="text-minsk-600 font-pt-sans text-lg">
           Your Gateway to University Events at GUC
         </p>
+        {/* MUI Button from ZIP directory -S */}
+        <Button variant="contained" color="primary" className="mt-6">
+          Get Started
+        </Button>
       </div>
     </div>
   );
