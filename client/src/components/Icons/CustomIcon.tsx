@@ -9,6 +9,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from '@mui/icons-material/Save';
+import PublishIcon from '@mui/icons-material/Publish';
+
 
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -21,7 +24,7 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-type IconType = "close" | "delete" | "edit" | "add";
+type IconType = "close" | "delete" | "edit" | "add" | "save" | "submit";
 
 
 const iconComponents: Record<IconType, React.ElementType> = {
@@ -29,6 +32,8 @@ const iconComponents: Record<IconType, React.ElementType> = {
   delete: DeleteIcon,
   edit: EditIcon,
   add: AddIcon,
+  save: SaveIcon,
+  submit: PublishIcon,
 };
 
 interface CustomIconProps extends IconButtonProps {
