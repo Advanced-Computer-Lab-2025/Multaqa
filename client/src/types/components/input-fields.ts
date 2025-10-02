@@ -1,11 +1,11 @@
 import { TextFieldProps } from "@mui/material";
 
-export interface BaseFieldProps extends Omit<TextFieldProps, "variant"> {
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
-  isError?: boolean;
-  helperText?: string;
-}
+export type FieldType =
+  | "text"
+  | "email"
+  | "password"
+  | "numeric"
+  | "phone";
 
 export type StakeholderType =
   | "student"
@@ -16,14 +16,21 @@ export type StakeholderType =
   | "events-office"
   | "vendor";
 
-export interface EmailFieldProps extends Omit<BaseFieldProps, "type"> {
-  label?: string;
-  placeholder?: string;
+export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "type"> {
+  fieldType?: FieldType;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  isError?: boolean;
+  helperText?: string;
+
+  // Email specific props
   stakeholderType?: StakeholderType;
   showDomainHint?: boolean;
-}
 
-export interface PasswordFieldProps extends Omit<BaseFieldProps, "type"> {
+  // Phone specific props
+  countryCode?: string;
+
+  // General styling props
   label?: string;
   placeholder?: string;
 }

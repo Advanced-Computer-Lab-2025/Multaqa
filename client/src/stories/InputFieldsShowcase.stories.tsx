@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { CustomTextField, EmailField, PasswordField } from '../components/shared/input-fields';
-import { Person, Phone, LocationOn } from '@mui/icons-material';
+import { CustomTextField } from '../components/shared/input-fields';
+import { Person, Phone, LocationOn, Email, Lock } from '@mui/icons-material';
 import { InputAdornment } from '@mui/material';
 
 // Create a wrapper component to showcase all fields
@@ -24,6 +24,7 @@ const InputFieldsShowcase = () => {
       </Typography>
       
       <CustomTextField
+        fieldType="text"
         label="Full Name"
         placeholder="Enter your full name"
         startIcon={
@@ -35,17 +36,15 @@ const InputFieldsShowcase = () => {
       />
       
       <CustomTextField
+        fieldType="phone"
         label="Phone Number"
-        placeholder="+20 123 456 7890"
-        startIcon={
-          <InputAdornment position="start">
-            <Phone />
-          </InputAdornment>
-        }
+        placeholder="123 456 7890"
+        countryCode="+20"
         fullWidth
       />
       
       <CustomTextField
+        fieldType="text"
         label="Location"
         placeholder="Cairo, Egypt"
         startIcon={
@@ -61,44 +60,74 @@ const InputFieldsShowcase = () => {
         Email Fields by Stakeholder
       </Typography>
       
-      <EmailField
+      <CustomTextField
+        fieldType="email"
         stakeholderType="student"
         label="Student Email"
         placeholder="Enter your username"
         helperText="Will auto-complete to @student.guc.edu.eg"
         showDomainHint={true}
+        startIcon={
+          <InputAdornment position="start">
+            <Email />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <EmailField
+      <CustomTextField
+        fieldType="email"
         stakeholderType="professor"
         label="Professor Email"
         placeholder="Enter your username"
         helperText="Will auto-complete to @guc.edu.eg"
         showDomainHint={true}
+        startIcon={
+          <InputAdornment position="start">
+            <Email />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <EmailField
+      <CustomTextField
+        fieldType="email"
         stakeholderType="vendor"
         label="Vendor Email"
         placeholder="Enter your company email"
         helperText="Enter complete email address"
         showDomainHint={false}
+        startIcon={
+          <InputAdornment position="start">
+            <Email />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <PasswordField
+      <CustomTextField
+        fieldType="password"
         label="Password"
         placeholder="Create a strong password"
         helperText="Must be at least 8 characters with numbers and symbols"
+        startIcon={
+          <InputAdornment position="start">
+            <Lock />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <PasswordField
+      <CustomTextField
+        fieldType="password"
         label="Confirm Password"
         placeholder="Re-enter your password"
         helperText="Make sure passwords match"
+        startIcon={
+          <InputAdornment position="start">
+            <Lock />
+          </InputAdornment>
+        }
         fullWidth
       />
       
@@ -106,17 +135,29 @@ const InputFieldsShowcase = () => {
         Error States
       </Typography>
       
-      <EmailField
+      <CustomTextField
+        fieldType="email"
         value="invalid-email"
         isError={true}
         helperText="Please enter a valid email address"
+        startIcon={
+          <InputAdornment position="start">
+            <Email />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <PasswordField
+      <CustomTextField
+        fieldType="password"
         value="123"
         isError={true}
         helperText="Password is too weak. Use at least 8 characters."
+        startIcon={
+          <InputAdornment position="start">
+            <Lock />
+          </InputAdornment>
+        }
         fullWidth
       />
     </Box>
@@ -162,17 +203,29 @@ export const LoginForm: Story = {
         Login to Multaqa
       </Typography>
       
-      <EmailField
+      <CustomTextField
+        fieldType="email"
         stakeholderType="student"
         label="Email"
         placeholder="Enter your username"
         showDomainHint={true}
+        startIcon={
+          <InputAdornment position="start">
+            <Email />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <PasswordField
+      <CustomTextField
+        fieldType="password"
         label="Password"
         placeholder="Enter your password"
+        startIcon={
+          <InputAdornment position="start">
+            <Lock />
+          </InputAdornment>
+        }
         fullWidth
       />
     </Box>
@@ -200,6 +253,7 @@ export const RegistrationForm: Story = {
       </Typography>
       
       <CustomTextField
+        fieldType="text"
         label="Full Name"
         placeholder="Enter your full name"
         startIcon={
@@ -210,25 +264,43 @@ export const RegistrationForm: Story = {
         fullWidth
       />
       
-      <EmailField
+      <CustomTextField
+        fieldType="email"
         stakeholderType="student"
         label="GUC Email"
         placeholder="Enter your username"
         helperText="Use your official GUC username"
         showDomainHint={true}
+        startIcon={
+          <InputAdornment position="start">
+            <Email />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <PasswordField
+      <CustomTextField
+        fieldType="password"
         label="Password"
         placeholder="Create a strong password"
         helperText="At least 8 characters"
+        startIcon={
+          <InputAdornment position="start">
+            <Lock />
+          </InputAdornment>
+        }
         fullWidth
       />
       
-      <PasswordField
+      <CustomTextField
+        fieldType="password"
         label="Confirm Password"
         placeholder="Re-enter your password"
+        startIcon={
+          <InputAdornment position="start">
+            <Lock />
+          </InputAdornment>
+        }
         fullWidth
       />
     </Box>
