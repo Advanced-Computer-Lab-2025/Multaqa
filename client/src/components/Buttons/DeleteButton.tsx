@@ -16,6 +16,7 @@ const StyledDeleteButton = styled(Button)(({ theme }) => ({
     -5px -5px 4px 0 #FAFBFF,
     5px 5px 6px 0 rgba(150, 43, 43, 0.4)
   `,
+  fontFamily: "var(--font-poppins), system-ui, sans-serif",
  "&.MuiButton-outlined": {
     borderWidth: "2px",
     borderStyle: "solid",

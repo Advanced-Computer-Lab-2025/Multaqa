@@ -34,11 +34,11 @@ interface CustomBoxProps extends BoxProps {
 
 const NeumorphicBox: React.FC<CustomBoxProps> = ({ 
   containerType="inwards",
-  padding="24px",
+  padding="0",
   margin="0",
   width="100%", 
   height="auto", 
-  borderRadius="20px", 
+  borderRadius="0", 
   children, 
   ...props 
 }) => {
