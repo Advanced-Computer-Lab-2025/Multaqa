@@ -17,7 +17,18 @@ const StyledTextField = styled(TextField)<{ fieldType: "email" | "text" | "passw
   theme,
   fieldType
 }) => ({
-
+  '& .MuiInput-root': {
+    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  },
+  '& .MuiInputLabel-root': {
+    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  },
+  '& .MuiInput-underline:before': {
+    transition: 'border-bottom-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  },
+  '& .MuiInput-underline:after': {
+    transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+  },
 }));
 
 // Extend TextFieldProps with a custom "fieldType" prop
@@ -43,6 +54,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailUsername, setEmailUsername] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
   // Get email domain based on user type
   const getEmailDomain = () => {
@@ -140,8 +152,11 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             marginBottom: '5px',
             opacity: 0,
             pointerEvents: 'none',
+            transition: 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transform: 'translateX(10px)',
             [`[data-shrink=true] ~ .${inputBaseClasses.root} > &`]: {
               opacity: 1,
+              transform: 'translateX(0px)',
             },
           }}
         >
@@ -166,6 +181,21 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     return undefined;
   };
 
+  // Handle focus events
+  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true);
+    if (props.onFocus) {
+      props.onFocus(event);
+    }
+  };
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(false);
+    if (props.onBlur) {
+      props.onBlur(event);
+    }
+  };
+
   // Get the display value for email fields
   const getDisplayValue = () => {
     if (fieldType === "email" && userType !== "vendor") {
@@ -176,13 +206,14 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
   return (
     <NeumorphicBox 
-      containerType="inwards" 
+      containerType={isFocused ? "inwards" : "outwards"} 
       padding="16px" 
       borderRadius="12px"
-      width="auto"
+      width="100%"
     >
       <StyledTextField 
         {...props}
+        fullWidth
         label={labelWithIcon}
         fieldType={fieldType}
         variant="standard"
@@ -190,6 +221,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
         value={getDisplayValue()}
         onChange={handleEmailChange}
         onKeyPress={handleKeyPress}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         InputProps={{
           endAdornment: getEndAdornment(),
           ...InputProps,
