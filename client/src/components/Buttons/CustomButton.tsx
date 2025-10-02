@@ -21,16 +21,15 @@ const StyledButton = styled(Button)(({ theme }) => ({
       5px 5px 6px 0 rgba(107, 79, 150, 0.6)
     `,
   },
-
+   
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
   textTransform: "none",
   letterSpacing: "0.5px",
   fontWeight: 900,
   boxShadow: `
-    -5px -5px 7px 0 #FAFBFF,
-    5px 5px 6px 0 rgba(22, 27, 29, 0.25)
-  `,
-  transition: "all 0.3s ease-in-out",
+   -5px -5px 10px 0 #FAFBFF,
+   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+`,
 
   "&:hover": {
     boxShadow: `

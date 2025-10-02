@@ -7,7 +7,7 @@ function round(value) {
 const caseAllCaps = {
   textTransform: 'uppercase',
 };
-const defaultFontFamily = '"Roboto", "Helvetica", "Arial", sans-serif';
+const defaultFontFamily = '"Poppins", "Arial", "Helvetica", sans-serif';
 
 /**
  * @see @link{https://m2.material.io/design/typography/the-type-system.html}

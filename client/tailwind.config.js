@@ -11,7 +11,7 @@ module.exports = {
       fontFamily: {
         'sans': ['var(--font-poppins)', 'system-ui', 'sans-serif'],
         'heading': ['var(--font-jost)', 'system-ui', 'sans-serif'],
-        'normal': ['var(--font-poppins)'],
+        'poppins': ['var(--font-poppins)'],
         'jost': ['var(--font-jost)'],
       },
       colors: {
