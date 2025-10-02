@@ -14,10 +14,12 @@ export default function HomePage() {
         <SearchTextField placeholder="Search..." />
       </div>
       <div className="flex items-center justify-center gap-5 flex-col">
-        <CustomTextField fieldType="email" label="Email Address" variant="standard" />
-        <CustomTextField fieldType="text" label="Username" variant="standard" />
-        <CustomTextField fieldType="password" label="Password" variant="standard" />
-        <CustomTextField fieldType="numeric" label="Phone Number" variant="standard" />
+        <CustomTextField fieldType="email" label="Email" userType="student" />
+        <CustomTextField fieldType="email" label="Email" userType="staff" />
+        <CustomTextField fieldType="email" label="Email" userType="vendor" />
+        <CustomTextField fieldType="text" label="Username" />
+        <CustomTextField fieldType="password" label="Password" />
+        <CustomTextField fieldType="numeric" label="Phone Number" />
       </div>
     </div>
   );
