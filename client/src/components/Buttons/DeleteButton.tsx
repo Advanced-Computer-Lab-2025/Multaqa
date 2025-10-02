@@ -13,8 +13,8 @@ const StyledDeleteButton = styled(Button)(({ theme }) => ({
   color: "#FFFFFF",
   border: "2px solid #c22121",
   boxShadow: `
-    -5px -5px 4px 0 #FAFBFF,
-    5px 5px 6px 0 rgba(150, 43, 43, 0.4)
+    -5px -5px 8px 0 #FAFBFF,
+    5px 5px 8px 0 rgba(150, 43, 43, 0.4)
   `,
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
  "&.MuiButton-outlined": {
@@ -28,8 +28,8 @@ const StyledDeleteButton = styled(Button)(({ theme }) => ({
     color: theme.palette.primary.contrastText,
     border: "2px solid #a81818",
     boxShadow: `
-    -5px -5px 4px 0 #FAFBFF,
-    5px 5px 6px 0 rgba(150, 43, 43, 0.4)
+    -5px -5px 8px 0 #FAFBFF,
+    5px 5px 8px 0 rgba(150, 43, 43, 0.4)
   `,
   },
   "&.MuiButton-outlined:hover": {
