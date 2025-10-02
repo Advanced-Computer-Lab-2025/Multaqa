@@ -10,7 +10,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-pt-sans), var(--font-jost);
+  --font-sans: var(--font-poppins), var(--font-jost);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,5 +23,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-pt-sans), var(--font-jost), Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), var(--font-jost), Arial, Helvetica, sans-serif;
 }

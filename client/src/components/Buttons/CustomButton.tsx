@@ -22,7 +22,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
      `,
   },
    
-  fontFamily: "var(--font-pt-sans), system-ui, sans-serif",
+  fontFamily: "var(--font-poppins), system-ui, sans-serif",
   textTransform: "none",
   letterSpacing: "0.5px",
   fontWeight: 900,
