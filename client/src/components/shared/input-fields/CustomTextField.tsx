@@ -172,8 +172,17 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             onClick={handleClickShowPassword}
             onMouseDown={handleMouseDownPassword}
             edge="end"
+            sx={{
+              '&:hover': {
+                color: '#7851da',
+              },
+              transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            }}
           >
-            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+            {showPassword ? 
+              <VisibilityOffIcon sx={{ fontSize: '1.1rem' }} /> : 
+              <VisibilityIcon sx={{ fontSize: '1.1rem' }} />
+            }
           </IconButton>
         </InputAdornment>
       );
