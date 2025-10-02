@@ -53,12 +53,12 @@ const EmailField: React.FC<EmailFieldProps> = ({
   onChange,
   ...props
 }) => {
-  const [inputValue, setInputValue] = useState(value);
+  const [inputValue, setInputValue] = useState(String(value || ""));
   const [showHint, setShowHint] = useState(false);
   const domain = getDomainForStakeholder(stakeholderType);
 
   useEffect(() => {
-    setInputValue(value);
+    setInputValue(String(value || ""));
   }, [value]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
