@@ -9,11 +9,9 @@ const StyledSearchField = styled(TextField)(({ theme }) => ({
   cursor:"pointer",
   '& .MuiOutlinedInput-root': {
      borderRadius: '50px',
-     
-       '&:hover fieldset': {
+     '&:hover fieldset': {
       borderColor: '#7C5CFF',
     },
-
   },
    '& .MuiOutlinedInput-input': {
     padding: '14px 18px',
@@ -21,18 +19,12 @@ const StyledSearchField = styled(TextField)(({ theme }) => ({
     fontWeight: 500,
   },
   '& .MuiInputLabel-root': {
-    // color:"#7482aa",
-    fontSize: '14px',
+    background: "#e5e7eb",
     fontWeight: 500,
-    transform: 'translate(24px, 14px) scale(1)', 
-    
-    '&.MuiInputLabel-shrink': {
-      transform: 'translate(10px, -9px) scale(0.8)',
-      background: '#E7E7E7',
-      padding: '0 8px',
-    },
+    padding: '2px 0px 0px 8px',
+    transition: 'all 0.3s ease-out',
   },
-    
+
 }));
 
 

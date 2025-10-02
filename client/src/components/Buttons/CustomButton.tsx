@@ -17,9 +17,9 @@ const StyledButton = styled(Button)(({ theme }) => ({
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     boxShadow: `
-      -5px -5px 4px 0 #FAFBFF,
-      5px 5px 6px 0 rgba(107, 79, 150, 0.6)
-    `,
+    -5px -5px 8px 0 #FAFBFF,
+     5px 5px 8px 0 rgba(107, 79, 150, 0.6)
+     `,
   },
    
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
@@ -41,9 +41,9 @@ const StyledButton = styled(Button)(({ theme }) => ({
   "&.MuiButton-contained:hover": {
     background: theme.palette.primary.dark,
     boxShadow: `
-      -5px -5px 7px 0 #FAFBFF,
-      5px 5px 6px 0 rgba(22, 27, 29, 0.25)
-    `,
+   -5px -5px 8px 0 #FAFBFF,
+   5px 5px 8px 0 rgba(22, 27, 29, 0.25)
+`,
   },
 
   "&:active": {
