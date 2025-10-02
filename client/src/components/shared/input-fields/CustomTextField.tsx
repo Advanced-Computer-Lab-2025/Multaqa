@@ -15,7 +15,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     -5px -5px 10px 0 #FAFBFF,
     5px 5px 10px 0 rgba(22, 27, 29, 0.25)
   `,
-  transition: "all 0.3s ease-in-out",
+  transition: "all 0.6s ease-in-out",
   
   "&:hover": {
     boxShadow: `
@@ -37,11 +37,11 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   // Standard variant styling
   "& .MuiInput-root": {
     fontFamily: "var(--font-poppins), system-ui, sans-serif",
-    transition: "all 0.3s ease-in-out",
+    transition: "all 0.6s ease-in-out",
     "&:before": {
       borderBottomColor: theme.palette.text.secondary, // Minsk secondary color
       borderBottomWidth: "1px",
-      transition: "border-bottom-color 0.3s ease-in-out, border-bottom-width 0.3s ease-in-out",
+      transition: "border-bottom-color 0.5s ease-in-out, border-bottom-width 0.5s ease-in-out",
     },
     "&:hover:not(.Mui-disabled):before": {
       borderBottomColor: theme.palette.text.primary, // Darker on hover
@@ -50,12 +50,13 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     "&:after": {
       borderBottomColor: theme.palette.primary.main, // Minsk primary color #7851da
       borderBottomWidth: "2px",
-      transition: "transform 0.3s ease-in-out",
+      transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
     },
     "& input": {
-      padding: "16px 0 12px 0", // More padding top and bottom
+      padding: "16px 0 6px 0", // Adjusted bottom padding to align with endAdornment
       fontFamily: "var(--font-poppins), system-ui, sans-serif",
       backgroundColor: "transparent",
+      fontSize: "1rem",
     },
   },
   
@@ -67,7 +68,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     fontSize: "1rem", // Full size like placeholder
     transform: "translate(40px, 24px) scale(1)", // Position aligned with icon (40px offset for icon + margin)
     transformOrigin: "top left",
-    transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease-in-out, font-size 0.3s ease-in-out",
+    transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease-in-out, font-size 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
     pointerEvents: "none",
     "&.Mui-focused": {
       color: theme.palette.primary.main, // Minsk primary color when focused
@@ -87,7 +88,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiInputAdornment-root": {
     "& .MuiSvgIcon-root": {
       color: theme.palette.text.secondary, // Use Minsk secondary color
-      transition: "color 0.3s ease-in-out",
+      transition: "color 0.5s ease-in-out",
     },
   },
   
@@ -109,12 +110,14 @@ const CustomTextField: React.FC<BaseFieldProps> = ({
   isError,
   helperText,
   placeholder,
+  size = "medium",
   ...props
 }) => {
   return (
     <MotionTextField
       variant="standard"
       error={isError}
+      size={size}
       helperText={helperText}
       // Don't pass placeholder prop since label acts as placeholder
       InputProps={{
@@ -123,7 +126,7 @@ const CustomTextField: React.FC<BaseFieldProps> = ({
       }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       {...props}
     />
   );

@@ -4,6 +4,7 @@ import DeleteButton from "@/components/Buttons/DeleteButton";
 import { CustomTextField, EmailField, PasswordField } from "@/components/shared/input-fields";
 import { Person, Phone } from "@mui/icons-material";
 import { InputAdornment } from "@mui/material";
+import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
   return (
@@ -48,6 +49,7 @@ export default function HomePage() {
             label="Student Email"
             showDomainHint={true}
             fullWidth
+            size="small"
           />
           
           <EmailField
@@ -55,6 +57,7 @@ export default function HomePage() {
             label="Professor Email"
             showDomainHint={true}
             fullWidth
+            size="small"
           />
           
           <PasswordField
@@ -68,6 +71,10 @@ export default function HomePage() {
           />
         </div>
         
+
+        <NeumorphicBox containerType="inwards" padding="24px" margin="0" width="100px" height="100px" borderRadius="9999px">
+          Salma please 
+        </NeumorphicBox>
       </div>
     </div>
   );

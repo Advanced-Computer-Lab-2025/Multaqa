@@ -17,42 +17,42 @@ const StyledButton = styled(Button)(({ theme }) => ({
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     boxShadow: `
-     -5px -5px 4px 0 #FAFBFF,
-     5px 5px 6px 0 rgba(107, 79, 150, 0.6)
-     `,
+      -5px -5px 4px 0 #FAFBFF,
+      5px 5px 6px 0 rgba(107, 79, 150, 0.6)
+    `,
   },
-   
-  fontFamily: "var(--font-pt-sans), system-ui, sans-serif",
+
+  fontFamily: "var(--font-poppins), system-ui, sans-serif",
   textTransform: "none",
   letterSpacing: "0.5px",
   fontWeight: 900,
   boxShadow: `
-   -5px -5px 7px 0 #FAFBFF,
-   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
-`,
-transition: "all 0.3s ease-in-out",
-
-"&:hover": {
-  boxShadow: `
-   -5px -5px 7px 0 #FAFBFF,
-   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
+    -5px -5px 7px 0 #FAFBFF,
+    5px 5px 6px 0 rgba(22, 27, 29, 0.25)
   `,
-},
+  transition: "all 0.3s ease-in-out",
 
-"&.MuiButton-contained:hover": {
-    background: theme.palette.primary.dark,
+  "&:hover": {
     boxShadow: `
-   -5px -5px 7px 0 #FAFBFF,
-   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
-`,
+      -5px -5px 7px 0 #FAFBFF,
+      5px 5px 6px 0 rgba(22, 27, 29, 0.25)
+    `,
   },
 
-"&:active": {
-  boxShadow: `
-    inset -10px -10px 10px 0 #000000 25%,
-    inset 10px 10px 10px 0 #FFFFFF 80%
-  `,
-},
+  "&.MuiButton-contained:hover": {
+    background: theme.palette.primary.dark,
+    boxShadow: `
+      -5px -5px 7px 0 #FAFBFF,
+      5px 5px 6px 0 rgba(22, 27, 29, 0.25)
+    `,
+  },
+
+  "&:active": {
+    boxShadow: `
+      inset -10px -10px 10px 0 #000000 25%,
+      inset 10px 10px 10px 0 #FFFFFF 80%
+    `,
+  },
 }));
 
 // Extend ButtonProps with a custom "label" prop

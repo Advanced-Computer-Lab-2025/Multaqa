@@ -5,6 +5,7 @@ import { Email } from "@mui/icons-material";
 import { InputAdornment, Typography, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CustomTextField from "./CustomTextField";
+import { inputBaseClasses } from '@mui/material/InputBase';
 import { EmailFieldProps, StakeholderType } from '@/types/components/input-fields';
 
 // Domain mapping based on stakeholder type
@@ -110,18 +111,37 @@ const EmailField: React.FC<EmailFieldProps> = ({
         value={inputValue}
         onChange={handleInputChange}
         onBlur={handleBlur}
-        startIcon={
-          <InputAdornment position="start">
-            <Email />
-          </InputAdornment>
-        }
+        slotProps={{
+          htmlInput: {
+            sx: { textAlign: 'right' },
+          },
+          input: {
+            endAdornment: (
+              <InputAdornment
+                position="end"
+                sx={{
+                  alignSelf: 'flex-end',
+                  margin: 0,
+                  marginBottom: '5px',
+                  opacity: 0,
+                  pointerEvents: 'none',
+                  [`[data-shrink=true] ~ .${inputBaseClasses.root} > &`]: {
+                    opacity: 1,
+                  },
+                }}
+              >
+                @student.guc.edu.eg
+              </InputAdornment>
+            ),
+          },
+        }}
+        // startIcon={
+        //   <InputAdornment position="start">
+        //     <Email />
+        //   </InputAdornment>
+        // }
         {...props}
       />
-      {showHint && showDomainHint && (
-        <DomainHint variant="body2">
-          {domain}
-        </DomainHint>
-      )}
     </EmailFieldContainer>
   );
 };
