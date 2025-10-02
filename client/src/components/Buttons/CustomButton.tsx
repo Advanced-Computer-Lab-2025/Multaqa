@@ -14,9 +14,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
     borderStyle: "solid",
   },
   "&.MuiButton-contained": {
+    background: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     boxShadow: `
-    -12px -12px 20px 0 #FAFBFF,
-     6px 7px 16px 0 rgba(107, 79, 224, 0.6)
+     -5px -5px 4px 0 #FAFBFF,
+     5px 5px 6px 0 rgba(107, 79, 150, 0.6)
      `,
   },
    
@@ -25,17 +27,25 @@ const StyledButton = styled(Button)(({ theme }) => ({
   letterSpacing: "0.5px",
   fontWeight: 900,
   boxShadow: `
-  -10px -10px 20px 0 #FAFBFF,
-   10px 10px 20px 0 rgba(22, 27, 29, 0.25)
+   -5px -5px 7px 0 #FAFBFF,
+   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
 `,
-transition: "all 0.2s ease-in-out",
+transition: "all 0.3s ease-in-out",
 
 "&:hover": {
   boxShadow: `
-    -10px -10px 30px 0 #FFFFFF,
-    10px 10px 30px 0 #9696ab
+   -5px -5px 7px 0 #FAFBFF,
+   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
   `,
 },
+
+"&.MuiButton-contained:hover": {
+    background: theme.palette.primary.dark,
+    boxShadow: `
+   -5px -5px 7px 0 #FAFBFF,
+   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
+`,
+  },
 
 "&:active": {
   boxShadow: `

@@ -8,6 +8,9 @@ const theme = createTheme({
       main: "#7851da",
       contrastText: "#ffffff",
     },
+    error:{
+     main:"#b81d1d",
+    },
     background: {
       default: "#e5e7eb",
     },
