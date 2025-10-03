@@ -50,24 +50,18 @@ const CustomIcon: React.FC<CustomIconProps> = ({
     >
       <StyledIconButton
         iconType={icon}
+        padding={padding}
         aria-label={icon}
         size={size}
         {...props}
         sx={{
-          padding: padding,
-          border: "1px solid #b6b7ba",
-          "&:hover": {
-            borderColor: "#7950db",
-            borderWidth: "2px",
-            transition: "all 0.3 ease-in-out",
-          },
           ...props.sx,
         }}
       >
-        <IconComponent fontSize="inherit" color="primary" />
+        <IconComponent fontSize="inherit" />
       </StyledIconButton>
     </NeumorphicBox>
   );
-};
+}
 
 export default CustomIcon;
