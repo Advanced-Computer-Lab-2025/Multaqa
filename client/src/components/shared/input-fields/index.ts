@@ -1,11 +1,13 @@
 // Export components
 export { default as CustomTextField } from './CustomTextField';
 export { default as CustomRating } from './CustomRating';
+export { default as CustomCheckbox } from './CustomCheckbox';
 
 // Export types
 export type {
   CustomTextFieldProps,
   CustomRatingProps,
+  CustomCheckboxProps,
   FieldType,
   StakeholderType
 } from './types';

@@ -4,6 +4,7 @@ import DeleteButton from "@/components/Buttons/DeleteButton";
 import SearchTextField from "@/components/SearchBar/SearchTextField";
 import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import CustomRating from "@/components/shared/input-fields/CustomRating";
+import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
@@ -48,6 +49,14 @@ export default function HomePage() {
 
       {/* // Read-only Multaqa purple rating */}
       <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly multaqaFill />
+
+      {/* Checkboxes */}
+      <div className="flex items-center justify-center gap-5">
+        <CustomCheckbox defaultChecked size="small" />
+        <CustomCheckbox defaultChecked size="medium" />
+        <CustomCheckbox defaultChecked sx={{ '& .MuiSvgIcon-root': { fontSize: 32 } }} />
+        <CustomCheckbox defaultChecked multaqaFill={false} />
+      </div>
     </div>
   );
 }
