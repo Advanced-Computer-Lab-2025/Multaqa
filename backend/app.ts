@@ -2,24 +2,27 @@ import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
-
+import eventRouter from "./routes/event.routes";
 dotenv.config();
 
 const app = express();
 app.use(json());
-
+app.use(eventRouter);
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
 });
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/multaqa";
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {
+    console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
     console.log("Connected to MongoDB");
     const PORT = process.env.PORT || 3000;
+    console.log("Connected to DB:", mongoose.connection.name);
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
