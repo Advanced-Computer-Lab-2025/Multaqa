@@ -193,3 +193,25 @@ export const getEmailDisplayValue = (
   }
   return value;
 };
+
+/**
+ * Handle checkbox group value change
+ * Updates the selected values array based on checkbox checked state
+ */
+export const handleCheckboxGroupChange = (
+  value: string,
+  checked: boolean,
+  currentSelectedValues: string[],
+  setSelectedValues: (values: string[]) => void,
+  onChange?: (selectedValues: string[]) => void
+) => {
+  const newSelectedValues = checked
+    ? [...currentSelectedValues, value]
+    : currentSelectedValues.filter((v) => v !== value);
+
+  setSelectedValues(newSelectedValues);
+  
+  if (onChange) {
+    onChange(newSelectedValues);
+  }
+};

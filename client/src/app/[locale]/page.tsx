@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/shared/mui";
 import CustomButton from "@/components/Buttons/CustomButton";
 import DeleteButton from "@/components/Buttons/DeleteButton";
@@ -5,6 +7,7 @@ import SearchTextField from "@/components/SearchBar/SearchTextField";
 import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import CustomRating from "@/components/shared/input-fields/CustomRating";
 import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
+import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
@@ -56,6 +59,31 @@ export default function HomePage() {
         <CustomCheckbox defaultChecked size="medium" />
         <CustomCheckbox defaultChecked sx={{ '& .MuiSvgIcon-root': { fontSize: 32 } }} />
         <CustomCheckbox defaultChecked multaqaFill={false} />
+      </div>
+
+      {/* Checkbox Groups */}
+      <div className="flex items-center justify-center gap-8">
+        <CustomCheckboxGroup
+          label="What amenities do you prefer?"
+          options={[
+            { label: "WiFi", value: "wifi", checked: true },
+            { label: "Parking", value: "parking" },
+            { label: "Catering", value: "catering", checked: true },
+            { label: "AV Equipment", value: "av" },
+          ]}
+          onChange={(values) => console.log("Selected:", values)}
+        />
+
+        <CustomCheckboxGroup
+          label="Event Type (Row Layout)"
+          options={[
+            { label: "Workshop", value: "workshop" },
+            { label: "Conference", value: "conference" },
+            { label: "Seminar", value: "seminar" },
+          ]}
+          row
+          size="small"
+        />
       </div>
     </div>
   );

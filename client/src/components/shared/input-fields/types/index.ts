@@ -49,3 +49,21 @@ export interface CustomRatingProps {
 export interface CustomCheckboxProps {
   multaqaFill?: boolean; // Use Multaqa primary color (#7851da) from lightTheme.ts - default true
 }
+
+export interface CheckboxOption {
+  label: string;
+  value: string;
+  checked?: boolean;
+  disabled?: boolean;
+}
+
+export interface CustomCheckboxGroupProps {
+  label: string;
+  options: CheckboxOption[];
+  onChange?: (selectedValues: string[]) => void;
+  helperText?: string;
+  error?: boolean;
+  multaqaFill?: boolean;
+  size?: "small" | "medium";
+  row?: boolean;
+}
