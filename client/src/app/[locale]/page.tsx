@@ -1,4 +1,4 @@
-import { Button } from "@/components/shared/mui";
+/*import { Button } from "@/components/shared/mui";
 import CustomButton from "@/components/Buttons/CustomButton";
 import DeleteButton from "@/components/Buttons/DeleteButton";
 import SearchTextField from "@/components/SearchBar/SearchTextField";
@@ -14,4 +14,14 @@ export default function HomePage() {
        
     </div>
   );
+}*/
+
+// src/app/page.tsx (Temporary change for demo)
+
+// Path: From src/app/ -> ../mui/Example
+import AppWrapper from '../../components/FilterCard/example'; 
+
+export default function HomePage() {
+  // This will now render the FilterBox demo
+  return <AppWrapper />; 
 }
