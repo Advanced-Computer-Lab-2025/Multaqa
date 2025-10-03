@@ -1,27 +1,6 @@
 import { Schema } from "mongoose";
-import { User, IUser } from "./userSchema";
-
-export interface IStaffMember extends IUser {
-  firstName: string;
-  lastName: string;
-  staffId: string;
-  walletBalance: number;
-  position: "staff" | "TA" | "professor";
-  favorites: Schema.Types.ObjectId[];
-  registeredEvents: Schema.Types.ObjectId[];
-  // TODO: Filter registeredEvents by (date < today) to get attended ones
-  myWorkshops: Schema.Types.ObjectId[];
-  permissions?: string[]; // only filled if professor
-}
-
-const PROFESSOR_PERMISSIONS = [
-  "EDIT_WORKSHOP_DETAILS",
-  "VIEW_MY_WORKSHOPS",
-  "VIEW_PARTICIPANTS",
-  "VIEW_REMAINING_SPOTS",
-  "VIEW_STATUS_REQUESTS",
-  "RECEIVE_WORKSHOP_NOTIFICATIONS",
-];
+import { User } from "./userSchema";
+import { IStaffMember, PROFESSOR_PERMISSIONS } from "../interfaces/staffMember.interface";
 
 const staffMemberSchema = new Schema<IStaffMember>({
   firstName: { type: String, required: true },

@@ -1,16 +1,6 @@
 import { Schema } from "mongoose";
-import { User, IUser } from "./userSchema";
-
-export interface IVendor extends IUser {
-  companyName: string;
-  taxCard: string;
-  logo?: string;
-  loyaltyProgram?: {
-    discountRate: number;
-    promoCode: string;
-    termsAndConditions: string;
-  };
-}
+import { User } from "./userSchema";
+import { IVendor } from "../interfaces/vendor.interface";
 
 const vendorSchema = new Schema<IVendor>({
   companyName: { type: String, required: true },

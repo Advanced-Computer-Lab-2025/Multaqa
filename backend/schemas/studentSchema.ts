@@ -1,15 +1,6 @@
 import { Schema } from "mongoose";
-import { User, IUser } from "./userSchema";
-
-export interface IStudent extends IUser {
-	firstName: string;
-  lastName: string;
-  studentId: string;
-  walletBalance: number;
-  favorites: Schema.Types.ObjectId[];
-  registeredEvents: Schema.Types.ObjectId[];
-  // TODO: Filter registeredEvents by (date < today) to get attended ones
-}
+import { User } from "./userSchema";
+import { IStudent } from "../interfaces/student.interface";
 
 const studentSchema = new Schema<IStudent>({
   firstName: { type: String, required: true },

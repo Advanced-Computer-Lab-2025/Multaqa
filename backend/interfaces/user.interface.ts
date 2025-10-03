@@ -1,7 +1,30 @@
-import { Schema } from "mongoose";
+import { Document } from "mongoose";
 
-export interface IUser {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  // Add more user fields as needed
+export type UserRole =
+  | "student"
+  | "staffMember"
+  | "vendor"
+  | "administration"
+  | "unknown";
+
+export type UserStatus = "active" | "blocked";
+
+export type StaffPosition = "staff" | "TA" | "professor";
+
+export type AdministrationRoleType = "admin" | "eventOffice";
+
+export interface INotification {
+  title: string;
+  message: string;
+  createdAt: Date;
+}
+
+export interface IUser extends Document {
+  email: string;
+  password: string;
+  status: UserStatus;
+  role: UserRole;
+  createdAt: Date;
+  isVerified: boolean;
+  notifications: INotification[];
 }
