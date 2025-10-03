@@ -10,10 +10,6 @@ export const StyledIconButton = styled(IconButton)<{ iconType: IconType }>(
       iconType === "delete"
         ? theme.palette.error.main
         : theme.palette.primary.main,
-    transition: "all 0.3s ease-in-out",
-    "&:hover": {
-      transform: "scale(1.05)",
-    },
   })
 );
 

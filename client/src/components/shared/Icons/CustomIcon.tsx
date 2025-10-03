@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
 import NeumorphicBox from "../containers/NeumorphicBox";
-import {StyledIconButton, IconType } from "./styles/index"
+import { StyledIconButton } from "./styles/index";
 import { CustomIconProps } from "./types";
 import { iconComponents } from "./utils";
 
 const CustomIcon: React.FC<CustomIconProps> = ({
   icon,
   size = "small",
-  containerType="inwards",
+  containerType = "inwards",
   ...props
 }) => {
   // Look up the icon component from the map based on the prop
@@ -23,13 +23,13 @@ const CustomIcon: React.FC<CustomIconProps> = ({
   const getContainerSize = () => {
     switch (size) {
       case "small":
-        return { size: "40px", padding: "8px" };
+        return { size: "42px", padding: "9px" };
       case "medium":
-        return { size: "48px", padding: "12px" };
+        return { size: "50px", padding: "10px" };
       case "large":
-        return { size: "56px", padding: "16px" };
+        return { size: "58ypx", padding: "12px" };
       default:
-        return { size: "40px", padding: "8px" };
+        return { size: "42px", padding: "9px" };
     }
   };
 
@@ -38,28 +38,33 @@ const CustomIcon: React.FC<CustomIconProps> = ({
   return (
     <NeumorphicBox
       containerType={containerType}
-      width={containerSize}
-      height={containerSize}
-      padding="0px"
-      borderRadius="50%"
       sx={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: "50% !important",
-        margin: "8px",
+        borderRadius: "50%",
+        width: containerSize,
+        height: containerSize,
+        padding: "2px",
       }}
     >
       <StyledIconButton
         iconType={icon}
+        aria-label={icon}
+        size={size}
         {...props}
         sx={{
           padding: padding,
-          minWidth: "unset",
-          minHeight: "unset",
+          border: "1px solid #b6b7ba",
+          "&:hover": {
+            borderColor: "#7950db",
+            borderWidth: "2px",
+            transition: "all 0.3 ease-in-out",
+          },
+          ...props.sx,
         }}
       >
-        <IconComponent fontSize={size} />
+        <IconComponent fontSize="inherit" color="primary" />
       </StyledIconButton>
     </NeumorphicBox>
   );
