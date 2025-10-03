@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Box, BoxProps } from "@mui/material";
+import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { CustomBoxProps } from "./types";
 
 // styled wrapper for MUI Button
 const StyledBox = styled(Box)<{ containerType: "inwards" | "outwards" }>(({ 
@@ -23,14 +24,6 @@ const StyledBox = styled(Box)<{ containerType: "inwards" | "outwards" }>(({
   transition: "all 0.3s ease-in-out",
 }));
 
-interface CustomBoxProps extends BoxProps {
-  containerType: "inwards" | "outwards";
-  padding?: string | number;
-  margin?: string | number;
-  width?: string;
-  height?: string;
-  borderRadius?: string | number;
-}
 
 const NeumorphicBox: React.FC<CustomBoxProps> = ({ 
   containerType="inwards",
