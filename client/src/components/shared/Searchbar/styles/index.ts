@@ -19,7 +19,8 @@ export const StyledSearchField = styled(TextField)(({ theme }) => ({
   '& .MuiInputLabel-root': {
     background: "#e5e7eb",
     fontWeight: 500,
-    padding: '2px 5px 5px 8px',
+    fontSize:"18px",
+    padding: '2px 6px 6px 8px',
     transition: 'all 0.3s ease-out',
   },
 
