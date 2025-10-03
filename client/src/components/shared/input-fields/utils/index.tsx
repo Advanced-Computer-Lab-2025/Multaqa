@@ -215,3 +215,19 @@ export const handleCheckboxGroupChange = (
     onChange(newSelectedValues);
   }
 };
+
+/**
+ * Handle radio group value change
+ * Updates the selected value for radio groups
+ */
+export const handleRadioGroupChange = (
+  value: string,
+  setSelectedValue: (value: string) => void,
+  onRadioChange?: (selectedValue: string) => void
+) => {
+  setSelectedValue(value);
+  
+  if (onRadioChange) {
+    onRadioChange(value);
+  }
+};

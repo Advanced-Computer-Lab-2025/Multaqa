@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/shared/mui";
 import CustomButton from "@/components/Buttons/CustomButton";
 import DeleteButton from "@/components/Buttons/DeleteButton";
 import SearchTextField from "@/components/SearchBar/SearchTextField";
@@ -83,6 +82,33 @@ export default function HomePage() {
           ]}
           row
           size="small"
+        />
+      </div>
+
+      {/* Radio Groups */}
+      <div className="flex items-center justify-center gap-8">
+        <CustomCheckboxGroup
+          label="Select your gender"
+          options={[
+            { label: "Female", value: "female", checked: true },
+            { label: "Male", value: "male" },
+            { label: "Other", value: "other" },
+          ]}
+          enableMoreThanOneOption={false}
+          onRadioChange={(value) => console.log("Selected gender:", value)}
+        />
+
+        <CustomCheckboxGroup
+          label="Preferred event duration (Row Layout)"
+          options={[
+            { label: "1-2 hours", value: "short" },
+            { label: "Half day", value: "half" },
+            { label: "Full day", value: "full" },
+          ]}
+          enableMoreThanOneOption
+          row
+          size="small"
+          onRadioChange={(value) => console.log("Selected duration:", value)}
         />
       </div>
     </div>

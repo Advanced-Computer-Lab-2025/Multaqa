@@ -50,6 +50,10 @@ export interface CustomCheckboxProps {
   multaqaFill?: boolean; // Use Multaqa primary color (#7851da) from lightTheme.ts - default true
 }
 
+export interface CustomRadioProps {
+  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) from lightTheme.ts - default true
+}
+
 export interface CheckboxOption {
   label: string;
   value: string;
@@ -61,9 +65,11 @@ export interface CustomCheckboxGroupProps {
   label: string;
   options: CheckboxOption[];
   onChange?: (selectedValues: string[]) => void;
+  onRadioChange?: (selectedValue: string) => void; // For radio mode
   helperText?: string;
   error?: boolean;
   multaqaFill?: boolean;
   size?: "small" | "medium";
   row?: boolean;
+  enableMoreThanOneOption?: boolean; // If false, behaves as radio group (default: true)
 }

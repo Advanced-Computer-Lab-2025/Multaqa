@@ -2,6 +2,7 @@
 export { default as CustomTextField } from './CustomTextField';
 export { default as CustomRating } from './CustomRating';
 export { default as CustomCheckbox } from './CustomCheckbox';
+export { default as CustomRadio } from './CustomRadio';
 export { default as CustomCheckboxGroup } from './CustomCheckboxGroup';
 
 // Export types
@@ -9,6 +10,7 @@ export type {
   CustomTextFieldProps,
   CustomRatingProps,
   CustomCheckboxProps,
+  CustomRadioProps,
   CustomCheckboxGroupProps,
   CheckboxOption,
   FieldType,
@@ -26,4 +28,5 @@ export {
   handleEmailKeyPress,
   getEmailDisplayValue,
   handleCheckboxGroupChange,
+  handleRadioGroupChange,
 } from './utils';
