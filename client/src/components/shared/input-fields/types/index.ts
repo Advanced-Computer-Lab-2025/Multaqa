@@ -27,7 +27,6 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   // Email specific props
   stakeholderType?: StakeholderType;
   showDomainHint?: boolean;
-  userType?: "student" | "staff" | "vendor"; // Legacy prop - use stakeholderType instead
 
   // Phone specific props
   countryCode?: string;

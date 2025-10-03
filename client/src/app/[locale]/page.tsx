@@ -17,9 +17,20 @@ export default function HomePage() {
         <SearchTextField id="outlined-suffix-shrink" fullWidth label="Search Events..." variant="outlined" size="small" sx={{width:300}}/>
       </NeumorphicBox>
       <div className="flex items-center justify-center gap-5 flex-col">
-        <CustomTextField fieldType="email" label="Email" userType="student" neumorphicBox />
-        <CustomTextField fieldType="email" label="Email" userType="staff" neumorphicBox disableDynamicMorphing />
-        <CustomTextField fieldType="email" label="Email" userType="vendor" />
+        <CustomTextField 
+          fieldType="email" 
+          label="Email" 
+          stakeholderType="student" 
+          neumorphicBox 
+        />
+        <CustomTextField 
+          fieldType="email" 
+          label="Email" 
+          stakeholderType="staff" 
+          neumorphicBox 
+          disableDynamicMorphing 
+        />
+        <CustomTextField fieldType="email" label="Email" stakeholderType="vendor" />
         <CustomTextField fieldType="text" label="Username" />
         <CustomTextField fieldType="password" label="Password" />
         <CustomTextField fieldType="numeric" label="Phone Number" />

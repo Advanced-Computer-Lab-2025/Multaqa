@@ -1,0 +1,195 @@
+import React from "react";
+import { Box, InputAdornment, IconButton } from "@mui/material";
+import { inputBaseClasses } from "@mui/material/InputBase";
+import EmailIcon from '@mui/icons-material/Email';
+import PersonIcon from '@mui/icons-material/Person';
+import LockIcon from '@mui/icons-material/Lock';
+import PhoneIcon from '@mui/icons-material/Phone';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { FieldType, StakeholderType } from '../types';
+
+/**
+ * Get email domain based on stakeholder type
+ */
+export const getEmailDomain = (stakeholderType?: StakeholderType) => {
+  switch (stakeholderType) {
+    case "student":
+      return "@student.guc.edu.eg";
+    case "staff":
+    case "ta":
+    case "professor":
+    case "admin":
+    case "events-office":
+      return "@guc.edu.eg";
+    case "vendor":
+      return "";
+    default:
+      return "@guc.edu.eg";
+  }
+};
+
+/**
+ * Get the appropriate icon based on field type
+ */
+export const getFieldIcon = (fieldType: FieldType) => {
+  switch (fieldType) {
+    case "email":
+      return <EmailIcon sx={{ mr: 1, fontSize: '1rem' }} />;
+    case "text":
+      return <PersonIcon sx={{ mr: 1, fontSize: '1rem' }} />;
+    case "password":
+      return <LockIcon sx={{ mr: 1, fontSize: '1rem' }} />;
+    case "numeric":
+    case "phone":
+      return <PhoneIcon sx={{ mr: 1, fontSize: '1rem' }} />;
+    default:
+      return null;
+  }
+};
+
+/**
+ * Create label with icon
+ */
+export const createLabelWithIcon = (label?: string, fieldType?: FieldType) => {
+  if (!label || !fieldType) return undefined;
+  
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {getFieldIcon(fieldType)}
+      {label}
+    </Box>
+  );
+};
+
+/**
+ * Get email input adornment with domain hint
+ */
+export const getEmailEndAdornment = (stakeholderType?: StakeholderType) => {
+  if (stakeholderType === "vendor") return undefined;
+  
+  return (
+    <InputAdornment
+      position="end"
+      sx={{
+        alignSelf: 'flex-end',
+        margin: 0,
+        marginBottom: '5px',
+        opacity: 0,
+        pointerEvents: 'none',
+        transition: 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transform: 'translateX(10px)',
+        [`[data-shrink=true] ~ .${inputBaseClasses.root} > &`]: {
+          opacity: 1,
+          transform: 'translateX(0px)',
+        },
+      }}
+    >
+      {getEmailDomain(stakeholderType)}
+    </InputAdornment>
+  );
+};
+
+/**
+ * Get password visibility toggle adornment
+ */
+export const getPasswordEndAdornment = (
+  showPassword: boolean,
+  onToggle: () => void,
+  onMouseDown: (event: React.MouseEvent<HTMLButtonElement>) => void
+) => {
+  return (
+    <InputAdornment position="end">
+      <IconButton
+        size="small"
+        aria-label="toggle password visibility"
+        onClick={onToggle}
+        onMouseDown={onMouseDown}
+        edge="end"
+        sx={{
+          '&:hover': {
+            color: '#7851da',
+          },
+          transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        }}
+      >
+        {showPassword ? 
+          <VisibilityOffIcon sx={{ fontSize: '1.1rem' }} /> : 
+          <VisibilityIcon sx={{ fontSize: '1.1rem' }} />
+        }
+      </IconButton>
+    </InputAdornment>
+  );
+};
+
+/**
+ * Handle email input change - only allow username part before @ for non-vendors
+ */
+export const handleEmailInputChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  fieldType: FieldType,
+  stakeholderType?: StakeholderType,
+  setEmailUsername?: (value: string) => void,
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+) => {
+  const inputValue = event.target.value;
+  
+  if (fieldType === "email" && stakeholderType !== "vendor") {
+    // Remove any @ symbols and everything after them
+    const cleanValue = inputValue.split('@')[0];
+    if (setEmailUsername) {
+      setEmailUsername(cleanValue);
+    }
+    
+    // Call parent onChange with full email if provided
+    if (onChange) {
+      const syntheticEvent = {
+        ...event,
+        target: {
+          ...event.target,
+          value: cleanValue + getEmailDomain(stakeholderType)
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(syntheticEvent);
+    }
+  } else {
+    // For non-email fields or vendor users, use normal onChange
+    if (onChange) {
+      onChange(event);
+    }
+  }
+};
+
+/**
+ * Handle key press to prevent @ symbol for non-vendor email fields
+ */
+export const handleEmailKeyPress = (
+  event: React.KeyboardEvent<HTMLInputElement>,
+  fieldType: FieldType,
+  stakeholderType?: StakeholderType,
+  onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+) => {
+  if (fieldType === "email" && stakeholderType !== "vendor" && event.key === "@") {
+    event.preventDefault();
+  }
+  
+  // Call parent onKeyPress if provided
+  if (onKeyPress) {
+    onKeyPress(event);
+  }
+};
+
+/**
+ * Get display value for email fields (username only for non-vendors)
+ */
+export const getEmailDisplayValue = (
+  value: unknown,
+  fieldType: FieldType,
+  stakeholderType?: StakeholderType,
+  emailUsername?: string
+) => {
+  if (fieldType === "email" && stakeholderType !== "vendor") {
+    return emailUsername;
+  }
+  return value;
+};

@@ -1,8 +1,21 @@
+// Export components
 export { default as CustomTextField } from './CustomTextField';
 
-// Re-export types for convenience
+// Export types
 export type {
   CustomTextFieldProps,
   FieldType,
   StakeholderType
-} from '@/types/components/input-fields';
+} from './types';
+
+// Export utilities
+export {
+  getEmailDomain,
+  getFieldIcon,
+  createLabelWithIcon,
+  getEmailEndAdornment,
+  getPasswordEndAdornment,
+  handleEmailInputChange,
+  handleEmailKeyPress,
+  getEmailDisplayValue,
+} from './utils';
