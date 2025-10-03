@@ -9,7 +9,7 @@ export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorp
   '& .MuiInputLabel-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     fontWeight: 500,
-    padding: '2px 8px',
+    padding: '2px 8px 2px 0',
     ...(neumorphicBox && {
       '&.MuiInputLabel-sizeSmall': {
         background: '#e5e7eb',
