@@ -1,4 +1,4 @@
-import { IEvent } from "../interfaces/ievent.interface";
+import { IEvent } from "../interfaces/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/eventSchema"; // Adjust the path as needed
 
