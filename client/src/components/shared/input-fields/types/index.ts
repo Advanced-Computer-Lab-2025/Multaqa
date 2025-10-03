@@ -41,3 +41,7 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   neumorphicBox?: boolean; // Enable neumorphic box styling
   disableDynamicMorphing?: boolean; // Disable dynamic morphing on focus/blur
 }
+
+export interface CustomRatingProps {
+  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) instead of default yellow
+}

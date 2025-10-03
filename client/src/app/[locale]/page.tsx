@@ -3,6 +3,7 @@ import CustomButton from "@/components/Buttons/CustomButton";
 import DeleteButton from "@/components/Buttons/DeleteButton";
 import SearchTextField from "@/components/SearchBar/SearchTextField";
 import CustomTextField from "@/components/shared/input-fields/CustomTextField";
+import CustomRating from "@/components/shared/input-fields/CustomRating";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
@@ -35,6 +36,18 @@ export default function HomePage() {
         <CustomTextField fieldType="password" label="Password" />
         <CustomTextField fieldType="numeric" label="Phone Number" />
       </div>
+
+      {/* // Default yellow rating */}
+      <CustomRating name="venue-rating" defaultValue={3.5} precision={0.5} />
+
+      {/* // Read-only yellow rating */}
+      <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly />
+
+      {/* // Multaqa purple rating */}
+      <CustomRating name="venue-rating" defaultValue={3.5} precision={0.5} multaqaFill />
+
+      {/* // Read-only Multaqa purple rating */}
+      <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly multaqaFill />
     </div>
   );
 }
