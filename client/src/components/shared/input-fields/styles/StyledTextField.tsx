@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FieldType } from '../types';
 
-export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorphicBox?: boolean }>(({ neumorphicBox }) => ({
+export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorphicBox?: boolean }>(({ neumorphicBox, fieldType }) => ({
   '& .MuiInput-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
@@ -29,10 +29,16 @@ export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorp
     },
   },
   '& .MuiOutlinedInput-input': {
-    padding: '12px 18px',
+    padding: '12px 0px 12px 18px',
+    ...(fieldType === 'email' && {
+      textAlign: 'right',
+    }),
   },
   '& .MuiInput-input': {
-    padding: '8px 0', // Adjust values as needed
+    padding: '8px 16px', // Adjust values as needed
+    ...(fieldType === 'email' && {
+      textAlign: 'right',
+    }),
   },
   '& .MuiInput-underline:before': {
     transition: 'border-bottom-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
