@@ -8,27 +8,43 @@ const theme = createTheme({
       main: "#7851da",
       contrastText: "#ffffff",
     },
+    error:{
+     main:"#b81d1d",
+    },
     background: {
-      default: "#f6f5f9",
+      default: "#e5e7eb",
     },
     text: {
-      primary: "#222222",
-      secondary: "#666666",
+      primary: "#1E1E1E",
+      secondary: "#6842C0",
     },
   },
-  typography: {
-    fontFamily: "'Poppins', sans-serif",
+ typography: {
     h1: {
-      fontWeight: 700,
+      fontFamily: "var(--font-jost), system-ui, sans-serif",
+      fontWeight: 600,
       fontSize: "2.5rem",
     },
-    h2: {
-      fontWeight: 600,
-      fontSize: "2rem",
-    },
-    button: {
-      textTransform: "none",
-      fontWeight: 600,
+  },
+   components: {
+    MuiButton: {
+      styleOverrides: {
+        sizeSmall: {
+          height: "32px",
+          width: "100px",
+          fontSize: "0.65rem",
+        },
+        sizeMedium: {
+          height: "40px",
+          width: "140px",
+          fontSize: "0.875rem",
+        },
+        sizeLarge: {
+          height: "48px",
+          width: "180px",
+          fontSize: "1rem",
+        },
+      },
     },
   },
 });

@@ -6,23 +6,61 @@ import { styled } from "@mui/material/styles";
 
 // styled wrapper for MUI Button
 const StyledButton = styled(Button)(({ theme }) => ({
-  cursor:"pointer",
-  background:theme.palette.background.default,
-  borderRadius: "20px",
-  padding: "0.75rem 2rem",
-  fontWeight: 600,
+  cursor: "pointer",
+  borderRadius: "50px",
+  padding: "5px 10px",
+  "&.MuiButton-outlined": {
+    borderWidth: "2px",
+    borderStyle: "solid",
+  },
+  "&.MuiButton-contained": {
+    background: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    boxShadow: `
+     -5px -5px 4px 0 #FAFBFF,
+     5px 5px 6px 0 rgba(107, 79, 150, 0.6)
+     `,
+  },
+   
+  fontFamily: "var(--font-pt-sans), system-ui, sans-serif",
   textTransform: "none",
-  color: "#333",
+  letterSpacing: "0.5px",
+  fontWeight: 900,
   boxShadow: `
-    -10px -10px 30px #FFFFFF,
-    10px 10px 30px #AEAEC0
+   -5px -5px 10px 0 #FAFBFF,
+   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+`,
+
+"&:hover": {
+  boxShadow: `
+   -5px -5px 10px 0 #FAFBFF,
+   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
   `,
-  transition: "all 0.2s ease-in-out",
+},
+
+"&.MuiButton-contained:hover": {
+    background: theme.palette.primary.dark,
+    boxShadow: `
+   -5px -5px 7px 0 #FAFBFF,
+   5px 5px 6px 0 rgba(22, 27, 29, 0.25)
+`,
+  },
+
+"&:active": {
+  boxShadow: `
+    inset -10px -10px 10px 0 #000000 25%,
+    inset 10px 10px 10px 0 #FFFFFF 80%
+  `,
+},
 }));
 
-// Component wrapper
-const CustomButton: React.FC<ButtonProps> = (props) => {
-  return <StyledButton {...props} />;
+// Extend ButtonProps with a custom "label" prop
+interface CustomButtonProps extends ButtonProps {
+  label?: string;
+}
+
+const CustomButton: React.FC<CustomButtonProps> = ({ label, children, ...props }) => {
+  return <StyledButton {...props} loadingPosition="start">{label || children}</StyledButton>;
 };
 
 export default CustomButton;
