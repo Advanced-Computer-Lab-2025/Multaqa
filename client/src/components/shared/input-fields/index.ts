@@ -18,15 +18,15 @@ export type {
 } from './types';
 
 // Export utilities
-export {
-  getEmailDomain,
-  getFieldIcon,
-  createLabelWithIcon,
-  getEmailEndAdornment,
-  getPasswordEndAdornment,
-  handleEmailInputChange,
-  handleEmailKeyPress,
-  getEmailDisplayValue,
-  handleCheckboxGroupChange,
-  handleRadioGroupChange,
-} from './utils';
+// export {
+//   getEmailDomain,
+//   getFieldIcon,
+//   createLabelWithIcon,
+//   getEmailEndAdornment,
+//   getPasswordEndAdornment,
+//   handleEmailInputChange,
+//   handleEmailKeyPress,
+//   getEmailDisplayValue,
+//   handleCheckboxGroupChange,
+//   handleRadioGroupChange,
+// } from './utils';

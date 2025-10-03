@@ -82,8 +82,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
       {neumorphicBox ? (
         <NeumorphicBox 
           containerType={disableDynamicMorphing ? "inwards" : (isFocused ? "inwards" : "outwards")}
-          padding="16px" 
-          borderRadius="12px"
+          padding="2px" 
+          borderRadius="50px"
           width="100%"
         >
           <StyledTextField 
@@ -91,7 +91,9 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             fullWidth
             label={labelWithIcon}
             fieldType={fieldType}
-            variant="standard"
+            neumorphicBox={neumorphicBox}
+            variant="outlined"
+            size="small"
             type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
             value={getDisplayValue()}
             onChange={handleEmailChange}

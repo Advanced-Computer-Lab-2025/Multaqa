@@ -40,6 +40,7 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   // Neumorphic styling props
   neumorphicBox?: boolean; // Enable neumorphic box styling
   disableDynamicMorphing?: boolean; // Disable dynamic morphing on focus/blur
+  
 }
 
 export interface CustomRatingProps {

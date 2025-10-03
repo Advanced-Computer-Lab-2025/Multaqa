@@ -40,19 +40,11 @@ export default function HomePage() {
         <CustomTextField fieldType="numeric" label="Phone Number" />
       </div>
 
-      {/* // Default yellow rating */}
       <CustomRating name="venue-rating" defaultValue={3.5} precision={0.5} />
-
-      {/* // Read-only yellow rating */}
       <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly />
-
-      {/* // Multaqa purple rating */}
       <CustomRating name="venue-rating" defaultValue={3.5} precision={0.5} multaqaFill />
-
-      {/* // Read-only Multaqa purple rating */}
       <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly multaqaFill />
 
-      {/* Checkboxes */}
       <div className="flex items-center justify-center gap-5">
         <CustomCheckbox defaultChecked size="small" />
         <CustomCheckbox defaultChecked size="medium" />
@@ -60,7 +52,6 @@ export default function HomePage() {
         <CustomCheckbox defaultChecked multaqaFill={false} />
       </div>
 
-      {/* Checkbox Groups */}
       <div className="flex items-center justify-center gap-8">
         <CustomCheckboxGroup
           label="What amenities do you prefer?"
@@ -85,7 +76,6 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Radio Groups */}
       <div className="flex items-center justify-center gap-8">
         <CustomCheckboxGroup
           label="Select your gender"
@@ -95,7 +85,7 @@ export default function HomePage() {
             { label: "Other", value: "other" },
           ]}
           enableMoreThanOneOption={false}
-          onRadioChange={(value) => console.log("Selected gender:", value)}
+          // onRadioChange={(value) => console.log("Selected gender:", value)}
         />
 
         <CustomCheckboxGroup
@@ -108,7 +98,7 @@ export default function HomePage() {
           enableMoreThanOneOption
           row
           size="small"
-          onRadioChange={(value) => console.log("Selected duration:", value)}
+          // onRadioChange={(value) => console.log("Selected duration:", value)}
         />
       </div>
     </div>

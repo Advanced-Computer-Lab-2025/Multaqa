@@ -72,9 +72,8 @@ export const getEmailEndAdornment = (stakeholderType?: StakeholderType) => {
     <InputAdornment
       position="end"
       sx={{
-        alignSelf: 'flex-end',
+        alignSelf: 'center',
         margin: 0,
-        marginBottom: '5px',
         opacity: 0,
         pointerEvents: 'none',
         transition: 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
