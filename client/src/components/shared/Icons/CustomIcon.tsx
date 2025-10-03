@@ -1,52 +1,14 @@
 "use client";
-
 import React from "react";
-import { IconButton, IconButtonProps } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import NeumorphicBox from "../shared/containers/NeumorphicBox";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import AddIcon from "@mui/icons-material/Add";
-import SaveIcon from "@mui/icons-material/Save";
-import PublishIcon from "@mui/icons-material/Publish";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-
-const StyledIconButton = styled(IconButton)<{ iconType: IconType }>(
-  ({ theme, iconType }) => ({
-    cursor: "pointer",
-    borderRadius: "50%",
-    padding: theme.spacing(1),
-    color:
-      iconType === "delete"
-        ? theme.palette.error.main
-        : theme.palette.primary.main,
-    transition: "all 0.3s ease-in-out",
-    "&:hover": {
-      transform: "scale(1.05)",
-    },
-  })
-);
-
-type IconType = "close" | "delete" | "edit" | "add" | "save" | "submit" | "bookmark";
-
-const iconComponents: Record<IconType, React.ElementType> = {
-  close: CloseIcon,
-  delete: DeleteIcon,
-  edit: EditIcon,
-  add: AddIcon,
-  save: SaveIcon,
-  submit: PublishIcon,
-  bookmark: BookmarkBorderIcon,
-};
-
-interface CustomIconProps extends IconButtonProps {
-  icon: IconType;
-}
+import NeumorphicBox from "../containers/NeumorphicBox";
+import {StyledIconButton, IconType } from "./styles/index"
+import { CustomIconProps } from "./types";
+import { iconComponents } from "./utils";
 
 const CustomIcon: React.FC<CustomIconProps> = ({
   icon,
   size = "small",
+  containerType="inwards",
   ...props
 }) => {
   // Look up the icon component from the map based on the prop
@@ -75,7 +37,7 @@ const CustomIcon: React.FC<CustomIconProps> = ({
 
   return (
     <NeumorphicBox
-      containerType="outwards"
+      containerType={containerType}
       width={containerSize}
       height={containerSize}
       padding="0px"

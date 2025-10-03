@@ -12,7 +12,7 @@ export default function HomePage() {
         <CustomButton variant="contained" size="small" disableElevation  label="Submit"  /> 
         <DeleteButton size="small" variant="contained" color="error"/>
     </div>
-      <CustomSearchBar icon={false} width="450px" />
+      <CustomSearchBar icon={false} width="450px" type="inwards"/>
     </div>
   );
 }
