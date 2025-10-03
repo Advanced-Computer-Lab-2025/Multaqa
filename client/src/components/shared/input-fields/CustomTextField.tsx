@@ -40,6 +40,8 @@ interface CustomTextFieldProps extends Omit<TextFieldProps, 'children'> {
   width?: string;
   height?: string;
   userType?: "student" | "staff" | "vendor"; // New prop to determine email domain
+  neumorphicBox?: boolean;
+  disableDynamicMorphing?: boolean;
 }
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({ 
@@ -48,6 +50,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   fieldType, 
   InputProps, 
   userType = "staff",
+  neumorphicBox = false,
+  disableDynamicMorphing = false,
   value,
   onChange,
   ...props 
@@ -214,30 +218,52 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   };
 
   return (
-    <NeumorphicBox 
-      containerType={isFocused ? "inwards" : "outwards"} 
-      padding="16px" 
-      borderRadius="12px"
-      width="100%"
-    >
-      <StyledTextField 
-        {...props}
-        fullWidth
-        label={labelWithIcon}
-        fieldType={fieldType}
-        variant="standard"
-        type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
-        value={getDisplayValue()}
-        onChange={handleEmailChange}
-        onKeyPress={handleKeyPress}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        InputProps={{
-          endAdornment: getEndAdornment(),
-          ...InputProps,
-        }}
-      />
-    </NeumorphicBox>
+    <>
+      {neumorphicBox ? (
+        <NeumorphicBox 
+          containerType={disableDynamicMorphing ? "inwards" : (isFocused ? "inwards" : "outwards")}
+          padding="16px" 
+          borderRadius="12px"
+          width="100%"
+        >
+          <StyledTextField 
+            {...props}
+            fullWidth
+            label={labelWithIcon}
+            fieldType={fieldType}
+            variant="standard"
+            type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+            value={getDisplayValue()}
+            onChange={handleEmailChange}
+            onKeyPress={handleKeyPress}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            InputProps={{
+              endAdornment: getEndAdornment(),
+              ...InputProps,
+            }}
+          />
+        </NeumorphicBox>
+      ) : (
+        <StyledTextField 
+            {...props}
+            fullWidth
+            label={labelWithIcon}
+            fieldType={fieldType}
+            variant="standard"
+            type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+            value={getDisplayValue()}
+            onChange={handleEmailChange}
+            onKeyPress={handleKeyPress}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            InputProps={{
+              endAdornment: getEndAdornment(),
+              ...InputProps,
+            }}
+          />
+      )}
+    </>
   );
 };
 
