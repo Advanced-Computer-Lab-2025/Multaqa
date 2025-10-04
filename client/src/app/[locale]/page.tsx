@@ -1,6 +1,6 @@
 "use client";
 
-import react, { useState } from "react";
+import { useState } from "react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import DeleteButton from "@/components/shared/Buttons/DeleteButton";
 import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
@@ -23,12 +23,12 @@ export default function HomePage() {
           variant: "outlined",
           color: "secondary"
         }}
-        buttonOption2={{
-          label: "Confirm",
-          variant: "contained",
-          color: "primary",
-          onClick: () => console.log("Action confirmed!")
-        }}
+        // buttonOption2={{
+        //   label: "Confirm",
+        //   variant: "contained",
+        //   color: "primary",
+        //   onClick: () => console.log("Action confirmed!")
+        // }}
       />
       <CustomButton onClick={() => setOpen(true)}>Open Modal Layout</CustomButton>
       <CustomModalLayout open={open} onClose={handleClose}>

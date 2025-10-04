@@ -58,30 +58,31 @@ export default function CustomModal({ title, description, buttonOption1, buttonO
                 {description}
               </Typography>
             )}
-            <Box className="flex items-center justify-center gap-3 mt-6" sx={{ width: '100%' }}>
+            <Box 
+              className="flex items-center mt-6" 
+              sx={{ 
+                width: '100%',
+                justifyContent: buttonOption1 && buttonOption2 ? 'space-between' : 'flex-end',
+                gap: 3
+              }}
+            >
               {buttonOption1 && (
-                <Box sx={{ flex: 1 }}>
-                  <CustomButton 
-                    variant={buttonOption1.variant || 'text'} 
-                    color={buttonOption1.color || 'primary'} 
-                    onClick={buttonOption1.onClick || handleClose}
-                    fullWidth
-                  >
-                    {buttonOption1.label}
-                  </CustomButton>
-                </Box>
+                <CustomButton 
+                  variant={buttonOption1.variant || 'text'} 
+                  color={buttonOption1.color || 'primary'} 
+                  onClick={buttonOption1.onClick || handleClose}
+                >
+                  {buttonOption1.label}
+                </CustomButton>
               )}
               {buttonOption2 && (
-                <Box sx={{ flex: 1 }}>
-                  <CustomButton 
-                    variant={buttonOption2.variant || 'text'} 
-                    color={buttonOption2.color || 'primary'} 
-                    onClick={buttonOption2.onClick || handleClose}
-                    fullWidth
-                  >
-                    {buttonOption2.label}
-                  </CustomButton>
-                </Box>
+                <CustomButton 
+                  variant={buttonOption2.variant || 'text'} 
+                  color={buttonOption2.color || 'primary'} 
+                  onClick={buttonOption2.onClick || handleClose}
+                >
+                  {buttonOption2.label}
+                </CustomButton>
               )}
             </Box>
             </StyledModalBox>
