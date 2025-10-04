@@ -7,10 +7,32 @@ import { Modal } from '@mui/material';
 import Fade from '@mui/material/Fade';
 import CustomButton from '../Buttons/CustomButton';
 import Typography from '@mui/material/Typography';
-import { CustomModalProps } from './types';
+import CustomIcon from '../Icons/CustomIcon';
+import { CustomModalProps, ModalType } from './types';
 import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
+import type { IconType } from '../Icons/styles';
 
-export default function CustomModal({ title, description, buttonOption1, buttonOption2 }: CustomModalProps) {
+// Helper function to map modal type to icon type
+const getModalIconType = (modalType?: ModalType): IconType | null => {
+  switch (modalType) {
+    case 'success':
+      return 'success';
+    case 'warning':
+      return 'warning';
+    case 'error':
+      return 'error';
+    case 'info':
+      return 'info';
+    case 'delete':
+      return 'delete';
+    case 'confirm':
+      return 'help';
+    default:
+      return null;
+  }
+};
+
+export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2 }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -34,19 +56,36 @@ export default function CustomModal({ title, description, buttonOption1, buttonO
         <Fade in={open}>
           <ModalCardWrapper>
             <StyledModalBox>
-            {title && (
-              <Typography 
-                id="transition-modal-title" 
-                variant="h6" 
-                component="h2"
-                sx={{ 
-                  fontFamily: 'var(--font-jost), system-ui, sans-serif',
-                  fontWeight: 600
-                }}
-              >
-                {title}
-              </Typography>
-            )}
+            {/* Icon and Title Group - Horizontal Layout */}
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+              {modalType && (() => {
+                const iconType = getModalIconType(modalType);
+                if (iconType) {
+                  return (
+                    <CustomIcon 
+                      icon={iconType}
+                      size="small"
+                      containerType="inwards"
+                      border={false}
+                    />
+                  );
+                }
+                return null;
+              })()}
+              {title && (
+                <Typography 
+                  id="transition-modal-title" 
+                  variant="h6" 
+                  component="h2"
+                  sx={{ 
+                    fontFamily: 'var(--font-jost), system-ui, sans-serif',
+                    fontWeight: 600
+                  }}
+                >
+                  {title}
+                </Typography>
+              )}
+            </Box>
             {description && (
               <Typography 
                 id="transition-modal-description" 

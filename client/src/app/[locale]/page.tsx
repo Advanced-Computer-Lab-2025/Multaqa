@@ -16,19 +16,20 @@ export default function HomePage() {
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
       <CustomModal 
+        modalType="confirm"
         title="Confirm Action"
         description="Are you sure you want to proceed with this action? This cannot be undone."
-        buttonOption1={{
-          label: "Cancel",
-          variant: "outlined",
-          color: "secondary"
-        }}
-        // buttonOption2={{
-        //   label: "Confirm",
-        //   variant: "contained",
-        //   color: "primary",
-        //   onClick: () => console.log("Action confirmed!")
+        // buttonOption1={{
+        //   label: "Cancel",
+        //   variant: "outlined",
+        //   color: "secondary"
         // }}
+        buttonOption2={{
+          label: "Confirm",
+          variant: "contained",
+          color: "primary",
+          onClick: () => console.log("Action confirmed!")
+        }}
       />
       <CustomButton onClick={() => setOpen(true)}>Open Modal Layout</CustomButton>
       <CustomModalLayout open={open} onClose={handleClose}>

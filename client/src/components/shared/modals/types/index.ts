@@ -1,6 +1,9 @@
+export type ModalType = 'confirm' | 'warning' | 'error' | 'success' | 'info' | 'delete';
+
 export interface CustomModalProps {
   title?: string;
   description?: string;
+  modalType?: ModalType;
   buttonOption1?: {
     label: string;
     variant?: 'text' | 'outlined' | 'contained';

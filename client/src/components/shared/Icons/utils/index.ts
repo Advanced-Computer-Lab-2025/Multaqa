@@ -7,6 +7,11 @@ import SaveIcon from "@mui/icons-material/Save";
 import PublishIcon from "@mui/icons-material/Publish";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import SearchIcon from '@mui/icons-material/Search';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import InfoIcon from '@mui/icons-material/Info';
+import HelpIcon from '@mui/icons-material/Help';
 
 export const iconComponents: Record<IconType, React.ElementType> = {
   close: CloseIcon,
@@ -17,4 +22,9 @@ export const iconComponents: Record<IconType, React.ElementType> = {
   submit: PublishIcon,
   bookmark: BookmarkBorderIcon,
   search: SearchIcon,
+  warning: WarningIcon,
+  error: ErrorIcon,
+  success: CheckCircleIcon,
+  info: InfoIcon,
+  help: HelpIcon,
 };
