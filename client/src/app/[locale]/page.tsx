@@ -16,7 +16,7 @@ export default function HomePage() {
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
       <CustomModal 
-        modalType="confirm"
+        modalType="delete"
         title="Confirm Action"
         description="Are you sure you want to proceed with this action? This cannot be undone."
         buttonOption1={{
