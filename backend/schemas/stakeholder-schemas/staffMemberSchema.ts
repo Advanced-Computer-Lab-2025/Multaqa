@@ -8,7 +8,7 @@ import { User } from "./userSchema";
 const staffMemberSchema = new Schema<IStaffMember>({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  staffId: { type: String, required: true },
+  gucId: { type: String, required: true },
   position: {
     type: String,
     enum: ["staff", "TA", "professor"],

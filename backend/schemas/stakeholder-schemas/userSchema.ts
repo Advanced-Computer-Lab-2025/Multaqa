@@ -13,14 +13,18 @@ const userSchema = new Schema<IUser>(
       enum: ["student", "staffMember", "vendor", "administration", "unknown"],
     },
     isVerified: { type: Boolean, default: false },
-    notifications: [
-      {
-        title: String,
-        message: String,
-        createdAt: { type: Date, default: Date.now },
-      },
-    ],
+    notifications: {
+      type: [
+        {
+          title: String,
+          message: String,
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [], 
+    },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
   },
   { discriminatorKey: "role", collection: "users" }
 );

@@ -1,5 +1,5 @@
 import { Document } from "mongoose";
-import { IUser, AdministrationRoleType } from "./user.interface";
+import { IUser } from "./user.interface";
 
 export interface IAdministration extends IUser {
   name: string;
@@ -8,6 +8,8 @@ export interface IAdministration extends IUser {
   // TODO: for the role assignments, filter users on role = unknown and isVerified = false
   // TODO: for the participants in loyalty program, filter on vendors where program != null
 }
+
+export type AdministrationRoleType = "admin" | "eventsOffice";
 
 export const ADMIN_PERMISSIONS = [
   "CREATE_ADMIN",

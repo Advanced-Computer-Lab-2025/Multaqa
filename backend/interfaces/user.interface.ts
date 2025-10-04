@@ -1,18 +1,5 @@
 import { Document } from "mongoose";
 
-export type UserRole =
-  | "student"
-  | "staffMember"
-  | "vendor"
-  | "administration"
-  | "unknown";
-
-export type UserStatus = "active" | "blocked";
-
-export type StaffPosition = "staff" | "TA" | "professor";
-
-export type AdministrationRoleType = "admin" | "eventOffice";
-
 export interface INotification {
   title: string;
   message: string;
@@ -25,6 +12,16 @@ export interface IUser extends Document {
   status: UserStatus;
   role: UserRole;
   createdAt: Date;
+  updatedAt: Date;
   isVerified: boolean;
   notifications: INotification[];
 }
+
+export type UserRole =
+  | "student"
+  | "staffMember"
+  | "vendor"
+  | "administration"
+  | "unknown";
+
+export type UserStatus = "active" | "blocked";

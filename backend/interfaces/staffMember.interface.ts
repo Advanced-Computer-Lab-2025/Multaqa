@@ -1,10 +1,10 @@
 import { Document, Schema } from "mongoose";
-import { IUser, StaffPosition } from "./user.interface";
+import { IUser } from "./user.interface";
 
 export interface IStaffMember extends IUser {
   firstName: string;
   lastName: string;
-  staffId: string;
+  gucId: string;
   walletBalance: number;
   position: StaffPosition;
   favorites: Schema.Types.ObjectId[];
@@ -13,6 +13,8 @@ export interface IStaffMember extends IUser {
   myWorkshops: Schema.Types.ObjectId[];
   permissions?: string[]; // only filled if professor
 }
+
+export type StaffPosition = "staff" | "TA" | "professor";
 
 export const PROFESSOR_PERMISSIONS = [
   "EDIT_WORKSHOP_DETAILS",
