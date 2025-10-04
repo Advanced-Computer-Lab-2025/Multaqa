@@ -1,16 +1,18 @@
 import { Schema, model } from "mongoose";
-import { IUser } from "../interfaces/user.interface";
+import { IUser } from "../../interfaces/user.interface";
+import { UserRole } from "../../constants/user.constants";
+import { UserStatus } from "../../constants/user.constants";
 
 // Base schema (all users share these fields)
 const userSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    status: { type: String, enum: ["active", "blocked"], default: "active" },
+    status: { type: String, enum: Object.values(UserStatus), default: UserStatus.ACTIVE },
     role: {
       type: String,
       required: true,
-      enum: ["student", "staffMember", "vendor", "administration", "unknown"],
+      enum: Object.values(UserRole),
     },
     isVerified: { type: Boolean, default: false },
     notifications: {

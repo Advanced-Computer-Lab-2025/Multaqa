@@ -1,10 +1,12 @@
 import { Schema } from "mongoose";
 import { User } from "./userSchema";
-import { IAdministration, ADMIN_PERMISSIONS, EVENT_OFFICE_PERMISSIONS } from "../../interfaces/administration.interface";
+import { IAdministration } from "../../interfaces/administration.interface";
+import { AdministrationRoleType } from "../../constants/administration.constants";
+import { ADMIN_PERMISSIONS, EVENT_OFFICE_PERMISSIONS } from "../../constants/administration.constants";
 
 const administrationSchema = new Schema<IAdministration>({
   name: { type: String, required: true },
-  roleType: { type: String, enum: ["admin", "eventsOffice"], required: true },
+  roleType: { type: String, enum: Object.values(AdministrationRoleType), required: true },
   permissions: {
     type: [String],
     default: function (this: IAdministration) {

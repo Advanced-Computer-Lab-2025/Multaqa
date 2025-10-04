@@ -1,4 +1,6 @@
 import { Document } from "mongoose";
+import { UserRole } from "../constants/user.constants.js";
+import { UserStatus } from "../constants/user.constants.js";
 
 export interface INotification {
   title: string;
@@ -16,12 +18,3 @@ export interface IUser extends Document {
   isVerified: boolean;
   notifications: INotification[];
 }
-
-export type UserRole =
-  | "student"
-  | "staffMember"
-  | "vendor"
-  | "administration"
-  | "unknown";
-
-export type UserStatus = "active" | "blocked";

@@ -1,9 +1,8 @@
 import { Schema } from "mongoose";
-import {
-  IStaffMember,
-  PROFESSOR_PERMISSIONS,
-} from "../../interfaces/staffMember.interface";
+import { IStaffMember } from "../../interfaces/staffMember.interface";
 import { User } from "./userSchema";
+import { StaffPosition } from "../../constants/staffMember.constants";
+import { PROFESSOR_PERMISSIONS } from "../../constants/staffMember.constants";
 
 const staffMemberSchema = new Schema<IStaffMember>({
   firstName: { type: String, required: true },
@@ -11,7 +10,7 @@ const staffMemberSchema = new Schema<IStaffMember>({
   gucId: { type: String, required: true },
   position: {
     type: String,
-    enum: ["staff", "TA", "professor"],
+    enum: Object.values(StaffPosition),
     required: true,
   },
   walletBalance: { type: Number, default: 0 },
