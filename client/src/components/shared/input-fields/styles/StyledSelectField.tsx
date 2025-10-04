@@ -1,5 +1,5 @@
 import React from 'react';
-import { SelectFieldV2StyleProps, DropdownStyleProps, OptionStyleProps } from '../types/selectV2.types';
+import { SelectFieldV2StyleProps, DropdownStyleProps, OptionStyleProps } from '../types';
 
 /**
  * Styles for the main select container
