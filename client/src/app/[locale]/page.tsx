@@ -9,10 +9,12 @@ import CustomRating from "@/components/shared/input-fields/CustomRating";
 import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
 import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
+import CustomSelectFieldV2 from "@/components/shared/input-fields/CustomSelectFieldV2";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
-  const [selectedValue, setSelectedValue] = useState<string | number>("");
+  const [selectedValue, setSelectedValue] = useState<string | number | string[] | number[]>("");
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
@@ -106,7 +108,7 @@ export default function HomePage() {
         />
 
         <CustomSelectField
-          label="Select Option"
+          label="Select Option (Old)"
           fieldType="single"
           neumorphicBox={true}
           disableDynamicMorphing={false}
@@ -118,7 +120,25 @@ export default function HomePage() {
           ]}
           value={selectedValue}
           onChange={(value) => setSelectedValue(value)}
-          // placeholder="Choose an option..."
+          placeholder="Old version..."
+        />
+
+        <CustomSelectFieldV2
+          label="Select Option (V2)"
+          fieldType="single"
+          neumorphicBox={true}
+          options={[
+            { label: "Option 1", value: "opt1" },
+            { label: "Option 2", value: "opt2" },
+            { label: "Option 3", value: "opt3" },
+            { label: "Disabled", value: "disabled", disabled: true }
+          ]}
+          value={selectedValue}
+          onChange={(value) => setSelectedValue(value)}
+          placeholder="New custom version..."
+          placeholderStyle={isFocused ? '' : 'transparent'}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
       </div>
     </div>

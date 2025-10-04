@@ -1,6 +1,7 @@
 // Export components
 export { default as CustomTextField } from './CustomTextField';
 export { default as CustomSelectField } from './CustomSelectField';
+export { default as CustomSelectFieldV2 } from './CustomSelectFieldV2';
 export { default as CustomRating } from './CustomRating';
 export { default as CustomCheckbox } from './CustomCheckbox';
 export { default as CustomRadio } from './CustomRadio';
@@ -10,6 +11,7 @@ export { default as CustomCheckboxGroup } from './CustomCheckboxGroup';
 export type {
   CustomTextFieldProps,
   CustomSelectFieldProps,
+  CustomSelectFieldV2Props,
   CustomRatingProps,
   CustomCheckboxProps,
   CustomRadioProps,
@@ -18,7 +20,10 @@ export type {
   SelectOption,
   FieldType,
   SelectFieldType,
-  StakeholderType
+  StakeholderType,
+  SelectFieldV2StyleProps,
+  DropdownStyleProps,
+  OptionStyleProps,
 } from './types';
 
 // Export utilities

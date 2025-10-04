@@ -111,3 +111,11 @@ export interface CustomCheckboxGroupProps {
   row?: boolean;
   enableMoreThanOneOption?: boolean; // If false, behaves as radio group (default: true)
 }
+
+// Export V2 types
+export type {
+  CustomSelectFieldV2Props,
+  SelectFieldV2StyleProps,
+  DropdownStyleProps,
+  OptionStyleProps,
+} from './selectV2.types';
