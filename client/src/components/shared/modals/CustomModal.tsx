@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
+import { Modal } from '@mui/material';
 import Fade from '@mui/material/Fade';
 import CustomButton from '../Buttons/CustomButton';
 import Typography from '@mui/material/Typography';
