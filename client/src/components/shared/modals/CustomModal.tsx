@@ -7,10 +7,15 @@ import { Modal } from '@mui/material';
 import Fade from '@mui/material/Fade';
 import CustomButton from '../Buttons/CustomButton';
 import Typography from '@mui/material/Typography';
-import CustomIcon from '../Icons/CustomIcon';
+import NeumorphicBox from '../containers/NeumorphicBox';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import InfoIcon from '@mui/icons-material/Info';
+import DeleteIcon from '@mui/icons-material/Delete';
+import HelpIcon from '@mui/icons-material/Help';
 import { CustomModalProps } from './types';
 import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
-import { getModalIconType } from './utils';
 
 export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2 }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
@@ -36,23 +41,37 @@ export default function CustomModal({ title, description, modalType, buttonOptio
         <Fade in={open}>
           <ModalCardWrapper>
             <StyledModalBox>
-            {/* Icon and Title Group - Horizontal Layout */}
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
-              {modalType && (() => {
-                const iconType = getModalIconType(modalType);
-                if (iconType) {
-                  return (
-                    <CustomIcon 
-                      icon={iconType}
-                      size="small"
-                      containerType="inwards"
-                      border={false}
-                    />
-                  );
-                }
-                return null;
-              })()}
-              {title && (
+            {/* Icon and Title Group - Wrapped in NeumorphicBox */}
+            <NeumorphicBox
+              containerType="inwards"
+              borderRadius="9999px"
+              padding="12px 24px"
+              width="fit-content"
+              sx={{ margin: '0 auto' }}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+                {(() => {
+                  // Using regular MUI icons
+                  const getIcon = () => {
+                    switch (modalType) {
+                      case 'success':
+                        return <CheckCircleIcon sx={{ fontSize: 32, color: '#4caf50' }} />;
+                      case 'warning':
+                        return <WarningIcon sx={{ fontSize: 32, color: '#ff9800' }} />;
+                      case 'error':
+                        return <ErrorIcon sx={{ fontSize: 32, color: '#f44336' }} />;
+                      case 'info':
+                        return <InfoIcon sx={{ fontSize: 32, color: '#2196f3' }} />;
+                      case 'delete':
+                        return <DeleteIcon sx={{ fontSize: 32, color: '#f44336' }} />;
+                      case 'confirm':
+                        return <HelpIcon sx={{ fontSize: 32, color: '#2196f3' }} />;
+                      default:
+                        return null;
+                    }
+                  };
+                  return getIcon();
+                })()}
                 <Typography 
                   id="transition-modal-title" 
                   variant="h6" 
@@ -64,14 +83,15 @@ export default function CustomModal({ title, description, modalType, buttonOptio
                 >
                   {title}
                 </Typography>
-              )}
-            </Box>
+              </Box>
+            </NeumorphicBox>
             {description && (
               <Typography 
                 id="transition-modal-description" 
                 sx={{ 
                   mt: 2,
-                  fontFamily: 'var(--font-poppins), system-ui, sans-serif'
+                  fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+                  textAlign: 'center'
                 }}
               >
                 {description}

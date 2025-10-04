@@ -33,6 +33,7 @@ const NeumorphicBox: React.FC<CustomBoxProps> = ({
   height="auto", 
   borderRadius="0", 
   children, 
+  sx,
   ...props 
 }) => {
   return (
@@ -44,6 +45,7 @@ const NeumorphicBox: React.FC<CustomBoxProps> = ({
         width,
         height,
         borderRadius,
+        ...sx, // Merge with any additional sx props passed
       }}
       {...props}
     >

@@ -19,11 +19,11 @@ export default function HomePage() {
         modalType="confirm"
         title="Confirm Action"
         description="Are you sure you want to proceed with this action? This cannot be undone."
-        // buttonOption1={{
-        //   label: "Cancel",
-        //   variant: "outlined",
-        //   color: "secondary"
-        // }}
+        buttonOption1={{
+          label: "Cancel",
+          variant: "outlined",
+          color: "secondary"
+        }}
         buttonOption2={{
           label: "Confirm",
           variant: "contained",
