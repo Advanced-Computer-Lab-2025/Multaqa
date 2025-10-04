@@ -17,14 +17,19 @@ export default function HomePage() {
 
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
+      {/* CustomButton */}
       <div className="flex items-center justify-center gap-5">
         <CustomButton variant="outlined" size="small" disableElevation label="Save" />
         <CustomButton variant="contained" size="small" disableElevation label="Submit" />
         <DeleteButton size="small" variant="contained" color="error" />
       </div>
+
+      {/* Searchbar */}
       <NeumorphicBox containerType="inwards" width="w-fit" borderRadius="50px" padding="2px">
         <SearchTextField id="outlined-suffix-shrink" fullWidth label="Search Events..." variant="outlined" size="small" sx={{width:300}}/>
       </NeumorphicBox>
+
+      {/* Input Fields */}
       <div className="flex items-center justify-center gap-5 flex-col">
         <CustomTextField 
           fieldType="email" 
@@ -45,11 +50,13 @@ export default function HomePage() {
         <CustomTextField fieldType="numeric" label="Phone Number" />
       </div>
 
+      {/* Ratings */}
       <CustomRating name="venue-rating" defaultValue={3.5} precision={0.5} />
       <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly />
       <CustomRating name="venue-rating" defaultValue={3.5} precision={0.5} multaqaFill />
       <CustomRating name="venue-rating-read" defaultValue={4} precision={0.5} readOnly multaqaFill />
 
+      {/* Checkboxes */}
       <div className="flex items-center justify-center gap-5">
         <CustomCheckbox defaultChecked size="small" />
         <CustomCheckbox defaultChecked size="medium" />
@@ -57,6 +64,7 @@ export default function HomePage() {
         <CustomCheckbox defaultChecked multaqaFill={false} />
       </div>
 
+      {/* Checkbox Groups */}
       <div className="flex items-center justify-center gap-8">
         <CustomCheckboxGroup
           label="What amenities do you prefer?"
@@ -81,6 +89,7 @@ export default function HomePage() {
         />
       </div>
 
+      {/* Checkbox Groups or Radio Groups depending on teh enableMoreThanOneOtion PROP you pass */}
       <div className="flex items-center justify-center gap-8">
         <CustomCheckboxGroup
           label="Select your gender"
@@ -106,6 +115,7 @@ export default function HomePage() {
           // onRadioChange={(value) => console.log("Selected duration:", value)}
         />
 
+        {/* Custom Select dropdown */}
         <div className="w-[300px]">
           <CustomSelectField
             label="Select Option"
