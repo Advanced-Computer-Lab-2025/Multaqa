@@ -9,7 +9,6 @@ import CustomRating from "@/components/shared/input-fields/CustomRating";
 import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
 import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
-import CustomSelectFieldV2 from "@/components/shared/input-fields/CustomSelectFieldV2";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
@@ -107,25 +106,9 @@ export default function HomePage() {
           // onRadioChange={(value) => console.log("Selected duration:", value)}
         />
 
-        <CustomSelectField
-          label="Select Option (Old)"
-          fieldType="single"
-          neumorphicBox={true}
-          disableDynamicMorphing={false}
-          size="small"
-          options={[
-            { label: "Option 1", value: "opt1" },
-            { label: "Option 2", value: "opt2" },
-            { label: "Disabled", value: "disabled", disabled: true }
-          ]}
-          value={selectedValue}
-          onChange={(value) => setSelectedValue(value)}
-          placeholder="Old version..."
-        />
-
         <div className="w-[600px]">
-          <CustomSelectFieldV2
-            label="Select Option (V2)"
+          <CustomSelectField
+            label="Select Option"
             fieldType="single"
             neumorphicBox={true}
             options={[

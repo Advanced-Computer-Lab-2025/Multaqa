@@ -1,42 +1,207 @@
 "use client";
 
-import React from "react";
-import { FormControl, InputLabel, MenuItem } from "@mui/material";
+import React, { useState, useRef, useEffect } from "react";
 import NeumorphicBox from '../containers/NeumorphicBox';
-import { CustomSelectFieldProps } from './types';
-import { StyledSelectField } from './styles/StyledSelectField';
-import {
-  createSelectLabelWithIcon,
+import { CustomSelectFieldV2Props } from './types/index';
+import { 
   getSelectFieldDisplayValue,
   formatSelectDisplayText,
-  createSelectChangeHandler,
 } from './utils';
+import {
+  getSelectFieldStyles,
+  getLabelStyles,
+  getDropdownIconStyles,
+  getDropdownStyles,
+  getOptionStyles,
+  getHelperTextStyles,
+  getDisplayValueStyles,
+  getOptionHoverStyles,
+} from './styles/StyledSelectField';
 
-const CustomSelectField: React.FC<CustomSelectFieldProps> = ({ 
+const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({ 
   label,
   fieldType, 
   options,
   neumorphicBox = false,
   value,
   onChange,
-  placeholder,
+  onFocus,
+  onBlur,
+  placeholder = 'Select...',
+  placeholderStyle = '',
   size = "medium",
   disabled = false,
   required = false,
   isError = false,
   helperText,
-  ...props 
 }) => {
-  // Create handlers using utilities
-  const handleSelectValueChange = createSelectChangeHandler(onChange);
-
-  // Create label with icon
-  const labelWithIcon = createSelectLabelWithIcon(label, fieldType);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get the display value for select fields
   const getDisplayValue = () => {
     return getSelectFieldDisplayValue(value, fieldType);
   };
+
+  const displayedValue = getDisplayValue();
+  const hasValue = displayedValue && (Array.isArray(displayedValue) ? displayedValue.length > 0 : true);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setIsFocused(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const toggleDropdown = () => {
+    if (!disabled) {
+      const willBeOpen = !isOpen;
+      setIsOpen(willBeOpen);
+      setIsFocused(willBeOpen);
+      if (willBeOpen && onFocus) {
+        onFocus({} as React.FocusEvent<HTMLDivElement>);
+      } else if (!willBeOpen && onBlur) {
+        onBlur({} as React.FocusEvent<HTMLDivElement>);
+      }
+    }
+  };
+
+  const handleOptionClick = (optionValue: string | number) => {
+    if (fieldType === "multiple") {
+      const currentValues = Array.isArray(displayedValue) ? displayedValue : [];
+      const newValues = currentValues.includes(optionValue)
+        ? currentValues.filter(v => v !== optionValue)
+        : [...currentValues, optionValue];
+      onChange?.(newValues);
+    } else {
+      onChange?.(optionValue);
+      setIsOpen(false);
+      setIsFocused(false);
+    }
+  };
+
+  const isSelected = (optionValue: string | number) => {
+    if (fieldType === "multiple") {
+      return Array.isArray(displayedValue) && displayedValue.includes(optionValue);
+    }
+    return displayedValue === optionValue;
+  };
+
+  // Get styles using modularized style functions
+  const fontSize = size === "small" ? "0.875rem" : "1rem";
+  
+  const selectStyles = getSelectFieldStyles({
+    isOpen,
+    isFocused,
+    isHovered,
+    hasValue,
+    isError,
+    disabled,
+    size,
+    neumorphicBox,
+  });
+
+  const labelStyles = getLabelStyles(hasValue, isFocused, fontSize, neumorphicBox);
+  const dropdownIconStyles = getDropdownIconStyles(isOpen);
+  const dropdownStyles = getDropdownStyles({ isOpen });
+  const helperTextStyles = getHelperTextStyles(isError);
+  const displayValueStyles = getDisplayValueStyles();
+
+  const SelectComponent = (
+    <div 
+      ref={containerRef}
+      style={{ 
+        position: 'relative', 
+        width: '100%',
+        minWidth: '100%',
+      }}
+    >
+      {label && (
+        <label style={labelStyles}>
+          {label}
+          {required && <span style={{ color: '#b81d1d', marginLeft: '2px' }}>*</span>}
+        </label>
+      )}
+      
+      <div 
+        onClick={toggleDropdown}
+        onMouseEnter={() => !disabled && setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={selectStyles}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleDropdown();
+          }
+        }}
+      >
+        <span style={{
+          ...displayValueStyles,
+          ...(placeholderStyle === 'transparent' && !hasValue && {
+            opacity: 0,
+            visibility: 'hidden' as const,
+          })
+        }}>
+          {hasValue
+            ? formatSelectDisplayText(displayedValue, options, fieldType, placeholder)
+            : placeholder}
+        </span>
+        
+        <span style={dropdownIconStyles}>▾</span>
+      </div>
+
+      <div ref={dropdownRef} style={dropdownStyles}>
+        {options.map((option) => {
+          const optionSelected = isSelected(option.value);
+          const baseOptionStyles = getOptionStyles({
+            isSelected: optionSelected,
+            isDisabled: option.disabled || false,
+          });
+          
+          return (
+            <div
+              key={option.value}
+              onClick={() => !option.disabled && handleOptionClick(option.value)}
+              onMouseEnter={(e) => {
+                const hoverStyles = getOptionHoverStyles(optionSelected, option.disabled || false, true);
+                Object.assign(e.currentTarget.style, hoverStyles);
+              }}
+              onMouseLeave={(e) => {
+                const hoverStyles = getOptionHoverStyles(optionSelected, option.disabled || false, false);
+                Object.assign(e.currentTarget.style, hoverStyles);
+              }}
+              style={baseOptionStyles}
+            >
+              {option.label}
+            </div>
+          );
+        })}
+      </div>
+
+      {helperText && <div style={helperTextStyles}>{helperText}</div>}
+    </div>
+  );
 
   return (
     <>
@@ -47,139 +212,13 @@ const CustomSelectField: React.FC<CustomSelectFieldProps> = ({
           borderRadius="50px"
           width="100%"
         >
-          <FormControl 
-            fullWidth
-            size={size} 
-            disabled={disabled}
-            required={required}
-            error={isError}
-            sx={{ width: '100%' }}
-          >
-            {label && (
-              <InputLabel 
-                id={`select-label-${fieldType}`}
-                sx={{
-                  transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                  fontWeight: 500,
-                  backgroundColor: 'transparent',
-                  padding: '2px 8px',
-                  '& .MuiSvgIcon-root': {
-                    display: 'none',
-                  },
-                  ...(neumorphicBox && size === 'small' && {
-                    background: '#ffffff',
-                  }),
-                }}
-              >
-                {labelWithIcon}
-              </InputLabel>
-            )}
-            <StyledSelectField
-              label={label}
-              labelId={`select-label-${fieldType}`}
-              fieldType={fieldType}
-              neumorphicBox={neumorphicBox}
-              variant="outlined"
-              value={getDisplayValue()}
-              onChange={handleSelectValueChange}
-              multiple={fieldType === "multiple"}
-              displayEmpty
-              renderValue={(selected) => {
-                if (!selected || (Array.isArray(selected) && selected.length === 0)) {
-                  return <span style={{ color: 'transparent', fontStyle: 'italic' }}>{placeholder || 'Select...'}</span>;
-                }
-                return formatSelectDisplayText(selected, options, fieldType, placeholder);
-              }}
-              {...props}
-            >
-              {options.map((option) => (
-                <MenuItem 
-                  key={option.value} 
-                  value={option.value}
-                  disabled={option.disabled}
-                >
-                  {option.label}
-                </MenuItem>
-              ))}
-            </StyledSelectField>
-            {helperText && (
-              <div style={{ 
-                fontSize: '0.75rem', 
-                color: isError ? '#d32f2f' : '#666', 
-                marginTop: '3px',
-                marginLeft: '14px'
-              }}>
-                {helperText}
-              </div>
-            )}
-          </FormControl>
+          {SelectComponent}
         </NeumorphicBox>
       ) : (
-        <FormControl 
-          fullWidth
-          size={size} 
-          disabled={disabled}
-          required={required}
-          error={isError}
-          sx={{ width: '100%' }}
-        >
-          {label && (
-            <InputLabel 
-              id={`select-label-${fieldType}-standard`}
-              sx={{
-                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                fontWeight: 500,
-                padding: '2px 8px',
-                '& .MuiSvgIcon-root': {
-                  display: 'none',
-                },
-              }}
-            >
-              {labelWithIcon}
-            </InputLabel>
-          )}
-          <StyledSelectField
-            label={label}
-            labelId={`select-label-${fieldType}-standard`}
-            fieldType={fieldType}
-            neumorphicBox={neumorphicBox}
-            variant="standard"
-            value={getDisplayValue()}
-            onChange={handleSelectValueChange}
-            multiple={fieldType === "multiple"}
-            displayEmpty
-            renderValue={(selected) => {
-              if (!selected || (Array.isArray(selected) && selected.length === 0)) {
-                return <span style={{ color: 'transparent', fontStyle: 'italic' }}>{placeholder || 'Select...'}</span>;
-              }
-              return formatSelectDisplayText(selected, options, fieldType, placeholder);
-            }}
-            {...props}
-          >
-            {options.map((option) => (
-              <MenuItem 
-                key={option.value} 
-                value={option.value}
-                disabled={option.disabled}
-              >
-                {option.label}
-              </MenuItem>
-            ))}
-          </StyledSelectField>
-          {helperText && (
-            <div style={{ 
-              fontSize: '0.75rem', 
-              color: isError ? '#d32f2f' : '#666', 
-              marginTop: '3px',
-              marginLeft: '14px'
-            }}>
-              {helperText}
-            </div>
-          )}
-        </FormControl>
+        SelectComponent
       )}
     </>
   );
 };
 
-export default CustomSelectField;
+export default CustomSelectFieldV2;
