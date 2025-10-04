@@ -7,7 +7,9 @@ import LockIcon from '@mui/icons-material/Lock';
 import PhoneIcon from '@mui/icons-material/Phone';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { FieldType, StakeholderType } from '../types';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ListIcon from '@mui/icons-material/List';
+import { FieldType, StakeholderType, SelectFieldType, SelectOption } from '../types';
 
 /**
  * Get email domain based on stakeholder type
@@ -229,4 +231,129 @@ export const handleRadioGroupChange = (
   if (onRadioChange) {
     onRadioChange(value);
   }
+};
+
+/**
+ * Get the appropriate icon based on select field type
+ */
+export const getSelectFieldIcon = (fieldType: SelectFieldType) => {
+  switch (fieldType) {
+    case "single":
+      return <ArrowDropDownIcon sx={{ mr: 1, fontSize: '1rem' }} />;
+    case "multiple":
+      return <ListIcon sx={{ mr: 1, fontSize: '1rem' }} />;
+    default:
+      return null;
+  }
+};
+
+/**
+ * Create label with icon for select fields (reuses createLabelWithIcon pattern)
+ */
+export const createSelectLabelWithIcon = (label?: string, fieldType?: SelectFieldType) => {
+  if (!label || !fieldType) return undefined;
+  
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {getSelectFieldIcon(fieldType)}
+      {label}
+    </Box>
+  );
+};
+
+/**
+ * Handle select field value change (reuses pattern from handleEmailInputChange)
+ */
+export const handleSelectFieldChange = (
+  value: string | number | string[] | number[],
+  onChange?: (value: string | number | string[] | number[]) => void
+) => {
+  if (onChange) {
+    onChange(value);
+  }
+};
+
+/**
+ * Get display value for select fields - handles both single and multiple selections
+ */
+export const getSelectFieldDisplayValue = (
+  value: unknown,
+  fieldType: SelectFieldType
+) => {
+  if (!value) return fieldType === 'multiple' ? [] : '';
+  
+  if (fieldType === 'multiple' && Array.isArray(value)) {
+    return value;
+  }
+  
+  return value;
+};
+
+/**
+ * Format selected values for display in select field
+ */
+export const formatSelectDisplayText = (
+  selected: unknown,
+  options: SelectOption[],
+  fieldType: SelectFieldType,
+  placeholder?: string
+): string | React.ReactElement => {
+  if (fieldType === "multiple" && Array.isArray(selected)) {
+    if (selected.length === 0) {
+      return <em>{placeholder}</em>;
+    }
+    return selected
+      .map(val => options.find(opt => opt.value === val)?.label)
+      .filter(Boolean)
+      .join(', ');
+  }
+  
+  if (!selected) {
+    return <em>{placeholder}</em>;
+  }
+  
+  const option = options.find(opt => opt.value === selected);
+  return option ? option.label : String(selected);
+};
+
+/**
+ * Generic focus handler - reusable for all input components
+ */
+export const createFocusHandler = (
+  setIsFocused: (focused: boolean) => void,
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
+) => {
+  return (event: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true);
+    if (onFocus) {
+      onFocus(event);
+    }
+  };
+};
+
+/**
+ * Generic blur handler - reusable for all input components
+ */
+export const createBlurHandler = (
+  setIsFocused: (focused: boolean) => void,
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+) => {
+  return (event: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(false);
+    if (onBlur) {
+      onBlur(event);
+    }
+  };
+};
+
+/**
+ * Create select change handler - handles SelectChangeEvent to value conversion
+ */
+export const createSelectChangeHandler = (
+  onChange?: (value: string | number | string[] | number[]) => void
+) => {
+  return (event: { target: { value: unknown } }) => {
+    const newValue = event.target.value;
+    handleSelectFieldChange(newValue as string | number | string[] | number[], onChange);
+  };
 };

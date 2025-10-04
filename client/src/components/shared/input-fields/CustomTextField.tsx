@@ -11,6 +11,8 @@ import {
   handleEmailInputChange,
   handleEmailKeyPress,
   getEmailDisplayValue,
+  createFocusHandler,
+  createBlurHandler,
 } from './utils';
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({ 
@@ -58,19 +60,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   };
 
   // Handle focus events
-  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(true);
-    if (props.onFocus) {
-      props.onFocus(event);
-    }
-  };
-
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(false);
-    if (props.onBlur) {
-      props.onBlur(event);
-    }
-  };
+  const handleFocus = createFocusHandler(setIsFocused, props.onFocus);
+  const handleBlur = createBlurHandler(setIsFocused, props.onBlur);
 
   // Get the display value for email fields
   const getDisplayValue = () => {

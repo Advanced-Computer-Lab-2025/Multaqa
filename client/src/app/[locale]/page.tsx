@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import CustomButton from "@/components/Buttons/CustomButton";
 import DeleteButton from "@/components/Buttons/DeleteButton";
 import SearchTextField from "@/components/SearchBar/SearchTextField";
@@ -7,9 +8,12 @@ import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import CustomRating from "@/components/shared/input-fields/CustomRating";
 import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
+import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 
 export default function HomePage() {
+  const [selectedValue, setSelectedValue] = useState<string | number>("");
+
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
       <div className="flex items-center justify-center gap-5">
@@ -99,6 +103,21 @@ export default function HomePage() {
           row
           size="small"
           // onRadioChange={(value) => console.log("Selected duration:", value)}
+        />
+
+        <CustomSelectField
+          label="Select Option"
+          fieldType="single"
+          neumorphicBox={true}
+          size="small"
+          options={[
+            { label: "Option 1", value: "opt1" },
+            { label: "Option 2", value: "opt2" },
+            { label: "Disabled", value: "disabled", disabled: true }
+          ]}
+          value={selectedValue}
+          onChange={(value) => setSelectedValue(value)}
+          // placeholder="Choose an option..."
         />
       </div>
     </div>

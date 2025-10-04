@@ -7,6 +7,16 @@ export type FieldType =
   | "numeric"
   | "phone";
 
+export type SelectFieldType =
+  | "single"
+  | "multiple";
+
+export interface SelectOption {
+  label: string;
+  value: string | number;
+  disabled?: boolean;
+}
+
 export type StakeholderType =
   | "student"
   | "staff"
@@ -15,6 +25,33 @@ export type StakeholderType =
   | "admin"
   | "events-office"
   | "vendor";
+
+export interface CustomSelectFieldProps {
+  fieldType: SelectFieldType;
+  options: SelectOption[];
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  isError?: boolean;
+  helperText?: string;
+  value?: string | number | string[] | number[];
+  onChange?: (value: string | number | string[] | number[]) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
+
+  // General styling props
+  label?: string;
+  placeholder?: string;
+  width?: string;
+  height?: string;
+  fullWidth?: boolean;
+  size?: "small" | "medium";
+  disabled?: boolean;
+  required?: boolean;
+
+  // Neumorphic styling props
+  neumorphicBox?: boolean; // Enable neumorphic box styling
+  disableDynamicMorphing?: boolean; // Disable dynamic morphing on focus/blur
+}
 
 export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "children"> {
   fieldType: FieldType;
@@ -40,7 +77,7 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   // Neumorphic styling props
   neumorphicBox?: boolean; // Enable neumorphic box styling
   disableDynamicMorphing?: boolean; // Disable dynamic morphing on focus/blur
-  
+
 }
 
 export interface CustomRatingProps {
