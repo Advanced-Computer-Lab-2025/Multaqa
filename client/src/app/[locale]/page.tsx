@@ -106,7 +106,7 @@ export default function HomePage() {
           // onRadioChange={(value) => console.log("Selected duration:", value)}
         />
 
-        <div className="w-[600px]">
+        <div className="w-[300px]">
           <CustomSelectField
             label="Select Option"
             fieldType="single"
@@ -115,6 +115,7 @@ export default function HomePage() {
               { label: "Option 1", value: "opt1" },
               { label: "Option 2", value: "opt2" },
               { label: "Option 3", value: "opt3" },
+              { label: "Option 333333333sssssssss", value: "opt3d" },
               { label: "Disabled", value: "disabled", disabled: true }
             ]}
             value={selectedValue}

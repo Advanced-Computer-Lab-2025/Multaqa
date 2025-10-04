@@ -157,6 +157,7 @@ export interface SelectFieldV2StyleProps {
   disabled: boolean;
   size: "small" | "medium";
   neumorphicBox: boolean;
+  minWidthFromContent?: number;
 }
 
 export interface DropdownStyleProps {

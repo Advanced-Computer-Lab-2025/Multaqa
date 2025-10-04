@@ -5,11 +5,12 @@ import { SelectFieldV2StyleProps, DropdownStyleProps, OptionStyleProps } from '.
  * Styles for the main select container
  */
 export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSProperties => {
-  const { isFocused, isHovered, hasValue, isError, disabled, size, neumorphicBox } = props;
+  const { isFocused, isHovered, hasValue, isError, disabled, size, neumorphicBox, minWidthFromContent } = props;
 
   const paddingValue = size === "small" ? "10px 40px 10px 16px" : "12px 40px 12px 18px";
   const fontSize = size === "small" ? "0.875rem" : "1rem";
   const minHeight = size === "small" ? "40px" : "48px";
+  const calculatedMinWidth = minWidthFromContent && minWidthFromContent > 0 ? `${minWidthFromContent}px` : '200px';
 
   // Determine border color priority: error > focus > hover > default
   let borderColor = 'transparent';
@@ -24,8 +25,9 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
   }
 
   return {
-    width: '100%',
-    minWidth: '100%',
+    flex: '1 0 auto',
+    minWidth: calculatedMinWidth,
+    maxWidth: '100%',
     minHeight,
     padding: paddingValue,
     borderRadius: '50px',
@@ -41,6 +43,7 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
     alignItems: 'center',
     transition: 'all 0.2s ease',
     opacity: disabled ? 0.6 : 1,
+    boxSizing: 'border-box',
   };
 };
 
@@ -114,6 +117,10 @@ export const getDropdownStyles = (props: DropdownStyleProps): React.CSSPropertie
     visibility: isOpen ? 'visible' as const : 'hidden' as const,
     transform: isOpen ? 'translateY(0)' : 'translateY(-10px)',
     transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    // Hide scrollbar while keeping scroll functionality
+    scrollbarWidth: 'none' as const,
+    msOverflowStyle: 'none' as const,
+    WebkitOverflowScrolling: 'touch' as const,
   };
 };
 
@@ -161,8 +168,9 @@ export const getDisplayValueStyles = (): React.CSSProperties => {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap' as const,
-    flex: 1,
-    width: '100%',
+    flex: '1 1 0%',
+    minWidth: 0,
+    maxWidth: '100%',
   };
 };
 

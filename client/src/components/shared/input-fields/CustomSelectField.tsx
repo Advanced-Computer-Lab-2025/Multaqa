@@ -38,8 +38,10 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [minWidthFromContent, setMinWidthFromContent] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
 
   // Get the display value for select fields
   const getDisplayValue = () => {
@@ -48,6 +50,27 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
 
   const displayedValue = getDisplayValue();
   const hasValue = displayedValue && (Array.isArray(displayedValue) ? displayedValue.length > 0 : true);
+
+  // Calculate minimum width based on longest option
+  useEffect(() => {
+    if (measureRef.current && options.length > 0) {
+      let maxWidth = 0;
+      const fontSize = size === "small" ? "0.875rem" : "1rem";
+      
+      options.forEach(option => {
+        measureRef.current!.style.fontSize = fontSize;
+        measureRef.current!.textContent = option.label;
+        const width = measureRef.current!.offsetWidth;
+        if (width > maxWidth) {
+          maxWidth = width;
+        }
+      });
+      
+      // Add padding for icon and some breathing room (40px right padding + 18px left padding + 20px extra)
+      const totalWidth = maxWidth + 78;
+      setMinWidthFromContent(totalWidth);
+    }
+  }, [options, size]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -118,6 +141,7 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
     disabled,
     size,
     neumorphicBox,
+    minWidthFromContent,
   });
 
   const labelStyles = getLabelStyles(hasValue, isFocused, fontSize, neumorphicBox);
@@ -200,6 +224,17 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
       </div>
 
       {helperText && <div style={helperTextStyles}>{helperText}</div>}
+      
+      {/* Hidden element for measuring text width */}
+      <span 
+        ref={measureRef}
+        style={{
+          position: 'absolute',
+          visibility: 'hidden',
+          whiteSpace: 'nowrap',
+          fontWeight: 500,
+        }}
+      />
     </div>
   );
 
