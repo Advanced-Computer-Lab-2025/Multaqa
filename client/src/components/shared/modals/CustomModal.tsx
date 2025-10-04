@@ -47,9 +47,16 @@ export default function CustomModal({ title, description, modalType, buttonOptio
               borderRadius="9999px"
               padding="12px 24px"
               width="fit-content"
-              sx={{ margin: '0 auto' }}
+              sx={{ margin: '0 auto', marginBottom: 4 }}
             >
-              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+              <Box 
+                sx={{
+                  display: 'flex', 
+                  flexDirection: 'row',
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: 1.5 
+                }}>
                 {(() => {
                   // Using regular MUI icons
                   const getIcon = () => {
