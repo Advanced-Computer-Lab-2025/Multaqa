@@ -1,7 +1,6 @@
 // Export components
 export { default as CustomTextField } from './CustomTextField';
 export { default as CustomSelectField } from './CustomSelectField';
-export { default as CustomSelectFieldV2 } from './CustomSelectFieldV2';
 export { default as CustomRating } from './CustomRating';
 export { default as CustomCheckbox } from './CustomCheckbox';
 export { default as CustomRadio } from './CustomRadio';

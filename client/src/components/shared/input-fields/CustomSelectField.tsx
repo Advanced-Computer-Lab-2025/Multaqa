@@ -28,7 +28,6 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
   onFocus,
   onBlur,
   placeholder = 'Select...',
-  placeholderStyle = '',
   size = "medium",
   disabled = false,
   required = false,
@@ -182,14 +181,14 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
       >
         <span style={{
           ...displayValueStyles,
-          ...(placeholderStyle === 'transparent' && !hasValue && {
+          ...(!hasValue && {
             opacity: 0,
             visibility: 'hidden' as const,
           })
         }}>
           {hasValue
             ? formatSelectDisplayText(displayedValue, options, fieldType, placeholder)
-            : placeholder}
+            : ''}
         </span>
         
         <span style={dropdownIconStyles}>▾</span>
