@@ -6,44 +6,46 @@ import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
 import CustomIcon from "@/components/shared/Icons/CustomIcon";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
+import CreateWorkshopPage  from "@/components/tempPages/createWorkshop";
 
 export default function HomePage() {
   return (
-    <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
-      <CustomModal 
-        title="Confirm Action"
-        description="Are you sure you want to proceed with this action? This cannot be undone."
-        buttonOption1={{
-          label: "Cancel",
-          variant: "outlined",
-          color: "secondary"
-        }}
-        buttonOption2={{
-          label: "Confirm",
-          variant: "contained",
-          color: "primary",
-          onClick: () => console.log("Action confirmed!")
-        }}
-      />
-      <div className="flex items-center justify-center gap-5">
-        <CustomButton
-          variant="outlined"
-          size="small"
-          disableElevation
-          label="Save"
-        />
-        <CustomButton
-          variant="contained"
-          size="small"
-          disableElevation
-          label="Submit"
-        />
-        <DeleteButton size="small" variant="contained" color="error" />
-      </div>
-      <CustomSearchBar icon={false} width="450px" type="outwards" />
-      <CustomIcon icon="delete" size="small" containerType="inwards" />
-      <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
-      <AppWrapper />
-    </div>
+    // <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
+    //   <CustomModal 
+    //     title="Confirm Action"
+    //     description="Are you sure you want to proceed with this action? This cannot be undone."
+    //     buttonOption1={{
+    //       label: "Cancel",
+    //       variant: "outlined",
+    //       color: "secondary"
+    //     }}
+    //     buttonOption2={{
+    //       label: "Confirm",
+    //       variant: "contained",
+    //       color: "primary",
+    //       onClick: () => console.log("Action confirmed!")
+    //     }}
+    //   />
+    //   <div className="flex items-center justify-center gap-5">
+    //     <CustomButton
+    //       variant="outlined"
+    //       size="small"
+    //       disableElevation
+    //       label="Save"
+    //     />
+    //     <CustomButton
+    //       variant="contained"
+    //       size="small"
+    //       disableElevation
+    //       label="Submit"
+    //     />
+    //     <DeleteButton size="small" variant="contained" color="error" />
+    //   </div>
+    //   <CustomSearchBar icon={false} width="450px" type="outwards" />
+    //   <CustomIcon icon="delete" size="small" containerType="inwards" />
+    //   <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
+    //   <AppWrapper />
+    // </div>
+    <CreateWorkshopPage />
   );
 }
