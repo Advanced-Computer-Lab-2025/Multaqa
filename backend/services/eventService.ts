@@ -1,7 +1,7 @@
-import { forbidden } from "joi";
-import { IEvent } from "../interfaces/ievent.interface";
+import { IEvent } from "../interfaces/event.interface";
 import GenericRepository from "../repos/genericRepo";
-import { Event } from "../schemas/eventSchema"; // Adjust the path as needed
+import { Event } from "../schemas/event-schemas/eventSchema"; 
+import { forbidden } from "joi";
 import { ConflictException } from "node-http-exceptions";
 
 export class EventsService {

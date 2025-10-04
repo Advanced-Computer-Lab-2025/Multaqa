@@ -1,7 +1,20 @@
-import { Schema } from "mongoose";
+import { Document } from "mongoose";
+import { UserRole } from "../constants/user.constants.js";
+import { UserStatus } from "../constants/user.constants.js";
 
-export interface IUser {
-  _id: Schema.Types.ObjectId;
-  name: string;
-  // Add more user fields as needed
+export interface INotification {
+  title: string;
+  message: string;
+  createdAt: Date;
+}
+
+export interface IUser extends Document {
+  email: string;
+  password: string;
+  status: UserStatus;
+  role: UserRole;
+  createdAt: Date;
+  updatedAt: Date;
+  isVerified: boolean;
+  notifications: INotification[];
 }
