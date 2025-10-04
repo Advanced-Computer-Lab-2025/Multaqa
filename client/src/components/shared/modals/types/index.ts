@@ -17,3 +17,9 @@ export interface CustomModalProps {
     onClick?: () => void;
   };
 }
+
+export interface CustomModalLayoutProps {
+  children: React.ReactNode;
+  open: boolean;
+  onClose: () => void;
+}

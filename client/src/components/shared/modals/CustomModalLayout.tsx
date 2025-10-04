@@ -7,20 +7,11 @@ import { Modal } from '@mui/material';
 import Fade from '@mui/material/Fade';
 import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
 import CustomIcon from '../Icons/CustomIcon';
-
-interface CustomModalLayoutProps {
-  children: React.ReactNode;
-  open: boolean;
-  onClose: () => void;
-}
+import { CustomModalLayoutProps } from './types';
+import { createDelayedCloseHandler } from './utils';
 
 export default function CustomModalLayout({ children, open, onClose }: CustomModalLayoutProps) {
-  const handleClose = () => {
-    // Delay closing by 1 second to show the ripple effect
-    setTimeout(() => {
-      onClose();
-    }, 500);
-  };
+  const handleClose = createDelayedCloseHandler(onClose, 500);
 
   return (
     <Modal

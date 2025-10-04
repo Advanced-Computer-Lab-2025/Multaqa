@@ -8,29 +8,9 @@ import Fade from '@mui/material/Fade';
 import CustomButton from '../Buttons/CustomButton';
 import Typography from '@mui/material/Typography';
 import CustomIcon from '../Icons/CustomIcon';
-import { CustomModalProps, ModalType } from './types';
+import { CustomModalProps } from './types';
 import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
-import type { IconType } from '../Icons/styles';
-
-// Helper function to map modal type to icon type
-const getModalIconType = (modalType?: ModalType): IconType | null => {
-  switch (modalType) {
-    case 'success':
-      return 'success';
-    case 'warning':
-      return 'warning';
-    case 'error':
-      return 'error';
-    case 'info':
-      return 'info';
-    case 'delete':
-      return 'delete';
-    case 'confirm':
-      return 'help';
-    default:
-      return null;
-  }
-};
+import { getModalIconType } from './utils';
 
 export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2 }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
