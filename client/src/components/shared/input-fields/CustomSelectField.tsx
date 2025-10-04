@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { FormControl, InputLabel, MenuItem } from "@mui/material";
 import NeumorphicBox from '../containers/NeumorphicBox';
 import { CustomSelectFieldProps } from './types';
@@ -9,8 +9,6 @@ import {
   createSelectLabelWithIcon,
   getSelectFieldDisplayValue,
   formatSelectDisplayText,
-  createFocusHandler,
-  createBlurHandler,
   createSelectChangeHandler,
 } from './utils';
 
@@ -19,11 +17,8 @@ const CustomSelectField: React.FC<CustomSelectFieldProps> = ({
   fieldType, 
   options,
   neumorphicBox = false,
-  disableDynamicMorphing = false,
   value,
   onChange,
-  onFocus,
-  onBlur,
   placeholder,
   size = "medium",
   disabled = false,
@@ -32,12 +27,8 @@ const CustomSelectField: React.FC<CustomSelectFieldProps> = ({
   helperText,
   ...props 
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
   // Create handlers using utilities
   const handleSelectValueChange = createSelectChangeHandler(onChange);
-  const handleFocus = createFocusHandler(setIsFocused, onFocus);
-  const handleBlur = createBlurHandler(setIsFocused, onBlur);
 
   // Create label with icon
   const labelWithIcon = createSelectLabelWithIcon(label, fieldType);
@@ -51,7 +42,7 @@ const CustomSelectField: React.FC<CustomSelectFieldProps> = ({
     <>
       {neumorphicBox ? (
         <NeumorphicBox 
-          containerType={disableDynamicMorphing ? "inwards" : (isFocused ? "inwards" : "outwards")}
+          containerType="inwards"
           padding="2px" 
           borderRadius="50px"
           width="100%"
@@ -91,8 +82,6 @@ const CustomSelectField: React.FC<CustomSelectFieldProps> = ({
               variant="outlined"
               value={getDisplayValue()}
               onChange={handleSelectValueChange}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
               multiple={fieldType === "multiple"}
               displayEmpty
               renderValue={(selected) => {
@@ -157,8 +146,6 @@ const CustomSelectField: React.FC<CustomSelectFieldProps> = ({
             variant="standard"
             value={getDisplayValue()}
             onChange={handleSelectValueChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             multiple={fieldType === "multiple"}
             displayEmpty
             renderValue={(selected) => {

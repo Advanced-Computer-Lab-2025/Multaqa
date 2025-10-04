@@ -109,6 +109,7 @@ export default function HomePage() {
           label="Select Option"
           fieldType="single"
           neumorphicBox={true}
+          disableDynamicMorphing={false}
           size="small"
           options={[
             { label: "Option 1", value: "opt1" },
