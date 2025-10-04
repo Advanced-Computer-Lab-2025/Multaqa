@@ -1,11 +1,29 @@
+"use client";
+
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import DeleteButton from "@/components/shared/Buttons/DeleteButton";
 import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
 import CustomIcon from "@/components/shared/Icons/CustomIcon";
+import CustomModal from "@/components/shared/modals/CustomModal";
 
 export default function HomePage() {
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
+      <CustomModal 
+        title="Confirm Action"
+        description="Are you sure you want to proceed with this action? This cannot be undone."
+        buttonOption1={{
+          label: "Cancel",
+          variant: "outlined",
+          color: "secondary"
+        }}
+        buttonOption2={{
+          label: "Confirm",
+          variant: "contained",
+          color: "primary",
+          onClick: () => console.log("Action confirmed!")
+        }}
+      />
       <div className="flex items-center justify-center gap-5">
         <CustomButton
           variant="outlined"
