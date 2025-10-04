@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { User } from "./userSchema";
-import { IVendor } from "../interfaces/vendor.interface";
+import { IVendor } from "../../interfaces/vendor.interface";
 
 const vendorSchema = new Schema<IVendor>({
   companyName: { type: String, required: true },

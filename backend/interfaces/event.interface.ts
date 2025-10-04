@@ -1,5 +1,6 @@
 import { Document } from "mongoose";
 import { IUser } from "./user.interface.js";
+import { IReview } from "./review.interface.js";
 
 export type EventType =
   | "workshop"
@@ -14,6 +15,7 @@ export interface IEvent extends Document {
   archived: boolean;
   attendees: IUser[];
   allowedUsers: EventType[];
+  reviews: IReview[];
   event_name: string;
   event_start_date: Date;
   event_end_date: Date;
@@ -23,4 +25,5 @@ export interface IEvent extends Document {
   location: string;
   description: string;
   is_passed: boolean;
+  price: number;
 }

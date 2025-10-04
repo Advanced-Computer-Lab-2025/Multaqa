@@ -1,6 +1,6 @@
 import { IEvent } from "../interfaces/event.interface";
 import GenericRepository from "../repos/genericRepo";
-import { Event } from "../schemas/eventSchema"; // Adjust the path as needed
+import { Event } from "../schemas/event-schemas/eventSchema"; // Adjust the path as needed
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
