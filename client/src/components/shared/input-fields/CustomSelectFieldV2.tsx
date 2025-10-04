@@ -132,6 +132,7 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
       style={{ 
         position: 'relative', 
         width: '100%',
+        minWidth: '100%',
       }}
     >
       {label && (

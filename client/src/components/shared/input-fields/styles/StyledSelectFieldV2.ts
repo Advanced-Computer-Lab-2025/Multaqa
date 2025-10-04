@@ -11,12 +11,25 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
   const fontSize = size === "small" ? "0.875rem" : "1rem";
   const minHeight = size === "small" ? "40px" : "48px";
 
+  // Determine border color priority: error > focus > hover > default
+  let borderColor = 'transparent';
+  let borderWidth = '1px';
+  if (isError) {
+    borderColor = '#b81d1d';
+  } else if (isFocused) {
+    borderColor = '#7851da';
+    borderWidth = '2px';
+  } else if (isHovered) {
+    borderColor = '#7C5CFF';
+  }
+
   return {
     width: '100%',
+    minWidth: '100%',
     minHeight,
     padding: paddingValue,
     borderRadius: '50px',
-    border: '1px solid transparent',
+    border: `${borderWidth} solid ${borderColor}`,
     outline: 'none',
     backgroundColor: neumorphicBox ? 'transparent' : '#e5e7eb',
     color: hasValue ? '#1E1E1E' : '#999',
@@ -26,18 +39,9 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    transition: 'all 0.2s ease',
     opacity: disabled ? 0.6 : 1,
-    ...(isError && {
-      borderColor: '#b81d1d',
-    }),
-    ...(!isError && isHovered && !isFocused && {
-      borderColor: '#7C5CFF',
-    }),
-    ...(isFocused && {
-      borderColor: '#7851da',
-      borderWidth: '2px',
-    }),
+    flexShrink: 0,
   };
 };
 
@@ -129,6 +133,8 @@ export const getOptionStyles = (props: OptionStyleProps): React.CSSProperties =>
     color: isDisabled ? '#999' : '#1E1E1E',
     backgroundColor: isSelected ? 'rgba(120, 81, 218, 0.1)' : 'transparent',
     position: 'relative' as const,
+    width: '100%',
+    boxSizing: 'border-box',
     ...(isSelected && {
       borderLeft: '3px solid #7851da',
     }),
@@ -157,6 +163,7 @@ export const getDisplayValueStyles = (): React.CSSProperties => {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap' as const,
     flex: 1,
+    width: '100%',
   };
 };
 

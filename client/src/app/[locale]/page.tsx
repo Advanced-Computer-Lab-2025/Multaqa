@@ -123,23 +123,25 @@ export default function HomePage() {
           placeholder="Old version..."
         />
 
-        <CustomSelectFieldV2
-          label="Select Option (V2)"
-          fieldType="single"
-          neumorphicBox={true}
-          options={[
-            { label: "Option 1", value: "opt1" },
-            { label: "Option 2", value: "opt2" },
-            { label: "Option 3", value: "opt3" },
-            { label: "Disabled", value: "disabled", disabled: true }
-          ]}
-          value={selectedValue}
-          onChange={(value) => setSelectedValue(value)}
-          placeholder="New custom version..."
-          placeholderStyle={isFocused ? '' : 'transparent'}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-        />
+        <div className="w-[600px]">
+          <CustomSelectFieldV2
+            label="Select Option (V2)"
+            fieldType="single"
+            neumorphicBox={true}
+            options={[
+              { label: "Option 1", value: "opt1" },
+              { label: "Option 2", value: "opt2" },
+              { label: "Option 3", value: "opt3" },
+              { label: "Disabled", value: "disabled", disabled: true }
+            ]}
+            value={selectedValue}
+            onChange={(value) => setSelectedValue(value)}
+            placeholder="New custom version..."
+            placeholderStyle={isFocused ? '' : 'transparent'}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+        </div>
       </div>
     </div>
   );
