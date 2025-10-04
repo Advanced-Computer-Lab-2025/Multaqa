@@ -8,7 +8,7 @@ import Fade from '@mui/material/Fade';
 import CustomButton from '../Buttons/CustomButton';
 import Typography from '@mui/material/Typography';
 import { CustomModalProps } from './types';
-import { StyledModalBox } from './styles/StyledModal';
+import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
 
 export default function CustomModal({ title, description, buttonOption1, buttonOption2 }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
@@ -32,7 +32,8 @@ export default function CustomModal({ title, description, buttonOption1, buttonO
         }}
       >
         <Fade in={open}>
-          <StyledModalBox>
+          <ModalCardWrapper>
+            <StyledModalBox>
             {title && (
               <Typography 
                 id="transition-modal-title" 
@@ -83,7 +84,8 @@ export default function CustomModal({ title, description, buttonOption1, buttonO
                 </Box>
               )}
             </Box>
-          </StyledModalBox>
+            </StyledModalBox>
+          </ModalCardWrapper>
         </Fade>
       </Modal>
     </>

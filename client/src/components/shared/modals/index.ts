@@ -3,4 +3,4 @@
 
 export { default as CustomModal } from './CustomModal';
 export type { CustomModalProps } from './types';
-export { StyledModalBox, StyledModalBoxInward } from './styles/StyledModal';
+export { StyledModalBox, StyledModalBoxInward, ModalCardWrapper } from './styles/StyledModal';

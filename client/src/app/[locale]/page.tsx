@@ -5,6 +5,7 @@ import DeleteButton from "@/components/shared/Buttons/DeleteButton";
 import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
 import CustomIcon from "@/components/shared/Icons/CustomIcon";
 import CustomModal from "@/components/shared/modals/CustomModal";
+import AppWrapper from '@/components/shared/FilterCard/example'; 
 
 export default function HomePage() {
   return (
@@ -42,6 +43,7 @@ export default function HomePage() {
       <CustomSearchBar icon={false} width="450px" type="outwards" />
       <CustomIcon icon="delete" size="small" containerType="inwards" />
       <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
+      <AppWrapper />
     </div>
   );
 }
