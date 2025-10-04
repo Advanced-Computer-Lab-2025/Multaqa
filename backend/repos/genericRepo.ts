@@ -1,4 +1,3 @@
-// genericRepository.js
 import { Model, Document } from "mongoose";
 
 export default class GenericRepository<T extends Document> {

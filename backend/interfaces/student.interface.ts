@@ -4,7 +4,7 @@ import { IUser } from "./user.interface";
 export interface IStudent extends IUser {
   firstName: string;
   lastName: string;
-  studentId: string;
+  gucId: string;
   walletBalance: number;
   favorites: Schema.Types.ObjectId[];
   registeredEvents: Schema.Types.ObjectId[];

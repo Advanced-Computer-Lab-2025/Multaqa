@@ -4,7 +4,7 @@ import { IAdministration, ADMIN_PERMISSIONS, EVENT_OFFICE_PERMISSIONS } from "..
 
 const administrationSchema = new Schema<IAdministration>({
   name: { type: String, required: true },
-  roleType: { type: String, enum: ["admin", "eventOffice"], required: true },
+  roleType: { type: String, enum: ["admin", "eventsOffice"], required: true },
   permissions: {
     type: [String],
     default: function (this: IAdministration) {
