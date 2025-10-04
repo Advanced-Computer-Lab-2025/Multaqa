@@ -15,8 +15,16 @@ async function findOne(req: Request, res: Response) {
   res.json(event);
 }
 
+async function deleteEvent(req: Request, res: Response) {
+  const id = req.params.id;
+  const deletedEvent = await eventsService.deleteEvent(id);
+  res.json(deletedEvent);
+  
+}
+
 const router = Router();
 router.get("/events", findAll);
 router.get("/events/:id", findOne);
+router.delete("/events/:id", deleteEvent);
 
 export default router;
