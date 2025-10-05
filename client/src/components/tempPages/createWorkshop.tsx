@@ -110,17 +110,10 @@ export default function CreateWorkshopPage() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700}>Create Workshop</Typography>
-          <Typography variant="body2" color="text.secondary">Craft an engaging experience. Keep details clear and concise.</Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <FilterChip label={location} variant="select" active />
-        </Box>
-      </Box>
-
       <NeumorphicBox containerType="outwards" padding="20px" borderRadius="16px" margin="0 0 0px 0">
+        <Box className="mb-3">
+          <Typography variant="h4" fontWeight={700} color="primary" className="text-center">Create Workshop</Typography>
+        </Box>
         <Accordion defaultExpanded sx={{ mb: 0 }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="basics-content" id="basics-header">
             <Typography variant="h6" fontWeight={600}>Basics</Typography>
@@ -148,7 +141,6 @@ export default function CreateWorkshopPage() {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextField label="Short Description" value={shortDesc} onChange={e => setShortDesc(e.target.value)} multiline rows={1} fullWidth />
-                <Typography variant="caption" color="text.secondary">One-liner that sells the value. You can add details in agenda.</Typography>
               </Grid>
             </Grid>
           </AccordionDetails>
@@ -266,65 +258,13 @@ export default function CreateWorkshopPage() {
             <Typography variant="h6" fontWeight={600}>Agenda</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, gap: 2 }}>
-              <Typography variant="h6" fontWeight={600} sx={{ display: 'none' }}>Agenda</Typography>
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <TextField
-                  size="small"
-                  placeholder="Agenda item title"
-                  value={agendaInput}
-                  onChange={e => setAgendaInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAgendaItem(agendaInput); } }}
-                />
-                <CustomButton onClick={() => addAgendaItem(agendaInput)}>Add</CustomButton>
-                <CustomButton onClick={() => addAgendaItem()} variant="outlined">+ Blank</CustomButton>
-              </Box>
-            </Box>
-            <Divider sx={{ mb: 0 }} />
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {agenda.length === 0 && (
-                <Typography variant="body2" color="text.secondary">No agenda items yet. Add sessions, talks, or breaks.</Typography>
-              )}
-              {agenda.map((item, idx) => (
-                <Accordion key={item.id}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`agenda-content-${item.id}`} id={`agenda-header-${item.id}`}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      <Typography sx={{ fontWeight: 600 }}>{item.title || `Agenda Item ${idx + 1}`}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {item.start && item.end ? `${item.start} - ${item.end}` : item.start || item.end || ''}
-                      </Typography>
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Grid container spacing={1} alignItems="flex-start" sx={{ p: 1.5 }}>
-                      <Grid size={{ xs: 12, md: 5 }}>
-                        <TextField fullWidth label={`Agenda Title #${idx + 1}`} value={item.title} onChange={e => updateAgendaItem(item.id, { title: e.target.value })} />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 3 }}>
-                        <TextField type="datetime-local" InputLabelProps={{ shrink: true }} label="Start" value={item.start} onChange={e => updateAgendaItem(item.id, { start: e.target.value })} fullWidth />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 3 }}>
-                        <TextField type="datetime-local" InputLabelProps={{ shrink: true }} label="End" value={item.end} onChange={e => updateAgendaItem(item.id, { end: e.target.value })} fullWidth />
-                      </Grid>
-                      <Grid size={{ xs: 12, md: 1 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <CustomButton color="error" variant="outlined" onClick={() => removeAgendaItem(item.id)}>Remove</CustomButton>
-                      </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <TextField fullWidth multiline rows={2} label="Description" value={item.description} onChange={e => updateAgendaItem(item.id, { description: e.target.value })} />
-                      </Grid>
-                    </Grid>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-            </Box>
           </AccordionDetails>
         </Accordion>
+        <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end', mt: 2 }}>
+          <CustomButton onClick={() => window.history.back()} variant="contained">Cancel</CustomButton>
+          <CustomButton onClick={saveWorkshop} variant="contained">Save Workshop</CustomButton>
+        </Box>
       </NeumorphicBox>
-
-      <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end', mt: 2 }}>
-        <CustomButton onClick={() => window.history.back()} variant="text">Cancel</CustomButton>
-        <CustomButton onClick={saveWorkshop} variant="contained">Save Workshop</CustomButton>
-      </Box>
     </Container>
   );
 }
