@@ -4,7 +4,7 @@ import { IUser } from "./user.interface";
 export interface IVendor extends IUser {
   companyName: string;
   taxCard: string;
-  logo?: string;
+  logo: string;
   loyaltyProgram?: {
     discountRate: number;
     promoCode: string;

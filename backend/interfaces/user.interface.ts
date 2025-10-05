@@ -11,10 +11,10 @@ export interface INotification {
 export interface IUser extends Document {
   email: string;
   password: string;
-  status: UserStatus;
+  status?: UserStatus;
   role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
-  isVerified: boolean;
-  notifications: INotification[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  isVerified?: boolean;
+  notifications?: INotification[];
 }
