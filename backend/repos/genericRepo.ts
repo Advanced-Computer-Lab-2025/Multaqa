@@ -12,7 +12,7 @@ export default class GenericRepository<T extends Document> {
   }
 
   async findById(id: string): Promise<T | null> {
-    return (await this.model.findById(id).lean()) as any;
+    return await this.model.findById(id);
   }
 
   async findAll(filter = {}): Promise<T[]> {
