@@ -6,8 +6,13 @@ import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import Link from "next/link";
+import { Box, Typography, CircularProgress } from "@mui/material";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { useTheme } from "@mui/material/styles";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
+  const theme = useTheme();
+
   const initialValues =
     UserType !== "vendor"
       ? {
@@ -42,14 +47,19 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             containerType="outwards"
             padding="30px"
             margin="20px"
-            width="600px"
+            width="650px"
             borderRadius="20px"
           >
             <div className="flex flex-col items-center justify-center gap-6">
               {/* Header */}
               <div className="text-center mb-6">
-                <h1 className="text-4xl font-bold">Multaqa</h1>
-                <p className="text-gray-500">
+                <h1
+                  className="text-4xl font-bold"
+                  style={{ color: theme.palette.text.primary }}
+                >
+                  Multaqa
+                </h1>
+                <p style={{ color: theme.palette.text.secondary }}>
                   Create your account to get started
                 </p>
               </div>
@@ -57,34 +67,47 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
               {/* Conditional Fields */}
               {UserType !== "vendor" ? (
                 <>
-                  <div className="w-full">
-                    <CustomTextField
-                      id="firstName"
-                      label="First Name"
-                      fieldType="text"
-                      {...formik.getFieldProps("firstName")}
-                    />
-                    {formik.touched.firstName && formik.errors.firstName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.firstName}
-                      </p>
-                    )}
-                  </div>
+                  <div className="flex gap-4 w-full flex-row">
+                    <div className=" w-full">
+                      <CustomTextField
+                        id="firstName"
+                        label="First Name"
+                        fieldType="text"
+                        {...formik.getFieldProps("firstName")}
+                      />
+                      {formik.touched.firstName && formik.errors.firstName && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.firstName}
+                          </Typography>
+                        </Box>
+                      )}
+                    </div>
 
-                  <div className="w-full">
-                    <CustomTextField
-                      id="lastName"
-                      label="Last Name"
-                      fieldType="text"
-                      {...formik.getFieldProps("lastName")}
-                    />
-                    {formik.touched.lastName && formik.errors.lastName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.lastName}
-                      </p>
-                    )}
+                    <div className="w-full">
+                      <CustomTextField
+                        id="lastName"
+                        label="Last Name"
+                        fieldType="text"
+                        {...formik.getFieldProps("lastName")}
+                      />
+                      {formik.touched.lastName && formik.errors.lastName && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.lastName}
+                          </Typography>
+                        </Box>
+                      )}
+                    </div>
                   </div>
-
                   <div className="w-full">
                     <CustomTextField
                       id="studentId"
@@ -93,9 +116,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                       {...formik.getFieldProps("gucId")}
                     />
                     {formik.touched.gucId && formik.errors.gucId && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.gucId}
-                      </p>
+                      <Box display="flex" alignItems="center" mt={1}>
+                        <ErrorOutlineIcon
+                          color="error"
+                          sx={{ fontSize: 16, mr: 0.5 }}
+                        />
+                        <Typography variant="caption" color="error">
+                          {formik.errors.gucId}
+                        </Typography>
+                      </Box>
                     )}
                   </div>
                 </>
@@ -108,9 +137,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     {...formik.getFieldProps("companyName")}
                   />
                   {formik.touched.companyName && formik.errors.companyName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.companyName}
-                    </p>
+                    <Box display="flex" alignItems="center" mt={1}>
+                      <ErrorOutlineIcon
+                        color="error"
+                        sx={{ fontSize: 16, mr: 0.5 }}
+                      />
+                      <Typography variant="caption" color="error">
+                        {formik.errors.companyName}
+                      </Typography>
+                    </Box>
                   )}
                 </div>
               )}
@@ -125,9 +160,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   {...formik.getFieldProps("email")}
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.email}
-                  </p>
+                  <Box display="flex" alignItems="center" mt={1}>
+                    <ErrorOutlineIcon
+                      color="error"
+                      sx={{ fontSize: 16, mr: 0.5 }}
+                    />
+                    <Typography variant="caption" color="error">
+                      {formik.errors.email}
+                    </Typography>
+                  </Box>
                 )}
               </div>
 
@@ -139,9 +180,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   {...formik.getFieldProps("password")}
                 />
                 {formik.touched.password && formik.errors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.password}
-                  </p>
+                  <Box display="flex" alignItems="center" mt={1}>
+                    <ErrorOutlineIcon
+                      color="error"
+                      sx={{ fontSize: 16, mr: 0.5 }}
+                    />
+                    <Typography variant="caption" color="error">
+                      {formik.errors.password}
+                    </Typography>
+                  </Box>
                 )}
               </div>
 
@@ -154,32 +201,58 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                 />
                 {formik.touched.confirmPassword &&
                   formik.errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.confirmPassword}
-                    </p>
+                    <Box display="flex" alignItems="center" mt={1}>
+                      <ErrorOutlineIcon
+                        color="error"
+                        sx={{ fontSize: 16, mr: 0.5 }}
+                      />
+                      <Typography variant="caption" color="error">
+                        {formik.errors.confirmPassword}
+                      </Typography>
+                    </Box>
                   )}
               </div>
 
               {/* Submit Button */}
               <div className="w-full mt-4">
-                <CustomButton
-                  type="submit"
-                  variant="contained"
-                  width="100%"
-                  disableElevation
-                  label={formik.isSubmitting ? "Submitting..." : "Submit"}
-                  disabled={formik.isSubmitting}
-                  className="w-full"
-                />
+                <div style={{ position: "relative", width: "100%" }}>
+                  <CustomButton
+                    type="submit"
+                    variant="contained"
+                    width="100%"
+                    disableElevation
+                    label={formik.isSubmitting ? "" : "Create account"}
+                    disabled={formik.isSubmitting}
+                    className="w-full"
+                  />
+                  {formik.isSubmitting && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <CircularProgress size={24} sx={{ color: "white" }} />
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Sign In Link */}
               <div className="mt-4 text-center">
-                <p className="text-sm text-gray-600">
-                    Already have an account?{" "}
+                <p
+                  className="text-sm"
+                  style={{ color: theme.palette.text.primary }}
+                >
+                  Already have an account?{" "}
                   <Link
                     href="/login"
-                    className="font-medium text-purple-600 hover:underline"
+                    className="font-medium hover:underline"
+                    style={{ color: theme.palette.primary.main }}
                   >
                     Sign in
                   </Link>

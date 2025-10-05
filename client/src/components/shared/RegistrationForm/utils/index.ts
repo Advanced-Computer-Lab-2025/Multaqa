@@ -3,37 +3,37 @@ import { UserType } from "../types";
 
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
-    .min(8, "Password must be at least 8 characters")
+    .min(8, "Password must be at least 8 characters long.")
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      "Password must include at least one uppercase letter, one lowercase letter, and one number."
     )
-    .required("Password is required");
+    .required("Please enter your password.");
 
-  const confirmPasswordSchema =  Yup.string()
+  const confirmPasswordSchema = Yup.string()
     .min(8)
-    .oneOf([Yup.ref("password")], "Passwords must match")
-    .required("Confirm Password is required");
+    .oneOf([Yup.ref("password")], "The passwords do not match.")
+    .required("Please confirm your password.");
 
   const emailSchema = Yup.string()
-    .email("Invalid email address")
-    .required("Email is required");
+    .email("Please enter a valid email address.")
+    .required("Please enter your email address.");
 
   switch (userType) {
     case "student":
       return Yup.object({
         firstName: Yup.string()
-          .max(15, "Must be 15 characters or less")
-          .required("First name is required"),
+          .max(15, "First name cannot be more than 15 characters.")
+          .required("Please enter your first name."),
         lastName: Yup.string()
-          .max(20, "Must be 20 characters or less")
-          .required("Last name is required"),
+          .max(20, "Last name cannot be more than 20 characters.")
+          .required("Please enter your last name."),
         gucId: Yup.string()
           .matches(
-            /^[0-9]{1,2}-[0-9]{4,5}$/, 
-            "Invalid GUC ID format (e.g. XX-XXXXX or X-XXXXX)"
+            /^[0-9]{1,2}-[0-9]{4,5}$/,
+            "Please enter a valid GUC ID format (e.g., 49-12345)."
           )
-          .required("Student ID is required"),
+          .required("Please enter your GUC ID."),
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
@@ -42,12 +42,12 @@ export const getValidationSchema = (userType: UserType) => {
     case "staff":
       return Yup.object({
         firstName: Yup.string()
-          .max(15, "Must be 15 characters or less")
-          .required("First name is required"),
+          .max(15, "First name cannot be more than 15 characters.")
+          .required("Please enter your first name."),
         lastName: Yup.string()
-          .max(20, "Must be 20 characters or less")
-          .required("Last name is required"),
-        gucId: Yup.string().required("Staff ID is required"),
+          .max(20, "Last name cannot be more than 20 characters.")
+          .required("Please enter your last name."),
+        gucId: Yup.string().required("Please enter your Staff ID."),
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
@@ -56,8 +56,8 @@ export const getValidationSchema = (userType: UserType) => {
     case "vendor":
       return Yup.object({
         companyName: Yup.string()
-          .min(2, "Company name must be at least 2 characters")
-          .required("Company name is required"),
+          .min(2, "Company name must be at least 2 characters long.")
+          .required("Please enter your company name."),
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
