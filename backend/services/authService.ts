@@ -9,6 +9,7 @@ import { IStudent } from '../interfaces/student.interface';
 import { Student } from '../schemas/stakeholder-schemas/studentSchema';
 import { IStaffMember } from '../interfaces/staffMember.interface';
 import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
+import redisClient from '../config/redisClient';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -22,7 +23,7 @@ export class AuthService {
   }
 
   // signup for Students, TAs, staff, professors
-  async signup(signupData: StudentAndStaffSignupRequest): Promise<{ user: Omit<IUser, 'password'>, token: string }> {
+  async signup(signupData: StudentAndStaffSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -53,7 +54,7 @@ export class AuthService {
           role: UserRole.STUDENT,
         }
       );
-    } 
+    }
     else { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
         {
@@ -68,20 +69,16 @@ export class AuthService {
       );
     }
 
-    // Generate JWT token
-    const token = this.generateToken(createdUser!);
-
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser?.toObject()!;
 
     return {
       user: userWithoutPassword as Omit<IUser, 'password'>,
-      token
     };
   }
 
   // signup for vendors
-  async signupVendor(signupData: VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'>, token: string }> {
+  async signupVendor(signupData: VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -102,20 +99,16 @@ export class AuthService {
       role: UserRole.VENDOR,
     });
 
-    // Generate JWT token
-    const token = this.generateToken(createdUser);
-
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
     return {
       user: userWithoutPassword as Omit<IUser, 'password'>,
-      token
     };
   }
 
   // for all users
-  async login(loginRequest: LoginRequest): Promise<{ user: Omit<IUser, 'password'>, token: string }> {
+  async login(loginRequest: LoginRequest): Promise<{ user: Omit<IUser, 'password'>, tokens: { accessToken: string, refreshToken: string } }> {
     const { email, password } = loginRequest;
 
     // Find user by email
@@ -135,27 +128,65 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    // Generate JWT token
-    const token = this.generateToken(user);
+    // Generate JWT tokens
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = this.generateRefreshToken(user);
+
+    // Store refresh token in Redis with expiration (7 days)
+    await redisClient.setEx(
+      `refresh:${refreshToken}`,
+      60 * 60 * 24 * 7, // 7 days
+      user.id.toString()
+    );
+    const tokens = { accessToken, refreshToken };
 
     // Remove password from response and convert to plain object
     const { password: _, ...userWithoutPassword } = user.toObject ? user.toObject() : user;
 
     return {
       user: userWithoutPassword as Omit<IUser, 'password'>,
-      token
+      tokens
     };
   }
 
-  private generateToken(user: IUser): string {
-    const payload = {
-      userId: user._id,
-      email: user.email,
-      role: user.role,
-    };
+  async refreshToken(token: string): Promise<string> {
+    if (!token) 
+      throw new Error('No refresh token provided');
+    
+    const userId = await redisClient.get(`refresh:${token}`);
+    if (!userId) 
+      throw new Error('Invalid or expired refresh token');
 
-    return jwt.sign(payload, process.env.JWT_SECRET! as Secret, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    if(!process.env.REFRESH_TOKEN_SECRET) 
+      throw new Error('Missing Refresh Token Secret');
+
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, process.env.REFRESH_TOKEN_SECRET as Secret, (err, user: any) => {
+        if (err) 
+          return reject(new Error('Invalid or expired refresh token'));
+        const newAccess = this.generateAccessToken(user);
+        resolve(newAccess);
+      });
+    });
+  }
+
+  async logout(token: string): Promise<void> {
+    if (!token) 
+      throw new Error('No refresh token provided');
+    await redisClient.del(`refresh:${token}`);
+  }
+
+
+  generateAccessToken(user: IUser): string {
+    return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.ACCESS_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRES
     } as SignOptions);
   }
+
+  generateRefreshToken(user: IUser): string {
+    return jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES
+    } as SignOptions);
+  }
+
 }

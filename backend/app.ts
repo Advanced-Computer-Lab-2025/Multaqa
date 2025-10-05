@@ -3,11 +3,15 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
+import authRouter from "./routes/auth.routes";
+import "./config/redisClient";
 dotenv.config();
 
 const app = express();
 app.use(json());
 app.use(eventRouter);
+app.use('/api/auth', authRouter);
+
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
@@ -20,9 +24,8 @@ async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB");
+    console.log("✅ Connected to MongoDB:", mongoose.connection.name);
     const PORT = process.env.PORT || 3000;
-    console.log("Connected to DB:", mongoose.connection.name);
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

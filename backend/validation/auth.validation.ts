@@ -27,10 +27,10 @@ export const signupStudentAndStaffValidationSchema = Joi.object({
     .max(50)
     .required(),
   gucId: Joi.string()
-    .pattern(/^\d{2}-\d{4,5}$/)
+    .pattern(/^\d{1,2}-\d{4,5}$/) // ex: 1-2345 or 1-34567 or 12-3456 or 12-34567
     .required()
     .messages({
-      'string.pattern.base': 'GUC ID must be in format XX-XXXX or XX-XXXXX'
+      'string.pattern.base': 'GUC ID must be in format XX-XXXX or XX-XXXXX or X-XXXX or X-XXXXX (X is a digit)'
     })
 });
 
