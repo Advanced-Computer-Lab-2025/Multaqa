@@ -3,38 +3,21 @@
 import * as React from 'react';
 import { 
     Box, Typography, Select, useTheme, 
-    Card, SxProps, Theme, IconButton, InputBase
+    Card, SxProps, Theme, IconButton, InputBase,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import CustomButton from '../Buttons/CustomButton';
 import Chip from '../Chip/Chip';
 import SearchIcon from '@mui/icons-material/Search';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import FilterSlider from '../../Slider/FilterSlider';
+import {ContainerType, FilterBoxProps, FilterGroup } from './types';
+import ArrowDropDownIcon from '@mui/icons-material/Search';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 export { default as SearchTextField } from '../Searchbar/SearchTextField'; 
 
-// 1. TYPE DEFINITIONS
-type FilterComponentType = 'chip' | 'select' | 'range' | 'sort' | 'text';
-type ContainerType = "inwards" | "outwards";
-interface FilterOption { label: string; value: string | number; }
-
-export interface FilterGroup { 
-    id: string; 
-    title: string; 
-    type: FilterComponentType; 
-    options?: FilterOption[]; 
-    min?: number; 
-    max?: number; 
-    placeholder?: string;
-}
-
-interface FilterBoxProps {
-    filterGroups: FilterGroup[];
-    onFilterChange: (groupId: string, value: any) => void; 
-    currentFilters: Record<string, any>;
-    sx?: SxProps<Theme>;
-    onReset?: () => void;
-}
 
 const isSelected = (groupId: string, value: string | number, currentFilters: Record<string, any>): boolean => {
     const current = currentFilters[groupId];
@@ -163,8 +146,7 @@ const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<string, 
                                 minWidth: '100px',
                                 backgroundColor: theme.palette.background.default,
                                 '& input': { padding: 0 },
-                                fontSize: '0.75rem',
-                                px: 0.7,
+                                fontSize: '0.7rem',
                             }}
                         />
 
@@ -234,25 +216,6 @@ const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<string, 
     }
 };
 
-const renderRangeSlider = (
-    group: FilterGroup,
-    currentFilters: Record<string, any>,
-    onFilterChange: (groupId: string, value: any) => void
-) => {
-    const theme = useTheme();
-    return (
-        <Box>
-            <FilterSlider
-                value={currentFilters[group.id] || [group.min || 0, group.max || 100]}
-                onChange={(_event, newValue) => onFilterChange(group.id, newValue)}
-                min={group.min}
-                max={group.max}
-                valueLabelDisplay="off"
-            />
-        </Box>
-    );
-};
-
 // 4. MAIN EXPORT COMPONENT
 const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, currentFilters, sx, onReset }) => {
     const theme = useTheme();
@@ -261,8 +224,6 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
         switch (group.type) {
             case 'chip':
                 return renderChipGroup(group, currentFilters, onFilterChange);
-            case 'range':
-                return renderRangeSlider(group, currentFilters, onFilterChange);
             case 'text':
             case 'select':
                 return renderInputOrSelect(group, currentFilters, onFilterChange);
@@ -272,29 +233,32 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
     };
 
 return (
-        <FilterCardWrapper sx={sx}>             
-            <Box sx={{ mt: 0, '& > div:not(:last-child)': { mb: 1 } }}>
+        <FilterCardWrapper sx={{width:"270px"}}>             
+            <Box sx={{ maxHeight:"500px", overflow:"auto", mt: 0, '& > div:not(:last-child)': { mb: 1 } }}>
                 {filterGroups.map((group, index) => (
-                    <Box 
-                        key={group.id}
-                        sx={{
-                            // Conditional divider for all but the last group
-                            borderBottom: index < filterGroups.length - 1 
-                                ? `1px solid ${theme.palette.divider}`
-                                : 'none',
-                            pb: index < filterGroups.length - 1 ? 2 : 0, 
-                        }}
-                    >
-                        <Typography variant="body1" sx={{ fontWeight: '600', mb: 1, fontSize: '0.78rem', fontFamily: 'var(--font-poppins), system-ui, sans-serif' }}>
-                            {group.title}
-                        </Typography>
-                        {renderFilter(group)}
-                    </Box>
+                     <Accordion slotProps={{ heading: { component: 'h4' } }}  defaultExpanded color="primary" sx={{ backgroundColor:"transparent", borderTop:`1px solid ${theme.palette.primary.main}`, borderBottom:`1px solid ${theme.palette.primary.main}`, boxShadow:"none", borderRadius:"0"
+                            }} >
+                         <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                            sx={{borderRadius:"0px"}}
+                            >
+                                <Typography variant="body1" sx={{ fontWeight: '600', fontSize: '0.78rem', fontFamily: 'var(--font-poppins), system-ui, sans-serif' }}>
+                                    {group.title}
+                                </Typography>
+                          </AccordionSummary>
+                    <AccordionDetails>
+                        <Box key={group.id} >
+                            {renderFilter(group)}
+                        </Box>
+                    </AccordionDetails>
+                    </Accordion>
                 ))}
             </Box>
             {/* Action Buttons */}
-            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'flex-end', gap:1 }}>
-                <CustomButton size="small" variant="text" sx={{px: 1.5, fontWeight: 600 }} onClick={() => {
+            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap:1 }}>
+                <CustomButton size="small" variant="text" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px" }} onClick={() => {
                     if (onReset) {
                         onReset();
                         return;
@@ -321,7 +285,7 @@ return (
                 }}>
                     Reset Filters
                 </CustomButton>
-                <CustomButton size="small" variant="contained" sx={{px: 1.5, fontWeight: 600 }}>
+               <CustomButton size="small" variant="contained" sx={{px: 1.5, width:"w-fit", height:"28px" ,fontWeight: 600, padding:"10px" }}>
                     Apply Filters
                 </CustomButton>
             </Box>

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import lightTheme from '../../../themes/lightTheme'; 
-import FilterBox, { FilterGroup } from './FilterBox'; 
+import { FilterGroup } from './types'; 
 import FilterPanel from './FilterPanel';
 
 // EXAMPLE DATA
@@ -38,13 +38,6 @@ const stakeholderFilterData: FilterGroup[] = [
             { label: 'Online', value: 'online' },
             { label: 'Off-site', value: 'offsite' },
         ],
-    },
-        {
-        id: 'attendeeCount',
-        title: 'Attendee Count',
-        type: 'range',
-        min: 5,
-        max: 500,
     },
 ];
 

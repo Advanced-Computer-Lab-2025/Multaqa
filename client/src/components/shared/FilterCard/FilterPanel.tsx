@@ -1,7 +1,8 @@
 "use client";
 import * as React from 'react';
 import { Box, Popper, ClickAwayListener, Grow, Paper } from '@mui/material';
-import FilterBox, { FilterGroup } from './FilterBox';
+import  { FilterGroup } from './types';
+import FilterBox from "./FilterBox"
 import CustomButton from '../Buttons/CustomButton';
 
 interface FilterPanelProps {
