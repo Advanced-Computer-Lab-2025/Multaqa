@@ -1,29 +1,44 @@
 import { IEvent } from "../interfaces/event.interface";
+import { EventRepo } from "../repos/eventsRepo";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema"; 
 import { forbidden } from "joi";
 import { ConflictException } from "node-http-exceptions";
 
 export class EventsService {
-  private eventRepo: GenericRepository<IEvent>;
+  private eventgeneralRepo: GenericRepository<IEvent>;
+  private eventRepo: EventRepo;
   constructor() {
-    this.eventRepo = new GenericRepository(Event);
+    this.eventgeneralRepo = new GenericRepository(Event);
+    this.eventRepo = new EventRepo(Event);
   }
 
-  async getAllEvents(): Promise<IEvent[]> {
-    return await this.eventRepo.findAll();
+
+  async getAllEvents(query?: {
+    search?: string;
+    type?: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
+    sort?: boolean;
+  }): Promise<IEvent[]> {
+    return this.eventRepo.getFilteredEvents(query);
   }
+
+
+
+
 
   async getEventById(id: string): Promise<IEvent | null> {
-    return await this.eventRepo.findById(id);
+    return await this.eventgeneralRepo.findById(id);
   }
 
   async deleteEvent(id: string): Promise<IEvent | null> {
-    const event = await this.eventRepo.findById(id);
+    const event = await this.eventgeneralRepo.findById(id);
     if (!event || (event.attendees.length > 0)) {
       //will replace with a throw later
       return null;
     }
-    return await this.eventRepo.delete(id);
+    return await this.eventgeneralRepo.delete(id);
   }
 }

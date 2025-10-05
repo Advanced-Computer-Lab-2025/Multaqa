@@ -4,9 +4,20 @@ import { EventsService } from "../services/eventService";
 const eventsService = new EventsService();
 
 async function findAll(req: Request, res: Response) {
-  const events = await eventsService.getAllEvents();
-  console.log(events);
-  res.json(events);
+ try {
+    const { search,type,location,startDate,endDate,sort } = req.query; // extract search param
+    const events = await eventsService.getAllEvents({
+      search: search as string, 
+      type: type as string,
+      location: location as string,
+      startDate: startDate as string,
+      endDate: endDate as string,
+      sort: sort as unknown as boolean
+    });
+    res.json(events);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 }
 
 async function findOne(req: Request, res: Response) {
