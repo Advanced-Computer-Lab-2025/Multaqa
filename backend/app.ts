@@ -3,11 +3,13 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
+import userRouter from "./routes/user.routes";
 dotenv.config();
 
 const app = express();
 app.use(json());
 app.use(eventRouter);
+app.use(userRouter);
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
