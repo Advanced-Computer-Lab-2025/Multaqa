@@ -21,7 +21,8 @@ const StyledBox = styled(Box)<{ containerType: "inwards" | "outwards" }>(({
       -5px -5px 10px 0 #FAFBFF,
       5px 5px 10px 0 rgba(22, 27, 29, 0.25)
     `,
-  transition: "all 0.3s ease-in-out",
+  transition: "box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+  transform: containerType === "inwards" ? "scale(0.998)" : "scale(1)",
 }));
 
 
