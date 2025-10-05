@@ -13,7 +13,7 @@ export const getValidationSchema = (userType: UserType) => {
   const confirmPasswordSchema =  Yup.string()
     .min(8)
     .oneOf([Yup.ref("password")], "Passwords must match")
-    .required();
+    .required("Confirm Password is required");
 
   const emailSchema = Yup.string()
     .email("Invalid email address")
@@ -30,7 +30,7 @@ export const getValidationSchema = (userType: UserType) => {
           .required("Last name is required"),
         gucId: Yup.string()
           .matches(
-            /^[0-9]{1,2}-[0-9]{1,5}$/, 
+            /^[0-9]{1,2}-[0-9]{4,5}$/, 
             "Invalid GUC ID format (e.g. XX-XXXXX or X-XXXXX)"
           )
           .required("Student ID is required"),
@@ -56,7 +56,7 @@ export const getValidationSchema = (userType: UserType) => {
     case "vendor":
       return Yup.object({
         companyName: Yup.string()
-          .min(3, "Company name must be at least 3 characters")
+          .min(2, "Company name must be at least 2 characters")
           .required("Company name is required"),
         email: emailSchema,
         password: passwordSchema,

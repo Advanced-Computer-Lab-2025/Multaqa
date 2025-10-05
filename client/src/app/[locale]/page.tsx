@@ -139,7 +139,7 @@ export default function HomePage() {
     //     </div>
     //   </div>
     // </div>
-    <div className="flex items-center justify-center gap-5 flex-col">
+    <div className="flex items-center justify-center gap-5 flex-row">
       <RegistrationForm UserType="student" />
       <RegistrationForm UserType="vendor" />
     </div>
