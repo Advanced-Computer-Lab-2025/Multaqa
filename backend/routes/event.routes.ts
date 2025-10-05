@@ -18,8 +18,7 @@ async function findOne(req: Request, res: Response) {
 async function deleteEvent(req: Request, res: Response) {
   const id = req.params.id;
   const deletedEvent = await eventsService.deleteEvent(id);
-  res.json(deletedEvent);
-  
+  res.json({ event: deletedEvent });
 }
 
 const router = Router();

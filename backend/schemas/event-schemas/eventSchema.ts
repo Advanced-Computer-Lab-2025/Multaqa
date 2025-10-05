@@ -34,7 +34,16 @@ EventSchema.virtual("is_passed").get(function (this: IEvent) {
   return new Date() > this.event_end_date;
 });
 
-EventSchema.set("toJSON", { virtuals: true });
+EventSchema.set("toJSON", {
+  virtuals: true,
+  transform: function (doc, ret) {
+    // Explicitly ensure attendees is included
+    if (doc.attendees !== undefined) {
+      ret.attendees = doc.attendees;
+    }
+    return ret;
+  },
+});
 EventSchema.set("toObject", { virtuals: true });
 
 export const Event = model<IEvent>("Event", EventSchema);
