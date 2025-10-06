@@ -5,6 +5,7 @@ import lightTheme from '../../../themes/lightTheme';
 import { FilterGroup } from './types'; 
 import FilterPanel from './FilterPanel';
 
+
 // EXAMPLE DATA
 const stakeholderFilterData: FilterGroup[] = [
     {
@@ -30,7 +31,7 @@ const stakeholderFilterData: FilterGroup[] = [
         ],
     },
     {
-        id: 'location',
+        id: 'location2',
         title: 'Location',
         type: 'chip',
         options: [
@@ -39,6 +40,44 @@ const stakeholderFilterData: FilterGroup[] = [
             { label: 'Off-site', value: 'offsite' },
         ],
     },
+        {
+        id: 'eventType1',
+        title: 'Event Type',
+        type: 'chip',
+        options: [
+            { label: 'Workshop', value: 'wk' },
+            { label: 'Conference', value: 'conf' },
+            { label: 'Lecture', value: 'lec' },
+            { label: 'Training', value: 'train' },
+        ],
+    },
+        {
+        id: 'location1',
+        title: 'Location',
+        type: 'chip',
+        options: [
+            { label: 'Campus', value: 'main' },
+            { label: 'Online', value: 'online' },
+            { label: 'Off-site', value: 'offsite' },
+        ],
+    },
+    {
+        id: 'Lecturers',
+        title: 'Lecturers',
+        type: 'chip',
+        options: [
+            { label: 'Dr. Smith', value: 'smith' },
+            { label: 'Prof. Johnson', value: 'johnson' },
+            { label: 'Dr. Lee', value: 'lee' },
+            { label: 'Prof. Brown', value: 'brown' },
+        ],
+    },
+    {
+        id: 'Event Date',
+        title: 'Event Date',
+        type: 'date',
+    }
+
 ];
 
 // RENDER COMPONENT WITH STATE LOGIC
