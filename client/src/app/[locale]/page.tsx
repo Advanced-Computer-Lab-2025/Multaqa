@@ -8,10 +8,13 @@ import CustomIcon from "@/components/shared/Icons/CustomIcon";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import { CustomModalLayout } from "@/components/shared/modals";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
+import CreateBazaar from "@/components/tempPages/CreateBazaar";
 
 export default function HomePage() {
   const [open, setOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const handleClose = () => setOpen(false);
+  const handleCreateClose = () => setCreateOpen(false);
 
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
@@ -43,6 +46,10 @@ export default function HomePage() {
           <h2 className="text-lg font-semibold">Modal Title</h2>
           <p className="mt-2">Modal content goes here.</p>
         </div>
+      </CustomModalLayout>
+      <CustomButton onClick={() => setCreateOpen(true)}>Create Bazaar</CustomButton>
+      <CustomModalLayout open={createOpen} onClose={handleCreateClose}>
+        <CreateBazaar/>
       </CustomModalLayout>
       <div className="flex items-center justify-center gap-5">
         <CustomButton
