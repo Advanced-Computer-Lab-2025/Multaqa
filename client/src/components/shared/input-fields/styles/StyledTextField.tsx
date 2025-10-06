@@ -2,7 +2,9 @@ import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FieldType, StakeholderType } from '../types';
 
-export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorphicBox?: boolean; stakeholderType?: StakeholderType }>(({ neumorphicBox, fieldType, stakeholderType }) => ({
+export const StyledTextField = styled(TextField, {
+  shouldForwardProp: (prop) => prop !== 'fieldType' && prop !== 'neumorphicBox' && prop !== 'stakeholderType',
+})<{ fieldType: FieldType; neumorphicBox?: boolean; stakeholderType?: StakeholderType }>(({ neumorphicBox, fieldType, stakeholderType }) => ({
   '& .MuiInput-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },

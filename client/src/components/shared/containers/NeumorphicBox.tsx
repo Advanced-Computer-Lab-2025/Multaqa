@@ -6,8 +6,9 @@ import { styled } from "@mui/material/styles";
 import { CustomBoxProps } from "./types";
 
 // styled wrapper for MUI Button
-const StyledBox = styled(Box)<{ containerType: "inwards" | "outwards" }>(({ 
-  theme,
+const StyledBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'containerType',
+})<{ containerType: "inwards" | "outwards" }>(({ 
   containerType
 }) => ({
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
