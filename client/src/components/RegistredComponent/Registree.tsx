@@ -4,7 +4,6 @@ import {
   Box,
   Stack,
   Avatar,
-  Tooltip,
   Select,
   MenuItem,
   FormControl,
@@ -17,29 +16,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import IdChip from './IdChip';
 import NeumorphicBox from '../shared/containers/NeumorphicBox';
 import theme from '@/themes/lightTheme';
-import { RegisterBoxProps, TruncatedTextProps } from './types';
-
-const TruncatedText: React.FC<TruncatedTextProps> = ({ children, maxChars = 40 , fontSize, fontWeight="600"}) => {
-  return (
-    <Tooltip title={children} arrow placement="top">
-      <Typography
-        variant="body2"
-        sx={{
-          color: '#1A1A1A',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          maxWidth: '100%',
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          fontFamily: "var(--font-poppins), system-ui, sans-serif"
-        }}
-      >
-        {children}
-      </Typography>
-    </Tooltip>
-  );
-};
+import { RegisterBoxProps} from "./types"
+import {TruncatedText} from "./utils"
 
 
 const RegisterBox: React.FC<RegisterBoxProps> = ({
@@ -72,66 +50,77 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
         border:"1px solid #7851da",
         borderRadius: '16px',
         backgroundColor: "#e5e7eb",
-        maxWidth: '290px',
+        maxWidth: '340px',
         padding:"15px 20px",
         margin: '20px auto',
         fontFamily: "var(--font-poppins), system-ui, sans-serif",
       }}
     >
-      {/* Header: Name, ID, and Toggle Button (Fixed Width) */}
+      {/* Header: Outer Stack controls Name/ID Group vs Arrow Icon */}
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ cursor: 'pointer', mb: isExpanded ? 2 : 0, width:"250px", fontFamily: "var(--font-poppins), system-ui, sans-serif",}}
+        sx={{ cursor: 'pointer', mb: isExpanded ? 2 : 0, width:"300px", fontFamily: "var(--font-poppins), system-ui, sans-serif",}}
         onClick={handleToggleExpand}
       >
-        {/* Name and ID Chip Group */}
-        
+        {/* Inner Stack: Controls ID (Left) vs Name (Right) */}
         <Stack
           direction="row"
-          justifyContent="start" 
+          justifyContent="end" 
           alignItems="center"
           spacing={2}
           sx={{
-            flexGrow: 1, 
+            flexGrow: 1, // Takes up max space before the arrow icon
             minWidth: 0,
             overflow: 'hidden',
             height:"60px",
-            maxWidth:"250px"
+            mr: 1 // Margin right to separate from the arrow icon
           }}
         >
-           <NeumorphicBox containerType="outwards" 
-           sx={{width:"w-fit", padding:"2px", borderRadius:"20px", boxShadow: `
+          {/* 1. ID Chip (LEFT - fixed width) */}
+          <NeumorphicBox 
+           containerType="outwards" 
+           sx={{
+             width:"w-fit", 
+             padding:"2px", 
+             borderRadius:"20px", 
+             boxShadow: `
                       -3px -3px 8px 0 #FAFBFF,
                       5px 5px 8px 0 rgba(107, 79, 150, 0.6)
-                                         `,}}>
-          <IdChip
-            avatar={
-              <Avatar>#</Avatar>
-            }
-            label={id}
-            variant="outlined"
-            color="primary"
-            sx={{ flexShrink: 0, fontWeight:"600"}}
-          />
+                                         `,
+             flexShrink: 0, // Ensure the ID chip is stable on the left
+           }}>
+            <IdChip
+              avatar={
+                <Avatar>#</Avatar>
+              }
+              label={id}
+              variant="outlined"
+              color="primary"
+              sx={{ fontWeight:"600"}}
+            />
           </NeumorphicBox>
 
+          {/* 2. Name Container (RIGHT - Takes up remaining space) */}
           <Box
             sx={{
-              flexGrow: 1, 
+              flexGrow: 1, // Allows Name to take the flexible space
               flexShrink: 1,
               minWidth: '50px', 
               fontSize: '20px', 
               fontWeight: 600,
               color: '#1A1A1A',
+              display:"flex",
+              justifyContent:"center" 
             }}
           >
+            {/* TruncatedText is used here */}
             <TruncatedText fontSize="16px" fontWeight="600" >{name}</TruncatedText>
           </Box>
         </Stack>
 
-        {/* Expansion/Collapse Icon - Stays on the far right */}
+        {/* 3. Expansion/Collapse Icon (FAR RIGHT) */}
         <IconButton
           size="small"
           aria-expanded={isExpanded}
@@ -148,7 +137,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           "&:hover": {
             borderColor: theme.palette.primary.main,
             transition: "all 0.3 ease-in-out",
-  }, }}
+          }, }}
         >
           {isExpanded ? (
             <KeyboardArrowUpIcon sx={{ fontSize: '24px', color: '#757575' }} />
@@ -170,7 +159,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                 fontWeight: 500,
                 width: '140px',
                 flexShrink: 0,
-                fontSize: '12px'
+                fontSize: '14px'
               }}
             >
               Role
@@ -206,13 +195,14 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                 fontWeight: 500,
                 width: '140px',
                 flexShrink: 0,
-                fontSize: '12px'
+                fontSize: '14px'
               }}
             >
               Email
             </Typography>
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <TruncatedText fontSize="12px" fontWeight="">{email}</TruncatedText>
+              {/* TruncatedText is used here */}
+              <TruncatedText fontSize="12px" fontWeight="500">{email}</TruncatedText>
             </Box>
           </Stack>
 
@@ -225,7 +215,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                 fontWeight: 500,
                 width: '140px',
                 flexShrink: 0,
-                fontSize: '12px'
+                fontSize: '14px'
               }}
             >
               Registration Date
@@ -238,7 +228,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  fontSize: '12px'
+                  fontSize: '14px'
                 }}
               >
                 {registrationDate}
