@@ -333,13 +333,46 @@ export const createFocusHandler = (
 
 /**
  * Generic blur handler - reusable for all input components
+ * Handles email domain completion for non-vendor stakeholder types
  */
 export const createBlurHandler = (
   setIsFocused: (focused: boolean) => void,
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void,
+  fieldType?: FieldType,
+  stakeholderType?: StakeholderType,
+  value?: unknown,
+  emailUsername?: string,
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 ) => {
   return (event: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
+    
+    // For email fields with non-vendor stakeholders, ensure domain is appended
+    if (
+      fieldType === "email" && 
+      stakeholderType && 
+      ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType) &&
+      onChange
+    ) {
+      const currentValue = String(value || '');
+      const username = emailUsername || currentValue.split('@')[0];
+      const domain = getEmailDomain(stakeholderType);
+      
+      // Only update if domain isn't already present
+      if (!currentValue.includes(domain)) {
+        const syntheticEvent = {
+          ...event,
+          target: {
+            ...event.target,
+            value: username + domain
+          }
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        
+        // Call the parent's onChange to update the full email
+        onChange(syntheticEvent);
+      }
+    }
+    
     if (onBlur) {
       onBlur(event);
     }

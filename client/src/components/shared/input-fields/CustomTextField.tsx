@@ -61,7 +61,15 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
   // Handle focus events
   const handleFocus = createFocusHandler(setIsFocused, props.onFocus);
-  const handleBlur = createBlurHandler(setIsFocused, props.onBlur);
+  const handleBlur = createBlurHandler(
+    setIsFocused, 
+    props.onBlur, 
+    fieldType, 
+    stakeholderType, 
+    value, 
+    emailUsername, 
+    onChange
+  );
 
   // Get the display value for email fields
   const getDisplayValue = () => {
