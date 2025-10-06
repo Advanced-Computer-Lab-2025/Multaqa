@@ -15,7 +15,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
 import { CustomModalProps } from './types';
-import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
+import { CustomModalBox, CustomModalCardWrapper } from './styles/StyledModal';
 
 export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2 }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
@@ -59,8 +59,8 @@ export default function CustomModal({ title, description, modalType, buttonOptio
         }}
       >
         <Fade in={open}>
-          <ModalCardWrapper>
-            <StyledModalBox>
+          <CustomModalCardWrapper>
+            <CustomModalBox>
             {/* Icon and Title Group - Wrapped in NeumorphicBox */}
             <NeumorphicBox
               containerType="inwards"
@@ -127,9 +127,10 @@ export default function CustomModal({ title, description, modalType, buttonOptio
             <Box 
               className="flex items-center mt-6" 
               sx={{ 
-                width: '100%',
-                justifyContent: buttonOption1 && buttonOption2 ? 'space-between' : 'flex-end',
-                gap: 3
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 2,
+                width: '100%'
               }}
             >
               {buttonOption1 && (
@@ -191,8 +192,8 @@ export default function CustomModal({ title, description, modalType, buttonOptio
                 </CustomButton>
               )}
             </Box>
-            </StyledModalBox>
-          </ModalCardWrapper>
+            </CustomModalBox>
+          </CustomModalCardWrapper>
         </Fade>
       </Modal>
     </>

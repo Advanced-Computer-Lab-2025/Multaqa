@@ -88,3 +88,49 @@ export const StyledModalBoxInward = styled(Box)(({ theme }) => ({
   `,
   transition: "all 0.3s ease-in-out",
 }));
+
+// CustomModal specific wrapper - smaller width (40% on md+ screens)
+export const CustomModalCardWrapper = styled(Card)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  borderRadius: '18px',
+  padding: '24px', // Add padding to the wrapper
+  overflow: 'visible',
+  maxHeight: '90vh',
+  display: 'flex',
+  flexDirection: 'column',
+  // Smaller widths for CustomModal
+  width: '90vw',
+  maxWidth: '90vw',
+  // Small screens (sm: 600px)
+  [theme.breakpoints.up('sm')]: {
+    width: '70vw',
+    maxWidth: '70vw',
+  },
+  // Medium screens and above (md: 900px) - Max 40% width
+  [theme.breakpoints.up('md')]: {
+    width: '40vw',
+    maxWidth: '40vw',
+  },
+}));
+
+// CustomModal specific box - inherits same styling as StyledModalBox
+export const CustomModalBox = styled(Box)(({ theme }) => ({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  backgroundColor: theme.palette.background.default,
+  borderRadius: '20px',
+  fontFamily: "var(--font-poppins), system-ui, sans-serif",
+  padding: '32px', // Add internal padding
+  // Neumorphic outward shadow effect
+  boxShadow: `
+    5px 5px 10px 0 rgba(22, 27, 29, 0.25),
+    -5px -5px 5px 0 #FAFBFF
+  `,
+  transition: "all 0.3s ease-in-out",
+  maxHeight: '90vh',
+  overflow: 'hidden',
+}));
