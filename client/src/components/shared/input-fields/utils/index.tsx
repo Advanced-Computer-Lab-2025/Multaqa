@@ -27,7 +27,7 @@ export const getEmailDomain = (stakeholderType?: StakeholderType) => {
     case "vendor":
       return "";
     default:
-      return "@guc.edu.eg";
+      return "";
   }
 };
 
