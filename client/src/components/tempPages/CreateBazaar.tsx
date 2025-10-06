@@ -1,6 +1,7 @@
 import { Grid, Typography } from '@mui/material'
 import { CustomTextField } from '../shared/input-fields'
 import React from 'react'
+import { C } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js'
 
 const CreateBazaar = () => {
   return (
@@ -14,7 +15,14 @@ const CreateBazaar = () => {
             <Grid size={6}>
                 <CustomTextField label="End Date" fullWidth margin="normal"  fieldType='text'/>
             </Grid>
+            <Grid size={6}>
+                <CustomTextField label="Deadline" fullWidth margin="normal"  fieldType='text'/>
+            </Grid>
+            <Grid size={6}>
+                <CustomTextField label="Location" fullWidth margin="normal"  fieldType='text'/>
+            </Grid>
         </Grid>
+        <CustomTextField label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3}/>
     </>
   )
 }
