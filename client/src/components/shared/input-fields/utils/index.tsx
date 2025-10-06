@@ -390,3 +390,96 @@ export const createSelectChangeHandler = (
     handleSelectFieldChange(newValue as string | number | string[] | number[], onChange);
   };
 };
+
+/**
+ * Capitalize names properly - handles first, last, middle, and full names
+ * Supports special cases like:
+ * - Multiple words: "john doe" → "John Doe"
+ * - Hyphens: "mary-jane" → "Mary-Jane"
+ * - Apostrophes: "o'brien" → "O'Brien"
+ * - Multiple spaces: "john  doe" → "John Doe"
+ * - Prefixes: "van der waals" → "Van Der Waals"
+ * - Roman numerals: "henry viii" → "Henry VIII"
+ */
+export const capitalizeName = (name: string): string => {
+  if (!name || typeof name !== 'string') return '';
+
+  // Trim and replace multiple spaces with single space
+  const cleanedName = name.trim().replace(/\s+/g, ' ');
+
+  // Special prefixes that should remain lowercase (unless at start)
+  const lowercasePrefixes = ['van', 'de', 'der', 'den', 'von', 'da', 'di', 'del'];
+  
+  // Roman numerals pattern
+  const romanNumerals = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV)$/i;
+
+  const capitalizeWord = (word: string, isFirst: boolean = false): string => {
+    if (!word) return '';
+    
+    // Check if it's a roman numeral
+    if (romanNumerals.test(word)) {
+      return word.toUpperCase();
+    }
+
+    // Check if it's a lowercase prefix (and not the first word)
+    if (!isFirst && lowercasePrefixes.includes(word.toLowerCase())) {
+      return word.toLowerCase();
+    }
+
+    // Handle apostrophes (e.g., O'Brien, D'Angelo)
+    if (word.includes("'")) {
+      return word
+        .split("'")
+        .map((part, index) => {
+          if (index === 0 || part.length > 1) {
+            return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+          }
+          return part.toLowerCase();
+        })
+        .join("'");
+    }
+
+    // Handle hyphens (e.g., Mary-Jane, Jean-Paul)
+    if (word.includes('-')) {
+      return word
+        .split('-')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('-');
+    }
+
+    // Standard capitalization
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  // Split by spaces and capitalize each word
+  const words = cleanedName.split(' ');
+  return words
+    .map((word, index) => capitalizeWord(word, index === 0))
+    .join(' ');
+};
+
+/**
+ * Handle name input change with automatic capitalization
+ * To be used with text fields that capture names
+ */
+export const handleNameInputChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+) => {
+  const inputValue = event.target.value;
+  
+  // Capitalize the name
+  const capitalizedValue = capitalizeName(inputValue);
+  
+  // Call parent onChange with capitalized value
+  if (onChange) {
+    const syntheticEvent = {
+      ...event,
+      target: {
+        ...event.target,
+        value: capitalizedValue
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  }
+};

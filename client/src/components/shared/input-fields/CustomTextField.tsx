@@ -13,6 +13,7 @@ import {
   getEmailDisplayValue,
   createFocusHandler,
   createBlurHandler,
+  capitalizeName,
 } from './utils';
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({ 
@@ -22,6 +23,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   stakeholderType = "staff",
   neumorphicBox = false,
   disableDynamicMorphing = true,
+  autoCapitalizeName = true,
   value,
   onChange,
   ...props 
@@ -36,9 +38,34 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     event.preventDefault();
   };
 
-  // Handle email input change - only allow username part before @ for non-vendors
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleEmailInputChange(event, fieldType, stakeholderType, setEmailUsername, onChange);
+  // Handle input change - email, name capitalization, or regular
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Handle email fields
+    if (fieldType === "email") {
+      handleEmailInputChange(event, fieldType, stakeholderType, setEmailUsername, onChange);
+    }
+    // Handle text fields with name capitalization
+    else if (fieldType === "text" && autoCapitalizeName) {
+      const inputValue = event.target.value;
+      const capitalizedValue = capitalizeName(inputValue);
+      
+      if (onChange) {
+        const syntheticEvent = {
+          ...event,
+          target: {
+            ...event.target,
+            value: capitalizedValue
+          }
+        } as React.ChangeEvent<HTMLInputElement>;
+        onChange(syntheticEvent);
+      }
+    }
+    // Handle all other fields normally
+    else {
+      if (onChange) {
+        onChange(event);
+      }
+    }
   };
 
   // Handle key input to prevent @ symbol for non-vendor email fields
@@ -96,7 +123,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             size="small"
             type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
             value={getDisplayValue()}
-            onChange={handleEmailChange}
+            onChange={handleChange}
             onKeyPress={handleKeyPress}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -116,7 +143,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             variant="standard"
             type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
             value={getDisplayValue()}
-            onChange={handleEmailChange}
+            onChange={handleChange}
             onKeyPress={handleKeyPress}
             onFocus={handleFocus}
             onBlur={handleBlur}
