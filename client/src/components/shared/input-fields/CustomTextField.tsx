@@ -82,6 +82,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             fullWidth
             label={labelWithIcon}
             fieldType={fieldType}
+            stakeholderType={stakeholderType}
             neumorphicBox={neumorphicBox}
             variant="outlined"
             size="small"
@@ -103,6 +104,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             fullWidth
             label={labelWithIcon}
             fieldType={fieldType}
+            stakeholderType={stakeholderType}
             variant="standard"
             type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
             value={getDisplayValue()}

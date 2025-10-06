@@ -1,8 +1,8 @@
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { FieldType } from '../types';
+import { FieldType, StakeholderType } from '../types';
 
-export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorphicBox?: boolean }>(({ neumorphicBox, fieldType }) => ({
+export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorphicBox?: boolean; stakeholderType?: StakeholderType }>(({ neumorphicBox, fieldType, stakeholderType }) => ({
   '& .MuiInput-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
@@ -66,7 +66,7 @@ export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorp
       opacity: 1,
       fontWeight: 500,
     },
-    ...(fieldType === 'email' && {
+    ...(fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) && {
       textAlign: 'right',
     }),
   },
@@ -79,7 +79,7 @@ export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorp
       opacity: 1,
       fontWeight: 500,
     },
-    ...(fieldType === 'email' && {
+    ...(fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) && {
       textAlign: 'right',
     }),
   },
