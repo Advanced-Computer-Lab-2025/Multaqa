@@ -65,9 +65,12 @@ export default function CustomModal({ title, description, modalType, buttonOptio
             <NeumorphicBox
               containerType="inwards"
               borderRadius="9999px"
-              padding="12px 24px"
               width="fit-content"
-              sx={{ margin: '0 auto', marginBottom: 4 }}
+              sx={{ 
+                margin: '0 auto', 
+                marginBottom: 4,
+                padding: { xs: '8px 16px', sm: '12px 24px' } // Less padding on small screens
+              }}
             >
               <Box 
                 sx={{
@@ -128,7 +131,9 @@ export default function CustomModal({ title, description, modalType, buttonOptio
               className="flex items-center mt-6" 
               sx={{ 
                 display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' }, // Column on small screens, row on sm+
                 justifyContent: 'center',
+                alignItems: 'center', // Center buttons instead of stretching
                 gap: 2,
                 width: '100%'
               }}
