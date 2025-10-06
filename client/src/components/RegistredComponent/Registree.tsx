@@ -1,7 +1,5 @@
-"use client"
-import React, { useState } from 'react';
+"use client";
 import {
-  Box,
   Stack,
   Avatar,
   Select,
@@ -10,14 +8,17 @@ import {
   Typography,
   IconButton,
   Collapse,
+  Box,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IdChip from './IdChip';
 import NeumorphicBox from '../shared/containers/NeumorphicBox';
 import theme from '@/themes/lightTheme';
 import { RegisterBoxProps} from "./types"
 import {TruncatedText} from "./utils"
+import { useState } from 'react';
 
 
 const RegisterBox: React.FC<RegisterBoxProps> = ({
@@ -39,7 +40,8 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
     }
   };
 
-  const handleToggleExpand = () => {
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsExpanded(!isExpanded);
   };
 
@@ -54,15 +56,37 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
         padding:"15px 20px",
         margin: '20px auto',
         fontFamily: "var(--font-poppins), system-ui, sans-serif",
+        userSelect: 'none',
+        position: 'relative',
       }}
     >
+      {/* Drag Handle Indicator */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '8px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          color: '#9CA3AF',
+          display: 'flex',
+          alignItems: 'center',
+          pointerEvents: 'none',
+        }}
+      >
+        <DragIndicatorIcon sx={{ fontSize: '16px' }} />
+      </Box>
+
       {/* Header: Outer Stack controls Name/ID Group vs Arrow Icon */}
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ cursor: 'pointer', mb: isExpanded ? 2 : 0, width:"300px", fontFamily: "var(--font-poppins), system-ui, sans-serif",}}
-        onClick={handleToggleExpand}
+        sx={{ 
+          mb: isExpanded ? 2 : 0, 
+          width:"300px", 
+          fontFamily: "var(--font-poppins), system-ui, sans-serif",
+          mt: 1
+        }}
       >
         {/* Inner Stack: Controls ID (Left) vs Name (Right) */}
         <Stack
@@ -71,11 +95,11 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           alignItems="center"
           spacing={2}
           sx={{
-            flexGrow: 1, // Takes up max space before the arrow icon
+            flexGrow: 1,
             minWidth: 0,
             overflow: 'hidden',
             height:"60px",
-            mr: 1 // Margin right to separate from the arrow icon
+            mr: 1
           }}
         >
           {/* 1. ID Chip (LEFT - fixed width) */}
@@ -89,7 +113,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                       -3px -3px 8px 0 #FAFBFF,
                       5px 5px 8px 0 rgba(107, 79, 150, 0.6)
                                          `,
-             flexShrink: 0, // Ensure the ID chip is stable on the left
+             flexShrink: 0,
            }}>
             <IdChip
               avatar={
@@ -105,7 +129,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           {/* 2. Name Container (RIGHT - Takes up remaining space) */}
           <Box
             sx={{
-              flexGrow: 1, // Allows Name to take the flexible space
+              flexGrow: 1,
               flexShrink: 1,
               minWidth: '50px', 
               fontSize: '20px', 
@@ -115,7 +139,6 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               justifyContent:"center" 
             }}
           >
-            {/* TruncatedText is used here */}
             <TruncatedText fontSize="16px" fontWeight="600" >{name}</TruncatedText>
           </Box>
         </Stack>
@@ -125,19 +148,19 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           size="small"
           aria-expanded={isExpanded}
           aria-label="show more"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggleExpand();
+          onClick={handleToggleExpand}
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag on button click
+          sx={{ 
+            flexShrink: 0, 
+            color: theme.palette.primary.main, 
+            border:  "1px solid #b6b7ba" ,
+            width:"24px", 
+            height:"24px",
+            "&:hover": {
+              borderColor: theme.palette.primary.main,
+              transition: "all 0.3s ease-in-out",
+            }, 
           }}
-          sx={{ flexShrink: 0, 
-          color: theme.palette.primary.main, 
-          border:  "1px solid #b6b7ba" ,
-          width:"24px", 
-          height:"24px",
-          "&:hover": {
-            borderColor: theme.palette.primary.main,
-            transition: "all 0.3 ease-in-out",
-          }, }}
         >
           {isExpanded ? (
             <KeyboardArrowUpIcon sx={{ fontSize: '24px', color: '#757575' }} />
@@ -149,7 +172,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
 
       {/* Collapsible Content */}
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <Stack spacing={1}>
+        <Stack spacing={1} onPointerDown={(e) => e.stopPropagation()}>
           {/* Role */}
           <Stack direction="row" alignItems="center" spacing={2} sx={{ pt: 1 }}>
             <Typography
@@ -201,7 +224,6 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               Email
             </Typography>
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              {/* TruncatedText is used here */}
               <TruncatedText fontSize="12px" fontWeight="500">{email}</TruncatedText>
             </Box>
           </Stack>
