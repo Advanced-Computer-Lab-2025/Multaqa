@@ -1,25 +1,29 @@
 import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import { User } from '../schemas/stakeholder-schemas/userSchema';
+import { UserRole } from '../constants/user.constants';
 import { IUser } from '../interfaces/user.interface';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 import GenericRepository from '../repos/genericRepo';
-import { User } from '../schemas/stakeholder-schemas/userSchema';
-import { UserRole } from '../constants/user.constants';
 import { IStudent } from '../interfaces/student.interface';
 import { Student } from '../schemas/stakeholder-schemas/studentSchema';
 import { IStaffMember } from '../interfaces/staffMember.interface';
 import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
 import redisClient from '../config/redisClient';
+import { IVendor } from '../interfaces/vendor.interface';
+import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
   private studentRepo: GenericRepository<IStudent>;
   private staffRepo: GenericRepository<IStaffMember>;
-
+  private vendorRepo: GenericRepository<IVendor>;
+  
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
     this.studentRepo = new GenericRepository<IStudent>(Student);
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
+    this.vendorRepo = new GenericRepository<IVendor>(Vendor);
   }
 
   // signup for Students, TAs, staff, professors
@@ -90,7 +94,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(signupData.password, saltRounds);
 
     // Create vendor user
-    const createdUser = await this.userRepo.create({
+    const createdUser = await this.vendorRepo.create({
       ...signupData,
       password: hashedPassword,
       createdAt: new Date(),

@@ -38,6 +38,7 @@ router.post('/signup/vendor', async (req: Request, res: Response) => {
   try {
     // Validate request body
     const { error, value } = signupVendorValidationSchema.validate(req.body);
+
     if (error) {
       return res.status(400).json({
         success: false,
@@ -45,6 +46,7 @@ router.post('/signup/vendor', async (req: Request, res: Response) => {
         errors: error.details.map(detail => detail.message)
       });
     }
+            console.log(value);
 
     // Create user
     const result = await authService.signupVendor(value);
@@ -99,6 +101,7 @@ router.post('/login', async (req: Request, res: Response) => {
 // --- Refresh Token ---
 router.post('/refresh', async (req: Request, res: Response) => {
   try {
+    console.log(req.cookies);
     const newAccessToken = await authService.refreshToken(req.cookies.refreshToken);
     res.status(200).json({
       accessToken: newAccessToken

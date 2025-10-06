@@ -11,7 +11,7 @@ const staffMemberSchema = new Schema<IStaffMember>({
   position: {
     type: String,
     enum: Object.values(StaffPosition),
-    required: true,
+    default: StaffPosition.UNKNOWN,
   },
   walletBalance: { type: Number, default: 0 },
   favorites: [{ type: Schema.Types.ObjectId, ref: "Event", default: [] }],

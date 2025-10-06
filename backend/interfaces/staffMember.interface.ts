@@ -7,7 +7,7 @@ export interface IStaffMember extends IUser {
   lastName: string;
   gucId: string;
   walletBalance?: number;
-  position: StaffPosition;
+  position?: StaffPosition;
   favorites?: Schema.Types.ObjectId[];
   registeredEvents?: Schema.Types.ObjectId[];
   // TODO: Filter registeredEvents by (date < today) to get attended ones

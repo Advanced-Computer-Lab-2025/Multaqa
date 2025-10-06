@@ -5,10 +5,13 @@ import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
 import authRouter from "./routes/auth.routes";
 import "./config/redisClient";
+import cookieParser from 'cookie-parser';
+
 dotenv.config();
 
 const app = express();
 app.use(json());
+app.use(cookieParser()); 
 app.use(eventRouter);
 app.use('/api/auth', authRouter);
 
