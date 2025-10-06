@@ -96,7 +96,7 @@ export const CustomModalCardWrapper = styled(Card)(({ theme }) => ({
   left: '50%',
   transform: 'translate(-50%, -50%)',
   borderRadius: '18px',
-  padding: '24px', // Add padding to the wrapper
+  padding: 0, // No padding on wrapper - padding is inside neumorphic box
   overflow: 'visible',
   maxHeight: '90vh',
   display: 'flex',
