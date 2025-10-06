@@ -23,7 +23,7 @@ export class EventsService {
   async deleteEvent(id: string): Promise<IEvent | null> {
     const event = await this.eventRepo.findById(id);
     console.log("THE EVENT GETTING DELETEDDD", event);
-    if (event && event.attendees.length > 0) {
+    if (event && event.attendees && event.attendees.length > 0) {
       throw createError(409, "Cannot delete event with attendees");
     }
     return await this.eventRepo.delete(id);
