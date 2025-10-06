@@ -1,7 +1,7 @@
 import { IEvent } from "../interfaces/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
-import { forbidden } from "joi";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 
 export class EventsService {
@@ -15,18 +15,8 @@ export class EventsService {
   }
 
   async getEventById(id: string): Promise<IEvent | null> {
-    const event = await this.eventRepo.findById(id);
-
-    // Log the raw mongoose document
-    console.log("Raw document:", event);
-    console.log("Has attendees property?", event && "attendees" in event);
-    console.log("Attendees value:", event?.attendees);
-    console.log("Attendees length:", event?.attendees?.length);
-
-    // Check what toJSON produces
-    console.log("toJSON output:", event?.toJSON());
-    console.log("toObject output:", event?.toObject());
-
+    const options = { populate: ["attendees"] };
+    const event = await this.eventRepo.findById(id, options);
     return event;
   }
 

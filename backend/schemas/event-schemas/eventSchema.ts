@@ -1,6 +1,8 @@
 import mongoose, { Schema, model } from "mongoose";
 import { IEvent } from "../../interfaces/event.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
+import "../stakeholder-schemas/userSchema";
+import { UserRole } from "../../constants/user.constants";
 
 // Base event schema
 const EventSchema = new Schema<IEvent>(
@@ -15,7 +17,7 @@ const EventSchema = new Schema<IEvent>(
       default: false,
     },
     attendees: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    allowedUsers: [{ type: String, enum: ["student", "ta", "prof"] }],
+    allowedUsers: [{ type: String, enum: Object.values(UserRole) }],
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
     event_name: { type: String, required: true },
     event_start_date: { type: Date, required: true },
