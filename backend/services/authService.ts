@@ -35,7 +35,7 @@ export class AuthService {
     }
 
     // Check if GUC ID is already taken
-    const existingGucId = await this.userRepo.findOne({ gucId: signupData.gucId });
+    const existingGucId = await this.staffRepo.findOne({ gucId: signupData.gucId });
     if (existingGucId) {
       throw new Error('User with this GUC ID already exists');
     }
@@ -52,7 +52,7 @@ export class AuthService {
         {
           ...signupData,
           password: hashedPassword,
-          createdAt: new Date(),
+          registeredAt: new Date(),
           updatedAt: new Date(),
           isVerified: false,
           role: UserRole.STUDENT,
@@ -64,7 +64,7 @@ export class AuthService {
         {
           ...signupData,
           password: hashedPassword,
-          createdAt: new Date(),
+          registeredAt: new Date(),
           updatedAt: new Date(),
           isVerified: false,
           role: UserRole.STAFF_MEMBER,
@@ -73,8 +73,11 @@ export class AuthService {
       );
     }
 
+    if (!createdUser)
+      throw new Error('Failed to create user');
+
     // Remove password from response and convert to plain object
-    const { password, ...userWithoutPassword } = createdUser?.toObject()!;
+    const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
     return {
       user: userWithoutPassword as Omit<IUser, 'password'>,
@@ -97,7 +100,7 @@ export class AuthService {
     const createdUser = await this.vendorRepo.create({
       ...signupData,
       password: hashedPassword,
-      createdAt: new Date(),
+      registeredAt: new Date(),
       updatedAt: new Date(),
       isVerified: false,
       role: UserRole.VENDOR,

@@ -13,8 +13,8 @@ export interface StudentAndStaffSignupRequest extends BaseSignupRequest {
 // Vendor signup request
 export interface VendorSignupRequest extends BaseSignupRequest {
   companyName: string;
-  taxCard?: string;   
-  logo?: string;
+  taxCard: string;   
+  logo: string;
 }
 
 // Administration signup request (admin/event office)

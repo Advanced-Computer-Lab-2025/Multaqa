@@ -25,7 +25,8 @@ const userSchema = new Schema<IUser>(
       ],
       default: [], 
     },
-    createdAt: { type: Date, default: Date.now },
+    registeredAt: { type: Date, default: Date.now },
+    verifiedAt: { type: Date },
     updatedAt: { type: Date, default: Date.now },
   },
   { discriminatorKey: "role", collection: "users" }

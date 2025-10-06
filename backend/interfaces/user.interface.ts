@@ -13,7 +13,8 @@ export interface IUser extends Document {
   password: string;
   status?: UserStatus;
   role: UserRole;
-  createdAt?: Date;
+  registeredAt?: Date;
+  verifiedAt?: Date;
   updatedAt?: Date;
   isVerified?: boolean;
   notifications?: INotification[];
