@@ -8,7 +8,7 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
   const { isFocused, isHovered, hasValue, isError, disabled, size, neumorphicBox, minWidthFromContent } = props;
 
   const paddingValue = size === "small" ? "10px 40px 10px 16px" : "12px 40px 12px 18px";
-  const fontSize = size === "small" ? "0.875rem" : "1rem";
+  const fontSize = "1rem"; // Unified font size with TextField
   const minHeight = size === "small" ? "40px" : "48px";
   const calculatedMinWidth = minWidthFromContent && minWidthFromContent > 0 ? `${minWidthFromContent}px` : '200px';
 
@@ -63,7 +63,7 @@ export const getLabelStyles = (
     transform: hasValue || isFocused ? 'translateY(0)' : 'translateY(-50%)',
     fontSize: hasValue || isFocused ? '0.75rem' : fontSize,
     fontWeight: 500,
-    color: isFocused ? '#7851da' : '#666',
+    color: isFocused ? '#7851da' : '#999',
     backgroundColor: neumorphicBox ? '#e5e7eb' : '#e5e7eb',
     padding: '0 8px',
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -72,6 +72,8 @@ export const getLabelStyles = (
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
+    width: 'fit-content',
+    maxWidth: 'fit-content',
   };
 };
 
@@ -108,7 +110,9 @@ export const getDropdownStyles = (props: DropdownStyleProps): React.CSSPropertie
     overflowY: 'auto' as const,
     backgroundColor: '#e5e7eb',
     borderRadius: '16px',
-    zIndex: 1000,
+    // High z-index to ensure the dropdown overlays modals/other UI; inline styles outrank non-!important rules
+    zIndex: 9999 ,
+    marginBottom: '16px',
     boxShadow: `
       -5px -5px 10px 0 #FAFBFF,
       5px 5px 10px 0 rgba(22, 27, 29, 0.25)

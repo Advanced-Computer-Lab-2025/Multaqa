@@ -21,7 +21,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   InputProps, 
   stakeholderType = "staff",
   neumorphicBox = false,
-  disableDynamicMorphing = false,
+  disableDynamicMorphing = true,
   value,
   onChange,
   ...props 

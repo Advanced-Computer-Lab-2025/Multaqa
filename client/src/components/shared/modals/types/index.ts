@@ -22,4 +22,5 @@ export interface CustomModalLayoutProps {
   children: React.ReactNode;
   open: boolean;
   onClose: () => void;
+  width?: string; // Optional Tailwind width classes with breakpoints (e.g., "w-[90vw] sm:w-[80vw] lg:w-[60vw]")
 }

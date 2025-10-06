@@ -18,11 +18,11 @@ import {
   getOptionHoverStyles,
 } from './styles/StyledSelectField';
 
-const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({ 
+const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({ 
   label,
   fieldType, 
   options,
-  neumorphicBox = false,
+  neumorphicBox = true,
   value,
   onChange,
   onFocus,
@@ -38,9 +38,11 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [minWidthFromContent, setMinWidthFromContent] = useState<number>(0);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
+  const portalRoot = useRef<HTMLDivElement | null>(null);
 
   // Get the display value for select fields
   const getDisplayValue = () => {
@@ -49,6 +51,23 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
 
   const displayedValue = getDisplayValue();
   const hasValue = displayedValue && (Array.isArray(displayedValue) ? displayedValue.length > 0 : true);
+
+  // Create portal container on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      portalRoot.current = document.createElement('div');
+      portalRoot.current.style.position = 'fixed';
+      portalRoot.current.style.zIndex = '99999';
+      portalRoot.current.style.pointerEvents = 'none';
+      document.body.appendChild(portalRoot.current);
+
+      return () => {
+        if (portalRoot.current) {
+          document.body.removeChild(portalRoot.current);
+        }
+      };
+    }
+  }, []);
 
   // Calculate minimum width based on longest option
   useEffect(() => {
@@ -70,6 +89,47 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
       setMinWidthFromContent(totalWidth);
     }
   }, [options, size]);
+
+  // Update dropdown position
+  const updatePosition = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  };
+
+  // Update position on open and when scrolling/resizing
+  useEffect(() => {
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [isOpen]);
+
+  // Render dropdown in portal
+  useEffect(() => {
+    if (portalRoot.current && dropdownRef.current) {
+      if (isOpen) {
+        portalRoot.current.appendChild(dropdownRef.current);
+        portalRoot.current.style.pointerEvents = 'auto';
+      } else {
+        if (portalRoot.current.contains(dropdownRef.current)) {
+          portalRoot.current.removeChild(dropdownRef.current);
+        }
+        portalRoot.current.style.pointerEvents = 'none';
+      }
+    }
+  }, [isOpen]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -97,6 +157,17 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
   const toggleDropdown = () => {
     if (!disabled) {
       const willBeOpen = !isOpen;
+      
+      // Calculate position BEFORE opening
+      if (willBeOpen && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + 8,
+          left: rect.left,
+          width: rect.width,
+        });
+      }
+      
       setIsOpen(willBeOpen);
       setIsFocused(willBeOpen);
       if (willBeOpen && onFocus) {
@@ -160,7 +231,12 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
     >
       {label && (
         <label style={labelStyles}>
-          {label}
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ color: (isFocused || hasValue) ? '#7851da' : '#999' }}>
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            {label}
+          </span>
           {required && <span style={{ color: '#b81d1d', marginLeft: '2px' }}>*</span>}
         </label>
       )}
@@ -194,7 +270,31 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
         <span style={dropdownIconStyles}>▾</span>
       </div>
 
-      <div ref={dropdownRef} style={dropdownStyles}>
+      {helperText && <div style={helperTextStyles}>{helperText}</div>}
+      
+      {/* Hidden element for measuring text width */}
+      <span 
+        ref={measureRef}
+        style={{
+          position: 'absolute',
+          visibility: 'hidden',
+          whiteSpace: 'nowrap',
+          fontWeight: 500,
+        }}
+      />
+
+      {/* Dropdown rendered separately and moved to portal via useEffect */}
+      <div 
+        ref={dropdownRef} 
+        style={{
+          ...dropdownStyles,
+          position: 'fixed',
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`,
+          pointerEvents: 'auto',
+        }}
+      >
         {options.map((option) => {
           const optionSelected = isSelected(option.value);
           const baseOptionStyles = getOptionStyles({
@@ -221,19 +321,6 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
           );
         })}
       </div>
-
-      {helperText && <div style={helperTextStyles}>{helperText}</div>}
-      
-      {/* Hidden element for measuring text width */}
-      <span 
-        ref={measureRef}
-        style={{
-          position: 'absolute',
-          visibility: 'hidden',
-          whiteSpace: 'nowrap',
-          fontWeight: 500,
-        }}
-      />
     </div>
   );
 
@@ -255,4 +342,4 @@ const CustomSelectFieldV2: React.FC<CustomSelectFieldV2Props> = ({
   );
 };
 
-export default CustomSelectFieldV2;
+export default CustomSelectField;
