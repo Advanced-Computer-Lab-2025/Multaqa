@@ -10,9 +10,11 @@ import { CustomModalLayout } from "@/components/shared/modals";
 import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
+import CreateBazaar from "@/components/tempPages/CreateBazaar";
 
 export default function HomePage() {
   const [open, setOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const handleClose = () => setOpen(false);
   
   // Form state
