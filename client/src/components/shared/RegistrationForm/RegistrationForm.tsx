@@ -13,24 +13,6 @@ import UploadField from "../UploadField/UploadField";
 import DescriptionIcon from "@mui/icons-material/Description";
 import BusinessIcon from "@mui/icons-material/Business";
 
-// Visually hidden input for file upload accessibility
-const VisuallyHiddenInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    style={{
-      border: 0,
-      clip: "rect(0 0 0 0)",
-      height: 1,
-      margin: -1,
-      overflow: "hidden",
-      padding: 0,
-      position: "absolute",
-      width: 1,
-      whiteSpace: "nowrap",
-    }}
-    {...props}
-  />
-);
-
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
 
