@@ -75,6 +75,7 @@ export const getEmailEndAdornment = (stakeholderType?: StakeholderType) => {
     <InputAdornment
       position="end"
       sx={{
+        color: theme.palette.tertiary.dark,
         alignSelf: 'center',
         margin: 0,
         opacity: 0,
@@ -110,7 +111,7 @@ export const getPasswordEndAdornment = (
         edge="end"
         sx={{
           '&:hover': {
-            color: theme.palette.primary.dark,
+            color: theme.palette.tertiary.dark,
           },
           transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
