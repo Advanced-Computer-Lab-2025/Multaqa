@@ -121,7 +121,7 @@ const SimpleFormExample: React.FC = () => {
           <CustomTextField
             label="Email"
             fieldType="email"
-            stakeholderType="staff"
+            stakeholderType="vendor"
             value={formData.email}
             onChange={handleChange('email')}
             separateLabels

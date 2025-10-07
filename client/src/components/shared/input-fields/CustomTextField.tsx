@@ -15,6 +15,7 @@ import {
   createFocusHandler,
   createBlurHandler,
   capitalizeName,
+  getEmailDomain,
 } from './utils';
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
@@ -33,6 +34,41 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [emailUsername, setEmailUsername] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+
+  // Sync/normalize email value when stakeholderType or external value changes.
+  // This prevents the domain from being accidentally merged into the editable value
+  // when the stakeholderType toggles between vendor (no domain) and non-vendor (domain).
+  React.useEffect(() => {
+    if (fieldType !== 'email') return;
+
+  const domain = (stakeholderType && stakeholderType !== 'vendor') ? (getEmailDomain(stakeholderType) as string) : '';
+    const current = String(value || '');
+
+    // If switching to vendor: remove any domain from the stored value and notify parent
+    if (stakeholderType === 'vendor') {
+      // Remove any @ and domain suffix
+      const usernameOnly = current.split('@')[0];
+      // If parent value still contains a domain, call onChange with cleaned value
+      if (current.includes('@')) {
+        if (onChange) {
+          const syntheticEvent = {
+            target: {
+              value: usernameOnly,
+            },
+          } as unknown as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        }
+      }
+      setEmailUsername(usernameOnly);
+      return;
+    }
+
+    // For non-vendor stakeholder types: extract username portion from value so separateLabels shows only username
+    if (domain) {
+      const username = current.split('@')[0];
+      setEmailUsername(username);
+    }
+  }, [stakeholderType, value, fieldType, onChange]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
