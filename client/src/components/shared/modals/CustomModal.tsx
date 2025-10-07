@@ -17,7 +17,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import { CustomModalProps } from './types';
 import { CustomModalBox, CustomModalCardWrapper } from './styles/StyledModal';
 
-export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2 }: CustomModalProps) {
+export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2, borderColor }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -59,7 +59,7 @@ export default function CustomModal({ title, description, modalType, buttonOptio
         }}
       >
         <Fade in={open}>
-          <CustomModalCardWrapper>
+          <CustomModalCardWrapper borderColor={borderColor}>
             <CustomModalBox>
             {/* Icon and Title Group - Wrapped in NeumorphicBox */}
             <NeumorphicBox

@@ -4,12 +4,14 @@ import { Box, Card } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 // Wrapper Card component matching FilterCardWrapper structure
-export const ModalCardWrapper = styled(Card)(({ theme }) => ({
+export const ModalCardWrapper = styled(Card, { shouldForwardProp: (prop) => prop !== 'borderColor' })<{
+  borderColor?: string;
+}>(({ theme, borderColor }) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  border:`3px solid  ${theme.palette.tertiary.main}`,
+  border: `3px solid ${borderColor || theme.palette.tertiary.main}`,
   borderRadius: '16px',
   padding: 0,
   overflow: 'visible',
@@ -101,12 +103,14 @@ export const StyledModalBoxInward = styled(Box)(({ theme }) => ({
 }));
 
 // CustomModal specific wrapper - smaller width (40% on md+ screens)
-export const CustomModalCardWrapper = styled(Card)(({ theme }) => ({
+export const CustomModalCardWrapper = styled(Card, { shouldForwardProp: (prop) => prop !== 'borderColor' })<{
+  borderColor?: string;
+}>(({ theme, borderColor }) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  border:`3px solid  ${theme.palette.tertiary.main}`,
+  border: `3px solid ${borderColor || theme.palette.tertiary.main}`,
   borderRadius: '16px',
   padding: 0, // No padding on wrapper - padding is inside neumorphic box
   overflow: 'visible',

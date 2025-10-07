@@ -4,6 +4,8 @@ export interface CustomModalProps {
   title: string;
   modalType: ModalType;
   description?: string;
+  /** Optional border color for the modal wrapper; defaults to theme.palette.tertiary.main */
+  borderColor?: string;
   buttonOption1?: {
     label: string;
     variant?: 'text' | 'outlined' | 'contained';
@@ -23,4 +25,6 @@ export interface CustomModalLayoutProps {
   open: boolean;
   onClose: () => void;
   width?: string; // Optional Tailwind width classes with breakpoints (e.g., "w-[90vw] sm:w-[80vw] lg:w-[60vw]")
+  /** Optional border color for the modal wrapper; defaults to theme.palette.tertiary.main */
+  borderColor?: string;
 }

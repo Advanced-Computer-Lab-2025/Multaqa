@@ -9,7 +9,7 @@ import CustomIcon from '../Icons/CustomIcon';
 import { CustomModalLayoutProps } from './types';
 import { createDelayedCloseHandler } from './utils';
 
-export default function CustomModalLayout({ children, open, onClose, width }: CustomModalLayoutProps) {
+export default function CustomModalLayout({ children, open, onClose, width, borderColor }: CustomModalLayoutProps) {
   const handleClose = createDelayedCloseHandler(onClose, 500);
 
   // Parse width prop to create sx overrides
@@ -74,7 +74,7 @@ export default function CustomModalLayout({ children, open, onClose, width }: Cu
       }}
     >
       <Fade in={open}>
-        <ModalCardWrapper sx={getWidthSx()}>
+  <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
             {/* Close Icon at the top right - Fixed header */}
             <StyledModalHeader>

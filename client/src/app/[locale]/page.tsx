@@ -277,7 +277,7 @@ const SimpleFormExample: React.FC = () => {
 
         <button onClick={() => setOpenLayout(true)} style={{ padding: '10px 14px', borderRadius: '10px' }}>Open Layout Modal</button>
 
-        <CustomModalLayout open={openLayout} onClose={() => setOpenLayout(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+        <CustomModalLayout borderColor='#7851da' open={openLayout} onClose={() => setOpenLayout(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ marginTop: 0 }}>Hellow there</h2>
             <p>This is content inside the real <code>CustomModalLayout</code>.</p>
