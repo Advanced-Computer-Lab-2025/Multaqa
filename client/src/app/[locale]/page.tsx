@@ -70,6 +70,7 @@ export default function HomePage() {
               value={formData.firstName}
               onChange={(e) => handleInputChange('firstName', e.target.value)}
               required
+              separateLabels
               neumorphicBox
               fullWidth
             />
