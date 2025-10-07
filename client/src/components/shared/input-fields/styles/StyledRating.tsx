@@ -6,11 +6,11 @@ export const StyledRating = styled(Rating)<{ multaqaFill?: boolean }>(({
   multaqaFill 
 }) => ({
   '& .MuiRating-iconFilled': {
-    color: multaqaFill ? '#7851da' : '#faaf00',
+    color: multaqaFill ? theme.palette.tertiary.main: '#faaf00',
     transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
   '& .MuiRating-iconHover': {
-    color: multaqaFill ? '#6842C0' : '#ff9800',
+    color: multaqaFill ? theme.palette.primary.dark: '#ff9800',
     transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
   '& .MuiRating-iconEmpty': {

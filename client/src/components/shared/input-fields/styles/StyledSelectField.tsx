@@ -1,5 +1,6 @@
 import React from 'react';
 import { SelectFieldV2StyleProps, DropdownStyleProps, OptionStyleProps } from '../types';
+import theme from '@/themes/lightTheme';
 
 /**
  * Styles for the main select container
@@ -7,21 +8,20 @@ import { SelectFieldV2StyleProps, DropdownStyleProps, OptionStyleProps } from '.
 export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSProperties => {
   const { isFocused, isHovered, hasValue, isError, disabled, size, neumorphicBox, minWidthFromContent } = props;
 
-  const paddingValue = size === "small" ? "10px 40px 10px 16px" : "12px 40px 12px 18px";
+  const paddingValue = size === "small" ? "12px 40px 12px 16px" : "14px 40px 14px 18px";
   const fontSize = size === "small" ? "0.875rem" : "1rem";
   const minHeight = size === "small" ? "40px" : "48px";
   const calculatedMinWidth = minWidthFromContent && minWidthFromContent > 0 ? `${minWidthFromContent}px` : '200px';
 
   // Determine border color priority: error > focus > hover > default
-  let borderColor = 'transparent';
-  let borderWidth = '1px';
+  let borderColor = theme.palette.primary.main;
+  let borderWidth = '2px';
   if (isError) {
     borderColor = '#b81d1d';
   } else if (isFocused) {
-    borderColor = '#7851da';
-    borderWidth = '2px';
+    borderColor = theme.palette.tertiary.main;
   } else if (isHovered) {
-    borderColor = '#7C5CFF';
+    borderColor = theme.palette.primary.main;
   }
 
   return {
@@ -31,9 +31,10 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
     minHeight,
     padding: paddingValue,
     borderRadius: '50px',
+    borderBottom: `${borderWidth} solid ${borderColor}`,
     border: `${borderWidth} solid ${borderColor}`,
     outline: 'none',
-    backgroundColor: neumorphicBox ? 'transparent' : '#e5e7eb',
+    backgroundColor: neumorphicBox ? 'transparent' : 'transparent',
     color: hasValue ? '#1E1E1E' : '#999',
     fontSize,
     fontWeight: 500,
@@ -61,10 +62,10 @@ export const getLabelStyles = (
     left: '8px',
     top: hasValue || isFocused ? '-8px' : '50%',
     transform: hasValue || isFocused ? 'translateY(0)' : 'translateY(-50%)',
-    fontSize: hasValue || isFocused ? '0.75rem' : fontSize,
+    fontSize: hasValue || isFocused ? '0.75rem' : '0.9rem',
     fontWeight: 500,
-    color: isFocused ? '#7851da' : '#666',
-    backgroundColor: neumorphicBox ? '#e5e7eb' : '#e5e7eb',
+    color: isFocused ? ` ${theme.palette.tertiary.main}` : '#999',
+    backgroundColor: theme.palette.background.default,
     padding: '0 8px',
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     pointerEvents: 'none' as const,
@@ -72,6 +73,8 @@ export const getLabelStyles = (
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
+    width: 'fit-content',
+    maxWidth: 'fit-content',
   };
 };
 
@@ -85,7 +88,7 @@ export const getDropdownIconStyles = (isOpen: boolean): React.CSSProperties => {
     top: '50%',
     transform: `translateY(-50%) ${isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}`,
     transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-    color: '#7851da',
+    color:`${isOpen ? theme.palette.tertiary.main: theme.palette.primary.main}`,
     pointerEvents: 'none' as const,
     // Increased chevron size slightly (label untouched)
     fontSize: '23px',
@@ -105,14 +108,19 @@ export const getDropdownStyles = (props: DropdownStyleProps): React.CSSPropertie
     left: 0,
     right: 0,
     maxHeight: '250px',
+    width:'100%',
     overflowY: 'auto' as const,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: theme.palette.background.default,
+    border:`2px solid  ${theme.palette.tertiary.main}`,
     borderRadius: '16px',
-    zIndex: 1000,
-    boxShadow: `
-      -5px -5px 10px 0 #FAFBFF,
-      5px 5px 10px 0 rgba(22, 27, 29, 0.25)
-    `,
+    // High z-index to ensure the dropdown overlays modals/other UI; inline styles outrank non-!important rules
+    zIndex: 9999 ,
+    marginBottom: '16px',
+    // Removed box shadow for a cleaner look for the dropdown styles
+    // boxShadow: `
+    //   -5px -5px 10px 0 #FAFBFF,
+    //   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+    // `,
     opacity: isOpen ? 1 : 0,
     visibility: isOpen ? 'visible' as const : 'hidden' as const,
     transform: isOpen ? 'translateY(0)' : 'translateY(-10px)',
@@ -137,12 +145,12 @@ export const getOptionStyles = (props: OptionStyleProps): React.CSSProperties =>
     fontSize: '0.9375rem',
     fontWeight: 500,
     color: isDisabled ? '#999' : '#1E1E1E',
-    backgroundColor: isSelected ? 'rgba(120, 81, 218, 0.1)' : 'transparent',
+    backgroundColor: isSelected ? `2px solid  ${theme.palette.tertiary.light}` : 'transparent',
     position: 'relative' as const,
     width: '100%',
     boxSizing: 'border-box',
     ...(isSelected && {
-      borderLeft: '3px solid #7851da',
+      borderLeft: `3px solid  ${theme.palette.tertiary.main}`,
     }),
   };
 };
@@ -188,9 +196,10 @@ export const getOptionHoverStyles = (
 
   return {
     backgroundColor: isHovered
-      ? 'rgba(120, 81, 218, 0.08)'
+      ? 'rgba(58, 79, 153, 0.08)'
       : isSelected
-        ? 'rgba(120, 81, 218, 0.1)'
+        ? 'rgba(58, 79, 153, 0.1)'
         : 'transparent',
+    borderLeft: isHovered || isSelected?`3px solid  ${theme.palette.tertiary.main}`:'transparent',
   };
 };

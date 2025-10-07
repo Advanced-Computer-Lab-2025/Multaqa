@@ -5,7 +5,7 @@ import { RatingProps } from "@mui/material";
 import { StyledRating } from './styles/StyledRating';
 
 export interface CustomRatingProps extends Omit<RatingProps, 'children'> {
-  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) instead of default yellow
+  multaqaFill?: boolean; 
 }
 
 const CustomRating: React.FC<CustomRatingProps> = ({ 

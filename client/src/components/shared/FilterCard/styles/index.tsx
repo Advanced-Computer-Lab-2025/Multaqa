@@ -50,7 +50,7 @@ export const WebkitScrollbarStyles: SxProps<Theme> = (theme) => ({
         width: '10px', // Thickness of the scrollbar
     },
     '&::-webkit-scrollbar-thumb': {
-        backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[500] : theme.palette.grey[600], // Primary color for the thumb
+        backgroundColor: theme.palette.mode === 'light' ? theme.palette.tertiary.main : theme.palette.tertiary.dark, // Primary color for the thumb
         borderRadius: '10px', // Highly rounded end caps
         minHeight:'4px',
         border: `3px solid ${theme.palette.background.default}`, 
@@ -64,6 +64,6 @@ export const WebkitScrollbarStyles: SxProps<Theme> = (theme) => ({
         borderRadius: '10px',
     },
     '&::-webkit-scrollbar-thumb:hover': {
-        backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey[700] : theme.palette.grey[400], // Darken slightly on hover
+        backgroundColor: theme.palette.mode === 'light' ?  theme.palette.tertiary.main : theme.palette.tertiary.dark, // Darken slightly on hover
     },
 });

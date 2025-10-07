@@ -93,7 +93,8 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
                                 minWidth: '100px',
                                 backgroundColor: theme.palette.background.default,
                                 '& input': { padding: 0 },
-                                fontSize: '0.7rem',
+                                fontSize: '0.75rem',
+                                fontWeight:"550"
                             }}
                         />
 

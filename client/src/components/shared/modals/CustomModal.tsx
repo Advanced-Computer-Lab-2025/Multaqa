@@ -15,7 +15,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
 import { CustomModalProps } from './types';
-import { StyledModalBox, ModalCardWrapper } from './styles/StyledModal';
+import { CustomModalBox, CustomModalCardWrapper } from './styles/StyledModal';
 
 export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2 }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
@@ -59,15 +59,18 @@ export default function CustomModal({ title, description, modalType, buttonOptio
         }}
       >
         <Fade in={open}>
-          <ModalCardWrapper>
-            <StyledModalBox>
+          <CustomModalCardWrapper>
+            <CustomModalBox>
             {/* Icon and Title Group - Wrapped in NeumorphicBox */}
             <NeumorphicBox
               containerType="inwards"
               borderRadius="9999px"
-              padding="12px 24px"
               width="fit-content"
-              sx={{ margin: '0 auto', marginBottom: 4 }}
+              sx={{ 
+                margin: '0 auto', 
+                marginBottom: 4,
+                padding: { xs: '8px 16px', sm: '12px 24px' } // Less padding on small screens
+              }}
             >
               <Box 
                 sx={{
@@ -127,9 +130,12 @@ export default function CustomModal({ title, description, modalType, buttonOptio
             <Box 
               className="flex items-center mt-6" 
               sx={{ 
-                width: '100%',
-                justifyContent: buttonOption1 && buttonOption2 ? 'space-between' : 'flex-end',
-                gap: 3
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' }, // Column on small screens, row on sm+
+                justifyContent: 'center',
+                alignItems: 'center', // Center buttons instead of stretching
+                gap: 2,
+                width: '100%'
               }}
             >
               {buttonOption1 && (
@@ -191,8 +197,8 @@ export default function CustomModal({ title, description, modalType, buttonOptio
                 </CustomButton>
               )}
             </Box>
-            </StyledModalBox>
-          </ModalCardWrapper>
+            </CustomModalBox>
+          </CustomModalCardWrapper>
         </Fade>
       </Modal>
     </>

@@ -24,7 +24,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
     return (
         <FilterCardWrapper sx={{width:"300px"}}> 
             <Box sx={{ 
-                maxHeight:"500px", 
+                maxHeight:"400px", 
                 overflow:"auto", 
                 ...(typeof WebkitScrollbarStyles === 'function' ? WebkitScrollbarStyles(theme) : WebkitScrollbarStyles || {}), 
                 mt: 0, 
@@ -54,7 +54,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
 
                             }}
                         >
-                            <Typography variant="body1" sx={{ fontWeight: '600', fontSize: '0.78rem', fontFamily: 'var(--font-poppins), system-ui, sans-serif' }}>
+                            <Typography variant="body1" sx={{ fontWeight: '600', fontSize: '0.78rem', fontFamily: 'var(--font-poppins), system-ui, sans-serif', color:theme.palette.tertiary.dark }}>
                                 {group.title}
                             </Typography>
                         </AccordionSummary>
@@ -74,8 +74,8 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
                 ))}
             </Box>
             {/* Action Buttons */}
-            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap:1 }}>
-                <CustomButton size="small" variant="text" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px" }} onClick={() => {
+            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap:4 }}>
+                <CustomButton size="small" variant="contained" color="secondary" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px" }} onClick={() => {
                     if (onReset) {
                         onReset();
                         return;

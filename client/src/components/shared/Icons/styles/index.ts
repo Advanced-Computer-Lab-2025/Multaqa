@@ -1,7 +1,9 @@
 import { styled } from "@mui/material/styles";
 import { IconButton } from "@mui/material";
 
-export const StyledIconButton = styled(IconButton)<{
+export const StyledIconButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'iconType' && prop !== 'padding' && prop !== 'border',
+})<{
   iconType: IconType;
   padding: string;
   border?: boolean;
