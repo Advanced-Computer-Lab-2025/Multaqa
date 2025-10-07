@@ -5,7 +5,7 @@ import { CheckboxProps } from "@mui/material";
 import { StyledCheckbox } from './styles/StyledCheckbox';
 
 export interface CustomCheckboxProps extends Omit<CheckboxProps, 'children'> {
-  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) - default true
+  multaqaFill?: boolean; 
 }
 
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ 
