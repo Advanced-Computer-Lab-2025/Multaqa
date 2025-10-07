@@ -103,7 +103,7 @@ const SimpleFormExample: React.FC = () => {
             onChange={handleChange('lastName')}
             required
             separateLabels
-            neumorphicBox
+            // neumorphicBox
             autoCapitalizeName
           />
         </div>
@@ -125,7 +125,7 @@ const SimpleFormExample: React.FC = () => {
             value={formData.email}
             onChange={handleChange('email')}
             separateLabels
-            // neumorphicBox
+            neumorphicBox
             required
           />
         </div>

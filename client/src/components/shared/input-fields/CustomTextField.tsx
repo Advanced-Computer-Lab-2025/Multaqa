@@ -159,7 +159,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           neumorphicBox={neumorphicBox}
           disableDynamicMorphing={disableDynamicMorphing}
           stakeholderType={stakeholderType}
-          separateLabels={separateLabels && fieldType === "text" && label?.toLowerCase().includes("name")}
+          separateLabels={separateLabels}
         />
       ) : (
         <>

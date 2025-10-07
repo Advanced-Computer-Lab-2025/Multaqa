@@ -17,6 +17,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   disabled = false,
   autoCapitalizeName = true,
   neumorphicBox = false,
+  separateLabels = false,
   disableDynamicMorphing = true,
   stakeholderType = "staff",
   ...props
@@ -234,10 +235,10 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
       // Neumorphic styling with border on hover/focus
       return {
         width: '100%',
-  padding: '12px 18px',
+        padding: '12px 18px',
   // small extra gap so username sits close to the domain adornment
   // clamp domainWidth to avoid excessive padding for extremely long domains
-  paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder ? `${Math.max(0, Math.min(domainWidth, 320)) + 18}px` : '18px'),
+        paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder && (neumorphicBox || separateLabels) ? `${Math.max(0, Math.min(domainWidth, 320)) + 18}px` : '18px'),
         fontSize: '1rem',
         fontWeight: 500,
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
@@ -257,7 +258,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           : isFocused ? 'scale(0.998)' : 'scale(1)',
         cursor: disabled ? 'not-allowed' : 'text',
         // Right align text for email inputs that use an external domain adornment
-        ...(fieldType === 'email' && isDomainStakeholder ? { textAlign: 'right' as const } : {}),
+        ...(fieldType === 'email' && isDomainStakeholder && (neumorphicBox || separateLabels) ? { textAlign: 'right' as const } : {}),
       };
     } else {
       // Standard MUI-like styling with underline (thin by default, thicker on hover/focus)
@@ -274,7 +275,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         width: '100%',
   padding: '8px 16px',
   // slightly smaller extra padding for non-neumorphic mode
-  paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder ? `${Math.max(0, Math.min(domainWidth, 320)) + 12}px` : '16px'),
+         paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder ? `${Math.max(0, Math.min(domainWidth, 320)) + (separateLabels && !neumorphicBox ? 18 : 12)}px` : '16px'),
         paddingBottom: '8px',
         fontSize: '1rem',
         fontWeight: 500,
@@ -287,7 +288,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         outline: 'none',
         transition: isFocused ? 'border-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
         cursor: disabled ? 'not-allowed' : 'text',
-        ...(fieldType === 'email' && isDomainStakeholder ? { textAlign: 'right' as const } : {}),
+        ...(fieldType === 'email' && isDomainStakeholder && (neumorphicBox || separateLabels) ? { textAlign: 'right' as const } : {}),
       };
     }
   };
