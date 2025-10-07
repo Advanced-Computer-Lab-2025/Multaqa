@@ -31,7 +31,7 @@ const stakeholderFilterData: FilterGroup[] = [
         ],
     },
     {
-        id: 'location2',
+        id: 'location',
         title: 'Location',
         type: 'chip',
         options: [
@@ -41,7 +41,7 @@ const stakeholderFilterData: FilterGroup[] = [
         ],
     },
         {
-        id: 'eventType1',
+        id: 'eventType',
         title: 'Event Type',
         type: 'chip',
         options: [
@@ -52,7 +52,7 @@ const stakeholderFilterData: FilterGroup[] = [
         ],
     },
         {
-        id: 'location1',
+        id: 'location',
         title: 'Location',
         type: 'chip',
         options: [
@@ -62,7 +62,7 @@ const stakeholderFilterData: FilterGroup[] = [
         ],
     },
     {
-        id: 'Lecturers',
+        id: 'prof',
         title: 'Lecturers',
         type: 'chip',
         options: [
@@ -86,8 +86,8 @@ const FilterDemo = () => {
     // 3. State initialization: set some filters to see the 'pressed' effect immediately
     const [currentFilters, setCurrentFilters] = React.useState<Record<string, any>>({
         eventType: ['wk', 'conf'], // Chips pre-selected
-        location: ['online'], // Checkbox pre-selected
-        attendeeCount: [100, 400], // Range slider initial value
+        location: ['online'], // Checkbox pre-selected // Range slider initial value
+        prof: ['brown'], // Chips pre-selected
     });
 
     // 4. State Update Handler: handles all filter types (single/multi-select)
@@ -96,7 +96,7 @@ const FilterDemo = () => {
             const currentVal = prevFilters[groupId];
             
             // Logic for Chips and Checkboxes (Multi-Select/Toggle)
-            if (Array.isArray(currentVal) && (groupId === 'eventType' || groupId === 'location')) {
+            if (Array.isArray(currentVal) && (groupId === 'eventType' || groupId === 'location' || groupId === 'prof')) {
                 if (currentVal.includes(value)) {
                     // Deselect: remove value from array
                     return { ...prevFilters, [groupId]: currentVal.filter(v => v !== value) };

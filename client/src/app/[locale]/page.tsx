@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import DeleteButton from "@/components/shared/Buttons/DeleteButton";
@@ -8,6 +7,7 @@ import CustomIcon from "@/components/shared/Icons/CustomIcon";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import { CustomModalLayout } from "@/components/shared/modals";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
+
 
 export default function HomePage() {
   const [open, setOpen] = useState(false);
