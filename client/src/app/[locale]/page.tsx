@@ -7,7 +7,7 @@ import CustomIcon from "@/components/shared/Icons/CustomIcon";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import { CustomModalLayout } from "@/components/shared/modals";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
-import { CustomTextField, CustomSelectField, CustomCheckboxGroup, CustomRadio, CustomRating } from "@/components/shared/input-fields";
+import { CustomTextField, CustomSelectField, CustomCheckboxGroup, CustomRadio, CustomRating, CustomCheckbox } from "@/components/shared/input-fields";
 import type { StakeholderType } from "@/components/shared/input-fields";
 
 
@@ -183,6 +183,10 @@ export default function HomePage() {
               onChange={(value) => handleInputChange('stakeholderType', value)}
               required
             />
+            <CustomCheckboxGroup label="Food:" options={[
+                { label: "Egg", value: "egg" },
+                { label: "Burger", value: "burger" }
+              ]}  helperText="choose your favorite"/>
 
       <AppWrapper />
     </div>
