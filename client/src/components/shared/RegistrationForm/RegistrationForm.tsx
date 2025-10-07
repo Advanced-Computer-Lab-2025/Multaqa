@@ -9,6 +9,27 @@ import Link from "next/link";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
+import UploadField from "../UploadField/UploadField";
+import DescriptionIcon from "@mui/icons-material/Description";
+import BusinessIcon from "@mui/icons-material/Business";
+
+// Visually hidden input for file upload accessibility
+const VisuallyHiddenInput = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <input
+    style={{
+      border: 0,
+      clip: "rect(0 0 0 0)",
+      height: 1,
+      margin: -1,
+      overflow: "hidden",
+      padding: 0,
+      position: "absolute",
+      width: 1,
+      whiteSpace: "nowrap",
+    }}
+    {...props}
+  />
+);
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
@@ -212,6 +233,65 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     </Box>
                   )}
               </div>
+              {/* File Upload Field */}
+              {UserType === "vendor" && (
+                <div
+                  className="flex items-start justify-between gap-10 flex-row w-full"
+                  style={{ marginTop: "30px", marginBottom: "20px" }}
+                >
+                  {/* Tax Card Upload */}
+                  <div className="flex flex-col w-full">
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        mb: 1,
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      <DescriptionIcon
+                        sx={{
+                          fontSize: 20,
+                          color: theme.palette.primary.main,
+                          marginRight: "5px",
+                        }}
+                      />
+                      Company Tax Card:
+                    </Typography>
+                    <UploadField
+                      label="Upload Tax Card"
+                      accept=".pdf,image/*"
+                      showPreviewAs="file"
+                    />
+                  </div>
+
+                  {/* Company Logo Upload */}
+                  <div className="flex flex-col w-full">
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        mb: 1,
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      <BusinessIcon
+                        sx={{
+                          fontSize: 20,
+                          color: theme.palette.primary.main,
+                          marginRight: "5px",
+                        }}
+                      />
+                      Company Logo:
+                    </Typography>
+                    <UploadField
+                      label="Upload Company Logo"
+                      accept="image/*"
+                      showPreviewAs="image"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Submit Button */}
               <div className="w-full mt-4">
@@ -242,7 +322,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                 </div>
               </div>
 
-              {/* Sign In Link */}
+              {/* Login Link */}
               <div className="mt-4 text-center">
                 <p
                   className="text-sm"
@@ -254,7 +334,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     className="font-medium hover:underline"
                     style={{ color: theme.palette.primary.main }}
                   >
-                    Sign in
+                    Login
                   </Link>
                 </p>
               </div>
