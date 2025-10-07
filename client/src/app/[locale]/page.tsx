@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import DeleteButton from "@/components/shared/Buttons/DeleteButton";
@@ -11,6 +10,7 @@ import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
 import CreateBazaar from "@/components/tempPages/CreateBazaar";
+
 
 export default function HomePage() {
   const [open, setOpen] = useState(false);
@@ -151,6 +151,33 @@ export default function HomePage() {
           />
         </div>
       )}
+      <div className="flex items-center justify-center gap-5">
+        <CustomButton
+          color="tertiary"
+          variant="contained"
+          size="small"
+          disableElevation
+          label="Save"
+        />
+          <CustomButton
+          variant="contained"
+          size="small"
+          disableElevation
+          label="Apply"
+          color="secondary"
+        />
+        <CustomButton
+          variant="contained"
+          size="small"
+          disableElevation
+          label="Submit"
+        />
+        <DeleteButton size="small" variant="contained" color="error" />
+      </div>
+      <CustomSearchBar icon={false} width="450px" type="outwards" label="Search Events..." />
+      <CustomIcon icon="delete" size="small" containerType="inwards" />
+      <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
+      <AppWrapper />
     </div>
   );
 }
