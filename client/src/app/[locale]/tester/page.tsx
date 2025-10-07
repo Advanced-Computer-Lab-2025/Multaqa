@@ -38,7 +38,7 @@ const SimpleFormExample: React.FC = () => {
       maxWidth: '600px',
       margin: '0 auto',
       padding: '40px 20px',
-      backgroundColor: 'transparent',
+      backgroundColor: '#e5e7eb',
       minHeight: '100vh',
       fontFamily: 'var(--font-poppins), system-ui, sans-serif',
     }}>
@@ -85,8 +85,8 @@ const SimpleFormExample: React.FC = () => {
             fieldType="text"
             value={formData.firstName}
             onChange={handleChange('firstName')}
-            required
             separateLabels
+            required
             autoCapitalizeName
           />
         </div>
@@ -99,6 +99,7 @@ const SimpleFormExample: React.FC = () => {
             fieldType="text"
             value={formData.lastName}
             onChange={handleChange('lastName')}
+            separateLabels
             required
             autoCapitalizeName
           />
@@ -120,6 +121,7 @@ const SimpleFormExample: React.FC = () => {
             stakeholderType="staff"
             value={formData.email}
             onChange={handleChange('email')}
+            separateLabels // 
             required
           />
         </div>
@@ -137,6 +139,7 @@ const SimpleFormExample: React.FC = () => {
             fieldType="password"
             value={formData.password}
             onChange={handleChange('password')}
+            separateLabels
             required
           />
         </div>
@@ -217,7 +220,7 @@ const SimpleFormExample: React.FC = () => {
             <CustomRating
               value={formData.rating}
               onChange={handleRatingChange}
-              multaqaFill={true}
+              multaqaFill
             />
           </div>
         </div>

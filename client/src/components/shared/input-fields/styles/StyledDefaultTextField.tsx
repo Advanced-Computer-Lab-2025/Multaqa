@@ -96,39 +96,47 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   // Get icon based on field type
   const getFieldIcon = () => {
-    const iconStyle = { marginRight: '6px', fontSize: '1rem', color: '#999' };
+    // Icon color: gray when not focused, tertiary color when focused (only for non-neumorphic)
+    const iconColor = !neumorphicBox && isFocused ? theme.palette.tertiary.main : '#999';
+    const iconStyle = { 
+      fontSize: neumorphicBox ? '1rem' : '0.75rem',
+      color: iconColor,
+      transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    };
+    
+    const iconSize = neumorphicBox ? 16 : 12;
     
     switch (fieldType) {
       case "email":
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
         );
       case "password":
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         );
       case "text":
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
         );
       case "phone":
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
         );
       case "numeric":
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
             <line x1="4" y1="9" x2="20" y2="9" />
             <line x1="4" y1="15" x2="20" y2="15" />
             <line x1="10" y1="3" x2="8" y2="21" />
@@ -140,26 +148,94 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
     }
   };
 
+  // Get styles based on neumorphicBox prop
+  const getInputStyles = () => {
+    if (neumorphicBox) {
+      // Neumorphic styling (current implementation)
+      return {
+        width: '100%',
+        padding: '12px 18px',
+        paddingRight: fieldType === "password" ? '48px' : '18px',
+        fontSize: '1rem',
+        fontWeight: 500,
+        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+        color: theme.palette.text.primary,
+        backgroundColor: disabled ? '#f3f4f6' : theme.palette.background.default,
+        border: 'none',
+        borderRadius: '50px',
+        outline: 'none',
+        transition: 'box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        boxShadow: disableDynamicMorphing
+          ? '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)'
+          : isFocused
+            ? 'inset -2px -2px 5px 0 #FAFBFF, inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25)' 
+            : '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)',
+        transform: disableDynamicMorphing
+          ? 'scale(1)'
+          : isFocused ? 'scale(0.998)' : 'scale(1)',
+        cursor: disabled ? 'not-allowed' : 'text',
+      };
+    } else {
+      // Standard MUI-like styling with underline
+      return {
+        width: '100%',
+        padding: '8px 16px',
+        paddingRight: fieldType === "password" ? '48px' : '16px',
+        paddingBottom: '8px',
+        fontSize: '1rem',
+        fontWeight: 500,
+        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+        color: theme.palette.text.primary,
+        backgroundColor: 'transparent',
+        border: 'none',
+        borderBottom: `2px solid ${isFocused ? theme.palette.primary.main : 'rgba(0, 0, 0, 0.42)'}`,
+        borderRadius: '0',
+        outline: 'none',
+        transition: 'border-bottom-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        cursor: disabled ? 'not-allowed' : 'text',
+      };
+    }
+  };
+
+  const getLabelStyles = () => {
+    if (neumorphicBox) {
+      return {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '8px',
+        fontSize: '1rem',
+        fontWeight: 500,
+        lineHeight: 1.4375,
+        color: '#999',
+        paddingLeft: '16px',
+        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+      };
+    } else {
+      return {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '4px',
+        fontSize: '0.75rem',
+        fontWeight: 500,
+        lineHeight: 1.4375,
+        color: isFocused ? theme.palette.tertiary.main : '#999',
+        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+        transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      };
+    }
+  };
+
   return (
     <div style={{ width: '100%' }}>
       {/* Separate Label */}
       {label && (
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '8px',
-            fontSize: '1rem',
-            fontWeight: 500,
-            color: '#999',
-            paddingLeft: '16px',
-            fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-          }}
-        >
+        <label style={getLabelStyles()}>
           {getFieldIcon()}
           {label}
           {props.required && (
-            <span style={{ color: '#b81d1d', marginLeft: '2px' }}>*</span>
+            <span style={{ color: theme.palette.error.main, marginLeft: '2px' }}>*</span>
           )}
         </label>
       )}
@@ -181,29 +257,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           onKeyPress={onKeyPress}
           placeholder={getPlaceholderText()}
           disabled={disabled}
-          style={{
-            width: '100%',
-            padding: '12px 18px',
-            paddingRight: fieldType === "password" ? '48px' : '18px',
-            fontSize: '1rem',
-            fontWeight: 500,
-            fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-            color: '#1f2937',
-            backgroundColor: disabled ? '#f3f4f6' : theme.palette.background.default,
-            border: 'none',
-            borderRadius: '50px',
-            outline: 'none',
-            transition: 'box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-            boxShadow: disableDynamicMorphing
-              ? '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)'
-              : isFocused
-                ? 'inset -2px -2px 5px 0 #FAFBFF, inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25)' 
-                : '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)',
-            transform: disableDynamicMorphing
-              ? 'scale(1)'
-              : isFocused ? 'scale(0.998)' : 'scale(1)',
-            cursor: disabled ? 'not-allowed' : 'text',
-          }}
+          style={getInputStyles()}
         />
 
         {/* Password Toggle Button */}
@@ -233,7 +287,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
               if (!disabled) e.currentTarget.style.color = theme.palette.primary.main;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#999';
+              e.currentTarget.style.color = isFocused ? theme.palette.primary.main : '#999';
             }}
           >
             {showPassword ? (
