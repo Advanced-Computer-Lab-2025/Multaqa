@@ -112,7 +112,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           label={label}
           fieldType={fieldType}
           placeholder={props.placeholder}
-          value={value}
+          value={getDisplayValue()}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -122,8 +122,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           autoCapitalizeName={autoCapitalizeName}
           neumorphicBox={neumorphicBox}
           disableDynamicMorphing={disableDynamicMorphing}
+          stakeholderType={stakeholderType}
           separateLabels={separateLabels && fieldType === "text" && label?.toLowerCase().includes("name")}
-          {...props}
         />
       ) : (
         <>

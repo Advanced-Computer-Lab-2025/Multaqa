@@ -122,6 +122,8 @@ const SimpleFormExample: React.FC = () => {
             stakeholderType="staff"
             value={formData.email}
             onChange={handleChange('email')}
+            separateLabels
+            // neumorphicBox
             required
           />
         </div>

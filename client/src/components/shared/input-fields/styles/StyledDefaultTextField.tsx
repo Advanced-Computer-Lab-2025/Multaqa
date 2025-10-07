@@ -17,6 +17,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   autoCapitalizeName = true,
   neumorphicBox = false,
   disableDynamicMorphing = true,
+  stakeholderType = "staff",
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -72,6 +73,24 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
       return showPassword ? "text" : "password";
     }
     return type || fieldType || "text";
+  };
+
+  // Get email domain based on stakeholder type
+  const getEmailDomain = () => {
+    switch (stakeholderType) {
+      case "student":
+        return "@student.guc.edu.eg";
+      case "staff":
+      case "ta":
+      case "professor":
+      case "admin":
+      case "events-office":
+        return "@guc.edu.eg";
+      case "vendor":
+        return "";
+      default:
+        return "";
+    }
   };
 
   const getPlaceholderText = () => {
@@ -290,6 +309,28 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           disabled={disabled}
           style={getInputStyles()}
         />
+
+        {/* Email Domain Adornment */}
+        {fieldType === "email" && stakeholderType !== "vendor" && (
+          <span
+            style={{
+              position: 'absolute',
+              right: neumorphicBox ? '18px' : '16px',
+              top: '50%',
+              transform: `translateY(-50%) ${isFocused || (value && String(value).length > 0) ? 'translateX(0px)' : 'translateX(20px)'}`,
+              color: theme.palette.tertiary.dark,
+              fontSize: '1rem',
+              fontWeight: 500,
+              fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+              pointerEvents: 'none',
+              opacity: isFocused || (value && String(value).length > 0) ? 1 : 0,
+              transition: 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              visibility: isFocused || (value && String(value).length > 0) ? 'visible' : 'hidden',
+            }}
+          >
+            {getEmailDomain()}
+          </span>
+        )}
 
         {/* Password Toggle Button */}
         {fieldType === "password" && (
