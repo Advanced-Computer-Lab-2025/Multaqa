@@ -11,6 +11,7 @@ import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckbox
 import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
+import LoginForm from "@/components/shared/LoginForm/LoginForm";
 
 export default function HomePage() {
   // const [selectedValue, setSelectedValue] = useState<string | number | string[] | number[]>("");
@@ -142,6 +143,7 @@ export default function HomePage() {
     <div className="flex items-center justify-center gap-5 flex-row">
       <RegistrationForm UserType="student" />
       <RegistrationForm UserType="vendor" />
+      <LoginForm />
     </div>
   );
 }
