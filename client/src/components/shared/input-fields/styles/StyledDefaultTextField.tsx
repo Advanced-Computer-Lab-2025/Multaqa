@@ -193,7 +193,16 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         cursor: disabled ? 'not-allowed' : 'text',
       };
     } else {
-      // Standard MUI-like styling with underline (thin by default, thicker on focus)
+      // Standard MUI-like styling with underline (thin by default, thicker on hover/focus)
+      let borderBottom;
+      if (isFocused) {
+        borderBottom = `2px solid ${theme.palette.primary.main}`;
+      } else if (isHovered) {
+        borderBottom = '2px solid rgba(0, 0, 0, 0.42)';
+      } else {
+        borderBottom = '1px solid rgba(0, 0, 0, 0.42)';
+      }
+
       return {
         width: '100%',
         padding: '8px 16px',
@@ -205,12 +214,10 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         color: theme.palette.text.primary,
         backgroundColor: 'transparent',
         border: 'none',
-        borderBottom: isFocused 
-          ? `2px solid ${theme.palette.primary.main}` 
-          : '1px solid rgba(0, 0, 0, 0.42)',
+        borderBottom,
         borderRadius: '0',
         outline: 'none',
-        transition: 'border-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transition: isFocused ? 'border-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
         cursor: disabled ? 'not-allowed' : 'text',
       };
     }
