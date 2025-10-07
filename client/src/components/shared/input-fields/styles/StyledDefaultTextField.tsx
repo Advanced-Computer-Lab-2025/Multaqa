@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CustomTextFieldProps } from '../types';
+import theme from '@/themes/lightTheme';
 
 // Custom styled component - no MUI dependency
 const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?: boolean }> = ({
@@ -188,7 +189,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
             fontWeight: 500,
             fontFamily: 'var(--font-poppins), system-ui, sans-serif',
             color: '#1f2937',
-            backgroundColor: disabled ? '#f3f4f6' : '#e5e7eb',
+            backgroundColor: disabled ? '#f3f4f6' : theme.palette.background.default,
             border: 'none',
             borderRadius: '50px',
             outline: 'none',
@@ -229,7 +230,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
               opacity: disabled ? 0.5 : 1,
             }}
             onMouseEnter={(e) => {
-              if (!disabled) e.currentTarget.style.color = '#7851da';
+              if (!disabled) e.currentTarget.style.color = theme.palette.primary.main;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = '#999';

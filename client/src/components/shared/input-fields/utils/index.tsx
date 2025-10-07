@@ -10,6 +10,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ListIcon from '@mui/icons-material/List';
 import { FieldType, StakeholderType, SelectFieldType, SelectOption } from '../types';
+import theme from "@/themes/lightTheme";
 
 /**
  * Get email domain based on stakeholder type
@@ -109,7 +110,7 @@ export const getPasswordEndAdornment = (
         edge="end"
         sx={{
           '&:hover': {
-            color: '#7851da',
+            color: theme.palette.primary.dark,
           },
           transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}

@@ -75,7 +75,7 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     color: theme.palette.primary.contrastText,
     border: "2px solid #a81818",
     boxShadow: `
-   -5px -5px 8px 0 #fffff7,
+   -53px -3px 8px 0 #fffff7,
     5px 5px 8px 0 rgba(153, 153, 142, 0.6)
   `,
   },
