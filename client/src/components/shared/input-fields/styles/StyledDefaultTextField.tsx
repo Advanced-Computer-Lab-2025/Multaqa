@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { CustomTextFieldProps } from '../types';
 import theme from '@/themes/lightTheme';
 
@@ -23,6 +24,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const domainMeasureRef = useRef<HTMLSpanElement | null>(null);
+  const [domainWidth, setDomainWidth] = useState<number>(0);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
@@ -42,9 +45,9 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
     setIsHovered(false);
   };
 
-  // Extract and exclude conflicting props
+  // Extract and exclude conflicting props (keep rest for input attributes)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { value: propsValue, onChange: propsOnChange, ...inputProps } = props as any;
+  const { ...inputProps } = props as any;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fieldType === "text" && autoCapitalizeName) {
@@ -92,6 +95,45 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         return "";
     }
   };
+
+  // Measure domain width to avoid overlap when right-aligning input text
+  useEffect(() => {
+    const measure = () => {
+      if (domainMeasureRef.current) {
+        const w = domainMeasureRef.current.offsetWidth;
+        setDomainWidth(w);
+      } else {
+        setDomainWidth(0);
+      }
+    };
+
+    // Initial measurement
+    measure();
+
+    // Use ResizeObserver to pick up font-load or style changes that affect width
+    let ro: ResizeObserver | null = null;
+    const observedEl = domainMeasureRef.current;
+    if (typeof ResizeObserver !== 'undefined' && observedEl) {
+      ro = new ResizeObserver(() => {
+        measure();
+      });
+      ro.observe(observedEl);
+    }
+
+    // Also re-measure on window resize (fallback)
+    let rafId: number | null = null;
+    const onResize = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(measure);
+    };
+    window.addEventListener('resize', onResize);
+
+    return () => {
+  if (ro && observedEl) ro.unobserve(observedEl);
+      window.removeEventListener('resize', onResize);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [stakeholderType, neumorphicBox, isFocused, value]);
 
   const getPlaceholderText = () => {
     if (placeholder) return placeholder;
@@ -178,6 +220,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   // Get styles based on neumorphicBox prop
   const getInputStyles = () => {
+    const domainStakeholders = ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'];
+    const isDomainStakeholder = domainStakeholders.includes(stakeholderType as string);
     if (neumorphicBox) {
       // Determine border color: focus > hover > transparent
       let borderColor = 'transparent';
@@ -190,8 +234,10 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
       // Neumorphic styling with border on hover/focus
       return {
         width: '100%',
-        padding: '12px 18px',
-        paddingRight: fieldType === "password" ? '48px' : '18px',
+  padding: '12px 18px',
+  // small extra gap so username sits close to the domain adornment
+  // clamp domainWidth to avoid excessive padding for extremely long domains
+  paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder ? `${Math.max(0, Math.min(domainWidth, 320)) + 18}px` : '18px'),
         fontSize: '1rem',
         fontWeight: 500,
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
@@ -210,6 +256,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           ? 'scale(1)'
           : isFocused ? 'scale(0.998)' : 'scale(1)',
         cursor: disabled ? 'not-allowed' : 'text',
+        // Right align text for email inputs that use an external domain adornment
+        ...(fieldType === 'email' && isDomainStakeholder ? { textAlign: 'right' as const } : {}),
       };
     } else {
       // Standard MUI-like styling with underline (thin by default, thicker on hover/focus)
@@ -224,8 +272,9 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
       return {
         width: '100%',
-        padding: '8px 16px',
-        paddingRight: fieldType === "password" ? '48px' : '16px',
+  padding: '8px 16px',
+  // slightly smaller extra padding for non-neumorphic mode
+  paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder ? `${Math.max(0, Math.min(domainWidth, 320)) + 12}px` : '16px'),
         paddingBottom: '8px',
         fontSize: '1rem',
         fontWeight: 500,
@@ -238,6 +287,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         outline: 'none',
         transition: isFocused ? 'border-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
         cursor: disabled ? 'not-allowed' : 'text',
+        ...(fieldType === 'email' && isDomainStakeholder ? { textAlign: 'right' as const } : {}),
       };
     }
   };
@@ -305,10 +355,32 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyPress={onKeyPress}
-          placeholder={getPlaceholderText()}
+            placeholder={fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) ? '' : getPlaceholderText()}
           disabled={disabled}
           style={getInputStyles()}
         />
+
+    {/* Hidden measurement element for domain text width (not visible) */}
+    <span ref={domainMeasureRef} style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap', fontSize: '1rem', fontWeight: 500, fontFamily: 'var(--font-poppins), system-ui, sans-serif' }}>{getEmailDomain()}</span>
+
+    {/* Left-aligned overlay placeholder for email with domain stakeholders */}
+          {fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) && !value && (
+            <span
+              style={{
+                position: 'absolute',
+                left: '18px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#999',
+                fontSize: '1rem',
+                fontWeight: 500,
+                pointerEvents: 'none',
+                fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+              }}
+            >
+              {getPlaceholderText()}
+            </span>
+          )}
 
         {/* Email Domain Adornment */}
         {fieldType === "email" && stakeholderType !== "vendor" && (
