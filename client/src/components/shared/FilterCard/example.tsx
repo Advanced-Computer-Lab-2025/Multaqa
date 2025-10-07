@@ -72,12 +72,6 @@ const stakeholderFilterData: FilterGroup[] = [
             { label: 'Prof. Brown', value: 'brown' },
         ],
     },
-    {
-        id: 'Event Date',
-        title: 'Event Date',
-        type: 'date',
-    }
-
 ];
 
 // RENDER COMPONENT WITH STATE LOGIC

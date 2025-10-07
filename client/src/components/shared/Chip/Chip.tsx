@@ -19,7 +19,7 @@ const FilterChip: React.FC<FilterChipProps> = ({ label, active = false, deletabl
         textTransform: 'none',
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
         fontSize: variant === 'select' ? '0.68rem' : '0.7rem',
-        color: variant === 'select' ? theme.palette.primary.contrastText : theme.palette.text.primary,
+        color: variant === 'select' ? theme.palette.tertiary.dark : theme.palette.tertiary.dark,
         backgroundColor: variant === 'select' ? theme.palette.primary.light : theme.palette.background.default,
         boxShadow: active ? pressed : lifted,
         // keep a visible primary border when deletable/active to match previous style
