@@ -150,6 +150,10 @@ export default function HomePage() {
           />
         </div>
       )}
+      <CustomButton onClick={() => setCreateOpen(true)}>Create Bazaar</CustomButton>
+      <CustomModalLayout open={createOpen} onClose={() => setCreateOpen(false)}>
+        <CreateBazaar />
+      </CustomModalLayout>
     </div>
   );
 }
