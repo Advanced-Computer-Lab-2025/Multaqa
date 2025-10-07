@@ -14,6 +14,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   type,
   disabled = false,
   autoCapitalizeName = true,
+  neumorphicBox = false,
+  disableDynamicMorphing = true,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -65,30 +67,45 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   const getPlaceholderText = () => {
     if (placeholder) return placeholder;
     
+    const labelLower = label?.toLowerCase() || '';
+    
     switch (fieldType) {
       case "email":
-        return "example@email.com";
+        return "example@domain.com";
       case "password":
-        return "Enter your password";
+        return "Enter a strong password (min 8 characters)";
       case "text":
-        return label ? `Enter ${label.toLowerCase()}` : "Enter text";
+        if (labelLower.includes('first name') || labelLower.includes('firstname')) {
+          return "e.g., John";
+        } else if (labelLower.includes('last name') || labelLower.includes('lastname')) {
+          return "e.g., Doe";
+        } else if (labelLower.includes('full name') || labelLower.includes('name')) {
+          return "e.g., John Doe";
+        } else {
+          return label ? `Enter ${label.toLowerCase()}` : "Enter text";
+        }
+      case "phone":
+        return "e.g., +1 234 567 8900";
+      case "numeric":
+        return "Enter a number";
       default:
         return "";
     }
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '400px' }}>
+    <div style={{ width: '100%' }}>
       {/* Separate Label */}
       {label && (
         <label
           style={{
             display: 'block',
             marginBottom: '8px',
-            fontSize: '14px',
+            fontSize: '1rem',
             fontWeight: 500,
-            color: '#374151',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
+            color: '#999',
+            paddingLeft: '16px',
+            fontFamily: 'var(--font-poppins), system-ui, sans-serif',
           }}
         >
           {label}
@@ -114,19 +131,25 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           disabled={disabled}
           style={{
             width: '100%',
-            padding: '12px 16px',
-            paddingRight: fieldType === "password" ? '48px' : '16px',
-            fontSize: '15px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
+            padding: '12px 18px',
+            paddingRight: fieldType === "password" ? '48px' : '18px',
+            fontSize: '1rem',
+            fontWeight: 500,
+            fontFamily: 'var(--font-poppins), system-ui, sans-serif',
             color: '#1f2937',
-            backgroundColor: disabled ? '#f3f4f6' : '#ffffff',
-            border: `2px solid ${isFocused ? '#3b82f6' : '#e5e7eb'}`,
-            borderRadius: '9999px',
+            backgroundColor: disabled ? '#f3f4f6' : '#e5e7eb',
+            border: 'none',
+            borderRadius: '50px',
             outline: 'none',
-            transition: 'all 0.2s ease',
-            boxShadow: isFocused 
-              ? '0 0 0 3px rgba(59, 130, 246, 0.1)' 
-              : 'none',
+            transition: 'box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            boxShadow: disableDynamicMorphing
+              ? '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)'
+              : isFocused
+                ? 'inset -2px -2px 5px 0 #FAFBFF, inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25)' 
+                : '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)',
+            transform: disableDynamicMorphing
+              ? 'scale(1)'
+              : isFocused ? 'scale(0.998)' : 'scale(1)',
             cursor: disabled ? 'not-allowed' : 'text',
           }}
         />
