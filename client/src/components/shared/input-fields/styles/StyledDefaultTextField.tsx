@@ -20,6 +20,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -30,6 +31,14 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
     if (onBlur) onBlur(e);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
   };
 
   // Extract and exclude conflicting props
@@ -96,8 +105,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   // Get icon based on field type
   const getFieldIcon = () => {
-    // Icon color: gray when not focused, tertiary color when focused (only for non-neumorphic)
-    const iconColor = !neumorphicBox && isFocused ? theme.palette.tertiary.main : '#999';
+    // Icon color: gray when not focused, tertiary color when focused (for both neumorphic and non-neumorphic)
+    const iconColor = isFocused ? theme.palette.tertiary.main : '#999';
     const iconStyle = { 
       fontSize: '0.75rem',
       color: iconColor,
@@ -151,7 +160,15 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
   // Get styles based on neumorphicBox prop
   const getInputStyles = () => {
     if (neumorphicBox) {
-      // Neumorphic styling (current implementation)
+      // Determine border color: focus > hover > transparent
+      let borderColor = 'transparent';
+      if (isFocused) {
+        borderColor = theme.palette.tertiary.main;
+      } else if (isHovered) {
+        borderColor = theme.palette.primary.main;
+      }
+
+      // Neumorphic styling with border on hover/focus
       return {
         width: '100%',
         padding: '12px 18px',
@@ -161,10 +178,10 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
         color: theme.palette.text.primary,
         backgroundColor: disabled ? '#f3f4f6' : theme.palette.background.default,
-        border: 'none',
+        border: `2px solid ${borderColor}`,
         borderRadius: '50px',
         outline: 'none',
-        transition: 'box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transition: 'box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         boxShadow: disableDynamicMorphing
           ? '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)'
           : isFocused
@@ -199,7 +216,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   const getLabelStyles = () => {
     if (neumorphicBox) {
-      // Neumorphic mode: same size as non-neumorphic, fixed gray color, with left padding
+      // Neumorphic mode: same size as non-neumorphic, changes to tertiary color on focus, with left padding
       return {
         display: 'flex',
         alignItems: 'center',
@@ -208,9 +225,10 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         fontSize: '0.75rem',
         fontWeight: 500,
         lineHeight: 1.4375,
-        color: '#999',
+        color: isFocused ? theme.palette.tertiary.main : '#999',
         paddingLeft: '16px',
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+        transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       };
     } else {
       // Standard MUI-like mode: smaller sizing, changes to tertiary color on focus, tight spacing
@@ -248,6 +266,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           position: 'relative',
           width: '100%',
         }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <input
           {...inputProps}
