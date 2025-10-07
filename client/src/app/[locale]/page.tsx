@@ -8,10 +8,18 @@ export default function HomePage() {
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
       <div className="flex items-center justify-center gap-5">
         <CustomButton
-          variant="outlined"
+          color="tertiary"
+          variant="contained"
           size="small"
           disableElevation
           label="Save"
+        />
+          <CustomButton
+          variant="contained"
+          size="small"
+          disableElevation
+          label="Apply"
+          color="secondary"
         />
         <CustomButton
           variant="contained"
@@ -21,7 +29,7 @@ export default function HomePage() {
         />
         <DeleteButton size="small" variant="contained" color="error" />
       </div>
-      <CustomSearchBar icon={false} width="450px" type="outwards" />
+      <CustomSearchBar icon={false} width="450px" type="outwards" label="Search Events..." />
       <CustomIcon icon="delete" size="small" containerType="inwards" />
       <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
     </div>

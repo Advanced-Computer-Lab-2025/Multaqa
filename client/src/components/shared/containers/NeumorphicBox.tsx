@@ -14,12 +14,12 @@ const StyledBox = styled(Box)<{ containerType: "inwards" | "outwards" }>(({
   textTransform: "none",
   boxShadow: containerType === "inwards" 
     ? `
-      inset -2px -2px 5px 0 #FAFBFF,
+      inset -2px -2px 5px 0 #fffff7,
       inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25)
     `
     : `
-      -5px -5px 10px 0 #FAFBFF,
-      5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+     -3px -3px 10px 0 #fffff7,
+     5px 5px 10px 0 rgba(153, 153, 142, 0.6)
     `,
   transition: "all 0.3s ease-in-out",
 }));

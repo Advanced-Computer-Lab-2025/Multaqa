@@ -1,47 +1,46 @@
 import { Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
+import type { ButtonProps } from "@mui/material/Button";
+
+
+// Resolve a Button color to its palette entry in a type-safe way
+const resolveButtonPalette = (
+  theme: Theme,
+  color: ButtonProps["color"]
+) => {
+  if (!color || color === "inherit") return theme.palette.primary;
+  return theme.palette[color];
+};
+
 
 // styled wrapper for MUI Button
-export const StyledButton = styled(Button)(({ theme }) => ({
+export const StyledButton = styled(Button)<ButtonProps>(({ theme , color}) => ({
   cursor: "pointer",
   borderRadius: "50px",
   padding: "5px 10px",
+  borderWidth:"2px",
+  borderStyle:"solid",
+  borderColor: resolveButtonPalette(theme, color).dark,
   "&.MuiButton-outlined": {
     borderWidth: "2px",
     borderStyle: "solid",
   },
-  "&.MuiButton-contained": {
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    boxShadow: `
-    -5px -5px 8px 0 #FAFBFF,
-     5px 5px 8px 0 rgba(107, 79, 150, 0.6)
-     `,
-  },
-   
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
   textTransform: "none",
   letterSpacing: "0.5px",
   fontWeight: 900,
   boxShadow: `
-   -5px -5px 10px 0 #FAFBFF,
-   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+   -3px -3px 10px 0 #fffff7,
+   5px 5px 10px 0 rgba(153, 153, 142, 0.6)
 `,
 
 "&:hover": {
   boxShadow: `
-   -5px -5px 10px 0 #FAFBFF,
-   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+    -5px -5px 8px 0 #fffff7,
+    5px 5px 8px 0 rgba(153, 153, 142, 0.6)
   `,
 },
-
-"&.MuiButton-contained:hover": {
-    background: theme.palette.primary.dark,
-    boxShadow: `
-   -5px -5px 8px 0 #FAFBFF,
-   5px 5px 8px 0 rgba(22, 27, 29, 0.25)
-`,
-  },
 
 "&:active": {
   boxShadow: `
@@ -61,14 +60,14 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
   color: "#FFFFFF",
   border: "2px solid #c22121",
   boxShadow: `
-    -5px -5px 8px 0 #FAFBFF,
-    5px 5px 8px 0 rgba(150, 43, 43, 0.4)
+    -3px -3px 10px 0 #fffff7,
+    5px 5px 10px 0 rgba(153, 153, 142, 0.6)
   `,
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
  "&.MuiButton-outlined": {
     borderWidth: "2px",
     borderStyle: "solid",
-    borderColor: theme.palette.error.light,
+    borderColor: theme.palette.error.dark,
     color: theme.palette.error.main,
   },
 "&:hover": {
@@ -76,8 +75,8 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     color: theme.palette.primary.contrastText,
     border: "2px solid #a81818",
     boxShadow: `
-    -5px -5px 8px 0 #FAFBFF,
-    5px 5px 8px 0 rgba(150, 43, 43, 0.4)
+   -5px -5px 8px 0 #fffff7,
+    5px 5px 8px 0 rgba(153, 153, 142, 0.6)
   `,
   },
   "&.MuiButton-outlined:hover": {
@@ -85,9 +84,10 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     borderStyle: "solid",
     borderColor: "#9e2020",
     background: "transparent",
-    color: theme.palette.error.dark,
+    color: "#a81818",
   },
 
   transition: "all 0.2s ease-in-out",
 }));
 
+// (Removed incorrect component-typed hook; use resolveButtonPalette instead)
