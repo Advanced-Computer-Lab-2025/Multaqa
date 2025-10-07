@@ -5,7 +5,7 @@ import CustomTextField from '@/components/shared/input-fields/CustomTextField';
 import CustomSelectField from '@/components/shared/input-fields/CustomSelectField';
 import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckboxGroup';
 import CustomRating from '@/components/shared/input-fields/CustomRating';
-import { CustomModal } from '@/components/shared/modals';
+import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +17,7 @@ const SimpleFormExample: React.FC = () => {
     interests: [] as string[],
     rating: 0,
   });
+  const [openLayout, setOpenLayout] = useState(false);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -262,18 +263,27 @@ const SimpleFormExample: React.FC = () => {
 
       </div>
 
-      <CustomModal
-        title="Example Modal"
-        description="This is a simple example of the CustomModal component."
-        buttonOption1={{
-          label: 'Close',
-          variant: 'contained',
-          color: 'primary',
-          onClick: () => alert('Modal closed!'),
-        }}
-        open={true}
-        onClose={() => alert('Modal closed!')}
-      />
+      <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
+        {/* <CustomModal
+          title="Example Modal"
+          description="This is a simple example of the CustomModal component."
+          buttonOption1={{
+            label: 'Close',
+            variant: 'contained',
+            color: 'primary',
+            onClick: () => alert('Modal closed!'),
+          }}
+        /> */}
+
+        <button onClick={() => setOpenLayout(true)} style={{ padding: '10px 14px', borderRadius: '10px' }}>Open Layout Modal</button>
+
+        <CustomModalLayout open={openLayout} onClose={() => setOpenLayout(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ marginTop: 0 }}>Hellow there</h2>
+            <p>This is content inside the real <code>CustomModalLayout</code>.</p>
+          </div>
+        </CustomModalLayout>
+      </div>
 
       {/* Props Guide */}
       <section style={{ 

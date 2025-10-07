@@ -9,7 +9,7 @@ export const ModalCardWrapper = styled(Card)(({ theme }) => ({
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  border:`1.5px solid  ${theme.palette.tertiary.main}`,
+  border:`3px solid  ${theme.palette.tertiary.main}`,
   borderRadius: '16px',
   padding: 0,
   overflow: 'visible',
