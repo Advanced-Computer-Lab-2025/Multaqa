@@ -108,48 +108,23 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   return (
     <>
       {separateLabels ? (
-        <>
-          {neumorphicBox ? (
-            <NeumorphicBox
-              containerType={disableDynamicMorphing ? "outwards" : (isFocused ? "inwards" : "outwards")}
-              padding="2px"
-              borderRadius="50px"
-              width="100%"
-            >
-              <StyledDefaultTextField
-                label={label}
-                fieldType={fieldType}
-                placeholder={props.placeholder}
-                value={value}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onKeyPress={handleKeyPress}
-                type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
-                disabled={props.disabled || false}
-                autoCapitalizeName={autoCapitalizeName}
-                separateLabels={separateLabels && fieldType === "text" && label?.toLowerCase().includes("name")}
-                {...props}
-              />
-            </NeumorphicBox>
-          ) : (
-            <StyledDefaultTextField
-              label={label}
-              fieldType={fieldType}
-              placeholder={props.placeholder}
-              value={value}
-              onChange={handleChange}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              onKeyPress={handleKeyPress}
-              type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
-              disabled={props.disabled || false}
-              autoCapitalizeName={autoCapitalizeName}
-              separateLabels={separateLabels && fieldType === "text" && label?.toLowerCase().includes("name")}
-              {...props}
-            />
-          )}
-        </>
+        <StyledDefaultTextField
+          label={label}
+          fieldType={fieldType}
+          placeholder={props.placeholder}
+          value={value}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyPress={handleKeyPress}
+          type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+          disabled={props.disabled || false}
+          autoCapitalizeName={autoCapitalizeName}
+          neumorphicBox={neumorphicBox}
+          disableDynamicMorphing={disableDynamicMorphing}
+          separateLabels={separateLabels && fieldType === "text" && label?.toLowerCase().includes("name")}
+          {...props}
+        />
       ) : (
         <>
           {neumorphicBox ? (

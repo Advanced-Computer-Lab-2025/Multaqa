@@ -99,12 +99,12 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
     // Icon color: gray when not focused, tertiary color when focused (only for non-neumorphic)
     const iconColor = !neumorphicBox && isFocused ? theme.palette.tertiary.main : '#999';
     const iconStyle = { 
-      fontSize: neumorphicBox ? '1rem' : '0.75rem',
+      fontSize: '0.75rem',
       color: iconColor,
       transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     };
     
-    const iconSize = neumorphicBox ? 16 : 12;
+    const iconSize = 12;
     
     switch (fieldType) {
       case "email":
@@ -199,12 +199,13 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   const getLabelStyles = () => {
     if (neumorphicBox) {
+      // Neumorphic mode: same size as non-neumorphic, fixed gray color, with left padding
       return {
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '2px',
         marginBottom: '8px',
-        fontSize: '1rem',
+        fontSize: '0.75rem',
         fontWeight: 500,
         lineHeight: 1.4375,
         color: '#999',
@@ -212,10 +213,11 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
       };
     } else {
+      // Standard MUI-like mode: smaller sizing, changes to tertiary color on focus, tight spacing
       return {
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '2px',
         marginBottom: '4px',
         fontSize: '0.75rem',
         fontWeight: 500,
@@ -229,7 +231,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   return (
     <div style={{ width: '100%' }}>
-      {/* Separate Label */}
+      {/* Separate Label - Rendered outside when neumorphic */}
       {label && (
         <label style={getLabelStyles()}>
           {getFieldIcon()}
