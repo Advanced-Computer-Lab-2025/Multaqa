@@ -15,6 +15,7 @@ export const getSelectFieldStyles = (props: SelectFieldV2StyleProps): React.CSSP
 
   // Determine border color priority: error > focus > hover > default
   let borderColor = theme.palette.primary.main;
+  // eslint-disable-next-line prefer-const
   let borderWidth = '2px';
   if (isError) {
     borderColor = '#b81d1d';
