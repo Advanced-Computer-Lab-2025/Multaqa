@@ -6,6 +6,7 @@ import CustomCheckbox from "./CustomCheckbox";
 import CustomRadio from "./CustomRadio";
 import { CustomCheckboxGroupProps } from './types';
 import { handleCheckboxGroupChange, handleRadioGroupChange } from './utils';
+import theme from "@/themes/lightTheme";
 
 const CustomCheckboxGroup: React.FC<CustomCheckboxGroupProps> = ({
   label,
@@ -14,10 +15,10 @@ const CustomCheckboxGroup: React.FC<CustomCheckboxGroupProps> = ({
   onRadioChange,
   helperText,
   error = false,
-  multaqaFill = true,
+  multaqaFill = false,
   size = "medium",
   row = false,
-  enableMoreThanOneOption = false,
+  enableMoreThanOneOption = true,
 }) => {
   const [selectedValues, setSelectedValues] = React.useState<string[]>(
     options.filter((opt) => opt.checked).map((opt) => opt.value)
@@ -34,9 +35,11 @@ const CustomCheckboxGroup: React.FC<CustomCheckboxGroupProps> = ({
       <FormLabel 
         component="legend" 
         sx={{ 
-          color: error ? "error.main" : "",
-          fontWeight: 500,
+          color: error ? "error.main" : theme.palette.primary.dark,
+          fontWeight: 600,
           marginBottom: 1,
+          fontSize:"20px",
+          marginLeft:"12px"
         }}
       >
         {label}
@@ -88,7 +91,7 @@ const CustomCheckboxGroup: React.FC<CustomCheckboxGroupProps> = ({
       )}
       
       {helperText && (
-        <FormHelperText sx={{ marginTop: 1 }}>
+        <FormHelperText sx={{ marginTop: 1 , fontStyle:"italic", color:theme.palette.primary.dark}}>
           {helperText}
         </FormHelperText>
       )}

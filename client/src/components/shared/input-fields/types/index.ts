@@ -84,15 +84,15 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
 }
 
 export interface CustomRatingProps {
-  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) from lightTheme.ts instead of default yellow
+  multaqaFill?: boolean; 
 }
 
 export interface CustomCheckboxProps {
-  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) from lightTheme.ts - default true
+  multaqaFill?: boolean; 
 }
 
 export interface CustomRadioProps {
-  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) from lightTheme.ts - default true
+  multaqaFill?: boolean; 
 }
 
 export interface CheckboxOption {

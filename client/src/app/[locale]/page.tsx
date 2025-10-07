@@ -9,23 +9,22 @@ import { CustomModalLayout } from "@/components/shared/modals";
 import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import CustomSelectField from "@/components/shared/input-fields/CustomSelectField";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
-import CreateBazaar from "@/components/tempPages/CreateBazaar";
+import { CustomTextField, CustomSelectField, CustomCheckboxGroup, CustomRadio, CustomRating, CustomCheckbox } from "@/components/shared/input-fields";
+import type { StakeholderType } from "@/components/shared/input-fields";
 
 
 export default function HomePage() {
+  
   const [open, setOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const handleClose = () => setOpen(false);
-  
-  // Form state
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    stakeholderType: ''
-  });
+  const [formData, setFormData] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    stakeholderType: StakeholderType | '';
+  }>
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  const [submittedData, setSubmittedData] = useState<any>(null);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -35,12 +34,16 @@ export default function HomePage() {
   };
 
   const handleSubmit = () => {
-    setSubmittedData(formData);
+    // For now, just log the submitted form data
+    // Replace with API submission as needed
+    // eslint-disable-next-line no-console
+    console.log(formData);
     handleClose();
   };
 
+
   return (
-    <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
+    <div className=" min-h-screen flex items-center justify-center gap-5 flex-col p-4">
       <CustomModal 
         modalType="delete"
         title="Confirm Action"
@@ -60,8 +63,6 @@ export default function HomePage() {
       <CustomButton onClick={() => setOpen(true)}>Open Modal Layout</CustomButton>
       <CustomModalLayout open={open} onClose={handleClose}>
         <div>
-          <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: '#7851da' }}>Sign Up</h2>
-          
           <div className="flex flex-col gap-6">
             {/* First Name */}
             <CustomTextField
@@ -177,6 +178,36 @@ export default function HomePage() {
       <CustomSearchBar icon={false} width="450px" type="outwards" label="Search Events..." />
       <CustomIcon icon="delete" size="small" containerType="inwards" />
       <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
+        {/* Last Name */}
+        <CustomTextField
+              fieldType="text"
+              label="Last Name"
+              value={formData.lastName}
+              onChange={(e) => handleInputChange('lastName', e.target.value)}
+              required
+              neumorphicBox
+              fullWidth
+            />
+
+            {/* Stakeholder Type Select */}
+            <CustomSelectField
+              label="Stakeholder Type"
+              fieldType="single"
+              options={[
+                { label: "Student", value: "student" },
+                { label: "Staff", value: "staff" },
+                { label: "Vendor", value: "vendor" },
+                { label: "Company", value: "company" }
+              ]}
+              value={formData.stakeholderType}
+              onChange={(value) => handleInputChange('stakeholderType', value)}
+              required
+            />
+            <CustomCheckboxGroup label="Food:" options={[
+                { label: "Egg", value: "egg" },
+                { label: "Burger", value: "burger" }
+              ]}  helperText="choose your favorite"/>
+
       <AppWrapper />
     </div>
   );
