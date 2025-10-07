@@ -23,9 +23,8 @@ const LoginForm: React.FC = () => {
       validationSchema={Yup.object({
         email: Yup.string()
           .email("Please enter a valid email address.")
-          .required("Email is required."),
-        password: Yup.string()
-          .required("Password is required."),
+          .required("Please enter your email address."),
+        password: Yup.string().required("Please enter your password."),
       })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
