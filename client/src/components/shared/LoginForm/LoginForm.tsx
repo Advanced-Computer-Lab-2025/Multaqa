@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
+import * as Yup from "yup";
 
 const LoginForm: React.FC = () => {
   const theme = useTheme();
@@ -19,6 +20,13 @@ const LoginForm: React.FC = () => {
   return (
     <Formik
       initialValues={initialValues}
+      validationSchema={Yup.object({
+        email: Yup.string()
+          .email("Please enter a valid email address.")
+          .required("Email is required."),
+        password: Yup.string()
+          .required("Password is required."),
+      })}
       onSubmit={(values, { setSubmitting }) => {
         setTimeout(() => {
           alert(JSON.stringify(values, null, 2));
