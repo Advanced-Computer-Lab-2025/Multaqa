@@ -113,10 +113,11 @@ export const getDropdownStyles = (props: DropdownStyleProps): React.CSSPropertie
     // High z-index to ensure the dropdown overlays modals/other UI; inline styles outrank non-!important rules
     zIndex: 9999 ,
     marginBottom: '16px',
-    boxShadow: `
-      -5px -5px 10px 0 #FAFBFF,
-      5px 5px 10px 0 rgba(22, 27, 29, 0.25)
-    `,
+    // Removed box shadow for a cleaner look for the dropdown styles
+    // boxShadow: `
+    //   -5px -5px 10px 0 #FAFBFF,
+    //   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+    // `,
     opacity: isOpen ? 1 : 0,
     visibility: isOpen ? 'visible' as const : 'hidden' as const,
     transform: isOpen ? 'translateY(0)' : 'translateY(-10px)',
