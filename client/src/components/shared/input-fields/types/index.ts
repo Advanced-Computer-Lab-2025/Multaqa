@@ -78,6 +78,9 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   neumorphicBox?: boolean; // Enable neumorphic box styling
   disableDynamicMorphing?: boolean; // Disable dynamic morphing on focus/blur
 
+  // Text field specific props
+  autoCapitalizeName?: boolean; // Automatically capitalize names (first, last, full) - default true for text fields
+  separateLabels?: boolean; // Separate labels for first and last name when fieldType is "text" and label contains "name"
 }
 
 export interface CustomRatingProps {

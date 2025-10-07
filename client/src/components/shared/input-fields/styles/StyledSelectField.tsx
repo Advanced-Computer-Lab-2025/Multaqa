@@ -73,6 +73,8 @@ export const getLabelStyles = (
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
+    width: 'fit-content',
+    maxWidth: 'fit-content',
   };
 };
 
@@ -111,7 +113,14 @@ export const getDropdownStyles = (props: DropdownStyleProps): React.CSSPropertie
     backgroundColor: theme.palette.background.default,
     border:`2px solid  ${theme.palette.tertiary.main}`,
     borderRadius: '16px',
-    zIndex: 1000,
+    // High z-index to ensure the dropdown overlays modals/other UI; inline styles outrank non-!important rules
+    zIndex: 9999 ,
+    marginBottom: '16px',
+    // Removed box shadow for a cleaner look for the dropdown styles
+    // boxShadow: `
+    //   -5px -5px 10px 0 #FAFBFF,
+    //   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
+    // `,
     opacity: isOpen ? 1 : 0,
     visibility: isOpen ? 'visible' as const : 'hidden' as const,
     transform: isOpen ? 'translateY(0)' : 'translateY(-10px)',

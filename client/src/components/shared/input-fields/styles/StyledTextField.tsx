@@ -1,15 +1,46 @@
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { FieldType } from '../types';
+import { FieldType, StakeholderType } from '../types';
 
-export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorphicBox?: boolean }>(({ neumorphicBox, fieldType }) => ({
+export const StyledTextField = styled(TextField, {
+  shouldForwardProp: (prop) => prop !== 'fieldType' && prop !== 'neumorphicBox' && prop !== 'stakeholderType',
+})<{ fieldType: FieldType; neumorphicBox?: boolean; stakeholderType?: StakeholderType }>(({ neumorphicBox, fieldType, stakeholderType }) => ({
   '& .MuiInput-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
   '& .MuiInputLabel-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     fontWeight: 500,
+    fontSize: '1rem',
     padding: '2px 8px 2px 0',
+    width: 'fit-content',
+    maxWidth: 'fit-content',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '2px',
+    whiteSpace: 'nowrap',
+    color: '#999',
+    '& svg': {
+      color: '#999',
+      transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    },
+    '&.Mui-focused': {
+      color: '#7851da',
+      '& svg': {
+        color: '#7851da',
+      },
+    },
+    '&.MuiFormLabel-filled': {
+      color: '#7851da',
+      '& svg': {
+        color: '#7851da',
+      },
+    },
+    '& .MuiInputLabel-asterisk': {
+      color: '#b81d1d',
+      display: 'inline',
+      marginLeft: '2px',
+    },
     ...(neumorphicBox && {
       '&.MuiInputLabel-sizeSmall': {
         background: '#e5e7eb',
@@ -30,13 +61,27 @@ export const StyledTextField = styled(TextField)<{ fieldType: FieldType; neumorp
   },
   '& .MuiOutlinedInput-input': {
     padding: '12px 0px 12px 18px',
-    ...(fieldType === 'email' && {
+    fontSize: '1rem',
+    fontWeight: 500,
+    '&::placeholder': {
+      color: '#999',
+      opacity: 1,
+      fontWeight: 500,
+    },
+    ...(fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) && {
       textAlign: 'right',
     }),
   },
   '& .MuiInput-input': {
-    padding: '8px 16px', // Adjust values as needed
-    ...(fieldType === 'email' && {
+    padding: '8px 16px',
+    fontSize: '1rem',
+    fontWeight: 500,
+    '&::placeholder': {
+      color: '#999',
+      opacity: 1,
+      fontWeight: 500,
+    },
+    ...(fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) && {
       textAlign: 'right',
     }),
   },

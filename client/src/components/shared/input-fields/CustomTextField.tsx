@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import NeumorphicBox from '../containers/NeumorphicBox';
 import { CustomTextFieldProps } from './types';
 import { StyledTextField } from './styles/StyledTextField';
+import StyledDefaultTextField from './styles/StyledDefaultTextField';
 import {
   createLabelWithIcon,
   getEmailEndAdornment,
@@ -13,18 +14,21 @@ import {
   getEmailDisplayValue,
   createFocusHandler,
   createBlurHandler,
+  capitalizeName,
 } from './utils';
 
-const CustomTextField: React.FC<CustomTextFieldProps> = ({ 
-  label, 
-  fieldType, 
-  InputProps, 
+const CustomTextField: React.FC<CustomTextFieldProps> = ({
+  label,
+  fieldType,
+  InputProps,
   stakeholderType = "staff",
   neumorphicBox = false,
-  disableDynamicMorphing = false,
+  disableDynamicMorphing = true,
+  autoCapitalizeName = true,
+  separateLabels = false,
   value,
   onChange,
-  ...props 
+  ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [emailUsername, setEmailUsername] = useState("");
@@ -36,9 +40,34 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     event.preventDefault();
   };
 
-  // Handle email input change - only allow username part before @ for non-vendors
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleEmailInputChange(event, fieldType, stakeholderType, setEmailUsername, onChange);
+  // Handle input change - email, name capitalization, or regular
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Handle email fields
+    if (fieldType === "email") {
+      handleEmailInputChange(event, fieldType, stakeholderType, setEmailUsername, onChange);
+    }
+    // Handle text fields with name capitalization
+    else if (fieldType === "text" && autoCapitalizeName) {
+      const inputValue = event.target.value;
+      const capitalizedValue = capitalizeName(inputValue);
+
+      if (onChange) {
+        const syntheticEvent = {
+          ...event,
+          target: {
+            ...event.target,
+            value: capitalizedValue
+          }
+        } as React.ChangeEvent<HTMLInputElement>;
+        onChange(syntheticEvent);
+      }
+    }
+    // Handle all other fields normally
+    else {
+      if (onChange) {
+        onChange(event);
+      }
+    }
   };
 
   // Handle key input to prevent @ symbol for non-vendor email fields
@@ -61,7 +90,15 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
   // Handle focus events
   const handleFocus = createFocusHandler(setIsFocused, props.onFocus);
-  const handleBlur = createBlurHandler(setIsFocused, props.onBlur);
+  const handleBlur = createBlurHandler(
+    setIsFocused,
+    props.onBlur,
+    fieldType,
+    stakeholderType,
+    value,
+    emailUsername,
+    onChange
+  );
 
   // Get the display value for email fields
   const getDisplayValue = () => {
@@ -70,51 +107,73 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
   return (
     <>
-      {neumorphicBox ? (
-        <NeumorphicBox 
-          containerType={disableDynamicMorphing ? "inwards" : (isFocused ? "inwards" : "outwards")}
-          padding="2px" 
-          borderRadius="50px"
-          width="100%"
-        >
-          <StyledTextField 
-            {...props}
-            fullWidth
-            label={labelWithIcon}
-            fieldType={fieldType}
-            neumorphicBox={neumorphicBox}
-            variant="outlined"
-            size="small"
-            type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
-            value={getDisplayValue()}
-            onChange={handleEmailChange}
-            onKeyPress={handleKeyPress}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            InputProps={{
-              endAdornment: getEndAdornment(),
-              ...InputProps,
-            }}
-          />
-        </NeumorphicBox>
+      {separateLabels ? (
+        <StyledDefaultTextField
+          label={label}
+          fieldType={fieldType}
+          placeholder={props.placeholder}
+          value={value}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyPress={handleKeyPress}
+          type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+          disabled={props.disabled || false}
+          autoCapitalizeName={autoCapitalizeName}
+          separateLabels={separateLabels && fieldType === "text" && label?.toLowerCase().includes("name")}
+          {...props}
+        />
       ) : (
-        <StyledTextField 
-            {...props}
-            fullWidth
-            label={labelWithIcon}
-            fieldType={fieldType}
-            variant="standard"
-            type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
-            value={getDisplayValue()}
-            onChange={handleEmailChange}
-            onKeyPress={handleKeyPress}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            InputProps={{
-              endAdornment: getEndAdornment(),
-              ...InputProps,
-            }}
-          />
+        <>
+          {neumorphicBox ? (
+            <NeumorphicBox
+              containerType={disableDynamicMorphing ? "inwards" : (isFocused ? "inwards" : "outwards")}
+              padding="2px"
+              borderRadius="50px"
+              width="100%"
+            >
+              <StyledTextField
+                {...props}
+                fullWidth
+                label={labelWithIcon}
+                fieldType={fieldType}
+                stakeholderType={stakeholderType}
+                neumorphicBox={neumorphicBox}
+                variant="outlined"
+                size="small"
+                type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+                value={getDisplayValue()}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                InputProps={{
+                  endAdornment: getEndAdornment(),
+                  ...InputProps,
+                }}
+              />
+            </NeumorphicBox>
+          ) : (
+            <StyledTextField
+              {...props}
+              fullWidth
+              label={labelWithIcon}
+              fieldType={fieldType}
+              stakeholderType={stakeholderType}
+              variant="standard"
+              type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+              value={getDisplayValue()}
+              onChange={handleChange}
+              onKeyPress={handleKeyPress}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              InputProps={{
+                endAdornment: getEndAdornment(),
+                ...InputProps,
+              }}
+            />
+          )}
+        </>
       )}
     </>
   );
