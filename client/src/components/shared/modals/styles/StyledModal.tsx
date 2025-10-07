@@ -9,12 +9,15 @@ export const ModalCardWrapper = styled(Card)(({ theme }) => ({
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  borderRadius: '18px',
+  border:`1.5px solid  ${theme.palette.tertiary.main}`,
+  borderRadius: '16px',
   padding: 0,
   overflow: 'visible',
   maxHeight: '90vh',
   display: 'flex',
   flexDirection: 'column',
+  // Remove neumorphic box-shadow so modal looks crisp like dropdowns
+  boxShadow: 'none',
   // Default widths - can be overridden via sx prop
   width: '90vw',
   maxWidth: '90vw',
@@ -36,13 +39,18 @@ export const StyledModalBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   backgroundColor: theme.palette.background.default,
-  borderRadius: '20px',
+  // inner box should not carry its own border to avoid double-border notches;
+  // the outer Card wrapper (`ModalCardWrapper`) provides the 2px tertiary border
+  border: 'none',
+  borderRadius: '16px',
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
+  // Ensure no neumorphic shadow remains
+  boxShadow: 'none',
   // Neumorphic outward shadow effect - reduced blur on top-left light shadow
-  boxShadow: `
-    5px 5px 10px 0 rgba(22, 27, 29, 0.25),
-    -5px -5px 5px 0 #FAFBFF
-  `,
+  // boxShadow: `
+  //   5px 5px 10px 0 rgba(22, 27, 29, 0.25),
+  //   -5px -5px 5px 0 #FAFBFF
+  // `,
   transition: "all 0.3s ease-in-out",
   maxHeight: '90vh',
   overflow: 'hidden',
@@ -79,14 +87,17 @@ export const StyledModalHeader = styled(Box)(() => ({
 export const StyledModalBoxInward = styled(Box)(({ theme }) => ({
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
   backgroundColor: theme.palette.background.default,
-  borderRadius: '12px',
+  // keep no border on inward box to avoid double-border artifacts
+  border: 'none',
+  borderRadius: '16px',
   padding: '16px',
   // Neumorphic inward shadow effect - matching FilterBox pressed state
-  boxShadow: `
-    inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25),
-    inset -2px -2px 5px 0 #FAFBFF
-  `,
+  // boxShadow: `
+  //   inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25),
+  //   inset -2px -2px 5px 0 #FAFBFF
+  // `,
   transition: "all 0.3s ease-in-out",
+  boxShadow: 'none',
 }));
 
 // CustomModal specific wrapper - smaller width (40% on md+ screens)
@@ -95,7 +106,8 @@ export const CustomModalCardWrapper = styled(Card)(({ theme }) => ({
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  borderRadius: '18px',
+  border:`3px solid  ${theme.palette.tertiary.main}`,
+  borderRadius: '16px',
   padding: 0, // No padding on wrapper - padding is inside neumorphic box
   overflow: 'visible',
   maxHeight: '90vh',
@@ -114,6 +126,8 @@ export const CustomModalCardWrapper = styled(Card)(({ theme }) => ({
     width: '40vw',
     maxWidth: '40vw',
   },
+  // Remove any default card shadows to avoid neumorphic effect
+  boxShadow: 'none',
 }));
 
 // CustomModal specific box - inherits same styling as StyledModalBox
@@ -122,14 +136,14 @@ export const CustomModalBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   backgroundColor: theme.palette.background.default,
-  borderRadius: '20px',
+  // inner box: no border; wrapper (`CustomModalCardWrapper`) keeps the border
+  border: 'none',
+  borderRadius: '16px',
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
   padding: '32px', // Add internal padding
   // Neumorphic outward shadow effect
-  boxShadow: `
-    5px 5px 10px 0 rgba(22, 27, 29, 0.25),
-    -5px -5px 5px 0 #FAFBFF
-  `,
+  // Ensure no neumorphic shadow for modal content
+  boxShadow: 'none',
   transition: "all 0.3s ease-in-out",
   maxHeight: '90vh',
   overflow: 'hidden',

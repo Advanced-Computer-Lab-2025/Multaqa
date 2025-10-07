@@ -5,6 +5,7 @@ import CustomTextField from '@/components/shared/input-fields/CustomTextField';
 import CustomSelectField from '@/components/shared/input-fields/CustomSelectField';
 import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckboxGroup';
 import CustomRating from '@/components/shared/input-fields/CustomRating';
+import { CustomModal } from '@/components/shared/modals';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -260,6 +261,19 @@ const SimpleFormExample: React.FC = () => {
         </button>
 
       </div>
+
+      <CustomModal
+        title="Example Modal"
+        description="This is a simple example of the CustomModal component."
+        buttonOption1={{
+          label: 'Close',
+          variant: 'contained',
+          color: 'primary',
+          onClick: () => alert('Modal closed!'),
+        }}
+        open={true}
+        onClose={() => alert('Modal closed!')}
+      />
 
       {/* Props Guide */}
       <section style={{ 
