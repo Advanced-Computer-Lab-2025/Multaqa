@@ -165,41 +165,16 @@ export default function HomePage() {
         />
         <DeleteButton size="small" variant="contained" color="error" />
       </div>
-      <CustomSearchBar icon={false} width="450px" type="outwards" label="Search Events..." />
       <CustomIcon icon="delete" size="small" containerType="inwards" />
       <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
-        {/* Last Name */}
-        <CustomTextField
-              fieldType="text"
-              label="Last Name"
-              value={formData.lastName}
-              onChange={(e) => handleInputChange('lastName', e.target.value)}
-              required
-              neumorphicBox
-              fullWidth
-            />
+      <CustomSearchBar icon={false} width="800px" type="outwards" label="Search Events..." />
+     <div style={{display:"flex", flexDirection:"row", gap:"20px"}}>
+       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
 
-            {/* Stakeholder Type Select */}
-            <CustomSelectField
-              label="Stakeholder Type"
-              fieldType="single"
-              options={[
-                { label: "Student", value: "student" },
-                { label: "Staff", value: "staff" },
-                { label: "Vendor", value: "vendor" },
-                { label: "Company", value: "company" }
-              ]}
-              value={formData.stakeholderType}
-              onChange={(value) => handleInputChange('stakeholderType', value)}
-              required
-            />
-            <CustomCheckboxGroup label="Food:" options={[
-                { label: "Egg", value: "egg" },
-                { label: "Burger", value: "burger" }
-              ]}  helperText="choose your favorite"/>
-              
-       <BazarView accent="tertiary" details={eventDetails} name="Summer Bazar" description="well nothing really yayyy"/>
+       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
 
+       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
+       </div>
       <AppWrapper />
     </div>
   );
