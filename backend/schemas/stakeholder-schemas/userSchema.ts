@@ -8,7 +8,11 @@ const userSchema = new Schema<IUser>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    status: { type: String, enum: Object.values(UserStatus), default: UserStatus.ACTIVE },
+    status: {
+      type: String,
+      enum: Object.values(UserStatus),
+      default: UserStatus.ACTIVE,
+    },
     role: {
       type: String,
       required: true,
@@ -23,7 +27,7 @@ const userSchema = new Schema<IUser>(
           createdAt: { type: Date, default: Date.now },
         },
       ],
-      default: [], 
+      default: [],
     },
     registeredAt: { type: Date, default: Date.now },
     verifiedAt: { type: Date },
