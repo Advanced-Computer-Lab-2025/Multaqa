@@ -264,7 +264,8 @@ const SimpleFormExample: React.FC = () => {
       </div>
 
       <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-        {/* <CustomModal
+        <CustomModal
+        borderColor='#7851da'
           title="Example Modal"
           description="This is a simple example of the CustomModal component."
           buttonOption1={{
@@ -273,11 +274,23 @@ const SimpleFormExample: React.FC = () => {
             color: 'primary',
             onClick: () => alert('Modal closed!'),
           }}
-        /> */}
+          buttonOption2={{
+            label: 'Secondary Action',
+            variant: 'outlined',
+            color: 'secondary',
+            onClick: () => alert('Secondary action clicked!'),
+          }}
+          modalType="info"
+          // borderColor="#7851da" // Optional custom border color
+          width="w-[90vw] sm:w-[80vw] md:w-[40vw]"
+          open={false}
+          onClose={() => {
+          }}
+        />
 
         <button onClick={() => setOpenLayout(true)} style={{ padding: '10px 14px', borderRadius: '10px' }}>Open Layout Modal</button>
 
-        <CustomModalLayout borderColor='#7851da' open={openLayout} onClose={() => setOpenLayout(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+        <CustomModalLayout open={openLayout} onClose={() => setOpenLayout(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ marginTop: 0 }}>Hellow there</h2>
             <p>This is content inside the real <code>CustomModalLayout</code>.</p>
