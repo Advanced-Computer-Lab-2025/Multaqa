@@ -71,7 +71,7 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
 
       {/* 1. Header/Title Area (Single Tab) */}
       <Box sx={headerTitleContainerStyles(theme)}>
-        <Typography variant="body1" sx={headerLabelStyles(theme)}>
+        <Typography sx={headerLabelStyles(theme)}>
           {label}
         </Typography>
       </Box>

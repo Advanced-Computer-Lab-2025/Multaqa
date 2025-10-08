@@ -1,0 +1,65 @@
+// components/Create/EventCreationStep1Modal.tsx
+"use client";
+import * as React from 'react';
+import { Box, Typography, TextField, IconButton, Button } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useTheme } from '@mui/material/styles';
+import { useFormikContext } from 'formik'; 
+import RichTextField from '../TextField/TextField'; 
+import CustomTextField from '@/components/shared/input-fields/CustomTextField'; 
+import { step1BoxStyles, modalFormStyles,modalHeaderStyles,detailTitleStyles } from './styles';
+import { EventFormData } from './types'; // 💡 Import the full type for context
+
+// 💡 UPDATED PROPS INTERFACE (Simplified)
+interface Step1Props {
+    onClose: () => void;
+    onNext: () => void;
+}
+
+const EventCreationStep1Modal: React.FC<Step1Props> = ({ 
+    onClose, 
+    onNext 
+}) => {
+    // 💡 Access Formik state and helpers from context
+    const formik = useFormikContext<EventFormData>();
+    const { values, handleChange, handleBlur, errors, touched, setFieldValue } = formik;
+    const theme = useTheme();
+
+    // 💡 HANDLER: Updates the content of the RichTextField ('description')
+    const handleDescriptionChange = (htmlContent: string) => {
+        // 💡 Use Formik's setFieldValue for custom inputs
+        setFieldValue('description', htmlContent);
+    };
+
+    return (
+        <Box sx={step1BoxStyles(theme)}>
+            <Box sx={modalHeaderStyles}>
+                <Typography sx={detailTitleStyles(theme)}>
+                    Create New Conference
+                </Typography>      
+            </Box>
+            <Box sx={modalFormStyles}>
+                <CustomTextField 
+                    fieldType="text"
+                    label="Conference Name"
+                    placeholder="Enter conference name"
+                    value={values.name} // 💡 From Formik context
+                    onChange={handleChange('name')} // 💡 From Formik context
+                    onBlur={handleBlur('name')} // 💡 For validation
+                    error={touched.name && Boolean(errors.name)} // 💡 For validation
+                    sx={{ mb: 1 }} 
+                    required
+                />
+                {/* 💡 RichTextField wired using setFieldValue */}
+                <RichTextField
+                    label="Description" 
+                    placeholder="Provide a short description of the conference"
+                    onContentChange={handleDescriptionChange} // 💡 Uses the setFieldValue handler
+                />
+                
+            </Box>
+        </Box>
+    );
+};
+
+export default EventCreationStep1Modal;

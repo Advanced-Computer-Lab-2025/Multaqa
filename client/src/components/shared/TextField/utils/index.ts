@@ -9,5 +9,5 @@ export const processContentChange = (htmlContent: string) => {
     // This is where you would integrate non-React, non-state logic
     console.log("Utility Logging: Content received, length:", htmlContent.length); 
     //this function would handle:
-    // 1. API calls to save content to a backend
+    // API calls to save content to a backend
 };
