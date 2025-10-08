@@ -44,6 +44,8 @@ export default function CustomModal({ title, description, modalType, buttonOptio
   };
 
   const modalColor = getModalColor();
+  // If caller didn't provide a borderColor, use the modal type color for the border
+  const borderColorToUse = borderColor ?? modalColor;
 
   return (
     <>
@@ -62,7 +64,7 @@ export default function CustomModal({ title, description, modalType, buttonOptio
         }}
       >
         <Fade in={open}>
-          <CustomModalCardWrapper borderColor={borderColor}>
+          <CustomModalCardWrapper borderColor={borderColorToUse}>
             <CustomModalBox>
             {/* Icon and Title Group - Wrapped in NeumorphicBox */}
             <NeumorphicBox
@@ -84,21 +86,21 @@ export default function CustomModal({ title, description, modalType, buttonOptio
                   gap: 1.5 
                 }}>
                 {(() => {
-                  // Using regular MUI icons
+                  // Using regular MUI icons; use modalColor so icon matches modal type color
                   const getIcon = () => {
                     switch (modalType) {
                       case 'success':
-                        return <CheckCircleIcon sx={{ fontSize: 32, color: '#4caf50' }} />;
+                        return <CheckCircleIcon sx={{ fontSize: 32, color: modalColor }} />;
                       case 'warning':
-                        return <WarningIcon sx={{ fontSize: 32, color: '#ff9800' }} />;
+                        return <WarningIcon sx={{ fontSize: 32, color: modalColor }} />;
                       case 'error':
-                        return <ErrorIcon sx={{ fontSize: 32, color: '#f44336' }} />;
+                        return <ErrorIcon sx={{ fontSize: 32, color: modalColor }} />;
                       case 'info':
-                        return <InfoIcon sx={{ fontSize: 32, color: '#2196f3' }} />;
+                        return <InfoIcon sx={{ fontSize: 32, color: modalColor }} />;
                       case 'delete':
-                        return <DeleteIcon sx={{ fontSize: 32, color: '#f44336' }} />;
+                        return <DeleteIcon sx={{ fontSize: 32, color: modalColor }} />;
                       case 'confirm':
-                        return <HelpIcon sx={{ fontSize: 32, color: '#2196f3' }} />;
+                        return <HelpIcon sx={{ fontSize: 32, color: modalColor }} />;
                       default:
                         return null;
                     }

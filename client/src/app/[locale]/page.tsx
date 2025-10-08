@@ -279,7 +279,7 @@ const SimpleFormExample: React.FC = () => {
             color: 'secondary',
             onClick: () => alert('Secondary action clicked!'),
           }}
-          modalType="confirm"
+          modalType="warning"
           // borderColor="#7851da" // Optional custom border color
           width="w-[90vw] sm:w-[80vw] md:w-[40vw]"
           open={false}
