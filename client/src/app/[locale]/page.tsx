@@ -275,12 +275,13 @@ const SimpleFormExample: React.FC = () => {
             onClick: () => alert('Modal closed!'),
           }}
           buttonOption2={{
-            label: 'Secondary Action',
+            label: 'Save',
             variant: 'contained',
             color: 'secondary',
             onClick: () => alert('Secondary action clicked!'),
           }}
           modalType="warning"
+          // borderColor="#7851da" // Optional custom border color
           width="w-[90vw] sm:w-[80vw] md:w-[40vw]"
           open={false}
           borderColor={theme.palette.primary.main}
