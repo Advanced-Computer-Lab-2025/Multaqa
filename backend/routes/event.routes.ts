@@ -23,8 +23,8 @@ async function deleteEvent(req: Request, res: Response) {
 }
 
 const router = Router();
-router.get("/events", findAll);
-router.get("/events/:id", findOne);
-router.delete("/events/:id", deleteEvent);
+router.get("/", findAll);
+router.get("/:id", findOne);
+router.delete("/:id", deleteEvent);
 
 export default router;

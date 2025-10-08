@@ -6,19 +6,22 @@ import eventRouter from "./routes/event.routes";
 import authRouter from "./routes/auth.routes";
 import "./config/redisClient";
 import cookieParser from 'cookie-parser';
+import verifyJWT from "./middleware/verifyJWT.middleware";
 
 dotenv.config();
 
 const app = express();
 app.use(json());
 app.use(cookieParser()); 
-app.use(eventRouter);
-app.use('/api/auth', authRouter);
 
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
 });
+app.use('/api/auth', authRouter);
+
+app.use(verifyJWT); // Protect all routes below this middleware
+app.use('/api/events', eventRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

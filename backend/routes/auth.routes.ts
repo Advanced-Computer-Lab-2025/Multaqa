@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, loginValidationSchema } from '../validation/auth.validation';
+import verifyJWT from '../middleware/verifyJWT.middleware';
 
 const router = Router();
 const authService = new AuthService();
@@ -98,8 +99,8 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
-// --- Refresh Token ---
-router.post('/refresh', async (req: Request, res: Response) => {
+// --- Refresh Access Token ---
+router.post('/refresh', verifyJWT,async (req: Request, res: Response) => {
   try {
     console.log(req.cookies);
     const newAccessToken = await authService.refreshToken(req.cookies.refreshToken);
@@ -114,7 +115,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/logout', async (req: Request, res: Response) => {
+router.post('/logout', verifyJWT, async (req: Request, res: Response) => {
   try {
     await authService.logout(req.cookies.refreshToken);
     res.clearCookie('refreshToken');

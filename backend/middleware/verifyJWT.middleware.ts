@@ -8,10 +8,14 @@ export interface AuthenticatedRequest extends Request {
   user?: string | JwtPayload;
 }
 
-export function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
+export default function verifyJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   const header = req.headers["authorization"];
-  const token = header && header.split(" ")[1];
+  if(!header) {
+    res.sendStatus(401); // Unauthorized
+    return;
+  }
 
+  const token = header && header.split(" ")[1];
   if (!token) {
     res.sendStatus(401); // Unauthorized
     return;  

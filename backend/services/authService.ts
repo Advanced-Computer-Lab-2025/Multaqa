@@ -160,7 +160,7 @@ export class AuthService {
     if (!token) 
       throw new Error('No refresh token provided');
     
-    const userId = await redisClient.get(`refresh:${token}`);
+    const userId = await redisClient.get(`refresh:${token}`); // key is refresh:token, value is userId
     if (!userId) 
       throw new Error('Invalid or expired refresh token');
 
