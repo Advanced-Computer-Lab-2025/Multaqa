@@ -1,16 +1,20 @@
 import { IEvent } from "../interfaces/event.interface";
-import { EventRepository } from "../repos/eventsRepo";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
+import "../schemas/event-schemas/workshopEventSchema"; 
+import "../schemas/event-schemas/bazaarEventSchema";
+import "../schemas/event-schemas/platformBoothEventSchema";
+import "../schemas/stakeholder-schemas/staffMemberSchema"
+import "../schemas/stakeholder-schemas/vendorSchema"
 
 export class EventsService {
   private eventgeneralRepo: GenericRepository<IEvent>;
-  private eventRepo: EventRepository;
+
   constructor() {
     this.eventgeneralRepo = new GenericRepository(Event);
-    this.eventRepo = new EventRepository(Event);
+   
   }
 
 
@@ -19,10 +23,25 @@ export class EventsService {
   if (type) filter.type = type;
   if (location) filter.location = location;
 
-  // Fetch events from the repository and apply filters and sorting if present
-  const events = await this.eventRepo.findAll(filter, sort);
 
-  //apply search of events if present
+
+
+let events = await this.eventgeneralRepo.findAll(filter, {
+  populate: [
+    { path: "associatedProfs", select: "firstName lastName email" },
+    { path: "vendors", select: "companyName email logo" },
+    { path: "vendor", select: "companyName email logo" },
+  ] as any
+});
+
+  
+  if (sort) {
+    events = events.sort((a: any, b: any) => {
+      return new Date(a.event_start_date).getTime() - new Date(b.event_start_date).getTime();
+    });
+  }
+
+  
   if (search) {
     const searchRegex = new RegExp(search, "i");
     return events.filter(
@@ -44,7 +63,10 @@ export class EventsService {
 
 
   async getEventById(id: string): Promise<IEvent | null> {
-    const options = { populate: ["attendees"] };
+    const options = { populate: [{ path: "associatedProfs", select: "firstName lastName email" },
+    { path: "vendors", select: "companyName email logo" },
+    { path: "vendor", select: "companyName email logo" },
+    {path: "attendees", select:"firstName lastName email gucId "} as any] };
     const event = await this.eventgeneralRepo.findById(id, options);
     return event;
   }
