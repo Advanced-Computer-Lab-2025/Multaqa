@@ -16,6 +16,21 @@ function applyPopulate<T>(
   return query;
 }
 
+// Helper to apply select logic to a query
+function applySelect<T>(
+  query: Query<any, T>,
+  select?: string | string[]
+): Query<any, T> {
+  if (select) {
+    if (Array.isArray(select)) {
+      query = query.select(select.join(" "));
+    } else {
+      query = query.select(select);
+    }
+  }
+  return query;
+}
+
 export default class GenericRepository<T extends Document> {
   private readonly model: Model<T>;
 
@@ -29,19 +44,21 @@ export default class GenericRepository<T extends Document> {
 
   async findById(
     id: string,
-    options: { populate?: string | string[] } = {}
+    options: { populate?: string | string[]; select?: string | string[] } = {}
   ): Promise<T | null> {
     let query = this.model.findById(id);
     query = applyPopulate(query, options.populate);
+    query = applySelect(query, options.select);
     return await query.exec();
   }
 
   async findAll(
     filter = {},
-    options: { populate?: string | string[] } = {}
+    options: { populate?: string | string[]; select?: string | string[] } = {}
   ): Promise<T[]> {
     let query = this.model.find(filter);
     query = applyPopulate(query, options.populate);
+    query = applySelect(query, options.select);
     return await query.exec();
   }
 
@@ -55,10 +72,11 @@ export default class GenericRepository<T extends Document> {
 
   async findOne(
     filter: FilterQuery<T>,
-    options: { populate?: string | string[] } = {}
+    options: { populate?: string | string[]; select?: string | string[] } = {}
   ): Promise<T | null> {
     let query = this.model.findOne(filter);
     query = applyPopulate(query, options.populate);
+    query = applySelect(query, options.select);
     return await query.exec();
   }
 
