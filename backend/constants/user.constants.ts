@@ -3,7 +3,6 @@ export enum UserRole {
   STAFF_MEMBER = "staffMember",
   VENDOR = "vendor",
   ADMINISTRATION = "administration",
-  UNKNOWN = "unknown"
 }
 
 export enum UserStatus {

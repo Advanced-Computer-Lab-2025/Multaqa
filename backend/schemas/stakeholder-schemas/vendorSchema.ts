@@ -5,7 +5,7 @@ import { IVendor } from "../../interfaces/vendor.interface";
 const vendorSchema = new Schema<IVendor>({
   companyName: { type: String, required: true },
   taxCard: { type: String, required: true },
-  logo: { type: String },
+  logo: { type: String, required: true },
   loyaltyProgram: {
     discountRate: Number,
     promoCode: String,

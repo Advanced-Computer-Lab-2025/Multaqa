@@ -1,44 +1,40 @@
 import { Router, Request, Response } from "express";
-import { IStudent } from "../interfaces/student.interface";
-import { IUser } from "../interfaces/user.interface";
-import GenericRepository from "../repos/genericRepo";
-import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { UserService } from "../services/userService";
 import createError from "http-errors";
 
-const userService=new UserService();
+const userService = new UserService();
 
 async function getAllUsers(req: Request, res: Response) {
-    try {
-  const users = await userService.getAllUsers();
-  if (!users || users.length === 0) {
-    throw createError(404, "No users found");
-  }
-  res.json(users);
-} catch (err: any) {
+  try {
+    const users = await userService.getAllUsers();
+    if (!users || users.length === 0) {
+      throw createError(404, "No users found");
+    }
+    res.json(users);
+  } catch (err: any) {
     if (err.status || err.statusCode) {
-            throw err;
-        }
-  throw createError(500, err.message);
-}
+      throw err;
+    }
+    throw createError(500, err.message);
+  }
 }
 
 async function getUserById(req: Request, res: Response) {
   try {
     const user = await userService.getUserById(req.params.id);
     if (!user) {
-     throw createError(404, "User not found");
-    } 
-     res.json(user);
-    
+      throw createError(404, "User not found");
+    }
+    res.json(user);
+
   } catch (err: any) {
     throw createError(500, err.message);
   }
 }
 
-const router=Router();
+const router = Router();
 
-router.get("/user",getAllUsers);
-router.get("/user/:id",getUserById);
+router.get("/user", getAllUsers);
+router.get("/user/:id", getUserById);
 
 export default router;
