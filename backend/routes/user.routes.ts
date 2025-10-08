@@ -4,21 +4,35 @@ import { IUser } from "../interfaces/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { UserService } from "../services/userService";
-import { get } from "http";
+import createError from "http-errors";
 
 const userService=new UserService();
 
 async function getAllUsers(req: Request, res: Response) {
+    try {
   const users = await userService.getAllUsers();
+  if (!users || users.length === 0) {
+    throw createError(404, "No users found");
+  }
   res.json(users);
+} catch (err: any) {
+    if (err.status || err.statusCode) {
+            throw err;
+        }
+  throw createError(500, err.message);
+}
 }
 
 async function getUserById(req: Request, res: Response) {
-  const user = await userService.getUserById(req.params.id);
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(404).json({ message: "User not found" });
+  try {
+    const user = await userService.getUserById(req.params.id);
+    if (!user) {
+     throw createError(404, "User not found");
+    } 
+     res.json(user);
+    
+  } catch (err: any) {
+    throw createError(500, err.message);
   }
 }
 
