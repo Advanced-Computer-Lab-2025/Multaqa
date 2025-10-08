@@ -37,8 +37,12 @@ export class AuthService {
     // If signing up as student or staff, check for GUC ID uniqueness
     if ('gucId' in signupData) {
       // Check if GUC ID is already taken
-      const existingGucId = await this.staffRepo.findOne({ gucId: signupData.gucId });
-      if (existingGucId) {
+      const [existingStudent, existingStaff] = await Promise.all([
+        this.studentRepo.findOne({ gucId: signupData.gucId }),
+        this.staffRepo.findOne({ gucId: signupData.gucId }),
+      ]);
+
+      if (existingStudent || existingStaff) {
         throw new Error('User with this GUC ID already exists');
       }
     }
