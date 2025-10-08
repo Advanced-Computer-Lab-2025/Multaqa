@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { useFormik , Formik} from 'formik';
 import { Grid, Typography , TextField, Box,  Collapse, IconButton} from '@mui/material';
 import { CustomTextField } from '../shared/input-fields';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -9,11 +10,30 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CustomButton from '../shared/Buttons/CustomButton';
 
+const initialValues = {
+    bazaarName: '',
+    location: '',
+    description: '',
+    startDate: null,
+    endDate: null,
+    registrationDeadline: null,
+};
+
 const CreateBazaar = () => {
   const [infoOpen, setInfoOpen] = useState(true);
-  const [scheduleOpen, setScheduleOpen] = useState(false);  
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+
+  const formik = useFormik({
+    initialValues,
+    onSubmit: (values) => {
+      // handle submit
+      console.log(values);
+    },
+  });
+  console.log(formik.values.bazaarName);
   return (
     <>
+        <form onSubmit={formik.handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Create Bazaar</Typography>
         <Box sx={{borderBottom: 1, pb:1, mb:2, mt:3, display:'flex', alignItems:'center', justifyContent:'space-between'}}>
             <Typography variant='body1' color='textSecondary' className='h6'>Basic Information</Typography>
@@ -24,13 +44,32 @@ const CreateBazaar = () => {
         <Collapse in={infoOpen}>
             <Grid container spacing={2}>
                 <Grid size={6}>
-                    <CustomTextField label="Bazaar Name" fullWidth margin="normal"  fieldType='text'/>
+                    <CustomTextField 
+                        name='bazaarName'
+                        id='bazaarName'
+                        label="Bazaar Name" fullWidth margin="normal"  fieldType='text' 
+                        value={formik.values.bazaarName}
+                        onChange={formik.handleChange}
+                    />
                 </Grid>    
                 <Grid size={6}>
-                    <CustomTextField label="Location" fullWidth margin="normal"  fieldType='text'/>            
+                    <CustomTextField
+                    name='location'
+                    id='location' 
+                    label="Location" fullWidth margin="normal"  fieldType='text'
+                    value={formik.values.location}
+                    onChange={formik.handleChange}
+                    />            
                 </Grid>
                 <Grid size={12}>
-                    <CustomTextField label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} neumorphicBox={true}/>
+                    <CustomTextField 
+                    name='description'
+                    id='description'
+                    label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                    neumorphicBox={true}
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    />
                 </Grid>
             </Grid>
         </Collapse>
@@ -44,7 +83,8 @@ const CreateBazaar = () => {
             <Grid container spacing={2}>
                 <Grid size={6}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker 
+                            <DateTimePicker
+                                name='startDate'
                                 label="Start Date and Time"
                                 slotProps={{
                                     textField: {
@@ -57,6 +97,8 @@ const CreateBazaar = () => {
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
+                                value={formik.values.startDate}
+                                onChange={(value) => formik.setFieldValue('startDate', value)}
                             />
                     </LocalizationProvider>
                 </Grid>
@@ -64,6 +106,7 @@ const CreateBazaar = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker 
                                 label="End Date and Time"
+                                name='endDate'
                                 slotProps={{
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
@@ -75,12 +118,15 @@ const CreateBazaar = () => {
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
+                                value={formik.values.endDate}
+                                onChange={(value) => formik.setFieldValue('endDate', value)}
                             />
                     </LocalizationProvider>
                 </Grid>
                 <Grid size={6}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker 
+                            <DateTimePicker
+                                name='registrationDeadline'
                                 label="Deadline to Register"
                                 slotProps={{
                                     textField: {
@@ -93,14 +139,17 @@ const CreateBazaar = () => {
                                         sx: { zIndex: 1500 },
                                     }                       
                                 }}
+                                value={formik.values.registrationDeadline}
+                                onChange={(value) => formik.setFieldValue('registrationDeadline', value)}
                             />
                     </LocalizationProvider>
                 </Grid>
             </Grid>
         </Collapse>
         <Box sx={{width:'100%', display:'flex', justifyContent:'end'}}>
-            <CustomButton label='Create Bazaar' variant='contained' color='primary' fullWidth sx={{mt:2}}/>
+            <CustomButton label='Create Bazaar' variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
         </Box>
+        </form>
     </>
   )
 }
