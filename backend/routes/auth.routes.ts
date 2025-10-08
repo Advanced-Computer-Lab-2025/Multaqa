@@ -84,9 +84,8 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 // --- Refresh Access Token ---
-router.post('/refresh', verifyJWT,async (req: Request, res: Response) => {
+router.post('/refresh', async (req: Request, res: Response) => {
   try {
-    console.log(req.cookies);
     const newAccessToken = await authService.refreshToken(req.cookies.refreshToken);
     res.status(200).json({
       accessToken: newAccessToken
