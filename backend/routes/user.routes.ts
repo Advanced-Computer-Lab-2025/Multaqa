@@ -24,7 +24,7 @@ async function getUserById(req: Request, res: Response) {
 
 const router=Router();
 
-router.get("/user/all",getAllUsers);
+router.get("/user",getAllUsers);
 router.get("/user/:id",getUserById);
 
 export default router;
