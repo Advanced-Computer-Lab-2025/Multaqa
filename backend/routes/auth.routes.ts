@@ -42,7 +42,7 @@ router.post('/signup/vendor', async (req: Request, res: Response) => {
     }
 
     // Create user
-    const result = await authService.signupVendor(value);
+    const result = await authService.signup(value);
 
     // Send HTTP response
     res.status(201).json({

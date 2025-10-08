@@ -26,18 +26,21 @@ export class AuthService {
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
   }
 
-  // signup for Students, TAs, staff, professors
-  async signup(signupData: StudentAndStaffSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
+  // signup for Students, TAs, Staff, Professors, Vendors
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
       throw new Error('User with this email already exists');
     }
 
-    // Check if GUC ID is already taken
-    const existingGucId = await this.staffRepo.findOne({ gucId: signupData.gucId });
-    if (existingGucId) {
-      throw new Error('User with this GUC ID already exists');
+    // If signing up as student or staff, check for GUC ID uniqueness
+    if ('gucId' in signupData) {
+      // Check if GUC ID is already taken
+      const existingGucId = await this.staffRepo.findOne({ gucId: signupData.gucId });
+      if (existingGucId) {
+        throw new Error('User with this GUC ID already exists');
+      }
     }
 
     // Hash password
@@ -59,7 +62,7 @@ export class AuthService {
         }
       );
     }
-    else { // staff member (staff/TA/Professor)
+    else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
         {
           ...signupData,
@@ -72,39 +75,19 @@ export class AuthService {
         }
       );
     }
+    else{
+      createdUser = await this.vendorRepo.create({
+        ...signupData,
+        password: hashedPassword,
+        registeredAt: new Date(),
+        updatedAt: new Date(),
+        isVerified: false,
+        role: UserRole.VENDOR,
+      });
+    }
 
     if (!createdUser)
       throw new Error('Failed to create user');
-
-    // Remove password from response and convert to plain object
-    const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
-
-    return {
-      user: userWithoutPassword as Omit<IUser, 'password'>,
-    };
-  }
-
-  // signup for vendors
-  async signupVendor(signupData: VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
-    // Check if user already exists
-    const existingUser = await this.userRepo.findOne({ email: signupData.email });
-    if (existingUser) {
-      throw new Error('User with this email already exists');
-    }
-
-    // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(signupData.password, saltRounds);
-
-    // Create vendor user
-    const createdUser = await this.vendorRepo.create({
-      ...signupData,
-      password: hashedPassword,
-      registeredAt: new Date(),
-      updatedAt: new Date(),
-      isVerified: false,
-      role: UserRole.VENDOR,
-    });
 
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
