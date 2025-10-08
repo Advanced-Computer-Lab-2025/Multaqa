@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
+import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
 dotenv.config();
 
@@ -33,5 +34,8 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+app.use(errorHandler);
+app.use(notFoundHandler);
 
 startServer();
