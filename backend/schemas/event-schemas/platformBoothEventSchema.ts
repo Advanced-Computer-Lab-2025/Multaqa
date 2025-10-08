@@ -12,6 +12,7 @@ const platformBoothSchema = new Schema({
     },
   ],
   boothSize: { type: String, allowedValues: ["2x2", "4x4"] },
+  vendors: { type: Schema.Types.ObjectId, ref: "vendor" },
 });
 
 export const PlatformBooth = Event.discriminator(
