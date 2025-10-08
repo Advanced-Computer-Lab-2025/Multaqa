@@ -5,11 +5,11 @@ export const StyledCheckbox = styled(Checkbox)<{ multaqaFill?: boolean }>(({
   theme, 
   multaqaFill 
 }) => ({
-  color: multaqaFill ? '#7851da' : theme.palette.action.active,
+  color: theme.palette.primary.main ,
   transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   
   '&.Mui-checked': {
-    color: multaqaFill ? '#7851da' : theme.palette.primary.main,
+    color: theme.palette.tertiary.main,
     filter: `
       drop-shadow(-3px -3px 6px #FAFBFF)
       drop-shadow(3px 3px 6px rgba(22, 27, 29, 0.25))
@@ -17,7 +17,7 @@ export const StyledCheckbox = styled(Checkbox)<{ multaqaFill?: boolean }>(({
   },
   
   '&:hover': {
-    backgroundColor: 'rgba(120, 81, 218, 0.04)',
+    backgroundColor: 'rgba(229, 237, 111, 0.04)',
   },
   
   '& .MuiSvgIcon-root': {

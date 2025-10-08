@@ -10,6 +10,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ListIcon from '@mui/icons-material/List';
 import { FieldType, StakeholderType, SelectFieldType, SelectOption } from '../types';
+import theme from "@/themes/lightTheme";
 
 /**
  * Get email domain based on stakeholder type
@@ -27,7 +28,7 @@ export const getEmailDomain = (stakeholderType?: StakeholderType) => {
     case "vendor":
       return "";
     default:
-      return "@guc.edu.eg";
+      return "";
   }
 };
 
@@ -74,6 +75,7 @@ export const getEmailEndAdornment = (stakeholderType?: StakeholderType) => {
     <InputAdornment
       position="end"
       sx={{
+        color: theme.palette.tertiary.dark,
         alignSelf: 'center',
         margin: 0,
         opacity: 0,
@@ -109,7 +111,7 @@ export const getPasswordEndAdornment = (
         edge="end"
         sx={{
           '&:hover': {
-            color: '#7851da',
+            color: theme.palette.tertiary.dark,
           },
           transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
@@ -333,13 +335,46 @@ export const createFocusHandler = (
 
 /**
  * Generic blur handler - reusable for all input components
+ * Handles email domain completion for non-vendor stakeholder types
  */
 export const createBlurHandler = (
   setIsFocused: (focused: boolean) => void,
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void,
+  fieldType?: FieldType,
+  stakeholderType?: StakeholderType,
+  value?: unknown,
+  emailUsername?: string,
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 ) => {
   return (event: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
+    
+    // For email fields with non-vendor stakeholders, ensure domain is appended
+    if (
+      fieldType === "email" && 
+      stakeholderType && 
+      ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType) &&
+      onChange
+    ) {
+      const currentValue = String(value || '');
+      const username = emailUsername || currentValue.split('@')[0];
+      const domain = getEmailDomain(stakeholderType);
+      
+      // Only update if domain isn't already present
+      if (!currentValue.includes(domain)) {
+        const syntheticEvent = {
+          ...event,
+          target: {
+            ...event.target,
+            value: username + domain
+          }
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        
+        // Call the parent's onChange to update the full email
+        onChange(syntheticEvent);
+      }
+    }
+    
     if (onBlur) {
       onBlur(event);
     }
@@ -356,4 +391,97 @@ export const createSelectChangeHandler = (
     const newValue = event.target.value;
     handleSelectFieldChange(newValue as string | number | string[] | number[], onChange);
   };
+};
+
+/**
+ * Capitalize names properly - handles first, last, middle, and full names
+ * Supports special cases like:
+ * - Multiple words: "john doe" → "John Doe"
+ * - Hyphens: "mary-jane" → "Mary-Jane"
+ * - Apostrophes: "o'brien" → "O'Brien"
+ * - Multiple spaces: "john  doe" → "John Doe"
+ * - Prefixes: "van der waals" → "Van Der Waals"
+ * - Roman numerals: "henry viii" → "Henry VIII"
+ */
+export const capitalizeName = (name: string): string => {
+  if (!name || typeof name !== 'string') return '';
+
+  // Trim and replace multiple spaces with single space
+  const cleanedName = name.trim().replace(/\s+/g, ' ');
+
+  // Special prefixes that should remain lowercase (unless at start)
+  const lowercasePrefixes = ['van', 'de', 'der', 'den', 'von', 'da', 'di', 'del'];
+  
+  // Roman numerals pattern
+  const romanNumerals = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV)$/i;
+
+  const capitalizeWord = (word: string, isFirst: boolean = false): string => {
+    if (!word) return '';
+    
+    // Check if it's a roman numeral
+    if (romanNumerals.test(word)) {
+      return word.toUpperCase();
+    }
+
+    // Check if it's a lowercase prefix (and not the first word)
+    if (!isFirst && lowercasePrefixes.includes(word.toLowerCase())) {
+      return word.toLowerCase();
+    }
+
+    // Handle apostrophes (e.g., O'Brien, D'Angelo)
+    if (word.includes("'")) {
+      return word
+        .split("'")
+        .map((part, index) => {
+          if (index === 0 || part.length > 1) {
+            return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+          }
+          return part.toLowerCase();
+        })
+        .join("'");
+    }
+
+    // Handle hyphens (e.g., Mary-Jane, Jean-Paul)
+    if (word.includes('-')) {
+      return word
+        .split('-')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('-');
+    }
+
+    // Standard capitalization
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  // Split by spaces and capitalize each word
+  const words = cleanedName.split(' ');
+  return words
+    .map((word, index) => capitalizeWord(word, index === 0))
+    .join(' ');
+};
+
+/**
+ * Handle name input change with automatic capitalization
+ * To be used with text fields that capture names
+ */
+export const handleNameInputChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+) => {
+  const inputValue = event.target.value;
+  
+  // Capitalize the name
+  const capitalizedValue = capitalizeName(inputValue);
+  
+  // Call parent onChange with capitalized value
+  if (onChange) {
+    const syntheticEvent = {
+      ...event,
+      target: {
+        ...event.target,
+        value: capitalizedValue
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  }
 };

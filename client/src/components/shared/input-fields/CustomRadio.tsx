@@ -5,7 +5,7 @@ import { RadioProps } from "@mui/material";
 import { StyledRadio } from './styles/StyledRadio';
 
 export interface CustomRadioProps extends Omit<RadioProps, 'children'> {
-  multaqaFill?: boolean; // Use Multaqa primary color (#7851da) - default true
+  multaqaFill?: boolean;
 }
 
 const CustomRadio: React.FC<CustomRadioProps> = ({ 
