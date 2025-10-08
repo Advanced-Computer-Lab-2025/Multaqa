@@ -7,6 +7,8 @@ import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckbox
 import CustomRating from '@/components/shared/input-fields/CustomRating';
 import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
 import theme from '@/themes/lightTheme';
+import CreateBazaar from '@/components/tempPages/CreateBazaar';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +21,7 @@ const SimpleFormExample: React.FC = () => {
     rating: 0,
   });
   const [openLayout, setOpenLayout] = useState(false);
+  const [openCreateBazaar, setOpenCreateBazaar] = useState(false);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -297,6 +300,11 @@ const SimpleFormExample: React.FC = () => {
             <p>This is content inside the real <code>CustomModalLayout</code>.</p>
           </div>
         </CustomModalLayout>
+
+        <CustomButton onClick={() => setOpenCreateBazaar(true)}>Create Bazaar</CustomButton>
+        <CustomModalLayout open={openCreateBazaar} onClose={() => setOpenCreateBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+          <CreateBazaar/>
+        </CustomModalLayout>  
       </div>
 
       {/* Props Guide */}

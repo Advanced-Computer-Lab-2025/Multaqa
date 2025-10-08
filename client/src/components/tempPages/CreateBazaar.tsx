@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useFormik , Formik} from 'formik';
+import {useFormik, Formik} from 'formik';
 import { Grid, Typography , TextField, Box,  Collapse, IconButton} from '@mui/material';
 import { CustomTextField } from '../shared/input-fields';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -27,10 +27,9 @@ const CreateBazaar = () => {
     initialValues,
     onSubmit: (values) => {
       // handle submit
-      console.log(values);
+      alert(values.bazaarName);
     },
   });
-  console.log(formik.values.bazaarName);
   return (
     <>
         <form onSubmit={formik.handleSubmit}>
@@ -47,9 +46,9 @@ const CreateBazaar = () => {
                     <CustomTextField 
                         name='bazaarName'
                         id='bazaarName'
-                        label="Bazaar Name" fullWidth margin="normal"  fieldType='text' 
+                        label="Bazaar Name" fullWidth margin="normal"  fieldType='text'
                         value={formik.values.bazaarName}
-                        onChange={formik.handleChange}
+                        onChange={formik.handleChange("bazaarName")}
                     />
                 </Grid>    
                 <Grid size={6}>
@@ -58,7 +57,7 @@ const CreateBazaar = () => {
                     id='location' 
                     label="Location" fullWidth margin="normal"  fieldType='text'
                     value={formik.values.location}
-                    onChange={formik.handleChange}
+                    onChange={formik.handleChange("location")}
                     />            
                 </Grid>
                 <Grid size={12}>
@@ -68,7 +67,7 @@ const CreateBazaar = () => {
                     label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
                     neumorphicBox={true}
                     value={formik.values.description}
-                    onChange={formik.handleChange}
+                    onChange={formik.handleChange("description")}
                     />
                 </Grid>
             </Grid>
@@ -93,7 +92,7 @@ const CreateBazaar = () => {
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
-                                        placement: 'left-start',
+                                        placement: 'right',
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
@@ -114,7 +113,7 @@ const CreateBazaar = () => {
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
-                                        placement: 'left-start',
+                                        placement: 'left',
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
@@ -135,7 +134,7 @@ const CreateBazaar = () => {
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
-                                        placement: 'left-start',
+                                        placement: 'right',
                                         sx: { zIndex: 1500 },
                                     }                       
                                 }}
