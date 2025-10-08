@@ -1,7 +1,10 @@
 import { Model } from "mongoose";
 import { IEvent } from "../interfaces/event.interface";
 import "../schemas/event-schemas/workshopEventSchema"; 
+import "../schemas/event-schemas/bazaarEventSchema";
+import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema"
+import "../schemas/stakeholder-schemas/vendorSchema"
 
 export class EventRepository {
   private model: Model<IEvent>;
@@ -13,11 +16,19 @@ export class EventRepository {
  async findAll(filter: any = {}, sort?: boolean) {
   let query = this.model.find(filter);
   
-  // Populate associatedProfs if event is a workshop
-    query = query.populate({
-      path: "associatedProfs",
-      select: "firstName lastName email",
-    });
+ query = query.populate([
+  {
+    path: "associatedProfs",
+    select: "firstName lastName email",
+  },
+  {
+    path: "vendors",
+    select: "companyName email logo",
+  },{
+    path: "vendor",
+    select: "companyName email logo",
+  }
+]);
   
   
   if (sort) {
