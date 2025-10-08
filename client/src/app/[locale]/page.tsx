@@ -265,7 +265,6 @@ const SimpleFormExample: React.FC = () => {
 
       <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
         <CustomModal
-        borderColor='#7851da'
           title="Example Modal"
           description="This is a simple example of the CustomModal component."
           buttonOption1={{
