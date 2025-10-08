@@ -5,15 +5,13 @@ const eventsService = new EventsService();
 
 async function findAll(req: Request, res: Response) {
  try {
-    const { search,type,location,startDate,endDate,sort } = req.query; // extract search param
-    const events = await eventsService.getAllEvents({
-      search: search as string, 
-      type: type as string,
-      location: location as string,
-      startDate: startDate as string,
-      endDate: endDate as string,
-      sort: sort as unknown as boolean
-    });
+    const { search,type,location,sort } = req.query; 
+   const events = await eventsService.getEvents(
+  search as string,
+  type as string,
+  location as string,
+  sort === "true"
+);
     res.json(events);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
