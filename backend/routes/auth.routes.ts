@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, loginValidationSchema } from '../validation/auth.validation';
 import verifyJWT from '../middleware/verifyJWT.middleware';
+import createError from 'http-errors';
 
 const router = Router();
 const authService = new AuthService();
@@ -11,9 +12,7 @@ router.post('/signup/studentAndStaff', async (req: Request, res: Response) => {
     // Validate request body
     const { error, value } = signupStudentAndStaffValidationSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
+      throw createError(400, 'Validation error', {
         errors: error.details.map(detail => detail.message)
       });
     }
@@ -28,10 +27,7 @@ router.post('/signup/studentAndStaff', async (req: Request, res: Response) => {
       data: result
     });
   } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message || 'Registration failed'
-    });
+    throw createError(400, error.message || 'Registration failed');
   }
 });
 
@@ -39,15 +35,11 @@ router.post('/signup/vendor', async (req: Request, res: Response) => {
   try {
     // Validate request body
     const { error, value } = signupVendorValidationSchema.validate(req.body);
-
     if (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
+      throw createError(400, 'Validation error', {
         errors: error.details.map(detail => detail.message)
       });
     }
-            console.log(value);
 
     // Create user
     const result = await authService.signupVendor(value);
@@ -59,10 +51,7 @@ router.post('/signup/vendor', async (req: Request, res: Response) => {
       data: result
     });
   } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message || 'Registration failed'
-    });
+    throw createError(400, error.message || 'Registration failed');
   }
 });
 
@@ -71,9 +60,7 @@ router.post('/login', async (req: Request, res: Response) => {
     // Validate request body
     const { error, value } = loginValidationSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
+      throw createError(400, 'Validation error', {
         errors: error.details.map(detail => detail.message)
       });
     }
@@ -92,10 +79,7 @@ router.post('/login', async (req: Request, res: Response) => {
       data: { user, accessToken }
     });
   } catch (error: any) {
-    res.status(401).json({
-      success: false,
-      message: error.message || 'Login failed'
-    });
+    throw createError(400, error.message || 'Login failed');
   }
 });
 
@@ -108,10 +92,7 @@ router.post('/refresh', verifyJWT,async (req: Request, res: Response) => {
       accessToken: newAccessToken
     });
   } catch (error: any) {
-    res.status(403).json({
-      success: false,
-      message: error.message || 'Token refresh failed',
-    });
+    throw createError(403, error.message || 'Could not refresh access token');
   }
 });
 
@@ -124,10 +105,7 @@ router.post('/logout', verifyJWT, async (req: Request, res: Response) => {
       message: 'Logged out successfully'
     });
   } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      message: error.message || 'Logout failed',
-    });
+    throw createError(400, error.message || 'Logout failed');
   }
 });
 
