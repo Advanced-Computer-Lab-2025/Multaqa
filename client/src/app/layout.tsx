@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { PT_Sans, Jost } from "next/font/google";
+import { Poppins, Jost } from "next/font/google";
 import "./globals.css";
 
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "../themes/lightTheme"; 
 
-const ptSans = PT_Sans({
-  variable: "--font-pt-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400"],
 });
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${ptSans.variable} ${jost.variable} antialiased font-sans`}
+        className={`${poppins.variable} ${jost.variable} antialiased font-sans`}
       >
         <ThemeProvider theme={theme}>
           <CssBaseline />

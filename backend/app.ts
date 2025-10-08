@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import verifyJWT from "./middleware/verifyJWT.middleware";
 
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
+import userRouter from "./routes/user.routes";
 dotenv.config();
 
 const app = express();

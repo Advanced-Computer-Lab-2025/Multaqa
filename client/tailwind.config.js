@@ -9,9 +9,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['var(--font-pt-sans)', 'system-ui', 'sans-serif'],
+        'sans': ['var(--font-poppins)', 'system-ui', 'sans-serif'],
         'heading': ['var(--font-jost)', 'system-ui', 'sans-serif'],
-        'pt-sans': ['var(--font-pt-sans)'],
+        'poppins': ['var(--font-poppins)'],
         'jost': ['var(--font-jost)'],
       },
       colors: {
