@@ -16,27 +16,30 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import HelpIcon from '@mui/icons-material/Help';
 import { CustomModalProps } from './types';
 import { CustomModalBox, CustomModalCardWrapper } from './styles/StyledModal';
+import { useTheme } from '@mui/material/styles';
 
 export default function CustomModal({ title, description, modalType, buttonOption1, buttonOption2, borderColor }: CustomModalProps) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const theme = useTheme();
+
   // Get the color based on modal type
   const getModalColor = () => {
     switch (modalType) {
       case 'success':
-        return '#4caf50';
+        return theme.palette?.success?.main ?? '#4caf50';
       case 'warning':
-        return '#ff9800';
+        return theme.palette?.warning?.main ?? '#ff9800';
       case 'error':
       case 'delete':
-        return '#f44336';
+        return theme.palette.error.main;
       case 'info':
       case 'confirm':
-        return '#2196f3';
+        return theme.palette.primary.main;
       default:
-        return '#2196f3';
+        return theme.palette.primary.main;
     }
   };
 
