@@ -4,7 +4,7 @@ import { Theme } from '@mui/material';
 export const getLiftedShadowString = (theme: Theme) => {
     const lightShadowColor = '#FAFBFF';
     const darkShadowColor = alpha(theme.palette.common.black, 0.1);
-    return `-3px -3px 6px 0 ${lightShadowColor}, 3px 3px 6px 0 ${darkShadowColor}`;
+    return `-2px -2px 6px 0 ${lightShadowColor}, 2px 2px 6px 0 ${darkShadowColor}`;
 };
 
 export const getSubtlePressedShadow = (theme: Theme) => {

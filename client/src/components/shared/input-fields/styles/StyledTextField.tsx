@@ -1,10 +1,11 @@
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FieldType, StakeholderType } from '../types';
+import theme from "@/themes/lightTheme";
 
 export const StyledTextField = styled(TextField, {
   shouldForwardProp: (prop) => prop !== 'fieldType' && prop !== 'neumorphicBox' && prop !== 'stakeholderType',
-})<{ fieldType: FieldType; neumorphicBox?: boolean; stakeholderType?: StakeholderType }>(({ neumorphicBox, fieldType, stakeholderType }) => ({
+})<{ fieldType: FieldType, neumorphicBox?: boolean, stakeholderType?: StakeholderType }>(({ neumorphicBox, fieldType, stakeholderType }) => ({
   '& .MuiInput-root': {
     transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
@@ -25,15 +26,15 @@ export const StyledTextField = styled(TextField, {
       transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     },
     '&.Mui-focused': {
-      color: '#7851da',
+      color: theme.palette.tertiary.main,
       '& svg': {
-        color: '#7851da',
+        color: theme.palette.tertiary.main,
       },
     },
     '&.MuiFormLabel-filled': {
-      color: '#7851da',
+      color: theme.palette.tertiary.main,
       '& svg': {
-        color: '#7851da',
+        color:theme.palette.tertiary.main,
       },
     },
     '& .MuiInputLabel-asterisk': {
@@ -43,7 +44,7 @@ export const StyledTextField = styled(TextField, {
     },
     ...(neumorphicBox && {
       '&.MuiInputLabel-sizeSmall': {
-        background: '#e5e7eb',
+        background: theme.palette.background.default,
       },
     }),
   },
@@ -51,12 +52,16 @@ export const StyledTextField = styled(TextField, {
     borderRadius: '50px',
     '& fieldset': {
       borderColor: 'transparent',
+      borderWidth: '2px',
+      transition: 'border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     },
     '&:hover fieldset': {
-      borderColor: '#7851da',
+      borderColor: theme.palette.primary.main,
+      borderWidth: '2px',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#7851da',
+      borderColor: theme.palette.tertiary.main,
+      borderWidth: '2px',
     },
   },
   '& .MuiOutlinedInput-input': {
@@ -87,8 +92,15 @@ export const StyledTextField = styled(TextField, {
   },
   '& .MuiInput-underline:before': {
     transition: 'border-bottom-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.42)',
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottomColor: 'rgba(0, 0, 0, 0.42)',
   },
   '& .MuiInput-underline:after': {
     transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
+  '& .MuiTypography-root':{
+    color:theme.palette.tertiary.main,
+  }
 }));

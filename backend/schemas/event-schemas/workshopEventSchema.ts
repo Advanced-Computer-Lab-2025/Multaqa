@@ -1,0 +1,30 @@
+import { Schema } from "mongoose";
+import { Event } from "./eventSchema";
+import { FACULTY } from "../../constants/workshops.constants";
+import { FUNDING_SOURCES } from "../../constants/events.constants";
+
+const workshopSchema = new Schema({
+  fullAgenda: { type: String },
+  associatedFaculty: { type: String, enum: Object.values(FACULTY) },
+  associatedProfs: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "staffMember",
+      validate: {
+        //function to check if the staff member has the role 'professor'
+        validator: async function (staffId: string) {
+          const { Staff } = require("../../schemas/staffMemberSchema");
+          const staff = await Staff.findById(staffId);
+          return staff && staff.position === "professor";
+        },
+        message: "Associated staff member must have the role 'professor'.",
+      },
+    },
+  ],
+  requiredBudget: { type: Number, min: 0, default: 0 },
+  fundingSource: { type: String, enum: Object.values(FUNDING_SOURCES) },
+  extraRequiredResources: [{ type: String }],
+  capacity: { type: Number, min: 1, default: 10 },
+});
+
+export const Workshop = Event.discriminator("workshop", workshopSchema);

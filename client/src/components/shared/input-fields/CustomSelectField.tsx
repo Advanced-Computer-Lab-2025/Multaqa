@@ -17,6 +17,7 @@ import {
   getDisplayValueStyles,
   getOptionHoverStyles,
 } from './styles/StyledSelectField';
+import theme from "@/themes/lightTheme";
 
 const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({ 
   label,
@@ -56,7 +57,11 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       portalRoot.current = document.createElement('div');
-      portalRoot.current.style.position = 'fixed';
+      portalRoot.current.style.position = 'absolute';
+      portalRoot.current.style.top = '0';
+      portalRoot.current.style.left = '0';
+      portalRoot.current.style.width = '100%';
+      portalRoot.current.style.height = '0';
       portalRoot.current.style.zIndex = '99999';
       portalRoot.current.style.pointerEvents = 'none';
       document.body.appendChild(portalRoot.current);
@@ -90,13 +95,16 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
     }
   }, [options, size]);
 
-  // Update dropdown position
+  // Update dropdown position - using pageY/pageX for absolute positioning
   const updatePosition = () => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      
       setDropdownPosition({
-        top: rect.bottom + 8,
-        left: rect.left,
+        top: rect.bottom + scrollTop + 8,
+        left: rect.left + scrollLeft,
         width: rect.width,
       });
     }
@@ -161,9 +169,12 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
       // Calculate position BEFORE opening
       if (willBeOpen && containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        
         setDropdownPosition({
-          top: rect.bottom + 8,
-          left: rect.left,
+          top: rect.bottom + scrollTop + 8,
+          left: rect.left + scrollLeft,
           width: rect.width,
         });
       }
@@ -232,7 +243,7 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
       {label && (
         <label style={labelStyles}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <svg width={(isFocused || hasValue) ? '12' : '16'} height={(isFocused || hasValue) ? '12' : '16'} viewBox="0 0 24 24" fill="currentColor" style={{ color: (isFocused || hasValue) ? '#7851da' : '#999' }}>
+            <svg width={(isFocused || hasValue) ? '12' : '16'} height={(isFocused || hasValue) ? '12' : '16'} viewBox="0 0 24 24" fill="currentColor" style={{ color: (isFocused || hasValue) ? theme.palette.tertiary.main : '#999' }}>
               <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
             {label}
@@ -288,11 +299,12 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
         ref={dropdownRef} 
         style={{
           ...dropdownStyles,
-          position: 'fixed',
+          position: 'absolute',
           top: `${dropdownPosition.top}px`,
           left: `${dropdownPosition.left}px`,
           width: `${dropdownPosition.width}px`,
           pointerEvents: 'auto',
+          willChange: 'transform',
         }}
       >
         {options.map((option) => {

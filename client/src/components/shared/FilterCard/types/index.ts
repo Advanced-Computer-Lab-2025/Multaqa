@@ -3,7 +3,7 @@ import {
 } from '@mui/material';
 
 
-export type FilterComponentType = 'chip' | 'select' | 'range' | 'sort' | 'text';
+export type FilterComponentType = 'chip' | 'select' | 'range' | 'sort' | 'text' | 'date';
 export type ContainerType = "inwards" | "outwards";
 export interface FilterOption { label: string; value: string | number; }
 export interface FilterBoxProps {
@@ -13,7 +13,6 @@ export interface FilterBoxProps {
     sx?: SxProps<Theme>;
     onReset?: () => void;
 }
-
 export interface FilterGroup { 
     id: string; 
     title: string; 
