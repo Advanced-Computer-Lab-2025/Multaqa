@@ -96,7 +96,7 @@ router.post('/refresh', verifyJWT,async (req: Request, res: Response) => {
   }
 });
 
-router.post('/logout', verifyJWT, async (req: Request, res: Response) => {
+router.post('/logout', async (req: Request, res: Response) => {
   try {
     await authService.logout(req.cookies.refreshToken);
     res.clearCookie('refreshToken');
