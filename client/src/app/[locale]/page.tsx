@@ -6,6 +6,7 @@ import CustomSelectField from '@/components/shared/input-fields/CustomSelectFiel
 import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckboxGroup';
 import CustomRating from '@/components/shared/input-fields/CustomRating';
 import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
+import theme from '@/themes/lightTheme';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -275,14 +276,14 @@ const SimpleFormExample: React.FC = () => {
           }}
           buttonOption2={{
             label: 'Secondary Action',
-            variant: 'outlined',
+            variant: 'contained',
             color: 'secondary',
             onClick: () => alert('Secondary action clicked!'),
           }}
-          modalType="info"
-          // borderColor="#7851da" // Optional custom border color
+          modalType="warning"
           width="w-[90vw] sm:w-[80vw] md:w-[40vw]"
           open={false}
+          borderColor={theme.palette.primary.main}
           onClose={() => {
           }}
         />

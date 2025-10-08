@@ -4,8 +4,8 @@ export interface CustomModalProps {
   title: string;
   modalType: ModalType;
   description?: string;
-  /** Optional border color for the modal wrapper; defaults to theme.palette.tertiary.main */
   borderColor?: string;
+  /** Optional border color for the modal wrapper; defaults to theme.palette.tertiary.main */
   buttonOption1?: {
     label: string;
     variant?: 'text' | 'outlined' | 'contained';

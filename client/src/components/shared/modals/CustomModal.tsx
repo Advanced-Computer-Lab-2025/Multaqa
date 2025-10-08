@@ -30,7 +30,7 @@ export default function CustomModal({ title, description, modalType, buttonOptio
       case 'warning':
         return '#ff9800';
       case 'error':
-      case 'delete':
+      case 'delete': 
         return '#f44336';
       case 'info':
       case 'confirm':
@@ -138,6 +138,27 @@ export default function CustomModal({ title, description, modalType, buttonOptio
                 width: '100%'
               }}
             >
+                 {buttonOption2 && (
+                <CustomButton 
+                  variant={buttonOption2.variant || 'text'} 
+                  color={buttonOption2.color || 'primary'} 
+                  onClick={buttonOption2.onClick || handleClose}
+                  sx={{
+                    // Secondary/outlined button: border color matches modal type
+                    ...(buttonOption2.variant === 'outlined' && {
+                      borderColor: modalColor,
+                      color: modalColor,
+                      '&:hover': {
+                        borderColor: modalColor,
+                        backgroundColor: `${modalColor}10`, // 10% opacity
+                      }
+                    }),
+                  }}
+                >
+                  {buttonOption2.label}
+                </CustomButton>
+              )}
+
               {buttonOption1 && (
                 <CustomButton 
                   variant={buttonOption1.variant || 'text'} 
@@ -153,49 +174,12 @@ export default function CustomModal({ title, description, modalType, buttonOptio
                         backgroundColor: `${modalColor}10`, // 10% opacity
                       }
                     }),
-                    // Primary/contained button: background color matches modal type
-                    ...(buttonOption1.variant === 'contained' && {
-                      backgroundColor: `${modalColor} !important`,
-                      color: '#fff !important',
-                      '&:hover': {
-                        backgroundColor: `${modalColor} !important`,
-                        filter: 'brightness(0.9)',
-                      }
-                    }),
                   }}
                 >
                   {buttonOption1.label}
                 </CustomButton>
               )}
-              {buttonOption2 && (
-                <CustomButton 
-                  variant={buttonOption2.variant || 'text'} 
-                  color={buttonOption2.color || 'primary'} 
-                  onClick={buttonOption2.onClick || handleClose}
-                  sx={{
-                    // Secondary/outlined button: border color matches modal type
-                    ...(buttonOption2.variant === 'outlined' && {
-                      borderColor: modalColor,
-                      color: modalColor,
-                      '&:hover': {
-                        borderColor: modalColor,
-                        backgroundColor: `${modalColor}10`, // 10% opacity
-                      }
-                    }),
-                    // Primary/contained button: background color matches modal type
-                    ...(buttonOption2.variant === 'contained' && {
-                      backgroundColor: `${modalColor} !important`,
-                      color: '#fff !important',
-                      '&:hover': {
-                        backgroundColor: `${modalColor} !important`,
-                        filter: 'brightness(0.9)',
-                      }
-                    }),
-                  }}
-                >
-                  {buttonOption2.label}
-                </CustomButton>
-              )}
+           
             </Box>
             </CustomModalBox>
           </CustomModalCardWrapper>
