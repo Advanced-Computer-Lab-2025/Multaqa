@@ -20,10 +20,10 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
 });
-app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
 
 app.use(verifyJWT); // Protect all routes below this middleware
-app.use('/api/events', eventRouter);
+app.use('/events', eventRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
