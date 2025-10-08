@@ -231,7 +231,7 @@ npm run dev
 - **Default Font**: PT Sans is the default font for all text (`font-sans` class)
 - **Headings & Titles**: Use `font-heading` class for Jost font (semi-bold 600 weight)
 - **Explicit Font Classes**:
-  - `font-pt-sans` - Explicitly use PT Sans
+  - `font-poppins` - Explicitly use PT Sans
   - `font-jost` - Explicitly use Jost
   - `font-heading` - Use Jost for headings (recommended)
 
@@ -246,7 +246,7 @@ npm run dev
 <h2 className="font-heading text-2xl">Subtitle in Jost</h2>
 
 // Explicit font usage
-<p className="font-pt-sans">Explicitly PT Sans</p>
+<p className="font-poppins">Explicitly PT Sans</p>
 <p className="font-jost font-semibold">Explicitly Jost (semi-bold)</p>
 ```
 
