@@ -7,6 +7,7 @@ import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckbox
 import CustomRating from '@/components/shared/input-fields/CustomRating';
 import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
 import theme from '@/themes/lightTheme';
+import { Accordion, AccordionSummary, AccordionDetails, Typography, Chip, Tooltip } from '@/components/shared/mui-core';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -298,6 +299,70 @@ const SimpleFormExample: React.FC = () => {
           </div>
         </CustomModalLayout>
       </div>
+
+    {/*
+      === TRUNCATION DEMO START ===
+      NOTE FOR REVIEWERS: This entire <section> is the truncation demo. It renders
+      a long `Chip`, a `Typography` with `noWrap`, and an `AccordionSummary` with
+      truncated text. Each truncated element is wrapped in a `Tooltip` so you can
+      hover to see the full string. If you're debugging ellipsis behavior, this
+      is the quick place to test changes to the shared `mui-core` wrappers
+      (Typography / Chip / AccordionSummary) or to override styles locally.
+      === TRUNCATION DEMO - START ===
+    */}
+    <section style={{
+        marginTop: '40px',
+        backgroundColor: '#fff',
+        padding: '18px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+      }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '12px', color: '#374151' }}>
+          🧪 Truncation demo (hover to see full text)
+        </h2>
+        {
+          (() => {
+            const longText = 'Dr. Alexandria Catherine-Maria van der Berg — Senior Lecturer, Department of Computer Science and Engineering, Faculty of Engineering, The Great University of Cairo (GUC)';
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <Tooltip title={longText} placement="top">
+                    <div style={{ width: 260 }}>
+                      <Chip label={longText} variant="outlined" sx={{ width: '100%' }} />
+                    </div>
+                  </Tooltip>
+
+                  <Tooltip title={longText} placement="top">
+                    <div style={{ width: 260 }}>
+                      <Typography noWrap style={{ width: '100%' }}>{longText}</Typography>
+                    </div>
+                  </Tooltip>
+                </div>
+
+                <div>
+                  <Accordion>
+                    <AccordionSummary>
+                      <Typography noWrap>
+                        {longText}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Typography>
+                        Full content: {longText} — this content is intentionally long so you can confirm expansion and wrapping inside the accordion details.
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              </div>
+            );
+          })()
+        }
+    </section>
+
+    {/*
+      === TRUNCATION DEMO END ===
+      End of demo block. Resume normal page content below.
+    */}
 
       {/* Props Guide */}
       <section style={{ 
