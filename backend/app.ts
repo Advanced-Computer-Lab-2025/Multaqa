@@ -29,7 +29,7 @@ app.use("/auth", authRouter);
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use('/events', eventRouter);
 app.use('/users', userRouter);
-app.use('/gymsessions', gymSessionsRouter );
+app.use('/gymsessions', gymSessionsRouter);
 app.use('/admin', administrationRouter);
 app.use(vendorRouter);
 

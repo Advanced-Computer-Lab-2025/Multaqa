@@ -14,7 +14,6 @@ export class EventsService {
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
-  
   }
 
   async getEvents(
@@ -82,5 +81,5 @@ export class EventsService {
     }
     return await this.eventRepo.delete(id);
   }
- 
+
 }

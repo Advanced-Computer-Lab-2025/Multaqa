@@ -7,25 +7,25 @@ const gymSessionsService = new GymSessionsService();
 
 async function createGymSession(req: Request, res: Response) {
   try {
-    const {value, error} = createGymSessionValidationSchema.validate(req.body);
+    const { value, error } = createGymSessionValidationSchema.validate(req.body);
 
-   if (error) {
-  const errorMessages = error.details.map(detail => detail.message).join('; ');
-  throw createError(400, errorMessages);
-}
-    
+    if (error) {
+      const errorMessages = error.details.map(detail => detail.message).join('; ');
+      throw createError(400, errorMessages);
+    }
+
     const newSession = await gymSessionsService.createGymSession(value);
 
-     res.status(201).json({
+    res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: newSession
     });
 
   } catch (err: any) {
-     if (err.status || err.statusCode) {
-            throw err;
-        }
+    if (err.status || err.statusCode) {
+      throw err;
+    }
     throw createError(500, err.message);
   }
 }

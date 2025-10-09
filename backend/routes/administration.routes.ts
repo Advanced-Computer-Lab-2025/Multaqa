@@ -38,7 +38,7 @@ router.post('/create-admin', async (req: Request, res: Response) => {
 router.delete('/:adminId', async (req: Request, res: Response) => {
   try {
     const { adminId } = req.params;
-    
+
     // Get creator info from JWT token
     const creatorId = (req as any).user?.id;
 

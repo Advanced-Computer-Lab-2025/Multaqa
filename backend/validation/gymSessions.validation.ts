@@ -21,7 +21,7 @@ export const createGymSessionValidationSchema = Joi.object({
     "number.max": "Capacity must be at most 100",
   }),
   sessionType: Joi.string()
-   .valid(...Object.values(GYM_SESSION_TYPES))
+    .valid(...Object.values(GYM_SESSION_TYPES))
     .required().messages({
       "any.only": `Session type must be one of: ${Object.values(GYM_SESSION_TYPES).join(", ")}`,
     }),
