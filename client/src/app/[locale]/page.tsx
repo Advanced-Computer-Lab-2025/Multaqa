@@ -12,6 +12,8 @@ import CustomSelectField from "@/components/shared/input-fields/CustomSelectFiel
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
+import PlatformMap from "@/components/shared/PlatformMap/PlatformMap";
+
 
 export default function HomePage() {
   // const [selectedValue, setSelectedValue] = useState<string | number | string[] | number[]>("");
@@ -141,9 +143,7 @@ export default function HomePage() {
     //   </div>
     // </div>
     <div className="flex items-center justify-center gap-5 flex-row">
-      <RegistrationForm UserType="student" />
-      <RegistrationForm UserType="vendor" />
-      <LoginForm />
+      <PlatformMap/>
     </div>
   );
 }
