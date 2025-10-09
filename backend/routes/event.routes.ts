@@ -61,6 +61,6 @@ router.get("/", findAll);
 router.get("/:id", findOne);
 router.post("/", createEvent);
 router.delete("/:id", deleteEvent);
-router.post("/workshop", createEvent);
+router.post("/", createEvent);
 
 export default router;
