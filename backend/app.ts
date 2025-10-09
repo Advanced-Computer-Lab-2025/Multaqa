@@ -10,6 +10,8 @@ import verifyJWT from "./middleware/verifyJWT.middleware";
 
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
+import administrationRouter from "./routes/administration.routes";
+
 dotenv.config();
 
 const app = express();
@@ -24,6 +26,8 @@ app.use('/auth', authRouter);
 
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use('/events', eventRouter);
+app.use('/users', userRouter);
+app.use('/admin', administrationRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

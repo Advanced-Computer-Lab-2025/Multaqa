@@ -12,6 +12,7 @@ import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
 import redisClient from '../config/redisClient';
 import { IVendor } from '../interfaces/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
+import { StaffPosition } from '../constants/staffMember.constants';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -75,7 +76,7 @@ export class AuthService {
           updatedAt: new Date(),
           isVerified: false,
           role: UserRole.STAFF_MEMBER,
-          // position: I don't know yet (Admin will insert correct roles later)
+          position: StaffPosition.UNKNOWN, // position will be updated later by admin
         }
       );
     }
@@ -85,7 +86,7 @@ export class AuthService {
         password: hashedPassword,
         registeredAt: new Date(),
         updatedAt: new Date(),
-        isVerified: false,
+        isVerified: true, // Verification of vendors is done in person, nothing is done on the system
         role: UserRole.VENDOR,
       });
     }
@@ -120,6 +121,11 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new Error('Invalid email or password');
+    }
+
+    // Check if user is verified
+    if (!user.isVerified){
+      throw new Error('Account not verified');
     }
 
     // Generate JWT tokens
