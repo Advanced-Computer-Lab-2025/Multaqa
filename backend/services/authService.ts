@@ -14,18 +14,25 @@ import { IVendor } from '../interfaces/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
 import { StaffPosition } from '../constants/staffMember.constants';
 import createError from 'http-errors';
+import { sendVerification } from './emailService';
+import { VerificationService } from './verificationService';
+import { AdministrationService } from './administrationService';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
   private studentRepo: GenericRepository<IStudent>;
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
+  private verificationService: VerificationService;
+  private administrationService: AdministrationService;
 
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
     this.studentRepo = new GenericRepository<IStudent>(Student);
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
+    this.verificationService = new VerificationService();
+    this.administrationService = new AdministrationService();
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
@@ -36,9 +43,8 @@ export class AuthService {
       throw createError(400, 'User with this email already exists');
     }
 
-    // If signing up as student or staff, check for GUC ID uniqueness
+    // Check if GUC ID is already taken
     if ('gucId' in signupData) {
-      // Check if GUC ID is already taken
       const [existingStudent, existingStaff] = await Promise.all([
         this.studentRepo.findOne({ gucId: signupData.gucId }),
         this.staffRepo.findOne({ gucId: signupData.gucId }),
@@ -67,6 +73,10 @@ export class AuthService {
           role: UserRole.STUDENT,
         }
       );
+
+      const token = this.verificationService.generateVerificationToken(createdUser);
+      const link = `http://localhost:${process.env.BACKEND_PORT}/auth/verify?token=${token}`;
+      await sendVerification(createdUser.email, link);
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
@@ -126,7 +136,7 @@ export class AuthService {
 
     // Check if user is verified
     if (!user.isVerified) {
-      throw createError(403, 'Account not verified');
+      throw createError(403, 'Please verify your email before logging in');
     }
 
     // Generate JWT tokens

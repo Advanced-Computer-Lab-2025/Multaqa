@@ -2,9 +2,11 @@ import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, loginValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
+import { VerificationService } from '../services/verificationService';
 
 const router = Router();
 const authService = new AuthService();
+const verificationService = new VerificationService();
 
 router.post('/signup/studentAndStaff', async (req: Request, res: Response) => {
   try {
@@ -51,6 +53,17 @@ router.post('/signup/vendor', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     throw createError(400, error.message || 'Registration failed');
+  }
+});
+
+router.get("/verify", async (req, res, next) => {
+  try {
+    const token = req.query.token as string;
+    await verificationService.verifyUser(token);
+
+    return res.redirect(`https://localhost:${process.env.BACKEND_PORT}/login?verified=true`); // should be frontend URL
+  } catch (err) {
+    return res.redirect(`https://localhost:${process.env.BACKEND_PORT}/login?verified=false`); // should be frontend URL
   }
 });
 
