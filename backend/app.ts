@@ -3,14 +3,17 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
+import vendorRouter from "./routes/vendors.routes";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
+import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
 dotenv.config();
 
 const app = express();
 app.use(json());
 app.use(eventRouter);
 app.use(userRouter);
+app.use(vendorRouter);
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");

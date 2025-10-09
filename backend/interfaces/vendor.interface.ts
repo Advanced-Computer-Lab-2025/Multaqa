@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Schema } from "mongoose";
 import { IUser } from "./user.interface";
 
 export interface IVendor extends IUser {
@@ -10,4 +10,5 @@ export interface IVendor extends IUser {
     promoCode: string;
     termsAndConditions: string;
   };
+  requestedEvents: string[];
 }
