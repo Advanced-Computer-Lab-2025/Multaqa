@@ -6,22 +6,22 @@ import createError from "http-errors";
 const eventsService = new EventsService();
 
 async function findAll(req: Request, res: Response) {
- try {
-    const { search,type,location,sort } = req.query; 
-   const events = await eventsService.getEvents(
-  search as string,
-  type as string,
-  location as string,
-  sort === "true"
-);
+  try {
+    const { search, type, location, sort } = req.query;
+    const events = await eventsService.getEvents(
+      search as string,
+      type as string,
+      location as string,
+      sort === "true"
+    );
     if (!events || events.length === 0) {
       throw createError(404, "No events found");
     }
     res.json(events);
   } catch (err: any) {
-      if (err.status || err.statusCode) {
-            throw err;
-        }
+    if (err.status || err.statusCode) {
+      throw err;
+    }
     throw createError(500, err.message);
   }
 }
@@ -31,7 +31,7 @@ async function findOne(req: Request, res: Response) {
     const id = req.params.id;
     const event = await eventsService.getEventById(id);
     if (!event) {
-     throw createError(404, "Event not found");
+      throw createError(404, "Event not found");
     }
     res.json(event);
   } catch (err: any) {
