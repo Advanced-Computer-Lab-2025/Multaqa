@@ -10,7 +10,9 @@ import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
+import administrationRouter from "./routes/administration.routes";
 import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
+
 dotenv.config();
 
 const app = express();
@@ -24,7 +26,8 @@ app.get("/", (req, res) => {
 app.use("/auth", authRouter);
 
 app.use(verifyJWT); // Protect all routes below this middleware
-app.use("/events", eventRouter);
+app.use('/events', eventRouter);
+app.use('/admin', administrationRouter);
 app.use(userRouter);
 app.use(vendorRouter);
 

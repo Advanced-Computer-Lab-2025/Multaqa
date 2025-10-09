@@ -16,6 +16,6 @@ export interface IUser extends Document {
   registeredAt?: Date;
   verifiedAt?: Date;
   updatedAt?: Date;
-  isVerified?: boolean;
+  isVerified: boolean;
   notifications?: INotification[];
 }
