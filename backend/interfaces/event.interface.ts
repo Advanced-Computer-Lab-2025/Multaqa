@@ -3,13 +3,14 @@ import { IUser } from "./user.interface.js";
 import { IReview } from "./review.interface.js";
 import { EVENT_TYPES } from "../constants/events.constants.js";
 import { IVendor } from "./vendor.interface.js";
+import { UserRole } from "../constants/user.constants.js";
 
 export interface IEvent extends Document {
   id: string;
   type: EVENT_TYPES;
   archived: boolean;
   attendees: IUser[];
-  allowedUsers: EVENT_TYPES[];
+  allowedUsers: UserRole[];
   reviews: IReview[];
   event_name: string;
   event_start_date: Date;
