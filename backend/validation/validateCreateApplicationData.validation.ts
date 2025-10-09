@@ -1,0 +1,35 @@
+import Joi from "joi";
+import { BoothSizeEnum } from "../constants/boothSize.constants";
+
+const attendeeSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+});
+
+const bazaarSchema = Joi.object({
+  eventType: Joi.string().valid("bazaar").required(),
+  bazaarAttendees: Joi.array().items(attendeeSchema).min(1).max(5).required(),
+  boothSize: Joi.string()
+    .valid(...BoothSizeEnum)
+    .required(),
+});
+
+const platformBoothSchema = Joi.object({
+  eventType: Joi.string().valid("platform_booth").required(),
+  boothAttendees: Joi.array().items(attendeeSchema).min(1).max(5).required(),
+  boothSize: Joi.string()
+    .valid(...BoothSizeEnum)
+    .required(),
+  boothLocation: Joi.string().required(),
+  boothSetupDuration: Joi.number().integer().min(1).max(4).required(),
+});
+
+export function validateCreateApplicationData(data: any) {
+  if (data.eventType === "bazaar") {
+    return bazaarSchema.validate(data, { abortEarly: false });
+  }
+  if (data.eventType === "platform_booth") {
+    return platformBoothSchema.validate(data, { abortEarly: false });
+  }
+  return { error: { message: "Invalid event type" } };
+}
