@@ -19,26 +19,21 @@ async function getVendorEvents(req: Request, res: Response) {
 }
 
 async function applyToBazaarOrBooth(req: Request, res: Response) {
-  try {
-    const { id, eventId } = req.params;
-    const validatedData = validateCreateApplicationData(req.body);
-    const applicationResult = await vendorService.applyToBazaarOrBooth(
-      id,
-      eventId,
-      validatedData
-    );
+  const { id, eventId } = req.params;
+  const validatedData = validateCreateApplicationData(req.body);
+  const applicationResult = await vendorService.applyToBazaarOrBooth(
+    id,
+    eventId,
+    validatedData
+  );
 
-    if (!applicationResult) {
-      throw createError(400, "Application failed");
-    }
-
-    res
-      .status(200)
-      .json({ message: "Application successful", applicationResult });
-  } catch (error) {
-    console.log(error);
-    throw createError(500, "Failed to apply to bazaar or booth");
+  if (!applicationResult) {
+    throw createError(400, "Application failed");
   }
+
+  res
+    .status(200)
+    .json({ message: "Application successful", applicationResult });
 }
 
 const router = Router();
