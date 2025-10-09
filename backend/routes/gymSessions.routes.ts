@@ -9,9 +9,10 @@ async function createGymSession(req: Request, res: Response) {
   try {
     const {value, error} = createGymSessionValidationSchema.validate(req.body);
 
-     if (error) {
-      throw createError(400, error.details[0].message);
-    }
+   if (error) {
+  const errorMessages = error.details.map(detail => detail.message).join('; ');
+  throw createError(400, errorMessages);
+}
     
     const newSession = await gymSessionsService.createGymSession(value);
 
