@@ -6,6 +6,7 @@ import {
   RequestHandler,
 } from "express";
 import createError, { HttpError } from "http-errors";
+import { MongooseError } from "mongoose";
 
 // Error response type
 interface ErrorResponse {
@@ -29,7 +30,7 @@ export const errorHandler = (
   if (err?.name === "ValidationError" && err.errors) {
     const errors = Object.values(err.errors).map((e: any) => ({
       field: e.path,
-      message: e.message,
+      message: "MONGOOSE ERROR BEN" + e.message,
     }));
     const response: ErrorResponse = {
       success: false,

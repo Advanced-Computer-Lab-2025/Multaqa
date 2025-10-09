@@ -76,9 +76,25 @@ export class EventsService {
 
   async createEvent(user: any, data: any) {
     // Use only validated/sanitized data from Joi
+    console.log("DATA TO BE SERVED", data);
     const createdEvent = await this.eventRepo.create({
-      ...data.value,
-      createdBy: user._id,
+      eventName: data.name,
+      type: data.type,
+      location: data.location,
+      eventStartDate: data.startDate,
+      eventEndDate: data.endDate,
+      description: data.shortDescription,
+      fullAgenda: data.fullAgenda,
+      facultyResponsible: data.facultyResponsible,
+      associatedProfs: data.professors,
+      budget: data.budget,
+      fundingSource: data.fundingSource,
+      extraResources: data.extraResources,
+      capacity: data.capacity,
+      price: data.price,
+      eventStartTime: data.startTime,
+      eventEndTime: data.endTime,
+      registrationDeadline: data.registrationDeadline,
     });
 
     return createdEvent;

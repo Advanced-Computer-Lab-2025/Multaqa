@@ -1,7 +1,8 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { Event } from "./eventSchema";
 import { FACULTY } from "../../constants/workshops.constants";
 import { FUNDING_SOURCES } from "../../constants/events.constants";
+import "../stakeholder-schemas/staffMemberSchema";
 
 const workshopSchema = new Schema({
   fullAgenda: { type: String },
@@ -13,8 +14,9 @@ const workshopSchema = new Schema({
       validate: {
         //function to check if the staff member has the role 'professor'
         validator: async function (staffId: string) {
-          const { Staff } = require("../../schemas/staffMemberSchema");
+          const Staff = mongoose.model("staffMember");
           const staff = await Staff.findById(staffId);
+          console.log("Validator check:", staffId, staff); // 👈 debug line
           return staff && staff.position === "professor";
         },
         message: "Associated staff member must have the role 'professor'.",
