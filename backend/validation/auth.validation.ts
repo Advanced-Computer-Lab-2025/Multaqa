@@ -58,7 +58,7 @@ export const signupVendorValidationSchema = Joi.object({
     .required()
 });
 
-// for admin
+// for admin/event office accounts (created by another admin)
 export const createAdminValidationSchema = Joi.object({
   name: Joi.string()
     .trim()

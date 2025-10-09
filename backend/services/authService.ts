@@ -13,6 +13,7 @@ import redisClient from '../config/redisClient';
 import { IVendor } from '../interfaces/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
 import { StaffPosition } from '../constants/staffMember.constants';
+import createError from 'http-errors';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -32,7 +33,7 @@ export class AuthService {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw createError(400, 'User with this email already exists');
     }
 
     // If signing up as student or staff, check for GUC ID uniqueness
@@ -44,7 +45,7 @@ export class AuthService {
       ]);
 
       if (existingStudent || existingStaff) {
-        throw new Error('User with this GUC ID already exists');
+        throw createError(400, 'User with this GUC ID already exists');
       }
     }
 
@@ -92,7 +93,7 @@ export class AuthService {
     }
 
     if (!createdUser)
-      throw new Error('Failed to create user');
+      throw createError(500, 'Failed to create user account');
 
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
@@ -109,23 +110,23 @@ export class AuthService {
     // Find user by email
     const user = await this.userRepo.findOne({ email });
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw createError(400, 'Invalid email or password');
     }
 
     // Check if user is blocked
     if (user.status == "blocked") {
-      throw new Error('Account is blocked');
+      throw createError(403, 'Your account has been blocked. Please contact support.');
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      throw createError(400, 'Invalid email or password');
     }
 
     // Check if user is verified
     if (!user.isVerified){
-      throw new Error('Account not verified');
+      throw createError(403, 'Account not verified');
     }
 
     // Generate JWT tokens
@@ -151,19 +152,19 @@ export class AuthService {
 
   async refreshToken(token: string): Promise<string> {
     if (!token) 
-      throw new Error('No refresh token provided');
+      throw createError(400, 'No refresh token provided');
     
     const userId = await redisClient.get(`refresh:${token}`); // key is refresh:token, value is userId
     if (!userId) 
-      throw new Error('Invalid or expired refresh token');
+      throw createError(403, 'Invalid or expired refresh token');
 
     if(!process.env.REFRESH_TOKEN_SECRET) 
-      throw new Error('Missing Refresh Token Secret');
+      throw createError(500, 'Missing Refresh Token Secret');
 
     return new Promise((resolve, reject) => {
       jwt.verify(token, process.env.REFRESH_TOKEN_SECRET as Secret, (err, user: any) => {
         if (err) 
-          return reject(new Error('Invalid or expired refresh token'));
+          return reject(createError(403, 'Invalid or expired refresh token'));
         const newAccess = this.generateAccessToken(user);
         resolve(newAccess);
       });
@@ -172,7 +173,7 @@ export class AuthService {
 
   async logout(token: string): Promise<void> {
     if (!token) 
-      throw new Error('No refresh token provided');
+      throw createError(400, 'No refresh token provided');
     await redisClient.del(`refresh:${token}`);
   }
 
