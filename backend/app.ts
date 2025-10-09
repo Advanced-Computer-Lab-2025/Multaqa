@@ -26,10 +26,10 @@ app.get("/", (req, res) => {
 app.use("/auth", authRouter);
 
 app.use(verifyJWT); // Protect all routes below this middleware
-app.use('/events', eventRouter);
-app.use('/admin', administrationRouter);
+app.use("/events", eventRouter);
+app.use("/admin", administrationRouter);
 app.use(userRouter);
-app.use(vendorRouter);
+app.use("/vendor", vendorRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

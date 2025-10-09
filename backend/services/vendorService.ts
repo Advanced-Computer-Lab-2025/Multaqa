@@ -1,33 +1,41 @@
 import { IEvent } from "../interfaces/event.interface";
+import { IUser } from "../interfaces/user.interface";
+import { IVendor } from "../interfaces/vendor.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
-import { IVendor } from "../interfaces/vendor.interface";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
 
 export class VendorService {
-  private eventRepo: GenericRepository<IEvent>;
   private vendorRepo: GenericRepository<IVendor>;
+  private eventRepo: GenericRepository<IEvent>;
 
   constructor() {
-    this.eventRepo = new GenericRepository(Event);
+    // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
+    this.eventRepo = new GenericRepository(Event);
   }
 
-  async getVendorEvents(id: string): Promise<IEvent[]> {
-    const options = {
-      populate: [
-        {
-          path: "requestedEvents",
-          select:
-            "event_name event_start_date event_end_date location price allowedUsers",
-        } as any,
-      ],
-    };
-    const events = await this.eventRepo.findAll({ _id: id }, options);
-    return events;
+  /**
+   * Returns the list of events requested by the vendor (populated with selected fields)
+   * Steps:
+   * - Find the vendor by id and populate requestedEvents.event
+   * - If vendor not found -> throw 404
+   * - Map populated requestedEvents to an array of events, filtering out any nulls
+   */
+  async getVendorEvents(id: string): Promise<Partial<any>> {
+    // populate the nested 'event' field inside requestedEvents
+    const vendor = await this.vendorRepo.findById(id, {
+      populate: ["requestedEvents.event"],
+    });
+
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    return (vendor as any).requestedEvents;
   }
 
   /**
