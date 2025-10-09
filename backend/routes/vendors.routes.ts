@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { IVendor } from "../interfaces/vendor.interface";
 import { VendorService } from "../services/vendorService";
 import createError from "http-errors";
@@ -13,11 +13,12 @@ async function getVendorEvents(req: Request, res: Response) {
     }
     res.json(events);
   } catch (error) {
-    throw createError(500, "Failed to retrieve vendor events");
+    // forward error to express error handler so its status/message are preserved
+    throw createError(500, (error as Error).message);
   }
 }
 
 const router = Router();
-router.get("/vendors/:id/events", getVendorEvents);
+router.get("/:id/events", getVendorEvents);
 
 export default router;

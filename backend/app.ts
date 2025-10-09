@@ -13,7 +13,8 @@ const app = express();
 app.use(json());
 app.use(eventRouter);
 app.use(userRouter);
-app.use(vendorRouter);
+app.use("/vendors", vendorRouter);
+
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
