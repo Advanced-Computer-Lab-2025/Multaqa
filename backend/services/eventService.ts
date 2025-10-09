@@ -8,7 +8,7 @@ import "../schemas/event-schemas/bazaarEventSchema";
 import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
-import { validateWorkshop } from "../validations/validateWorkshop";
+import { validateWorkshop } from "../validation/validateWorkshop";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -75,34 +75,9 @@ export class EventsService {
   }
 
   async createEvent(user: any, data: any) {
-    const { type } = data; // e.g. 'workshop', 'conference', etc.
-    let validationResult;
-
-    switch (type) {
-      case "workshop":
-        validationResult = validateWorkshop(data);
-        break;
-
-      // Placeholder for future event types
-      // case "conference":
-      //   validationResult = validateConference(data);
-      //   break;
-
-      default:
-        throw createError(400, "Invalid or unsupported event type");
-    }
-
-    // Handle Joi validation errors
-    if (validationResult.error) {
-      const message = validationResult.error.details
-        .map((d) => d.message)
-        .join(", ");
-      throw createError(400, message);
-    }
-
     // Use only validated/sanitized data from Joi
     const createdEvent = await this.eventRepo.create({
-      ...validationResult.value,
+      ...data.value,
       createdBy: user._id,
     });
 

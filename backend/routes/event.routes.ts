@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { EventsService } from "../services/eventService";
 import { create } from "domain";
 import createError from "http-errors";
+import { validateWorkshop } from "../validation/validateWorkshop";
 
 const eventsService = new EventsService();
 
@@ -42,6 +43,30 @@ async function createEvent(req: Request, res: Response) {
   try {
     // Assuming req.user is set by auth middleware
     const user = (req as any).user;
+    const { type } = req.body;
+    let validationResult;
+
+    switch (type) {
+      case "workshop":
+        validationResult = validateWorkshop(req.body);
+        break;
+
+      // Placeholder for future event types
+      // case "conference":
+      //   validationResult = validateConference(data);
+      //   break;
+
+      default:
+        throw createError(400, "Invalid or unsupported event type");
+    }
+
+    // Handle Joi validation errors
+    if (validationResult.error) {
+      const message = validationResult.error.details
+        .map((d) => d.message)
+        .join(", ");
+      throw createError(400, message);
+    }
 
     const event = await eventsService.createEvent(user, req.body);
     res.status(201).json(event);
@@ -61,6 +86,5 @@ router.get("/", findAll);
 router.get("/:id", findOne);
 router.post("/", createEvent);
 router.delete("/:id", deleteEvent);
-router.post("/", createEvent);
 
 export default router;
