@@ -21,5 +21,8 @@ export interface IEvent extends Document {
   description: string;
   is_passed: boolean;
   price: number;
-  vendors?: IVendor[];
+  vendors?: { vendor: IVendor | string; RequestData: any }[];
+  bazaarAttendees?: { name: string; email: string }[];
+  RequestData?: any;
+  vendor?: IVendor | string;
 }
