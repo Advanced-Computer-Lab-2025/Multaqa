@@ -11,7 +11,6 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CustomButton from '../../shared/Buttons/CustomButton';
 
 import { bazaarSchema } from "./schemas/bazaar";
-import { color } from 'storybook/internal/theming';
 
 const initialValues = {
     bazaarName: '',
@@ -62,7 +61,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                         label="Bazaar Name" fullWidth margin="normal"  fieldType='text'
                         value={values.bazaarName}
                         onChange={handleChange("bazaarName")}
-                        onBlur={handleBlur("bazaarName")}
                     />
                     { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
                 </Grid>    
@@ -73,7 +71,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                     label="Location" fullWidth margin="normal"  fieldType='text'
                     value={values.location}
                     onChange={handleChange("location")}
-                    onBlur={handleBlur("location")}
                     />
                     { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
                 </Grid>
@@ -85,7 +82,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                     neumorphicBox={true}
                     value={values.description}
                     onChange={handleChange("description")}
-                    onBlur={handleBlur("description")}
                     />
                     { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
                 </Grid>
@@ -107,8 +103,7 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                                 slotProps={{
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,
-                                        onBlur: handleBlur("startDate"),                                
+                                        fullWidth: true,                              
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
@@ -131,7 +126,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
                                         fullWidth: true,
-                                        onBlur: handleBlur("endDate"),   
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
@@ -154,7 +148,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
                                         fullWidth: true,
-                                        onBlur: handleBlur("registrationDeadline"),
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
