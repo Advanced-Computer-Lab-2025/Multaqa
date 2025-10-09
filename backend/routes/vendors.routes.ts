@@ -20,14 +20,12 @@ async function getVendorEvents(req: Request, res: Response) {
 
 async function applyToBazaarOrBooth(req: Request, res: Response) {
   try {
-    const vendorId = req.params.id;
-    const { eventId, applicationData, eventType } = req.body;
-    const validatedData = validateCreateApplicationData(applicationData);
+    const { id, eventId } = req.params;
+    const validatedData = validateCreateApplicationData(req.body);
     const applicationResult = await vendorService.applyToBazaarOrBooth(
-      vendorId,
+      id,
       eventId,
-      validatedData,
-      eventType
+      validatedData
     );
 
     if (!applicationResult) {
@@ -38,12 +36,13 @@ async function applyToBazaarOrBooth(req: Request, res: Response) {
       .status(200)
       .json({ message: "Application successful", applicationResult });
   } catch (error) {
+    console.log(error);
     throw createError(500, "Failed to apply to bazaar or booth");
   }
 }
 
 const router = Router();
 router.get("/vendors/:id/events", getVendorEvents);
-router.post("/vendors/:id/apply", applyToBazaarOrBooth);
+router.post("/vendors/:id/events/:eventId", applyToBazaarOrBooth);
 
 export default router;

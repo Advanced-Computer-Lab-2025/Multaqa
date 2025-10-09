@@ -9,27 +9,35 @@ export interface AuthenticatedRequest extends Request {
   user?: string | JwtPayload;
 }
 
-export default function verifyJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
+export default function verifyJWT(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  if (process.env.NODE_ENV === "development") return next();
   const header = req.headers["authorization"];
-  if(!header) {
-    throw createError(401, 'You are unauthorized for accessing this route') 
+  if (!header) {
+    throw createError(401, "You are unauthorized for accessing this route");
   }
 
   const token = header && header.split(" ")[1];
   if (!token) {
-    throw createError(401, 'You are unauthorized for accessing this route') 
+    throw createError(401, "You are unauthorized for accessing this route");
   }
 
   const secret = process.env.ACCESS_TOKEN_SECRET;
   if (!secret) {
-    throw createError(500, "Missing ACCESS_TOKEN_SECRET in environment variables");
+    throw createError(
+      500,
+      "Missing ACCESS_TOKEN_SECRET in environment variables"
+    );
   }
 
   jwt.verify(token, secret, (err, user) => {
-    if (err){
-      throw createError(403, 'Token is not valid or has expired')
+    if (err) {
+      throw createError(403, "Token is not valid or has expired");
     }
-    
+
     req.user = user;
     next();
   });

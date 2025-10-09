@@ -5,6 +5,7 @@ import createError from "http-errors";
 import { IVendor } from "../interfaces/vendor.interface";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
+import { EVENT_TYPES } from "../constants/events.constants";
 
 export class VendorService {
   private eventRepo: GenericRepository<IEvent>;
@@ -41,8 +42,7 @@ export class VendorService {
   async applyToBazaarOrBooth(
     vendorId: string,
     eventId: string,
-    data: any,
-    eventType: string
+    data: any
   ): Promise<{ vendor: IVendor | null; event: IEvent | null }> {
     const vendor = await this.vendorRepo.findById(vendorId);
     const event = await this.eventRepo.findById(eventId);
@@ -59,10 +59,10 @@ export class VendorService {
     });
 
     //add request to the event
-    if (eventType === "platformBooth") {
+    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       event.vendor = vendorId;
       event.RequestData = data;
-    } else if (eventType === "bazaar") {
+    } else if (event.type === EVENT_TYPES.BAZAAR) {
       event.vendors?.push({ vendor: vendorId, RequestData: data });
     } else {
       throw createError(
@@ -71,10 +71,14 @@ export class VendorService {
       );
     }
 
-    // Save changes to vendor and event
-    const updatedVendor = await this.vendorRepo.update(vendorId, vendor);
-    const updatedEvent = await this.eventRepo.update(eventId, event);
+    await event.save();
+    await vendor.save();
+    // console.log(event);
 
-    return { vendor: updatedVendor, event: updatedEvent };
+    // // Save changes to vendor and event
+    // const updatedVendor = await this.vendorRepo.update(vendorId, vendor);
+    // const updatedEvent = await this.eventRepo.update(eventId, event);
+
+    return { vendor: vendor, event: event };
   }
 }
