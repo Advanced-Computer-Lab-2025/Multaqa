@@ -9,6 +9,7 @@ import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
 import theme from '@/themes/lightTheme';
 import CreateBazaar from '@/components/tempPages/CreateBazaar/CreateBazaar';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
+import CreateTrip from '@/components/tempPages/CreateTrip/CreateTrip';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ const SimpleFormExample: React.FC = () => {
   });
   const [openLayout, setOpenLayout] = useState(false);
   const [openCreateBazaar, setOpenCreateBazaar] = useState(false);
+  const [openCreateTrip, setOpenCreateTrip] = useState(false);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -304,7 +306,12 @@ const SimpleFormExample: React.FC = () => {
         <CustomButton onClick={() => setOpenCreateBazaar(true)}>Create Bazaar</CustomButton>
         <CustomModalLayout open={openCreateBazaar} onClose={() => setOpenCreateBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <CreateBazaar  setOpenCreateBazaar={setOpenCreateBazaar}/>
-        </CustomModalLayout>  
+        </CustomModalLayout>
+
+        <CustomButton onClick={() => setOpenCreateTrip(true)}>Create Trip</CustomButton>
+        <CustomModalLayout open={openCreateTrip} onClose={() => setOpenCreateTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+          <CreateTrip/>
+        </CustomModalLayout>
       </div>
 
       {/* Props Guide */}
