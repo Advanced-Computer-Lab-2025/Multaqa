@@ -63,7 +63,10 @@ export class VendorService {
       event.vendor = vendorId;
       event.RequestData = data;
     } else if (event.type === EVENT_TYPES.BAZAAR) {
-      event.vendors?.push({ vendor: vendorId, RequestData: data });
+      event.vendors?.push({
+        vendor: vendorId,
+        RequestData: { data, status: Event_Request_Status.PENDING },
+      });
     } else {
       throw createError(
         400,
@@ -73,11 +76,6 @@ export class VendorService {
 
     await event.save();
     await vendor.save();
-    // console.log(event);
-
-    // // Save changes to vendor and event
-    // const updatedVendor = await this.vendorRepo.update(vendorId, vendor);
-    // const updatedEvent = await this.eventRepo.update(eventId, event);
 
     return { vendor: vendor, event: event };
   }
