@@ -10,5 +10,9 @@ export interface IVendor extends IUser {
     promoCode: string;
     termsAndConditions: string;
   };
-  requestedEvents: string[];
+  requestedEvents: {
+    event: string;
+    RequestData: any;
+    status: string; // or a more specific type if you have one
+  }[];
 }

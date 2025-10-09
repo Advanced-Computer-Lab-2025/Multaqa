@@ -16,9 +16,7 @@ dotenv.config();
 const app = express();
 app.use(json());
 app.use(cookieParser());
-app.use(eventRouter);
-app.use(userRouter);
-app.use(vendorRouter);
+
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
@@ -27,6 +25,8 @@ app.use("/auth", authRouter);
 
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
+app.use(userRouter);
+app.use(vendorRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
