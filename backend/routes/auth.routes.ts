@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, loginValidationSchema } from '../validation/auth.validation';
-import verifyJWT from '../middleware/verifyJWT.middleware';
 import createError from 'http-errors';
 
 const router = Router();

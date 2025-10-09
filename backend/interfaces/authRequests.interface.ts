@@ -1,3 +1,5 @@
+import { AdministrationRoleType } from "../constants/administration.constants";
+
 export interface BaseSignupRequest {
   email: string;
   password: string;
@@ -21,6 +23,7 @@ export interface VendorSignupRequest extends BaseSignupRequest {
 // created by super admin, not public signup
 export interface AdministrationSignupRequest extends BaseSignupRequest {
   name: string;
+  role: string;
 }
 
 // Union type for all signup requests
