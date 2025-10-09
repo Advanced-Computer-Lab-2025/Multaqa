@@ -7,7 +7,7 @@ import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckbox
 import CustomRating from '@/components/shared/input-fields/CustomRating';
 import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
 import theme from '@/themes/lightTheme';
-import CreateBazaar from '@/components/tempPages/CreateBazaar';
+import CreateBazaar from '@/components/tempPages/CreateBazaar/CreateBazaar';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 const SimpleFormExample: React.FC = () => {
@@ -303,7 +303,7 @@ const SimpleFormExample: React.FC = () => {
 
         <CustomButton onClick={() => setOpenCreateBazaar(true)}>Create Bazaar</CustomButton>
         <CustomModalLayout open={openCreateBazaar} onClose={() => setOpenCreateBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <CreateBazaar/>
+          <CreateBazaar  setOpenCreateBazaar={setOpenCreateBazaar}/>
         </CustomModalLayout>  
       </div>
 

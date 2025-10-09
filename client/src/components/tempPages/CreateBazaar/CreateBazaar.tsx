@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import {useFormik, Formik} from 'formik';
-import { Grid, Typography , TextField, Box,  Collapse, IconButton} from '@mui/material';
-import { CustomTextField } from '../shared/input-fields';
+
+import { Grid, Typography , Box,  Collapse, IconButton} from '@mui/material';
+import { CustomTextField } from '../../shared/input-fields';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import CustomButton from '../shared/Buttons/CustomButton';
+import CustomButton from '../../shared/Buttons/CustomButton';
+
+import { bazaarSchema } from "./schemas/bazaar";
+import { color } from 'storybook/internal/theming';
 
 const initialValues = {
     bazaarName: '',
@@ -19,20 +22,30 @@ const initialValues = {
     registrationDeadline: null,
 };
 
-const CreateBazaar = () => {
+interface CreateBazaarProps {
+  setOpenCreateBazaar: (open: boolean) => void;
+ }
+
+const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
+
+  const onSubmit = async (values: any, actions: any) => {
+    console.log(values);
+    await new Promise((resolve) => setTimeout(resolve, 1000)); 
+    actions.resetForm();
+    setOpenCreateBazaar(false);
+  };
+
   const [infoOpen, setInfoOpen] = useState(true);
   const [scheduleOpen, setScheduleOpen] = useState(false);
 
-  const formik = useFormik({
+  const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
     initialValues,
-    onSubmit: (values) => {
-      // handle submit
-      alert(values.bazaarName);
-    },
+    validationSchema: bazaarSchema,
+    onSubmit: onSubmit,
   });
   return (
     <>
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Create Bazaar</Typography>
         <Box sx={{borderBottom: 1, pb:1, mb:2, mt:3, display:'flex', alignItems:'center', justifyContent:'space-between'}}>
             <Typography variant='body1' color='textSecondary' className='h6'>Basic Information</Typography>
@@ -47,18 +60,22 @@ const CreateBazaar = () => {
                         name='bazaarName'
                         id='bazaarName'
                         label="Bazaar Name" fullWidth margin="normal"  fieldType='text'
-                        value={formik.values.bazaarName}
-                        onChange={formik.handleChange("bazaarName")}
+                        value={values.bazaarName}
+                        onChange={handleChange("bazaarName")}
+                        onBlur={handleBlur("bazaarName")}
                     />
+                    { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
                 </Grid>    
                 <Grid size={6}>
                     <CustomTextField
                     name='location'
                     id='location' 
                     label="Location" fullWidth margin="normal"  fieldType='text'
-                    value={formik.values.location}
-                    onChange={formik.handleChange("location")}
-                    />            
+                    value={values.location}
+                    onChange={handleChange("location")}
+                    onBlur={handleBlur("location")}
+                    />
+                    { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
                 </Grid>
                 <Grid size={12}>
                     <CustomTextField 
@@ -66,9 +83,11 @@ const CreateBazaar = () => {
                     id='description'
                     label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
                     neumorphicBox={true}
-                    value={formik.values.description}
-                    onChange={formik.handleChange("description")}
+                    value={values.description}
+                    onChange={handleChange("description")}
+                    onBlur={handleBlur("description")}
                     />
+                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
                 </Grid>
             </Grid>
         </Collapse>
@@ -88,7 +107,8 @@ const CreateBazaar = () => {
                                 slotProps={{
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,                                
+                                        fullWidth: true,
+                                        onBlur: handleBlur("startDate"),                                
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
@@ -96,9 +116,10 @@ const CreateBazaar = () => {
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
-                                value={formik.values.startDate}
-                                onChange={(value) => formik.setFieldValue('startDate', value)}
+                                value={values.startDate}
+                                onChange={(value) => setFieldValue('startDate', value)}
                             />
+                            {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
                     </LocalizationProvider>
                 </Grid>
                 <Grid size={6}>
@@ -109,7 +130,8 @@ const CreateBazaar = () => {
                                 slotProps={{
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,   
+                                        fullWidth: true,
+                                        onBlur: handleBlur("endDate"),   
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
@@ -117,9 +139,10 @@ const CreateBazaar = () => {
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
-                                value={formik.values.endDate}
-                                onChange={(value) => formik.setFieldValue('endDate', value)}
+                                value={values.endDate}
+                                onChange={(value) => setFieldValue('endDate', value)}
                             />
+                            {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
                     </LocalizationProvider>
                 </Grid>
                 <Grid size={6}>
@@ -131,6 +154,7 @@ const CreateBazaar = () => {
                                     textField: {
                                         variant: "standard", // <-- this makes it look like standard TextField
                                         fullWidth: true,
+                                        onBlur: handleBlur("registrationDeadline"),
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
@@ -138,15 +162,16 @@ const CreateBazaar = () => {
                                         sx: { zIndex: 1500 },
                                     }                       
                                 }}
-                                value={formik.values.registrationDeadline}
-                                onChange={(value) => formik.setFieldValue('registrationDeadline', value)}
+                                value={values.registrationDeadline}
+                                onChange={(value) => setFieldValue('registrationDeadline', value)}
                             />
+                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
                 </Grid>
             </Grid>
         </Collapse>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end'}}>
-            <CustomButton label='Create Bazaar' variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
+        <Box sx={{width:'100%', display:'flex', justifyContent:'end'}}> 
+            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
         </Box>
         </form>
     </>
