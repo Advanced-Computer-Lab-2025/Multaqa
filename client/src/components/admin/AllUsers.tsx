@@ -2,63 +2,88 @@
 
 import React, { useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import DeleteButton from "../shared/Buttons/DeleteButton";
-import { CustomModal, CustomModalLayout } from "../shared/modals";
+import CustomButton from "../shared/Buttons/CustomButton";
+import { CustomModalLayout } from "../shared/modals";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
+import StatusChip from "../layout/StatusChip";
 import ManagementScreen from "./shared/ManagementScreen";
 import { rigorousValidationSchema } from "../shared/input-fields/schemas";
-import CustomButton from "../shared/Buttons/CustomButton";
 
-type Account = {
+type User = {
   id: string;
   name: string;
   email: string;
-  accountType: "Admin" | "Event Office";
+  role:
+    | "Student"
+    | "Staff"
+    | "TA"
+    | "Professor"
+    | "Admin"
+    | "Event Office"
+    | "Vendor";
+  status: "Active" | "Blocked";
   createdDate: string;
 };
 
-const initialAccounts: Account[] = [
+const initialUsers: User[] = [
   {
     id: "1",
     name: "John Doe",
     email: "john.doe@guc.edu.eg",
-    accountType: "Admin",
+    role: "Admin",
+    status: "Active",
     createdDate: "15/01/2025",
   },
   {
     id: "2",
     name: "Jane Smith",
     email: "jane.smith@guc.edu.eg",
-    accountType: "Event Office",
+    role: "Event Office",
+    status: "Active",
     createdDate: "20/01/2025",
   },
   {
     id: "3",
     name: "Michael Johnson",
     email: "michael.johnson@guc.edu.eg",
-    accountType: "Admin",
+    role: "Student",
+    status: "Blocked",
     createdDate: "25/01/2025",
+  },
+  {
+    id: "4",
+    name: "Emily Davis",
+    email: "emily.davis@guc.edu.eg",
+    role: "Professor",
+    status: "Active",
+    createdDate: "10/02/2025",
+  },
+  {
+    id: "5",
+    name: "David Wilson",
+    email: "david.wilson@guc.edu.eg",
+    role: "TA",
+    status: "Active",
+    createdDate: "12/02/2025",
   },
 ];
 
-const accountCreationSchema = Yup.object().shape({
+const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
   email: rigorousValidationSchema.fields.email,
   password: rigorousValidationSchema.fields.password,
   confirmPassword: rigorousValidationSchema.fields.confirmPassword,
-  accountType: Yup.string().required("Account type is required"),
+  userRole: Yup.string().required("User role is required"),
 });
 
-export default function ManageEventOfficeAccount() {
+export default function AllUsers() {
   const theme = useTheme();
-  const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
-  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
+  const [users, setUsers] = useState<User[]>(initialUsers);
   const [createOpen, setCreateOpen] = useState(false);
 
   const formik = useFormik({
@@ -67,9 +92,9 @@ export default function ManageEventOfficeAccount() {
       email: "",
       password: "",
       confirmPassword: "",
-      accountType: "",
+      userRole: "",
     },
-    validationSchema: accountCreationSchema,
+    validationSchema: userCreationSchema,
     onSubmit: (values) => {
       // TODO: API call to create account
       const now = new Date();
@@ -78,41 +103,31 @@ export default function ManageEventOfficeAccount() {
       const yyyy = now.getFullYear();
       const createdDate = `${dd}/${mm}/${yyyy}`;
 
-      const created: Account = {
+      const created: User = {
         id: String(Date.now()),
         name: values.fullName,
         email: values.email,
-        accountType: values.accountType as "Admin" | "Event Office",
+        role: values.userRole as User["role"],
+        status: "Active",
         createdDate,
       };
-      setAccounts((prev) => [created, ...prev]);
+      setUsers((prev) => [created, ...prev]);
       handleCloseCreate();
     },
   });
 
-  const accountTypeOptions = useMemo(
+  const userRoleOptions = useMemo(
     () => [
+      { label: "Student", value: "Student" },
+      { label: "Staff", value: "Staff" },
+      { label: "TA", value: "TA" },
+      { label: "Professor", value: "Professor" },
       { label: "Admin", value: "Admin" },
       { label: "Event Office", value: "Event Office" },
+      { label: "Vendor", value: "Vendor" },
     ],
     []
   );
-
-  const handleOpenDeleteModal = (account: Account) => {
-    setAccountToDelete(account);
-  };
-
-  const handleCloseDeleteModal = () => {
-    setAccountToDelete(null);
-  };
-
-  const handleDeleteAccount = () => {
-    if (accountToDelete) {
-      // TODO: API call to delete account
-      setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
-      handleCloseDeleteModal();
-    }
-  };
 
   const handleOpenCreate = () => setCreateOpen(true);
   const handleCloseCreate = () => {
@@ -120,9 +135,9 @@ export default function ManageEventOfficeAccount() {
     formik.resetForm();
   };
 
-  const renderAccountCard = (account: Account) => (
+  const renderUserCard = (user: User) => (
     <Box
-      key={account.id}
+      key={user.id}
       sx={{
         border: "2px solid #e0e0e0",
         borderRadius: "12px",
@@ -154,7 +169,7 @@ export default function ManageEventOfficeAccount() {
               mb: 0.5,
             }}
           >
-            {account.name}
+            {user.name}
           </Typography>
           <Typography
             variant="body2"
@@ -164,7 +179,7 @@ export default function ManageEventOfficeAccount() {
               mb: 1,
             }}
           >
-            {account.email}
+            {user.email}
           </Typography>
           <Typography
             variant="caption"
@@ -173,16 +188,13 @@ export default function ManageEventOfficeAccount() {
               fontSize: "12px",
             }}
           >
-            Created: {account.createdDate}
+            Created: {user.createdDate}
           </Typography>
         </Box>
         <Box
           sx={{
-            backgroundColor:
-              account.accountType === "Admin"
-                ? "rgba(58, 79, 153, 0.1)"
-                : "rgba(98, 153, 208, 0.1)",
-            color: account.accountType === "Admin" ? "#3a4f99" : "#6299d0",
+            backgroundColor: "rgba(98, 153, 208, 0.1)",
+            color: "#6299d0",
             borderRadius: "16px",
             padding: "4px 12px",
             fontSize: "12px",
@@ -190,117 +202,31 @@ export default function ManageEventOfficeAccount() {
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
           }}
         >
-          {account.accountType}
+          {user.role}
         </Box>
       </Box>
 
-      <DeleteButton
-        label="Delete"
-        variant="outlined"
-        onClick={() => handleOpenDeleteModal(account)}
-        startIcon={<DeleteIcon />}
-        sx={{
-          fontSize: "14px",
-          width: "100%",
-          maxWidth: "120px",
-          display: "flex",
-          alignSelf: "flex-end",
-          justifySelf: "flex-end",
-        }}
-      />
+      <StatusChip status={user.status} />
     </Box>
   );
 
   return (
     <>
       <ManagementScreen
-        pageTitle="Manage Accounts"
-        pageSubtitle="Create, review, and manage admin and event office accounts"
-        boxTitle="Account Management"
-        boxSubtitle="Create new accounts or remove existing ones as needed"
+        pageTitle="All Users"
+        pageSubtitle="View all registered users and their current status"
+        boxTitle="User Overview"
+        boxSubtitle="Create new user accounts or review existing ones"
         boxIcon={<ManageAccountsIcon fontSize="small" />}
         borderColor="#3a4f99"
         createButtonLabel="Create Account"
         createButtonIcon={<PersonAddIcon />}
         onOpenCreate={handleOpenCreate}
-        items={accounts}
-        renderItem={renderAccountCard}
-        noItemsMessage="No Accounts Available"
-        noItemsSubtitle="There are no admin or event office accounts to display."
+        items={users}
+        renderItem={renderUserCard}
+        noItemsMessage="No Users Found"
+        noItemsSubtitle="There are no users to display."
       />
-
-      {/* Delete Confirmation Modal */}
-      {accountToDelete && (
-        <CustomModal
-          open={accountToDelete !== null}
-          onClose={handleCloseDeleteModal}
-          title="Delete Account"
-          description={`Are you sure you want to delete the account for "${accountToDelete.name}"? (${accountToDelete.email} - ${accountToDelete.accountType}). This action cannot be undone.`}
-          modalType="delete"
-          borderColor={theme.palette.error.main}
-          buttonOption1={{
-            label: "Delete Account",
-            variant: "contained",
-            color: "error",
-            onClick: handleDeleteAccount,
-          }}
-          buttonOption2={{
-            label: "Cancel",
-            variant: "outlined",
-            color: "error",
-            onClick: handleCloseDeleteModal,
-          }}
-        >
-          <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Typography
-              sx={{
-                fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                color: "#1E1E1E",
-                mb: 2,
-                fontSize: "1.1rem",
-                fontWeight: 600,
-              }}
-            >
-              {accountToDelete.name}
-            </Typography>
-
-            <Typography
-              sx={{
-                fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                color: "#666",
-                mb: 1,
-                fontSize: "0.95rem",
-              }}
-            >
-              {accountToDelete.email}
-            </Typography>
-
-            <Typography
-              sx={{
-                fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                color: "#666",
-                mb: 3,
-                fontSize: "0.9rem",
-              }}
-            >
-              {accountToDelete.accountType} • Created:{" "}
-              {accountToDelete.createdDate}
-            </Typography>
-
-            <Typography
-              sx={{
-                fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                color: "#db3030",
-                fontSize: "0.9rem",
-                fontWeight: 500,
-              }}
-            >
-              Are you sure you want to delete this account? This action cannot
-              be undone.
-            </Typography>
-          </Box>
-        </CustomModal>
-      )}
 
       {/* Create Account Modal */}
       <CustomModalLayout
@@ -401,25 +327,21 @@ export default function ManageEventOfficeAccount() {
               />
 
               <CustomSelectField
-                label="Account Type"
+                label="User Role"
                 fieldType="single"
-                options={accountTypeOptions}
-                value={formik.values.accountType}
-                onChange={(value) => {
-                  formik.setFieldValue("accountType", value);
-                }}
-                onBlur={() => {
-                  formik.setFieldTouched("accountType", true);
-                }}
+                options={userRoleOptions}
+                value={formik.values.userRole}
+                onChange={(value) => formik.setFieldValue("userRole", value)}
+                onBlur={() => formik.setFieldTouched("userRole", true)}
                 isError={
-                  formik.touched.accountType
-                    ? Boolean(formik.errors.accountType)
+                  formik.touched.userRole
+                    ? Boolean(formik.errors.userRole)
                     : false
                 }
                 helperText={
-                  formik.touched.accountType ? formik.errors.accountType : ""
+                  formik.touched.userRole ? formik.errors.userRole : ""
                 }
-                placeholder="Select account type"
+                placeholder="Select user role"
                 neumorphicBox
                 required
                 fullWidth

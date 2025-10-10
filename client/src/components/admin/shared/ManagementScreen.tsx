@@ -1,0 +1,185 @@
+"use client";
+
+import React from "react";
+import { Box, Typography } from "@mui/material";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+
+interface ManagementScreenProps<T> {
+  pageTitle: string;
+  pageSubtitle: string;
+  boxTitle: string;
+  boxSubtitle: string;
+  boxIcon: React.ReactNode;
+  borderColor: string;
+  createButtonLabel?: string;
+  createButtonIcon?: React.ReactNode;
+  onOpenCreate?: () => void;
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+  noItemsMessage: string;
+  noItemsSubtitle: string;
+  gridColumns?: {
+    xs?: string;
+    md?: string;
+    lg?: string;
+  };
+}
+
+export default function ManagementScreen<T>({
+  pageTitle,
+  pageSubtitle,
+  boxTitle,
+  boxSubtitle,
+  boxIcon,
+  borderColor,
+  createButtonLabel,
+  createButtonIcon,
+  onOpenCreate,
+  items,
+  renderItem,
+  noItemsMessage,
+  noItemsSubtitle,
+  gridColumns = {
+    xs: "1fr",
+    md: "repeat(2, 1fr)",
+    lg: "repeat(3, 1fr)",
+  },
+}: ManagementScreenProps<T>) {
+  return (
+    <Box
+      sx={{
+        p: 4,
+        backgroundColor: "transparent",
+        minHeight: "100vh",
+        fontFamily: "var(--font-poppins), system-ui, sans-serif",
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontFamily: "var(--font-jost), system-ui, sans-serif",
+            fontWeight: 700,
+            color: "#1E1E1E",
+            mb: 1,
+          }}
+        >
+          {pageTitle}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#757575",
+            fontFamily: "var(--font-poppins), system-ui, sans-serif",
+          }}
+        >
+          {pageSubtitle}
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+        }}
+      >
+        <Box
+          sx={{
+            border: `2px solid ${borderColor}`,
+            borderRadius: "16px",
+            padding: "24px",
+            backgroundColor: "#fff",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box
+                sx={{
+                  backgroundColor: `${borderColor}1a`, // Hex to RGBA
+                  color: borderColor,
+                  borderRadius: "50%",
+                  width: "32px",
+                  height: "32px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {boxIcon}
+              </Box>
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontFamily: "var(--font-jost), system-ui, sans-serif",
+                    fontWeight: 600,
+                    color: borderColor,
+                    fontSize: "18px",
+                    mb: 0.5,
+                  }}
+                >
+                  {boxTitle}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "#666",
+                    fontSize: "14px",
+                  }}
+                >
+                  {boxSubtitle}
+                </Typography>
+              </Box>
+            </Box>
+
+            {createButtonLabel && onOpenCreate && (
+              <CustomButton
+                label={createButtonLabel}
+                variant="contained"
+                width="auto"
+                color="primary"
+                onClick={onOpenCreate}
+                startIcon={createButtonIcon}
+                sx={{ borderRadius: "12px", fontWeight: 700 }}
+              />
+            )}
+          </Box>
+
+          <Box
+            sx={{
+              display: "grid",
+              gap: 3,
+              gridTemplateColumns: gridColumns,
+            }}
+          >
+            {items.map((item, index) => renderItem(item))}
+          </Box>
+
+          {items.length === 0 && (
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 8,
+                color: "#757575",
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
+                {noItemsMessage}
+              </Typography>
+              <Typography sx={{ fontSize: "14px" }}>
+                {noItemsSubtitle}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+}

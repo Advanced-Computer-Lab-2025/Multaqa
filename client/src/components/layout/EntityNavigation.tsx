@@ -81,6 +81,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+      {
+        key: "users",
+        label: "Users",
+        icon: Users,
+        sections: [{ id: "all-users", label: "All Users" }],
+      },
     ],
   },
   staff: {
@@ -112,6 +118,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+      {
+        key: "users",
+        label: "Users",
+        icon: Users,
+        sections: [{ id: "all-users", label: "All Users" }],
+      },
     ],
   },
   ta: {
@@ -143,6 +155,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+      {
+        key: "users",
+        label: "Users",
+        icon: Users,
+        sections: [{ id: "all-users", label: "All Users" }],
+      },
     ],
   },
   professor: {
@@ -186,6 +204,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+      {
+        key: "users",
+        label: "Users",
+        icon: Users,
+        sections: [{ id: "all-users", label: "All Users" }],
+      },
     ],
   },
   "events-office": {
@@ -277,9 +301,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Users,
         sections: [
           { id: "all-users", label: "All Users" },
-          { id: "create-account", label: "Create Account" },
           { id: "block-users", label: "Block/Unblock Users" },
-          { id: "user-details", label: "View User Details" },
         ],
       },
       {
@@ -296,9 +318,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "event-office",
         label: "Event Office Accounts",
         icon: Calendar,
-        sections: [
-          { id: "manage-eo-account", label: "Manage Accounts" },
-        ],
+        sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
       {
         key: "activity-logs",
