@@ -25,6 +25,7 @@ export function mapEventDataByType(type: string, data: any) {
         fundingSource: data.fundingSource,
         extraRequiredResources: data.extraResources,
         capacity: data.capacity,
+        createdBy: data.createdBy,
       };
 
     case "conference":

@@ -10,6 +10,8 @@ import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
+import mongoose from "mongoose";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -78,6 +80,16 @@ export class EventsService {
   async createEvent(user: any, data: any) {
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.eventRepo.create(mappedData);
+    if (data.type === "workshop") {
+      const professor = await StaffMember.findById(data.createdBy);
+      if (professor && professor.myWorkshops) {
+        const createdEventId = createdEvent._id;
+        professor.myWorkshops.push(
+          createdEventId as mongoose.Schema.Types.ObjectId
+        );
+        await professor.save();
+      }
+    }
     return createdEvent;
   }
 

@@ -27,6 +27,7 @@ const workshopSchema = new Schema({
   fundingSource: { type: String, enum: Object.values(FUNDING_SOURCES) },
   extraRequiredResources: [{ type: String }],
   capacity: { type: Number, min: 1, default: 10 },
+  createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 export const Workshop = Event.discriminator("workshop", workshopSchema);
