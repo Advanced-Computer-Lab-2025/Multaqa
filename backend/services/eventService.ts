@@ -81,7 +81,7 @@ export class EventsService {
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.eventRepo.create(mappedData);
     if (data.type === "workshop") {
-      const professor = await StaffMember.findById(data.createdBy);
+      const professor = await this.staffRepo.findById(user.id);
       if (professor && professor.myWorkshops) {
         const createdEventId = createdEvent._id;
         professor.myWorkshops.push(
