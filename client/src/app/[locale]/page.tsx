@@ -169,7 +169,14 @@ export default function HomePage() {
       <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
       <CustomSearchBar icon={false} width="800px" type="outwards" label="Search Events..." />
      <div style={{display:"flex", flexDirection:"row", gap:"20px"}}>
-       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
+       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjh tuktiupyi orjowkeojkpwef ojjhoihjihijawfe
+       fweqwreqhiu
+       werqiuwerqiuyw
+       reqiyuwrly yayyy rea
+       lmhgjhtuktiupyiorjowkeojkpwe
+       ojjhoihjihijawf
+       efweqwreqhiuwerqiuwe
+       rqiuywreqiyuwrly yayyy "/>
 
        <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
 

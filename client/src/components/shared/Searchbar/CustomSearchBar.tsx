@@ -4,6 +4,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import  NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomSearchProps } from "./types";
 import CustomIcon from '../Icons/CustomIcon';
+import theme from '@/themes/lightTheme';
 
 
 const CustomSearchBar: React.FC<CustomSearchProps>  = (
@@ -37,7 +38,9 @@ const CustomSearchBar: React.FC<CustomSearchProps>  = (
           }}
         />
       </NeumorphicBox>
-      <CustomIcon icon="search" size="medium" containerType={type} />
+      <CustomIcon icon="search" size="medium" containerType={type} sx={{color:theme.palette.primary.main, borderColor:" rgba(0, 0, 0, 0.3);",  '&:hover': {
+          borderColor:theme.palette.primary.main, // New border color on hover
+        },}} />
     </div>
   );   
 };

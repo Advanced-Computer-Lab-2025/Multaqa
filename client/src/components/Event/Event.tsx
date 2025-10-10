@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Box, ButtonProps, Typography, IconButton } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -9,12 +9,19 @@ import {resolveButtonPalette } from "../utils"
 
 export type DescriptionAccordionProps = {
   name: string;
-  description: React.ReactNode;
+  description: string;
   accent: ButtonProps["color"];
 };
 
 export const DescriptionAccordion: React.FC<DescriptionAccordionProps> = ({ name, description, accent }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const CHARACTER_LIMIT = 100;
+
+  const isLongText = typeof description === "string" && description.length > CHARACTER_LIMIT;
+
+  const displayedText = isExpanded
+    ? description
+    : description?.slice(0, CHARACTER_LIMIT) + (isLongText ? "..." : "");
 
   return (
     <Accordion defaultExpanded sx={{ boxShadow: "none", background: "transparent" }}>
@@ -24,39 +31,38 @@ export const DescriptionAccordion: React.FC<DescriptionAccordionProps> = ({ name
       <AccordionDetails sx={{ px: 0 }}>
         <Box sx={{
           borderRadius: 3,
-          p: 2,
+          padding:"10px 10px 5px 10px",
           boxShadow: "0 6px 14px rgba(0,0,0,0.15)",
           backgroundColor: "#ffffff",
           overflow: "hidden",
           position: "relative",
         }}>
-            <Typography variant="body1" sx={{fontWeight:600,fontStyle:"italic", fontSize:"14px", mb:2, borderBottom:`3px solid ${resolveButtonPalette(theme, accent).dark} `, width:"80px", color: resolveButtonPalette(theme, accent).dark}}>Description</Typography>
-          {typeof description === "string" ? (
+            <Typography variant="body1" sx={{ maxHeight: isExpanded ? "none" : "50px",fontWeight:600,fontStyle:"italic", fontSize:"14px", mb:2, borderBottom:`3px solid ${resolveButtonPalette(theme, accent).dark} `, width:"80px", color: resolveButtonPalette(theme, accent).dark}}>Description</Typography>
             <>
               <Typography variant="body1" sx={{ 
-                maxHeight: isExpanded ? "none" : "50px",
+                maxHeight: isExpanded ? "none" : "40px",
+                overflow: isExpanded ? "visible" : "hidden",
                 wordWrap: "break-word",
                 overflowWrap: "break-word",
                 fontSize:"12px",
                 transition: "max-height 0.3s ease",
-              }}>{description}</Typography>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-                <IconButton 
-                  size="small" 
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  sx={{ 
-                    color: resolveButtonPalette(theme, accent).dark,
-                    transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 0.3s ease",
-                  }}
-                >
-                  <ExpandMoreIcon />
-                </IconButton>
-              </Box>
+              }}>{displayedText}</Typography>
             </>
-          ) : (
-            description
+          
+          <Box sx={{ display: "flex", justifyContent: "center", mt:1 }}>
+            {isLongText && (
+            <IconButton
+              size="small"
+              onClick={() => setIsExpanded((prev) => !prev)}
+              sx={{
+                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.3s ease",
+              }}
+            >
+              <ExpandMoreIcon />
+            </IconButton>
           )}
+              </Box>
         </Box>
       </AccordionDetails>
     </Accordion>
