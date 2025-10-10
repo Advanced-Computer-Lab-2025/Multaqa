@@ -3,6 +3,7 @@ import { EventsService } from "../services/eventService";
 import { create } from "domain";
 import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
+import { validateConference } from "../validation/validateConference";
 
 const eventsService = new EventsService();
 
@@ -41,20 +42,14 @@ async function findOne(req: Request, res: Response) {
 }
 async function createEvent(req: Request, res: Response) {
   try {
-    // Assuming req.user is set by auth middleware
     const user = (req as any).user;
     const { type } = req.body;
     let validationResult;
 
     switch (type) {
-      case "workshop":
-        validationResult = validateWorkshop(req.body);
+      case "conference":
+        validationResult = validateConference(req.body);
         break;
-
-      // Placeholder for future event types
-      // case "conference":
-      //   validationResult = validateConference(data);
-      //   break;
 
       default:
         throw createError(400, "Invalid or unsupported event type");

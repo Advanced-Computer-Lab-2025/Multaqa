@@ -1,19 +1,21 @@
-
 import GenericRepository from "../repos/genericRepo";
 import { GymSession } from "../schemas/event-schemas/gymSessionEventSchema";
-import { IGymSessionCreationRequest, IGymSessionEvent } from "../interfaces/gymSessionsEvent.interface";
+import {
+  IGymSessionCreationRequest,
+  IGymSessionEvent,
+} from "../interfaces/gymSessionsEvent.interface";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { UserRole } from "../constants/user.constants";
 
-
 export class GymSessionsService {
-
   private gymSessionRepo: GenericRepository<IGymSessionEvent>;
   constructor() {
     this.gymSessionRepo = new GenericRepository<IGymSessionEvent>(GymSession);
   }
 
-  async createGymSession(data: IGymSessionCreationRequest): Promise<IGymSessionEvent> {
+  async createGymSession(
+    data: IGymSessionCreationRequest
+  ): Promise<IGymSessionEvent> {
     const [h, m] = data.time.split(":").map(Number);
 
     // Ensure date is a Date object
@@ -26,12 +28,16 @@ export class GymSessionsService {
       eventStartDate: sessionDate,
       eventEndDate: sessionDate,
       eventStartTime: data.time,
-      eventEndTime: new Date(0, 0, 0, h, m + data.duration).toTimeString().slice(0, 5),
-      registrationDeadline: new Date(sessionDate.getTime() - 24 * 60 * 60 * 1000), // 1 day before
+      eventEndTime: new Date(0, 0, 0, h, m + data.duration)
+        .toTimeString()
+        .slice(0, 5),
+      registrationDeadline: new Date(
+        sessionDate.getTime() - 24 * 60 * 60 * 1000
+      ), // 1 day before
       location: "Gym",
       description: `${data.sessionType} class instructed by ${data.trainer}`,
       price: 0,
-      allowedUsers: [UserRole.STUDENT, UserRole.STAFF_MEMBER]
+      allowedUsers: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
     });
   }
   async getAllGymSessions(): Promise<IGymSessionEvent[]> {
@@ -45,9 +51,8 @@ export class GymSessionsService {
     };
 
     return this.gymSessionRepo.findAll(filter, {
-      select: " sessionType trainer event_start_date event_start_time event_end_time",
+      select:
+        " sessionType trainer event_start_date event_start_time event_end_time",
     });
   }
-
-
 }

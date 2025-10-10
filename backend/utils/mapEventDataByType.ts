@@ -3,14 +3,14 @@ export function mapEventDataByType(type: string, data: any) {
   // Shared base fields across ALL event types
   const baseFields = {
     type: data.type,
-    eventName: data.name,
-    eventStartDate: data.startDate,
-    eventEndDate: data.endDate,
-    eventStartTime: data.startTime,
-    eventEndTime: data.endTime,
+    eventName: data.eventName,
+    eventStartDate: data.eventStartDate,
+    eventEndDate: data.eventEndDate,
+    eventStartTime: data.eventStartTime,
+    eventEndTime: data.eventEndTime,
     registrationDeadline: data.registrationDeadline,
     location: data.location,
-    description: data.shortDescription,
+    description: data.description,
     price: data.price,
   };
 
@@ -41,7 +41,6 @@ export function mapEventDataByType(type: string, data: any) {
       };
 
     default:
-      // fallback for other future types (seminars, fairs, etc.)
       return baseFields;
   }
 }
