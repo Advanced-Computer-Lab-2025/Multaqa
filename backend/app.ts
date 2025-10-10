@@ -3,15 +3,27 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
+import authRouter from "./routes/auth.routes";
+import "./config/redisClient";
+import cookieParser from 'cookie-parser';
+import verifyJWT from "./middleware/verifyJWT.middleware";
+
+import { errorHandler, notFoundHandler } from "./auth/errorHandler";
+import userRouter from "./routes/user.routes";
 dotenv.config();
 
 const app = express();
 app.use(json());
-app.use(eventRouter);
+app.use(cookieParser()); 
+
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
 });
+app.use('/auth', authRouter);
+
+app.use(verifyJWT); // Protect all routes below this middleware
+app.use('/events', eventRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
@@ -20,9 +32,8 @@ async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB");
+    console.log("✅ Connected to MongoDB:", mongoose.connection.name);
     const PORT = process.env.PORT || 3000;
-    console.log("Connected to DB:", mongoose.connection.name);
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
@@ -31,5 +42,8 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+app.use(errorHandler);
+app.use(notFoundHandler);
 
 startServer();
