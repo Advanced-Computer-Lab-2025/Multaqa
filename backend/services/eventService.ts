@@ -15,6 +15,12 @@ import mongoose from "mongoose";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
+  private staffRepo: GenericRepository<IStaffMember>;
+  
+  constructor() {
+    this.eventRepo = new GenericRepository(Event);
+    this.staffRepo = new GenericRepository(StaffMember);
+  }
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
