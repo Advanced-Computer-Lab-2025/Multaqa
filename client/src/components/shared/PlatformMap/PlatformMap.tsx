@@ -5,6 +5,7 @@ import { BoothCurvePosition } from "../Booth/types";
 import { Box } from "@mui/material";
 import Booth from "../Booth/Booth";
 import CheckIcon from "@mui/icons-material/Check";
+import  {PlatformMapProps}  from "./types";
 
 const mockBoothList: number[] = [1, 2, 3, 5, 6, 8, 9, 10]; // available ones mock data
 
@@ -81,13 +82,15 @@ const boothConfigurations = [
   },
 ];
 
-const PlatformMap = () => {
-  const [selectedBooth, setSelectedBooth] = useState<number | null>(null);
+const PlatformMap: React.FC<PlatformMapProps> = ({
+  onBoothSelect,
+  selectedBooth: externalSelectedBooth,
+}) => {
+  const selectedBooth =
+    externalSelectedBooth 
 
   const handleBoothClick = (boothId: number) => {
-    setSelectedBooth((prevSelected) =>
-      prevSelected === boothId ? null : boothId
-    );
+      onBoothSelect(boothId);
   };
 
   return (
@@ -125,7 +128,7 @@ const PlatformMap = () => {
               top: booth.top,
               left: booth.left,
               transform: "translate(-50%, -50%)", // Center the booth on the position
-              zIndex: 2, 
+              zIndex: 2,
             }}
           >
             {/* selected icon from MUI if selected on top right corner */}
@@ -135,11 +138,11 @@ const PlatformMap = () => {
                   position: "absolute",
                   top: "-10px",
                   right: "-10px",
-                  color: "#4caf50", 
-                  backgroundColor: "#ffffff", 
+                  color: "#4caf50",
+                  backgroundColor: "#ffffff",
                   borderRadius: "50%",
                   zIndex: 11,
-                  border: "2px solid #4caf50", 
+                  border: "2px solid #4caf50",
                 }}
               />
             )}
