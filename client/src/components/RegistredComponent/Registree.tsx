@@ -27,13 +27,11 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   registrationDate = "25/08/2025",
   role = "N/A",
   onRoleChange,
-  disabled = false,
-  dragHandleProps,
 }) => {
   const [selectedRole, setSelectedRole] = useState(role);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleRoleChange = (event: { target: { value: string } }) => {
+  const handleRoleChange = (event: any) => {
     const newRole = event.target.value;
     setSelectedRole(newRole);
     if (onRoleChange) {
@@ -62,7 +60,6 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
     >
       {/* Drag Handle Indicator */}
       <Box
-        {...dragHandleProps}
         sx={{
           position: "absolute",
           top: "8px",
@@ -71,11 +68,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           color: "#9CA3AF",
           display: "flex",
           alignItems: "center",
-          cursor: "grab",
-          "&:active": {
-            cursor: "grabbing",
-          },
-          zIndex: 50, // High z-index to be on top
+          pointerEvents: "none",
         }}
       >
         <DragIndicatorIcon sx={{ fontSize: "16px" }} />
@@ -119,7 +112,6 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                       5px 5px 8px 0 rgba(107, 79, 150, 0.6)
                                          `,
               flexShrink: 0,
-              cursor: "default",
             }}
           >
             <IdChip
@@ -156,6 +148,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           aria-expanded={isExpanded}
           aria-label="show more"
           onClick={handleToggleExpand}
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag on button click
           sx={{
             flexShrink: 0,
             color: theme.palette.primary.main,
@@ -180,7 +173,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
 
       {/* Collapsible Content */}
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <Stack spacing={1}>
+        <Stack spacing={1} onPointerDown={(e) => e.stopPropagation()}>
           {/* Role */}
           <Stack direction="row" alignItems="center" spacing={2} sx={{ pt: 1 }}>
             <Typography
@@ -196,11 +189,10 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               Role
             </Typography>
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <FormControl size="small" fullWidth disabled={disabled}>
+              <FormControl size="small" fullWidth>
                 <Select
                   value={selectedRole}
                   onChange={handleRoleChange}
-                  disabled={disabled}
                   sx={{
                     height: "30px",
                     fontSize: "12px",
@@ -208,14 +200,10 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                       borderColor: "#D1D5DB",
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: disabled ? "#D1D5DB" : "#1976D2",
+                      borderColor: "#1976D2",
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#1976D2",
-                    },
-                    "&.Mui-disabled": {
-                      backgroundColor: "#f5f5f5",
-                      cursor: "not-allowed",
                     },
                   }}
                 >
@@ -250,12 +238,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             >
               Email
             </Typography>
-            <Box
-              sx={{
-                flexGrow: 1,
-                minWidth: 0,
-              }}
-            >
+            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
               <TruncatedText fontSize="12px" fontWeight="500">
                 {email}
               </TruncatedText>

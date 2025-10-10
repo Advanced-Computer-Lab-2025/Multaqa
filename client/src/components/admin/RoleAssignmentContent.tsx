@@ -131,7 +131,7 @@ export default function RoleAssignmentContent() {
               mb: 1,
             }}
           >
-            Role Assignment
+            Assign Roles
           </Typography>
           <Typography
             variant="body2"
