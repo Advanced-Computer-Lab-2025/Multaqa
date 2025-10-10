@@ -11,6 +11,7 @@ import CreateBazaar from '@/components/tempPages/CreateBazaar/CreateBazaar';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 import CreateTrip from '@/components/tempPages/CreateTrip/CreateTrip';
 import EditTrip from '@/components/tempPages/EditTrip/EditTrip';
+import EditBazaar from '@/components/tempPages/EditBazaar/EditBazaar';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ const SimpleFormExample: React.FC = () => {
   });
   const [openLayout, setOpenLayout] = useState(false);
   const [openCreateBazaar, setOpenCreateBazaar] = useState(false);
+  const [openEditBazaar, setOpenEditBazaar] = useState(false);
   const [openCreateTrip, setOpenCreateTrip] = useState(false);
   const [openEditTrip, setOpenEditTrip] = useState(false);
 
@@ -308,6 +310,20 @@ const SimpleFormExample: React.FC = () => {
         <CustomButton onClick={() => setOpenCreateBazaar(true)}>Create Bazaar</CustomButton>
         <CustomModalLayout open={openCreateBazaar} onClose={() => setOpenCreateBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <CreateBazaar  setOpenCreateBazaar={setOpenCreateBazaar}/>
+        </CustomModalLayout>
+
+        <CustomButton onClick={() => setOpenEditBazaar(true)}>Edit Bazaar</CustomButton>  
+        <CustomModalLayout open={openEditBazaar} onClose={() => setOpenEditBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+          <EditBazaar
+            setOpenEditBazaar={setOpenEditBazaar} 
+            bazaarId='1'
+            bazaarName='hey'
+            location='67'
+            description='hey'
+            startDate={new Date("10/15/2025, 12:00:00 PM")}
+            endDate={new Date("10/18/2025 12:00:00 PM")}
+            registrationDeadline={new Date("10/14/2025, 12:00:00 PM")}
+          />
         </CustomModalLayout>
 
         <CustomButton onClick={() => setOpenCreateTrip(true)}>Create Trip</CustomButton>
