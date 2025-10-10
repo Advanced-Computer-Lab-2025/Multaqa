@@ -6,7 +6,7 @@ import { Folder } from 'lucide-react';
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
-  headerTitle?: string; // optional page-specific title
+  headerTitle?: string;
 }
 
 export default function EntityNavigation({ children, headerTitle }: EntityNavigationProps) {
@@ -15,10 +15,9 @@ export default function EntityNavigation({ children, headerTitle }: EntityNaviga
   const segments = pathname.split("/").filter(Boolean);
   const locale = segments[0] || "en";
   const entity = segments[1] || "";
-  const tab = segments[2] || "company"; // slug
+  const tab = segments[2] || "company";
   const item = segments[3] || "forms";
 
-  // Tab slugs and labels
   const tabSlugs = ['templates', 'company', 'public'];
   const tabLabels = ['Templates', 'Company', 'Public'];
 
@@ -39,33 +38,32 @@ export default function EntityNavigation({ children, headerTitle }: EntityNaviga
     router.push(`${base}${entitySeg}${tabSeg}/${id}`);
   };
 
-  // Provide header props to TopNavigation so header + tabs span full width
   const headerProps = {
     title: headerTitle ?? 'Manage Approvals',
     showBack: true,
     onBack: () => router.back(),
-    leftIcon: <Folder size={32} className="text-gray-500" />,
+    leftIcon: <Folder size={32} className="text-[#6299d0]" />,
     tabs: tabLabels,
     activeTabIndex,
     onTabChange: handleTabChange,
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#e6e6da]">
-      {/* Top Navigation spans full width and renders header/tabs */}
-      <TopNavigation companyName="" header={headerProps} />
+    <div className="flex flex-col h-screen bg-[#e6e6da]">
+      {/* Top Navigation with header and tabs - spans full width */}
+      <TopNavigation companyName="Acme Corp" header={headerProps} />
 
-      {/* Sidebar and main content sit below top nav */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* Sidebar and main content below */}
+      <div className="flex flex-1 overflow-hidden min-h-0">
         <SidebarNavigation 
           activeItem={item}
           onItemClick={handleItemClick}
         />
 
-        <div className="flex-1 overflow-auto bg-white">
+        <div className="flex-1 overflow-auto bg-white min-h-0">
           {children}
         </div>
       </div>
     </div>
   );
-};
+}
