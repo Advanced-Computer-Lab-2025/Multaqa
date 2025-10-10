@@ -31,11 +31,13 @@ interface EntityNavigationProps {
 type RoleConfig = {
   headerTitle: string;
   icon: React.ReactNode;
-  tabs?: string[];
+  tabs?: TabItem[];
   defaultPage?: string;
   defaultTab?: string;
   sidebarItems: SidebarItem[];
 };
+
+type TabItem = { key: string; label: string };
 
 type SubItem = { id: string; label: string };
 type SidebarItem = { id: string; label: string; icon: React.ElementType; subItems?: SubItem[] };
@@ -66,6 +68,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: 'Staff Portal',
     icon: <User size={32} className="text-[#6299d0]" />,
     tabs: [],
+    defaultPage: 'events',
+    defaultTab: '',
     sidebarItems: [
       { id: 'profile', label: 'My Profile', icon: User },
       { id: 'events', label: 'Events', icon: Calendar, subItems: [
@@ -86,6 +90,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: 'TA Portal',
     icon: <User size={32} className="text-[#6299d0]" />,
     tabs: [],
+    defaultPage: 'events',
+    defaultTab: '',
     sidebarItems: [
       { id: 'profile', label: 'My Profile', icon: User },
       { id: 'events', label: 'Events', icon: Calendar, subItems: [
@@ -106,6 +112,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: 'Professor Portal',
     icon: <User size={32} className="text-[#6299d0]" />,
     tabs: [],
+    defaultPage: 'workshops',
+    defaultTab: 'create-workshop',
     sidebarItems: [
       { id: 'profile', label: 'My Profile', icon: User },
       { id: 'events', label: 'Events', icon: Calendar, subItems: [
@@ -132,8 +140,17 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   'events-office': {
     headerTitle: 'Events Office',
     icon: <Calendar size={32} className="text-[#6299d0]" />,
-    tabs: ['All Events', 'Workshops', 'Trips', 'Bazaars', 'Booths', 'Conferences'],
-    sidebarItems: [
+    tabs: [
+      { key: 'all-events', label: 'All Events' },
+      { key: 'workshops', label: 'Workshops' },
+      { key: 'trips', label: 'Trips' },
+      { key: 'bazaars', label: 'Bazaars' },
+      { key: 'booths', label: 'Booths' },
+      { key: 'conferences', label: 'Conferences' },
+    ],
+  defaultPage: 'dashboard',
+  defaultTab: '',
+  sidebarItems: [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { id: 'events', label: 'Events Management', icon: Calendar, subItems: [
         { id: 'all-events', label: 'All Events' },
@@ -167,8 +184,17 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   admin: {
     headerTitle: 'Admin Panel',
     icon: <Settings size={32} className="text-[#6299d0]" />,
-    tabs: ['Students', 'Staff', 'TAs', 'Professors', 'Vendors', 'Events Office'],
-    sidebarItems: [
+    tabs: [
+      { key: 'students', label: 'Students' },
+      { key: 'staff', label: 'Staff' },
+      { key: 'tas', label: 'TAs' },
+      { key: 'professors', label: 'Professors' },
+      { key: 'vendors', label: 'Vendors' },
+      { key: 'events-office', label: 'Events Office' },
+    ],
+  defaultPage: 'dashboard',
+  defaultTab: '',
+  sidebarItems: [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { id: 'users', label: 'User Management', icon: Users, subItems: [
         { id: 'all-users', label: 'All Users' },
@@ -188,8 +214,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   vendor: {
     headerTitle: 'Vendor Portal',
     icon: <Store size={32} className="text-[#6299d0]" />,
-    tabs: ['Bazaars', 'Booths'],
-    sidebarItems: [
+    tabs: [
+      { key: 'bazaars', label: 'Bazaars' },
+      { key: 'booths', label: 'Booths' },
+    ],
+  defaultPage: 'opportunities',
+  defaultTab: 'available',
+  sidebarItems: [
       { id: 'profile', label: 'My Profile', icon: User, subItems: [
         { id: 'company-details', label: 'Company Details' },
         { id: 'documents', label: 'Upload Documents' },
@@ -237,14 +268,16 @@ export default function EntityNavigation({
   const tab: string = segments[3] || "";
 
   const config: RoleConfig = roleNavigationConfig[userRole] ?? roleNavigationConfig['student'];
-  // Force tabs to be string[] so TS knows indexOf accepts string
-  const tabLabels: string[] = (config.tabs ?? []) as string[];
-  const activeTabIndex = tabLabels.length > 0 ? Math.max(0, tabLabels.indexOf(tab)) : -1;
+  // Map TabItem[] into keys (used in routing) and labels (displayed in UI)
+  const tabItems: TabItem[] = config.tabs ?? [];
+  const tabKeys: string[] = tabItems.map(t => t.key);
+  const tabLabels: string[] = tabItems.map(t => t.label);
+  const activeTabIndex = tabKeys.length > 0 ? Math.max(0, tabKeys.indexOf(tab)) : -1;
 
   const handleTabChange = (index: number) => {
     if (tabLabels.length === 0) return;
     
-    const tabKey = tabLabels[index] || tabLabels[0];
+  const tabKey = tabKeys[index] || tabKeys[0];
     const base = `/${locale}`;
     const entitySeg = entity ? `/${entity}` : '';
     const pageSeg = page ? `/${page}` : '';
