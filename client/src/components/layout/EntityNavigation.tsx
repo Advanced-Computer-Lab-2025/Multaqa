@@ -3,11 +3,11 @@ import SidebarNavigation from "./SidebarNavigation";
 import TopNavigation from "./TopNavigation";
 import Tabs from "./Tabs";
 import { usePathname, useRouter } from "next/navigation";
-import { 
-  User, 
-  Calendar, 
-  Trophy, 
-  Dumbbell, 
+import {
+  User,
+  Calendar,
+  Trophy,
+  Dumbbell,
   Store,
   LayoutDashboard,
   Users,
@@ -18,297 +18,466 @@ import {
   Archive,
   CreditCard,
   QrCode,
-  Award
-} from 'lucide-react';
+  Award,
+} from "lucide-react";
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
   headerTitle?: string;
-  userRole?: 'student' | 'staff' | 'ta' | 'professor' | 'events-office' | 'admin' | 'vendor';
+  userRole?:
+    | "student"
+    | "staff"
+    | "ta"
+    | "professor"
+    | "events-office"
+    | "admin"
+    | "vendor";
 }
 
 // Role-based navigation configuration
 type RoleConfig = {
   headerTitle: string;
   icon: React.ReactNode;
-  tabs?: TabItem[];
-  defaultPage?: string;
+  tabs: TabItem[];
   defaultTab?: string;
-  sidebarItems: SidebarItem[];
+  defaultSection?: string;
 };
 
-type TabItem = { key: string; label: string };
+type TabItem = {
+  key: string;
+  label: string;
+  icon: React.ElementType;
+  sections?: SectionItem[];
+};
 
-type SubItem = { id: string; label: string };
-type SidebarItem = { id: string; label: string; icon: React.ElementType; subItems?: SubItem[] };
+type SectionItem = { id: string; label: string };
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
   student: {
-    headerTitle: 'Student Portal',
+    headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    tabs: [],
-    defaultPage: 'events',
-    defaultTab: '',
-    sidebarItems: [
-      { id: 'profile', label: 'My Profile', icon: User },
-      { id: 'events', label: 'Events', icon: Calendar, subItems: [
-        { id: 'browse-events', label: 'Browse Events' },
-        { id: 'my-registered', label: 'My Registered Events' },
-        { id: 'favorites', label: 'My Favorites' }
-      ]},
-      { id: 'courts', label: 'Courts Booking', icon: Trophy },
-      { id: 'gym', label: 'Gym Sessions', icon: Dumbbell, subItems: [
-        { id: 'browse-sessions', label: 'Browse Sessions' },
-        { id: 'my-sessions', label: 'My Registered Sessions' }
-      ]},
-      { id: 'vendors', label: 'Vendors', icon: Store }
-    ]
+    defaultTab: "events",
+    defaultSection: "browse-events",
+    tabs: [
+      { key: "profile", label: "My Profile", icon: User, sections: [] },
+      {
+        key: "events",
+        label: "Events",
+        icon: Calendar,
+        sections: [
+          { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
+        ],
+      },
+      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
+      },
+      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+    ],
   },
   staff: {
-    headerTitle: 'Staff Portal',
+    headerTitle: "Staff Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    tabs: [],
-    defaultPage: 'events',
-    defaultTab: '',
-    sidebarItems: [
-      { id: 'profile', label: 'My Profile', icon: User },
-      { id: 'events', label: 'Events', icon: Calendar, subItems: [
-        { id: 'browse-events', label: 'Browse Events' },
-        { id: 'my-registered', label: 'My Registered Events' },
-        { id: 'favorites', label: 'My Favorites' },
-        { id: 'my-ratings', label: 'My Ratings & Comments' }
-      ]},
-      { id: 'courts', label: 'Courts Booking', icon: Trophy },
-      { id: 'gym', label: 'Gym Sessions', icon: Dumbbell, subItems: [
-        { id: 'browse-sessions', label: 'Browse Sessions' },
-        { id: 'my-sessions', label: 'My Registered Sessions' }
-      ]},
-      { id: 'vendors', label: 'Vendors', icon: Store }
-    ]
+    defaultTab: "events",
+    defaultSection: "browse-events",
+    tabs: [
+      { key: "profile", label: "My Profile", icon: User, sections: [] },
+      {
+        key: "events",
+        label: "Events",
+        icon: Calendar,
+        sections: [
+          { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
+          { id: "my-ratings", label: "My Ratings & Comments" },
+        ],
+      },
+      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
+      },
+      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+    ],
   },
   ta: {
-    headerTitle: 'TA Portal',
+    headerTitle: "TA Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    tabs: [],
-    defaultPage: 'events',
-    defaultTab: '',
-    sidebarItems: [
-      { id: 'profile', label: 'My Profile', icon: User },
-      { id: 'events', label: 'Events', icon: Calendar, subItems: [
-        { id: 'browse-events', label: 'Browse Events' },
-        { id: 'my-registered', label: 'My Registered Events' },
-        { id: 'favorites', label: 'My Favorites' },
-        { id: 'my-ratings', label: 'My Ratings & Comments' }
-      ]},
-      { id: 'courts', label: 'Courts Booking', icon: Trophy },
-      { id: 'gym', label: 'Gym Sessions', icon: Dumbbell, subItems: [
-        { id: 'browse-sessions', label: 'Browse Sessions' },
-        { id: 'my-sessions', label: 'My Registered Sessions' }
-      ]},
-      { id: 'vendors', label: 'Vendors', icon: Store }
-    ]
+    defaultTab: "events",
+    defaultSection: "browse-events",
+    tabs: [
+      { key: "profile", label: "My Profile", icon: User, sections: [] },
+      {
+        key: "events",
+        label: "Events",
+        icon: Calendar,
+        sections: [
+          { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
+          { id: "my-ratings", label: "My Ratings & Comments" },
+        ],
+      },
+      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
+      },
+      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
+    ],
   },
   professor: {
-    headerTitle: 'Professor Portal',
+    headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    tabs: [],
-    defaultPage: 'workshops',
-    defaultTab: 'create-workshop',
-    sidebarItems: [
-      { id: 'profile', label: 'My Profile', icon: User },
-      { id: 'events', label: 'Events', icon: Calendar, subItems: [
-        { id: 'browse-events', label: 'Browse Events' },
-        { id: 'my-registered', label: 'My Registered Events' },
-        { id: 'favorites', label: 'My Favorites' },
-        { id: 'my-ratings', label: 'My Ratings & Comments' }
-      ]},
-      { id: 'workshops', label: 'My Workshops', icon: FileText, subItems: [
-        { id: 'create-workshop', label: 'Create Workshop' },
-        { id: 'draft', label: 'Draft' },
-        { id: 'submitted', label: 'Submitted' },
-        { id: 'accepted', label: 'Accepted' },
-        { id: 'rejected', label: 'Rejected' }
-      ]},
-      { id: 'courts', label: 'Courts Booking', icon: Trophy },
-      { id: 'gym', label: 'Gym Sessions', icon: Dumbbell, subItems: [
-        { id: 'browse-sessions', label: 'Browse Sessions' },
-        { id: 'my-sessions', label: 'My Registered Sessions' }
-      ]},
-      { id: 'vendors', label: 'Vendors', icon: Store }
-    ]
-  },
-  'events-office': {
-    headerTitle: 'Events Office',
-    icon: <Calendar size={32} className="text-[#6299d0]" />,
+    defaultTab: "workshops",
+    defaultSection: "create-workshop",
     tabs: [
-      { key: 'all-events', label: 'All Events' },
-      { key: 'workshops', label: 'Workshops' },
-      { key: 'trips', label: 'Trips' },
-      { key: 'bazaars', label: 'Bazaars' },
-      { key: 'booths', label: 'Booths' },
-      { key: 'conferences', label: 'Conferences' },
+      { key: "profile", label: "My Profile", icon: User, sections: [] },
+      {
+        key: "events",
+        label: "Events",
+        icon: Calendar,
+        sections: [
+          { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
+          { id: "my-ratings", label: "My Ratings & Comments" },
+        ],
+      },
+      {
+        key: "workshops",
+        label: "My Workshops",
+        icon: FileText,
+        sections: [
+          { id: "create-workshop", label: "Create Workshop" },
+          { id: "draft", label: "Draft" },
+          { id: "submitted", label: "Submitted" },
+          { id: "accepted", label: "Accepted" },
+          { id: "rejected", label: "Rejected" },
+        ],
+      },
+      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
+      },
+      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
     ],
-  defaultPage: 'dashboard',
-  defaultTab: '',
-  sidebarItems: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'events', label: 'Events Management', icon: Calendar, subItems: [
-        { id: 'all-events', label: 'All Events' },
-        { id: 'create-event', label: 'Create Event' },
-        { id: 'event-details', label: 'Event Details' }
-      ]},
-      { id: 'workshop-requests', label: 'Workshop Requests', icon: FileText, subItems: [
-        { id: 'pending', label: 'Pending' },
-        { id: 'accepted', label: 'Accepted' },
-        { id: 'rejected', label: 'Rejected' }
-      ]},
-      { id: 'vendors', label: 'Vendor Management', icon: Store, subItems: [
-        { id: 'all-vendors', label: 'All Vendors' },
-        { id: 'participation-requests', label: 'Participation Requests' },
-        { id: 'loyalty-partners', label: 'Loyalty Program Partners' },
-        { id: 'documents', label: 'View Documents' }
-      ]},
-      { id: 'reports', label: 'Reports', icon: BarChart3, subItems: [
-        { id: 'attendee-reports', label: 'Attendee Reports' },
-        { id: 'sales-reports', label: 'Sales Reports' }
-      ]},
-      { id: 'gym', label: 'Gym Management', icon: Dumbbell, subItems: [
-        { id: 'all-sessions', label: 'All Sessions' },
-        { id: 'create-session', label: 'Create Session' },
-        { id: 'vendor-polls', label: 'Create Vendor Polls' }
-      ]},
-      { id: 'archive', label: 'Archive', icon: Archive },
-      { id: 'notifications', label: 'Notifications', icon: ClipboardList }
-    ]
+  },
+  "events-office": {
+    headerTitle: "Events Office",
+    icon: <Calendar size={32} className="text-[#6299d0]" />,
+    defaultTab: "dashboard",
+    defaultSection: "",
+    tabs: [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        sections: [],
+      },
+      {
+        key: "events",
+        label: "Events Management",
+        icon: Calendar,
+        sections: [
+          { id: "all-events", label: "All Events" },
+          { id: "create-event", label: "Create Event" },
+          { id: "event-details", label: "Event Details" },
+        ],
+      },
+      {
+        key: "workshop-requests",
+        label: "Workshop Requests",
+        icon: FileText,
+        sections: [
+          { id: "pending", label: "Pending" },
+          { id: "accepted", label: "Accepted" },
+          { id: "rejected", label: "Rejected" },
+        ],
+      },
+      {
+        key: "vendors",
+        label: "Vendor Management",
+        icon: Store,
+        sections: [
+          { id: "all-vendors", label: "All Vendors" },
+          { id: "participation-requests", label: "Participation Requests" },
+          { id: "loyalty-partners", label: "Loyalty Program Partners" },
+          { id: "documents", label: "View Documents" },
+        ],
+      },
+      {
+        key: "reports",
+        label: "Reports",
+        icon: BarChart3,
+        sections: [
+          { id: "attendee-reports", label: "Attendee Reports" },
+          { id: "sales-reports", label: "Sales Reports" },
+        ],
+      },
+      {
+        key: "gym",
+        label: "Gym Management",
+        icon: Dumbbell,
+        sections: [
+          { id: "all-sessions", label: "All Sessions" },
+          { id: "create-session", label: "Create Session" },
+          { id: "vendor-polls", label: "Create Vendor Polls" },
+        ],
+      },
+      { key: "archive", label: "Archive", icon: Archive, sections: [] },
+      {
+        key: "notifications",
+        label: "Notifications",
+        icon: ClipboardList,
+        sections: [],
+      },
+    ],
   },
   admin: {
-    headerTitle: 'Admin Panel',
+    headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
+    defaultTab: "dashboard",
+    defaultSection: "",
     tabs: [
-      { key: 'students', label: 'Students' },
-      { key: 'staff', label: 'Staff' },
-      { key: 'tas', label: 'TAs' },
-      { key: 'professors', label: 'Professors' },
-      { key: 'vendors', label: 'Vendors' },
-      { key: 'events-office', label: 'Events Office' },
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        sections: [],
+      },
+      {
+        key: "users",
+        label: "User Management",
+        icon: Users,
+        sections: [
+          { id: "all-users", label: "All Users" },
+          { id: "create-account", label: "Create Account" },
+          { id: "block-users", label: "Block/Unblock Users" },
+          { id: "user-details", label: "View User Details" },
+        ],
+      },
+      {
+        key: "role-assignment",
+        label: "Role Assignment",
+        icon: ClipboardList,
+        sections: [
+          { id: "assign-roles", label: "Assign Roles" },
+          { id: "view-assignments", label: "Current Assignments" },
+          { id: "role-history", label: "Role Change History" },
+        ],
+      },
+      {
+        key: "event-office",
+        label: "Event Office Accounts",
+        icon: Calendar,
+        sections: [
+          { id: "create-eo-account", label: "Create Account" },
+          { id: "delete-eo-account", label: "Delete Account" },
+        ],
+      },
+      {
+        key: "activity-logs",
+        label: "Activity Logs",
+        icon: FileText,
+        sections: [
+          { id: "recent-activity", label: "Recent Activity" },
+          { id: "user-actions", label: "User Actions" },
+          { id: "system-events", label: "System Events" },
+          { id: "login-history", label: "Login History" },
+        ],
+      },
+      {
+        key: "settings",
+        label: "System Settings",
+        icon: Settings,
+        sections: [
+          { id: "general", label: "General Settings" },
+          { id: "security", label: "Security Settings" },
+          { id: "email-config", label: "Email Configuration" },
+          { id: "maintenance", label: "Maintenance Mode" },
+        ],
+      },
     ],
-  defaultPage: 'dashboard',
-  defaultTab: '',
-  sidebarItems: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'users', label: 'User Management', icon: Users, subItems: [
-        { id: 'all-users', label: 'All Users' },
-        { id: 'create-account', label: 'Create Account' },
-        { id: 'block-users', label: 'Block/Unblock Users' },
-        { id: 'user-details', label: 'View User Details' }
-      ]},
-      { id: 'role-assignment', label: 'Role Assignment', icon: ClipboardList },
-      { id: 'events-office', label: 'Event Office Accounts', icon: Calendar, subItems: [
-        { id: 'create-eo-account', label: 'Create Account' },
-        { id: 'delete-eo-account', label: 'Delete Account' }
-      ]},
-      { id: 'activity-logs', label: 'Activity Logs', icon: FileText },
-      { id: 'settings', label: 'System Settings', icon: Settings }
-    ]
   },
   vendor: {
-    headerTitle: 'Vendor Portal',
+    headerTitle: "Vendor Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
+    defaultTab: "opportunities",
+    defaultSection: "available",
     tabs: [
-      { key: 'bazaars', label: 'Bazaars' },
-      { key: 'booths', label: 'Booths' },
+      {
+        key: "profile",
+        label: "My Profile",
+        icon: User,
+        sections: [
+          { id: "company-details", label: "Company Details" },
+          { id: "documents", label: "Upload Documents" },
+          { id: "verification", label: "Verification Status" },
+        ],
+      },
+      {
+        key: "opportunities",
+        label: "Bazaars & Booths",
+        icon: Store,
+        sections: [
+          { id: "available", label: "Available Opportunities" },
+          { id: "apply-bazaar", label: "Apply for Bazaar" },
+          { id: "apply-booth", label: "Apply for Booth" },
+          { id: "my-applications", label: "My Applications" },
+        ],
+      },
+      {
+        key: "participation",
+        label: "My Participation",
+        icon: Calendar,
+        sections: [
+          { id: "upcoming", label: "Upcoming" },
+          { id: "past", label: "Past" },
+          { id: "registered-visitors", label: "Registered Visitors" },
+        ],
+      },
+      {
+        key: "payments",
+        label: "Payments",
+        icon: CreditCard,
+        sections: [
+          { id: "payment-history", label: "Payment History" },
+          { id: "receipts", label: "Receipts" },
+          { id: "refunds", label: "Refund Status" },
+        ],
+      },
+      { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },
+      {
+        key: "loyalty",
+        label: "Loyalty Program",
+        icon: Award,
+        sections: [
+          { id: "program-status", label: "Program Status" },
+          { id: "discount-rates", label: "Discount Rates" },
+          { id: "partners", label: "View Partners" },
+        ],
+      },
+      {
+        key: "notifications",
+        label: "Notifications",
+        icon: ClipboardList,
+        sections: [],
+      },
     ],
-  defaultPage: 'opportunities',
-  defaultTab: 'available',
-  sidebarItems: [
-      { id: 'profile', label: 'My Profile', icon: User, subItems: [
-        { id: 'company-details', label: 'Company Details' },
-        { id: 'documents', label: 'Upload Documents' },
-        { id: 'verification', label: 'Verification Status' }
-      ]},
-      { id: 'opportunities', label: 'Bazaars & Booths', icon: Store, subItems: [
-        { id: 'available', label: 'Available Opportunities' },
-        { id: 'apply-bazaar', label: 'Apply for Bazaar' },
-        { id: 'apply-booth', label: 'Apply for Booth' },
-        { id: 'my-applications', label: 'My Applications' }
-      ]},
-      { id: 'participation', label: 'My Participation', icon: Calendar, subItems: [
-        { id: 'upcoming', label: 'Upcoming' },
-        { id: 'past', label: 'Past' },
-        { id: 'registered-visitors', label: 'Registered Visitors' }
-      ]},
-      { id: 'payments', label: 'Payments', icon: CreditCard, subItems: [
-        { id: 'payment-history', label: 'Payment History' },
-        { id: 'receipts', label: 'Receipts' },
-        { id: 'refunds', label: 'Refund Status' }
-      ]},
-      { id: 'qr-codes', label: 'QR Codes', icon: QrCode },
-      { id: 'loyalty', label: 'Loyalty Program', icon: Award, subItems: [
-        { id: 'program-status', label: 'Program Status' },
-        { id: 'discount-rates', label: 'Discount Rates' },
-        { id: 'partners', label: 'View Partners' }
-      ]},
-      { id: 'notifications', label: 'Notifications', icon: ClipboardList }
-    ]
-  }
+  },
 };
 
-export default function EntityNavigation({ 
-  children, 
+export default function EntityNavigation({
+  children,
   headerTitle,
-  userRole = 'student' 
+  userRole = "student",
 }: EntityNavigationProps) {
   const pathname = usePathname() || "";
   const router = useRouter();
   const segments = pathname.split("/").filter(Boolean);
   const locale = segments[0] || "en";
   const entity = segments[1] || "";
-  const page = segments[2] || "";
-  // ensure tab is typed as string (may be undefined)
-  const tab: string = segments[3] || "";
+  const tab = segments[2] || ""; // This is now the main tab/page
+  const section = segments[3] || ""; // This is now the sidebar section
 
-  const config: RoleConfig = roleNavigationConfig[userRole] ?? roleNavigationConfig['student'];
-  // Map TabItem[] into keys (used in routing) and labels (displayed in UI)
-  const tabItems: TabItem[] = config.tabs ?? [];
-  const tabKeys: string[] = tabItems.map(t => t.key);
-  const tabLabels: string[] = tabItems.map(t => t.label);
-  const activeTabIndex = tabKeys.length > 0 ? Math.max(0, tabKeys.indexOf(tab)) : -1;
+  const config: RoleConfig =
+    roleNavigationConfig[userRole] ?? roleNavigationConfig["student"];
+
+  // Get tab configuration
+  const tabItems: TabItem[] = config.tabs;
+  const tabKeys: string[] = tabItems.map((t) => t.key);
+  const tabLabels: string[] = tabItems.map((t) => t.label);
+  const activeTabIndex =
+    tabKeys.length > 0 ? Math.max(0, tabKeys.indexOf(tab)) : -1;
+
+  // Get sections for current tab
+  const currentTab = tabItems.find((t) => t.key === tab);
+  const sectionItems = currentTab?.sections || [];
 
   const handleTabChange = (index: number) => {
-    if (tabLabels.length === 0) return;
-    
-  const tabKey = tabKeys[index] || tabKeys[0];
+    if (tabKeys.length === 0) return;
+
+    const tabKey = tabKeys[index];
     const base = `/${locale}`;
-    const entitySeg = entity ? `/${entity}` : '';
-    const pageSeg = page ? `/${page}` : '';
-    router.push(`${base}${entitySeg}${pageSeg}/${tabKey}`);
+    const entitySeg = entity ? `/${entity}` : "";
+
+    // If the new tab has sections, navigate to first section
+    const newTab = tabItems[index];
+    const sectionSeg =
+      newTab?.sections && newTab.sections.length > 0
+        ? `/${newTab.sections[0].id}`
+        : "";
+
+    router.push(`${base}${entitySeg}/${tabKey}${sectionSeg}`);
   };
 
-  const handleItemClick = (id: string) => {
+  const handleSectionClick = (id: string) => {
     const base = `/${locale}`;
-    const entitySeg = entity ? `/${entity}` : '';
-    const tabSeg = tab ? `/${tab}` : '';
-    router.push(`${base}${entitySeg}/${id}${tabSeg}`);
+    const entitySeg = entity ? `/${entity}` : "";
+    const tabSeg = tab ? `/${tab}` : "";
+    router.push(`${base}${entitySeg}${tabSeg}/${id}`);
   };
 
-  // If user visits only `/:locale/:entity` (no page), redirect to defaultPage/defaultTab
+  // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
   React.useEffect(() => {
-    // Only run when we have an entity but no page
+    // Only run when we have an entity but no tab
     if (!entity) return;
-    if (page) return; // page exists, no redirect needed
+    if (tab) return; // tab exists, no redirect needed
 
-  const defaultPage = config.defaultPage;
-  const defaultTab = config.defaultTab;
-    if (!defaultPage) return;
+    const defaultTab = config.defaultTab;
+    const defaultSection = config.defaultSection;
+    if (!defaultTab) return;
 
     const base = `/${locale}`;
     const entitySeg = `/${entity}`;
-    const tabSeg = defaultTab ? `/${defaultTab}` : '';
+    const sectionSeg = defaultSection ? `/${defaultSection}` : "";
 
     // use replace to avoid creating history entry
-    router.replace(`${base}${entitySeg}/${defaultPage}${tabSeg}`);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entity, page, locale, userRole]);
+    router.replace(`${base}${entitySeg}/${defaultTab}${sectionSeg}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entity, tab, locale, userRole]);
+
+  // If user visits a tab with sections but no section specified, redirect to first section
+  React.useEffect(() => {
+    if (!entity || !tab) return;
+
+    // Check if current tab has sections
+    if (sectionItems.length > 0 && !section) {
+      const base = `/${locale}`;
+      const entitySeg = `/${entity}`;
+      const tabSeg = `/${tab}`;
+      const firstSection = sectionItems[0].id;
+
+      router.replace(`${base}${entitySeg}${tabSeg}/${firstSection}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entity, tab, section, sectionItems, locale]);
 
   const headerProps = {
     title: headerTitle ?? config.headerTitle,
@@ -322,11 +491,11 @@ export default function EntityNavigation({
       {/* Top Navigation - spans full width */}
       <TopNavigation companyName="Multaqa" header={headerProps} />
 
-      {/* Tabs Section - if role has tabs */}
+      {/* Tabs Section - main navigation tabs */}
       {tabLabels.length > 0 && (
         <div className="bg-white border-b border-gray-300">
           <div className="px-6">
-            <Tabs 
+            <Tabs
               tabs={tabLabels}
               activeTab={activeTabIndex >= 0 ? activeTabIndex : 0}
               onTabChange={handleTabChange}
@@ -337,15 +506,13 @@ export default function EntityNavigation({
 
       {/* Sidebar and main content below */}
       <div className="flex flex-1 overflow-hidden min-h-0">
-        <SidebarNavigation 
-          activeItem={page}
-          onItemClick={handleItemClick}
-          items={config.sidebarItems}
+        <SidebarNavigation
+          activeItem={section}
+          onItemClick={handleSectionClick}
+          sectionItems={sectionItems}
         />
 
-        <div className="flex-1 overflow-auto bg-white min-h-0">
-          {children}
-        </div>
+        <div className="flex-1 overflow-auto bg-white min-h-0">{children}</div>
       </div>
     </div>
   );

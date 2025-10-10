@@ -1,14 +1,17 @@
-"use client"
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+"use client";
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface SortableTicketProps {
   id: string;
-  children: React.ReactNode;
+  children: React.ReactElement;
 }
 
-export const SortableTicket: React.FC<SortableTicketProps> = ({ id, children }) => {
+export const SortableTicket: React.FC<SortableTicketProps> = ({
+  id,
+  children,
+}) => {
   const {
     attributes,
     listeners,
@@ -22,12 +25,18 @@ export const SortableTicket: React.FC<SortableTicketProps> = ({ id, children }) 
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    cursor: isDragging ? 'grabbing' : 'grab',
   };
 
+  const childWithDragHandle = React.cloneElement(children, {
+    dragHandleProps: {
+      ...attributes,
+      ...listeners,
+    },
+  });
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
+    <div ref={setNodeRef} style={style}>
+      {childWithDragHandle}
     </div>
   );
 };

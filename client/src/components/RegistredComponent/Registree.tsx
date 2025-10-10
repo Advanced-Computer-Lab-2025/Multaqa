@@ -9,17 +9,16 @@ import {
   IconButton,
   Collapse,
   Box,
-} from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import IdChip from './IdChip';
-import NeumorphicBox from '../shared/containers/NeumorphicBox';
-import theme from '@/themes/lightTheme';
-import { RegisterBoxProps} from "./types"
-import {TruncatedText} from "./utils"
-import { useState } from 'react';
-
+} from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import IdChip from "./IdChip";
+import NeumorphicBox from "../shared/containers/NeumorphicBox";
+import theme from "@/themes/lightTheme";
+import { RegisterBoxProps } from "./types";
+import { TruncatedText } from "./utils";
+import { useState } from "react";
 
 const RegisterBox: React.FC<RegisterBoxProps> = ({
   name = "Salma Tarek",
@@ -27,12 +26,14 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   email = "salmaabadadadadaurahsfsfsfsfsfmah@gmail.com",
   registrationDate = "25/08/2025",
   role = "N/A",
-  onRoleChange
+  onRoleChange,
+  disabled = false,
+  dragHandleProps,
 }) => {
   const [selectedRole, setSelectedRole] = useState(role);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleRoleChange = (event: any) => {
+  const handleRoleChange = (event: { target: { value: string } }) => {
     const newRole = event.target.value;
     setSelectedRole(newRole);
     if (onRoleChange) {
@@ -46,34 +47,38 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   };
 
   return (
-   <NeumorphicBox
-     containerType="outwards"
+    <NeumorphicBox
+      containerType="outwards"
       sx={{
-        border:"1px solid #7851da",
-        borderRadius: '16px',
-        backgroundColor: "#e5e7eb",
-        maxWidth: '340px',
-        padding:"15px 20px",
-        margin: '20px auto',
+        border: `3px solid ${theme.palette.tertiary.main}`,
+        borderRadius: "16px",
+        maxWidth: "340px",
+        padding: "15px 20px",
+        margin: "20px auto",
         fontFamily: "var(--font-poppins), system-ui, sans-serif",
-        userSelect: 'none',
-        position: 'relative',
+        userSelect: "none",
+        position: "relative",
       }}
     >
       {/* Drag Handle Indicator */}
       <Box
+        {...dragHandleProps}
         sx={{
-          position: 'absolute',
-          top: '8px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          color: '#9CA3AF',
-          display: 'flex',
-          alignItems: 'center',
-          pointerEvents: 'none',
+          position: "absolute",
+          top: "8px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          color: "#9CA3AF",
+          display: "flex",
+          alignItems: "center",
+          cursor: "grab",
+          "&:active": {
+            cursor: "grabbing",
+          },
+          zIndex: 50, // High z-index to be on top
         }}
       >
-        <DragIndicatorIcon sx={{ fontSize: '16px' }} />
+        <DragIndicatorIcon sx={{ fontSize: "16px" }} />
       </Box>
 
       {/* Header: Outer Stack controls Name/ID Group vs Arrow Icon */}
@@ -81,48 +86,48 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        sx={{ 
-          mb: isExpanded ? 2 : 0, 
-          width:"300px", 
+        sx={{
+          mb: isExpanded ? 2 : 0,
+          width: "300px",
           fontFamily: "var(--font-poppins), system-ui, sans-serif",
-          mt: 1
+          mt: 1,
         }}
       >
         {/* Inner Stack: Controls ID (Left) vs Name (Right) */}
         <Stack
           direction="row"
-          justifyContent="end" 
+          justifyContent="end"
           alignItems="center"
           spacing={2}
           sx={{
             flexGrow: 1,
             minWidth: 0,
-            overflow: 'hidden',
-            height:"60px",
-            mr: 1
+            overflow: "hidden",
+            height: "60px",
+            mr: 1,
           }}
         >
           {/* 1. ID Chip (LEFT - fixed width) */}
-          <NeumorphicBox 
-           containerType="outwards" 
-           sx={{
-             width:"w-fit", 
-             padding:"2px", 
-             borderRadius:"20px", 
-             boxShadow: `
+          <NeumorphicBox
+            containerType="outwards"
+            sx={{
+              width: "w-fit",
+              padding: "2px",
+              borderRadius: "20px",
+              boxShadow: `
                       -3px -3px 8px 0 #FAFBFF,
                       5px 5px 8px 0 rgba(107, 79, 150, 0.6)
                                          `,
-             flexShrink: 0,
-           }}>
+              flexShrink: 0,
+              cursor: "default",
+            }}
+          >
             <IdChip
-              avatar={
-                <Avatar>#</Avatar>
-              }
+              avatar={<Avatar>#</Avatar>}
               label={id}
               variant="outlined"
               color="primary"
-              sx={{ fontWeight:"600"}}
+              sx={{ fontWeight: "600" }}
             />
           </NeumorphicBox>
 
@@ -131,15 +136,17 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             sx={{
               flexGrow: 1,
               flexShrink: 1,
-              minWidth: '50px', 
-              fontSize: '20px', 
+              minWidth: "50px",
+              fontSize: "20px",
               fontWeight: 600,
-              color: '#1A1A1A',
-              display:"flex",
-              justifyContent:"center" 
+              color: "#1A1A1A",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
-            <TruncatedText fontSize="16px" fontWeight="600" >{name}</TruncatedText>
+            <TruncatedText fontSize="16px" fontWeight="600">
+              {name}
+            </TruncatedText>
           </Box>
         </Stack>
 
@@ -149,61 +156,81 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           aria-expanded={isExpanded}
           aria-label="show more"
           onClick={handleToggleExpand}
-          onPointerDown={(e) => e.stopPropagation()} // Prevent drag on button click
-          sx={{ 
-            flexShrink: 0, 
-            color: theme.palette.primary.main, 
-            border:  "1px solid #b6b7ba" ,
-            width:"24px", 
-            height:"24px",
+          sx={{
+            flexShrink: 0,
+            color: theme.palette.primary.main,
+            border: "1px solid #b6b7ba",
+            width: "24px",
+            height: "24px",
             "&:hover": {
               borderColor: theme.palette.primary.main,
               transition: "all 0.3s ease-in-out",
-            }, 
+            },
           }}
         >
           {isExpanded ? (
-            <KeyboardArrowUpIcon sx={{ fontSize: '24px', color: '#757575' }} />
+            <KeyboardArrowUpIcon sx={{ fontSize: "24px", color: "#757575" }} />
           ) : (
-            <KeyboardArrowDownIcon sx={{ fontSize: '24px', color: '#757575' }} />
+            <KeyboardArrowDownIcon
+              sx={{ fontSize: "24px", color: "#757575" }}
+            />
           )}
         </IconButton>
       </Stack>
 
       {/* Collapsible Content */}
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <Stack spacing={1} onPointerDown={(e) => e.stopPropagation()}>
+        <Stack spacing={1}>
           {/* Role */}
           <Stack direction="row" alignItems="center" spacing={2} sx={{ pt: 1 }}>
             <Typography
               variant="body2"
               sx={{
-                color: '#757575',
+                color: "#757575",
                 fontWeight: 500,
-                width: '140px',
+                width: "140px",
                 flexShrink: 0,
-                fontSize: '14px'
+                fontSize: "14px",
               }}
             >
               Role
             </Typography>
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <FormControl size="small" fullWidth>
+              <FormControl size="small" fullWidth disabled={disabled}>
                 <Select
                   value={selectedRole}
                   onChange={handleRoleChange}
+                  disabled={disabled}
                   sx={{
                     height: "30px",
-                    fontSize: '12px',
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#D1D5DB' },
-                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1976D2' },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1976D2' },
+                    fontSize: "12px",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#D1D5DB",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: disabled ? "#D1D5DB" : "#1976D2",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#1976D2",
+                    },
+                    "&.Mui-disabled": {
+                      backgroundColor: "#f5f5f5",
+                      cursor: "not-allowed",
+                    },
                   }}
                 >
-                  <MenuItem sx={{ fontSize: '12px' }} value="N/A">N/A</MenuItem>
-                  <MenuItem sx={{ fontSize: '12px' }} value="Staff">Staff</MenuItem>
-                  <MenuItem sx={{ fontSize: '12px' }} value="TA">TA</MenuItem>
-                  <MenuItem sx={{ fontSize: '12px' }} value="Professor">Professor</MenuItem>
+                  <MenuItem sx={{ fontSize: "12px" }} value="N/A">
+                    N/A
+                  </MenuItem>
+                  <MenuItem sx={{ fontSize: "12px" }} value="Staff">
+                    Staff
+                  </MenuItem>
+                  <MenuItem sx={{ fontSize: "12px" }} value="TA">
+                    TA
+                  </MenuItem>
+                  <MenuItem sx={{ fontSize: "12px" }} value="Professor">
+                    Professor
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Box>
@@ -214,17 +241,24 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: '#757575',
+                color: "#757575",
                 fontWeight: 500,
-                width: '140px',
+                width: "140px",
                 flexShrink: 0,
-                fontSize: '14px'
+                fontSize: "14px",
               }}
             >
               Email
             </Typography>
-            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <TruncatedText fontSize="12px" fontWeight="500">{email}</TruncatedText>
+            <Box
+              sx={{
+                flexGrow: 1,
+                minWidth: 0,
+              }}
+            >
+              <TruncatedText fontSize="12px" fontWeight="500">
+                {email}
+              </TruncatedText>
             </Box>
           </Stack>
 
@@ -233,11 +267,11 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: '#757575',
+                color: "#757575",
                 fontWeight: 500,
-                width: '140px',
+                width: "140px",
                 flexShrink: 0,
-                fontSize: '14px'
+                fontSize: "14px",
               }}
             >
               Registration Date
@@ -246,11 +280,11 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  color: '#1A1A1A',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  fontSize: '14px'
+                  color: "#1A1A1A",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  fontSize: "14px",
                 }}
               >
                 {registrationDate}
