@@ -11,11 +11,13 @@ import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
 import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 app.use(json());
 app.use(cookieParser());
+app.use(cors());
 
 // Dummy route
 app.get("/", (req, res) => {
