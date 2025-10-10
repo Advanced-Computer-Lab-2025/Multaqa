@@ -10,7 +10,7 @@ import "../schemas/stakeholder-schemas/vendorSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
-import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
+import { IStaffMember } from "../interfaces/staffMember.interface";
 import mongoose from "mongoose";
 
 export class EventsService {
