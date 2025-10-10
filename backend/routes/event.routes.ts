@@ -48,10 +48,6 @@ async function createEvent(req: Request, res: Response) {
     let validationResult;
 
     switch (type) {
-      case "workshop":
-        validationResult = validateWorkshop(req.body);
-        break;
-
       case "conference":
         validationResult = validateConference(req.body);
         break;

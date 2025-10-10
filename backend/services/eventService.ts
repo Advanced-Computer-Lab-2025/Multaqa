@@ -8,7 +8,6 @@ import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { validateWorkshop } from "../validation/validateWorkshop";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { IStaffMember } from "../interfaces/staffMember.interface";
@@ -17,7 +16,7 @@ import mongoose from "mongoose";
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
   private staffRepo: GenericRepository<IStaffMember>;
-  
+
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.staffRepo = new GenericRepository(StaffMember);
@@ -81,10 +80,8 @@ export class EventsService {
   }
 
   async createEvent(user: any, data: any) {
-    // set the creator of the event
-    if (data.type === "workshop") {
-      data.createdBy = user.id;
-    }
+    data.createdBy = user.id;
+
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.eventRepo.create(mappedData);
     if (data.type === "workshop") {
