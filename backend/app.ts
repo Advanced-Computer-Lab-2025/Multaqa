@@ -3,16 +3,37 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
+import vendorRouter from "./routes/vendors.routes";
+import authRouter from "./routes/auth.routes";
+import professorRouter from "./routes/professor.routes";
+import "./config/redisClient";
+import cookieParser from "cookie-parser";
+import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
+import userRouter from "./routes/user.routes";
+import gymSessionsRouter from "./routes/gymSessions.routes";
+import administrationRouter from "./routes/administration.routes";
+import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
+
 dotenv.config();
 
 const app = express();
 app.use(json());
-app.use(eventRouter);
+app.use(cookieParser());
+
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
 });
+app.use("/auth", authRouter);
+
+app.use(verifyJWT); // Protect all routes below this middleware
+app.use("/events", eventRouter);
+app.use("/users", userRouter);
+app.use("/gymsessions", gymSessionsRouter);
+app.use("/admin", administrationRouter);
+app.use("/vendor", vendorRouter);
+app.use("/professors", professorRouter); // Example protected route
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
@@ -21,9 +42,8 @@ async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB");
-    const PORT = process.env.PORT || 3000;
-    console.log("Connected to DB:", mongoose.connection.name);
+    console.log("✅ Connected to MongoDB:", mongoose.connection.name);
+    const PORT = process.env.BACKEND_PORT;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
