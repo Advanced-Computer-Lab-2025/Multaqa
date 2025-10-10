@@ -11,7 +11,6 @@ export function mapEventDataByType(type: string, data: any) {
     registrationDeadline: data.registrationDeadline,
     location: data.location,
     description: data.description,
-    price: data.price,
   };
 
   switch (type) {
@@ -20,12 +19,13 @@ export function mapEventDataByType(type: string, data: any) {
         ...baseFields,
         fullAgenda: data.fullAgenda,
         facultyResponsible: data.facultyResponsible,
-        associatedProfs: data.professors,
-        requiredBudget: data.budget,
+        associatedProfs: data.associatedProfs,
+        requiredBudget: data.requiredBudget,
         fundingSource: data.fundingSource,
-        extraRequiredResources: data.extraResources,
+        extraRequiredResources: data.extraRequiredResources,
         capacity: data.capacity,
         createdBy: data.createdBy,
+        price: data.price,
       };
 
     case "conference":
@@ -38,6 +38,18 @@ export function mapEventDataByType(type: string, data: any) {
         fundingSource: data.fundingSource,
         extraRequiredResources: data.extraRequiredResources,
         topics: data.topics,
+      };
+
+    case "bazaar":
+      return {
+        ...baseFields,
+      };
+
+    case "trip":
+      return {
+        ...baseFields,
+        capacity: data.capacity,
+        price: data.price,
       };
 
     default:

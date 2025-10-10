@@ -4,6 +4,7 @@ import { create } from "domain";
 import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateConference } from "../validation/validateConference";
+import { validateCreateEvent } from "../validation/validateCreateEvent";
 
 const eventsService = new EventsService();
 
@@ -50,7 +51,10 @@ async function createEvent(req: Request, res: Response) {
       case "conference":
         validationResult = validateConference(req.body);
         break;
-
+      case "bazaar":
+      case "trip":
+        validationResult = validateCreateEvent(req.body);
+        break;
       default:
         throw createError(400, "Invalid or unsupported event type");
     }
