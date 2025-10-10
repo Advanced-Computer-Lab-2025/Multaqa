@@ -69,28 +69,34 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                         id='bazaarName'
                         label="Bazaar Name" fullWidth margin="normal"  fieldType='text'
                         value={values.bazaarName}
-                        onChange={handleChange("bazaarName")}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
                     />
                     { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
                 </Grid>    
                 <Grid size={6}>
                     <CustomTextField
-                    name='location'
-                    id='location' 
-                    label="Location" fullWidth margin="normal"  fieldType='text'
-                    value={values.location}
-                    onChange={handleChange("location")}
+                        name='location'
+                        id='location' 
+                        label="Location" fullWidth margin="normal"  fieldType='text'
+                        value={values.location}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
                     />
                     { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
                 </Grid>
                 <Grid size={12}>
                     <CustomTextField 
-                    name='description'
-                    id='description'
-                    label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
-                    neumorphicBox={true}
-                    value={values.description}
-                    onChange={handleChange("description")}
+                        name='description'
+                        id='description'
+                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                        neumorphicBox={true}
+                        value={values.description}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
                     />
                     { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
                 </Grid>
