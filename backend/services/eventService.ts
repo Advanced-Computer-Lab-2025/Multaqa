@@ -84,20 +84,8 @@ export class EventsService {
     data.createdBy = user.id;
 
     const mappedData = mapEventDataByType(data.type, data);
-    console.log("Incoming body:", data);
-    console.log("Mapped Data:", mappedData);
 
     const createdEvent = await this.eventRepo.create(mappedData);
-    if (data.type === "workshop") {
-      const professor = await this.staffRepo.findById(user.id);
-      if (professor && professor.myWorkshops) {
-        const createdEventId = createdEvent._id;
-        professor.myWorkshops.push(
-          createdEventId as mongoose.Schema.Types.ObjectId
-        );
-        await professor.save();
-      }
-    }
     return createdEvent;
   }
 
