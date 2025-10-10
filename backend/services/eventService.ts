@@ -5,6 +5,7 @@ import createError from "http-errors";
 import "../schemas/event-schemas/workshopEventSchema";
 import "../schemas/event-schemas/bazaarEventSchema";
 import "../schemas/event-schemas/platformBoothEventSchema";
+import "../schemas/event-schemas/conferenceEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
@@ -83,6 +84,9 @@ export class EventsService {
     data.createdBy = user.id;
 
     const mappedData = mapEventDataByType(data.type, data);
+    console.log("Incoming body:", data);
+    console.log("Mapped Data:", mappedData);
+
     const createdEvent = await this.eventRepo.create(mappedData);
     if (data.type === "workshop") {
       const professor = await this.staffRepo.findById(user.id);
