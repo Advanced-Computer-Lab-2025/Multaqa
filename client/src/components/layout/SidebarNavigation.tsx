@@ -26,7 +26,7 @@ export default function SidebarNavigation({ activeItem = "forms", onItemClick }:
   ];
 
   return (
-    <div className="w-[280px] bg-[#fafafa] border-r border-gray-200 h-full flex flex-col p-4">
+    <div className="w-[280px] bg-[#fafafa] border-r border-gray-200 !h-full flex flex-col p-4">
       <div className="mb-4">
         <p className="text-xs font-semibold text-gray-500 tracking-wider mb-2 px-2">MENU</p>
         
