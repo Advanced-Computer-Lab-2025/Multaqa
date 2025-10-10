@@ -31,7 +31,7 @@ app.use('/events', eventRouter);
 app.use('/users', userRouter);
 app.use('/gymsessions', gymSessionsRouter);
 app.use('/admin', administrationRouter);
-app.use(vendorRouter);
+app.use("/vendor", vendorRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

@@ -8,12 +8,19 @@ import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
+import { validateWorkshop } from "../validation/validateWorkshop";
+import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
+import { IStaffMember } from "../interfaces/staffMember.interface";
+import mongoose from "mongoose";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
-
+  private staffRepo: GenericRepository<IStaffMember>;
+  
   constructor() {
     this.eventRepo = new GenericRepository(Event);
+    this.staffRepo = new GenericRepository(StaffMember);
   }
 
   async getEvents(
@@ -73,6 +80,26 @@ export class EventsService {
     return event;
   }
 
+  async createEvent(user: any, data: any) {
+    // set the creator of the event
+    if (data.type === "workshop") {
+      data.createdBy = user.id;
+    }
+    const mappedData = mapEventDataByType(data.type, data);
+    const createdEvent = await this.eventRepo.create(mappedData);
+    if (data.type === "workshop") {
+      const professor = await this.staffRepo.findById(user.id);
+      if (professor && professor.myWorkshops) {
+        const createdEventId = createdEvent._id;
+        professor.myWorkshops.push(
+          createdEventId as mongoose.Schema.Types.ObjectId
+        );
+        await professor.save();
+      }
+    }
+    return createdEvent;
+  }
+
   async deleteEvent(id: string): Promise<IEvent | null> {
     const event = await this.eventRepo.findById(id);
     console.log("THE EVENT GETTING DELETEDDD", event);
@@ -81,5 +108,4 @@ export class EventsService {
     }
     return await this.eventRepo.delete(id);
   }
-
 }
