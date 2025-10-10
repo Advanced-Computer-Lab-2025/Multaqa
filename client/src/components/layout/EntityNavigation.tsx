@@ -297,8 +297,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Event Office Accounts",
         icon: Calendar,
         sections: [
-          { id: "create-eo-account", label: "Create Account" },
-          { id: "delete-eo-account", label: "Delete Account" },
+          { id: "manage-eo-account", label: "Manage Accounts" },
         ],
       },
       {

@@ -66,126 +66,126 @@ export default function CustomModal({ title, description, modalType, buttonOptio
         <Fade in={open}>
           <CustomModalCardWrapper borderColor={borderColorToUse}>
             <CustomModalBox>
-            {/* Icon and Title Group - Wrapped in NeumorphicBox */}
-            <NeumorphicBox
-              containerType="inwards"
-              borderRadius="9999px"
-              width="fit-content"
-              sx={{ 
-                margin: '0 auto', 
-                marginBottom: 4,
-                padding: { xs: '8px 16px', sm: '12px 24px' } // Less padding on small screens
-              }}
-            >
-              <Box 
+              {/* Icon and Title Group - Wrapped in NeumorphicBox */}
+              <NeumorphicBox
+                containerType="inwards"
+                borderRadius="9999px"
+                width="fit-content"
                 sx={{
-                  display: 'flex', 
-                  flexDirection: 'row',
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  gap: 1.5 
-                }}>
-                {(() => {
-                  // Using regular MUI icons; use modalColor so icon matches modal type color
-                  const getIcon = () => {
-                    switch (modalType) {
-                      case 'success':
-                        return <CheckCircleIcon sx={{ fontSize: 32, color: modalColor }} />;
-                      case 'warning':
-                        return <WarningIcon sx={{ fontSize: 32, color: modalColor }} />;
-                      case 'error':
-                        return <ErrorIcon sx={{ fontSize: 32, color: modalColor }} />;
-                      case 'info':
-                        return <InfoIcon sx={{ fontSize: 32, color: modalColor }} />;
-                      case 'delete':
-                        return <DeleteIcon sx={{ fontSize: 32, color: modalColor }} />;
-                      case 'confirm':
-                        return <HelpIcon sx={{ fontSize: 32, color: modalColor }} />;
-                      default:
-                        return null;
-                    }
-                  };
-                  return getIcon();
-                })()}
-                <Typography 
-                  id="transition-modal-title" 
-                  variant="h6" 
-                  component="h2"
-                  sx={{ 
-                    fontFamily: 'var(--font-jost), system-ui, sans-serif',
-                    fontWeight: 600
-                  }}
-                >
-                  {title}
-                </Typography>
-              </Box>
-            </NeumorphicBox>
-            {description && (
-              <Typography 
-                id="transition-modal-description" 
-                sx={{ 
-                  mt: 2,
-                  fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-                  textAlign: 'center'
+                  margin: '0 auto',
+                  marginBottom: 4,
+                  padding: { xs: '8px 16px', sm: '12px 24px' } // Less padding on small screens
                 }}
               >
-                {description}
-              </Typography>
-            )}
-            <Box 
-              className="flex items-center mt-6" 
-              sx={{ 
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' }, // Column on small screens, row on sm+
-                justifyContent: 'center',
-                alignItems: 'center', // Center buttons instead of stretching
-                gap: 2,
-                width: '100%'
-              }}
-            >
-                 {buttonOption2 && (
-                <CustomButton 
-                  variant={buttonOption2.variant || 'text'} 
-                  color={buttonOption2.color || 'primary'} 
-                  onClick={buttonOption2.onClick || handleClose}
+                <Box
                   sx={{
-                    // Secondary/outlined button: border color matches modal type
-                    ...(buttonOption2.variant === 'outlined' && {
-                      borderColor: modalColor,
-                      color: modalColor,
-                      '&:hover': {
-                        borderColor: modalColor,
-                        backgroundColor: `${modalColor}10`, // 10% opacity
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1.5
+                  }}>
+                  {(() => {
+                    // Using regular MUI icons; use modalColor so icon matches modal type color
+                    const getIcon = () => {
+                      switch (modalType) {
+                        case 'success':
+                          return <CheckCircleIcon sx={{ fontSize: 32, color: modalColor }} />;
+                        case 'warning':
+                          return <WarningIcon sx={{ fontSize: 32, color: modalColor }} />;
+                        case 'error':
+                          return <ErrorIcon sx={{ fontSize: 32, color: modalColor }} />;
+                        case 'info':
+                          return <InfoIcon sx={{ fontSize: 32, color: modalColor }} />;
+                        case 'delete':
+                          return <DeleteIcon sx={{ fontSize: 32, color: modalColor }} />;
+                        case 'confirm':
+                          return <HelpIcon sx={{ fontSize: 32, color: modalColor }} />;
+                        default:
+                          return null;
                       }
-                    }),
+                    };
+                    return getIcon();
+                  })()}
+                  <Typography
+                    id="transition-modal-title"
+                    variant="h6"
+                    component="h2"
+                    sx={{
+                      fontFamily: 'var(--font-jost), system-ui, sans-serif',
+                      fontWeight: 600
+                    }}
+                  >
+                    {title}
+                  </Typography>
+                </Box>
+              </NeumorphicBox>
+              {description && (
+                <Typography
+                  id="transition-modal-description"
+                  sx={{
+                    mt: 2,
+                    fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+                    textAlign: 'center'
                   }}
                 >
-                  {buttonOption2.label}
-                </CustomButton>
+                  {description}
+                </Typography>
               )}
+              <Box
+                className="flex items-center mt-6"
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' }, // Column on small screens, row on sm+
+                  justifyContent: 'center',
+                  alignItems: 'center', // Center buttons instead of stretching
+                  gap: 2,
+                  width: '100%'
+                }}
+              >
+                {buttonOption2 && (
+                  <CustomButton
+                    variant={buttonOption2.variant || 'text'}
+                    color={buttonOption2.color || 'primary'}
+                    onClick={buttonOption2.onClick || handleClose}
+                    sx={{
+                      // Secondary/outlined button: border color matches modal type
+                      ...(buttonOption2.variant === 'outlined' && {
+                        borderColor: modalColor,
+                        color: modalColor,
+                        '&:hover': {
+                          borderColor: modalColor,
+                          backgroundColor: `${modalColor}10`, // 10% opacity
+                        }
+                      }),
+                    }}
+                  >
+                    {buttonOption2.label}
+                  </CustomButton>
+                )}
 
-              {buttonOption1 && (
-                <CustomButton 
-                  variant={buttonOption1.variant || 'text'} 
-                  color={buttonOption1.color || 'primary'} 
-                  onClick={buttonOption1.onClick || handleClose}
-                  sx={{
-                    // Secondary/outlined button: border color matches modal type
-                    ...(buttonOption1.variant === 'outlined' && {
-                      borderColor: modalColor,
-                      color: modalColor,
-                      '&:hover': {
+                {buttonOption1 && (
+                  <CustomButton
+                    variant={buttonOption1.variant || 'text'}
+                    color={buttonOption1.color || 'primary'}
+                    onClick={buttonOption1.onClick || handleClose}
+                    sx={{
+                      // Secondary/outlined button: border color matches modal type
+                      ...(buttonOption1.variant === 'outlined' && {
                         borderColor: modalColor,
-                        backgroundColor: `${modalColor}10`, // 10% opacity
-                      }
-                    }),
-                  }}
-                >
-                  {buttonOption1.label}
-                </CustomButton>
-              )}
-           
-            </Box>
+                        color: modalColor,
+                        '&:hover': {
+                          borderColor: modalColor,
+                          backgroundColor: `${modalColor}10`, // 10% opacity
+                        }
+                      }),
+                    }}
+                  >
+                    {buttonOption1.label}
+                  </CustomButton>
+                )}
+
+              </Box>
             </CustomModalBox>
           </CustomModalCardWrapper>
         </Fade>

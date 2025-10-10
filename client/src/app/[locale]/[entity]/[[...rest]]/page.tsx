@@ -4,6 +4,7 @@ import React from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
+import { ManageEventOfficeAccount } from "@/components/admin";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -63,6 +64,13 @@ export default function EntityCatchAllPage() {
             </p>
           </div>
         );
+      }
+    }
+
+    // Event Office content
+    if (entity === "admin" && tab === "event-office") {
+      if (section === "manage-eo-account") {
+        return <ManageEventOfficeAccount />;
       }
     }
 
