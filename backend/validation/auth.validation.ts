@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { StaffPosition } from '../constants/staffMember.constants';
 
 // for student and staffMembers (staff/TA/Professor)
 export const signupStudentAndStaffValidationSchema = Joi.object({

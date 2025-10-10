@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express';
-import { AdminService } from '../services/administrationService';
+import { AdministrationService } from '../services/administrationService';
 import { createAdminValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
 
 const router = Router();
-const adminService = new AdminService();
+const adminService = new AdministrationService();
 
 
 // Missing: role authorization, only Admin should access this 
@@ -64,6 +64,24 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     throw createError(error.status || 500, error.message || 'Failed to fetch admin accounts');
+  }
+});
+
+// Assign role to staffMember and send verification email
+router.post("/assign-role/:userId", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { position } = req.body;
+
+    const result = await adminService.assignRoleAndSendVerification(userId, position);
+
+    res.json({
+      success: true,
+      message: "Role assigned and verification email sent successfully",
+      data: result
+    });
+  } catch (error: any) {
+    throw createError(error.status || 500, error.message || 'Failed to assign role and send verification email');
   }
 });
 
