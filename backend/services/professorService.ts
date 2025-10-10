@@ -38,4 +38,14 @@ export class ProfessorService {
       return createdEvent;
     }
   }
+
+  async updateWorkshop(workshopId: string, updateData: any) {
+    const updatedWorkshop = await this.eventRepo.update(workshopId, updateData);
+
+    if (!updatedWorkshop) {
+      throw createError(404, "Workshop not found");
+    }
+
+    return updatedWorkshop;
+  }
 }
