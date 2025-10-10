@@ -49,6 +49,7 @@ export default function ManageEventOfficeAccount() {
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newLastName, setNewLastName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -82,6 +83,7 @@ export default function ManageEventOfficeAccount() {
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setNewName("");
+    setNewLastName("");
     setNewEmail("");
     setNewPassword("");
     setConfirmPassword("");
@@ -99,6 +101,7 @@ export default function ManageEventOfficeAccount() {
 
   const canCreate =
     newName.trim().length > 0 &&
+    newLastName.trim().length > 0 &&
     newEmail.trim().length > 0 &&
     newPassword.length >= 8 &&
     confirmPassword.length >= 8 &&
@@ -116,7 +119,7 @@ export default function ManageEventOfficeAccount() {
 
     const created: Account = {
       id: String(Date.now()),
-      name: newName.trim(),
+      name: `${newName.trim()} ${newLastName.trim()}`,
       email: newEmail.trim(),
       accountType: newType as "Admin" | "Event Office",
       createdDate,
@@ -451,11 +454,22 @@ export default function ManageEventOfficeAccount() {
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <CustomTextField
-                label="Full Name"
+                label="First Name"
                 fieldType="text"
-                placeholder="Enter full name"
+                placeholder="Enter first name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
+                neumorphicBox
+                required
+                fullWidth
+              />
+
+              <CustomTextField
+                label="Last Name"
+                fieldType="text"
+                placeholder="Enter last name"
+                value={newLastName}
+                onChange={(e) => setNewLastName(e.target.value)}
                 neumorphicBox
                 required
                 fullWidth
