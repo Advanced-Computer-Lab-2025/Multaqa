@@ -6,6 +6,7 @@ import {
   RequestHandler,
 } from "express";
 import createError, { HttpError } from "http-errors";
+import { MongooseError } from "mongoose";
 
 // Error response type
 interface ErrorResponse {
