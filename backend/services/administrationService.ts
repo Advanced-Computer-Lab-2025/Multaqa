@@ -14,7 +14,7 @@ export class AdminService {
     this.administrationRepo = new GenericRepository<IAdministration>(Administration);
   }
 
-  async createAdminAccount( adminData: AdministrationSignupRequest ): Promise<{ user: Omit<IAdministration, 'password'> }> {
+  async createAdminAccount(adminData: AdministrationSignupRequest): Promise<{ user: Omit<IAdministration, 'password'> }> {
     // Check if user already exists
     const existingUser = await this.administrationRepo.findOne({ email: adminData.email });
     if (existingUser) {
@@ -49,7 +49,7 @@ export class AdminService {
     };
   }
 
-  async deleteAdminAccount( adminId: string, creatorId: string ): Promise<{ message: string }> {
+  async deleteAdminAccount(adminId: string, creatorId: string): Promise<{ message: string }> {
     // Prevent self-deletion
     if (adminId === creatorId) {
       throw createError(400, 'Cannot delete your own account');
