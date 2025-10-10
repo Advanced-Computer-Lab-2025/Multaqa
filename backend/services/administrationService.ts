@@ -90,7 +90,7 @@ export class AdministrationService {
     );
   }
 
-  async assignRoleAndSendVerification(userId: string, position: StaffPosition): Promise<{ user: Omit<IStaffMember, 'password'> }> {
+  async assignRoleAndSendVerification(userId: string, position: string): Promise<{ user: Omit<IStaffMember, 'password'> }> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -103,12 +103,12 @@ export class AdministrationService {
     }
 
     // Check if position is valid
-    if (!Object.values(StaffPosition).includes(position) || position === StaffPosition.UNKNOWN) {
+    if (position !== "professor" && position !== "TA" && position !== "staff") {
       throw createError(400, 'Invalid position');
     }
 
     // Update user position
-    user.position = position;
+    user.position = position as StaffPosition;
     user.updatedAt = new Date();
     await user.save();
     

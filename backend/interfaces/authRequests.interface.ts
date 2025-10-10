@@ -1,5 +1,4 @@
-import { AdministrationRoleType } from "../constants/administration.constants";
-
+// Base signup request (common fields)
 export interface BaseSignupRequest {
   email: string;
   password: string;
