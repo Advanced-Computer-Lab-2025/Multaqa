@@ -42,7 +42,6 @@ async function findOne(req: Request, res: Response) {
 }
 async function createEvent(req: Request, res: Response) {
   try {
-    // Assuming req.user is set by auth middleware
     const user = (req as any).user;
     const { type } = req.body;
     let validationResult;
