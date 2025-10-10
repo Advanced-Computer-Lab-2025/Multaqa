@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
+import gymSessionsRouter from "./routes/gymSessions.routes";
 import administrationRouter from "./routes/administration.routes";
 import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
 
@@ -26,9 +27,10 @@ app.get("/", (req, res) => {
 app.use("/auth", authRouter);
 
 app.use(verifyJWT); // Protect all routes below this middleware
-app.use("/events", eventRouter);
-app.use("/admin", administrationRouter);
-app.use(userRouter);
+app.use('/events', eventRouter);
+app.use('/users', userRouter);
+app.use('/gymsessions', gymSessionsRouter);
+app.use('/admin', administrationRouter);
 app.use("/vendor", vendorRouter);
 
 const MONGO_URI =

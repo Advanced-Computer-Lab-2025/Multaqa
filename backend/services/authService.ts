@@ -20,7 +20,7 @@ export class AuthService {
   private studentRepo: GenericRepository<IStudent>;
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
-  
+
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
     this.studentRepo = new GenericRepository<IStudent>(Student);
@@ -81,7 +81,7 @@ export class AuthService {
         }
       );
     }
-    else{
+    else {
       createdUser = await this.vendorRepo.create({
         ...signupData,
         password: hashedPassword,
@@ -125,7 +125,7 @@ export class AuthService {
     }
 
     // Check if user is verified
-    if (!user.isVerified){
+    if (!user.isVerified) {
       throw createError(403, 'Account not verified');
     }
 
@@ -151,19 +151,19 @@ export class AuthService {
   }
 
   async refreshToken(token: string): Promise<string> {
-    if (!token) 
+    if (!token)
       throw createError(400, 'No refresh token provided');
-    
+
     const userId = await redisClient.get(`refresh:${token}`); // key is refresh:token, value is userId
-    if (!userId) 
+    if (!userId)
       throw createError(403, 'Invalid or expired refresh token');
 
-    if(!process.env.REFRESH_TOKEN_SECRET) 
+    if (!process.env.REFRESH_TOKEN_SECRET)
       throw createError(500, 'Missing Refresh Token Secret');
 
     return new Promise((resolve, reject) => {
       jwt.verify(token, process.env.REFRESH_TOKEN_SECRET as Secret, (err, user: any) => {
-        if (err) 
+        if (err)
           return reject(createError(403, 'Invalid or expired refresh token'));
         const newAccess = this.generateAccessToken(user);
         resolve(newAccess);
@@ -172,7 +172,7 @@ export class AuthService {
   }
 
   async logout(token: string): Promise<void> {
-    if (!token) 
+    if (!token)
       throw createError(400, 'No refresh token provided');
     await redisClient.del(`refresh:${token}`);
   }

@@ -1,13 +1,13 @@
 import { IEvent } from "../interfaces/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
-import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import "../schemas/event-schemas/workshopEventSchema";
 import "../schemas/event-schemas/bazaarEventSchema";
 import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
+import { EVENT_TYPES } from "../constants/events.constants";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -22,7 +22,7 @@ export class EventsService {
     location?: string,
     sort?: boolean
   ) {
-    const filter: any = {};
+    const filter: any = { type: { $ne: EVENT_TYPES.GYM_SESSION } };
     if (type) filter.type = type;
     if (location) filter.location = location;
 
@@ -81,4 +81,5 @@ export class EventsService {
     }
     return await this.eventRepo.delete(id);
   }
+
 }
