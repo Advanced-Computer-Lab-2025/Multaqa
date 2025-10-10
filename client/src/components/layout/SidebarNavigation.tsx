@@ -1,5 +1,6 @@
 import React from 'react';
 import { IconButton } from '@mui/material';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   FileText, 
   CheckCircle, 
@@ -16,6 +17,11 @@ interface SidebarNavigationProps {
 }
 
 export default function SidebarNavigation({ activeItem = "forms", onItemClick }: SidebarNavigationProps) {
+  const pathname = usePathname() || '';
+  const router = useRouter();
+  const segments = pathname.split('/').filter(Boolean);
+  const locale = segments[0] || 'en';
+  const entity = segments[1] || '';
   const menuItems = [
     { id: 'forms', label: 'Forms', icon: FileText },
     { id: 'request', label: 'Request & Approvals', icon: CheckCircle },
@@ -73,7 +79,24 @@ export default function SidebarNavigation({ activeItem = "forms", onItemClick }:
         );
       })}
 
-      <div className="mt-auto">
+          {/* Admin-only section */}
+          {entity === 'admin' && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-[#6299d0] tracking-wider mb-3 px-2 font-heading">ADMIN</p>
+              <button
+                onClick={() => router.push(`/${locale}/admin/role-assignment`)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all font-sans ${
+                  activeItem === 'role-assignments' ? 'bg-[#3a4f99] text-white font-semibold shadow-md' : 'text-[#1E1E1E] hover:bg-[#b2cee2] hover:shadow-sm hover:scale-[1.02]'
+                }`}
+                style={{ transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              >
+                <FileText size={20} />
+                <span className="text-sm">Role Assignments</span>
+              </button>
+            </div>
+          )}
+
+          <div className="mt-auto">
         <div className="flex justify-between items-center mb-2 px-2">
           <p className="text-xs font-semibold text-[#6299d0] tracking-wider font-heading">LABELS</p>
           <IconButton 
