@@ -22,12 +22,12 @@ export class GymSessionsService {
     return await this.gymSessionRepo.create({
       ...data,
       type: EVENT_TYPES.GYM_SESSION,
-      event_name: `Gym Session - ${data.sessionType} Class`,
-      event_start_date: sessionDate,
-      event_end_date: sessionDate,
-      event_start_time: data.time,
-      event_end_time: new Date(0, 0, 0, h, m + data.duration).toTimeString().slice(0, 5),
-      registration_deadline: new Date(sessionDate.getTime() - 24 * 60 * 60 * 1000), // 1 day before
+      eventName: `Gym Session - ${data.sessionType} Class`,
+      eventStartDate: sessionDate,
+      eventEndDate: sessionDate,
+      eventStartTime: data.time,
+      eventEndTime: new Date(0, 0, 0, h, m + data.duration).toTimeString().slice(0, 5),
+      registrationDeadline: new Date(sessionDate.getTime() - 24 * 60 * 60 * 1000), // 1 day before
       location: "Gym",
       description: `${data.sessionType} class instructed by ${data.trainer}`,
       price: 0,
