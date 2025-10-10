@@ -69,7 +69,9 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
                         fieldType='text'
                         placeholder='Enter Trip Name'
                         value={values.tripName}
-                        onChange={handleChange("tripName")}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
                     />
                     {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
                 </Grid>    
@@ -83,7 +85,9 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
                         fieldType='text'
                         placeholder='e.g. Berlin, Germany'
                         value={values.location}
-                        onChange={handleChange("location")}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
                     />
                     {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
                 </Grid>
