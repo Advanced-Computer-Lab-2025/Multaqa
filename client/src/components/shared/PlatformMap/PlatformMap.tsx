@@ -1,6 +1,5 @@
 import Image from "next/image";
 import NeumorphicBox from "../containers/NeumorphicBox";
-import React, { useState } from "react";
 import { BoothCurvePosition } from "../Booth/types";
 import { Box } from "@mui/material";
 import Booth from "../Booth/Booth";
@@ -13,7 +12,6 @@ const boothList: number[] = Array.from({ length: 10 }, (_, i) => i + 1); //10 bo
 
 // Booth configuration based on the image layout
 const boothConfigurations = [
-  // Top row booths (left to right)
   {
     id: 1,
     top: "33%",
@@ -26,8 +24,6 @@ const boothConfigurations = [
     left: "18%",
     curvePosition: "bottomleft" as BoothCurvePosition,
   },
-
-  // Left column booths (top to bottom)
   {
     id: 3,
     top: "33%",
@@ -46,8 +42,6 @@ const boothConfigurations = [
     left: "18%",
     curvePosition: "upleft" as BoothCurvePosition,
   },
-
-  // Right column booths (top to bottom)
   {
     id: 6,
     top: "66%",
@@ -66,8 +60,6 @@ const boothConfigurations = [
     left: "78%",
     curvePosition: "bottomright" as BoothCurvePosition,
   },
-
-  // Bottom row booths (left to right)
   {
     id: 9,
     top: "80%",
@@ -95,11 +87,12 @@ const PlatformMap: React.FC<PlatformMapProps> = ({
 
   return (
     <NeumorphicBox
-      containerType="outwards"
+      containerType="inwards"
       width="600px"
       height="600px"
-      borderRadius="0px"
-      padding="0px"
+      borderRadius="20px"
+      padding="1px"
+      margin="2px"
     >
       <Box
         sx={{
@@ -111,13 +104,24 @@ const PlatformMap: React.FC<PlatformMapProps> = ({
         data-booths={boothList.join(",")}
       >
         {/* Platform Map Background */}
-        <Image
-          src="/platformMap.svg"
-          alt="Platform Map"
-          fill
-          style={{ objectFit: "contain" }}
-          priority
-        />
+        <Box
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            overflow: "hidden",
+            borderRadius: "30px",
+          }}
+          data-booths={boothList.join(",")}
+        >
+          <Image
+            src="/platformMap.svg"
+            alt="Platform Map"
+            fill
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </Box>
 
         {/* Booths positioned over the map */}
         {boothConfigurations.map((booth) => (

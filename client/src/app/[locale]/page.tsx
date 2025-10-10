@@ -13,6 +13,7 @@ import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import PlatformMap from "@/components/shared/PlatformMap/PlatformMap";
+import BoothForm from "@/components/shared/BoothForm/BoothForm";
 
 
 export default function HomePage() {
@@ -142,8 +143,8 @@ export default function HomePage() {
     //     </div>
     //   </div>
     // </div>
-    <div className="flex items-center justify-center gap-5 flex-row">
-      <PlatformMap/>
+    <div className="flex items-center justify-center gap-5 flex-row mt-10">
+      <BoothForm/>
     </div>
   );
 }
