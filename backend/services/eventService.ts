@@ -84,6 +84,10 @@ export class EventsService {
   }
 
   async createEvent(user: any, data: any) {
+    // set the creator of the event
+    if (data.type === "workshop") {
+      data.createdBy = user.id;
+    }
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.eventRepo.create(mappedData);
     if (data.type === "workshop") {
