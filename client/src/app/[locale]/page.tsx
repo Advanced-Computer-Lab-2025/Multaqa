@@ -1,41 +1,8 @@
-"use client";
-
-import React, { useState } from 'react';
-import CustomTextField from '@/components/shared/input-fields/CustomTextField';
-import CustomSelectField from '@/components/shared/input-fields/CustomSelectField';
-import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckboxGroup';
-import CustomRating from '@/components/shared/input-fields/CustomRating';
-import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
-import theme from '@/themes/lightTheme';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, Chip, Tooltip } from '@/components/shared/mui-core';
-
-const SimpleFormExample: React.FC = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    userType: '',
-    interests: [] as string[],
-    rating: 0,
-  });
-  const [openLayout, setOpenLayout] = useState(false);
-
-  const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [field]: event.target.value });
-  };
-
-  const handleSelectChange = (value: string | number | string[] | number[]) => {
-    setFormData({ ...formData, userType: value as string });
-  };
-
-  const handleCheckboxChange = (selectedValues: string[]) => {
-    setFormData({ ...formData, interests: selectedValues });
-  };
-
-  const handleRatingChange = (event: React.SyntheticEvent, newValue: number | null) => {
-    setFormData({ ...formData, rating: newValue || 0 });
-  };
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import DeleteButton from "@/components/shared/Buttons/DeleteButton";
+import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
+import CustomIcon from "@/components/shared/Icons/CustomIcon";
+import RegisterBox from "@/components/RegistredComponent/Registree";
 
   return (
     <div style={{
@@ -299,132 +266,10 @@ const SimpleFormExample: React.FC = () => {
           </div>
         </CustomModalLayout>
       </div>
-
-    {/*
-      === TRUNCATION DEMO START ===
-      NOTE FOR REVIEWERS: This entire <section> is the truncation demo. It renders
-      a long `Chip`, a `Typography` with `noWrap`, and an `AccordionSummary` with
-      truncated text. Each truncated element is wrapped in a `Tooltip` so you can
-      hover to see the full string. If you're debugging ellipsis behavior, this
-      is the quick place to test changes to the shared `mui-core` wrappers
-      (Typography / Chip / AccordionSummary) or to override styles locally.
-      === TRUNCATION DEMO - START ===
-    */}
-    <section style={{
-        marginTop: '40px',
-        backgroundColor: '#fff',
-        padding: '18px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
-      }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '12px', color: '#374151' }}>
-          🧪 Truncation demo (hover to see full text)
-        </h2>
-        {
-          (() => {
-            const longText = 'Dr. Alexandria Catherine-Maria van der Berg — Senior Lecturer, Department of Computer Science and Engineering, Faculty of Engineering, The Great University of Cairo (GUC)';
-            return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <Tooltip title={longText} placement="top">
-                    <div style={{ width: 260 }}>
-                      <Chip label={longText} variant="outlined" sx={{ width: '100%' }} />
-                    </div>
-                  </Tooltip>
-
-                  <Tooltip title={longText} placement="top">
-                    <div style={{ width: 260 }}>
-                      <Typography noWrap style={{ width: '100%' }}>{longText}</Typography>
-                    </div>
-                  </Tooltip>
-                </div>
-
-                <div>
-                  <Accordion>
-                    <AccordionSummary>
-                      <Typography noWrap>
-                        {longText}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Typography>
-                        Full content: {longText} — this content is intentionally long so you can confirm expansion and wrapping inside the accordion details.
-                      </Typography>
-                    </AccordionDetails>
-                  </Accordion>
-                </div>
-              </div>
-            );
-          })()
-        }
-    </section>
-
-    {/*
-      === TRUNCATION DEMO END ===
-      End of demo block. Resume normal page content below.
-    */}
-
-      {/* Props Guide */}
-      <section style={{ 
-        marginTop: '40px',
-        backgroundColor: '#fff',
-        padding: '24px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-      }}>
-        <h2 style={{ 
-          fontSize: '1.25rem', 
-          fontWeight: 600, 
-          marginBottom: '16px',
-          color: '#374151' 
-        }}>
-          📚 Quick Props Reference
-        </h2>
-
-        
-        <div style={{ 
-          display: 'grid', 
-          gap: '8px',
-          fontSize: '0.9rem',
-          color: '#4b5563',
-          lineHeight: '1.6'
-        }}>
-          <div><strong>CustomTextField Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>fieldType:</strong> &quot;text&quot; | &quot;email&quot; | &quot;password&quot; | &quot;phone&quot; | &quot;numeric&quot;
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>separateLabels:</strong> true (outwards neumorphic) | false (MUI standard)
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>stakeholderType:</strong> &quot;student&quot; | &quot;staff&quot; | &quot;ta&quot; | &quot;professor&quot; | &quot;admin&quot; | &quot;vendor&quot;
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>required:</strong> Shows red asterisk (*)
-          </div>
-          
-          <div style={{ marginTop: '12px' }}><strong>CustomSelectField Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>fieldType:</strong> &quot;single&quot; | &quot;multiple&quot;
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>options:</strong> Array of &#123;label, value&#125; objects
-          </div>
-          
-          <div style={{ marginTop: '12px' }}><strong>CustomCheckboxGroup Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>enableMoreThanOneOption:</strong> true (checkboxes) | false (radio)
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>multaqaFill:</strong> Uses primary color (#7851da)
-          </div>
-          
-          <div style={{ marginTop: '12px' }}><strong>CustomRating Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>multaqaFill:</strong> Uses primary color instead of yellow
-          </div>
-        </div>
-      </section>
+      <CustomSearchBar icon={false} width="450px" type="outwards" />
+      <CustomIcon icon="delete" size="small" containerType="inwards" />
+      <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
+      <RegisterBox></RegisterBox>
     </div>
   );
 };
