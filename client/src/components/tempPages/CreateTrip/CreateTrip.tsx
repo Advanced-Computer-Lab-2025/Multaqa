@@ -190,7 +190,9 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
                         label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
                         neumorphicBox={true}
                         value={values.description}
-                        onChange={handleChange("description")}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
                     />
                 </Grid>
                 { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
