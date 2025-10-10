@@ -310,7 +310,7 @@ const SimpleFormExample: React.FC = () => {
 
         <CustomButton onClick={() => setOpenCreateTrip(true)}>Create Trip</CustomButton>
         <CustomModalLayout open={openCreateTrip} onClose={() => setOpenCreateTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <CreateTrip/>
+          <CreateTrip setOpenCreateTrip={setOpenCreateTrip}/>
         </CustomModalLayout>
       </div>
 
