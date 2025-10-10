@@ -9,6 +9,7 @@ import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import { validateWorkshop } from "../validation/validateWorkshop";
+import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -75,28 +76,8 @@ export class EventsService {
   }
 
   async createEvent(user: any, data: any) {
-    // Use only validated/sanitized data from Joi
-    console.log("DATA TO BE SERVED", data);
-    const createdEvent = await this.eventRepo.create({
-      eventName: data.name,
-      type: data.type,
-      location: data.location,
-      eventStartDate: data.startDate,
-      eventEndDate: data.endDate,
-      description: data.shortDescription,
-      fullAgenda: data.fullAgenda,
-      facultyResponsible: data.facultyResponsible,
-      associatedProfs: data.professors,
-      budget: data.budget,
-      fundingSource: data.fundingSource,
-      extraResources: data.extraResources,
-      capacity: data.capacity,
-      price: data.price,
-      eventStartTime: data.startTime,
-      eventEndTime: data.endTime,
-      registrationDeadline: data.registrationDeadline,
-    });
-
+    const mappedData = mapEventDataByType(data.type, data);
+    const createdEvent = await this.eventRepo.create(mappedData);
     return createdEvent;
   }
 

@@ -30,7 +30,7 @@ export const errorHandler = (
   if (err?.name === "ValidationError" && err.errors) {
     const errors = Object.values(err.errors).map((e: any) => ({
       field: e.path,
-      message: "MONGOOSE ERROR BEN" + e.message,
+      message: e.message,
     }));
     const response: ErrorResponse = {
       success: false,
