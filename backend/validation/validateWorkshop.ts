@@ -1,5 +1,4 @@
 import Joi from "joi";
-import { start } from "repl";
 
 export function validateWorkshop(data: any) {
   const schema = Joi.object({
