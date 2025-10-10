@@ -10,6 +10,7 @@ import theme from '@/themes/lightTheme';
 import CreateBazaar from '@/components/tempPages/CreateBazaar/CreateBazaar';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 import CreateTrip from '@/components/tempPages/CreateTrip/CreateTrip';
+import EditTrip from '@/components/tempPages/EditTrip/EditTrip';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ const SimpleFormExample: React.FC = () => {
   const [openLayout, setOpenLayout] = useState(false);
   const [openCreateBazaar, setOpenCreateBazaar] = useState(false);
   const [openCreateTrip, setOpenCreateTrip] = useState(false);
+  const [openEditTrip, setOpenEditTrip] = useState(false);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -311,6 +313,22 @@ const SimpleFormExample: React.FC = () => {
         <CustomButton onClick={() => setOpenCreateTrip(true)}>Create Trip</CustomButton>
         <CustomModalLayout open={openCreateTrip} onClose={() => setOpenCreateTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <CreateTrip setOpenCreateTrip={setOpenCreateTrip}/>
+        </CustomModalLayout>
+
+        <CustomButton onClick={() => setOpenEditTrip(true)}>Edit Trip</CustomButton>  
+        <CustomModalLayout open={openEditTrip} onClose={() => setOpenEditTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
+          <EditTrip 
+            setOpenEditTrip={setOpenEditTrip} 
+            tripId='1'
+            tripName='Sample Trip'
+            location='Sample Location'
+            price={100}
+            description='This is a sample trip description.'
+            startDate={new Date("October 17, 2025 03:24:00")}
+            endDate={new Date("October 20, 2025 03:24:00")}
+            registrationDeadline={new Date("October 11, 2025 03:24:00")}
+            capacity={50}
+          />
         </CustomModalLayout>
       </div>
 

@@ -1,109 +1,113 @@
-import React, { useState } from 'react';
-import {useFormik, Formik} from 'formik';
+import React from 'react';
+import {useFormik} from 'formik';
+import dayjs from 'dayjs';
 
-import { Grid, Typography , Box,  Collapse, IconButton} from '@mui/material';
-import { CustomTextField } from '../../shared/input-fields';
+
+import { CustomTextField } from '@/components/shared/input-fields';
+import { Box, Grid, TextField, Typography } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import CustomButton from '../../shared/Buttons/CustomButton';
 
-import { bazaarSchema } from "../CreateBazaar/schemas/bazaar";
-import dayjs from 'dayjs';
+import InputAdornment from '@mui/material/InputAdornment';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
 
-interface EditBazaarProps {
-  bazaarId: string;
-  bazaarName: string;
+import {tripSchema} from "../CreateTrip/schemas/trip";
+
+
+interface EditTripProps { 
+  tripId: string;
+  tripName: string;
   location: string;
+  price: number;
   description: string;
   startDate: Date | null;
   endDate: Date | null;
-  registrationDeadline: Date | null;   
-  setOpenEditBazaar: (open: boolean) => void;
+  registrationDeadline: Date | null; 
+  capacity: number;
+  setOpenEditTrip: (open: boolean) => void;
  }
 
-const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline}: EditBazaarProps) => {
-
+const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price, 
+    description, startDate, endDate, registrationDeadline, capacity}: EditTripProps) => {
   const initialValues = {
-    bazaarName: bazaarName,
+    tripName: tripName,
     location: location,
+    price: price,
     description: description,
     startDate: startDate ? dayjs(startDate) : null,
     endDate: endDate ? dayjs(endDate) : null,
     registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
+    capacity: capacity,
   };
   
-
   const onSubmit = async (values: any, actions: any) => {
-    console.log(values);
+    alert(values.startDate.toDate());
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    setOpenEditBazaar(false);
+    setOpenEditTrip(false);
   };
-
-  const [infoOpen, setInfoOpen] = useState(true);
-  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
     initialValues,
-    validationSchema: bazaarSchema,
+    validationSchema: tripSchema,
     onSubmit: onSubmit,
   });
+
   return (
     <>
         <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center mb-3'>Edit Bazaar</Typography>
-        <Box sx={{borderBottom: 1, pb:1, mb:2, mt:3, display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-            <Typography variant='body1' color='textSecondary' className='h6'>Basic Information</Typography>
-            <IconButton onClick={() => setInfoOpen((prev) => !prev)} size="small">
-                {infoOpen ? <ArrowUpwardIcon fontSize='medium' /> : <ArrowDownwardIcon fontSize='medium' />}
-            </IconButton>
-        </Box>
-        <Collapse in={infoOpen}>
-            <Grid container spacing={2}>
-                <Grid size={6}>
+        <Typography variant='h4' color='primary' className='text-center mb-3'>Edit trip</Typography>
+        <Grid container spacing={2}>
+                <Grid size={4}>
                     <CustomTextField 
-                        name='bazaarName'
-                        id='bazaarName'
-                        label="Bazaar Name" fullWidth margin="normal"  fieldType='text'
-                        value={values.bazaarName}
-                        onChange={handleChange("bazaarName")}
+                        name='tripName'
+                        id='tripName'
+                        label="Trip Name" 
+                        fullWidth 
+                        margin="normal"  
+                        fieldType='text'
+                        placeholder='Enter Trip Name'
+                        value={values.tripName}
+                        onChange={handleChange("tripName")}
                     />
-                    { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
+                    {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
                 </Grid>    
-                <Grid size={6}>
+                <Grid size={4}>
                     <CustomTextField
-                    name='location'
-                    id='location' 
-                    label="Location" fullWidth margin="normal"  fieldType='text'
-                    value={values.location}
-                    onChange={handleChange("location")}
+                        name='location'
+                        id='location' 
+                        label="Location" 
+                        fullWidth 
+                        margin="normal"  
+                        fieldType='text'
+                        placeholder='e.g. Berlin, Germany'
+                        value={values.location}
+                        onChange={handleChange("location")}
                     />
-                    { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
+                    {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
                 </Grid>
-                <Grid size={12}>
-                    <CustomTextField 
-                    name='description'
-                    id='description'
-                    label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
-                    neumorphicBox={true}
-                    value={values.description}
-                    onChange={handleChange("description")}
+                <Grid size={4}>
+                    <TextField
+                        name="price"
+                        label="Price"
+                        type="number"
+                        fullWidth
+                        variant='standard'
+                        placeholder="Enter price"
+                        slotProps={{
+                            input: {
+                                startAdornment:(
+                                    <InputAdornment position="start">EGP</InputAdornment>
+                                )
+                            }
+                        }}
+                        sx={{marginTop: '23px'}}
+                        value={values.price}
+                        onChange={handleChange}
                     />
-                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                    {errors.price && touched.price ? <p style={{color:"#db3030"}}>{errors.price}</p> : <></>}
                 </Grid>
-            </Grid>
-        </Collapse>
-        <Box sx={{borderBottom: 1, pb:1, mb:2, mt:3, display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-            <Typography variant='body1' color='textSecondary' className='h6'>Schedule</Typography>
-            <IconButton onClick={() => setScheduleOpen((prev) => !prev)} size="small">
-                {scheduleOpen ? <ArrowUpwardIcon fontSize='medium' /> : <ArrowDownwardIcon fontSize='medium' />}
-            </IconButton>
-        </Box>
-        <Collapse in={scheduleOpen}>
-            <Grid container spacing={2}>
                 <Grid size={6}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
@@ -142,7 +146,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                                         sx: { zIndex: 1500 },
                                     }
                                 }}
-                                value={values.endDate}
+                                 value={values.endDate}
                                 onChange={(value) => setFieldValue('endDate', value)}
                             />
                             {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
@@ -164,26 +168,43 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                                         sx: { zIndex: 1500 },
                                     }                       
                                 }}
-                                value={values.registrationDeadline}
+                                 value={values.registrationDeadline}
                                 onChange={(value) => setFieldValue('registrationDeadline', value)}
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
                 </Grid>
-            </Grid>
-        </Collapse>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end'}}> 
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
+                <Grid size={6}>
+                    <TextField
+                        name="capacity"
+                        label="Capacity"
+                        type="number"
+                        fullWidth
+                        variant='standard'
+                        placeholder="Enter Capacity"
+                        value={values.capacity}
+                        onChange={handleChange}
+                    />
+                    {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
+                </Grid>
+                <Grid size={12}>
+                    <CustomTextField 
+                        name='description'
+                        id='description'
+                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                        neumorphicBox={true}
+                        value={values.description}
+                        onChange={handleChange("description")}
+                    />
+                </Grid>
+                { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+        </Grid>
+        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
+            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Create Trip"} variant='contained' fullWidth type='submit'/>
         </Box>
         </form>
     </>
   )
 }
 
-export default EditBazaar;
-
-
-
-
-
-
+export default EditTrip;
