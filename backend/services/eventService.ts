@@ -87,6 +87,16 @@ export class EventsService {
     return createdEvent;
   }
 
+  async updateEvent(eventId: string, updateData: any) {
+    const updatedEvent = await this.eventRepo.update(eventId, updateData);
+
+    if (!updatedEvent) {
+      throw createError(404, "Event not found");
+    }
+
+    return updatedEvent;
+  }
+
   async deleteEvent(id: string): Promise<IEvent | null> {
     const event = await this.eventRepo.findById(id);
     console.log("THE EVENT GETTING DELETEDDD", event);
