@@ -18,7 +18,7 @@ async function createWorkshop(req: Request, res: Response) {
 
     // Handle Joi validation errors
     if (validationResult.error) {
-      const essage = validationResult.error.details
+      const message = validationResult.error.details
         .map((d) => d.message)
         .join(", ");
       throw createError(400, message);

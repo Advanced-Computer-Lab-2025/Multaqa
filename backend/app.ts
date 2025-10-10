@@ -14,13 +14,14 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import administrationRouter from "./routes/administration.routes";
 import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 app.use(json());
 app.use(cookieParser());
-
+app.use(cors())
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");

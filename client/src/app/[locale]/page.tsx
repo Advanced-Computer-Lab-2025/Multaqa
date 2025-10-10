@@ -230,6 +230,7 @@ const SimpleFormExample: React.FC = () => {
           </div>
         </div>
 
+<<<<<<< Updated upstream
         {/* Submit Button */}
         <button
           type="submit"
@@ -360,6 +361,34 @@ const SimpleFormExample: React.FC = () => {
           </div>
         </div>
       </section>
+=======
+    //     {/* Custom Select dropdown */}
+    //     <div className="w-[300px]">
+    //       <CustomSelectField
+    //         label="Select Option"
+    //         fieldType="single"
+    //         neumorphicBox={true}
+    //         options={[
+    //           { label: "Option 1", value: "opt1" },
+    //           { label: "Option 2", value: "opt2" },
+    //           { label: "Option 3", value: "opt3" },
+    //           { label: "Option 333333333sssssssss", value: "opt3d" },
+    //           { label: "Disabled", value: "disabled", disabled: true }
+    //         ]}
+    //         value={selectedValue}
+    //         onChange={(value) => setSelectedValue(value)}
+    //         placeholder="New custom version..."
+    //         placeholderStyle={isFocused ? '' : 'transparent'}
+    //         onFocus={() => setIsFocused(true)}
+    //         onBlur={() => setIsFocused(false)}
+    //       />
+    //     </div>
+    //   </div>
+    // </div>
+    <div className="flex items-center justify-center gap-5 flex-row mt-10">
+      {/* <BoothForm/> */}
+      <LoginForm/>
+>>>>>>> Stashed changes
     </div>
   );
 };
