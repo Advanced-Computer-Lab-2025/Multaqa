@@ -11,6 +11,8 @@ import "../schemas/stakeholder-schemas/vendorSchema";
 import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { IUser } from "../interfaces/user.interface";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -100,5 +102,35 @@ export class EventsService {
       throw createError(409, "Cannot delete event with attendees");
     }
     return await this.eventRepo.delete(id);
+  }
+
+  async registerUserForEvent(eventId: string, userData: any) {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if (
+      event.type !== EVENT_TYPES.TRIP &&
+      event.type !== EVENT_TYPES.WORKSHOP
+    ) {
+      throw createError(
+        400,
+        "Registrations are only allowed for trips and workshops"
+      );
+    }
+
+    // Check if user is already registered
+    const isAlreadyRegistered = event.attendees?.some(
+      (attendee: any) => attendee.email === userData.email
+    );
+    if (isAlreadyRegistered) {
+      throw createError(409, "User already registered for this event");
+    }
+
+    // Add user to attendees
+    event.attendees?.push(userData);
+    await event.save();
+    return event;
   }
 }
