@@ -1,4 +1,4 @@
-import { Document, Schema } from "mongoose";
+import { Schema } from "mongoose";
 import { IUser } from "./user.interface";
 
 export interface IStudent extends IUser {
