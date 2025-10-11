@@ -8,6 +8,7 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import StatusChip from "../layout/StatusChip";
 import SecurityIcon from "@mui/icons-material/Security";
 import ManagementScreen from "./shared/ManagementScreen";
+import ManagementCard from "../shared/containers/ManagementCard";
 
 type User = {
   id: string;
@@ -86,78 +87,23 @@ export default function BlockUnblockUsersContent() {
   };
 
   const renderUserCard = (user: User) => (
-    <Box
+    <ManagementCard
       key={user.id}
-      sx={{
-        border: "2px solid #e0e0e0",
-        borderRadius: "12px",
-        padding: "16px",
-        backgroundColor: "#fff",
-        transition: "all 0.2s ease",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        "&:hover": {
-          borderColor: user.status === "Active" ? "#db3030" : "#4caf50",
-          boxShadow:
-            user.status === "Active"
-              ? "0 2px 8px rgba(219, 48, 48, 0.1)"
-              : "0 2px 8px rgba(76, 175, 80, 0.1)",
-        },
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          mb: 2,
-          flexGrow: 1,
-        }}
-      >
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 600,
-              color: "#1E1E1E",
-              fontSize: "16px",
-              mb: 0.5,
-            }}
-          >
-            {user.name}
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#666",
-              fontSize: "14px",
-              mb: 1,
-            }}
-          >
-            {user.email}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#9e9e9e",
-              fontSize: "12px",
-            }}
-          >
-            {user.role} • Created: {user.createdDate}
-          </Typography>
-        </Box>
-        <StatusChip status={user.status} />
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "flex-end",
-        }}
-      >
+      name={user.name}
+      email={user.email}
+      details={
+        <Typography
+          variant="caption"
+          sx={{
+            color: "#9e9e9e",
+            fontSize: "12px",
+          }}
+        >
+          {user.role} • Created: {user.createdDate}
+        </Typography>
+      }
+      statusComponent={<StatusChip status={user.status} />}
+      actions={
         <CustomButton
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
@@ -187,8 +133,14 @@ export default function BlockUnblockUsersContent() {
             },
           }}
         />
-      </Box>
-    </Box>
+      }
+      hoverBorderColor={user.status === "Active" ? "#db3030" : "#4caf50"}
+      hoverBoxShadow={
+        user.status === "Active"
+          ? "0 2px 8px rgba(219, 48, 48, 0.1)"
+          : "0 2px 8px rgba(76, 175, 80, 0.1)"
+      }
+    />
   );
 
   return (

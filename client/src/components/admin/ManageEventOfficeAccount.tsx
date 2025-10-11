@@ -14,6 +14,7 @@ import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import ManagementScreen from "./shared/ManagementScreen";
 import { rigorousValidationSchema } from "../shared/input-fields/schemas";
 import CustomButton from "../shared/Buttons/CustomButton";
+import ManagementCard from "../shared/containers/ManagementCard";
 
 type Account = {
   id: string;
@@ -121,61 +122,22 @@ export default function ManageEventOfficeAccount() {
   };
 
   const renderAccountCard = (account: Account) => (
-    <Box
+    <ManagementCard
       key={account.id}
-      sx={{
-        border: "2px solid #e0e0e0",
-        borderRadius: "12px",
-        padding: "16px",
-        backgroundColor: "#fff",
-        transition: "all 0.2s ease",
-        "&:hover": {
-          borderColor: "#3a4f99",
-          boxShadow: "0 2px 8px rgba(58, 79, 153, 0.1)",
-        },
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          mb: 2,
-        }}
-      >
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="body1"
-            sx={{
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 600,
-              color: "#1E1E1E",
-              fontSize: "16px",
-              mb: 0.5,
-            }}
-          >
-            {account.name}
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#666",
-              fontSize: "14px",
-              mb: 1,
-            }}
-          >
-            {account.email}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#9e9e9e",
-              fontSize: "12px",
-            }}
-          >
-            Created: {account.createdDate}
-          </Typography>
-        </Box>
+      name={account.name}
+      email={account.email}
+      details={
+        <Typography
+          variant="caption"
+          sx={{
+            color: "#9e9e9e",
+            fontSize: "12px",
+          }}
+        >
+          Created: {account.createdDate}
+        </Typography>
+      }
+      statusComponent={
         <Box
           sx={{
             backgroundColor:
@@ -192,23 +154,23 @@ export default function ManageEventOfficeAccount() {
         >
           {account.accountType}
         </Box>
-      </Box>
-
-      <DeleteButton
-        label="Delete"
-        variant="outlined"
-        onClick={() => handleOpenDeleteModal(account)}
-        startIcon={<DeleteIcon />}
-        sx={{
-          fontSize: "14px",
-          width: "100%",
-          maxWidth: "120px",
-          display: "flex",
-          alignSelf: "flex-end",
-          justifySelf: "flex-end",
-        }}
-      />
-    </Box>
+      }
+      actions={
+        <DeleteButton
+          label="Delete"
+          variant="outlined"
+          onClick={() => handleOpenDeleteModal(account)}
+          startIcon={<DeleteIcon />}
+          sx={{
+            fontSize: "14px",
+            width: "100%",
+            maxWidth: "120px",
+          }}
+        />
+      }
+      hoverBorderColor="#3a4f99"
+      hoverBoxShadow="0 2px 8px rgba(58, 79, 153, 0.1)"
+    />
   );
 
   return (
