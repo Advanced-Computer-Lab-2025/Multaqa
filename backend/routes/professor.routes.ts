@@ -63,7 +63,7 @@ async function updateWorkshop(req: Request, res: Response<UpdateWorkshopResponse
 }
 
 const router = Router();
-router.post("/:id/workshops", createWorkshop);
-router.patch("/:id/workshops/:workshopId", updateWorkshop);
+router.post("/:professorId/workshops", createWorkshop);
+router.patch("/:professorId/workshops/:workshopId", updateWorkshop);
 
 export default router;

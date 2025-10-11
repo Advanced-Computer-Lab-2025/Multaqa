@@ -45,7 +45,7 @@ async function applyToBazaarOrBooth(req: Request, res: Response<ApplyToBazaarOrB
 }
 
 const router = Router();
-router.get("/:id/events", getVendorEvents);
-router.post("/:id/events/:eventId", applyToBazaarOrBooth);
+router.get("/:vendorId/events", getVendorEvents);
+router.post("/:vendorId/events/:eventId/applications", applyToBazaarOrBooth);
 
 export default router;
