@@ -2,6 +2,7 @@ import { IUser } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
+import { UserStatus } from "../constants/user.constants";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -30,8 +31,18 @@ export class UserService {
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw createError(404, "User not found");
-    } 
+    }
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword as Omit<IUser, "password">;
   }
+
+  async blockUser(id: string): Promise<void> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    user.status = UserStatus.BLOCKED;
+    await user.save();
+  }
+
 }
