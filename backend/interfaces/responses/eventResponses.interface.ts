@@ -18,6 +18,12 @@ export interface CreateEventResponse {
   message: string;
 }
 
+export interface UpdateEventResponse {
+  success: boolean;
+  data: IEvent;
+  message: string;
+}
+
 export interface DeleteEventResponse {
   success: boolean;
   data: IEvent;

@@ -2,10 +2,10 @@ import { GymSessionsService } from "../services/gymsessionsService";
 import { Router, Request, Response } from "express";
 import { createGymSessionValidationSchema } from "../validation/gymSessions.validation";
 import createError from "http-errors";
-
+import { CreateGymSessionResponse, GetAllGymSessionsResponse } from "../interfaces/responses/gymSessionsResponses.interface";
 const gymSessionsService = new GymSessionsService();
 
-async function createGymSession(req: Request, res: Response) {
+async function createGymSession(req: Request, res: Response<CreateGymSessionResponse>) {
   try {
     const { value, error } = createGymSessionValidationSchema.validate(req.body);
 
@@ -30,7 +30,7 @@ async function createGymSession(req: Request, res: Response) {
   }
 }
 
-async function getAllGymSessions(req: Request, res: Response) {
+async function getAllGymSessions(req: Request, res: Response<GetAllGymSessionsResponse>) {
   try {
     const sessions = await gymSessionsService.getAllGymSessions();
 

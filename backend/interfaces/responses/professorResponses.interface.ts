@@ -5,3 +5,9 @@ export interface CreateWorkshopResponse {
   data: IEvent;
   message: string;
 }
+
+export interface UpdateWorkshopResponse {
+  success: boolean;
+  data: IEvent;
+  message: string;
+}

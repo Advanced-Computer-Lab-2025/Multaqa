@@ -1,10 +1,10 @@
 import { Router, Request, Response } from "express";
 import { UserService } from "../services/userService";
 import createError from "http-errors";
-
+import { GetAllUsersResponse, GetUserByIdResponse } from "../interfaces/responses/userResponses.interface";
 const userService = new UserService();
 
-async function getAllUsers(req: Request, res: Response) {
+async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
   try {
     const users = await userService.getAllUsers();
     if (!users || users.length === 0) {
@@ -23,7 +23,7 @@ async function getAllUsers(req: Request, res: Response) {
   }
 }
 
-async function getUserById(req: Request, res: Response) {
+async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
   try {
     const user = await userService.getUserById(req.params.id);
     if (!user) {

@@ -23,7 +23,7 @@ export class ProfessorService {
     this.staffRepo = new GenericRepository(StaffMember);
   }
 
-  async createWorkshop(data: any, professorid: any) {
+  async createWorkshop(data: any, professorid: any): Promise<IEvent> {
     data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
@@ -39,6 +39,7 @@ export class ProfessorService {
 
       return createdEvent;
     }
+    throw createError(404, "Professor not found");
   }
 
   async updateWorkshop(workshopId: string, updateData: any) {

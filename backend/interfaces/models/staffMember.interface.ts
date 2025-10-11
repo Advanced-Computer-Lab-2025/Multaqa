@@ -1,6 +1,6 @@
 import { Document, Schema } from "mongoose";
 import { IUser } from "./user.interface";
-import { StaffPosition } from "../constants/staffMember.constants";
+import { StaffPosition } from "../../constants/staffMember.constants";
 
 export interface IStaffMember extends IUser {
   firstName: string;

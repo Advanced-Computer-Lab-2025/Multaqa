@@ -1,12 +1,12 @@
 import { IEvent } from "../interfaces/models/event.interface";
-import { IVendor } from "../interfaces/models/vendor.interface";
+import { IVendor, IRequestedEvent } from "../interfaces/models/vendor.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { applicationResult } from "../interfaces/applicationResult.interface";
+import { IApplicationResult } from "../interfaces/applicationResult.interface";
 
 export class VendorService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -25,7 +25,7 @@ export class VendorService {
    * - If vendor not found -> throw 404
    * - Map populated requestedEvents to an array of events, filtering out any nulls
    */
-  async getVendorEvents(id: string): Promise<Partial<any>> {
+  async getVendorEvents(id: string): Promise<IRequestedEvent[]> {
     // populate the nested 'event' field inside requestedEvents
     const vendor = await this.vendorRepo.findById(id, {
       populate: ["requestedEvents.event"],
@@ -35,7 +35,7 @@ export class VendorService {
       throw createError(404, "Vendor not found");
     }
 
-    return (vendor as any).requestedEvents;
+    return vendor.requestedEvents;
   }
 
   /**
@@ -51,7 +51,7 @@ export class VendorService {
     vendorId: string,
     eventId: string,
     data: any
-  ): Promise<applicationResult> {
+  ): Promise<IApplicationResult> {
     const vendor = await this.vendorRepo.findById(vendorId);
     const event = await this.eventRepo.findById(eventId);
 

@@ -1,5 +1,11 @@
-import { Document, Schema } from "mongoose";
 import { IUser } from "./user.interface";
+import { Event_Request_Status } from "../../constants/user.constants";
+
+export interface IRequestedEvent {
+  event: string;
+  RequestData: any;
+  status: Event_Request_Status;
+}
 
 export interface IVendor extends IUser {
   companyName: string;
@@ -10,9 +16,5 @@ export interface IVendor extends IUser {
     promoCode: string;
     termsAndConditions: string;
   };
-  requestedEvents: {
-    event: string;
-    RequestData: any;
-    status: string; // or a more specific type if you have one
-  }[];
+  requestedEvents: IRequestedEvent[];
 }

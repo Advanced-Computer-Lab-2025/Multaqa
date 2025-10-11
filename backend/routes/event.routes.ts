@@ -4,10 +4,10 @@ import createError from "http-errors";
 import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";
-
+import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse } from "../interfaces/responses/eventResponses.interface";
 const eventsService = new EventsService();
 
-async function findAll(req: Request, res: Response) {
+async function findAll(req: Request, res: Response<GetEventsResponse>) {
   try {
     const { search, type, location, sort } = req.query;
     const events = await eventsService.getEvents(
@@ -32,7 +32,7 @@ async function findAll(req: Request, res: Response) {
   }
 }
 
-async function findOne(req: Request, res: Response) {
+async function findOne(req: Request, res: Response<GetEventByIdResponse>) {
   try {
     const id = req.params.id;
     const event = await eventsService.getEventById(id);
@@ -49,7 +49,7 @@ async function findOne(req: Request, res: Response) {
   }
 }
 
-async function createEvent(req: Request, res: Response) {
+async function createEvent(req: Request, res: Response<CreateEventResponse>) {
   try {
     const user = (req as any).user;
     const { type } = req.body;
@@ -86,7 +86,7 @@ async function createEvent(req: Request, res: Response) {
   }
 }
 
-async function updateEvent(req: Request, res: Response) {
+async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
   try {
     const eventId = req.params.id;
     const updateData = req.body;
@@ -113,14 +113,18 @@ async function updateEvent(req: Request, res: Response) {
 
     const updatedEvent = await eventsService.updateEvent(eventId, updateData);
 
-    res.status(200).json(updatedEvent);
+    res.status(200).json({
+      success: true,
+      data: updatedEvent,
+      message: "Event updated successfully"
+    });
   } catch (err: any) {
     console.error("Error updating Event:", err);
     throw createError(500, err.message);
   }
 }
 
-async function deleteEvent(req: Request, res: Response) {
+async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
   const id = req.params.id;
   const deletedEvent = await eventsService.deleteEvent(id);
   res.json({ 

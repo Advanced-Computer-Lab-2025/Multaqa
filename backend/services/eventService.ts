@@ -93,12 +93,16 @@ export class EventsService {
     return updatedEvent;
   }
 
-  async deleteEvent(id: string): Promise<IEvent | null> {
+  async deleteEvent(id: string): Promise<IEvent> {
     const event = await this.eventRepo.findById(id);
     console.log("THE EVENT GETTING DELETEDDD", event);
     if (event && event.attendees && event.attendees.length > 0) {
       throw createError(409, "Cannot delete event with attendees");
     }
-    return await this.eventRepo.delete(id);
+    const deleteResult = await this.eventRepo.delete(id);
+    if(!deleteResult){
+      throw createError(404, "Event not found");
+    }
+    return deleteResult;
   }
 }
