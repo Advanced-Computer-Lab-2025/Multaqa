@@ -13,15 +13,18 @@ import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
 import { EVENT_OFFICE_PERMISSIONS } from "../constants/administration.constants";
 import { Event_Request_Status } from "../constants/user.constants";
+import { IWorkshop } from "../interfaces/workshop.interface";
+import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 
-export class ProfessorService {
-  // Service methods would go here
+export class WorkshopService {
   private eventRepo: GenericRepository<IEvent>;
   private staffRepo: GenericRepository<IStaffMember>;
+  private workshopRepo: GenericRepository<IWorkshop>;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.staffRepo = new GenericRepository(StaffMember);
+    this.workshopRepo = new GenericRepository(Workshop);
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
@@ -49,6 +52,30 @@ export class ProfessorService {
     if (!updatedWorkshop) {
       throw createError(404, "Workshop not found");
     }
+
+    return updatedWorkshop;
+  }
+
+  async updateWorkshopStatus(
+    workshopId: string,
+    updateData: Partial<IWorkshop>
+  ) {
+    const { approvalStatus, comments } = updateData;
+
+    const hasComments = comments && comments.trim() !== "";
+
+    const finalStatus = hasComments
+      ? Event_Request_Status.PENDING
+      : approvalStatus;
+
+    const newData: Partial<IWorkshop> = {
+      approvalStatus: finalStatus,
+      comments: comments || "",
+    };
+
+    const updatedWorkshop = await this.workshopRepo.update(workshopId, newData);
+
+    if (!updatedWorkshop) throw createError(404, "Workshop not found");
 
     return updatedWorkshop;
   }

@@ -6,7 +6,6 @@ import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
-import eventsOfficeRouter from "./routes/eventsOffice.routes";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
@@ -34,7 +33,6 @@ app.use("/gymsessions", gymSessionsRouter);
 app.use("/admins", adminRouter);
 app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter); 
-app.use("/eventsOffice", eventsOfficeRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

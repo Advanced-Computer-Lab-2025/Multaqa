@@ -2,9 +2,10 @@ import { Router, Request, Response } from "express";
 import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
-import { ProfessorService } from "../services/workshopsService";
+import { WorkshopService } from "../services/workshopsService";
 import { CreateWorkshopResponse, UpdateWorkshopResponse } from "../interfaces/responses/workshopsResponses.interface";
-const professorService = new ProfessorService();
+
+const workshopService = new WorkshopService();
 
 async function createWorkshop(
   req: Request,
@@ -22,7 +23,7 @@ async function createWorkshop(
       throw createError(400, message);
     }
 
-    const event = await professorService.createWorkshop(req.body, professorid);
+    const event = await workshopService.createWorkshop(req.body, professorid);
     res.status(201).json({
       success: true,
       data: event,
@@ -51,7 +52,7 @@ async function updateWorkshop(
       );
     }
 
-    const updatedWorkshop = await professorService.updateWorkshop(
+    const updatedWorkshop = await workshopService.updateWorkshop(
       workshopId,
       req.body
     );
@@ -67,8 +68,38 @@ async function updateWorkshop(
   }
 }
 
+async function updateWorkshopStatus(
+  req: Request,
+  res: Response<UpdateWorkshopResponse>
+) {
+  try {
+    const workshopId = req.params.id;
+    const { approvalStatus, comments } = req.body;
+
+    const { error } = validateUpdateWorkshop({ approvalStatus, comments });
+    if (error) {
+      throw createError(400, error.details.map((d) => d.message).join(", "));
+    }
+
+    const updatedWorkshop = await workshopService.updateWorkshopStatus(
+      workshopId,
+      { approvalStatus, comments }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: updatedWorkshop,
+      message: "Workshop status updated successfully",
+    });
+  } catch (err: any) {
+    console.error("Error updating workshop status:", err);
+    throw createError(500, err.message);
+  }
+}
+
 const router = Router();
 router.post("/", createWorkshop);
 router.patch("/:workshopId", updateWorkshop);
+router.patch("/:workshopId/status", updateWorkshopStatus);
 
 export default router;

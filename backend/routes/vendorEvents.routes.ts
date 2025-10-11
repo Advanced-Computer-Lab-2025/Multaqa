@@ -1,15 +1,15 @@
 import { Router, Request, Response } from "express";
-import { VendorService } from "../services/vendorEventsService";
+import { VendorEventsService } from "../services/vendorEventsService";
 import createError from "http-errors";
 import { validateCreateApplicationData } from "../validation/validateCreateApplicationData.validation";
 import { GetVendorEventsResponse, ApplyToBazaarOrBoothResponse} from "../interfaces/responses/vendorEventsResponses.interface";
 
-const vendorService = new VendorService();
+const vendorEventsService = new VendorEventsService();
 
 async function getVendorUpcomingEvents(req: Request, res: Response<GetVendorEventsResponse>) {
   try {
     const vendorId = (req as any).user.id;
-    const events = await vendorService.getVendorUpcomingEvents(vendorId);
+    const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
     if (!events || events.length === 0) {
       throw createError(404, "No events found for this vendor");
     }
@@ -27,7 +27,7 @@ async function applyToBazaarOrBooth(req: Request, res: Response<ApplyToBazaarOrB
   const vendorId = (req as any).user.id;
   const { eventId } = req.params;
   const validatedData = validateCreateApplicationData(req.body);
-  const applicationResult = await vendorService.applyToBazaarOrBooth(
+  const applicationResult = await vendorEventsService.applyToBazaarOrBooth(
     vendorId,
     eventId,
     validatedData

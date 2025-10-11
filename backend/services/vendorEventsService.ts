@@ -8,7 +8,7 @@ import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 
-export class VendorService {
+export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
 
