@@ -12,13 +12,13 @@ import {
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import IdChip from "./IdChip";
 import NeumorphicBox from "../shared/containers/NeumorphicBox";
 import theme from "@/themes/lightTheme";
 import { RegisterBoxProps } from "./types";
 import { TruncatedText } from "./utils";
 import { useState } from "react";
+import { useTheme } from "@mui/material/styles";
 
 const RegisterBox: React.FC<RegisterBoxProps> = ({
   name = "Salma Tarek",
@@ -27,9 +27,11 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   registrationDate = "25/08/2025",
   role = "N/A",
   onRoleChange,
+  disabled,
 }) => {
   const [selectedRole, setSelectedRole] = useState(role);
   const [isExpanded, setIsExpanded] = useState(false);
+  const theme = useTheme();
 
   const handleRoleChange = (event: any) => {
     const newRole = event.target.value;
@@ -58,22 +60,6 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
         position: "relative",
       }}
     >
-      {/* Drag Handle Indicator */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "8px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          color: "#9CA3AF",
-          display: "flex",
-          alignItems: "center",
-          pointerEvents: "none",
-        }}
-      >
-        <DragIndicatorIcon sx={{ fontSize: "16px" }} />
-      </Box>
-
       {/* Header: Outer Stack controls Name/ID Group vs Arrow Icon */}
       <Stack
         direction="row"
@@ -131,12 +117,12 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               minWidth: "50px",
               fontSize: "20px",
               fontWeight: 600,
-              color: "#1A1A1A",
+              color: "text.primary",
               display: "flex",
               justifyContent: "center",
             }}
           >
-            <TruncatedText fontSize="16px" fontWeight="600">
+            <TruncatedText fontSize="16px" fontWeight="600" maxChars={15}>
               {name}
             </TruncatedText>
           </Box>
@@ -152,7 +138,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           sx={{
             flexShrink: 0,
             color: theme.palette.primary.main,
-            border: "1px solid #b6b7ba",
+            border: `1px solid ${theme.palette.grey[400]}`,
             width: "24px",
             height: "24px",
             "&:hover": {
@@ -162,10 +148,12 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           }}
         >
           {isExpanded ? (
-            <KeyboardArrowUpIcon sx={{ fontSize: "24px", color: "#757575" }} />
+            <KeyboardArrowUpIcon
+              sx={{ fontSize: "24px", color: theme.palette.grey[600] }}
+            />
           ) : (
             <KeyboardArrowDownIcon
-              sx={{ fontSize: "24px", color: "#757575" }}
+              sx={{ fontSize: "24px", color: theme.palette.grey[600] }}
             />
           )}
         </IconButton>
@@ -179,7 +167,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: "#757575",
+                color: theme.palette.grey[600],
                 fontWeight: 500,
                 width: "140px",
                 flexShrink: 0,
@@ -189,7 +177,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               Role
             </Typography>
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <FormControl size="small" fullWidth>
+              <FormControl size="small" fullWidth disabled={disabled}>
                 <Select
                   value={selectedRole}
                   onChange={handleRoleChange}
@@ -197,13 +185,13 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                     height: "30px",
                     fontSize: "12px",
                     "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#D1D5DB",
+                      borderColor: theme.palette.grey[400],
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976D2",
+                      borderColor: theme.palette.primary.main,
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#1976D2",
+                      borderColor: theme.palette.primary.main,
                     },
                   }}
                 >
@@ -229,7 +217,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: "#757575",
+                color: theme.palette.grey[600],
                 fontWeight: 500,
                 width: "140px",
                 flexShrink: 0,
@@ -239,7 +227,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               Email
             </Typography>
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <TruncatedText fontSize="12px" fontWeight="500">
+              <TruncatedText fontSize="12px" fontWeight="500" maxChars={20}>
                 {email}
               </TruncatedText>
             </Box>
@@ -250,7 +238,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             <Typography
               variant="body2"
               sx={{
-                color: "#757575",
+                color: theme.palette.grey[600],
                 fontWeight: 500,
                 width: "140px",
                 flexShrink: 0,
@@ -263,7 +251,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               <Typography
                 variant="body2"
                 sx={{
-                  color: "#1A1A1A",
+                  color: "text.primary",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
