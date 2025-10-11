@@ -4,7 +4,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import { AccentContainer, EventBox } from ".";
 import CustomButton from "../shared/Buttons/CustomButton";
-import { BoothViewProps } from "../types";
+import { BoothViewProps } from "./types";
 import { BoothData } from "./helpers/Event";
 
 const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {

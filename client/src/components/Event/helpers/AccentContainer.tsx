@@ -55,7 +55,7 @@ const AccentContainer: React.FC<AccentContainerProps> = ({ title, accent = "prim
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="h5" fontWeight={700} sx={{ padding:"8px 20px 2px 22px", color: resolveButtonPalette(theme, accent).dark, fontSize:"16px"}}>
+            <Typography variant="h5" fontWeight={700} sx={{ padding:"8px 20px 2px 22px", color: accent=="secondary"?"#a9ae65":resolveButtonPalette(theme, accent).dark, fontSize:"16px"}}>
               {title}
             </Typography>
             <IconButton

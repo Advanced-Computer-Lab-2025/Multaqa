@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Box } from "@mui/material";
-import { BazarViewProps } from "../types";
+import { BazarViewProps } from "./types";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { AccentContainer, EventBox, DescriptionAccordion, DetailsAccordion } from ".";
 
