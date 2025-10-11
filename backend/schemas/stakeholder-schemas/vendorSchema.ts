@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { User } from "./userSchema";
-import { IVendor } from "../../interfaces/vendor.interface";
+import { IVendor } from "../../interfaces/models/vendor.interface";
 import { Event_Request_Status } from "../../constants/user.constants";
 
 const vendorSchema = new Schema<IVendor>({

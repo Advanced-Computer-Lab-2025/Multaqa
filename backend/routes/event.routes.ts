@@ -44,7 +44,7 @@ async function findOne(req: Request, res: Response) {
     }
     res.json({
       success: true,
-      date: event,
+      data: event,
       message: "Event retrieved successfully"
     });
   } catch (err: any) {
@@ -132,7 +132,7 @@ async function deleteEvent(req: Request, res: Response) {
   const deletedEvent = await eventsService.deleteEvent(id);
   res.json({ 
     success: true,
-    event: deletedEvent,
+    data: deletedEvent,
     message: "Event deleted successfully"
   });
 }

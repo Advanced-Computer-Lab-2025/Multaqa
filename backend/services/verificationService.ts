@@ -1,7 +1,7 @@
 import jwt, { JwtPayload, Secret, SignOptions } from "jsonwebtoken";
 import createError from "http-errors";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
-import { IUser } from "../interfaces/user.interface";
+import { IUser } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 
 export class VerificationService {

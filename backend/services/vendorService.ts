@@ -1,6 +1,5 @@
-import { IEvent } from "../interfaces/event.interface";
-import { IUser } from "../interfaces/user.interface";
-import { IVendor } from "../interfaces/vendor.interface";
+import { IEvent } from "../interfaces/models/event.interface";
+import { IVendor } from "../interfaces/models/vendor.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";

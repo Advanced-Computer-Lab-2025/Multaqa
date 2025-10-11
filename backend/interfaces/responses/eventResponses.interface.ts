@@ -1,4 +1,4 @@
-import { IEvent } from "../event.interface";
+import { IEvent } from "../models/event.interface";
 
 export interface GetEventsResponse {
   success: boolean;
@@ -20,6 +20,6 @@ export interface CreateEventResponse {
 
 export interface DeleteEventResponse {
   success: boolean;
-  event: IEvent;
+  data: IEvent;
   message: string;
 }

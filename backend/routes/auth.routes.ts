@@ -4,12 +4,12 @@ import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, lo
 import createError from 'http-errors';
 import { VerificationService } from '../services/verificationService';
 import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse } from '../interfaces/responses/authResponses.interface';
-import { SignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/requests/authRequests.interface';
+
 const router = Router();
 const authService = new AuthService();
 const verificationService = new VerificationService();
 
-router.post('/signup/studentAndStaff', async (req: Request<{}, {}, SignupRequest>, res: Response<SignupResponse>) => {
+router.post('/signup/studentAndStaff', async (req: Request, res: Response<SignupResponse>) => {
   try {
     // Validate request body
     const { error, value } = signupStudentAndStaffValidationSchema.validate(req.body);
@@ -33,7 +33,7 @@ router.post('/signup/studentAndStaff', async (req: Request<{}, {}, SignupRequest
   }
 });
 
-router.post('/signup/vendor', async (req: Request<{}, {}, VendorSignupRequest>, res: Response<SignupResponse>) => {
+router.post('/signup/vendor', async (req: Request, res: Response<SignupResponse>) => {
   try {
     // Validate request body
     const { error, value } = signupVendorValidationSchema.validate(req.body);
@@ -68,7 +68,7 @@ router.get("/verify", async (req, res, next) => {
   }
 });
 
-router.post('/login', async (req: Request<{}, {}, LoginRequest>, res: Response<LoginResponse>) => {
+router.post('/login', async (req: Request, res: Response<LoginResponse>) => {
   try {
     // Validate request body
     const { error, value } = loginValidationSchema.validate(req.body);

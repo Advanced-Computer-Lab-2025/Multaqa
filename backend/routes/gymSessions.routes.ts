@@ -38,8 +38,11 @@ async function getAllGymSessions(req: Request, res: Response) {
       throw createError(404, "No gym sessions found");
     }
 
-    res.json(sessions);
-
+    res.json({
+      success: true,
+      data: sessions,
+      message: "Gym sessions retrieved successfully"
+    });
   } catch (err: any) {
     throw createError(500, err.message);
   }

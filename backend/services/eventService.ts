@@ -1,4 +1,4 @@
-import { IEvent } from "../interfaces/event.interface";
+import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
