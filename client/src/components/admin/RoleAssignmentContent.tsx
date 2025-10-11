@@ -5,22 +5,10 @@ import RegisterBox from "@/components/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 import { Box, Typography } from "@mui/material";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  useDroppable,
-} from "@dnd-kit/core";
+import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/RegistredComponent/SortableTicket";
-
-type Applicant = {
-  id: string;
-  name: string;
-  email: string;
-  registrationDate?: string;
-  avatar?: string;
-};
+import { Applicant } from "./types";
+import { handleDragStart, handleDragEnd, assignToRole } from "./utils";
 
 // Droppable zone component
 function DroppableZone({
@@ -74,36 +62,6 @@ export default function RoleAssignmentContent() {
   const [activeRoleIndex, setActiveRoleIndex] = useState<number>(0);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  function assignToRole(roleKey: string, user: Applicant) {
-    setAssigned((prev) => ({
-      ...prev,
-      [roleKey]: [...(prev[roleKey] || []), user],
-    }));
-    setApplicants((prev) => prev.filter((a) => a.id !== user.id));
-  }
-
-  function handleDragStart(event: DragStartEvent) {
-    setActiveId(event.active.id as string);
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return;
-
-    const draggedUserId = active.id as string;
-    const targetRole = over.id as string;
-
-    // Check if dropping on a valid role zone
-    if (roleKeys.includes(targetRole as (typeof roleKeys)[number])) {
-      const draggedUser = applicants.find((a) => a.id === draggedUserId);
-      if (draggedUser) {
-        assignToRole(targetRole, draggedUser);
-      }
-    }
-  }
-
   const activeDraggedUser =
     applicants.find((a) => a.id === activeId) ||
     Object.values(assigned)
@@ -111,7 +69,19 @@ export default function RoleAssignmentContent() {
       .find((u) => u.id === activeId);
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      onDragStart={(e) => handleDragStart(e, setActiveId)}
+      onDragEnd={(e) =>
+        handleDragEnd(
+          e,
+          setActiveId,
+          applicants,
+          roleKeys,
+          setAssigned,
+          setApplicants
+        )
+      }
+    >
       <Box
         sx={{
           p: 4,
@@ -245,7 +215,12 @@ export default function RoleAssignmentContent() {
                         role="N/A"
                         onRoleChange={(newRole: string) => {
                           if (newRole !== "N/A") {
-                            assignToRole(newRole.toLowerCase(), applicant);
+                            assignToRole(
+                              newRole.toLowerCase(),
+                              applicant,
+                              setAssigned,
+                              setApplicants
+                            );
                           }
                         }}
                       />

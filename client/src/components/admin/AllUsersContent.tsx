@@ -6,29 +6,13 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModalLayout } from "../shared/modals";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import StatusChip from "../layout/StatusChip";
 import ManagementScreen from "./shared/ManagementScreen";
-import { rigorousValidationSchema } from "../shared/input-fields/schemas";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role:
-    | "Student"
-    | "Staff"
-    | "TA"
-    | "Professor"
-    | "Admin"
-    | "Event Office"
-    | "Vendor";
-  status: "Active" | "Blocked";
-  createdDate: string;
-};
+import { User } from "./types";
+import { userCreationSchema, handleCreateUser } from "./utils";
 
 const initialUsers: User[] = [
   {
@@ -73,14 +57,6 @@ const initialUsers: User[] = [
   },
 ];
 
-const userCreationSchema = Yup.object().shape({
-  fullName: rigorousValidationSchema.fields.fullName,
-  email: rigorousValidationSchema.fields.email,
-  password: rigorousValidationSchema.fields.password,
-  confirmPassword: rigorousValidationSchema.fields.confirmPassword,
-  userRole: Yup.string().required("User role is required"),
-});
-
 export default function AllUsersContent() {
   const theme = useTheme();
   const [users, setUsers] = useState<User[]>(initialUsers);
@@ -96,23 +72,7 @@ export default function AllUsersContent() {
     },
     validationSchema: userCreationSchema,
     onSubmit: (values) => {
-      // TODO: API call to create account
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      const createdDate = `${dd}/${mm}/${yyyy}`;
-
-      const created: User = {
-        id: String(Date.now()),
-        name: values.fullName,
-        email: values.email,
-        role: values.userRole as User["role"],
-        status: "Active",
-        createdDate,
-      };
-      setUsers((prev) => [created, ...prev]);
-      handleCloseCreate();
+      handleCreateUser(values, setUsers, handleCloseCreate);
     },
   });
 
@@ -275,7 +235,9 @@ export default function AllUsersContent() {
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                isError={formik.touched.email ? Boolean(formik.errors.email) : false}
+                isError={
+                  formik.touched.email ? Boolean(formik.errors.email) : false
+                }
                 helperText={formik.touched.email ? formik.errors.email : ""}
                 neumorphicBox
                 required
@@ -291,7 +253,9 @@ export default function AllUsersContent() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isError={
-                  formik.touched.password ? Boolean(formik.errors.password) : false
+                  formik.touched.password
+                    ? Boolean(formik.errors.password)
+                    : false
                 }
                 helperText={
                   formik.touched.password ? formik.errors.password : ""
@@ -310,7 +274,9 @@ export default function AllUsersContent() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isError={
-                  formik.touched.confirmPassword ? Boolean(formik.errors.confirmPassword) : false
+                  formik.touched.confirmPassword
+                    ? Boolean(formik.errors.confirmPassword)
+                    : false
                 }
                 helperText={
                   formik.touched.confirmPassword

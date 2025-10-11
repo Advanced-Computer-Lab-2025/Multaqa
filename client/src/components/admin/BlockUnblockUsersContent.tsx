@@ -9,22 +9,8 @@ import StatusChip from "../layout/StatusChip";
 import SecurityIcon from "@mui/icons-material/Security";
 import ManagementScreen from "./shared/ManagementScreen";
 import ManagementCard from "../shared/containers/ManagementCard";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role:
-    | "Student"
-    | "Staff"
-    | "TA"
-    | "Professor"
-    | "Admin"
-    | "Event Office"
-    | "Vendor";
-  status: "Active" | "Blocked";
-  createdDate: string;
-};
+import { User } from "./types";
+import { handleToggleBlock } from "./utils";
 
 const initialUsers: User[] = [
   {
@@ -72,20 +58,6 @@ const initialUsers: User[] = [
 export default function BlockUnblockUsersContent() {
   const [users, setUsers] = useState<User[]>(initialUsers);
 
-  const handleToggleBlock = (userId: string) => {
-    // TODO: API call to update user status
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              status: user.status === "Active" ? "Blocked" : "Active",
-            }
-          : user
-      )
-    );
-  };
-
   const renderUserCard = (user: User) => (
     <ManagementCard
       key={user.id}
@@ -107,7 +79,7 @@ export default function BlockUnblockUsersContent() {
         <CustomButton
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
-          onClick={() => handleToggleBlock(user.id)}
+          onClick={() => handleToggleBlock(user.id, setUsers)}
           startIcon={
             user.status === "Active" ? (
               <BlockIcon />

@@ -7,22 +7,18 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import DeleteButton from "../shared/Buttons/DeleteButton";
 import { CustomModal, CustomModalLayout } from "../shared/modals";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import ManagementScreen from "./shared/ManagementScreen";
-import { rigorousValidationSchema } from "../shared/input-fields/schemas";
 import CustomButton from "../shared/Buttons/CustomButton";
 import ManagementCard from "../shared/containers/ManagementCard";
-
-type Account = {
-  id: string;
-  name: string;
-  email: string;
-  accountType: "Admin" | "Event Office";
-  createdDate: string;
-};
+import { Account } from "./types";
+import {
+  accountCreationSchema,
+  handleCreateAccount,
+  handleDeleteAccount,
+} from "./utils";
 
 const initialAccounts: Account[] = [
   {
@@ -48,14 +44,6 @@ const initialAccounts: Account[] = [
   },
 ];
 
-const accountCreationSchema = Yup.object().shape({
-  fullName: rigorousValidationSchema.fields.fullName,
-  email: rigorousValidationSchema.fields.email,
-  password: rigorousValidationSchema.fields.password,
-  confirmPassword: rigorousValidationSchema.fields.confirmPassword,
-  accountType: Yup.string().required("Account type is required"),
-});
-
 export default function ManageEventOfficeAccount() {
   const theme = useTheme();
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
@@ -72,22 +60,7 @@ export default function ManageEventOfficeAccount() {
     },
     validationSchema: accountCreationSchema,
     onSubmit: (values) => {
-      // TODO: API call to create account
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      const createdDate = `${dd}/${mm}/${yyyy}`;
-
-      const created: Account = {
-        id: String(Date.now()),
-        name: values.fullName,
-        email: values.email,
-        accountType: values.accountType as "Admin" | "Event Office",
-        createdDate,
-      };
-      setAccounts((prev) => [created, ...prev]);
-      handleCloseCreate();
+      handleCreateAccount(values, setAccounts, handleCloseCreate);
     },
   });
 
@@ -107,11 +80,14 @@ export default function ManageEventOfficeAccount() {
     setAccountToDelete(null);
   };
 
-  const handleDeleteAccount = () => {
+  const deleteAccountHandler = () => {
     if (accountToDelete) {
-      // TODO: API call to delete account
-      setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
-      handleCloseDeleteModal();
+      handleDeleteAccount(
+        accountToDelete,
+        accounts,
+        setAccounts,
+        handleCloseDeleteModal
+      );
     }
   };
 
@@ -204,7 +180,7 @@ export default function ManageEventOfficeAccount() {
             label: "Delete Account",
             variant: "contained",
             color: "error",
-            onClick: handleDeleteAccount,
+            onClick: deleteAccountHandler,
           }}
           buttonOption2={{
             label: "Cancel",

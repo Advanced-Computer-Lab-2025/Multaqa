@@ -3,27 +3,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
-
-interface ManagementScreenProps<T> {
-  pageTitle: string;
-  pageSubtitle: string;
-  boxTitle: string;
-  boxSubtitle: string;
-  boxIcon: React.ReactNode;
-  borderColor: string;
-  createButtonLabel?: string;
-  createButtonIcon?: React.ReactNode;
-  onOpenCreate?: () => void;
-  items: T[];
-  renderItem: (item: T) => React.ReactNode;
-  noItemsMessage: string;
-  noItemsSubtitle: string;
-  gridColumns?: {
-    xs?: string;
-    md?: string;
-    lg?: string;
-  };
-}
+import { ManagementScreenProps } from "../types";
 
 export default function ManagementScreen<T>({
   pageTitle,
