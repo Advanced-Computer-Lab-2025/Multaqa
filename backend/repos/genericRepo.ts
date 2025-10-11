@@ -48,11 +48,10 @@ export default class GenericRepository<T extends Document> {
 
   async findById(
     id: string,
-    options: { populate?: string | string[]; select?: string | string[] } = {},
-     filter = {},
+    options: { populate?: string | string[]; select?: string | string[] } = {}
   ): Promise<T | null> {
     try {
-      let query = this.model.findById(id,filter);
+      let query = this.model.findById(id);
       query = applyPopulate(query, options.populate);
       query = applySelect(query, options.select);
       return await query.exec();
