@@ -59,12 +59,14 @@ export class VendorService {
       throw createError(404, "Vendor or Event not found");
     }
 
+    console.log(data.value);
     //add request to the vendor
-    vendor?.requestedEvents.push({
+    vendor.requestedEvents.push({
       event: eventId,
       RequestData: data,
       status: Event_Request_Status.PENDING,
     });
+
     //add request to the event
     if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (data.value.eventType === EVENT_TYPES.BAZAAR) {
@@ -75,6 +77,7 @@ export class VendorService {
       }
       event.vendor = vendorId;
       event.RequestData = data.value;
+      console.log(event.RequestData);
       event.RequestData.status = Event_Request_Status.PENDING;
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       if (data.value.eventType === EVENT_TYPES.PLATFORM_BOOTH) {
