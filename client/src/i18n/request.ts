@@ -1,8 +1,10 @@
-import {getRequestConfig} from 'next-intl/server';
+import { getRequestConfig } from 'next-intl/server';
+
+const DEFAULT_LOCALE = 'en';
 
 export default getRequestConfig(async () => {
-  // Static for now, we'll change this later
-  const locale = 'en';
+  // Keep it simple: default to English. Middleware will redirect requests without locale to include it.
+  const locale = DEFAULT_LOCALE;
 
   return {
     locale,
