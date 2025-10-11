@@ -9,7 +9,7 @@ export class UserService {
     this.userRepo = new GenericRepository(User);
   }
   async getAllUsers(): Promise<Partial<IUser>[]> {
-    return this.userRepo.findAll(
+    return await this.userRepo.findAll(
       { isVerified: true },
       {
         select:
@@ -18,7 +18,15 @@ export class UserService {
     );
   }
 
-  async getUserById(id: string): Promise<IUser | null> {
-    return await this.userRepo.findById(id);
+
+  async getUserById(id: string): Promise<Partial<IUser> | null> {
+    return await this.userRepo.findById(id,
+      
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status companyName",
+      },
+      { isVerified: true }
+    );
   }
 }
