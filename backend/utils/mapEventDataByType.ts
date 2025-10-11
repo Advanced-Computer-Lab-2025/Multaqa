@@ -26,6 +26,7 @@ export function mapEventDataByType(type: string, data: any) {
         capacity: data.capacity,
         createdBy: data.createdBy,
         price: data.price,
+        approvalStatus: data.approvalStatus,
       };
 
     case "conference":

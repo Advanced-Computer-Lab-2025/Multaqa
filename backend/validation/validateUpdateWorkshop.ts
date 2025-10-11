@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { Event_Request_Status } from "../constants/user.constants";
 
 export function validateUpdateWorkshop(data: any) {
   const schema = Joi.object({
@@ -19,6 +20,9 @@ export function validateUpdateWorkshop(data: any) {
     eventStartTime: Joi.string().optional(),
     eventEndTime: Joi.string().optional(),
     price: Joi.number().min(0).optional(),
+    approvalStatus: Joi.string()
+      .valid(...Object.values(Event_Request_Status))
+      .optional(),
   });
 
   return schema.validate(data);
