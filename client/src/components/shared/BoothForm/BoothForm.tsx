@@ -1,43 +1,32 @@
 import React, { useState } from "react";
-import { Formik, FieldArray } from "formik";
+import { Formik } from "formik";
 import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import PlatformMap from "../PlatformMap/PlatformMap";
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  IconButton,
-  Divider,
-  Grid,
-  Alert,
-} from "@mui/material";
+import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
 import { useTheme } from "@mui/material/styles";
 import { BoothFormValues } from "./types";
 import { validationSchema } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
+import CustomIcon from "../Icons/CustomIcon";
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
   const [selectedBooth, setSelectedBooth] = useState<number | null>(null);
-
-  const initialValues: BoothFormValues = {
-    //attendees: [{ name: "", email: "" }],
-    //setupDuration: "",
-    boothSize: "",
-    selectedBoothId: null,
-  };
-
   const handleBoothSelection = (
     boothId: number,
     setFieldValue: (field: string, value: unknown) => void
   ) => {
     setSelectedBooth(boothId);
     setFieldValue("selectedBoothId", boothId);
+  };
+
+  const initialValues: BoothFormValues = {
+    attendees: [{ name: "", email: "" }],
+    boothSize: "",
+    selectedBoothId: null,
   };
 
   return (
@@ -55,12 +44,12 @@ const BoothForm: React.FC = () => {
         <form onSubmit={formik.handleSubmit}>
           <NeumorphicBox
             containerType="outwards"
-            padding="60px"
+            padding="50px"
             borderRadius="20px"
           >
             <div className="flex flex-col lg:flex-row items-start justify-center gap-10">
               {/* Left Side: Form Fields */}
-              <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-2/5">
+              <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-1/2">
                 {/* Header */}
                 <div className="text-center mb-6">
                   <h1
@@ -75,39 +64,134 @@ const BoothForm: React.FC = () => {
                 </div>
 
                 <Divider sx={{ width: "100%", my: 2 }} />
-
-                {/* Duration Select */}
-                {/* <div className="w-[300px]">
-                  <CustomSelectField
-                    label="Duration"
-                    fieldType="single"
-                    neumorphicBox
-                    options={[
-                      { label: "1 week", value: "1week" },
-                      { label: "2 weeks", value: "2weeks" },
-                      { label: "3 weeks", value: "3weeks" },
-                      { label: "4 weeks", value: "4weeks" },
-                    ]}
-                    value={formik.values.setupDuration}
-                    onChange={(value) =>
-                      formik.setFieldValue("setupDuration", value || "")
-                    }
-                    onBlur={() => formik.setFieldTouched("setupDuration", true)}
-                  />
-                  {formik.touched.setupDuration &&
-                    formik.errors.setupDuration && (
-                      <Box display="flex" alignItems="center" mt={1}>
-                        <ErrorOutlineIcon
-                          color="error"
-                          sx={{ fontSize: 16, mr: 0.5 }}
+                {/* Attendee Info */}
+                {formik.values.attendees.map((attendee, index) => (
+                  <Box key={index}>
+                    <Typography
+                      variant="h6"
+                      style={{ color: theme.palette.text.primary }}
+                      mb={2}
+                    >
+                      Attendee {index + 1}:
+                    </Typography>
+                    <div className="flex items-start gap-5 w-full px-4">
+                      <div className="w-[300px]">
+                        <CustomTextField
+                          id={`attendees.${index}.name`}
+                          label="Name"
+                          fieldType="text"
+                          neumorphicBox
+                          width="300px"
+                          value={formik.values.attendees[index].name}
+                          onChange={(e) => {
+                            formik.setFieldValue(
+                              `attendees.${index}.name`,
+                              e.target.value
+                            );
+                          }}
+                          onBlur={() =>
+                            formik.setFieldTouched(
+                              `attendees.${index}.name`,
+                              true
+                            )
+                          }
                         />
-                        <Typography variant="caption" color="error">
-                          {formik.errors.setupDuration}
-                        </Typography>
-                      </Box>
-                    )}
-                </div> */}
-
+                        {formik.touched.attendees?.[index]?.name &&
+                          typeof formik.errors.attendees?.[index] !==
+                            "string" &&
+                          formik.errors.attendees?.[index]?.name && (
+                            <Box display="flex" alignItems="center" mt={1}>
+                              <ErrorOutlineIcon
+                                color="error"
+                                sx={{ fontSize: 16, mr: 0.5 }}
+                              />
+                              <Typography variant="caption" color="error">
+                                {typeof formik.errors.attendees?.[index] !==
+                                "string"
+                                  ? formik.errors.attendees?.[index]?.name
+                                  : formik.errors.attendees?.[index]}
+                              </Typography>
+                            </Box>
+                          )}
+                      </div>
+                      <div className="w-[300px]">
+                        <CustomTextField
+                          id={`attendees.${index}.email`}
+                          label="Email"
+                          fieldType="email"
+                          neumorphicBox
+                          width="300px"
+                          stakeholderType={"vendor"}
+                          value={formik.values.attendees[index].email}
+                          onChange={(e) => {
+                            formik.setFieldValue(
+                              `attendees.${index}.email`,
+                              e.target.value
+                            );
+                          }}
+                          onBlur={() =>
+                            formik.setFieldTouched(
+                              `attendees.${index}.email`,
+                              true
+                            )
+                          }
+                        />
+                        {formik.touched.attendees?.[index]?.email &&
+                          typeof formik.errors.attendees?.[index] !==
+                            "string" &&
+                          formik.errors.attendees?.[index]?.email && (
+                            <Box display="flex" alignItems="center" mt={1}>
+                              <ErrorOutlineIcon
+                                color="error"
+                                sx={{ fontSize: 16, mr: 0.5 }}
+                              />
+                              <Typography variant="caption" color="error">
+                                {typeof formik.errors.attendees?.[index] !==
+                                "string"
+                                  ? formik.errors.attendees?.[index]?.email
+                                  : formik.errors.attendees?.[index]}
+                              </Typography>
+                            </Box>
+                          )}
+                      </div>
+                      <div className="w-10 flex items-center">
+                        {index > 0 ? (
+                          <CustomIcon
+                            icon="delete"
+                            size="medium"
+                            onClick={() => {
+                              const newAttendees =
+                                formik.values.attendees.filter(
+                                  (_, i) => i !== index
+                                );
+                              formik.setFieldValue("attendees", newAttendees);
+                            }}
+                            border={false}
+                            containerType="outwards"
+                            sx={{
+                              cursor: "pointer",
+                              color: theme.palette.error.main,
+                            }}
+                          />
+                        ) : (
+                          <div className="w-10"></div>
+                        )}
+                      </div>
+                    </div>
+                  </Box>
+                ))}
+                <CustomIcon
+                  icon="add"
+                  size="medium"
+                  onClick={() => {
+                    if (formik.values.attendees.length >= 5) return; // Limit to 5 attendees
+                    formik.setFieldValue("attendees", [
+                      ...formik.values.attendees,
+                      { name: "", email: "" },
+                    ]);
+                  }}
+                  sx={{ cursor: "pointer", color: theme.palette.primary.main }}
+                />
                 {/* Booth Size Select */}
                 <div className="w-[300px]">
                   <CustomSelectField
@@ -170,10 +254,10 @@ const BoothForm: React.FC = () => {
               <Divider
                 orientation="vertical"
                 flexItem
-                sx={{ mx: 4, display: { xs: "none", lg: "block" } }}
+                sx={{ mr: 2, display: { xs: "none", lg: "block" } }}
               />
               {/* Right Side: Booth Map */}
-              <Box className="w-full lg:w-3/5">
+              <Box className="w-full lg:w-1/2">
                 <Typography
                   variant="h6"
                   gutterBottom

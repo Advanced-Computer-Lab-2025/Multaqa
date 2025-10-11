@@ -1,10 +1,12 @@
+import { CustomTextField } from "../../input-fields";
+
 interface AttendeeInfo {
   name: string;
   email: string;
 }
 
 export interface BoothFormValues {
-//   attendees: AttendeeInfo[];
+   attendees: AttendeeInfo[];
 //   setupDuration: string;
   boothSize: string;
   selectedBoothId: number | null;
