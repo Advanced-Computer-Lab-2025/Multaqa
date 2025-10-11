@@ -9,34 +9,16 @@ const router = Router();
 const authService = new AuthService();
 const verificationService = new VerificationService();
 
-router.post('/signup/studentAndStaff', async (req: Request, res: Response<SignupResponse>) => {
+router.post('/signup', async (req: Request, res: Response<SignupResponse>) => {
   try {
-    // Validate request body
-    const { error, value } = signupStudentAndStaffValidationSchema.validate(req.body);
-    if (error) {
-      throw createError(400, 'Validation error', {
-        errors: error.details.map(detail => detail.message)
-      });
+    // Validate request body based on role
+    let schema;
+    if (req.body.role === 'vendor') {
+      schema = signupVendorValidationSchema;
+    } else {
+      schema = signupStudentAndStaffValidationSchema; 
     }
-
-    // Create user
-    const result = await authService.signup(value);
-
-    // Send HTTP response
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      user: result
-    });
-  } catch (error: any) {
-    throw createError(400, error.message || 'Registration failed');
-  }
-});
-
-router.post('/signup/vendor', async (req: Request, res: Response<SignupResponse>) => {
-  try {
-    // Validate request body
-    const { error, value } = signupVendorValidationSchema.validate(req.body);
+    const { error, value } = schema.validate(req.body);
     if (error) {
       throw createError(400, 'Validation error', {
         errors: error.details.map(detail => detail.message)
