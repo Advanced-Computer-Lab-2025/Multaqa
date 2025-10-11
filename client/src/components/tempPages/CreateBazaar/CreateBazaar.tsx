@@ -60,7 +60,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                         onChange={handleChange}
                         autoCapitalize='off'
                         autoCapitalizeName={false}
-                        separateLabels
                     />
                     { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
                 </Grid>    
@@ -77,7 +76,6 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                     onChange={handleChange}
                     autoCapitalize='off'
                     autoCapitalizeName={false}
-                    separateLabels
                     />
                     { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
                 </Grid>
