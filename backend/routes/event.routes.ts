@@ -22,7 +22,11 @@ async function findAll(req: Request, res: Response) {
     if (!events || events.length === 0) {
       throw createError(404, "No events found");
     }
-    res.json(events);
+    res.json({
+      success: true,
+      data: events,
+      message: "Events retrieved successfully"
+    });
   } catch (err: any) {
     if (err.status || err.statusCode) {
       throw err;
@@ -38,11 +42,16 @@ async function findOne(req: Request, res: Response) {
     if (!event) {
       throw createError(404, "Event not found");
     }
-    res.json(event);
+    res.json({
+      success: true,
+      date: event,
+      message: "Event retrieved successfully"
+    });
   } catch (err: any) {
     throw createError(500, err.message);
   }
 }
+
 async function createEvent(req: Request, res: Response) {
   try {
     const user = (req as any).user;
@@ -70,7 +79,11 @@ async function createEvent(req: Request, res: Response) {
     }
 
     const event = await eventsService.createEvent(user, req.body);
-    res.status(201).json(event);
+    res.status(201).json({
+      success: true,
+      data: event,
+      message: "Event created successfully"
+    });
   } catch (err: any) {
     throw createError(500, err.message);
   }
@@ -117,7 +130,11 @@ async function updateEvent(req: Request, res: Response) {
 async function deleteEvent(req: Request, res: Response) {
   const id = req.params.id;
   const deletedEvent = await eventsService.deleteEvent(id);
-  res.json({ event: deletedEvent });
+  res.json({ 
+    success: true,
+    event: deletedEvent,
+    message: "Event deleted successfully"
+  });
 }
 
 const router = Router();
