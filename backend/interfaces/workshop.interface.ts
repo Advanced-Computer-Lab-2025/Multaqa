@@ -1,4 +1,4 @@
-import { IEvent } from "./event.interface";
+import { IEvent } from "./models/event.interface";
 import { Event_Request_Status } from "../constants/user.constants";
 
 export interface IWorkshop extends IEvent {
