@@ -69,7 +69,7 @@ export class VendorService {
     //add request to the event
     if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       event.vendor = vendorId;
-      event.RequestData = data;
+      event.RequestData = { data, status: Event_Request_Status.PENDING };
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       event.vendors?.push({
         vendor: vendorId,
