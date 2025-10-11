@@ -6,6 +6,7 @@ import createError from "http-errors";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
+import { applicationResult } from "../interfaces/applicationResult.interface";
 
 export class VendorService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -50,7 +51,7 @@ export class VendorService {
     vendorId: string,
     eventId: string,
     data: any
-  ): Promise<{ vendor: IVendor | null; event: IEvent | null }> {
+  ): Promise<applicationResult> {
     const vendor = await this.vendorRepo.findById(vendorId);
     const event = await this.eventRepo.findById(eventId);
 
@@ -58,15 +59,17 @@ export class VendorService {
       throw createError(404, "Vendor or Event not found");
     }
 
-    console.log(data.value);
-    //add request to the vendor
+    // Default status
+    const applicationStatus = Event_Request_Status.PENDING;
+
+    // Add request to vendor
     vendor.requestedEvents.push({
       event: eventId,
       RequestData: data,
-      status: Event_Request_Status.PENDING,
+      status: applicationStatus,
     });
 
-    //add request to the event
+    // Add request to event depending on its type
     if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (data.value.eventType === EVENT_TYPES.BAZAAR) {
         throw createError(
@@ -74,10 +77,10 @@ export class VendorService {
           "Mismatched event type in RequestData for platform booth application"
         );
       }
+
       event.vendor = vendorId;
-      event.RequestData = data.value;
-      console.log(event.RequestData);
-      event.RequestData.status = Event_Request_Status.PENDING;
+      event.RequestData = { ...data.value, status: applicationStatus };
+
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       if (data.value.eventType === EVENT_TYPES.PLATFORM_BOOTH) {
         throw createError(
@@ -85,9 +88,10 @@ export class VendorService {
           "Mismatched event type in RequestData for bazaar application"
         );
       }
+
       event.vendors?.push({
         vendor: vendorId,
-        RequestData: { data: data.value, status: Event_Request_Status.PENDING },
+        RequestData: { ...data.value, status: applicationStatus },
       });
     } else {
       throw createError(
@@ -99,6 +103,11 @@ export class VendorService {
     await event.save();
     await vendor.save();
 
-    return { updatedVendor: vendor, updatedEvent: event } as any;
+    return {
+      vendor,
+      event,
+      applicationStatus,
+    };
   }
+
 }
