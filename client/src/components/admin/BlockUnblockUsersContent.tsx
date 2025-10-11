@@ -11,6 +11,7 @@ import ManagementScreen from "./shared/ManagementScreen";
 import ManagementCard from "../shared/containers/ManagementCard";
 import { User } from "./types";
 import { handleToggleBlock } from "./utils";
+import { useTheme } from "@mui/material/styles";
 
 const initialUsers: User[] = [
   {
@@ -56,6 +57,7 @@ const initialUsers: User[] = [
 ];
 
 export default function BlockUnblockUsersContent() {
+  const theme = useTheme();
   const [users, setUsers] = useState<User[]>(initialUsers);
 
   const renderUserCard = (user: User) => (
@@ -106,7 +108,9 @@ export default function BlockUnblockUsersContent() {
           }}
         />
       }
-      hoverBorderColor={user.status === "Active" ? "#db3030" : "#4caf50"}
+      hoverBorderColor={
+        user.status === "Active" ? theme.palette.error.main : "#4caf50"
+      }
       hoverBoxShadow={
         user.status === "Active"
           ? "0 2px 8px rgba(219, 48, 48, 0.1)"
@@ -122,7 +126,7 @@ export default function BlockUnblockUsersContent() {
       boxTitle="User Access Control"
       boxSubtitle="Restrict or restore user access to the system as needed"
       boxIcon={<SecurityIcon fontSize="small" />}
-      borderColor="#db3030"
+      borderColor={theme.palette.error.main}
       items={users}
       renderItem={renderUserCard}
       noItemsMessage="No Users Found"

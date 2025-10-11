@@ -120,7 +120,10 @@ export default function ManageEventOfficeAccount() {
               account.accountType === "Admin"
                 ? "rgba(58, 79, 153, 0.1)"
                 : "rgba(98, 153, 208, 0.1)",
-            color: account.accountType === "Admin" ? "#3a4f99" : "#6299d0",
+            color:
+              account.accountType === "Admin"
+                ? theme.palette.tertiary.main
+                : theme.palette.primary.main,
             borderRadius: "16px",
             padding: "4px 12px",
             fontSize: "12px",
@@ -144,7 +147,7 @@ export default function ManageEventOfficeAccount() {
           }}
         />
       }
-      hoverBorderColor="#3a4f99"
+      hoverBorderColor={theme.palette.tertiary.main}
       hoverBoxShadow="0 2px 8px rgba(58, 79, 153, 0.1)"
     />
   );
@@ -157,7 +160,7 @@ export default function ManageEventOfficeAccount() {
         boxTitle="Account Management"
         boxSubtitle="Create new accounts or remove existing ones as needed"
         boxIcon={<ManageAccountsIcon fontSize="small" />}
-        borderColor="#3a4f99"
+        borderColor={theme.palette.tertiary.main}
         createButtonLabel="Create Account"
         createButtonIcon={<PersonAddIcon />}
         onOpenCreate={handleOpenCreate}
@@ -193,7 +196,7 @@ export default function ManageEventOfficeAccount() {
             <Typography
               sx={{
                 fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                color: "#1E1E1E",
+                color: "text.primary",
                 mb: 2,
                 fontSize: "1.1rem",
                 fontWeight: 600,
@@ -228,7 +231,7 @@ export default function ManageEventOfficeAccount() {
             <Typography
               sx={{
                 fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                color: "#db3030",
+                color: theme.palette.error.main,
                 fontSize: "0.9rem",
                 fontWeight: 500,
               }}

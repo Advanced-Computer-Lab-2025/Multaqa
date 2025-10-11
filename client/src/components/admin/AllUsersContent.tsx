@@ -105,7 +105,7 @@ export default function AllUsersContent() {
         backgroundColor: "#fff",
         transition: "all 0.2s ease",
         "&:hover": {
-          borderColor: "#3a4f99",
+          borderColor: theme.palette.tertiary.main,
           boxShadow: "0 2px 8px rgba(58, 79, 153, 0.1)",
         },
       }}
@@ -124,7 +124,7 @@ export default function AllUsersContent() {
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
               fontWeight: 600,
-              color: "#1E1E1E",
+              color: "text.primary",
               fontSize: "16px",
               mb: 0.5,
             }}
@@ -154,7 +154,7 @@ export default function AllUsersContent() {
         <Box
           sx={{
             backgroundColor: "rgba(98, 153, 208, 0.1)",
-            color: "#6299d0",
+            color: theme.palette.primary.main,
             borderRadius: "16px",
             padding: "4px 12px",
             fontSize: "12px",
@@ -178,7 +178,7 @@ export default function AllUsersContent() {
         boxTitle="User Overview"
         boxSubtitle="Create new user accounts or review existing ones"
         boxIcon={<ManageAccountsIcon fontSize="small" />}
-        borderColor="#3a4f99"
+        borderColor={theme.palette.tertiary.main}
         items={users}
         renderItem={renderUserCard}
         noItemsMessage="No Users Found"

@@ -4,6 +4,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { ManagementScreenProps } from "../types";
+import { useTheme } from "@mui/material/styles";
 
 export default function ManagementScreen<T>({
   pageTitle,
@@ -25,6 +26,7 @@ export default function ManagementScreen<T>({
     lg: "repeat(3, 1fr)",
   },
 }: ManagementScreenProps<T>) {
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -41,7 +43,7 @@ export default function ManagementScreen<T>({
           sx={{
             fontFamily: "var(--font-jost), system-ui, sans-serif",
             fontWeight: 700,
-            color: "#1E1E1E",
+            color: "text.primary",
             mb: 1,
           }}
         >
@@ -69,7 +71,7 @@ export default function ManagementScreen<T>({
             border: `2px solid ${borderColor}`,
             borderRadius: "16px",
             padding: "24px",
-            backgroundColor: "#fff",
+            backgroundColor: theme.palette.background.paper,
           }}
         >
           <Box
