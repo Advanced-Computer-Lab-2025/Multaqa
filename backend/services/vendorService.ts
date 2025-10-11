@@ -58,8 +58,9 @@ export class VendorService {
       throw createError(404, "Vendor or Event not found");
     }
 
+    console.log(data.value);
     //add request to the vendor
-    vendor?.requestedEvents.push({
+    vendor.requestedEvents.push({
       event: eventId,
       RequestData: data,
       status: Event_Request_Status.PENDING,
@@ -67,23 +68,37 @@ export class VendorService {
 
     //add request to the event
     if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      if (data.value.eventType === EVENT_TYPES.BAZAAR) {
+        throw createError(
+          400,
+          "Mismatched event type in RequestData for platform booth application"
+        );
+      }
       event.vendor = vendorId;
-      event.RequestData = data;
+      event.RequestData = data.value;
+      console.log(event.RequestData);
+      event.RequestData.status = Event_Request_Status.PENDING;
     } else if (event.type === EVENT_TYPES.BAZAAR) {
+      if (data.value.eventType === EVENT_TYPES.PLATFORM_BOOTH) {
+        throw createError(
+          400,
+          "Mismatched event type in RequestData for bazaar application"
+        );
+      }
       event.vendors?.push({
         vendor: vendorId,
-        RequestData: { data, status: Event_Request_Status.PENDING },
+        RequestData: { data: data.value, status: Event_Request_Status.PENDING },
       });
     } else {
       throw createError(
         400,
-        "Invalid Event Type, must be 'bazaar' or 'platformBooth'"
+        "Invalid Event Type, must be 'bazaar' or 'platform_booth'"
       );
     }
 
     await event.save();
     await vendor.save();
 
-    return { vendor: vendor, event: event };
+    return { updatedVendor: vendor, updatedEvent: event } as any;
   }
 }

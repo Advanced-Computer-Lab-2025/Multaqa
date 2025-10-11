@@ -27,7 +27,6 @@ const EventSchema = new Schema<IEvent>(
     registrationDeadline: { type: Date, required: true },
     location: { type: String, required: true },
     description: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 },
   },
   { discriminatorKey: "type", collection: "events" }
 );

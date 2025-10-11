@@ -8,19 +8,15 @@ import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/event-schemas/conferenceEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
+import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
-import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
-import { IStaffMember } from "../interfaces/models/staffMember.interface";
-import mongoose from "mongoose";
+import { mapEventDataByType } from "../utils/mapEventDataByType";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
-  private staffRepo: GenericRepository<IStaffMember>;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
-    this.staffRepo = new GenericRepository(StaffMember);
   }
 
   async getEvents(
@@ -85,6 +81,16 @@ export class EventsService {
 
     const createdEvent = await this.eventRepo.create(mappedData);
     return createdEvent;
+  }
+
+  async updateEvent(eventId: string, updateData: any) {
+    const updatedEvent = await this.eventRepo.update(eventId, updateData);
+
+    if (!updatedEvent) {
+      throw createError(404, "Event not found");
+    }
+
+    return updatedEvent;
   }
 
   async deleteEvent(id: string): Promise<IEvent | null> {

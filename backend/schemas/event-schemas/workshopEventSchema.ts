@@ -3,6 +3,7 @@ import { Event } from "./eventSchema";
 import { FACULTY } from "../../constants/workshops.constants";
 import { FUNDING_SOURCES } from "../../constants/events.constants";
 import "../stakeholder-schemas/staffMemberSchema";
+import { Event_Request_Status } from "../../constants/user.constants";
 
 const workshopSchema = new Schema({
   fullAgenda: { type: String },
@@ -28,6 +29,12 @@ const workshopSchema = new Schema({
   extraRequiredResources: [{ type: String }],
   capacity: { type: Number, min: 1, default: 10 },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  price: { type: Number, required: true, min: 0 },
+  approvalStatus: {
+    type: String,
+    enum: Object.values(Event_Request_Status),
+    default: Event_Request_Status.PENDING,
+  },
 });
 
 export const Workshop = Event.discriminator("workshop", workshopSchema);
