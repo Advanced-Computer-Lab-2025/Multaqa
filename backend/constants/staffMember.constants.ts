@@ -1,7 +1,8 @@
 export enum StaffPosition {
   STAFF = "staff",
   TA = "TA",
-  PROFESSOR = "professor"
+  PROFESSOR = "professor",
+  UNKNOWN = "unknown"
 }
 
 export const PROFESSOR_PERMISSIONS = [
