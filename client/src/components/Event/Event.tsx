@@ -6,6 +6,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import theme from "@/themes/lightTheme";
 import {resolveButtonPalette } from "../utils"
+import { BoothViewProps } from "../types";
 
 export type DescriptionAccordionProps = {
   name: string;
@@ -98,6 +99,69 @@ export const DetailsAccordion: React.FC<DetailsAccordionProps> = ({ title = "Det
     </Accordion>
   );
 };
+
+
+
+export const BoothData: React.FC<BoothViewProps> = ({ company, people="", details }) => {
+  return (
+    <Accordion defaultExpanded sx={{ boxShadow: "none", background: "transparent" }}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
+        <Typography variant="h5" fontWeight={600} sx={{ color:theme.palette.warning.dark,  fontSize:"16px"}}>{company}</Typography>
+      </AccordionSummary>
+    <AccordionDetails sx={{ px: 0 }}>
+    {/* People Section*/}
+    { people!=""?(
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="h6" fontWeight={700} sx={{ fontSize: "12px", mb: 1.5 }}>
+        People
+      </Typography>
+      <Box
+        sx={{
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 1,
+          p: 2,
+        }}
+      >
+        {Object.entries(people).map(([key, person], index) => (
+          <Box key={person.id}>
+            <Box sx={{ mb: index !== Object.entries(people).length - 1 ? 2 : 0 }}>
+              <Typography variant="body2" fontWeight={600} sx={{ fontSize: "12px" }}>
+                {person.name}
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: "12px", color: "text.secondary" }}>
+                {person.email}
+              </Typography>
+            </Box>
+            {index !== Object.entries(people).length - 1 && (
+              <Box sx={{ borderBottom: "1px solid", borderColor: "divider", my: 2 }} />
+            )}
+          </Box>
+        ))}
+      </Box>
+    </Box> ):<></>}
+
+    {/* Other Details Section */}
+    <Box component="dl" sx={{ m: 0 }}>
+      {Object.entries(details)
+        .filter(([key]) => key !== "people")
+        .map(([key, value]) => (
+          <Box key={key} sx={{ display: "grid", gridTemplateColumns: "auto 1fr", columnGap: 3, alignItems: "start", mb: 2 }}>
+            <Typography component="dt" variant="h6" fontWeight={700} sx={{ mr: 2, fontSize: "12px" }}>
+              {key}:
+            </Typography>
+            <Typography component="dd" variant="h6" sx={{ m: 0, color: "text.primary", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "12px" }}>
+              {value}
+            </Typography>
+          </Box>
+        ))}
+    </Box>
+  </AccordionDetails>
+  </Accordion>
+  );
+};
+
+
 
 export default {};
 

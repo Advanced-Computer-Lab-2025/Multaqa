@@ -31,7 +31,7 @@ const EventBox: React.FC<EventBoxProps> = ({ sections, sx }) => {
         flex: 1,
         overflowY: "auto",
         overflowX: "hidden",
-        p: 2,
+        padding:"2px 16px",
         pb: 8, // Add bottom padding to prevent content from being hidden behind fixed button
       }}>
         {contentSections.map((section, index) => (

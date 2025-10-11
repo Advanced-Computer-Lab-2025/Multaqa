@@ -10,18 +10,51 @@ import AppWrapper from '@/components/shared/FilterCard/example';
 import { CustomTextField, CustomSelectField, CustomCheckboxGroup, CustomRadio, CustomRating, CustomCheckbox } from "@/components/shared/input-fields";
 import type { StakeholderType } from "@/components/shared/input-fields";
 import BazarView from "@/components/BazarView";
+import TripView from "@/components/TripView";
+import BoothView from "@/components/BoothView";
 // import Event from "@/components/shared/containers/Event/Event";
 
 
 
 export default function HomePage() {
-  const eventDetails = {
+  const eventDetails1 = {
     "Location": "GUC",
     "Start Date": "02/10/2005",
     "End Date": "03/10/2005",
     "Registration Deadline": "01/10/2005",
   } as const;
 
+  const eventDetails2 = {
+    "Location": "GUC",
+    "Start Date": "02/10/2005",
+    "End Date": "03/10/2005",
+    "Price": "500 EGP",
+  } as const;
+
+  const eventDetails3={
+    company: "Lazy Lads",
+    people: {
+      person1:{ id:"123",
+        "Name": "ahmed",
+        "Email": "ahmed@gmail.com",
+      },
+      person2:{ id:"123",
+        "Name": "ahmed",
+        "Email": "ahmed@gmail.com",
+      },
+      person3:{ id:"123",
+        "Name": "ahmed",
+        "Email": "ahmed@gmail.com",
+      }
+    },
+    details :{
+    "Start Date":"22-Oct",
+    "End Date":"06-Nov",
+    "Duration": "2 weeks",
+    "Location":"Booth B1 in Platform",
+    "Size":"2x2"
+    }
+  }
   
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
@@ -169,7 +202,7 @@ export default function HomePage() {
       <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
       <CustomSearchBar icon={false} width="800px" type="outwards" label="Search Events..." />
      <div style={{display:"flex", flexDirection:"row", gap:"20px"}}>
-       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjh tuktiupyi orjowkeojkpwef ojjhoihjihijawfe
+       <BazarView  details={eventDetails1} name="Summer Bazaar" description="well nothing realmhgjh tuktiupyi orjowkeojkpwef ojjhoihjihijawfe
        fweqwreqhiu
        werqiuwerqiuyw
        reqiyuwrly yayyy rea
@@ -177,11 +210,17 @@ export default function HomePage() {
        ojjhoihjihijawf
        efweqwreqhiuwerqiuwe
        rqiuywreqiyuwrly yayyy "/>
-
-       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
-
-       <BazarView  details={eventDetails} name="Summer Bazaar" description="well nothing realmhgjhtuktiupyiorjowkeojkpwefojjhoihjihijawfefweqwreqhiuwerqiuwerqiuywreqiyuwrly yayyy"/>
+       <TripView details={eventDetails2} name="Summer Fiesta" description="well nothing realmhgjh tuktiupyi orjowkeojkpwef ojjhoihjihijawfe
+       fweqwreqhiu
+       werqiuwerqiuyw
+       reqiyuwrly yayyy rea
+       lmhgjhtuktiupyiorjowkeojkpwe
+       ojjhoihjihijawf
+       efweqwreqhiuwerqiuwe
+       rqiuywreqiyuwrly yayyy "/>
        </div>
+
+       <BoothView company={eventDetails3.company } details={eventDetails3.details}/>
       <AppWrapper />
     </div>
   );

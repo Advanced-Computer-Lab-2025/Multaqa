@@ -1,0 +1,30 @@
+"use client";
+
+import React from "react";
+import { Box } from "@mui/material";
+import { AccentContainer, EventBox, DescriptionAccordion, DetailsAccordion } from "./Event";
+import CustomButton from "./shared/Buttons/CustomButton";
+import { BoothViewProps } from "./types";
+import { BoothData } from "./Event/Event";
+
+const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
+  return (
+    <AccentContainer title="Booth" accent="warning">
+      <EventBox
+        sections={[
+          <BoothData company={company } people={people} details={details}/>
+          ,
+          <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
+            <CustomButton fullWidth size="small" variant="contained" color="warning" sx={{ borderRadius: 999}}>
+              Register
+            </CustomButton>
+          </Box>,
+        ]}
+      />
+    </AccentContainer>
+  );
+};
+
+export default BoothView;
+
+
