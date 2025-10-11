@@ -7,16 +7,13 @@ import CustomIcon from "@/components/shared/Icons/CustomIcon";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import { CustomModalLayout } from "@/components/shared/modals";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
-import { CustomTextField, CustomSelectField, CustomCheckboxGroup, CustomRadio, CustomRating, CustomCheckbox } from "@/components/shared/input-fields";
+import { CustomTextField, CustomSelectField } from "@/components/shared/input-fields";
 import type { StakeholderType } from "@/components/shared/input-fields";
 import BazarView from "@/components/Event/BazarView";
 import TripView from "@/components/Event/TripView";
 import BoothView from "@/components/Event/BoothView";
 import ConferenceView from "@/components/Event/ConferenceView";
 import WorkshopView from "@/components/Event/WorkshopView";
-// import Event from "@/components/shared/containers/Event/Event";
-
-
 
 export default function HomePage() {
   const eventDetails1 = {
@@ -160,118 +157,9 @@ export default function HomePage() {
 
   return (
     <div className=" min-h-screen flex items-center justify-center gap-5 flex-col p-4">
-      <CustomModal 
-        modalType="delete"
-        title="Confirm Action"
-        description="Are you sure you want to proceed with this action? This cannot be undone."
-        buttonOption1={{
-          label: "Cancel",
-          variant: "outlined",
-          color: "secondary"
-        }}
-        buttonOption2={{
-          label: "Confirm",
-          variant: "contained",
-          color: "primary",
-          onClick: () => console.log("Action confirmed!")
-        }}
-      />
-      <CustomButton onClick={() => setOpen(true)}>Open Modal Layout</CustomButton>
-      <CustomModalLayout open={open} onClose={handleClose}>
-        <div>
-          <div className="flex flex-col gap-6">
-            {/* First Name */}
-            <CustomTextField
-              fieldType="text"
-              label="First Name"
-              value={formData.firstName}
-              onChange={(e) => handleInputChange('firstName', e.target.value)}
-              required
-              neumorphicBox
-              fullWidth
-            />
-
-            {/* Last Name */}
-            <CustomTextField
-              fieldType="text"
-              label="Last Name"
-              value={formData.lastName}
-              onChange={(e) => handleInputChange('lastName', e.target.value)}
-              required
-              neumorphicBox
-              fullWidth
-            />
-
-            {/* Stakeholder Type Select */}
-            <CustomSelectField
-              label="Stakeholder Type"
-              fieldType="single"
-              options={[
-                { label: "Student", value: "student" },
-                { label: "Staff", value: "staff" },
-                { label: "Vendor", value: "vendor" },
-                { label: "Company", value: "company" }
-              ]}
-              value={formData.stakeholderType}
-              onChange={(value) => handleInputChange('stakeholderType', value)}
-              required
-            />
-            {/* Email Field - Tailored by stakeholder type */}
-            {formData.stakeholderType && (
-              <CustomTextField
-                fieldType="email"
-                label={`Email (${formData.stakeholderType})`}
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                stakeholderType={formData.stakeholderType as StakeholderType}
-                required
-                neumorphicBox
-                fullWidth
-              />
-            )}
-
-            {/* Submit Button */}
-            <div className="flex justify-end gap-3 mt-4">
-              <CustomButton
-                variant="outlined"
-                label="Cancel"
-                onClick={handleClose}
-              />
-              <CustomButton
-                variant="contained"
-                label="Sign Up"
-                onClick={handleSubmit}
-              />
-            </div>
-          </div>
-        </div>
-      </CustomModalLayout>
-      <div className="flex items-center justify-center gap-5">
-        <CustomButton
-          color="tertiary"
-          variant="contained"
-          size="small"
-          disableElevation
-          label="Save"
-        />
-          <CustomButton
-          variant="contained"
-          size="small"
-          disableElevation
-          label="Apply"
-          color="secondary"
-        />
-        <CustomButton
-          variant="contained"
-          size="small"
-          disableElevation
-          label="Submit"
-        />
-        <DeleteButton size="small" variant="contained" color="error" />
-      </div>
-      <CustomIcon icon="delete" size="small" containerType="inwards" />
-      <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
       <CustomSearchBar icon={false} width="800px" type="outwards" label="Search Events..." />
+
+
      <div style={{display:"flex", flexDirection:"row", gap:"20px"}}>
        <BazarView  details={eventDetails1} name="Summer Bazaar" description="well nothing realmhgjh tuktiupyi orjowkeojkpwef ojjhoihjihijawfe
        fweqwreqhiu
@@ -289,13 +177,12 @@ export default function HomePage() {
        ojjhoihjihijawf
        efweqwreqhiuwerqiuwe
        rqiuywreqiyuwrly yayyy "/>
+        <BoothView company={eventDetails3.company } details={eventDetails3.details}/>
+        <ConferenceView name={conference.name} description={conference.description} agenda={conference.agenda} details={conference.details} />
+        <WorkshopView name={workshop.name} description={workshop.description} agenda={workshop.agenda} details={workshop.details}/>
        </div>
 
-       <BoothView company={eventDetails3.company } details={eventDetails3.details}/>
-
-       <ConferenceView name={conference.name} description={conference.description} agenda={conference.agenda} details={conference.details} />
-
-       <WorkshopView name={workshop.name} description={workshop.description} agenda={workshop.agenda} details={workshop.details}/>
+      
       <AppWrapper />
     </div>
   );
