@@ -4,7 +4,7 @@ import { Event_Request_Status } from "../constants/user.constants";
 export interface IWorkshop extends IEvent {
   approvalStatus?: Event_Request_Status;
   fullAgenda?: string;
-  facultyResponsible?: string;
+  associatedFaculty?: string;
   associatedProfs?: string[];
   requiredBudget?: number;
   fundingSource?: string;
