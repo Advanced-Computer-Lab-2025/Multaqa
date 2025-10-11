@@ -1,4 +1,4 @@
-import { IEvent } from "../interfaces/event.interface";
+import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
@@ -9,7 +9,7 @@ import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
-import { IStaffMember } from "../interfaces/staffMember.interface";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
 import { EVENT_OFFICE_PERMISSIONS } from "../constants/administration.constants";
 import { Event_Request_Status } from "../constants/user.constants";
@@ -24,7 +24,7 @@ export class ProfessorService {
     this.staffRepo = new GenericRepository(StaffMember);
   }
 
-  async createWorkshop(data: any, professorid: any) {
+  async createWorkshop(data: any, professorid: any): Promise<IEvent> {
     data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
@@ -40,6 +40,7 @@ export class ProfessorService {
 
       return createdEvent;
     }
+    throw createError(404, "Professor not found");
   }
 
   async updateWorkshop(workshopId: string, updateData: any) {
