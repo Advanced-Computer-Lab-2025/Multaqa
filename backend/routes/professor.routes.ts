@@ -3,10 +3,16 @@ import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
 import { ProfessorService } from "../services/professorService";
-import { CreateWorkshopResponse, UpdateWorkshopResponse } from "../interfaces/responses/professorResponses.interface";
+import {
+  CreateWorkshopResponse,
+  UpdateWorkshopResponse,
+} from "../interfaces/responses/professorResponses.interface";
 const professorService = new ProfessorService();
 
-async function createWorkshop(req: Request, res: Response<CreateWorkshopResponse>) {
+async function createWorkshop(
+  req: Request,
+  res: Response<CreateWorkshopResponse>
+) {
   try {
     // Assuming req.user is set by auth middleware
     const professorid = req.params.id;
@@ -26,7 +32,7 @@ async function createWorkshop(req: Request, res: Response<CreateWorkshopResponse
     res.status(201).json({
       success: true,
       data: event,
-      message: "Workshop created successfully", 
+      message: "Workshop created successfully",
     });
   } catch (err: any) {
     console.error("Error creating workshop:", err);
@@ -35,7 +41,10 @@ async function createWorkshop(req: Request, res: Response<CreateWorkshopResponse
 }
 
 // Update Workshop
-async function updateWorkshop(req: Request, res: Response<UpdateWorkshopResponse>) {
+async function updateWorkshop(
+  req: Request,
+  res: Response<UpdateWorkshopResponse>
+) {
   try {
     const workshopId = req.params.workshopId;
     const validationResult = validateUpdateWorkshop(req.body);
@@ -54,7 +63,7 @@ async function updateWorkshop(req: Request, res: Response<UpdateWorkshopResponse
     res.status(200).json({
       success: true,
       data: updatedWorkshop,
-      message: "Workshop updated successfully"
+      message: "Workshop updated successfully",
     });
   } catch (err: any) {
     console.error("Error updating workshop:", err);

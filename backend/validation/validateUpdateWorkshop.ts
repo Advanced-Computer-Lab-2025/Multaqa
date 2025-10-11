@@ -23,6 +23,7 @@ export function validateUpdateWorkshop(data: any) {
     approvalStatus: Joi.string()
       .valid(...Object.values(Event_Request_Status))
       .optional(),
+    comments: Joi.string().allow("").optional(),
   });
 
   return schema.validate(data);
