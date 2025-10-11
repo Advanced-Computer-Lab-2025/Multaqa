@@ -5,8 +5,8 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, ButtonProps, Typogr
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import theme from "@/themes/lightTheme";
-import {resolveButtonPalette } from "../utils"
-import { BoothViewProps } from "../types";
+import {resolveButtonPalette } from "../../utils"
+import { BoothViewProps } from "../../types";
 
 export type DescriptionAccordionProps = {
   name: string;

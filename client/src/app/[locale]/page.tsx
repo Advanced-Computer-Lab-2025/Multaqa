@@ -9,9 +9,9 @@ import { CustomModalLayout } from "@/components/shared/modals";
 import AppWrapper from '@/components/shared/FilterCard/example'; 
 import { CustomTextField, CustomSelectField, CustomCheckboxGroup, CustomRadio, CustomRating, CustomCheckbox } from "@/components/shared/input-fields";
 import type { StakeholderType } from "@/components/shared/input-fields";
-import BazarView from "@/components/BazarView";
-import TripView from "@/components/TripView";
-import BoothView from "@/components/BoothView";
+import BazarView from "@/components/Event/BazarView";
+import TripView from "@/components/Event/TripView";
+import BoothView from "@/components/Event/BoothView";
 // import Event from "@/components/shared/containers/Event/Event";
 
 

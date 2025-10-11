@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Box, Typography, type ButtonProps, IconButton } from "@mui/material";
 import { FullscreenExit, Fullscreen } from "@mui/icons-material";
-import {resolveButtonPalette } from "../utils"
+import {resolveButtonPalette } from "../../utils"
 import theme from "@/themes/lightTheme";
 
 export type AccentContainerProps = {
