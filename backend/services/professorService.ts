@@ -11,6 +11,8 @@ import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the 
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { IStaffMember } from "../interfaces/staffMember.interface";
 import mongoose from "mongoose";
+import { EVENT_OFFICE_PERMISSIONS } from "../constants/administration.constants";
+import { Event_Request_Status } from "../constants/user.constants";
 
 export class ProfessorService {
   // Service methods would go here
@@ -24,11 +26,11 @@ export class ProfessorService {
 
   async createWorkshop(data: any, professorid: any) {
     data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
-
+    data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.eventRepo.create(mappedData);
     const professor = await this.staffRepo.findById(professorid);
-
+    console.log("Professor found:", professor); // 👈 debug line
     if (professor && professor.myWorkshops) {
       const createdEventId = createdEvent._id;
       professor.myWorkshops.push(
