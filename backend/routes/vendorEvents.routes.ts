@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { VendorService } from "../services/vendorEventsService";
 import createError from "http-errors";
 import { validateCreateApplicationData } from "../validation/validateCreateApplicationData.validation";
-import { GetVendorEventsResponse, ApplyToBazaarOrBoothResponse} from "../interfaces/responses/vendorResponses.interface";
+import { GetVendorEventsResponse, ApplyToBazaarOrBoothResponse} from "../interfaces/responses/vendorEventsResponses.interface";
 
 const vendorService = new VendorService();
 
