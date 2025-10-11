@@ -5,6 +5,7 @@ import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
+import { validateUpdateConference } from "../validation/validateUpdateConference";
 
 const eventsService = new EventsService();
 
@@ -74,6 +75,40 @@ async function createEvent(req: Request, res: Response) {
   }
 }
 
+async function updateEvent(req: Request, res: Response) {
+  try {
+    const eventId = req.params.id;
+    const updateData = req.body;
+
+    let validationResult;
+
+    //have to specifcy type in postman since it needs it to validate
+    switch (req.body.type) {
+      case "conference":
+        // Validate conference-specific fields
+        validationResult = validateUpdateConference(req.body);
+        break;
+
+      default:
+        throw createError(400, "Invalid or unsupported event type");
+    }
+
+    if (validationResult.error) {
+      const message = validationResult.error.details
+        .map((d) => d.message)
+        .join(", ");
+      throw createError(400, message);
+    }
+
+    const updatedEvent = await eventsService.updateEvent(eventId, updateData);
+
+    res.status(200).json(updatedEvent);
+  } catch (err: any) {
+    console.error("Error updating Event:", err);
+    throw createError(500, err.message);
+  }
+}
+
 async function deleteEvent(req: Request, res: Response) {
   const id = req.params.id;
   const deletedEvent = await eventsService.deleteEvent(id);
@@ -85,5 +120,6 @@ router.get("/", findAll);
 router.get("/:id", findOne);
 router.post("/", createEvent);
 router.delete("/:id", deleteEvent);
+router.patch("/:id", updateEvent);
 
 export default router;
