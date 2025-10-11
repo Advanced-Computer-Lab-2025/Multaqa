@@ -6,14 +6,14 @@ const eventBaseSchema = Joi.object({
   type: Joi.string()
     .valid(...Object.values(EVENT_TYPES))
     .required(),
-  eventName: Joi.string().required(),
-  eventStartDate: Joi.date().required(),
-  eventEndDate: Joi.date().required(),
-  eventStartTime: Joi.string().required(),
-  eventEndTime: Joi.string().required(),
-  registrationDeadline: Joi.date().required(),
-  location: Joi.string().required(),
-  description: Joi.string().required(),
+  eventName: Joi.string().optional(),
+  eventStartDate: Joi.date().optional(),
+  eventEndDate: Joi.date().optional(),
+  eventStartTime: Joi.string().optional(),
+  eventEndTime: Joi.string().optional(),
+  registrationDeadline: Joi.date().optional(),
+  location: Joi.string().optional(),
+  description: Joi.string().optional(),
 });
 
 // Bazaar event schema
@@ -23,8 +23,8 @@ const bazaarSchema = eventBaseSchema.keys({
 
 // Trip event schema
 const tripSchema = eventBaseSchema.keys({
-  capacity: Joi.number().min(1).required(),
-  price: Joi.number().min(0).required(),
+  capacity: Joi.number().min(1).optional(),
+  price: Joi.number().min(0).optional(),
 });
 
 export function validateUpdateEvent(data: any) {
