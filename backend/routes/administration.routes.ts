@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { AdministrationService } from '../services/administrationService';
 import { createAdminValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
-import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse, AssignRoleResponse } from "../interfaces/responses/administrationResponses.interface";
+import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse } from "../interfaces/responses/administrationResponses.interface";
 
 const router = Router();
 const adminService = new AdministrationService();
@@ -66,27 +66,8 @@ async function getAllAdmins(req: Request, res: Response<GetAllAdminsResponse>) {
   }
 }
 
-// Assign role to staffMember and send verification email
-async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
-  try {
-    const { userId } = req.params;
-    const { position } = req.body;
-
-    const result = await adminService.assignRoleAndSendVerification(userId, position);
-
-    res.json({
-      success: true,
-      message: "Role assigned and verification email sent successfully",
-      user: result
-    });
-  } catch (error: any) {
-    throw createError(error.status || 500, error.message || 'Failed to assign role and send verification email');
-  }
-}
-
 router.post('/', createAdmin);
 router.delete('/:adminId', deleteAdmin);
 router.get('/', getAllAdmins);
-router.post('/assign-role/:userId', assignRole);
 
 export default router;
