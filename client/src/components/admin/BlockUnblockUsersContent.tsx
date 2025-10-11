@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CustomButton from "../shared/Buttons/CustomButton";
@@ -70,7 +69,6 @@ const initialUsers: User[] = [
 ];
 
 export default function BlockUnblockUsersContent() {
-  const theme = useTheme();
   const [users, setUsers] = useState<User[]>(initialUsers);
 
   const handleToggleBlock = (userId: string) => {
@@ -96,6 +94,9 @@ export default function BlockUnblockUsersContent() {
         padding: "16px",
         backgroundColor: "#fff",
         transition: "all 0.2s ease",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
         "&:hover": {
           borderColor: user.status === "Active" ? "#db3030" : "#4caf50",
           boxShadow:
@@ -111,6 +112,7 @@ export default function BlockUnblockUsersContent() {
           justifyContent: "space-between",
           alignItems: "flex-start",
           mb: 2,
+          flexGrow: 1,
         }}
       >
         <Box sx={{ flex: 1 }}>
@@ -149,20 +151,27 @@ export default function BlockUnblockUsersContent() {
         <StatusChip status={user.status} />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-end",
+        }}
+      >
         <CustomButton
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
           onClick={() => handleToggleBlock(user.id)}
           startIcon={
-            user.status === "Active" ? <BlockIcon /> : <CheckCircleOutlineIcon />
+            user.status === "Active" ? (
+              <BlockIcon />
+            ) : (
+              <CheckCircleOutlineIcon />
+            )
           }
           sx={{
             width: "100%",
             maxWidth: "120px",
-            display: "flex",
-            alignSelf: "flex-end",
-            justifySelf: "flex-end",
             color: user.status === "Active" ? "error.main" : "success.main",
             borderColor:
               user.status === "Active"
