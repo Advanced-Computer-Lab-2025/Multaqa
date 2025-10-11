@@ -11,3 +11,8 @@ export interface GetUserByIdResponse {
   data: Omit<IUser, 'password'>;
   message?: string;
 }
+
+export interface BlockUserResponse {
+    success: boolean;
+    message: string;
+}

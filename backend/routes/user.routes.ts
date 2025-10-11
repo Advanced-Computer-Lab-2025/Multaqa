@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { UserService } from "../services/userService";
 import createError from "http-errors";
-import { GetAllUsersResponse, GetUserByIdResponse } from "../interfaces/responses/userResponses.interface";
+import { GetAllUsersResponse, GetUserByIdResponse, BlockUserResponse } from "../interfaces/responses/userResponses.interface";
 const userService = new UserService();
 
 async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
@@ -40,9 +40,23 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
   }
 }
 
+async function blockUser(req: Request, res: Response<BlockUserResponse>) {
+  try {
+    const userId = req.params.id;
+    await userService.blockUser(userId);
+    res.json({
+      success: true,
+      message: "User blocked successfully"
+    });
+  } catch (err: any) {
+    throw createError(500, err.message);
+  }
+}
+
 const router = Router();
 
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
+router.post("/:id/block", blockUser);
 
 export default router;
