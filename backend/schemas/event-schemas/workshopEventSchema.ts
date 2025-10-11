@@ -28,6 +28,7 @@ const workshopSchema = new Schema({
   extraRequiredResources: [{ type: String }],
   capacity: { type: Number, min: 1, default: 10 },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  price: { type: Number, required: true, min: 0 },
 });
 
 export const Workshop = Event.discriminator("workshop", workshopSchema);

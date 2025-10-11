@@ -35,6 +35,8 @@ export class ProfessorService {
         createdEventId as mongoose.Schema.Types.ObjectId
       );
       await professor.save();
+      console.log(createdEvent);
+
       return createdEvent;
     }
   }

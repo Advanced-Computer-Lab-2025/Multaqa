@@ -8,19 +8,15 @@ import "../schemas/event-schemas/platformBoothEventSchema";
 import "../schemas/event-schemas/conferenceEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
+import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
-import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
-import { IStaffMember } from "../interfaces/staffMember.interface";
-import mongoose from "mongoose";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
-  private staffRepo: GenericRepository<IStaffMember>;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
-    this.staffRepo = new GenericRepository(StaffMember);
   }
 
   async getEvents(
