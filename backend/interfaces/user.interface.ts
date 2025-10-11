@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
-import { UserRole } from "../constants/user.constants.js";
-import { UserStatus } from "../constants/user.constants.js";
+import { UserRole } from "../constants/user.constants";
+import { UserStatus } from "../constants/user.constants";
 
 export interface INotification {
   title: string;

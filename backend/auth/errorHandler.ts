@@ -7,17 +7,8 @@ import {
 } from "express";
 import createError, { HttpError } from "http-errors";
 import { MongooseError } from "mongoose";
+import { ErrorResponse} from "../interfaces/errors/errorResponse.interface";
 
-// Error response type
-interface ErrorResponse {
-  success: boolean;
-  error: string;
-  statusCode: number;
-  code?: string | number;
-  type?: string;
-  errors?: Array<{ field: string; message: string }>;
-  stack?: string;
-}
 
 // Centralized error handler middleware using http-errors
 export const errorHandler = (
