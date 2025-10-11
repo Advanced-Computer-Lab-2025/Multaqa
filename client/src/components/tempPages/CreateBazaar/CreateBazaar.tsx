@@ -28,10 +28,18 @@ interface CreateBazaarProps {
 const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
 
   const onSubmit = async (values: any, actions: any) => {
-    console.log(values);
+    const payload = {
+        bazaarName: values.bazaarName,
+        location: values.location,
+        description: values.description,
+        startDate: values.startDate.toDate(),
+        endDate: values.endDate.toDate(),
+        registrationDeadline: values.registrationDeadline.toDate()
+    };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     setOpenCreateBazaar(false);
+    console.log(JSON.stringify(payload))
   };
 
   const [infoOpen, setInfoOpen] = useState(true);

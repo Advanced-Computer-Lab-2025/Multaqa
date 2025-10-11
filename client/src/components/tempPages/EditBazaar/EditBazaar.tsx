@@ -37,10 +37,18 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
   
 
   const onSubmit = async (values: any, actions: any) => {
-    console.log(values);
+    const payload = {
+        bazaarName: values.bazaarName,
+        location: values.location,
+        description: values.description,
+        startDate: values.startDate.toDate(),
+        endDate: values.endDate.toDate(),
+        registrationDeadline: values.registrationDeadline.toDate()
+    };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     setOpenEditBazaar(false);
+    alert(JSON.stringify(payload));
   };
 
   const [infoOpen, setInfoOpen] = useState(true);
@@ -55,13 +63,6 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
     <>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Edit Bazaar</Typography>
-        <Box sx={{borderBottom: 1, pb:1, mb:2, mt:3, display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-            <Typography variant='body1' color='textSecondary' className='h6'>Basic Information</Typography>
-            <IconButton onClick={() => setInfoOpen((prev) => !prev)} size="small">
-                {infoOpen ? <ArrowUpwardIcon fontSize='medium' /> : <ArrowDownwardIcon fontSize='medium' />}
-            </IconButton>
-        </Box>
-        <Collapse in={infoOpen}>
             <Grid container spacing={2}>
                 <Grid size={6}>
                     <CustomTextField 
@@ -87,28 +88,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                     />
                     { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
                 </Grid>
-                <Grid size={12}>
-                    <CustomTextField 
-                        name='description'
-                        id='description'
-                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
-                        neumorphicBox={true}
-                        value={values.description}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-                </Grid>
             </Grid>
-        </Collapse>
-        <Box sx={{borderBottom: 1, pb:1, mb:2, mt:3, display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-            <Typography variant='body1' color='textSecondary' className='h6'>Schedule</Typography>
-            <IconButton onClick={() => setScheduleOpen((prev) => !prev)} size="small">
-                {scheduleOpen ? <ArrowUpwardIcon fontSize='medium' /> : <ArrowDownwardIcon fontSize='medium' />}
-            </IconButton>
-        </Box>
-        <Collapse in={scheduleOpen}>
             <Grid container spacing={2}>
                 <Grid size={6}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -176,9 +156,21 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
                 </Grid>
+                                <Grid size={12}>
+                    <CustomTextField 
+                        name='description'
+                        id='description'
+                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                        neumorphicBox={true}
+                        value={values.description}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
+                    />
+                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                </Grid>
             </Grid>
-        </Collapse>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end'}}> 
+        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
             <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
         </Box>
         </form>

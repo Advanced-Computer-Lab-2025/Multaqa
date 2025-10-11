@@ -42,10 +42,20 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
   };
   
   const onSubmit = async (values: any, actions: any) => {
-    alert(values.startDate.toDate());
+    const payload ={
+        tripName: values.tripName,
+        location: values.location,
+        price: values.price,
+        description: values.description,
+        startDate: values.startDate.toDate(),
+        endDate: values.endDate.toDate(),
+        registrationDeadline: values.registrationDeadline.toDate(),
+        capacity: values.capacity,
+    };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     setOpenEditTrip(false);
+    console.log(JSON.stringify(payload))
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
