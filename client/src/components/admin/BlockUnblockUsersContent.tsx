@@ -89,27 +89,15 @@ export default function BlockUnblockUsersContent() {
               <CheckCircleOutlineIcon />
             )
           }
+          color={user.status === "Active" ? "error" : "success"}
           sx={{
             width: "100%",
             maxWidth: "120px",
-            color: user.status === "Active" ? "error.main" : "success.main",
-            borderColor:
-              user.status === "Active"
-                ? "rgba(219, 48, 48, 0.5)"
-                : "rgba(76, 175, 80, 0.5)",
-            "&:hover": {
-              backgroundColor:
-                user.status === "Active"
-                  ? "rgba(219, 48, 48, 0.04)"
-                  : "rgba(76, 175, 80, 0.04)",
-              borderColor:
-                user.status === "Active" ? "error.main" : "success.main",
-            },
           }}
         />
       }
       hoverBorderColor={
-        user.status === "Active" ? theme.palette.error.main : "#4caf50"
+        user.status === "Active" ? theme.palette.error.main : "success.main"
       }
       hoverBoxShadow={
         user.status === "Active"
