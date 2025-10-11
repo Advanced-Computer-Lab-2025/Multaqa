@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
-import { ProfessorService } from "../services/professorService";
+import { ProfessorService } from "../services/workshopsService";
 import { CreateWorkshopResponse, UpdateWorkshopResponse } from "../interfaces/responses/professorResponses.interface";
 const professorService = new ProfessorService();
 

@@ -1,13 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { AdministrationService } from '../services/administrationService';
+import { AdministrationService } from '../services/adminService';
 import { createAdminValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
 import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse } from "../interfaces/responses/administrationResponses.interface";
 
 const router = Router();
 const adminService = new AdministrationService();
-
-// Missing: role authorization, only Admin should access this 
 
 // Create admin/Event Office account
 async function createAdmin(req: Request, res: Response<CreateAdminResponse>) {

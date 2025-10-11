@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
-import vendorRouter from "./routes/vendors.routes";
+import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
 import "./config/redisClient";
@@ -12,7 +12,7 @@ import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
-import administrationRouter from "./routes/administration.routes";
+import adminRouter from "./routes/admin.routes";
 
 dotenv.config();
 
@@ -30,8 +30,8 @@ app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);
 app.use("/gymsessions", gymSessionsRouter);
-app.use("/admins", administrationRouter);
-app.use("/vendors", vendorRouter);
+app.use("/admins", adminRouter);
+app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter); 
 
 const MONGO_URI =

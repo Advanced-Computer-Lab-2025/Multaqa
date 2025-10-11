@@ -15,7 +15,7 @@ import { StaffPosition } from '../constants/staffMember.constants';
 import createError from 'http-errors';
 import { sendVerification } from './emailService';
 import { VerificationService } from './verificationService';
-import { AdministrationService } from './administrationService';
+import { AdministrationService } from './adminService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 
 export class AuthService {

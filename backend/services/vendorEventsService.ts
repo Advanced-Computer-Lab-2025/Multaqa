@@ -25,7 +25,7 @@ export class VendorService {
    * - If vendor not found -> throw 404
    * - Map populated requestedEvents to an array of events, filtering out any nulls
    */
-  async getVendorEvents(id: string): Promise<IRequestedEvent[]> {
+  async getVendorUpcomingEvents(id: string): Promise<IRequestedEvent[]> {
     // populate the nested 'event' field inside requestedEvents
     const vendor = await this.vendorRepo.findById(id, {
       populate: ["requestedEvents.event"],
