@@ -115,11 +115,72 @@ async function deleteEvent(req: Request, res: Response) {
   res.json({ event: deletedEvent });
 }
 
+async function getVendorsRequests(req: Request, res: Response) {
+  try {
+    const eventId = req.params.id;
+    const requests = await eventsService.getVendorsRequest(eventId);
+    if (!requests || requests.length === 0) {
+      throw createError(404, "No vendor requests found for this event");
+    }
+    res.json(requests);
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw err;
+    }
+    throw createError(500, err.message);
+  }
+}
+
+async function getVendorRequestsDetails(req: Request, res: Response) {
+  try {
+    const eventId = req.params.id;
+    const vendorId=req.params.vendorid
+    
+    const request = await eventsService.getVendorsRequestsDetails(eventId,vendorId);
+    if (!request ) {
+      throw createError(404, "Vendor request not found");
+    }
+    res.json(request);
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw err;
+    }
+    throw createError(500, err.message);
+  }
+}
+
+async function updateVendorRequest(req: Request, res: Response) {
+  try {
+    const eventId = req.params.eventid;
+    const vendorId = req.params.vendorid;
+    const { status } = req.body;
+
+    if (!eventId || !vendorId || !status) {
+   
+  throw createError(400, "Missing required fields")
+    }
+
+    await eventsService.respondToVendorRequest(eventId, vendorId, req.body);
+    
+    res.status(200).json({ message: "Vendor request updated successfully" });
+
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw createError(err.status, err.message);
+    }
+    throw createError(500, err.message);
+  } 
+}
+
 const router = Router();
 router.get("/", findAll);
 router.get("/:id", findOne);
 router.post("/", createEvent);
 router.delete("/:id", deleteEvent);
+router.get("/:id/vendor-requests", getVendorsRequests);
+router.get("/:id/vendor-requests/:vendorid",getVendorRequestsDetails)
+router.patch("/:eventid/vendor-requests/:vendorid", updateVendorRequest);
+
 router.patch("/:id", updateEvent);
 
 export default router;
