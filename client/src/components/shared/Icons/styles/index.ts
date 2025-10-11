@@ -21,6 +21,13 @@ export const StyledIconButton = styled(IconButton, {
       case "info":
       case "help":
         return "#2196f3";
+      case "primary":
+        return theme.palette.primary.main;
+      case "tertiary":
+        return theme.palette.tertiary.main;
+      case "secondary":
+        return theme.palette.tertiary.main;
+
       // default: return undefined so the button can inherit color (allow sx overrides)
       default:
         return undefined;
@@ -46,4 +53,5 @@ export const StyledIconButton = styled(IconButton, {
   };
 });
 
-export type IconType = "close" | "delete" | "edit" | "add" | "save" | "submit" | "bookmark" | "search" | "warning" | "error" | "success" | "info" | "help";
+export type IconType = "close" | "delete" | "edit" | "add" | "save" | "submit" | "bookmark" | "search" | "warning" | "error" | "success" | "info" | "help"| "primary"
+|"secondary"|"tertiary";
