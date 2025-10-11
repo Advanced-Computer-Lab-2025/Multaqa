@@ -1,4 +1,4 @@
-import {IUser} from "../user.interface"
+import {IUser} from "../models/user.interface"
 export type UserResponse = Omit<IUser, "password">;
 
 export interface SignupResponse {

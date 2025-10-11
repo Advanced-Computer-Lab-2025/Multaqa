@@ -1,4 +1,4 @@
-import { IEvent } from "../interfaces/event.interface";
+import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
@@ -11,7 +11,7 @@ import "../schemas/stakeholder-schemas/vendorSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
-import { IStaffMember } from "../interfaces/staffMember.interface";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
 
 export class EventsService {

@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
-import { IEvent } from "../../interfaces/event.interface";
+import { IEvent } from "../../interfaces/models/event.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
 import "../stakeholder-schemas/userSchema";
 import { UserRole } from "../../constants/user.constants";

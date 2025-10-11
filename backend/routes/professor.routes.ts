@@ -25,7 +25,11 @@ async function createWorkshop(req: Request, res: Response) {
     }
 
     const event = await professorService.createWorkshop(req.body, professorid);
-    res.status(201).json(event);
+    res.status(201).json({
+      success: true,
+      data: event,
+      message: "Workshop created successfully", 
+    });
   } catch (err: any) {
     console.error("Error creating workshop:", err);
     throw createError(500, err.message);

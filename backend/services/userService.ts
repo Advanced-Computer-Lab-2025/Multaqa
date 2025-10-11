@@ -1,5 +1,4 @@
-import { IStudent } from "../interfaces/student.interface";
-import { IUser } from "../interfaces/user.interface";
+import { IUser } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 

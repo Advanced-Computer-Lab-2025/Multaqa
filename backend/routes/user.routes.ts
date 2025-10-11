@@ -10,7 +10,11 @@ async function getAllUsers(req: Request, res: Response) {
     if (!users || users.length === 0) {
       throw createError(404, "No users found");
     }
-    res.json(users);
+    res.json({
+      success: true,
+      data: users, 
+      message: "Users retrieved successfully"
+    });
   } catch (err: any) {
     if (err.status || err.statusCode) {
       throw err;
@@ -25,7 +29,11 @@ async function getUserById(req: Request, res: Response) {
     if (!user) {
       throw createError(404, "User not found");
     }
-    res.json(user);
+    res.json({
+      success: true,
+      data: user,
+      message: "User retrieved successfully"
+    });
 
   } catch (err: any) {
     throw createError(500, err.message);

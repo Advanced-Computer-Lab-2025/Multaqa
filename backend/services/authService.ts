@@ -2,21 +2,21 @@ import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { User } from '../schemas/stakeholder-schemas/userSchema';
 import { UserRole } from '../constants/user.constants';
-import { IUser } from '../interfaces/user.interface';
-import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/requests/authRequests.interface';
+import { IUser } from '../interfaces/models/user.interface';
 import GenericRepository from '../repos/genericRepo';
-import { IStudent } from '../interfaces/student.interface';
+import { IStudent } from '../interfaces/models/student.interface';
 import { Student } from '../schemas/stakeholder-schemas/studentSchema';
-import { IStaffMember } from '../interfaces/staffMember.interface';
+import { IStaffMember } from '../interfaces/models/staffMember.interface';
 import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
 import redisClient from '../config/redisClient';
-import { IVendor } from '../interfaces/vendor.interface';
+import { IVendor } from '../interfaces/models/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
 import { StaffPosition } from '../constants/staffMember.constants';
 import createError from 'http-errors';
 import { sendVerification } from './emailService';
 import { VerificationService } from './verificationService';
 import { AdministrationService } from './administrationService';
+import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
