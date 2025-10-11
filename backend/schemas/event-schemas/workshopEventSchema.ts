@@ -35,6 +35,10 @@ const workshopSchema = new Schema({
     enum: Object.values(Event_Request_Status),
     default: Event_Request_Status.PENDING,
   },
+  comments: {
+    type: String,
+    default: "",
+  },
 });
 
 export const Workshop = Event.discriminator("workshop", workshopSchema);
