@@ -30,7 +30,6 @@ export class ProfessorService {
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.eventRepo.create(mappedData);
     const professor = await this.staffRepo.findById(professorid);
-    console.log("Professor found:", professor); // 👈 debug line
     if (professor && professor.myWorkshops) {
       const createdEventId = createdEvent._id;
       professor.myWorkshops.push(
