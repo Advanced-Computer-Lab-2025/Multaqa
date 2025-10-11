@@ -69,7 +69,7 @@ const initialUsers: User[] = [
   },
 ];
 
-export default function BlockUnblockUsers() {
+export default function BlockUnblockUsersContent() {
   const theme = useTheme();
   const [users, setUsers] = useState<User[]>(initialUsers);
 

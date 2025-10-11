@@ -5,8 +5,8 @@ import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import { ManageEventOfficeAccount } from "@/components/admin";
-import AllUsers from "@/components/admin/AllUsers";
-import BlockUnblockUsers from "@/components/admin/BlockUnblockUsers";
+import AllUsersContent from "@/components/admin/AllUsersContent";
+import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -78,10 +78,10 @@ export default function EntityCatchAllPage() {
 
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
-        return <AllUsers />;
+        return <AllUsersContent />;
       }
       if (section === "block-users") {
-        return <BlockUnblockUsers />;
+        return <BlockUnblockUsersContent />;
       }
     }
 

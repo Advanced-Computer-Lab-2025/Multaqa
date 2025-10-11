@@ -81,7 +81,7 @@ const userCreationSchema = Yup.object().shape({
   userRole: Yup.string().required("User role is required"),
 });
 
-export default function AllUsers() {
+export default function AllUsersContent() {
   const theme = useTheme();
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [createOpen, setCreateOpen] = useState(false);
