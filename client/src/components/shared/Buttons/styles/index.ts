@@ -70,15 +70,15 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     borderColor: theme.palette.error.dark,
     color: theme.palette.error.main,
   },
-"&:hover": {
-    background: "#a81818",
-    color: theme.palette.primary.contrastText,
-    border: "2px solid #a81818",
-    boxShadow: `
-   -53px -3px 8px 0 #fffff7,
-    5px 5px 8px 0 rgba(153, 153, 142, 0.6)
-  `,
-  },
+// "&:hover": {
+//     background: "#a81818",
+//     color: theme.palette.primary.contrastText,
+//     border: "2px solid #a81818",
+//     boxShadow: `
+//    -53px -3px 8px 0 #fffff7,
+//     5px 5px 8px 0 rgba(153, 153, 142, 0.6)
+//   `,
+//   },
   "&.MuiButton-outlined:hover": {
     borderWidth: "2px",
     borderStyle: "solid",
