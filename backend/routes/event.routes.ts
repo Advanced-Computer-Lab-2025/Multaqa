@@ -6,6 +6,7 @@ import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";
+import { validateUpdateEvent } from "../validation/validateUpdateEvent";
 
 const eventsService = new EventsService();
 
@@ -87,6 +88,10 @@ async function updateEvent(req: Request, res: Response) {
       case "conference":
         // Validate conference-specific fields
         validationResult = validateUpdateConference(req.body);
+        break;
+      case "bazaar":
+      case "trip":
+        validationResult = validateUpdateEvent(req.body);
         break;
 
       default:
