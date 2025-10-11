@@ -3,7 +3,7 @@ import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { User } from '../schemas/stakeholder-schemas/userSchema';
 import { UserRole } from '../constants/user.constants';
 import { IUser } from '../interfaces/user.interface';
-import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
+import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/requests/authRequests.interface';
 import GenericRepository from '../repos/genericRepo';
 import { IStudent } from '../interfaces/student.interface';
 import { Student } from '../schemas/stakeholder-schemas/studentSchema';
@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise< Omit<IUser, 'password'> > {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -108,9 +108,7 @@ export class AuthService {
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return {
-      user: userWithoutPassword as Omit<IUser, 'password'>,
-    };
+    return userWithoutPassword as Omit<IUser, 'password'>;
   }
 
   // for all users
@@ -187,7 +185,6 @@ export class AuthService {
     await redisClient.del(`refresh:${token}`);
   }
 
-
   generateAccessToken(user: IUser): string {
     return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.ACCESS_TOKEN_SECRET! as Secret, {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRES
@@ -195,9 +192,8 @@ export class AuthService {
   }
 
   generateRefreshToken(user: IUser): string {
-    return jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET! as Secret, {
+    return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.REFRESH_TOKEN_SECRET! as Secret, {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRES
     } as SignOptions);
   }
-
 }

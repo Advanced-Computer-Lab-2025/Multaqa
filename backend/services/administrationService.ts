@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { IAdministration } from '../interfaces/administration.interface';
-import { AdministrationSignupRequest } from '../interfaces/authRequests.interface';
+import { AdministrationSignupRequest } from '../interfaces/requests/authRequests.interface';
 import { UserRole, UserStatus } from '../constants/user.constants';
 import GenericRepository from '../repos/genericRepo';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';

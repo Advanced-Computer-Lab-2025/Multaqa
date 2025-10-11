@@ -1,9 +1,24 @@
-  import {LoginRequest} from "../authRequests.interface";
-  import {IUser} from "../user.interface"
+import {IUser} from "../user.interface"
+export type UserResponse = Omit<IUser, "password">;
 
- export interface LoginResponse {
-     success: boolean,
-     message: string,
-     user: Omit<IUser, 'password'>,
-     accessToken: string
-  }
+export interface SignupResponse {
+  success: boolean;
+  message: string; 
+  user: UserResponse;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string; 
+  user: UserResponse;
+  accessToken: string;
+}
+
+export interface RefreshResponse {
+  accessToken: string;
+}
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
