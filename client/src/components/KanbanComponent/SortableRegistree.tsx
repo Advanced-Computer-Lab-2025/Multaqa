@@ -3,7 +3,7 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import RegisterBox from "../RegistredComponent/Registree";
+import RegisterBox from "../admin/shared/RegistredComponent/Registree";
 import { SortableRegistreeProps } from "./types";
 
 /**
@@ -39,12 +39,7 @@ const SortableRegistree: React.FC<SortableRegistreeProps> = ({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <RegisterBox
         name={item.name}
         id={item.id}

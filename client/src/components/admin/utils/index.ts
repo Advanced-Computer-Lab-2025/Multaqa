@@ -7,6 +7,7 @@ import {
   AccountCreationFormValues,
   UserCreationFormValues,
 } from "../types";
+import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -82,6 +83,13 @@ export const handleDeleteAccount = (
   }
 };
 
+export const handleDragStart = (
+  event: DragStartEvent,
+  setActiveId: React.Dispatch<React.SetStateAction<string | null>>
+) => {
+  setActiveId(event.active.id as string);
+};
+
 export const assignToRole = (
   roleKey: string,
   user: Applicant,
@@ -95,6 +103,32 @@ export const assignToRole = (
     [roleKey]: [...(prev[roleKey] || []), user],
   }));
   setApplicants((prev) => prev.filter((a) => a.id !== user.id));
+};
+
+export const handleDragEnd = (
+  event: DragEndEvent,
+  setActiveId: React.Dispatch<React.SetStateAction<string | null>>,
+  applicants: Applicant[],
+  roleKeys: readonly string[],
+  setAssigned: React.Dispatch<
+    React.SetStateAction<Record<string, Applicant[]>>
+  >,
+  setApplicants: React.Dispatch<React.SetStateAction<Applicant[]>>
+) => {
+  const { active, over } = event;
+  setActiveId(null);
+
+  if (!over) return;
+
+  const draggedUserId = active.id as string;
+  const targetRole = over.id as string;
+
+  if (roleKeys.includes(targetRole)) {
+    const draggedUser = applicants.find((a) => a.id === draggedUserId);
+    if (draggedUser) {
+      assignToRole(targetRole, draggedUser, setAssigned, setApplicants);
+    }
+  }
 };
 
 export const handleToggleBlock = (

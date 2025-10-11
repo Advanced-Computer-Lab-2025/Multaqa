@@ -6,6 +6,7 @@ export interface RegisterBoxProps {
     role?: string;
     onRoleChange?: (role: string) => void;
     disabled?: boolean;
+    dragHandleProps?: any;
 }
 export interface TruncatedTextProps {
     children: string;

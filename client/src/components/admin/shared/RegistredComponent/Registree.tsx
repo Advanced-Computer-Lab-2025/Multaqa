@@ -12,8 +12,9 @@ import {
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import IdChip from "./IdChip";
-import NeumorphicBox from "../shared/containers/NeumorphicBox";
+import NeumorphicBox from "../../../shared/containers/NeumorphicBox";
 import theme from "@/themes/lightTheme";
 import { RegisterBoxProps } from "./types";
 import { TruncatedText } from "./utils";
@@ -28,6 +29,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   role = "N/A",
   onRoleChange,
   disabled,
+  dragHandleProps,
 }) => {
   const [selectedRole, setSelectedRole] = useState(role);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -60,6 +62,24 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
         position: "relative",
       }}
     >
+      {/* Drag Handle Indicator */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: "8px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          color: "#9CA3AF",
+          display: "flex",
+          alignItems: "center",
+          cursor: "grab",
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        {...dragHandleProps}
+      >
+        <DragIndicatorIcon sx={{ fontSize: "16px" }} />
+      </Box>
+
       {/* Header: Outer Stack controls Name/ID Group vs Arrow Icon */}
       <Stack
         direction="row"

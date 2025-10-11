@@ -27,16 +27,9 @@ export const SortableTicket: React.FC<SortableTicketProps> = ({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const childWithDragHandle = React.cloneElement(children, {
-    dragHandleProps: {
-      ...attributes,
-      ...listeners,
-    },
-  });
-
   return (
-    <div ref={setNodeRef} style={style}>
-      {childWithDragHandle}
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
     </div>
   );
 };
