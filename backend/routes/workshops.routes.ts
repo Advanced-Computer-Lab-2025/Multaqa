@@ -8,11 +8,8 @@ const professorService = new ProfessorService();
 
 async function createWorkshop(req: Request, res: Response<CreateWorkshopResponse>) {
   try {
-    // Assuming req.user is set by auth middleware
-    const professorid = req.params.id;
-    let validationResult;
-
-    validationResult = validateWorkshop(req.body);
+    const professorid = (req as any).user.id;
+    let validationResult = validateWorkshop(req.body);
 
     // Handle Joi validation errors
     if (validationResult.error) {
@@ -37,6 +34,7 @@ async function createWorkshop(req: Request, res: Response<CreateWorkshopResponse
 // Update Workshop
 async function updateWorkshop(req: Request, res: Response<UpdateWorkshopResponse>) {
   try {
+    const professorid = (req as any).user.id;
     const workshopId = req.params.workshopId;
     const validationResult = validateUpdateWorkshop(req.body);
 
@@ -51,6 +49,7 @@ async function updateWorkshop(req: Request, res: Response<UpdateWorkshopResponse
       workshopId,
       req.body
     );
+
     res.status(200).json({
       success: true,
       data: updatedWorkshop,
@@ -63,7 +62,7 @@ async function updateWorkshop(req: Request, res: Response<UpdateWorkshopResponse
 }
 
 const router = Router();
-router.post("/:professorId/workshops", createWorkshop);
-router.patch("/:professorId/workshops/:workshopId", updateWorkshop);
+router.post("/", createWorkshop);
+router.patch("/:workshopId", updateWorkshop);
 
 export default router;

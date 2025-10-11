@@ -1,8 +1,6 @@
 import { Router, Request, Response } from "express";
 import { EventsService } from "../services/eventService";
-import { create } from "domain";
 import createError from "http-errors";
-import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";

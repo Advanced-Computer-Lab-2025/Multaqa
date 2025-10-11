@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import eventRouter from "./routes/event.routes";
 import vendorRouter from "./routes/vendors.routes";
 import authRouter from "./routes/auth.routes";
-import professorRouter from "./routes/professor.routes";
+import workshopsRouter from "./routes/workshops.routes";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
@@ -13,7 +13,6 @@ import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import administrationRouter from "./routes/administration.routes";
-import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
 
 dotenv.config();
 
@@ -31,9 +30,9 @@ app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);
 app.use("/gymsessions", gymSessionsRouter);
-app.use("/admin", administrationRouter);
-app.use("/vendor", vendorRouter);
-app.use("/professors", professorRouter); // Example protected route
+app.use("/admins", administrationRouter);
+app.use("/vendors", vendorRouter);
+app.use("/workshops", workshopsRouter); 
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
