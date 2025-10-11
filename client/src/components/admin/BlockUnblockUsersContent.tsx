@@ -149,31 +149,36 @@ export default function BlockUnblockUsersContent() {
         <StatusChip status={user.status} />
       </Box>
 
-      <CustomButton
-        label={user.status === "Active" ? "Block" : "Unblock"}
-        variant="outlined"
-        onClick={() => handleToggleBlock(user.id)}
-        startIcon={
-          user.status === "Active" ? <BlockIcon /> : <CheckCircleOutlineIcon />
-        }
-        sx={{
-          width: "100%",
-          maxWidth: "120px",
-          color: user.status === "Active" ? "error.main" : "success.main",
-          borderColor:
-            user.status === "Active"
-              ? "rgba(219, 48, 48, 0.5)"
-              : "rgba(76, 175, 80, 0.5)",
-          "&:hover": {
-            backgroundColor:
-              user.status === "Active"
-                ? "rgba(219, 48, 48, 0.04)"
-                : "rgba(76, 175, 80, 0.04)",
+      <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+        <CustomButton
+          label={user.status === "Active" ? "Block" : "Unblock"}
+          variant="outlined"
+          onClick={() => handleToggleBlock(user.id)}
+          startIcon={
+            user.status === "Active" ? <BlockIcon /> : <CheckCircleOutlineIcon />
+          }
+          sx={{
+            width: "100%",
+            maxWidth: "120px",
+            display: "flex",
+            alignSelf: "flex-end",
+            justifySelf: "flex-end",
+            color: user.status === "Active" ? "error.main" : "success.main",
             borderColor:
-              user.status === "Active" ? "error.main" : "success.main",
-          },
-        }}
-      />
+              user.status === "Active"
+                ? "rgba(219, 48, 48, 0.5)"
+                : "rgba(76, 175, 80, 0.5)",
+            "&:hover": {
+              backgroundColor:
+                user.status === "Active"
+                  ? "rgba(219, 48, 48, 0.04)"
+                  : "rgba(76, 175, 80, 0.04)",
+              borderColor:
+                user.status === "Active" ? "error.main" : "success.main",
+            },
+          }}
+        />
+      </Box>
     </Box>
   );
 

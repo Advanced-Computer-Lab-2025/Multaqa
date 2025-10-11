@@ -219,9 +219,6 @@ export default function AllUsersContent() {
         boxSubtitle="Create new user accounts or review existing ones"
         boxIcon={<ManageAccountsIcon fontSize="small" />}
         borderColor="#3a4f99"
-        createButtonLabel="Create Account"
-        createButtonIcon={<PersonAddIcon />}
-        onOpenCreate={handleOpenCreate}
         items={users}
         renderItem={renderUserCard}
         noItemsMessage="No Users Found"
@@ -273,12 +270,12 @@ export default function AllUsersContent() {
               <CustomTextField
                 label="Email"
                 fieldType="email"
-                placeholder="Enter GUC email (name@guc.edu.eg)"
+                placeholder="Enter GUC email"
                 name="email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.email && Boolean(formik.errors.email)}
+                isError={formik.touched.email ? Boolean(formik.errors.email) : false}
                 helperText={formik.touched.email ? formik.errors.email : ""}
                 neumorphicBox
                 required
@@ -293,8 +290,8 @@ export default function AllUsersContent() {
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={
-                  formik.touched.password && Boolean(formik.errors.password)
+                isError={
+                  formik.touched.password ? Boolean(formik.errors.password) : false
                 }
                 helperText={
                   formik.touched.password ? formik.errors.password : ""
@@ -312,9 +309,8 @@ export default function AllUsersContent() {
                 value={formik.values.confirmPassword}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={
-                  formik.touched.confirmPassword &&
-                  Boolean(formik.errors.confirmPassword)
+                isError={
+                  formik.touched.confirmPassword ? Boolean(formik.errors.confirmPassword) : false
                 }
                 helperText={
                   formik.touched.confirmPassword
