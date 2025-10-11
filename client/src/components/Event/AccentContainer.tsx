@@ -48,9 +48,9 @@ const AccentContainer: React.FC<AccentContainerProps> = ({ title, accent = "prim
             backgroundColor:resolveButtonPalette(theme, accent).light,
             borderRadius: "20px",
             maxWidth: isExpanded ? "600px" : "250px",
-            width: isExpanded ? "600px" : "auto",
-            height: isExpanded ? "500px" : "350px",
-            transition: "all 0.3s ease",
+            width: isExpanded ? "400px" : "auto",
+            height: isExpanded ? "600px" : "350px",
+            transition: "all 0.5s ease",
             boxShadow: isExpanded ? "0 20px 40px rgba(0,0,0,0.3)" : "0 6px 14px rgba(0,0,0,0.15)",
           }}
         >
