@@ -160,8 +160,12 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                     <CustomTextField 
                         name='description'
                         id='description'
-                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                        label="Short Description"    
+                        fieldType='text' 
+                        multiline 
+                        minRows={3} 
                         neumorphicBox={true}
+                        fullWidth
                         value={values.description}
                         onChange={handleChange}
                         autoCapitalize='off'

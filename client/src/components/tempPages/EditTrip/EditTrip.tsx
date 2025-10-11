@@ -205,7 +205,10 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
                     <CustomTextField 
                         name='description'
                         id='description'
-                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                        label="Short Description" 
+                        fullWidth 
+                        fieldType='text' 
+                        multiline minRows={3} 
                         neumorphicBox={true}
                         value={values.description}
                         onChange={handleChange}

@@ -65,13 +65,12 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
                     <CustomTextField 
                         name='tripName'
                         id='tripName'
-                        label="Trip Name" 
-                        fullWidth 
-                        margin="normal"  
+                        label="Trip Name"    
                         fieldType='text'
                         placeholder='Enter Trip Name'
                         value={values.tripName}
                         onChange={handleChange}
+                        fullWidth
                         autoCapitalize='off'
                         autoCapitalizeName={false}
                     />
@@ -81,15 +80,14 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
                     <CustomTextField
                         name='location'
                         id='location' 
-                        label="Location" 
-                        fullWidth 
-                        margin="normal"  
+                        label="Location"   
                         fieldType='text'
                         placeholder='e.g. Berlin, Germany'
                         value={values.location}
                         onChange={handleChange}
                         autoCapitalize='off'
                         autoCapitalizeName={false}
+                        fullWidth
                     />
                     {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
                 </Grid>
@@ -108,7 +106,7 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
                                 )
                             }
                         }}
-                        sx={{marginTop: '23px'}}
+                        sx={{marginTop: "6px"}}
                         value={values.price}
                         onChange={handleChange}
                     />
@@ -165,8 +163,8 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
                                 label="Deadline to Register"
                                 slotProps={{
                                     textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,
+                                        variant: "standard",
+                                        fullWidth:true // <-- this makes it look like standard TextField
                                     },
                                     popper: {
                                         disablePortal: true, // <-- Add this line
@@ -197,7 +195,11 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
                     <CustomTextField 
                         name='description'
                         id='description'
-                        label="Short Description" fullWidth margin="normal"  fieldType='text' multiline minRows={3} 
+                        label="Short Description" 
+                        fullWidth   
+                        fieldType='text' 
+                        multiline 
+                        minRows={3} 
                         neumorphicBox={true}
                         value={values.description}
                         onChange={handleChange}

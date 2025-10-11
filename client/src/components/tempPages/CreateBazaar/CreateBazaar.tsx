@@ -159,7 +159,8 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
                     <CustomTextField 
                     name='description'
                     id='description'
-                    label="Short Description" fullWidth margin="normal"  
+                    label="Short Description" 
+                    fullWidth  
                     fieldType="text" 
                     multiline 
                     minRows={3} 
