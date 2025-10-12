@@ -7,7 +7,7 @@ export interface DatePickerProps {
   onFocus?: () => void;
   onBlur?: () => void;
   error?: boolean;
-  errorMessage?: string; // Fallback error message if Formik meta.error is not available
+  errorMessage?: string; 
   minDate?: Date | string;
   containerType?: "outwards" | "inwards";
   touched?: boolean;
