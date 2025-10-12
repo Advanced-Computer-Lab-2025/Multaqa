@@ -4,6 +4,10 @@ import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
 import { WorkshopService } from "../services/workshopsService";
 import { CreateWorkshopResponse, UpdateWorkshopResponse } from "../interfaces/responses/workshopsResponses.interface";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
 
 const workshopService = new WorkshopService();
 
@@ -98,8 +102,8 @@ async function updateWorkshopStatus(
 }
 
 const router = Router();
-router.post("/", createWorkshop);
-router.patch("/:workshopId", updateWorkshop);
-router.patch("/:workshopId/status", updateWorkshopStatus);
+router.post("/", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), createWorkshop);
+router.patch("/:workshopId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), updateWorkshop);
+router.patch("/:workshopId/status", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateWorkshopStatus);
 
 export default router;

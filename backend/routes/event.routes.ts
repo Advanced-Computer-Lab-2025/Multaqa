@@ -6,6 +6,10 @@ import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";
 import { validateUpdateEvent } from "../validation/validateUpdateEvent";
 import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse } from "../interfaces/responses/eventResponses.interface";
+import { UserRole } from "../constants/user.constants";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
 
 const eventsService = new EventsService();
 
@@ -51,6 +55,7 @@ async function findOne(req: Request, res: Response<GetEventByIdResponse>) {
   }
 }
 
+// Bazaar, Trip, Conference
 async function createEvent(req: Request, res: Response<CreateEventResponse>) {
   try {
     const user = (req as any).user;
@@ -148,11 +153,11 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
 }
 
 const router = Router();
-router.get("/", findAll);
-router.get("/:id", findOne);
-router.post("/", createEvent);
-router.delete("/:id", deleteEvent);
-router.patch("/:id", updateEvent);
+router.get("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findAll);
+router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findOne);
+router.post("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), createEvent);
+router.delete("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), deleteEvent);
+router.patch("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateEvent);
 
 export default router;
 
