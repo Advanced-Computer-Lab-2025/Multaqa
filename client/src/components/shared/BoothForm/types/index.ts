@@ -1,4 +1,4 @@
-import { CustomTextField } from "../../input-fields";
+import { PickerValue } from "@mui/x-date-pickers/internals";
 
 interface AttendeeInfo {
   name: string;
@@ -6,8 +6,9 @@ interface AttendeeInfo {
 }
 
 export interface BoothFormValues {
-   attendees: AttendeeInfo[];
-//   setupDuration: string;
+  attendees: AttendeeInfo[];
+  startDate: PickerValue | null;
+  endDate: PickerValue | null;
   boothSize: string;
   selectedBoothId: number | null;
 }

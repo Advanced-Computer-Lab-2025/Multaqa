@@ -144,9 +144,7 @@ export default function HomePage() {
     //   </div>
     // </div>
     <div className="flex items-center justify-center gap-5 flex-col mt-10">
-      <CustomTextField fieldType="text" label="Username" neumorphicBox />
       <BoothForm />
-      <RegistrationForm UserType="student" />
     </div>
   );
 }
