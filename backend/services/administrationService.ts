@@ -1,14 +1,14 @@
 import bcrypt from 'bcrypt';
-import { IAdministration } from '../interfaces/administration.interface';
-import { AdministrationSignupRequest } from '../interfaces/authRequests.interface';
+import { IAdministration } from '../interfaces/models/administration.interface';
+import { CreateAdminRequest } from '../interfaces/authRequests.interface';
 import { UserRole, UserStatus } from '../constants/user.constants';
 import GenericRepository from '../repos/genericRepo';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
-import createError from 'http-errors';
+import createError from 'http-errors'; 
 import { AdministrationRoleType } from '../constants/administration.constants';
 import { VerificationService } from './verificationService';
 import { sendVerification } from './emailService';
-import { IStaffMember } from '../interfaces/staffMember.interface';
+import { IStaffMember } from '../interfaces/models/staffMember.interface';
 import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
 import { StaffPosition } from '../constants/staffMember.constants';
 
@@ -18,12 +18,12 @@ export class AdministrationService {
   private staffMemberRepo: GenericRepository<IStaffMember>;
 
   constructor() {
-    this.administrationRepo = new GenericRepository<IAdministration>(Administration);
-    this.verificationService = new VerificationService();
+    this.administrationRepo = new GenericRepository<IAdministration>(Administration); 
     this.staffMemberRepo = new GenericRepository<IStaffMember>(StaffMember);
+    this.verificationService = new VerificationService();
   }
 
-  async createAdminAccount(adminData: AdministrationSignupRequest): Promise<{ user: Omit<IAdministration, 'password'> }> {
+  async createAdminAccount(adminData: CreateAdminRequest): Promise< Omit<IAdministration, 'password'> > {
     // Check if user already exists
     const existingUser = await this.administrationRepo.findOne({ email: adminData.email });
     if (existingUser) {
@@ -53,12 +53,10 @@ export class AdministrationService {
     // Remove password from response
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return {
-      user: userWithoutPassword as Omit<IAdministration, 'password'>,
-    };
+    return userWithoutPassword as Omit<IAdministration, 'password'>;
   }
 
-  async deleteAdminAccount(adminId: string, creatorId: string): Promise<{ message: string }> {
+  async deleteAdminAccount(adminId: string, creatorId: string): Promise<string> {
     // Prevent self-deletion
     if (adminId === creatorId) {
       throw createError(400, 'Cannot delete your own account');
@@ -76,9 +74,7 @@ export class AdministrationService {
       throw createError(500, 'Failed to delete admin account');
     }
 
-    return {
-      message: `Admin account for ${deletedAdmin.name} has been deleted successfully`,
-    };
+    return `Admin account for ${deletedAdmin.name} has been deleted successfully`;
   }
 
   async getAllAdminAccounts(): Promise<Partial<IAdministration>[]> {
@@ -90,7 +86,7 @@ export class AdministrationService {
     );
   }
 
-  async assignRoleAndSendVerification(userId: string, position: string): Promise<{ user: Omit<IStaffMember, 'password'> }> {
+  async assignRoleAndSendVerification(userId: string, position: string): Promise< Omit<IStaffMember, 'password'> > {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -120,8 +116,6 @@ export class AdministrationService {
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject ? user.toObject() : user;
 
-    return {
-      user: userWithoutPassword as Omit<IStaffMember, 'password'>
-    };
+    return userWithoutPassword as Omit<IStaffMember, 'password'>;
   }
 }

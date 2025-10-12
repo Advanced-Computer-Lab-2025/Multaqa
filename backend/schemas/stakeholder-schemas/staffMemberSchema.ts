@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { IStaffMember } from "../../interfaces/staffMember.interface";
+import { IStaffMember } from "../../interfaces/models/staffMember.interface";
 import { User } from "./userSchema";
 import { StaffPosition } from "../../constants/staffMember.constants";
 import { PROFESSOR_PERMISSIONS } from "../../constants/staffMember.constants";
