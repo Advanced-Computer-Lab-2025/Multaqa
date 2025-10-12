@@ -87,7 +87,6 @@ const BoothForm: React.FC = () => {
                             label={`Attendee ${index + 1} name`}
                             fieldType="text"
                             width="300px"
-                            value={formik.values.attendees[index].name}
                             onChange={(e) => {
                               formik.setFieldValue(
                                 `attendees.${index}.name`,
@@ -126,7 +125,18 @@ const BoothForm: React.FC = () => {
                             fieldType="email"
                             width="300px"
                             stakeholderType="vendor"
-                            {...formik.getFieldProps(`attendees.${index}.email`)}
+                            onChange={(e) => {
+                              formik.setFieldValue(
+                                `attendees.${index}.email`,
+                                e.target.value
+                              );
+                            }}
+                            onBlur={() =>
+                              formik.setFieldTouched(
+                                `attendees.${index}.email`,
+                                true
+                              )
+                            }
                           />
                           {formik.touched.attendees?.[index]?.email &&
                             typeof formik.errors.attendees?.[index] !==
@@ -198,10 +208,10 @@ const BoothForm: React.FC = () => {
                         value={formik.values.startDate}
                         onChange={(value) => {
                           formik.setFieldValue("startDate", value);
-                          formik.setFieldTouched("startDate", true, false);
+                          formik.setFieldTouched("startDate", true, true);
                         }}
                         onClose={() =>
-                          formik.setFieldTouched("startDate", true)
+                          formik.setFieldTouched("startDate", true, true)
                         }
                         slotProps={{
                           textField: {
@@ -242,7 +252,7 @@ const BoothForm: React.FC = () => {
                     </div>
                   </div>
                 </LocalizationProvider>
-                
+
                 {/* Booth Size Select */}
 
                 <div className="flex justify-center items-center w-full mb-4">
