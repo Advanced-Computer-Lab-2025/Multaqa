@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { IUser } from "./user.interface";
-import { AdministrationRoleType } from "../constants/administration.constants";
+import { AdministrationRoleType } from "../../constants/administration.constants";
 
 export interface IAdministration extends IUser {
   name: string;

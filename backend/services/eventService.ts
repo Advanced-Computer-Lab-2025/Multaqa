@@ -1,4 +1,4 @@
-import { IEvent } from "../interfaces/event.interface";
+import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
@@ -10,7 +10,7 @@ import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { mapEventDataByType } from "../utils/mapEventDataByType"; 
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -25,9 +25,17 @@ export class EventsService {
     location?: string,
     sort?: boolean
   ) {
-    const filter: any = { type: { $ne: EVENT_TYPES.GYM_SESSION } };
+    const filter: any = {
+      type: { $ne: EVENT_TYPES.GYM_SESSION },
+      $and: [
+        { $or: [{ type: { $ne: EVENT_TYPES.PLATFORM_BOOTH } }, { "RequestData.status": "approved" }] },
+        { $or: [{ type: { $ne: EVENT_TYPES.WORKSHOP } }, { "approvalStatus": "approved" }] }
+      ]
+    };
     if (type) filter.type = type;
     if (location) filter.location = location;
+
+
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
@@ -37,11 +45,21 @@ export class EventsService {
       ] as any,
     });
 
+    // filter out unapproved bazaar vendors
+    events = events.map((event: any) => {
+      if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
+        event.vendors = event.vendors.filter(
+          (vendor: any) => vendor.RequestData?.status === "approved"
+        );
+      }
+      return event;
+    });
+
     if (sort) {
       events = events.sort((a: any, b: any) => {
         return (
-          new Date(a.event_start_date).getTime() -
-          new Date(b.event_start_date).getTime()
+          new Date(a.eventStartDate).getTime() -
+          new Date(b.eventEndDate).getTime()
         );
       });
     }
@@ -50,7 +68,7 @@ export class EventsService {
       const searchRegex = new RegExp(search, "i");
       return events.filter(
         (event: any) =>
-          searchRegex.test(event.event_name) ||
+          searchRegex.test(event.eventName) ||
           searchRegex.test(event.type) ||
           event.associatedProfs?.some(
             (prof: any) =>
@@ -93,12 +111,16 @@ export class EventsService {
     return updatedEvent;
   }
 
-  async deleteEvent(id: string): Promise<IEvent | null> {
+  async deleteEvent(id: string): Promise<IEvent> {
     const event = await this.eventRepo.findById(id);
     console.log("THE EVENT GETTING DELETEDDD", event);
     if (event && event.attendees && event.attendees.length > 0) {
       throw createError(409, "Cannot delete event with attendees");
     }
-    return await this.eventRepo.delete(id);
+    const deleteResult = await this.eventRepo.delete(id);
+    if (!deleteResult) {
+      throw createError(404, "Event not found");
+    }
+    return deleteResult;
   }
 }

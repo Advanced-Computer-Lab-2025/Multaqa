@@ -4,8 +4,9 @@ import { FACULTY } from "../../constants/workshops.constants";
 import { FUNDING_SOURCES } from "../../constants/events.constants";
 import "../stakeholder-schemas/staffMemberSchema";
 import { Event_Request_Status } from "../../constants/user.constants";
+import { IWorkshop } from "../../interfaces/workshop.interface";
 
-const workshopSchema = new Schema({
+const workshopSchema = new Schema<IWorkshop>({
   fullAgenda: { type: String },
   associatedFaculty: { type: String, enum: Object.values(FACULTY) },
   associatedProfs: [
@@ -34,6 +35,10 @@ const workshopSchema = new Schema({
     type: String,
     enum: Object.values(Event_Request_Status),
     default: Event_Request_Status.PENDING,
+  },
+  comments: {
+    type: String,
+    default: "",
   },
 });
 

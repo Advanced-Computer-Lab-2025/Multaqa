@@ -45,7 +45,7 @@ export class GymSessionsService {
 
     const date = new Date();
 
-    filter.event_start_date = {
+    filter.eventStartDate = {
       $gte: new Date(date.getFullYear(), date.getMonth(), 1),
       $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),
     };

@@ -70,7 +70,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "favorites", label: "My Favorites" },
         ],
       },
-      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "courts",
+        label: "Courts Booking",
+        icon: Trophy,
+        sections: [
+          { id: "reserve", label: "Reserve Courts" },
+          // Future: { id: "my-reservations", label: "My Reservations" },
+        ],
+      },
       {
         key: "gym",
         label: "Gym Sessions",
@@ -107,7 +115,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-ratings", label: "My Ratings & Comments" },
         ],
       },
-      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "courts",
+        label: "Courts Booking",
+        icon: Trophy,
+        sections: [
+          { id: "reserve", label: "Reserve Courts" },
+        ],
+      },
       {
         key: "gym",
         label: "Gym Sessions",
@@ -144,7 +159,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-ratings", label: "My Ratings & Comments" },
         ],
       },
-      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "courts",
+        label: "Courts Booking",
+        icon: Trophy,
+        sections: [
+          { id: "reserve", label: "Reserve Courts" },
+        ],
+      },
       {
         key: "gym",
         label: "Gym Sessions",
@@ -193,7 +215,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "rejected", label: "Rejected" },
         ],
       },
-      { key: "courts", label: "Courts Booking", icon: Trophy, sections: [] },
+      {
+        key: "courts",
+        label: "Courts Booking",
+        icon: Trophy,
+        sections: [
+          { id: "reserve", label: "Reserve Courts" },
+        ],
+      },
       {
         key: "gym",
         label: "Gym Sessions",
