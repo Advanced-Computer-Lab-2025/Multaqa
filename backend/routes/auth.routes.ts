@@ -9,10 +9,16 @@ const router = Router();
 const authService = new AuthService();
 const verificationService = new VerificationService();
 
-router.post('/signup/studentAndStaff', async (req: Request, res: Response<SignupResponse>) => {
+async function signup(req: Request, res: Response<SignupResponse>) {
   try {
-    // Validate request body
-    const { error, value } = signupStudentAndStaffValidationSchema.validate(req.body);
+    // Validate request body based on role
+    let schema;
+    if (req.body.role === 'vendor') {
+      schema = signupVendorValidationSchema;
+    } else {
+      schema = signupStudentAndStaffValidationSchema; 
+    }
+    const { error, value } = schema.validate(req.body);
     if (error) {
       throw createError(400, 'Validation error', {
         errors: error.details.map(detail => detail.message)
@@ -31,33 +37,9 @@ router.post('/signup/studentAndStaff', async (req: Request, res: Response<Signup
   } catch (error: any) {
     throw createError(400, error.message || 'Registration failed');
   }
-});
+}
 
-router.post('/signup/vendor', async (req: Request, res: Response<SignupResponse>) => {
-  try {
-    // Validate request body
-    const { error, value } = signupVendorValidationSchema.validate(req.body);
-    if (error) {
-      throw createError(400, 'Validation error', {
-        errors: error.details.map(detail => detail.message)
-      });
-    }
-
-    // Create user
-    const result = await authService.signup(value);
-
-    // Send HTTP response
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      user: result
-    });
-  } catch (error: any) {
-    throw createError(400, error.message || 'Registration failed');
-  }
-});
-
-router.get("/verify", async (req, res, next) => {
+async function verifyUser(req: Request, res: Response) {
   try {
     const token = req.query.token as string;
     await verificationService.verifyUser(token);
@@ -66,9 +48,9 @@ router.get("/verify", async (req, res, next) => {
   } catch (err) {
     return res.redirect(`https://localhost:${process.env.BACKEND_PORT}/login?verified=false`); // should be frontend URL
   }
-});
+}
 
-router.post('/login', async (req: Request, res: Response<LoginResponse>) => {
+async function login(req: Request, res: Response<LoginResponse>) {
   try {
     // Validate request body
     const { error, value } = loginValidationSchema.validate(req.body);
@@ -95,10 +77,10 @@ router.post('/login', async (req: Request, res: Response<LoginResponse>) => {
   } catch (error: any) {
     throw createError(400, error.message || 'Login failed');
   }
-});
+}
 
 // --- Refresh Access Token ---
-router.post('/refresh', async (req: Request, res: Response<RefreshResponse>) => {
+async function refreshAccessToken(req: Request, res: Response<RefreshResponse>) {
   try {
     const newAccessToken = await authService.refreshToken(req.cookies.refreshToken);
     res.status(200).json({
@@ -107,9 +89,9 @@ router.post('/refresh', async (req: Request, res: Response<RefreshResponse>) => 
   } catch (error: any) {
     throw createError(403, error.message || 'Could not refresh access token');
   }
-});
+}
 
-router.post('/logout', async (req: Request, res: Response<LogoutResponse>) => {
+async function logout(req: Request, res: Response<LogoutResponse>) {
   try {
     await authService.logout(req.cookies.refreshToken);
     res.clearCookie('refreshToken');
@@ -120,6 +102,12 @@ router.post('/logout', async (req: Request, res: Response<LogoutResponse>) => {
   } catch (error: any) {
     throw createError(400, error.message || 'Logout failed');
   }
-});
+}
+
+router.post('/signup', signup);
+router.get('/verify', verifyUser);
+router.post('/login', login);
+router.post('/refresh-token', refreshAccessToken);
+router.post('/logout', logout);
 
 export default router;

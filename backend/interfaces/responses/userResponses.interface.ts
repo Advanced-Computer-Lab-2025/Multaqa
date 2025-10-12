@@ -13,6 +13,6 @@ export interface GetUserByIdResponse {
 }
 
 export interface BlockUserResponse {
-    success: boolean;
-    message: string;
+  success: boolean;
+  message: string;
 }

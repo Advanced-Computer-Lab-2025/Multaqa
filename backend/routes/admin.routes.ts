@@ -1,16 +1,14 @@
 import { Router, Request, Response } from 'express';
-import { AdministrationService } from '../services/administrationService';
+import { AdministrationService } from '../services/adminService';
 import { createAdminValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
-import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse, AssignRoleResponse } from "../interfaces/responses/administrationResponses.interface";
+import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse } from "../interfaces/responses/administrationResponses.interface";
 
 const router = Router();
 const adminService = new AdministrationService();
 
-// Missing: role authorization, only Admin should access this 
-
 // Create admin/Event Office account
-router.post('/create-admin', async (req: Request, res: Response<CreateAdminResponse>) => {
+async function createAdmin(req: Request, res: Response<CreateAdminResponse>) {
   try {
     // Validate request body 
     const { error, value } = createAdminValidationSchema.validate(req.body);
@@ -31,10 +29,10 @@ router.post('/create-admin', async (req: Request, res: Response<CreateAdminRespo
   } catch (error: any) {
     throw createError(error.status || 500, error.message || 'Failed to create admin account');
   }
-});
+}
 
 // Delete admin/Event Office account
-router.delete('/:adminId', async (req: Request, res: Response<DeleteAdminResponse>) => {
+async function deleteAdmin(req: Request, res: Response<DeleteAdminResponse>) {
   try {
     const { adminId } = req.params;
 
@@ -50,10 +48,10 @@ router.delete('/:adminId', async (req: Request, res: Response<DeleteAdminRespons
   } catch (error: any) {
     throw createError(error.status || 500, error.message || 'Failed to delete admin account');
   }
-});
+}
 
 // Get all admin accounts (for listing)
-router.get('/', async (req: Request, res: Response<GetAllAdminsResponse>) => {
+async function getAllAdmins(req: Request, res: Response<GetAllAdminsResponse>) {
   try {
     const admins = await adminService.getAllAdminAccounts();
 
@@ -64,24 +62,10 @@ router.get('/', async (req: Request, res: Response<GetAllAdminsResponse>) => {
   } catch (error: any) {
     throw createError(error.status || 500, error.message || 'Failed to fetch admin accounts');
   }
-});
+}
 
-// Assign role to staffMember and send verification email
-router.post("/assign-role/:userId", async (req: Request, res: Response<AssignRoleResponse>) => {
-  try {
-    const { userId } = req.params;
-    const { position } = req.body;
-
-    const result = await adminService.assignRoleAndSendVerification(userId, position);
-
-    res.json({
-      success: true,
-      message: "Role assigned and verification email sent successfully",
-      user: result
-    });
-  } catch (error: any) {
-    throw createError(error.status || 500, error.message || 'Failed to assign role and send verification email');
-  }
-});
+router.post('/', createAdmin);
+router.delete('/:adminId', deleteAdmin);
+router.get('/', getAllAdmins);
 
 export default router;

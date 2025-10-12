@@ -6,6 +6,7 @@ import { UserStatus } from "../constants/user.constants";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
+
   constructor() {
     this.userRepo = new GenericRepository(User);
   }
@@ -44,5 +45,4 @@ export class UserService {
     user.status = UserStatus.BLOCKED;
     await user.save();
   }
-
 }
