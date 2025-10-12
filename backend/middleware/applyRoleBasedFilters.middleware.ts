@@ -4,6 +4,7 @@ import { UserRole } from "../constants/user.constants";
 import { AuthenticatedRequest } from "./verifyJWT.middleware";
 
 export function applyRoleBasedFilters(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  if (process.env.NODE_ENV === "development") return next();
   const user = req.user;
 
   if (user?.role === UserRole.VENDOR) {
