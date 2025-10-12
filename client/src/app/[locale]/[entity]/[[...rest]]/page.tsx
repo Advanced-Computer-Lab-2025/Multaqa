@@ -7,6 +7,7 @@ import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import { ManageEventOfficeAccount } from "@/components/admin";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
+import BrowseEvents from "@/components/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
@@ -106,6 +107,16 @@ export default function EntityCatchAllPage() {
         return <BlockUnblockUsersContent />;
       }
     }
+
+     if ( tab === "events" || tab === "events-management") {
+      if (section === "browse-events") {
+        return <BrowseEvents/>;
+      }
+      if (section === "all-events") {
+        return <BrowseEvents/>;
+      }
+    }
+
 
     // Default placeholder content
     return (
