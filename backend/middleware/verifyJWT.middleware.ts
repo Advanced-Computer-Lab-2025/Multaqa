@@ -21,12 +21,12 @@ export default function verifyJWT(req: AuthenticatedRequest, res: Response, next
   if (process.env.NODE_ENV === "development") return next();
   const header = req.headers["authorization"];
   if (!header) {
-    throw createError(401, "You are unauthorized for accessing this route");
+    throw createError(401, "You are unauthorized for accessing this route, missing authorization header");
   }
 
   const token = header && header.split(" ")[1];
   if (!token) {
-    throw createError(401, "You are unauthorized for accessing this route");
+    throw createError(401, "You are unauthorized for accessing this route, missing token");
   }
 
   const secret = process.env.ACCESS_TOKEN_SECRET;

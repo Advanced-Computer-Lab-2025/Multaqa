@@ -12,7 +12,7 @@ export function authorizeRoles(options: {
   staffPositions?: StaffPosition[];
 }) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const { user } = req;
+    const user = req.user;
 
     if (!user) {
       throw createError(401, "Not authenticated");
