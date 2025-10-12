@@ -3,6 +3,11 @@ import { Router, Request, Response } from "express";
 import { createGymSessionValidationSchema } from "../validation/gymSessions.validation";
 import createError from "http-errors";
 import { CreateGymSessionResponse, GetAllGymSessionsResponse } from "../interfaces/responses/gymSessionsResponses.interface";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
+
 const gymSessionsService = new GymSessionsService();
 
 async function createGymSession(req: Request, res: Response<CreateGymSessionResponse>) {
@@ -49,10 +54,7 @@ async function getAllGymSessions(req: Request, res: Response<GetAllGymSessionsRe
 }
 
 const router = Router();
-router.get("/", getAllGymSessions);
-router.post("/", createGymSession);
+router.get("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT], adminRoles: [AdministrationRoleType.EVENTS_OFFICE], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), getAllGymSessions);
+router.post("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), createGymSession);
+
 export default router;
-
-
-
-

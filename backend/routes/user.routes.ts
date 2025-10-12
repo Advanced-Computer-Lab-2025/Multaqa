@@ -4,13 +4,18 @@ import createError from "http-errors";
 import { EventsService } from "../services/eventService";
 import { validateEventRegistration } from "../validation/validateEventRegistration";
 import { Schema } from "mongoose";
-
 import {
   GetAllUsersResponse,
   GetUserByIdResponse,
   BlockUserResponse,
   RegisterUserResponse,
 } from "../interfaces/responses/userResponses.interface";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { UserRole } from "../constants/user.constants";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { AssignRoleResponse } from "../interfaces/responses/administrationResponses.interface";
+import { StaffPosition } from "../constants/staffMember.constants";
+
 const userService = new UserService();
 const eventsService = new EventsService();
 
@@ -91,11 +96,32 @@ async function blockUser(req: Request, res: Response<BlockUserResponse>) {
     throw createError(500, err.message);
   }
 }
+
+// Assign role to staffMember and send verification email
+async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
+  try {
+    const { userId } = req.params;
+    const { position } = req.body;
+
+    const result = await userService.assignRoleAndSendVerification(userId, position);
+
+    res.json({
+      success: true,
+      message: "Role assigned and verification email sent successfully",
+      user: result
+    });
+  } catch (error: any) {
+    throw createError(error.status || 500, error.message || 'Failed to assign role and send verification email');
+  }
+}
+
 const router = Router();
 
-router.get("/", getAllUsers);
-router.get("/:id", getUserById);
-router.post("/:id/register/:eventId", registerForEvent);
-router.post("/:id/block", blockUser);
+router.get("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllUsers);
+router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getUserById);
+router.post("/:id/block", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), blockUser);
+router.post('/:userId/assign-role', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), assignRole);
+router.post("/:id/register/:eventId", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.TA, StaffPosition.STAFF] }), registerForEvent);
+
 
 export default router;

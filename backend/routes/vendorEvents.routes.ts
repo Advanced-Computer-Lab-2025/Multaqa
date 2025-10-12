@@ -3,6 +3,9 @@ import { VendorEventsService } from "../services/vendorEventsService";
 import createError from "http-errors";
 import { validateCreateApplicationData } from "../validation/validateCreateApplicationData.validation";
 import { GetVendorEventsResponse, ApplyToBazaarOrBoothResponse, GetVendorsRequestResponse, GetVendorRequestDetailsResponse, RespondToVendorRequestResponse} from "../interfaces/responses/vendorEventsResponses.interface";
+import { UserRole } from "../constants/user.constants";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { AdministrationRoleType } from "../constants/administration.constants";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -111,10 +114,10 @@ async function updateVendorRequest(req: Request, res: Response<RespondToVendorRe
 }
 
 const router = Router();
-router.get("/:vendorId", getVendorUpcomingEvents);
-router.post("/:vendorId/:eventId/applications", applyToBazaarOrBooth);
-router.get("/:eventId/vendor-requests", getVendorsRequests);
-router.get("/:eventId/vendor-requests/:vendorId", getVendorRequestsDetails);
-router.patch("/:eventId/vendor-requests/:vendorId", updateVendorRequest);
+router.get("/:vendorId", authorizeRoles({ userRoles: [UserRole.VENDOR] }), getVendorUpcomingEvents);
+router.post("/:vendorId/:eventId/applications", authorizeRoles({ userRoles: [UserRole.VENDOR] }), applyToBazaarOrBooth);
+router.get("/:eventId/vendor-requests", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), getVendorsRequests);
+router.get("/:eventId/vendor-requests/:vendorId", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), getVendorRequestsDetails);
+router.patch("/:eventId/vendor-requests/:vendorId", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), updateVendorRequest);
 
 export default router;
