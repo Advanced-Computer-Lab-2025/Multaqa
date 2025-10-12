@@ -8,7 +8,9 @@ import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
 import { Applicant } from "./types";
-import { handleDragStart, handleDragEnd, assignToRole } from "./utils";
+import { handleDragStart, assignToRole } from "./utils";
+import CustomModal from "@/components/shared/modals/CustomModal";
+import type { DragEndEvent } from "@dnd-kit/core";
 
 // Droppable zone component
 function DroppableZone({
@@ -62,25 +64,66 @@ export default function RoleAssignmentContent() {
   const [activeRoleIndex, setActiveRoleIndex] = useState<number>(0);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Modal state for confirmation
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pendingAssignment, setPendingAssignment] = useState<{
+    role: string;
+    applicant: Applicant;
+  } | null>(null);
+
   const activeDraggedUser =
     applicants.find((a) => a.id === activeId) ||
     Object.values(assigned)
       .flat()
       .find((u) => u.id === activeId);
 
+  // Handler to confirm the assignment
+  const handleConfirmAssignment = () => {
+    if (pendingAssignment) {
+      assignToRole(
+        pendingAssignment.role,
+        pendingAssignment.applicant,
+        setAssigned,
+        setApplicants
+      );
+    }
+    setModalOpen(false);
+    setPendingAssignment(null);
+  };
+
+  // Handler to cancel the assignment
+  const handleCancelAssignment = () => {
+    setModalOpen(false);
+    setPendingAssignment(null);
+  };
+
+  // Custom drag end handler that triggers confirmation
+  const handleDragEndWithConfirmation = (e: DragEndEvent) => {
+    const { active, over } = e;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const draggedId = String(active.id);
+    const targetRole = String(over.id);
+
+    // Check if the target is a valid role
+    if (!roleKeys.includes(targetRole as (typeof roleKeys)[number])) return;
+
+    // Find the applicant being dragged
+    const applicant = applicants.find((a) => a.id === draggedId);
+
+    if (applicant) {
+      // Show confirmation modal instead of assigning directly
+      setPendingAssignment({ role: targetRole, applicant });
+      setModalOpen(true);
+    }
+  };
+
   return (
     <DndContext
       onDragStart={(e) => handleDragStart(e, setActiveId)}
-      onDragEnd={(e) =>
-        handleDragEnd(
-          e,
-          setActiveId,
-          applicants,
-          roleKeys,
-          setAssigned,
-          setApplicants
-        )
-      }
+      onDragEnd={handleDragEndWithConfirmation}
     >
       <Box
         sx={{
@@ -215,12 +258,12 @@ export default function RoleAssignmentContent() {
                         role="N/A"
                         onRoleChange={(newRole: string) => {
                           if (newRole !== "N/A") {
-                            assignToRole(
-                              newRole.toLowerCase(),
+                            // Show confirmation modal instead of assigning directly
+                            setPendingAssignment({
+                              role: newRole.toLowerCase(),
                               applicant,
-                              setAssigned,
-                              setApplicants
-                            );
+                            });
+                            setModalOpen(true);
                           }
                         }}
                       />
@@ -382,6 +425,45 @@ export default function RoleAssignmentContent() {
           />
         ) : null}
       </DragOverlay>
+
+      {/* Confirmation Modal */}
+      <CustomModal
+        title="Confirm Role Assignment"
+        modalType="warning"
+        open={modalOpen}
+        onClose={handleCancelAssignment}
+        buttonOption1={{
+          label: "Confirm",
+          variant: "contained",
+          color: "warning",
+          onClick: handleConfirmAssignment,
+        }}
+        buttonOption2={{
+          label: "Cancel",
+          variant: "outlined",
+          color: "warning",
+          onClick: handleCancelAssignment,
+        }}
+      >
+        <Typography
+          sx={{
+            mt: 2,
+            fontFamily: "var(--font-poppins), system-ui, sans-serif",
+            textAlign: "center",
+          }}
+        >
+          Are you sure you want to assign{" "}
+          <strong>{pendingAssignment?.applicant.name}</strong> to the role of{" "}
+          <strong>
+            {pendingAssignment?.role &&
+              roleLabels[pendingAssignment.role as keyof typeof roleLabels]}
+          </strong>
+          ?
+          <br />
+          <br />
+          This action is <strong>irreversible</strong>.
+        </Typography>
+      </CustomModal>
     </DndContext>
   );
 }
