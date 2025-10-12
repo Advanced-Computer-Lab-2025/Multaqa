@@ -202,7 +202,6 @@ const BoothForm: React.FC = () => {
                       value={formik.values.startDate}
                       onChange={(date) => {
                         formik.setFieldValue("startDate", date);
-                        // Validate endDate when startDate changes
                         if (formik.values.endDate) {
                           formik.validateField("endDate");
                         }

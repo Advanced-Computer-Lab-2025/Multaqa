@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -14,16 +13,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
   label,
   value,
   onChange,
-  onFocus,
   onBlur,
   error = false,
   errorMessage,
   minDate,
-  containerType = "outwards",
   touched: propTouched = false,
 }) => {
   const theme = useTheme();
-  const [isFocused, setIsFocused] = useState(false);
   const styles = getDatePickerStyles(theme);
 
   // Use Formik's useField hook
@@ -32,22 +28,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
   // Determine if there's an error
   const fieldError = (meta.touched && meta.error) || (propTouched && error);
 
-  // Determine the container type based on the props and state
-  const getContainerType = () => {
-    if (fieldError) return "inwards";
-    if (isFocused) return "inwards";
-    if (containerType) return containerType;
-    return "outwards";
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    if (onFocus) onFocus();
-  };
-
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     field.onBlur(e);
-    setIsFocused(false);
     if (onBlur) onBlur();
   };
 
@@ -60,7 +42,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   return (
     <div className="w-full">
       <NeumorphicBox
-        containerType={getContainerType()}
+        containerType="inwards"
         borderRadius="10px"
         className="mb-2"
         sx={fieldError ? styles.neuBoxError : {}}
@@ -81,7 +63,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
             style={styles.input}
             value={formatDateToString(value)}
             onChange={handleChange}
-            onFocus={handleFocus}
             onBlur={handleBlur}
             min={getMinDate(minDate)}
           />

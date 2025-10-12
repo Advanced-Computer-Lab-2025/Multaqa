@@ -4,7 +4,6 @@ export interface DatePickerProps {
   label: string;
   value: Date | null;
   onChange: (date: Date | null) => void;
-  onFocus?: () => void;
   onBlur?: () => void;
   error?: boolean;
   errorMessage?: string; 
