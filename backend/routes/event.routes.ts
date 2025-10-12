@@ -133,22 +133,27 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
 }
 
 async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
-  const id = req.params.id;
-  const deletedEvent = await eventsService.deleteEvent(id);
-  res.json({ 
-    success: true,
-    data: deletedEvent,
-    message: "Event deleted successfully"
-  });
+  try {
+    const id = req.params.id;
+    const deletedEvent = await eventsService.deleteEvent(id);
+    res.json({
+      success: true,
+      data: deletedEvent,
+      message: "Event deleted successfully"
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw createError(err.status, err.message);
+    }
+    throw createError(500, err.message);
+  }
 }
 
 async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestResponse>) {
   try {
     const eventId = req.params.id;
     const requests = await eventsService.getVendorsRequest(eventId);
-    if (!requests || requests.length === 0) {
-      throw createError(404, "No vendor requests found for this event");
-    }
+
     res.json({
       success: true,
       data: requests,
@@ -164,15 +169,12 @@ async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestR
 
 
 
-async function getVendorRequestsDetails(req: Request, res:  Response<GetVendorRequestDetailsResponse>)  {
+async function getVendorRequestsDetails(req: Request, res: Response<GetVendorRequestDetailsResponse>) {
   try {
     const eventId = req.params.id;
     const vendorId = req.params.vendorid;
-
     const request = await eventsService.getVendorsRequestsDetails(eventId, vendorId);
-    if (!request) {
-      throw createError(404, "Vendor request not found");
-    }
+
     res.json({
       success: true,
       data: request,
@@ -193,23 +195,22 @@ async function updateVendorRequest(req: Request, res: Response<RespondToVendorRe
     const { status } = req.body;
 
     if (!eventId || !vendorId || !status) {
-   
-  throw createError(400, "Missing required fields")
+      throw createError(400, "Missing required fields")
     }
 
     await eventsService.respondToVendorRequest(eventId, vendorId, req.body);
-    
-   res.json({ 
-    success: true,
-    message: "Vendor request updated successfully"
-   });
+
+    res.json({
+      success: true,
+      message: "Vendor request updated successfully"
+    });
 
   } catch (err: any) {
     if (err.status || err.statusCode) {
       throw createError(err.status, err.message);
     }
     throw createError(500, err.message);
-  } 
+  }
 }
 
 const router = Router();
@@ -218,9 +219,10 @@ router.get("/:id", findOne);
 router.post("/", createEvent);
 router.delete("/:id", deleteEvent);
 router.get("/:id/vendor-requests", getVendorsRequests);
-router.get("/:id/vendor-requests/:vendorid",getVendorRequestsDetails)
+router.get("/:id/vendor-requests/:vendorid", getVendorRequestsDetails)
 router.patch("/:eventid/vendor-requests/:vendorid", updateVendorRequest);
 
 router.patch("/:id", updateEvent);
 
 export default router;
+
