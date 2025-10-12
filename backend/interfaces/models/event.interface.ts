@@ -1,9 +1,9 @@
 import { Document, Schema } from "mongoose";
-import { IUser } from "./user.interface.js";
-import { IReview } from "./review.interface.js";
-import { EVENT_TYPES } from "../constants/events.constants.js";
-import { IVendor } from "./vendor.interface.js";
-import { UserRole } from "../constants/user.constants.js";
+import { IUser } from "./user.interface";
+import { IReview } from "../review.interface";
+import { EVENT_TYPES } from "../../constants/events.constants";
+import { IVendor } from "./vendor.interface";
+import { UserRole } from "../../constants/user.constants";
 
 export interface IEvent extends Document {
   id: string;
