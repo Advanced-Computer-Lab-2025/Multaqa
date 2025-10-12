@@ -51,6 +51,9 @@ export class UserService {
     if (!user) {
       throw createError(404, "User not found");
     }
+    if(user.status === UserStatus.BLOCKED) {
+      throw createError(400, "User is already blocked");
+    }
     user.status = UserStatus.BLOCKED;
     await user.save();
   }
