@@ -52,6 +52,11 @@ const theme = createTheme({
       main: "#db3030",
       dark: "#c72c2c",
     },
+    warning: {
+      main: "#ff9800",
+      dark: "#ff8a00",
+      contrastText: "#fff",
+    },
     background: {
       default: "#e6e6da",
     },
