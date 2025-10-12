@@ -9,6 +9,7 @@ import {
   GetAllUsersResponse,
   GetUserByIdResponse,
   BlockUserResponse,
+  RegisterUserResponse,
 } from "../interfaces/responses/userResponses.interface";
 const userService = new UserService();
 const eventsService = new EventsService();
@@ -49,7 +50,7 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
 }
 
 // this will come back in sprint 2 guys (Stripe API)
-async function registerForEvent(req: Request, res: Response) {
+async function registerForEvent(req: Request, res: Response<RegisterUserResponse>) {
   const { eventId, id } = req.params;
 
   const validatedData = validateEventRegistration(req.body);
