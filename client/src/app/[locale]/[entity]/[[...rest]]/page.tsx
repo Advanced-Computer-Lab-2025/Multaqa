@@ -7,6 +7,7 @@ import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import { ManageEventOfficeAccount } from "@/components/admin";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
+import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -42,6 +43,13 @@ export default function EntityCatchAllPage() {
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+    // Courts booking page for stakeholders
+    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "courts") {
+      if (section === "reserve" || section === "") {
+        return <CourtsBookingContent />;
+      }
+    }
+
     // Admin content
     if (entity === "admin" && tab === "role-assignment") {
       if (section === "assign-roles") {

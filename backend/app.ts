@@ -13,6 +13,7 @@ import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
+import courtRouter from "./routes/court.routes";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/gymsessions", gymSessionsRouter);
 app.use("/admins", adminRouter);
 app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter); 
+app.use("/courts", courtRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

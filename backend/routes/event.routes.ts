@@ -131,13 +131,20 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
 }
 
 async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
-  const id = req.params.id;
-  const deletedEvent = await eventsService.deleteEvent(id);
-  res.json({ 
-    success: true,
-    data: deletedEvent,
-    message: "Event deleted successfully"
-  });
+  try {
+    const id = req.params.id;
+    const deletedEvent = await eventsService.deleteEvent(id);
+    res.json({
+      success: true,
+      data: deletedEvent,
+      message: "Event deleted successfully"
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw createError(err.status, err.message);
+    }
+    throw createError(500, err.message);
+  }
 }
 
 const router = Router();
@@ -148,3 +155,4 @@ router.delete("/:id", deleteEvent);
 router.patch("/:id", updateEvent);
 
 export default router;
+

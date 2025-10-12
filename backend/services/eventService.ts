@@ -10,7 +10,7 @@ import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { mapEventDataByType } from "../utils/mapEventDataByType"; 
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -25,9 +25,17 @@ export class EventsService {
     location?: string,
     sort?: boolean
   ) {
-    const filter: any = { type: { $ne: EVENT_TYPES.GYM_SESSION } };
+    const filter: any = {
+      type: { $ne: EVENT_TYPES.GYM_SESSION },
+      $and: [
+        { $or: [{ type: { $ne: EVENT_TYPES.PLATFORM_BOOTH } }, { "RequestData.status": "approved" }] },
+        { $or: [{ type: { $ne: EVENT_TYPES.WORKSHOP } }, { "approvalStatus": "approved" }] }
+      ]
+    };
     if (type) filter.type = type;
     if (location) filter.location = location;
+
+
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
@@ -35,6 +43,16 @@ export class EventsService {
         { path: "vendors", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
       ] as any,
+    });
+
+    // filter out unapproved platform vendors
+    events = events.map((event: any) => {
+      if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
+        event.vendors = event.vendors.filter(
+          (vendor: any) => vendor.RequestData?.status === "approved"
+        );
+      }
+      return event;
     });
 
     if (sort) {
@@ -100,7 +118,7 @@ export class EventsService {
       throw createError(409, "Cannot delete event with attendees");
     }
     const deleteResult = await this.eventRepo.delete(id);
-    if(!deleteResult){
+    if (!deleteResult) {
       throw createError(404, "Event not found");
     }
     return deleteResult;
