@@ -7,6 +7,7 @@ import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import { ManageEventOfficeAccount } from "@/components/admin";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
+import BrowseEvents from "@/components/browse-events";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -84,6 +85,16 @@ export default function EntityCatchAllPage() {
         return <BlockUnblockUsersContent />;
       }
     }
+
+     if ( tab === "events" || tab === "events-management") {
+      if (section === "browse-events") {
+        return <BrowseEvents/>;
+      }
+      if (section === "all-events") {
+        return <BrowseEvents/>;
+      }
+    }
+
 
     // Default placeholder content
     return (

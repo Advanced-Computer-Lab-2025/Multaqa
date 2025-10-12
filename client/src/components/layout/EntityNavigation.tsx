@@ -506,7 +506,7 @@ export default function EntityNavigation({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#e6e6da]">
+    <div className="flex flex-col h-screen bg-">
       {/* Top Navigation - spans full width */}
       <TopNavigation companyName="Multaqa" header={headerProps} />
 
@@ -531,7 +531,9 @@ export default function EntityNavigation({
           sectionItems={sectionItems}
         />
 
-        <div className="flex-1 overflow-auto bg-white min-h-0">{children}</div>
+        <div className="flex-1 overflow-auto bg-[#f9fbfc] min-h-0 p-4">
+           <div className="flex-1 bg-white min-h-0"  style={{borderRadius:"16px",boxShadow:"0 1px 3px rgba(0, 0, 0, 0.08)",  padding: "20px 28px",  border: "1px solid #e5e7eb"}}>{children}</div>
+           </div>
       </div>
     </div>
   );

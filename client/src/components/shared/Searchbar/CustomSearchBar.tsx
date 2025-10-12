@@ -11,7 +11,7 @@ const CustomSearchBar: React.FC<CustomSearchProps>  = (
   { icon = false ,
     width="100%",
     type="inwards",
-    label="Search Events",
+    label="Search Events...",
   }
 ) => {
   return (

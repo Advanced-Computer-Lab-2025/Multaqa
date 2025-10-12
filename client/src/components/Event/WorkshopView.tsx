@@ -11,25 +11,25 @@ import { WorkshopData } from "./helpers/Event";
 
 const WorkshopView: React.FC<ConferenceViewProps> = ({ details, name, description, agenda }) => {
   return (
-    <AccentContainer title="Workshop" accent="secondary">
+    <AccentContainer title="Workshop" accent="primary">
       <EventBox
         sections={[
           <DescriptionAccordion
             key="desc"
             name={name}
             description={description}
-            accent="secondary"
+            accent="primary"
           />,
           <DescriptionAccordion
           key="desc"
           name={"Full Agenda"}
           description={agenda}
-          accent="secondary"
+          accent="primary"
         />,
         <WorkshopData details={details} name={""} description={""} agenda={""} />
           ,
           <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            <CustomButton fullWidth size="small" variant="contained" color="secondary" sx={{ borderRadius: 999}}>
+            <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
               Register
             </CustomButton>
           </Box>,

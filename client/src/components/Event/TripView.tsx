@@ -10,18 +10,18 @@ import { BazarViewProps } from "./types";
 
 const TripView: React.FC<BazarViewProps> = ({ details, name, description }) => {
   return (
-    <AccentContainer title="Trip" accent="tertiary">
+    <AccentContainer title="Trip" accent="primary">
       <EventBox
         sections={[
           <DescriptionAccordion
             key="desc"
             name={name}
             description={description}
-            accent="tertiary"
+            accent="primary"
           />,
-          <DetailsAccordion key="details" details={details} accent="tertiary"/>,
+          <DetailsAccordion key="details" details={details} accent="primary"/>,
           <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            <CustomButton fullWidth size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999}}>
+            <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
               Register
             </CustomButton>
           </Box>,

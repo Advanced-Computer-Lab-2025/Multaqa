@@ -29,9 +29,9 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
         <ConferenceData details={details}/>
           ,
           <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
+            {/* <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
               Register
-            </CustomButton>
+            </CustomButton> */}
           </Box>,
         ]}
       />

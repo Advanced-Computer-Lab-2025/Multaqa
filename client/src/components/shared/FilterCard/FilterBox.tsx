@@ -22,7 +22,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
         }
     };
     return (
-        <FilterCardWrapper sx={{width:"300px"}}> 
+        <FilterCardWrapper sx={{width:"350px" , border:`2px solid ${theme.palette.primary.main}`}}> 
             <Box sx={{ 
                 maxHeight:"400px", 
                 overflow:"auto", 

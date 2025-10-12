@@ -107,7 +107,7 @@ export const BoothData: React.FC<BoothViewProps> = ({ company, people="", detail
   return (
     <Accordion defaultExpanded sx={{ boxShadow: "none", background: "transparent" }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 0 }}>
-        <Typography variant="h5" fontWeight={600} sx={{ color:theme.palette.warning.dark,  fontSize:"16px"}}>{company}</Typography>
+        <Typography variant="h5" fontWeight={600} sx={{ color:theme.palette.primary.dark,  fontSize:"16px"}}>{company}</Typography>
       </AccordionSummary>
     <AccordionDetails sx={{ px: 0 }}>
     {/* People Section*/}

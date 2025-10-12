@@ -9,15 +9,15 @@ import { BoothData } from "./helpers/Event";
 
 const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
   return (
-    <AccentContainer title="Booth" accent="warning">
+    <AccentContainer title="Booth" accent="primary">
       <EventBox
         sections={[
           <BoothData company={company } people={people} details={details}/>
           ,
           <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            <CustomButton fullWidth size="small" variant="contained" color="warning" sx={{ borderRadius: 999}}>
+            {/* <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
               Register
-            </CustomButton>
+            </CustomButton> */}
           </Box>,
         ]}
       />

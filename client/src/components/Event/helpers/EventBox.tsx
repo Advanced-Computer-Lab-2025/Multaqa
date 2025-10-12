@@ -20,7 +20,7 @@ const EventBox: React.FC<EventBoxProps> = ({ sections, sx }) => {
         backgroundColor: "#fff",
         overflow: "hidden",
         width:"100%",
-        height:"90%",
+        height:"100%",
         position: "relative",
         display: "flex",
         flexDirection: "column",
@@ -33,6 +33,23 @@ const EventBox: React.FC<EventBoxProps> = ({ sections, sx }) => {
         overflowX: "hidden",
         padding:"2px 16px",
         pb: 8, // Add bottom padding to prevent content from being hidden behind fixed button
+        // Smooth scrolling behavior
+        scrollBehavior: "smooth",
+        // Custom scrollbar styling
+        "&::-webkit-scrollbar": {
+          width: "6px",
+        },
+        "&::-webkit-scrollbar-track": {
+          background: "#f1f1f1",
+          borderRadius: "3px",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          background: "#c1c1c1",
+          borderRadius: "3px",
+          "&:hover": {
+            background: "#a8a8a8",
+          },
+        },
       }}>
         {contentSections.map((section, index) => (
           <React.Fragment key={index}>
