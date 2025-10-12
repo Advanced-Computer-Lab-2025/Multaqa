@@ -37,7 +37,7 @@ const theme = createTheme({
       dark: "#598bbd",
       contrastText: "#e6e6da",
     },
-    secondary:{
+    secondary: {
       main: "#e5ed6f",
       dark: "#d5de57",
       contrastText: "#13233d",
@@ -48,9 +48,9 @@ const theme = createTheme({
       dark: "#25346b",
       contrastText: '#fff', // Important for text readability
     },
-    error:{
-     main:"#db3030",
-     dark:"#c72c2c",
+    error: {
+      main: "#db3030",
+      dark: "#c72c2c",
     },
     background: {
       default: "#e6e6da",
@@ -61,14 +61,14 @@ const theme = createTheme({
       disabled: "#25346b",
     },
   },
- typography: {
+  typography: {
     h1: {
       fontFamily: "var(--font-jost), system-ui, sans-serif",
       fontWeight: 600,
       fontSize: "2.5rem",
     },
   },
-   components: {
+  components: {
     MuiButton: {
       styleOverrides: {
         sizeSmall: {

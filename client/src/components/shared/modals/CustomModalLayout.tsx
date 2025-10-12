@@ -8,17 +8,29 @@ import { StyledModalBox, ModalCardWrapper, StyledModalContent, StyledModalHeader
 import CustomIcon from '../Icons/CustomIcon';
 import { CustomModalLayoutProps } from './types';
 import { createDelayedCloseHandler } from './utils';
+import { useTheme, lighten } from '@mui/material/styles';
 
-export default function CustomModalLayout({ children, open, onClose, width }: CustomModalLayoutProps) {
+export default function CustomModalLayout({ children, open, onClose, width, borderColor }: CustomModalLayoutProps) {
   const handleClose = createDelayedCloseHandler(onClose, 500);
+
+  const theme = useTheme();
+  // Use provided borderColor or fallback to theme. Compute a lighter variant for the close icon.
+  const tertiary = (theme.palette as unknown as { tertiary?: { main?: string } }).tertiary;
+  const baseBorderColor = borderColor ?? tertiary?.main ?? theme.palette.primary.main;
+  // lighten may throw for some invalid color formats; default to baseBorderColor if lighten fails
+  let closeIconColor = baseBorderColor;
+  try {
+    closeIconColor = lighten(String(baseBorderColor), 0.35);
+  } catch {
+    // keep baseBorderColor if lighten isn't applicable
+  }
 
   // Parse width prop to create sx overrides
   const getWidthSx = () => {
     if (!width) return {};
     
     // Extract breakpoint-specific widths from the width string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sxOverrides: Record<string, any> = {};
+  const sxOverrides: Record<string, unknown> = {};
     
     // Match patterns like w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[60vw], xl:w-[50vw]
     const baseWidth = width.match(/(?:^|\s)w-\[([^\]]+)\]/);
@@ -74,16 +86,17 @@ export default function CustomModalLayout({ children, open, onClose, width }: Cu
       }}
     >
       <Fade in={open}>
-        <ModalCardWrapper sx={getWidthSx()}>
+  <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
             {/* Close Icon at the top right - Fixed header */}
             <StyledModalHeader>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <CustomIcon 
-                  icon="close" 
-                  size="small" 
+                <CustomIcon
+                  icon="close"
+                  size="small"
                   containerType="inwards"
                   onClick={handleClose}
+                  sx={{ color: closeIconColor }}
                 />
               </div>
             </StyledModalHeader>

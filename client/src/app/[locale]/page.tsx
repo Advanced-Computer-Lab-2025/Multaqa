@@ -1,11 +1,25 @@
-// app/admin/events/page.tsx or [locale]/page.tsx
+'use client';
 
-import * as React from 'react';
-import { Box } from '@mui/material';
+import React from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
-// 💡 Import the main component that renders the two boxes side-by-side
-import Create from '../../components/shared/CreateConference/Create'; 
-// Adjust the import path as necessary based on where your Create folder is located
+// Static list of roles — explicit and reliable.
+const ROLES: { key: string; label: string }[] = [
+  { key: 'student', label: 'Student' },
+  { key: 'staff', label: 'Staff' },
+  { key: 'ta', label: 'TA' },
+  { key: 'professor', label: 'Professor' },
+  { key: 'events-office', label: 'Events Office' },
+  { key: 'admin', label: 'Admin' },
+  { key: 'vendor', label: 'Vendor' },
+];
+
+export default function HomePage() {
+  const router = useRouter();
+  const pathname = usePathname() || '';
+  // extract locale from path (/en/..)
+  const segments = pathname.split('/').filter(Boolean);
+  const locale = segments[0] ?? 'en';
 
 /**
  * Main page component for the Event Creation interface.
@@ -13,21 +27,21 @@ import Create from '../../components/shared/CreateConference/Create';
  */
 const CreateEventPage: React.FC = () => {
   return (
-    // Use a full-screen Box to provide a canvas for the centered content
-    <Box 
-      sx={{
-        width: '100%',
-        backgroundColor: 'background.default',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center', // Center content horizontally
-        justifyContent: 'flex-start', // Start content from the top
-        padding: 4, 
-      }}
-    >
-      <Create />
-    </Box>
-  );
-};
+    <div className="p-6 bg-white">
+      <h1 className="text-2xl font-semibold mb-4">Welcome to Multaqa</h1>
+      <p className="text-sm text-gray-600 mb-6">Select your role to continue.</p>
 
-export default CreateEventPage;
+      <div className="flex flex-wrap gap-3">
+        {ROLES.map((role) => (
+          <button
+            key={role.key}
+            onClick={() => void router.push(`/${locale}/${role.key}`)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none"
+          >
+            {role.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

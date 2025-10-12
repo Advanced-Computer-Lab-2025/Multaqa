@@ -21,22 +21,27 @@ export const StyledIconButton = styled(IconButton, {
       case "info":
       case "help":
         return "#2196f3";
+      // default: return undefined so the button can inherit color (allow sx overrides)
       default:
-        return theme.palette.primary.main;
+        return undefined;
     }
   };
+
+  const computedColor = getIconColor();
 
   return {
     cursor: "pointer",
     borderRadius: "50%",
     padding: padding,
-    color: getIconColor(),
-    border: border ? "1px solid #b6b7ba" : "none",
+    // only set a semantic color when defined; otherwise let the component inherit color
+    ...(computedColor ? { color: computedColor } : {}),
+    // Use currentColor for the border so it follows the icon color (including sx overrides)
+    border: border ? `1px solid currentColor` : "none",
 
     "&:hover": {
-      borderColor: getIconColor(),
+      // Increase border width on hover while keeping the color tied to the icon color
       borderWidth: "2px",
-      transition: "all 0.3 ease-in-out",
+      transition: "all 0.18s ease-in-out",
     },
   };
 });
