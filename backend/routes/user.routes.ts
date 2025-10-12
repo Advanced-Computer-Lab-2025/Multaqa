@@ -77,6 +77,19 @@ async function registerForEvent(req: Request, res: Response) {
     data: updatedEvent,
   });
 }
+
+async function blockUser(req: Request, res: Response<BlockUserResponse>) {
+  try {
+    const userId = req.params.id;
+    await userService.blockUser(userId);
+    res.json({
+      success: true,
+      message: "User blocked successfully",
+    });
+  } catch (err: any) {
+    throw createError(500, err.message);
+  }
+}
 const router = Router();
 
 router.get("/", getAllUsers);
