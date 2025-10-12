@@ -62,6 +62,7 @@ async function updateWorkshop(
     }
 
     const updatedWorkshop = await workshopService.updateWorkshop(
+      professorid,
       workshopId,
       req.body
     );
