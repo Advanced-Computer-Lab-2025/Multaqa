@@ -6,17 +6,21 @@ import GenericRepository from '../repos/genericRepo';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
 import createError from 'http-errors'; 
 import { AdministrationRoleType } from '../constants/administration.constants';
+import { IUser } from '../interfaces/models/user.interface';
+import { User } from '../schemas/stakeholder-schemas/userSchema';
 
 export class AdministrationService {
   private administrationRepo: GenericRepository<IAdministration>;
+  private userRepo: GenericRepository<IUser>;
 
   constructor() {
     this.administrationRepo = new GenericRepository<IAdministration>(Administration);
+    this.userRepo = new GenericRepository<IUser>(User);
   }
 
   async createAdminAccount(adminData: CreateAdminRequest): Promise< Omit<IAdministration, 'password'> > {
     // Check if user already exists
-    const existingUser = await this.administrationRepo.findOne({ email: adminData.email });
+    const existingUser = await this.userRepo.findOne({ email: adminData.email });
     if (existingUser) {
       throw createError(400, 'User with this email already exists');
     }

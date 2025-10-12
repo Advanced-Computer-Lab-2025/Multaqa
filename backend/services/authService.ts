@@ -15,7 +15,6 @@ import { StaffPosition } from '../constants/staffMember.constants';
 import createError from 'http-errors';
 import { sendVerification } from './emailService';
 import { VerificationService } from './verificationService';
-import { AdministrationService } from './adminService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 
 export class AuthService {
@@ -24,7 +23,6 @@ export class AuthService {
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
   private verificationService: VerificationService;
-  private administrationService: AdministrationService;
 
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
@@ -32,7 +30,6 @@ export class AuthService {
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
     this.verificationService = new VerificationService();
-    this.administrationService = new AdministrationService();
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors

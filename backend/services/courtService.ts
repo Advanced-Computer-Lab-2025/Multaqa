@@ -3,7 +3,6 @@ import { ICourt } from "../interfaces/models/court.interface";
 import { Court } from "../schemas/court-schema/courtSchema";
 import { TIME_SLOTS } from "../constants/court.constants";
 import { IAvailableSlots } from "../interfaces/models/court.interface";
-import { create } from "domain";
 import createHttpError from "http-errors";
 
 export class CourtService {
