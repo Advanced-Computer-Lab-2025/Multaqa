@@ -1,6 +1,6 @@
-import { IEvent } from "../interfaces/event.interface";
+import { IEvent } from "../interfaces/models/event.interface";
 import { Event } from "../schemas/event-schemas/eventSchema";
-import { IStaffMember } from "../interfaces/staffMember.interface";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import GenericRepository from "../repos/genericRepo";
 import createError from "http-errors";
 import "../schemas/event-schemas/workshopEventSchema";

@@ -7,7 +7,7 @@ import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";
 import { validateUpdateEvent } from "../validation/validateUpdateEvent";
-import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse } from "../interfaces/responses/eventResponses.interface";
+import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse, GetVendorsRequestResponse, GetVendorRequestDetailsResponse, RespondToVendorRequestResponse } from "../interfaces/responses/eventResponses.interface";
 
 const eventsService = new EventsService();
 
@@ -142,14 +142,18 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
   });
 }
 
-async function getVendorsRequests(req: Request, res: Response) {
+async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestResponse>) {
   try {
     const eventId = req.params.id;
     const requests = await eventsService.getVendorsRequest(eventId);
     if (!requests || requests.length === 0) {
       throw createError(404, "No vendor requests found for this event");
     }
-    res.json(requests);
+    res.json({
+      success: true,
+      data: requests,
+      message: "Vendor requests retrieved successfully"
+    });
   } catch (err: any) {
     if (err.status || err.statusCode) {
       throw err;
@@ -158,16 +162,22 @@ async function getVendorsRequests(req: Request, res: Response) {
   }
 }
 
-async function getVendorRequestsDetails(req: Request, res: Response) {
+
+
+async function getVendorRequestsDetails(req: Request, res:  Response<GetVendorRequestDetailsResponse>)  {
   try {
     const eventId = req.params.id;
-    const vendorId=req.params.vendorid
-    
-    const request = await eventsService.getVendorsRequestsDetails(eventId,vendorId);
-    if (!request ) {
+    const vendorId = req.params.vendorid;
+
+    const request = await eventsService.getVendorsRequestsDetails(eventId, vendorId);
+    if (!request) {
       throw createError(404, "Vendor request not found");
     }
-    res.json(request);
+    res.json({
+      success: true,
+      data: request,
+      message: "Vendor request retrieved successfully"
+    });
   } catch (err: any) {
     if (err.status || err.statusCode) {
       throw err;
@@ -176,7 +186,7 @@ async function getVendorRequestsDetails(req: Request, res: Response) {
   }
 }
 
-async function updateVendorRequest(req: Request, res: Response) {
+async function updateVendorRequest(req: Request, res: Response<RespondToVendorRequestResponse>) {
   try {
     const eventId = req.params.eventid;
     const vendorId = req.params.vendorid;
@@ -189,7 +199,10 @@ async function updateVendorRequest(req: Request, res: Response) {
 
     await eventsService.respondToVendorRequest(eventId, vendorId, req.body);
     
-    res.status(200).json({ message: "Vendor request updated successfully" });
+   res.json({ 
+    success: true,
+    message: "Vendor request updated successfully"
+   });
 
   } catch (err: any) {
     if (err.status || err.statusCode) {

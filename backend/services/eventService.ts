@@ -11,7 +11,8 @@ import "../schemas/stakeholder-schemas/vendorSchema";
 import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
-import { IVendor } from "../interfaces/vendor.interface";
+// import { IVendor } from "../interfaces/vendor.interface";
+import { IVendor, VendorRequest } from "../interfaces/models/vendor.interface";
 import { Event_Request_Status } from "../constants/user.constants";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { request } from "http";
@@ -130,7 +131,7 @@ $and: [
     return deleteResult;
   }
 
-  async getVendorsRequest(eventId: string): Promise<Partial<IVendor>[] | null> {
+  async getVendorsRequest(eventId: string): Promise<VendorRequest[] | null> {
   const event = await this.eventRepo.findById(eventId, {
     populate: [
       { path: 'vendor', select: 'companyName logo' },
@@ -143,27 +144,28 @@ $and: [
   }
   
   let vendors: any[] = [];
-  
   if (event.type === EVENT_TYPES.BAZAAR) {
     for (const vendorEntry of event.vendors || []) {
       if (vendorEntry.RequestData.status === Event_Request_Status.PENDING) {
-        vendors.push(vendorEntry);
+         vendors.push({
+        vendor: vendorEntry.vendor,
+        RequestData: vendorEntry.RequestData
+      });
       }
     }
   } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
     if (event.RequestData.status === Event_Request_Status.PENDING) {
-      let vendorEntry = {
+      vendors.push( {
         vendor: event.vendor,
         RequestData: event.RequestData,
-      };
-      vendors.push(vendorEntry);
+      });
     }
   }
-
+ 
   return vendors;
 }
 
-async getVendorsRequestsDetails(eventId: string, vendorId: string): Promise<any> {
+async getVendorsRequestsDetails(eventId: string, vendorId: string): Promise<VendorRequest> {
   const event = await this.eventRepo.findById(eventId, {
     populate: [
       { path: 'vendor', select: 'companyName logo' },
@@ -175,13 +177,19 @@ async getVendorsRequestsDetails(eventId: string, vendorId: string): Promise<any>
     throw createError(404, "Event not found");
   }
 
-  let vendorRequest;
+  let vendorRequest: any ;
 
   // Check if it's a bazaar with multiple vendors and get the specific vendor's request
   if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
-    vendorRequest = event.vendors.find(
+    let vendorreq = event.vendors.find(
       v => typeof v.vendor !== "string" && v.vendor._id?.toString() === vendorId.toString()
     );
+    if (vendorreq) {
+      vendorRequest = {
+        vendor: vendorreq.vendor,
+        RequestData: vendorreq.RequestData,
+      };
+    }
   } 
   // Check if it's a platform booth 
   else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
@@ -229,7 +237,7 @@ async respondToVendorRequest(
     throw createError(404, "Vendor has not applied to this event");
   }
   
-  vendor.requestedEvents[requestIndex].status = status;
+  vendor.requestedEvents[requestIndex].status = status as Event_Request_Status;
   vendor.markModified('requestedEvents'); 
   await vendor.save();
 
@@ -262,4 +270,5 @@ async respondToVendorRequest(
   
   await event.save();
 }
+
 }
