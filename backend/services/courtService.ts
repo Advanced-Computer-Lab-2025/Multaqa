@@ -1,30 +1,28 @@
-
-import mongoose from 'mongoose';
 import GenericRepo from "../repos/genericRepo";
 import { ICourt } from "../interfaces/models/court.interface";
 import { Court } from "../schemas/court-schema/courtSchema";
-import {  TIME_SLOTS } from "../constants/court.constants";
-
+import { TIME_SLOTS } from "../constants/court.constants";
+import { IAvailableSlots } from "../interfaces/models/court.interface";
+import { create } from "domain";
+import createHttpError from "http-errors";
 
 export class CourtService {
   private courtRepo: GenericRepo<ICourt>;
-  
+
   constructor() {
     this.courtRepo = new GenericRepo<ICourt>(Court);
   }
 
-  async getAvailableTimeSlots(courtId: string, date: string) {
+  async getAvailableTimeSlots(courtId: string, date: string): Promise<IAvailableSlots> {
     // Validate date format
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(date)) {
-      throw new Error('Invalid date format. Use YYYY-MM-DD');
+      throw createHttpError(400, 'Invalid date format. Use YYYY-MM-DD');
     }
 
-    
     const court = await this.courtRepo.findById(courtId);
-    
     if (!court) {
-      throw new Error('Court not found');
+      throw createHttpError(404, 'Court not found');
     }
 
     // Convert date for comparison
@@ -40,7 +38,7 @@ export class CourtService {
       })
       .map(reservation => reservation.slot as TIME_SLOTS);
 
-    
+
     const allTimeSlots = Object.values(TIME_SLOTS);
 
     // Get available slots by excluding reserved slots
@@ -48,11 +46,11 @@ export class CourtService {
       (slot: TIME_SLOTS) => !reservedSlots.includes(slot)
     );
 
-    return { 
-      availableSlots,
-      reservedSlots,
-      totalAvailable: availableSlots.length,
-      totalReserved: reservedSlots.length
-    };
+    const result: IAvailableSlots = { availableSlots, reservedSlots, totalAvailable: availableSlots.length, totalReserved: reservedSlots.length };
+    if(!result || !result.availableSlots) {
+      throw createHttpError(404, 'No available slots found');
+    }
+
+    return result;
   }
 }

@@ -4,8 +4,6 @@ export enum COURT_TYPES  {
   FOOTBALL= "football"
 } 
 
-
-
 export enum TIME_SLOTS  {
   SLOT_08_00= "08:00-08:30",
   SLOT_08_30= "08:30-09:00",

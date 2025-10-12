@@ -1,11 +1,11 @@
 import mongoose, { Schema } from "mongoose";
-import { TIME_SLOTS } from "../../constants/court.constants";
 import { ICourt } from "../../interfaces/models/court.interface";
+import { TIME_SLOTS, COURT_TYPES } from "../../constants/court.constants";
 
 const courtSchema = new Schema<ICourt>({
   type: {
     type: String,
-    enum: ['basketball', 'tennis', 'football'],
+    enum: Object.values(COURT_TYPES),
     required: true
   },
   reservations: [{

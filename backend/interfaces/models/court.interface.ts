@@ -1,4 +1,4 @@
-import { Schema, Types, Document } from "mongoose";
+import { Schema, Document } from "mongoose";
 import { COURT_TYPES, TIME_SLOTS } from "../../constants/court.constants";
 
 export interface IReservation {
@@ -8,10 +8,10 @@ export interface IReservation {
 }
 
 export interface IAvailableSlots {
-    availableSlots: TIME_SLOTS[];
-    reservedSlots: TIME_SLOTS[];
-    totalAvailable: number;
-    totalReserved: number;
+  availableSlots: TIME_SLOTS[];
+  reservedSlots: TIME_SLOTS[];
+  totalAvailable: number;
+  totalReserved: number;
 }
 
 export interface ICourt extends Document {

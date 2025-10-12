@@ -135,7 +135,7 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
 async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
   const id = req.params.id;
   const deletedEvent = await eventsService.deleteEvent(id);
-  res.json({ 
+  res.json({
     success: true,
     data: deletedEvent,
     message: "Event deleted successfully"
