@@ -42,6 +42,8 @@ export default function VendorUpcomingParticipation() {
     </Stack>
   );
 
+  // Shared presentation (type chips, location, date range) handled by VendorItemCard
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>

@@ -55,6 +55,7 @@ export default function VendorRequestsList() {
     return <Chip size="small" label="Approved" color="success" variant="outlined" />;
   };
 
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
