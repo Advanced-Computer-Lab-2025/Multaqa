@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Box, Typography, Stack, Chip, Button } from "@mui/material";
 import VendorItemCard from "./VendorItemCard";
 import { VendorRequestItem } from "./types";
@@ -30,6 +30,24 @@ const demoRequests: VendorRequestItem[] = [
 ];
 
 export default function VendorRequestsList() {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const toggle = (id: string) => setOpenId((prev) => (prev === id ? null : id));
+
+  const renderDetails = (item: VendorRequestItem) => (
+    <Stack spacing={1}>
+      <Typography variant="body2" sx={{ color: "#1E1E1E" }}>
+        {item.status === "PENDING"
+          ? "Your request is under review. You will be notified once a decision is made."
+          : item.status === "REJECTED"
+          ? `Reason: ${item.notes ?? "Not provided."}`
+          : "Approved. Please check Upcoming Participation for next steps."}
+      </Typography>
+      <Typography variant="body2" sx={{ color: "#6b7280" }}>
+        Submitted: {new Date(item.submittedAt).toLocaleString()}
+      </Typography>
+    </Stack>
+  );
+
   const statusChip = (status: VendorRequestItem["status"]) => {
     if (status === "PENDING") return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
     if (status === "REJECTED") return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
@@ -55,10 +73,19 @@ export default function VendorRequestsList() {
           <VendorItemCard
             key={item.id}
             item={item}
+            expanded={openId === item.id}
+            details={renderDetails(item)}
             rightSlot={
               <Stack direction="row" spacing={1} alignItems="center">
                 {statusChip(item.status)}
-                <Button size="small" variant="outlined" color="primary">Details</Button>
+                <Button
+                  size="small"
+                  variant={openId === item.id ? "outlined" : "contained"}
+                  color="primary"
+                  onClick={() => toggle(item.id)}
+                >
+                  {openId === item.id ? "Hide Details" : "View Details"}
+                </Button>
               </Stack>
             }
           />

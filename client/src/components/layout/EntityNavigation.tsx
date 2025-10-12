@@ -394,10 +394,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bazaars & Booths",
         icon: Store,
         sections: [
+          { id: "my-applications", label: "My Applications" },
           { id: "available", label: "Available Opportunities" },
           { id: "apply-bazaar", label: "Apply for Bazaar" },
           { id: "apply-booth", label: "Apply for Booth" },
-          { id: "my-applications", label: "My Applications" },
         ],
       },
       {
