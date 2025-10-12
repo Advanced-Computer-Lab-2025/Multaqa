@@ -45,7 +45,7 @@ export class EventsService {
       ] as any,
     });
 
-    // filter out unapproved platform vendors
+    // filter out unapproved bazaar vendors
     events = events.map((event: any) => {
       if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
         event.vendors = event.vendors.filter(
@@ -58,8 +58,8 @@ export class EventsService {
     if (sort) {
       events = events.sort((a: any, b: any) => {
         return (
-          new Date(a.event_start_date).getTime() -
-          new Date(b.event_start_date).getTime()
+          new Date(a.eventStartDate).getTime() -
+          new Date(b.eventEndDate).getTime()
         );
       });
     }
@@ -68,7 +68,7 @@ export class EventsService {
       const searchRegex = new RegExp(search, "i");
       return events.filter(
         (event: any) =>
-          searchRegex.test(event.event_name) ||
+          searchRegex.test(event.eventName) ||
           searchRegex.test(event.type) ||
           event.associatedProfs?.some(
             (prof: any) =>
