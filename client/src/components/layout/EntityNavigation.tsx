@@ -268,9 +268,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Workshop Requests",
         icon: FileText,
         sections: [
-          { id: "pending", label: "Pending" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
+          { id: "all-requests", label: "All Requests" },
+          { id: "pending", label: "Pending Requests" },
+          { id: "accepted", label: "Accepted Requests" },
+          { id: "rejected", label: "Rejected Requests" },
         ],
       },
       {

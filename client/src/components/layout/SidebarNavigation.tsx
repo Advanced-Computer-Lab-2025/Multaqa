@@ -19,7 +19,7 @@ export default function SidebarNavigation({
   sectionItems = [],
 }: SidebarNavigationProps) {
   return (
-    <div className="w-[280px] bg-[#f9fbfc]  h-full flex flex-col p-4 overflow-y-auto">
+    <div className="w-[240px] bg-[#f9fbfc]  h-full flex flex-col p-4 overflow-y-auto">
       {sectionItems.length > 0 && (
         <div className="mb-4 flex-1">
           <p className="text-xs font-semibold text-[#6299d0] tracking-wider mb-3 px-2 font-heading">

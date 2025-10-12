@@ -9,6 +9,7 @@ import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
 import BrowseEvents from "@/components/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
+import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -100,6 +101,11 @@ export default function EntityCatchAllPage() {
       }
       if (section === "all-events") {
         return <BrowseEvents/>;
+      }
+    }
+    if ( tab === "workshop-requests") {
+      if (section === "all-requests") {
+        return <WorkshopReviewUI/>;
       }
     }
 

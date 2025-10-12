@@ -279,7 +279,7 @@ const BrowseEvents: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, overflow:"auto" }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
         Browse Events
       </Typography>
