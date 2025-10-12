@@ -25,4 +25,9 @@ export interface CourtBoardProps {
   currentUser?: string;
   onReserve?: (slot: CourtSlot) => void;
   onCancel?: (slot: CourtSlot) => void;
+  /**
+   * When true, renders the board suitable for embedding inside portal pages
+   * without forcing full-screen background and minHeight.
+   */
+  embedded?: boolean;
 }

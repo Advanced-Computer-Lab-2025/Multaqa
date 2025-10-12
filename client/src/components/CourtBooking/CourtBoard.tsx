@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import CourtColumn from './CourtColumn';
 import { CourtBoardProps, CourtSlot } from './types';
 
-const CourtBoard: React.FC<CourtBoardProps> = ({ courts, slots, currentUser = 'me', onReserve, onCancel }) => {
+const CourtBoard: React.FC<CourtBoardProps> = ({ courts, slots, currentUser = 'me', onReserve, onCancel, embedded = false }) => {
   const [localSlots, setLocalSlots] = useState<CourtSlot[]>(slots);
 
   const byCourt = useMemo(() => {
@@ -38,12 +38,12 @@ const CourtBoard: React.FC<CourtBoardProps> = ({ courts, slots, currentUser = 'm
       display: 'grid',
       gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
       gap: { xs: 2, md: 3 },
-      px: { xs: 2, sm: 4, md: 6, lg: 8 },
-      py: 4,
+      px: { xs: 1, sm: 2, md: 3, lg: 4 },
+      py: embedded ? 2 : 4,
       maxWidth: 1600,
       mx: 'auto',
-      minHeight: '100vh',
-      backgroundColor: '#e6e6da'
+      minHeight: embedded ? 'auto' : '100vh',
+      backgroundColor: embedded ? 'transparent' : '#e6e6da'
     }}>
       {courts.map((c) => (
         <CourtColumn
