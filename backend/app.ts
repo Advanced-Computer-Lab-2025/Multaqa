@@ -15,6 +15,7 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import administrationRouter from "./routes/administration.routes";
 import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
+import courtRouter from "./routes/court.routes";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/admin", administrationRouter);
 app.use("/vendor", vendorRouter);
 app.use("/professors", professorRouter); // Example protected route
 app.use("/eventsOffice", eventsOfficeRouter);
+app.use("/courts", courtRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
