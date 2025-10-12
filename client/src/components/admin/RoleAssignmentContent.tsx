@@ -79,20 +79,23 @@ export default function RoleAssignmentContent() {
 
   // Handler to confirm the assignment
   const handleConfirmAssignment = () => {
-    if (pendingAssignment) {
-      assignToRole(
-        pendingAssignment.role,
-        pendingAssignment.applicant,
-        setAssigned,
-        setApplicants
-      );
-    }
+    // Assignment already happened optimistically, just close modal
     setModalOpen(false);
     setPendingAssignment(null);
   };
 
-  // Handler to cancel the assignment
+  // Handler to cancel the assignment - revert the optimistic update
   const handleCancelAssignment = () => {
+    if (pendingAssignment) {
+      // Move the applicant back to pending
+      setAssigned((prev) => ({
+        ...prev,
+        [pendingAssignment.role]: prev[pendingAssignment.role].filter(
+          (a) => a.id !== pendingAssignment.applicant.id
+        ),
+      }));
+      setApplicants((prev) => [...prev, pendingAssignment.applicant]);
+    }
     setModalOpen(false);
     setPendingAssignment(null);
   };
@@ -114,7 +117,18 @@ export default function RoleAssignmentContent() {
     const applicant = applicants.find((a) => a.id === draggedId);
 
     if (applicant) {
-      // Show confirmation modal instead of assigning directly
+      // Optimistically assign the role first (move visually)
+      assignToRole(targetRole, applicant, setAssigned, setApplicants);
+
+      // Switch to the correct tab to show where it was assigned
+      const roleIndex = roleKeys.indexOf(
+        targetRole as (typeof roleKeys)[number]
+      );
+      if (roleIndex !== -1) {
+        setActiveRoleIndex(roleIndex);
+      }
+
+      // Then show confirmation modal
       setPendingAssignment({ role: targetRole, applicant });
       setModalOpen(true);
     }
@@ -258,11 +272,25 @@ export default function RoleAssignmentContent() {
                         role="N/A"
                         onRoleChange={(newRole: string) => {
                           if (newRole !== "N/A") {
-                            // Show confirmation modal instead of assigning directly
-                            setPendingAssignment({
-                              role: newRole.toLowerCase(),
+                            const role = newRole.toLowerCase();
+                            // Optimistically assign the role first (move visually)
+                            assignToRole(
+                              role,
                               applicant,
-                            });
+                              setAssigned,
+                              setApplicants
+                            );
+
+                            // Switch to the correct tab to show where it was assigned
+                            const roleIndex = roleKeys.indexOf(
+                              role as (typeof roleKeys)[number]
+                            );
+                            if (roleIndex !== -1) {
+                              setActiveRoleIndex(roleIndex);
+                            }
+
+                            // Then show confirmation modal
+                            setPendingAssignment({ role, applicant });
                             setModalOpen(true);
                           }
                         }}
