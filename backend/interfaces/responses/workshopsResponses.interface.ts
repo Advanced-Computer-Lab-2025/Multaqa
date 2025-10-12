@@ -1,4 +1,5 @@
 import { IEvent } from "../models/event.interface";
+import { IWorkshop } from "../workshop.interface";
 
 export interface CreateWorkshopResponse {
   success: boolean;
@@ -8,6 +9,6 @@ export interface CreateWorkshopResponse {
 
 export interface UpdateWorkshopResponse {
   success: boolean;
-  data: IEvent;
+  data: IWorkshop;
   message: string;
 }

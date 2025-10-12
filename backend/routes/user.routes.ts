@@ -1,9 +1,7 @@
 import { Router, Request, Response } from "express";
 import { UserService } from "../services/userService";
 import createError from "http-errors";
-import { GetAllUsersResponse, GetUserByIdResponse } from "../interfaces/responses/userResponses.interface";
-import { AssignRoleResponse } from "../interfaces/responses/administrationResponses.interface";
-
+import { GetAllUsersResponse, GetUserByIdResponse, BlockUserResponse } from "../interfaces/responses/userResponses.interface";
 const userService = new UserService();
 
 async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
@@ -42,21 +40,16 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
   }
 }
 
-// Assign role to staffMember and send verification email
-async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
+async function blockUser(req: Request, res: Response<BlockUserResponse>) {
   try {
-    const { userId } = req.params;
-    const { position } = req.body;
-
-    const result = await userService.assignRoleAndSendVerification(userId, position);
-
+    const userId = req.params.id;
+    await userService.blockUser(userId);
     res.json({
       success: true,
-      message: "Role assigned and verification email sent successfully",
-      user: result
+      message: "User blocked successfully"
     });
-  } catch (error: any) {
-    throw createError(error.status || 500, error.message || 'Failed to assign role and send verification email');
+  } catch (err: any) {
+    throw createError(500, err.message);
   }
 }
 
@@ -64,6 +57,6 @@ const router = Router();
 
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
-router.post('/:userId/assign-role', assignRole);
+router.post("/:id/block", blockUser);
 
 export default router;

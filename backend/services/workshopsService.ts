@@ -11,7 +11,6 @@ import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the 
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
-import { EVENT_OFFICE_PERMISSIONS } from "../constants/administration.constants";
 import { Event_Request_Status } from "../constants/user.constants";
 import { IWorkshop } from "../interfaces/workshop.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
@@ -56,10 +55,7 @@ export class WorkshopService {
     return updatedWorkshop;
   }
 
-  async updateWorkshopStatus(
-    workshopId: string,
-    updateData: Partial<IWorkshop>
-  ) {
+  async updateWorkshopStatus( workshopId: string, updateData: Partial<IWorkshop>) : Promise<IWorkshop>{
     const { approvalStatus, comments } = updateData;
 
     const hasComments = comments && comments.trim() !== "";
@@ -74,7 +70,6 @@ export class WorkshopService {
     };
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, newData);
-
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
 
     return updatedWorkshop;
