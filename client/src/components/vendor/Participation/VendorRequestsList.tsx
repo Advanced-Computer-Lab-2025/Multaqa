@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, Stack, Chip, Button } from "@mui/material";
+import { Box, Typography, Stack, Chip } from "@mui/material";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
 import VendorItemCard from "./VendorItemCard";
 import { VendorRequestItem } from "./types";
 
@@ -78,14 +79,15 @@ export default function VendorRequestsList() {
             rightSlot={
               <Stack direction="row" spacing={1} alignItems="center">
                 {statusChip(item.status)}
-                <Button
+                <CustomButton
                   size="small"
                   variant={openId === item.id ? "outlined" : "contained"}
                   color="primary"
                   onClick={() => toggle(item.id)}
-                >
-                  {openId === item.id ? "Hide Details" : "View Details"}
-                </Button>
+                  label={openId === item.id ? "Hide Details" : "View Details"}
+                  width="auto"
+                  height="32px"
+                />
               </Stack>
             }
           />

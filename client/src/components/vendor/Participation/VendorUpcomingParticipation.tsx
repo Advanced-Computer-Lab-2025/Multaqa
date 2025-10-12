@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, Stack, Button } from "@mui/material";
+import { Box, Typography, Stack } from "@mui/material";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
 import VendorItemCard from "./VendorItemCard";
 import { VendorParticipationItem } from "./types";
 
@@ -63,14 +64,15 @@ export default function VendorUpcomingParticipation() {
             expanded={openId === item.id}
             details={renderDetails(item)}
             rightSlot={
-              <Button
+              <CustomButton
                 size="small"
                 variant={openId === item.id ? "outlined" : "contained"}
                 color="primary"
                 onClick={() => toggle(item.id)}
-              >
-                {openId === item.id ? "Hide Details" : "View Details"}
-              </Button>
+                label={openId === item.id ? "Hide Details" : "View Details"}
+                width="auto"
+                height="32px"
+              />
             }
           />
         ))}
