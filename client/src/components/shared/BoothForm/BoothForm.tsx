@@ -4,21 +4,14 @@ import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import PlatformMap from "../PlatformMap/PlatformMap";
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
 import { BoothFormValues } from "./types";
 import { validationSchema } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import CustomIcon from "../Icons/CustomIcon";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import DatePicker from "../DatePicker";
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
@@ -200,58 +193,36 @@ const BoothForm: React.FC = () => {
                   ))}
                 </Box>
 
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <div className="flex items-start gap-5 w-full px-4 mb-5">
-                    <div>
-                      <DatePicker
-                        label="Start date"
-                        value={formik.values.startDate}
-                        onChange={(value) => {
-                          formik.setFieldValue("startDate", value);
-                          formik.setFieldTouched("startDate", true, true);
-                        }}
-                        onClose={() =>
-                          formik.setFieldTouched("startDate", true, true)
+                <div className="flex items-start gap-5 w-full px-4 mb-5">
+                  <div className="w-[300px]">
+                    <DatePicker
+                      id="startDate"
+                      name="startDate"
+                      label="Start Date"
+                      value={formik.values.startDate}
+                      onChange={(date) => {
+                        formik.setFieldValue("startDate", date);
+                        // Validate endDate when startDate changes
+                        if (formik.values.endDate) {
+                          formik.validateField("endDate");
                         }
-                        slotProps={{
-                          textField: {
-                            id: "startDate",
-                            error:
-                              formik.touched.startDate &&
-                              Boolean(formik.errors.startDate),
-                            helperText:
-                              formik.touched.startDate &&
-                              (formik.errors.startDate as string),
-                            sx: { width: "300px" },
-                          },
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <DatePicker
-                        label="End date"
-                        value={formik.values.endDate}
-                        onChange={(value) => {
-                          formik.setFieldValue("endDate", value);
-                          formik.setFieldTouched("endDate", true, false);
-                        }}
-                        onClose={() => formik.setFieldTouched("endDate", true)}
-                        slotProps={{
-                          textField: {
-                            id: "endDate",
-                            error:
-                              formik.touched.endDate &&
-                              Boolean(formik.errors.endDate),
-                            helperText:
-                              formik.touched.endDate &&
-                              (formik.errors.endDate as string),
-                            sx: { width: "300px" },
-                          },
-                        }}
-                      />
-                    </div>
+                      }}
+                    />
                   </div>
-                </LocalizationProvider>
+
+                  <div className="w-[300px]">
+                    <DatePicker
+                      id="endDate"
+                      name="endDate"
+                      label="End Date"
+                      value={formik.values.endDate}
+                      onChange={(date) => {
+                        formik.setFieldValue("endDate", date);
+                      }}
+                      minDate={formik.values.startDate || undefined}
+                    />
+                  </div>
+                </div>
 
                 {/* Booth Size Select */}
 

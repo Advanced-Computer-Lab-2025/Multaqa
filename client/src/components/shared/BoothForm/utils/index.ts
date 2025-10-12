@@ -17,7 +17,20 @@ export const validationSchema = Yup.object({
     .nullable()
     .required("Start date is required")
     .typeError("Please select a valid date")
-    .min(new Date(), "Start date cannot be in the past"),
+    .test(
+      "is-not-in-past",
+      "Start date cannot be in the past",
+      function (value) {
+        if (!value) return true;
+        // Compare only the date portions (ignore time)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const startDate = new Date(value);
+        startDate.setHours(0, 0, 0, 0);
+
+        return startDate >= today;
+      }
+    ),
   endDate: Yup.date()
     .nullable()
     .required("End date is required")
@@ -28,7 +41,14 @@ export const validationSchema = Yup.object({
       function (value) {
         const { startDate } = this.parent;
         if (!startDate || !value) return true;
-        return new Date(value) > new Date(startDate);
+
+        // Compare only the date portions (ignore time)
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(value);
+        end.setHours(0, 0, 0, 0);
+
+        return end > start;
       }
     )
     .test(
@@ -37,12 +57,20 @@ export const validationSchema = Yup.object({
       function (value) {
         const { startDate } = this.parent;
         if (!startDate || !value) return true;
+
+        // Calculate difference using date-only comparison
         const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
         const end = new Date(value);
-        const diffInDays = Math.floor(
-          (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        return diffInDays >= 7 && diffInDays <= 28;
+        end.setHours(0, 0, 0, 0);
+
+        // Get the time difference in milliseconds
+        const diffTime = end.getTime() - start.getTime();
+
+        // Convert to days
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        return diffDays >= 7 && diffDays <= 28;
       }
     ),
   selectedBoothId: Yup.number()
