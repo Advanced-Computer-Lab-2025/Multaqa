@@ -18,6 +18,12 @@ export interface CustomModalProps {
     color?: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
     onClick?: () => void;
   };
+  /** Optional: Control the modal externally. If provided, modal becomes controlled. */
+  open?: boolean;
+  /** Optional: Callback when modal should close. Required if 'open' is provided. */
+  onClose?: () => void;
+  /** Optional: Custom children to render instead of description. */
+  children?: React.ReactNode;
 }
 
 export interface CustomModalLayoutProps {

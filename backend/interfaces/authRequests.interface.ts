@@ -1,3 +1,4 @@
+// Base signup request (common fields)
 export interface BaseSignupRequest {
   email: string;
   password: string;
@@ -19,16 +20,15 @@ export interface VendorSignupRequest extends BaseSignupRequest {
 
 // Administration signup request (admin/event office)
 // created by super admin, not public signup
-export interface AdministrationSignupRequest extends BaseSignupRequest {
+export interface CreateAdminRequest extends BaseSignupRequest {
   name: string;
+  role: string;
 }
 
 // Union type for all signup requests
 export type SignupRequest =
   | StudentAndStaffSignupRequest
-  | VendorSignupRequest
-  | AdministrationSignupRequest;
-
+  | VendorSignupRequest;
   
 // Login request (for all users)
 export interface LoginRequest {

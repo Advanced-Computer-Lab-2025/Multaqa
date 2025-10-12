@@ -7,8 +7,9 @@ const gymSessionSchema = new Schema({
   sessionType: {
     type: String,
     enum: Object.values(GYM_SESSION_TYPES),
+    required: true,
   },
-  capacity: { type: Number, min: 1, default: 10 },
+  capacity: { type: Number, min: 1, default: 10, required: true },
 });
 
 export const GymSession = Event.discriminator("gym_session", gymSessionSchema);

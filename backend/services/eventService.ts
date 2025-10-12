@@ -1,13 +1,16 @@
-import { IEvent } from "../interfaces/event.interface";
+import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
-import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import "../schemas/event-schemas/workshopEventSchema";
 import "../schemas/event-schemas/bazaarEventSchema";
 import "../schemas/event-schemas/platformBoothEventSchema";
+import "../schemas/event-schemas/conferenceEventSchema";
 import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
+import "../schemas/event-schemas/tripSchema";
+import { EVENT_TYPES } from "../constants/events.constants";
+import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -22,7 +25,7 @@ export class EventsService {
     location?: string,
     sort?: boolean
   ) {
-    const filter: any = {};
+    const filter: any = { type: { $ne: EVENT_TYPES.GYM_SESSION } };
     if (type) filter.type = type;
     if (location) filter.location = location;
 
@@ -73,12 +76,33 @@ export class EventsService {
     return event;
   }
 
-  async deleteEvent(id: string): Promise<IEvent | null> {
+  async createEvent(user: any, data: any) {
+    const mappedData = mapEventDataByType(data.type, data);
+
+    const createdEvent = await this.eventRepo.create(mappedData);
+    return createdEvent;
+  }
+
+  async updateEvent(eventId: string, updateData: any) {
+    const updatedEvent = await this.eventRepo.update(eventId, updateData);
+
+    if (!updatedEvent) {
+      throw createError(404, "Event not found");
+    }
+
+    return updatedEvent;
+  }
+
+  async deleteEvent(id: string): Promise<IEvent> {
     const event = await this.eventRepo.findById(id);
     console.log("THE EVENT GETTING DELETEDDD", event);
     if (event && event.attendees && event.attendees.length > 0) {
       throw createError(409, "Cannot delete event with attendees");
     }
-    return await this.eventRepo.delete(id);
+    const deleteResult = await this.eventRepo.delete(id);
+    if(!deleteResult){
+      throw createError(404, "Event not found");
+    }
+    return deleteResult;
   }
 }
