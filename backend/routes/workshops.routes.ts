@@ -12,7 +12,11 @@ async function createWorkshop(
   res: Response<CreateWorkshopResponse>
 ) {
   try {
-    const professorid = (req as any).user.id;
+    const professorid = req.params.professorId;
+
+    // To be used when authentication is automatically handled by the frontend
+    // const professorid = (req as any).user.id;
+
     let validationResult = validateWorkshop(req.body);
 
     // Handle Joi validation errors
@@ -41,7 +45,8 @@ async function updateWorkshop(
   res: Response<UpdateWorkshopResponse>
 ) {
   try {
-    const professorid = (req as any).user.id;
+    // const professorid = (req as any).user.id;
+    const professorid = req.params.professorId;
     const workshopId = req.params.workshopId;
     const validationResult = validateUpdateWorkshop(req.body);
 
@@ -99,7 +104,7 @@ async function updateWorkshopStatus(
 
 const router = Router();
 router.post("/", createWorkshop);
-router.patch("/:workshopId", updateWorkshop);
-router.patch("/:workshopId/status", updateWorkshopStatus);
+router.patch("/:professorId/:workshopId", updateWorkshop);
+router.patch("/:professorId/:workshopId/status", updateWorkshopStatus);
 
 export default router;
