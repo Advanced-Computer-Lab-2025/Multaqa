@@ -7,7 +7,7 @@ import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";
 import { validateUpdateEvent } from "../validation/validateUpdateEvent";
-import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse } from "../interfaces/responses/eventResponses.interface";
+import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse, GetVendorsRequestResponse, GetVendorRequestDetailsResponse, RespondToVendorRequestResponse } from "../interfaces/responses/eventResponses.interface";
 
 const eventsService = new EventsService();
 
@@ -133,13 +133,84 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
 }
 
 async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
-  const id = req.params.id;
-  const deletedEvent = await eventsService.deleteEvent(id);
-  res.json({ 
-    success: true,
-    data: deletedEvent,
-    message: "Event deleted successfully"
-  });
+  try {
+    const id = req.params.id;
+    const deletedEvent = await eventsService.deleteEvent(id);
+    res.json({
+      success: true,
+      data: deletedEvent,
+      message: "Event deleted successfully"
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw createError(err.status, err.message);
+    }
+    throw createError(500, err.message);
+  }
+}
+
+async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestResponse>) {
+  try {
+    const eventId = req.params.id;
+    const requests = await eventsService.getVendorsRequest(eventId);
+
+    res.json({
+      success: true,
+      data: requests,
+      message: "Vendor requests retrieved successfully"
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw err;
+    }
+    throw createError(500, err.message);
+  }
+}
+
+
+
+async function getVendorRequestsDetails(req: Request, res: Response<GetVendorRequestDetailsResponse>) {
+  try {
+    const eventId = req.params.id;
+    const vendorId = req.params.vendorid;
+    const request = await eventsService.getVendorsRequestsDetails(eventId, vendorId);
+
+    res.json({
+      success: true,
+      data: request,
+      message: "Vendor request retrieved successfully"
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw err;
+    }
+    throw createError(500, err.message);
+  }
+}
+
+async function updateVendorRequest(req: Request, res: Response<RespondToVendorRequestResponse>) {
+  try {
+    const eventId = req.params.eventid;
+    const vendorId = req.params.vendorid;
+    const { status } = req.body;
+
+    if (!eventId || !vendorId || !status) {
+      throw createError(400, "Missing required fields")
+    }
+
+    await eventsService.respondToVendorRequest(eventId, vendorId, req.body);
+
+    res.json({
+      success: true,
+      message: "Vendor request updated successfully"
+    });
+
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw createError(err.status, err.message);
+    }
+    throw createError(500, err.message);
+  }
 }
 
 const router = Router();
@@ -147,6 +218,11 @@ router.get("/", findAll);
 router.get("/:id", findOne);
 router.post("/", createEvent);
 router.delete("/:id", deleteEvent);
+router.get("/:id/vendor-requests", getVendorsRequests);
+router.get("/:id/vendor-requests/:vendorid", getVendorRequestsDetails)
+router.patch("/:eventid/vendor-requests/:vendorid", updateVendorRequest);
+
 router.patch("/:id", updateEvent);
 
 export default router;
+

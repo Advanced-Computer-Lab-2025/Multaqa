@@ -1,4 +1,5 @@
 import { IEvent } from "../models/event.interface";
+import { VendorRequest } from "../models/vendor.interface";
 
 export interface GetEventsResponse {
   success: boolean;
@@ -29,3 +30,22 @@ export interface DeleteEventResponse {
   data: IEvent;
   message: string;
 }
+
+export interface GetVendorsRequestResponse {
+  success: boolean;
+  data: VendorRequest[];
+  message: string;
+}
+
+
+export interface GetVendorRequestDetailsResponse {
+  success: boolean;
+  data: VendorRequest;
+  message: string;
+}
+
+export interface RespondToVendorRequestResponse {
+  success: boolean;
+  message: string;
+}
+

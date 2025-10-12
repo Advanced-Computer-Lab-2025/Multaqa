@@ -7,6 +7,14 @@ export interface IRequestedEvent {
   status: Event_Request_Status;
 }
 
+export interface VendorRequest {
+  vendor: Partial<IVendor>;
+  RequestData: {
+    data: any;
+    status: Event_Request_Status;
+  };
+}
+
 export interface IVendor extends IUser {
   companyName: string;
   taxCard: string;
