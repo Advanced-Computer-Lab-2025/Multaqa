@@ -379,8 +379,8 @@ export default function RoleAssignmentContent() {
                     fontSize: "14px",
                   }}
                 >
-                  {roleLabels[roleKey]} ({(assigned[roleKey] || []).length}
-                  users)
+                  {roleLabels[roleKey]} ({(assigned[roleKey] || []).length}{" "}
+                  {(assigned[roleKey] || []).length === 1 ? "user" : "users"})
                 </Typography>
 
                 {/* Droppable zone for this role */}
