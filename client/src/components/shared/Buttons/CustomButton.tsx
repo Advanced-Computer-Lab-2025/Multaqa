@@ -5,8 +5,8 @@ import { StyledButton } from "./styles/index";
 
 
 
-const CustomButton: React.FC<CustomButtonProps> = ({ label, children, ...props }) => {
-  return <StyledButton {...props} loadingPosition="start">{label || children}</StyledButton>;
+const CustomButton: React.FC<CustomButtonProps> = ({ label, width, height, children, ...props }) => {
+  return <StyledButton {...props} sx={{width:width, height:height}} loadingPosition="start">{label || children}</StyledButton>;
 };
 
 export default CustomButton;

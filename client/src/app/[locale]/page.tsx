@@ -1,51 +1,42 @@
-"use client";
+'use client';
 
-import CustomButton from "@/components/shared/Buttons/CustomButton";
-import DeleteButton from "@/components/shared/Buttons/DeleteButton";
-import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
-import CustomIcon from "@/components/shared/Icons/CustomIcon";
-import CustomModal from "@/components/shared/modals/CustomModal";
-import AppWrapper from '@/components/shared/FilterCard/example'; 
-import CreateWorkshopPage  from "@/components/tempPages/createWorkshop";
+import React from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+
+// Static list of roles — explicit and reliable.
+const ROLES: { key: string; label: string }[] = [
+  { key: 'student', label: 'Student' },
+  { key: 'staff', label: 'Staff' },
+  { key: 'ta', label: 'TA' },
+  { key: 'professor', label: 'Professor' },
+  { key: 'events-office', label: 'Events Office' },
+  { key: 'admin', label: 'Admin' },
+  { key: 'vendor', label: 'Vendor' },
+];
 
 export default function HomePage() {
+  const router = useRouter();
+  const pathname = usePathname() || '';
+  // extract locale from path (/en/..)
+  const segments = pathname.split('/').filter(Boolean);
+  const locale = segments[0] ?? 'en';
+
   return (
-    // <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
-    //   <CustomModal 
-    //     title="Confirm Action"
-    //     description="Are you sure you want to proceed with this action? This cannot be undone."
-    //     buttonOption1={{
-    //       label: "Cancel",
-    //       variant: "outlined",
-    //       color: "secondary"
-    //     }}
-    //     buttonOption2={{
-    //       label: "Confirm",
-    //       variant: "contained",
-    //       color: "primary",
-    //       onClick: () => console.log("Action confirmed!")
-    //     }}
-    //   />
-    //   <div className="flex items-center justify-center gap-5">
-    //     <CustomButton
-    //       variant="outlined"
-    //       size="small"
-    //       disableElevation
-    //       label="Save"
-    //     />
-    //     <CustomButton
-    //       variant="contained"
-    //       size="small"
-    //       disableElevation
-    //       label="Submit"
-    //     />
-    //     <DeleteButton size="small" variant="contained" color="error" />
-    //   </div>
-    //   <CustomSearchBar icon={false} width="450px" type="outwards" />
-    //   <CustomIcon icon="delete" size="small" containerType="inwards" />
-    //   <CustomIcon icon="edit" size="large" containerType="outwards" border={false} />
-    //   <AppWrapper />
-    // </div>
-    <CreateWorkshopPage />
+    <div className="p-6 bg-white">
+      <h1 className="text-2xl font-semibold mb-4">Welcome to Multaqa</h1>
+      <p className="text-sm text-gray-600 mb-6">Select your role to continue.</p>
+
+      <div className="flex flex-wrap gap-3">
+        {ROLES.map((role) => (
+          <button
+            key={role.key}
+            onClick={() => void router.push(`/${locale}/${role.key}`)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none"
+          >
+            {role.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
