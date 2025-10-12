@@ -133,7 +133,7 @@ export class EventsService {
     return deleteResult;
   }
 
-  async registerUserForEvent(eventId: string, userData: any, userId: string) {
+  async registerUserForEvent(eventId: string, userData: any, userId: any) {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
       throw createError(404, "Event not found");
@@ -148,16 +148,17 @@ export class EventsService {
         "Registrations are only allowed for trips and workshops"
       );
     }
-
     // Check if user is already registered
     const isAlreadyRegistered = event.attendees?.some(
-      (attendee: any) => attendee.email === userData.email
+      (attendeeId: { toString: () => string }) =>
+        attendeeId.toString() === userId.toString()
     );
     if (isAlreadyRegistered) {
       throw createError(409, "User already registered for this event");
     }
 
     // Add user to attendees
+    console.log(userId);
     event.attendees?.push(userId);
     await event.save();
     return event;

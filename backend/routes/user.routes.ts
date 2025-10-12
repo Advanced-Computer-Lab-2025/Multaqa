@@ -59,6 +59,7 @@ async function registerForEvent(req: Request, res: Response) {
       validatedData.error.details.map((d) => d.message).join(", ")
     );
   }
+
   const updatedEvent = await eventsService.registerUserForEvent(
     eventId,
     validatedData.value,
@@ -80,7 +81,7 @@ const router = Router();
 
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
-router.post("/register/:eventId", registerForEvent);
+router.post("/:id/register/:eventId", registerForEvent);
 router.post("/:id/block", blockUser);
 
 export default router;

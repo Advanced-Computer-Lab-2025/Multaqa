@@ -9,7 +9,7 @@ export interface IEvent extends Document {
   id: string;
   type: EVENT_TYPES;
   archived: boolean;
-  attendees: Schema.Types.ObjectId[] | IUser[];
+  attendees: IUser[] | Schema.Types.ObjectId[];
   allowedUsers: UserRole[];
   reviews: IReview[];
   eventName: string;
