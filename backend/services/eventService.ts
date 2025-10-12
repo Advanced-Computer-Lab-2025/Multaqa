@@ -13,6 +13,7 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
 import { IUser } from "../interfaces/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
+import { Schema } from "mongoose";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -104,7 +105,11 @@ export class EventsService {
     return await this.eventRepo.delete(id);
   }
 
-  async registerUserForEvent(eventId: string, userData: any) {
+  async registerUserForEvent(
+    eventId: string,
+    userData: any,
+    userId: Schema.Types.ObjectId
+  ) {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
       throw createError(404, "Event not found");
@@ -129,7 +134,7 @@ export class EventsService {
     }
 
     // Add user to attendees
-    event.attendees?.push(userData);
+    event.attendees?.push(userId);
     await event.save();
     return event;
   }

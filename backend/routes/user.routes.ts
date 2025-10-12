@@ -37,7 +37,8 @@ async function getUserById(req: Request, res: Response) {
 
 // this will come back in sprint 2 guys (Stripe API)
 async function registerForEvent(req: Request, res: Response) {
-  const { eventId, id } = req.params;
+  const { eventId } = req.params;
+  const { id } = (req as any).user;
   const validatedData = validateEventRegistration(req.body);
   if (validatedData.error) {
     throw createError(
@@ -47,7 +48,8 @@ async function registerForEvent(req: Request, res: Response) {
   }
   const updatedEvent = await eventsService.registerUserForEvent(
     eventId,
-    validatedData.value
+    validatedData.value,
+    id
   );
 
   await userService.addEventToUser(
@@ -65,6 +67,6 @@ const router = Router();
 
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
-router.post("/:id/register/:eventId", registerForEvent);
+router.post("/register/:eventId", registerForEvent);
 
 export default router;
