@@ -319,6 +319,7 @@ export default function RoleAssignmentContent() {
                   fontWeight: 600,
                   color: "#3a4f99",
                   fontSize: "18px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Assigned Users
@@ -334,6 +335,7 @@ export default function RoleAssignmentContent() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
+                  maxWidth: "400px"
                 }}
               >
                 {roleKeys.map((roleKey, idx) => (

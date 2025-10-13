@@ -2,15 +2,15 @@ import { Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import type { ButtonProps } from "@mui/material/Button";
-import {resolveButtonPalette } from "../../../utils"
+import { resolveButtonPalette } from "../../../utils"
 
 // styled wrapper for MUI Button
-export const StyledButton = styled(Button)<ButtonProps>(({ theme , color}) => ({
+export const StyledButton = styled(Button)<ButtonProps>(({ theme, color }) => ({
   cursor: "pointer",
   borderRadius: "50px",
   padding: "5px 10px",
-  borderWidth:"2px",
-  borderStyle:"solid",
+  borderWidth: "2px",
+  borderStyle: "solid",
   borderColor: resolveButtonPalette(theme, color).dark,
   "&.MuiButton-outlined": {
     borderWidth: "2px",
@@ -25,19 +25,19 @@ export const StyledButton = styled(Button)<ButtonProps>(({ theme , color}) => ({
    5px 5px 10px 0 rgba(153, 153, 142, 0.6)
 `,
 
-"&:hover": {
-  boxShadow: `
+  "&:hover": {
+    boxShadow: `
     -5px -5px 8px 0 #fffff7,
     5px 5px 8px 0 rgba(153, 153, 142, 0.6)
   `,
-},
+  },
 
-"&:active": {
-  boxShadow: `
+  "&:active": {
+    boxShadow: `
     inset -10px -10px 10px 0 #000000 25%,
     inset 10px 10px 10px 0 #FFFFFF 80%
   `,
-},
+  },
 }));
 
 
@@ -54,13 +54,13 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     5px 5px 10px 0 rgba(153, 153, 142, 0.6)
   `,
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
- "&.MuiButton-outlined": {
+  "&.MuiButton-outlined": {
     borderWidth: "2px",
     borderStyle: "solid",
     borderColor: theme.palette.error.dark,
     color: theme.palette.error.main,
   },
-"&:hover": {
+  "&:hover": {
     background: "#a81818",
     color: theme.palette.primary.contrastText,
     border: "2px solid #a81818",
