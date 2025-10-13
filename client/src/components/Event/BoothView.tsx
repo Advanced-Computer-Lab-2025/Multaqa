@@ -131,7 +131,7 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details, user , 
           Apply
         </CustomButton>)
       }
-      registered={registered}
+      registered={registered || !(user=="vendor")}
        // only in case of vendor
       expanded={expanded}
       onExpandChange={setExpanded}

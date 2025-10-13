@@ -147,7 +147,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
         }
       ]}
       metaNodes={metaNodes}
-      registered={registered}
+      registered={true}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

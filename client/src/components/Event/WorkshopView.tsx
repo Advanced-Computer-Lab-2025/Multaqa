@@ -168,7 +168,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
           Register
         </CustomButton>)
       }
-      registered={registered}
+      registered={registered || !(user=="staff"||user=="student"||user=="ta"||user=="professor")}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

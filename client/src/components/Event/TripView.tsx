@@ -88,7 +88,7 @@ const TripView: React.FC<BazarViewProps> = ({ details, name, description, user, 
           Register
         </CustomButton>)
       }
-      registered={registered}
+      registered={registered ||  !(user=="staff"||user=="student"||user=="ta"||user=="professor")}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}
