@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {useState}from 'react';
 import {useFormik} from 'formik';
 import dayjs from 'dayjs';
 
@@ -13,6 +13,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 import {tripSchema} from "../CreateTrip/schemas/trip";
+
+import {api} from "../../../api";
 
 
 interface EditTripProps { 
@@ -29,7 +31,26 @@ interface EditTripProps {
  }
 
 const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price, 
-    description, startDate, endDate, registrationDeadline, capacity}: EditTripProps) => {
+  description, startDate, endDate, registrationDeadline, capacity}: EditTripProps) => {
+    const [loading, setLoading] = useState(false);
+    const [response, setResponse] = useState<any[]>([]);
+    const [error, setError] = useState<string | null>(null);  
+
+    const handleCallApi = async (payload:any) => {
+        setLoading(true);
+        setError(null);
+        setResponse([]);
+        try {
+        // TODO: Replace with your API route
+        const res = await api.patch("/events/" + tripId, payload);
+        setResponse(res.data);
+        } catch (err: any) {
+        setError(err?.message || "API call failed");
+        } finally {
+        setLoading(false);
+        }
+    };
+
   const initialValues = {
     tripName: tripName,
     location: location,
@@ -42,20 +63,27 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
   };
   
   const onSubmit = async (values: any, actions: any) => {
+    const startDateObj = values.startDate; // dayjs object
+    const endDateObj = values.endDate;
+    const registrationDeadlineObj = values.registrationDeadline;
+
     const payload ={
-        tripName: values.tripName,
+        type: "trip",
+        eventName: values.tripName,
         location: values.location,
         price: values.price,
         description: values.description,
-        startDate: values.startDate.toDate(),
-        endDate: values.endDate.toDate(),
-        registrationDeadline: values.registrationDeadline.toDate(),
+        eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+        eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+        eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+        eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
+        registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
         capacity: values.capacity,
     };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     setOpenEditTrip(false);
-    console.log(JSON.stringify(payload))
+    handleCallApi(payload);
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -219,7 +247,7 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
                 { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
         </Grid>
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
-            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Create Trip"} variant='contained' fullWidth type='submit'/>
+            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Confirm Edits"} variant='contained' fullWidth type='submit'/>
         </Box>
         </form>
     </>

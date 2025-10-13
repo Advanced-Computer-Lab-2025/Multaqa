@@ -204,13 +204,13 @@ const SimpleFormExample: React.FC = () => {
         <CustomModalLayout open={openEditBazaar} onClose={() => setOpenEditBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <EditBazaar
             setOpenEditBazaar={setOpenEditBazaar} 
-            bazaarId='1'
-            bazaarName='hey'
-            location='67'
-            description='hey'
-            startDate={new Date("10/15/2025, 12:00:00 PM")}
-            endDate={new Date("10/18/2025 12:00:00 PM")}
-            registrationDeadline={new Date("10/14/2025, 12:00:00 PM")}
+            bazaarId='68ed4f8a991f22c57a20061c'
+            bazaarName='ma3rad el sanaseer'
+            location='center dr. catherine (IG zone)'
+            description='67'
+            startDate={new Date("2025-10-16T21:00:00.000+00:00")}
+            endDate={new Date("2025-10-24T21:00:00.000+00:00")}
+            registrationDeadline={new Date("2025-10-14T21:00:00.000+00:00")}
           />
         </CustomModalLayout>
 
@@ -223,15 +223,15 @@ const SimpleFormExample: React.FC = () => {
         <CustomModalLayout open={openEditTrip} onClose={() => setOpenEditTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
           <EditTrip 
             setOpenEditTrip={setOpenEditTrip} 
-            tripId='1'
-            tripName='Sample Trip'
-            location='Sample Location'
-            price={100}
-            description='This is a sample trip description.'
-            startDate={new Date("October 17, 2025 03:24:00")}
-            endDate={new Date("October 20, 2025 03:24:00")}
+            tripId='68ed4c9d991f22c57a20061a'
+            tripName='kendrick lamar concert'
+            location='67'
+            price={67}
+            description='67'
+            startDate={new Date("2025-10-22T12:00:00.000+00:00")}
+            endDate={new Date("2025-10-25T14:00:00.000+00:00")}
             registrationDeadline={new Date("October 11, 2025 03:24:00")}
-            capacity={50}
+            capacity={67}
           />
         </CustomModalLayout>
       </div>

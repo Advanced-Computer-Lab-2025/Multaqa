@@ -12,6 +12,7 @@ import CustomButton from '../../shared/Buttons/CustomButton';
 
 import { bazaarSchema } from "../CreateBazaar/schemas/bazaar";
 import dayjs from 'dayjs';
+import {api} from "../../../api";
 
 interface EditBazaarProps {
   bazaarId: string;
@@ -24,32 +25,58 @@ interface EditBazaarProps {
   setOpenEditBazaar: (open: boolean) => void;
  }
 
-const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline}: EditBazaarProps) => {
+const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline}: EditBazaarProps) => { 
 
-  const initialValues = {
-    bazaarName: bazaarName,
-    location: location,
-    description: description,
-    startDate: startDate ? dayjs(startDate) : null,
-    endDate: endDate ? dayjs(endDate) : null,
-    registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
-  };
-  
+    const [loading, setLoading] = useState(false);
+    const [response, setResponse] = useState<any[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async (values: any, actions: any) => {
-    const payload = {
-        bazaarName: values.bazaarName,
-        location: values.location,
-        description: values.description,
-        startDate: values.startDate.toDate(),
-        endDate: values.endDate.toDate(),
-        registrationDeadline: values.registrationDeadline.toDate()
+    const initialValues = {
+        bazaarName: bazaarName,
+        location: location,
+        description: description,
+        startDate: startDate ? dayjs(startDate) : null,
+        endDate: endDate ? dayjs(endDate) : null,
+        registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
-    actions.resetForm();
-    setOpenEditBazaar(false);
-    alert(JSON.stringify(payload));
-  };
+  
+      const handleCallApi = async (payload:any) => {
+      setLoading(true);
+      setError(null);
+      setResponse([]);
+      try {
+          // TODO: Replace with your API route
+          const res = await api.patch("/events/"+bazaarId, payload);
+          setResponse(res.data);
+      } catch (err: any) {
+          setError(err?.message || "API call failed");
+      } finally {
+          setLoading(false);
+      }
+      };
+  
+    const onSubmit = async (values: any, actions: any) => {
+      const startDateObj = values.startDate; // dayjs object
+      const endDateObj = values.endDate;
+      const registrationDeadlineObj = values.registrationDeadline;
+  
+      const payload = {
+          type:"bazaar",
+          eventName: values.bazaarName,
+          location: values.location,
+          description: values.description,
+          eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+          eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+          eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+          eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
+          registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
+      };
+      await new Promise((resolve) => setTimeout(resolve, 1000)); 
+      actions.resetForm();
+      setOpenEditBazaar(false);
+      handleCallApi(payload);
+    };
+  
 
   const [infoOpen, setInfoOpen] = useState(true);
   const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -175,7 +202,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
                 </Grid>
             </Grid>
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
+            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Confirm Edits'} variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
         </Box>
         </form>
     </>

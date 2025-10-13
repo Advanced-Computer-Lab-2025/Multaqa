@@ -12,6 +12,8 @@ import CustomButton from '../../shared/Buttons/CustomButton';
 
 import { bazaarSchema } from "./schemas/bazaar";
 
+import {api} from "../../../api";
+
 const initialValues = {
     bazaarName: '',
     location: '',
@@ -26,20 +28,45 @@ interface CreateBazaarProps {
  }
 
 const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+    const handleCallApi = async (payload:any) => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+        // TODO: Replace with your API route
+        const res = await api.post("/events", payload);
+        setResponse(res.data);
+    } catch (err: any) {
+        setError(err?.message || "API call failed");
+    } finally {
+        setLoading(false);
+    }
+    };
 
   const onSubmit = async (values: any, actions: any) => {
+    const startDateObj = values.startDate; // dayjs object
+    const endDateObj = values.endDate;
+    const registrationDeadlineObj = values.registrationDeadline;
+
     const payload = {
-        bazaarName: values.bazaarName,
+        type:"bazaar",
+        eventName: values.bazaarName,
         location: values.location,
         description: values.description,
-        startDate: values.startDate.toDate(),
-        endDate: values.endDate.toDate(),
-        registrationDeadline: values.registrationDeadline.toDate()
+        eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+        eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+        eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+        eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
+        registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
     };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     setOpenCreateBazaar(false);
-    console.log(JSON.stringify(payload))
+    handleCallApi(payload);
   };
 
   const [infoOpen, setInfoOpen] = useState(true);
