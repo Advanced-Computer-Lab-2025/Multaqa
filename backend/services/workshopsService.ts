@@ -42,10 +42,18 @@ export class WorkshopService {
 
       return createdEvent;
     }
-    throw createError(404, "Professor not found");
+    throw createError(404, "Professor not found"); 
   }
 
-  async updateWorkshop(workshopId: string, updateData: any) {
+  async updateWorkshop(professorId: string, workshopId: string, updateData: any) {
+    const professor = await this.staffRepo.findById(professorId);
+    if (!professor)
+      throw createError(404, "Professor not found");
+    if (!professor.myWorkshops || professor.myWorkshops.length === 0)
+      throw createError(403, "You have no workshops to update");
+    if (!professor.myWorkshops.some(id => id.toString() === workshopId))
+      throw createError(403, "You are not authorized to update this workshop");
+
     const updatedWorkshop = await this.eventRepo.update(workshopId, updateData);
 
     if (!updatedWorkshop) {
