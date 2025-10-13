@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { Event } from "./eventSchema";
-import { IEvent } from "../../interfaces/event.interface";
+import { IEvent } from "../../interfaces/models/event.interface";
 
 const bazaarSchema = new Schema<IEvent>({
   vendors: [

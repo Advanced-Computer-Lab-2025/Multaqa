@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { User } from "./userSchema";
-import { IAdministration } from "../../interfaces/administration.interface";
+import { IAdministration } from "../../interfaces/models/administration.interface";
 import { AdministrationRoleType } from "../../constants/administration.constants";
 import { ADMIN_PERMISSIONS, EVENT_OFFICE_PERMISSIONS } from "../../constants/administration.constants";
 

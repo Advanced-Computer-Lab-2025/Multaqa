@@ -2,48 +2,57 @@ import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { User } from '../schemas/stakeholder-schemas/userSchema';
 import { UserRole } from '../constants/user.constants';
-import { IUser } from '../interfaces/user.interface';
-import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
+import { IUser } from '../interfaces/models/user.interface';
 import GenericRepository from '../repos/genericRepo';
-import { IStudent } from '../interfaces/student.interface';
+import { IStudent } from '../interfaces/models/student.interface';
 import { Student } from '../schemas/stakeholder-schemas/studentSchema';
-import { IStaffMember } from '../interfaces/staffMember.interface';
+import { IStaffMember } from '../interfaces/models/staffMember.interface';
 import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
 import redisClient from '../config/redisClient';
-import { IVendor } from '../interfaces/vendor.interface';
+import { IVendor } from '../interfaces/models/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
+import { StaffPosition } from '../constants/staffMember.constants';
+import createError from 'http-errors';
+import { sendVerification } from './emailService';
+import { VerificationService } from './verificationService';
+import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
+import { IAdministration } from '../interfaces/models/administration.interface';
+import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
   private studentRepo: GenericRepository<IStudent>;
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
-  
+  private verificationService: VerificationService;
+  private adminRepo: GenericRepository<IAdministration>;
+
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
     this.studentRepo = new GenericRepository<IStudent>(Student);
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
+    this.verificationService = new VerificationService();
+    this.adminRepo = new GenericRepository<IAdministration>(Administration); 
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<Omit<IUser, 'password'>> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw createError(400, 'User with this email already exists');
     }
 
-    // If signing up as student or staff, check for GUC ID uniqueness
+    // Check if GUC ID is already taken
     if ('gucId' in signupData) {
-      // Check if GUC ID is already taken
       const [existingStudent, existingStaff] = await Promise.all([
         this.studentRepo.findOne({ gucId: signupData.gucId }),
         this.staffRepo.findOne({ gucId: signupData.gucId }),
       ]);
 
       if (existingStudent || existingStaff) {
-        throw new Error('User with this GUC ID already exists');
+        throw createError(400, 'User with this GUC ID already exists');
       }
     }
 
@@ -65,6 +74,10 @@ export class AuthService {
           role: UserRole.STUDENT,
         }
       );
+
+      const token = this.verificationService.generateVerificationToken(createdUser);
+      const link = `http://localhost:${process.env.BACKEND_PORT}/auth/verify?token=${token}`;
+      await sendVerification(createdUser.email, link);
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
@@ -75,30 +88,28 @@ export class AuthService {
           updatedAt: new Date(),
           isVerified: false,
           role: UserRole.STAFF_MEMBER,
-          // position: I don't know yet (Admin will insert correct roles later)
+          position: StaffPosition.UNKNOWN, // position will be updated later by admin
         }
       );
     }
-    else{
+    else {
       createdUser = await this.vendorRepo.create({
         ...signupData,
         password: hashedPassword,
         registeredAt: new Date(),
         updatedAt: new Date(),
-        isVerified: false,
+        isVerified: true, // Verification of vendors is done in person, nothing is done on the system
         role: UserRole.VENDOR,
       });
     }
 
     if (!createdUser)
-      throw new Error('Failed to create user');
+      throw createError(500, 'Failed to create user account');
 
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return {
-      user: userWithoutPassword as Omit<IUser, 'password'>,
-    };
+    return userWithoutPassword as Omit<IUser, 'password'>;
   }
 
   // for all users
@@ -108,23 +119,40 @@ export class AuthService {
     // Find user by email
     const user = await this.userRepo.findOne({ email });
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw createError(400, 'Invalid email or password');
     }
 
     // Check if user is blocked
     if (user.status == "blocked") {
-      throw new Error('Account is blocked');
+      throw createError(403, 'Your account has been blocked. Please contact support.');
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      throw createError(400, 'Invalid email or password');
+    }
+
+    // Check if user is verified
+    if (!user.isVerified) {
+      throw createError(403, 'Please verify your email before logging in');
+    }
+
+    // -------- Fetch extended info if needed in generating tokens --------
+    let extendedUser: IUser = user;
+
+    if (user.role === UserRole.ADMINISTRATION) {
+      const admin = await this.adminRepo.findOne({ _id: user._id });
+      if (admin) extendedUser = Object.assign(user.toObject(), { roleType: admin.roleType });
+    }
+    else if (user.role === UserRole.STAFF_MEMBER) {
+      const staff = await this.staffRepo.findOne({ _id: user._id });
+      if (staff) extendedUser = Object.assign(user.toObject(), { position: staff.position });
     }
 
     // Generate JWT tokens
-    const accessToken = this.generateAccessToken(user);
-    const refreshToken = this.generateRefreshToken(user);
+    const accessToken = this.generateAccessToken(extendedUser);
+    const refreshToken = this.generateRefreshToken(extendedUser);
 
     // Store refresh token in Redis with expiration (7 days)
     await redisClient.setEx(
@@ -144,20 +172,20 @@ export class AuthService {
   }
 
   async refreshToken(token: string): Promise<string> {
-    if (!token) 
-      throw new Error('No refresh token provided');
-    
-    const userId = await redisClient.get(`refresh:${token}`); // key is refresh:token, value is userId
-    if (!userId) 
-      throw new Error('Invalid or expired refresh token');
+    if (!token)
+      throw createError(400, 'No refresh token provided');
 
-    if(!process.env.REFRESH_TOKEN_SECRET) 
-      throw new Error('Missing Refresh Token Secret');
+    const userId = await redisClient.get(`refresh:${token}`); // key is refresh:token, value is userId
+    if (!userId)
+      throw createError(403, 'Invalid or expired refresh token');
+
+    if (!process.env.REFRESH_TOKEN_SECRET)
+      throw createError(500, 'Missing Refresh Token Secret');
 
     return new Promise((resolve, reject) => {
       jwt.verify(token, process.env.REFRESH_TOKEN_SECRET as Secret, (err, user: any) => {
-        if (err) 
-          return reject(new Error('Invalid or expired refresh token'));
+        if (err)
+          return reject(createError(403, 'Invalid or expired refresh token'));
         const newAccess = this.generateAccessToken(user);
         resolve(newAccess);
       });
@@ -165,21 +193,50 @@ export class AuthService {
   }
 
   async logout(token: string): Promise<void> {
-    if (!token) 
-      throw new Error('No refresh token provided');
+    if (!token)
+      throw createError(400, 'No refresh token provided');
     await redisClient.del(`refresh:${token}`);
   }
 
-
   generateAccessToken(user: IUser): string {
-    return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.ACCESS_TOKEN_SECRET! as Secret, {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRES
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Add sub-role info dynamically
+    if (user.role === UserRole.ADMINISTRATION && (user as any).roleType) {
+      payload.adminRole = (user as any).roleType; // e.g. "admin" | "eventsOffice"
+    }
+
+    if (user.role === UserRole.STAFF_MEMBER && (user as any).position) {
+      payload.staffPosition = (user as any).position; // e.g. "professor" | "TA"
+    }
+
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRES,
     } as SignOptions);
   }
 
   generateRefreshToken(user: IUser): string {
-    return jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET! as Secret, {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRES
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Add sub-role info dynamically
+    if (user.role === UserRole.ADMINISTRATION && (user as any).roleType) {
+      payload.adminRole = (user as any).roleType;
+    }
+
+    if (user.role === UserRole.STAFF_MEMBER && (user as any).position) {
+      payload.staffPosition = (user as any).position;
+    }
+
+    return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
     } as SignOptions);
   }
 

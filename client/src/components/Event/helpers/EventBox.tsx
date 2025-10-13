@@ -1,0 +1,83 @@
+"use client";
+
+import React from "react";
+import { Box, Divider, Paper } from "@mui/material";
+
+export type EventBoxProps = {
+  sections: React.ReactNode[];
+  sx?: any;
+};
+
+const EventBox: React.FC<EventBoxProps> = ({ sections, sx }) => {
+  const contentSections = sections.slice(0, -1); // All sections except the last one (register button)
+  const registerButton = sections[sections.length - 1]; // The last section should be the register button
+
+  return (
+    <Paper
+      elevation={6}
+      sx={{
+        borderRadius: "20px",
+        backgroundColor: "#fff",
+        overflow: "hidden",
+        width:"100%",
+        height:"100%",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        ...sx,
+      }}
+   >
+      <Box sx={{
+        flex: 1,
+        overflowY: "auto",
+        overflowX: "hidden",
+        padding:"2px 16px",
+        pb: 8, // Add bottom padding to prevent content from being hidden behind fixed button
+        // Smooth scrolling behavior
+        scrollBehavior: "smooth",
+        // Custom scrollbar styling
+        "&::-webkit-scrollbar": {
+          width: "6px",
+        },
+        "&::-webkit-scrollbar-track": {
+          background: "#f1f1f1",
+          borderRadius: "3px",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          background: "#c1c1c1",
+          borderRadius: "3px",
+          "&:hover": {
+            background: "#a8a8a8",
+          },
+        },
+      }}>
+        {contentSections.map((section, index) => (
+          <React.Fragment key={index}>
+            <Box>{section}</Box>
+            {index !== contentSections.length - 1 && (
+              <Divider sx={{ my: 2 }} />
+            )}
+          </React.Fragment>
+        ))}
+      </Box>
+      
+      {/* Fixed register button at bottom */}
+      <Box sx={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "#fff",
+        borderTop: "1px solid rgba(0,0,0,0.1)",
+        p: 2,
+        borderRadius: "0 0 20px 20px",
+      }}>
+        {registerButton}
+      </Box>
+    </Paper>
+  );
+};
+
+export default EventBox;
+
+
