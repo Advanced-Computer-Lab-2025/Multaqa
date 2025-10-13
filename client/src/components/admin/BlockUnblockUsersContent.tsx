@@ -81,6 +81,7 @@ export default function BlockUnblockUsersContent() {
         <CustomButton
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
+          size="small"
           onClick={() => handleToggleBlock(user.id, setUsers)}
           startIcon={
             user.status === "Active" ? (
@@ -92,7 +93,17 @@ export default function BlockUnblockUsersContent() {
           color={user.status === "Active" ? "error" : "success"}
           sx={{
             width: "100%",
-            maxWidth: "120px",
+            maxWidth: "120px !important",
+            padding: "4px 18px !important",
+            fontSize: "14px !important",
+            height: "36px !important",
+            minHeight: "36px !important",
+            "& .MuiButton-startIcon": {
+              marginRight: "4px",
+              "& svg": {
+                fontSize: "16px",
+              },
+            },
           }}
         />
       }

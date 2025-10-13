@@ -1,6 +1,5 @@
 import { Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import type { Theme } from "@mui/material/styles";
 import type { ButtonProps } from "@mui/material/Button";
 import { resolveButtonPalette } from "../../../utils"
 
@@ -9,12 +8,24 @@ export const StyledButton = styled(Button)<ButtonProps>(({ theme, color }) => ({
   cursor: "pointer",
   borderRadius: "50px",
   padding: "5px 10px",
+  fontSize: "14px",
+  height: "40px",
   borderWidth: "2px",
   borderStyle: "solid",
   borderColor: resolveButtonPalette(theme, color).dark,
   "&.MuiButton-outlined": {
     borderWidth: "2px",
     borderStyle: "solid",
+  },
+  "&.MuiButton-sizeSmall": {
+    padding: "3px 8px",
+    fontSize: "12px",
+    height: "32px",
+  },
+  "&.MuiButton-sizeLarge": {
+    padding: "8px 14px",
+    fontSize: "16px",
+    height: "48px",
   },
   fontFamily: "var(--font-poppins), system-ui, sans-serif",
   textTransform: "none",
@@ -41,10 +52,12 @@ export const StyledButton = styled(Button)<ButtonProps>(({ theme, color }) => ({
 }));
 
 
-export const StyledDeleteButton = styled(Button)(({ theme }) => ({
+export const StyledDeleteButton = styled(Button)<ButtonProps>(({ theme }) => ({
   cursor: "pointer",
-  borderRadius: "20px",
   padding: "5px 10px",
+  fontSize: "14px",
+  height: "36px",
+  borderRadius: "20px",
   fontWeight: 600,
   textTransform: "none",
   color: "#FFFFFF",
@@ -59,6 +72,19 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     borderStyle: "solid",
     borderColor: theme.palette.error.dark,
     color: theme.palette.error.main,
+  },
+  "&&.MuiButton-sizeSmall": {
+    padding: "2px 8px !important",
+    fontSize: "11px !important",
+    height: "28px !important",
+    minHeight: "28px !important",
+    borderRadius: "16px !important",
+  },
+  "&&.MuiButton-sizeLarge": {
+    padding: "8px 14px !important",
+    fontSize: "16px !important",
+    height: "44px !important",
+    borderRadius: "24px !important",
   },
   "&:hover": {
     background: "#a81818",
@@ -76,7 +102,6 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     background: "transparent",
     color: "#a81818",
   },
-
   transition: "all 0.2s ease-in-out",
 }));
 
