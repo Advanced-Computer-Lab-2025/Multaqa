@@ -148,7 +148,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     stakeholderType,
     value,
     emailUsername,
-    onChange
+    onChange,
+    autoCapitalizeName
   );
 
   // Get the display value for email fields

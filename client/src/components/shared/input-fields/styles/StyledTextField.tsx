@@ -99,6 +99,18 @@ export const StyledTextField = styled(TextField, {
       color: "#999",
       opacity: 1,
       fontWeight: 500,
+      // Keep placeholder left-aligned for email fields
+      ...(fieldType === "email" &&
+        [
+          "student",
+          "staff",
+          "ta",
+          "professor",
+          "admin",
+          "events-office",
+        ].includes(stakeholderType as string) && {
+          textAlign: "left",
+        }),
     },
     ...(fieldType === "email" &&
       [
@@ -120,6 +132,18 @@ export const StyledTextField = styled(TextField, {
       color: "#999",
       opacity: 1,
       fontWeight: 500,
+      // Keep placeholder left-aligned for email fields
+      ...(fieldType === "email" &&
+        [
+          "student",
+          "staff",
+          "ta",
+          "professor",
+          "admin",
+          "events-office",
+        ].includes(stakeholderType as string) && {
+          textAlign: "left",
+        }),
     },
     ...(fieldType === "email" &&
       [

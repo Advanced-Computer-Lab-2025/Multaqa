@@ -143,9 +143,18 @@ export default function ManageEventOfficeAccount() {
           onClick={() => handleOpenDeleteModal(account)}
           startIcon={<DeleteIcon />}
           sx={{
-            fontSize: "14px",
             width: "100%",
-            maxWidth: "120px",
+            maxWidth: "100px !important",
+            padding: "4px 12px !important",
+            fontSize: "12px !important",
+            height: "32px !important",
+            minHeight: "32px !important",
+            "& .MuiButton-startIcon": {
+              marginRight: "4px",
+              "& svg": {
+                fontSize: "16px",
+              },
+            },
           }}
         />
       }

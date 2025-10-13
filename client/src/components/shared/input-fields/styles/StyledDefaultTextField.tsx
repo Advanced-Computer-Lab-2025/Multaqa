@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import { CustomTextFieldProps } from "../types";
 import theme from "@/themes/lightTheme";
+import { capitalizeName } from "../utils";
 
 // Custom styled component - no MUI dependency
 const StyledDefaultTextField: React.FC<
@@ -35,11 +36,6 @@ const StyledDefaultTextField: React.FC<
     if (onFocus) onFocus(e);
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(false);
-    if (onBlur) onBlur(e);
-  };
-
   const handleMouseEnter = () => {
     setIsHovered(true);
   };
@@ -54,12 +50,8 @@ const StyledDefaultTextField: React.FC<
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fieldType === "text" && autoCapitalizeName) {
-      const words = e.target.value.split(" ");
-      const capitalized = words
-        .map(
-          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
-        .join(" ");
+      // Use capitalizeName with preserveSpaces = true to allow multiple spaces during typing
+      const capitalized = capitalizeName(e.target.value, true);
 
       const syntheticEvent = {
         ...e,
@@ -70,6 +62,26 @@ const StyledDefaultTextField: React.FC<
     } else {
       if (onChange) onChange(e);
     }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(false);
+
+    // Normalize spaces on blur for text fields with auto-capitalization
+    if (fieldType === "text" && autoCapitalizeName && onChange) {
+      const normalizedValue = capitalizeName(e.target.value, false); // preserveSpaces = false
+
+      if (e.target.value !== normalizedValue) {
+        const syntheticEvent = {
+          ...e,
+          target: { ...e.target, value: normalizedValue },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        onChange(syntheticEvent);
+      }
+    }
+
+    if (onBlur) onBlur(e);
   };
 
   const togglePasswordVisibility = () => {
