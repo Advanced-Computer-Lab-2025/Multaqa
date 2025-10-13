@@ -143,11 +143,11 @@ export default function ManageEventOfficeAccountContent() {
           startIcon={<DeleteIcon />}
           sx={{
             width: "100%",
-            maxWidth: "120px !important",
-            padding: "4px 18px !important",
+            maxWidth: "100px !important",
+            padding: "4px 16px !important",
             fontSize: "14px !important",
-            height: "36px !important",
-            minHeight: "36px !important",
+            height: "40px !important",
+            minHeight: "40px !important",
             "& .MuiButton-startIcon": {
               marginRight: "4px",
               "& svg": {
