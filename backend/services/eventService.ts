@@ -10,7 +10,8 @@ import "../schemas/stakeholder-schemas/staffMemberSchema";
 import "../schemas/stakeholder-schemas/vendorSchema";
 import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; 
+import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { Schema } from "mongoose";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -28,14 +29,22 @@ export class EventsService {
     const filter: any = {
       type: { $ne: EVENT_TYPES.GYM_SESSION },
       $and: [
-        { $or: [{ type: { $ne: EVENT_TYPES.PLATFORM_BOOTH } }, { "RequestData.status": "approved" }] },
-        { $or: [{ type: { $ne: EVENT_TYPES.WORKSHOP } }, { "approvalStatus": "approved" }] }
-      ]
+        {
+          $or: [
+            { type: { $ne: EVENT_TYPES.PLATFORM_BOOTH } },
+            { "RequestData.status": "approved" },
+          ],
+        },
+        {
+          $or: [
+            { type: { $ne: EVENT_TYPES.WORKSHOP } },
+            { approvalStatus: "approved" },
+          ],
+        },
+      ],
     };
     if (type) filter.type = type;
     if (location) filter.location = location;
-
-
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
@@ -122,5 +131,36 @@ export class EventsService {
       throw createError(404, "Event not found");
     }
     return deleteResult;
+  }
+
+  async registerUserForEvent(eventId: string, userData: any, userId: any) {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if (
+      event.type !== EVENT_TYPES.TRIP &&
+      event.type !== EVENT_TYPES.WORKSHOP
+    ) {
+      throw createError(
+        400,
+        "Registrations are only allowed for trips and workshops"
+      );
+    }
+    // Check if user is already registered
+    const isAlreadyRegistered = event.attendees?.some(
+      (attendeeId: { toString: () => string }) =>
+        attendeeId.toString() === userId.toString()
+    );
+    if (isAlreadyRegistered) {
+      throw createError(409, "User already registered for this event");
+    }
+
+    // Add user to attendees
+    console.log(userId);
+    event.attendees?.push(userId);
+    await event.save();
+    return event;
   }
 }

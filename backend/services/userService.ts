@@ -3,11 +3,13 @@ import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
+import { Schema } from "mongoose";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
+import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
 import { sendVerification } from "./emailService";
-import { IStaffMember } from "../interfaces/models/staffMember.interface";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -29,7 +31,7 @@ export class UserService {
       }
     );
 
-    const formattedUsers = users.map(user => {
+    const formattedUsers = users.map((user) => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword as Omit<IUser, "password">;
     });
@@ -46,6 +48,19 @@ export class UserService {
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
+  async addEventToUser(
+    id: string,
+    eventId: Schema.Types.ObjectId
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    user.registeredEvents?.push(eventId);
+    await user.save();
+    return user;
+  }
   async blockUser(id: string): Promise<void> {
     const user = await this.userRepo.findById(id);
     if (!user) {
