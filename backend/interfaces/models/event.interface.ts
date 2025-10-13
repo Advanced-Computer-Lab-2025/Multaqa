@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Schema } from "mongoose";
 import { IUser } from "./user.interface";
 import { IReview } from "../review.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
@@ -9,7 +9,7 @@ export interface IEvent extends Document {
   id: string;
   type: EVENT_TYPES;
   archived: boolean;
-  attendees: IUser[];
+  attendees: IUser[] | Schema.Types.ObjectId[];
   allowedUsers: UserRole[];
   reviews: IReview[];
   eventName: string;

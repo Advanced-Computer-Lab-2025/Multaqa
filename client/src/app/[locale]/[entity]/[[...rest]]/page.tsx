@@ -9,6 +9,8 @@ import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
 import BrowseEventsContent from "@/components/BrowseEventsContent";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
+import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
+import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
 
 export default function EntityCatchAllPage() {
@@ -25,6 +27,18 @@ export default function EntityCatchAllPage() {
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+    // Vendor - Bazaars & Booths tab
+    if (entity === "vendor" && tab === "opportunities") {
+      if (section === "available") {
+        // Interpreting "Available Opportunities" as upcoming accepted participation view for consistency
+        return <VendorUpcomingParticipation />;
+      }
+      if (section === "my-applications") {
+        // Interpreting "My Applications" as pending/rejected requests list
+        return <VendorRequestsList />;
+      }
+    }
+
     // Courts booking page for stakeholders
     if (
       ["student", "staff", "ta", "professor"].includes(entity) &&
