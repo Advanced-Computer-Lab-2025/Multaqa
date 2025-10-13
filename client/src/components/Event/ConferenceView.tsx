@@ -98,6 +98,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
         </CustomButton>
         )
       }
+      registered={registered}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

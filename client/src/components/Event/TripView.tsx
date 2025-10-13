@@ -84,10 +84,11 @@ const TripView: React.FC<BazarViewProps> = ({ details, name, description, user, 
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        <CustomButton size="small" variant="contained" color="info" sx={{ borderRadius: 999}}>
+        !registered&& (<CustomButton size="small" variant="contained" color="info" sx={{ borderRadius: 999}}>
           Register
-        </CustomButton>
+        </CustomButton>)
       }
+      registered={registered}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

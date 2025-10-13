@@ -3,6 +3,7 @@ import type { ChipProps, SxProps, Theme } from "@mui/material";
 export interface ActionCardProps {
   title: string;
   type?:string;
+  registered?:boolean,
   leftIcon?: React.ReactNode;
   tags?: Array<{ label: React.ReactNode; size?: ChipProps["size"] } & Partial<ChipProps>>;
   subtitleNode?: React.ReactNode;

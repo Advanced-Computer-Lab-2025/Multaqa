@@ -527,7 +527,7 @@ export default function EntityNavigation({
           sectionItems={sectionItems}
         />
 
-        <div className="flex-1 bg-[#f9fbfc] min-h-0 p-4">
+        <div className="flex-1 bg-[#f9fbfc] p-4">
            <div className="flex-1 bg-white min-h-0 overflow-auto"  style={{borderRadius:"16px",boxShadow:"0 1px 3px rgba(0, 0, 0, 0.08)",  padding: "20px 28px",  border: "1px solid #e5e7eb", minHeight:"73vh", maxHeight:"73vh"}}>{children}</div>
            </div>
       </div>

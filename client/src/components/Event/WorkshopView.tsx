@@ -169,6 +169,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
             </CustomButton>
        )
       }
+      registered={registered}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

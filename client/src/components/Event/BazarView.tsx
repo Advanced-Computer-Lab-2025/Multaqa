@@ -75,6 +75,7 @@ const BazarView: React.FC<BazarViewProps> = ({ details, name, description, user,
           Apply
         </CustomButton>)
       }
+      registered={registered}
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

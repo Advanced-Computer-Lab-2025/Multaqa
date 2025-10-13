@@ -64,7 +64,7 @@ const mockEvents: Event[] = [
   {
     id: '1',
     type: EventType.CONFERENCE,
-    name: 'Tech Innovation Summit 2024',
+    name: 'Tech Innovation ee33sffdgdgdhgjjgj 2024',
     description: 'A comprehensive conference covering the latest trends in technology, AI, and digital transformation.',
     agenda: 'Day 1: Keynote speeches and AI workshops\nDay 2: Panel discussions and networking\nDay 3: Startup pitches and awards ceremony',
     details: {

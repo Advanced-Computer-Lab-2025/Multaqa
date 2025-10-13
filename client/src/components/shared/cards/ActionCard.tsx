@@ -19,6 +19,7 @@ import { ActionCardProps } from "./types";
 export default function ActionCard({
   title,
   type="events",
+  registered=true,
   leftIcon,
   tags,
   subtitleNode,
@@ -123,46 +124,50 @@ export default function ActionCard({
           },
         }}
       >
-        {/* Header */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 2,
-            ...headerSx,
-          }}
-        >
-          <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0, flexWrap: "wrap" }}>
-              {leftIcon ? <Box sx={{ display: "flex", alignItems: "center" }}>{leftIcon}</Box> : null}
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  color: "#1E1E1E",
-                  wordBreak: "break-word",
-                }}
-              >
-                {title}
-              </Typography>
-              {tags?.map((t, idx) => {
-                const { label, size, ...rest } = t as {
-                  label: React.ReactNode;
-                  size?: ChipProps["size"];
-                } & Partial<ChipProps>;
-                return <Chip key={idx} size={size ?? "small"} label={label} {...rest} />;
-              })}
-            </Stack>
-
-            {subtitleNode}
-
-            {metaNodes?.map((node, i) => (
-              <React.Fragment key={i}>{node}</React.Fragment>
-            ))}
+            {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+          ...headerSx,
+        }}
+      >
+        <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+          <Stack direction={type === "events" ? "column" : "row"} spacing={1} alignItems={type === "events" ? "start" : "center"} sx={{ minWidth: 0, flexWrap: "wrap"}}>
+            {leftIcon ? <Box sx={{ display: "flex", alignItems: "center" }}>{leftIcon}</Box> : null}
+            <Typography
+              sx={{
+                fontWeight: 700,
+                color: "#1E1E1E",
+                overflow: "hidden",
+                maxWidth: type=="events"?"250":"90%",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {title}
+            </Typography>
+            {tags?.map((t, idx) => {
+              const { label, size, ...rest } = t as {
+                label: React.ReactNode;
+                size?: ChipProps["size"];
+              } & Partial<ChipProps>;
+              return <Chip key={idx} size={size ?? "small"} label={label} {...rest} />;
+            })}
           </Stack>
-          {rightSlot}
-        </Box>
 
+          {subtitleNode}
+
+          {metaNodes?.map((node, i) => (
+            <React.Fragment key={i}>{node}</React.Fragment>
+          ))}
+        </Stack>
+        
+        {/* Show rightSlot in header only if type is vendor */}
+        {type === "vendor" && rightSlot}
+      </Box>
         {children ? <Box sx={{ mt: 1.5 }}>{children}</Box> : null}
 
         {/* Expanded Details */}
@@ -181,34 +186,39 @@ export default function ActionCard({
           </Box>
         </Collapse>
       </Box>
-
-      {/* Expand/Collapse Button - Fixed at Bottom */}
-      {details && (
-        <Box
+    {/* Expand/Collapse Button - Fixed at Bottom */}
+    {details && (
+      <Box
+        sx={{
+          borderTop: "1px solid rgba(0,0,0,0.06)",
+          display: "flex",
+          justifyContent: registered ? "center" : "space-between",
+          alignItems: "center",
+          py: 1,
+          px: 2,
+          background: "rgba(255,255,255,0.8)",
+        }}
+      >
+        {/* Expand/Collapse Icon Button */}
+        <IconButton
+          onClick={handleExpandClick}
+          size="small"
           sx={{
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            display: "flex",
-            justifyContent: "center",
-            py: 0.5,
-            background: "rgba(255,255,255,0.8)",
+            transition: "all 0.3s ease",
+            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+            color: borderColor || "rgba(0,0,0,0.5)",
+            "&:hover": {
+              background: borderColor ? `${borderColor}15` : "rgba(0,0,0,0.04)",
+            },
           }}
         >
-          <IconButton
-            onClick={handleExpandClick}
-            size="small"
-            sx={{
-              transition: "all 0.3s ease",
-              transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-              color: borderColor || "rgba(0,0,0,0.5)",
-              "&:hover": {
-                background: borderColor ? `${borderColor}15` : "rgba(0,0,0,0.04)",
-              },
-            }}
-          >
-            <KeyboardArrowDownIcon />
-          </IconButton>
-        </Box>
-      )}
+          <KeyboardArrowDownIcon />
+        </IconButton>
+
+        {/* Register/Action Button - Right (show for events type when not registered) */}
+        {type === "events" && !registered && rightSlot && <Box>{rightSlot}</Box>}
+      </Box>
+    )}
     </Box>
   );
 }
