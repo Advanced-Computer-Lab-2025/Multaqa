@@ -303,13 +303,17 @@ export default function ManageEventOfficeAccount() {
                 placeholder="Enter GUC email (name@guc.edu.eg)"
                 name="email"
                 value={formik.values.email}
-                onChange={formik.handleChange}
+                onChange={(event) => {
+                  // Let CustomTextField handle email domain appending, then update Formik
+                  formik.setFieldValue("email", event.target.value);
+                }}
                 onBlur={formik.handleBlur}
                 error={formik.touched.email && Boolean(formik.errors.email)}
                 helperText={formik.touched.email ? formik.errors.email : ""}
                 neumorphicBox
                 required
                 fullWidth
+                stakeholderType="staff"
               />
 
               <CustomTextField
