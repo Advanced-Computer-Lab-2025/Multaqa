@@ -96,17 +96,24 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     // Handle text fields with name capitalization
     else if (fieldType === "text" && autoCapitalizeName) {
       const inputValue = event.target.value;
-      const capitalizedValue = capitalizeName(inputValue);
+      // Preserve spaces during typing (true), normalize on blur (handled in blur handler)
+      const capitalizedValue = capitalizeName(inputValue, true);
 
       if (onChange) {
-        const syntheticEvent = {
-          ...event,
-          target: {
-            ...event.target,
-            value: capitalizedValue,
-          },
-        } as React.ChangeEvent<HTMLInputElement>;
-        onChange(syntheticEvent);
+        // Only create synthetic event if value actually changed to avoid unnecessary updates
+        if (inputValue !== capitalizedValue) {
+          const syntheticEvent = {
+            ...event,
+            target: {
+              ...event.target,
+              value: capitalizedValue,
+            },
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        } else {
+          // Pass through the original event if no capitalization needed
+          onChange(event);
+        }
       }
     }
     // Handle all other fields normally

@@ -51,14 +51,22 @@ const StyledDefaultTextField: React.FC<
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fieldType === "text" && autoCapitalizeName) {
       // Use capitalizeName with preserveSpaces = true to allow multiple spaces during typing
-      const capitalized = capitalizeName(e.target.value, true);
+      const inputValue = e.target.value;
+      const capitalized = capitalizeName(inputValue, true);
 
-      const syntheticEvent = {
-        ...e,
-        target: { ...e.target, value: capitalized },
-      } as React.ChangeEvent<HTMLInputElement>;
-
-      if (onChange) onChange(syntheticEvent);
+      if (onChange) {
+        // Only create synthetic event if value actually changed
+        if (inputValue !== capitalized) {
+          const syntheticEvent = {
+            ...e,
+            target: { ...e.target, value: capitalized },
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        } else {
+          // Pass through original event if no change
+          onChange(e);
+        }
+      }
     } else {
       if (onChange) onChange(e);
     }
