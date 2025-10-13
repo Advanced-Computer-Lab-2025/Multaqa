@@ -311,7 +311,7 @@ export default function RoleAssignmentContent() {
             }}
           >
             {/* Role Tabs */}
-            <Box className="w-full flex flex-row justify-between items-center mb-3 gap-2">
+            <Box className="w-full flex flex-col 2xl:flex-row justify-between items-start 2xl:items-center mb-3 gap-2">
               <Typography
                 variant="h6"
                 sx={{
@@ -326,8 +326,8 @@ export default function RoleAssignmentContent() {
 
               <NeumorphicBox
                 containerType="inwards"
+                className="w-full 2xl:w-fit"
                 sx={{
-                  width: "100%",
                   padding: "8px",
                   borderRadius: "9999px",
                   display: "flex",
@@ -345,7 +345,7 @@ export default function RoleAssignmentContent() {
                     color={activeRoleIndex === idx ? "tertiary" : "primary"}
                     onClick={() => setActiveRoleIndex(idx)}
                     height="36px"
-                    className="w-1/3 xl:w-auto"
+                    className="w-1/3 2xl:w-auto"
                     sx={{
                       fontSize: "12px",
                       fontWeight: 700,
