@@ -40,12 +40,42 @@ export class UserService {
     return formattedUsers;
   }
 
-  getPopulateOptionsByRole(role: string): string[] {
-    const basePopulate = ["companyName"];
-    if (role === "admin") {
-      return [...basePopulate, "adminField1", "adminField2"];
+  async assignRoleAndSendVerification(
+    userId: string,
+    position: string
+  ): Promise<Omit<IStaffMember, "password">> {
+    // Find user by ID
+    const user = await this.staffMemberRepo.findById(userId);
+    if (!user) {
+      throw createError(404, "User not found or not a staff member");
     }
-    return basePopulate;
+
+    // Check if user is already verified
+    if (user.isVerified) {
+      throw createError(400, "User is already verified");
+    }
+
+    // Check if position is valid
+    if (position !== "professor" && position !== "TA" && position !== "staff") {
+      throw createError(400, "Invalid position");
+    }
+
+    // Update user position
+    user.position = position as StaffPosition;
+    user.updatedAt = new Date();
+    await user.save();
+
+    // Generate verification token and send email
+    const token = this.verificationService.generateVerificationToken(user);
+    const link = `http://localhost:${process.env.BACKEND_PORT}/auth/verify?token=${token}`; // should be frontend URL
+    await sendVerification(user.email, link);
+
+    // Remove password from response
+    const { password, ...userWithoutPassword } = user.toObject
+      ? user.toObject()
+      : user;
+
+    return userWithoutPassword as Omit<IStaffMember, "password">;
   }
 
   async getUserById(id: string): Promise<Omit<IUser, "password">> {
@@ -86,7 +116,7 @@ export class UserService {
     if (!user) {
       throw createError(404, "User not found");
     }
-    if(user.status === UserStatus.BLOCKED) {
+    if (user.status === UserStatus.BLOCKED) {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
