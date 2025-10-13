@@ -335,7 +335,7 @@ export default function RoleAssignmentContent() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
-                  maxWidth: "400px"
+                  maxWidth: {xs: "100%", xl: "400px"},
                 }}
               >
                 {roleKeys.map((roleKey, idx) => (
