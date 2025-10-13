@@ -195,9 +195,15 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
+// Filter state type
+interface FilterState {
+  eventType?: EventType[];
+  [key: string]: EventType[] | string[] | number[] | undefined;
+}
+
 const BrowseEvents: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [filters, setFilters] = useState<FilterState>({});
 
   // Filter and search logic
   const filteredEvents = useMemo(() => {
@@ -234,14 +240,17 @@ const BrowseEvents: React.FC = () => {
     // Apply type filter
     if (filters.eventType && filters.eventType.length > 0) {
       filtered = filtered.filter((event) =>
-        filters.eventType.includes(event.type)
+        filters.eventType!.includes(event.type)
       );
     }
 
     return filtered;
   }, [searchQuery, filters]);
 
-  const handleFilterChange = (groupId: string, value: any) => {
+  const handleFilterChange = (
+    groupId: string,
+    value: EventType[] | string[] | number[]
+  ) => {
     setFilters((prev) => ({
       ...prev,
       [groupId]: value,
