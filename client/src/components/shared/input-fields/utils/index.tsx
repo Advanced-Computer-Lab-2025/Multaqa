@@ -73,21 +73,24 @@ export const createLabelWithIcon = (label?: string, fieldType?: FieldType) => {
 /**
  * Get email input adornment with domain hint
  */
-export const getEmailEndAdornment = (stakeholderType?: StakeholderType) => {
+export const getEmailEndAdornment = (
+  stakeholderType?: StakeholderType,
+  error?: boolean
+) => {
   if (stakeholderType === "vendor") return undefined;
 
   return (
     <InputAdornment
       position="end"
       sx={{
-        color: theme.palette.tertiary.dark,
+        color: error ? theme.palette.error.main : theme.palette.tertiary.dark,
         alignSelf: "center",
         margin: 0,
-        opacity: 0,
+        opacity: error ? 1 : 0,
         pointerEvents: "none",
         transition:
-          "opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        transform: "translateX(10px)",
+          "opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        transform: error ? "translateX(0px)" : "translateX(10px)",
         [`[data-shrink=true] ~ .${inputBaseClasses.root} > &`]: {
           opacity: 1,
           transform: "translateX(0px)",

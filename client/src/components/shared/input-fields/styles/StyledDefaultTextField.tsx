@@ -555,20 +555,35 @@ const StyledDefaultTextField: React.FC<
               right: neumorphicBox ? "18px" : "16px",
               top: "50%",
               transform: `translateY(-50%) ${
-                isFocused || (value && String(value).length > 0)
+                isFocused ||
+                (value && String(value).length > 0) ||
+                props.error ||
+                props.isError
                   ? "translateX(0px)"
                   : "translateX(20px)"
               }`,
-              color: theme.palette.tertiary.dark,
+              color:
+                props.error || props.isError
+                  ? theme.palette.error.main
+                  : theme.palette.tertiary.dark,
               fontSize: "1rem",
               fontWeight: 500,
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
               pointerEvents: "none",
-              opacity: isFocused || (value && String(value).length > 0) ? 1 : 0,
+              opacity:
+                isFocused ||
+                (value && String(value).length > 0) ||
+                props.error ||
+                props.isError
+                  ? 1
+                  : 0,
               transition:
-                "opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                "opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
               visibility:
-                isFocused || (value && String(value).length > 0)
+                isFocused ||
+                (value && String(value).length > 0) ||
+                props.error ||
+                props.isError
                   ? "visible"
                   : "hidden",
             }}

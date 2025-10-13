@@ -135,7 +135,10 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   // Get the appropriate endAdornment based on field type
   const getEndAdornment = () => {
     if (fieldType === "email" && stakeholderType !== "vendor") {
-      return getEmailEndAdornment(stakeholderType);
+      return getEmailEndAdornment(
+        stakeholderType,
+        props.error || props.isError
+      );
     } else if (fieldType === "password") {
       return getPasswordEndAdornment(
         showPassword,

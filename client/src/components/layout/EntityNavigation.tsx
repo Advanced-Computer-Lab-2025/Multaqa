@@ -59,15 +59,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
         icon: Calendar,
         sections: [
           { id: "browse-events", label: "Browse Events" },
-          { id: "my-registered", label: "My Registered Events" },
-          { id: "favorites", label: "My Favorites" },
         ],
       },
       {
@@ -78,22 +75,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "reserve", label: "Reserve Courts" },
           // Future: { id: "my-reservations", label: "My Reservations" },
         ],
-      },
-      {
-        key: "gym",
-        label: "Gym Sessions",
-        icon: Dumbbell,
-        sections: [
-          { id: "browse-sessions", label: "Browse Sessions" },
-          { id: "my-sessions", label: "My Registered Sessions" },
-        ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
       },
     ],
   },
@@ -315,15 +296,9 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   admin: {
     headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
-    defaultTab: "dashboard",
+    defaultTab: "users",
     defaultSection: "",
     tabs: [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        sections: [],
-      },
       {
         key: "users",
         label: "User Management",
@@ -339,8 +314,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: ClipboardList,
         sections: [
           { id: "assign-roles", label: "Assign Roles" },
-          { id: "view-assignments", label: "Current Assignments" },
-          { id: "role-history", label: "Role Change History" },
         ],
       },
       {
@@ -348,28 +321,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Event Office Accounts",
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
-      },
-      {
-        key: "activity-logs",
-        label: "Activity Logs",
-        icon: FileText,
-        sections: [
-          { id: "recent-activity", label: "Recent Activity" },
-          { id: "user-actions", label: "User Actions" },
-          { id: "system-events", label: "System Events" },
-          { id: "login-history", label: "Login History" },
-        ],
-      },
-      {
-        key: "settings",
-        label: "System Settings",
-        icon: Settings,
-        sections: [
-          { id: "general", label: "General Settings" },
-          { id: "security", label: "Security Settings" },
-          { id: "email-config", label: "Email Configuration" },
-          { id: "maintenance", label: "Maintenance Mode" },
-        ],
       },
     ],
   },
