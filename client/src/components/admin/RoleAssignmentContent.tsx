@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
@@ -139,38 +140,10 @@ export default function RoleAssignmentContent() {
       onDragStart={(e) => handleDragStart(e, setActiveId)}
       onDragEnd={handleDragEndWithConfirmation}
     >
-      <Box
-        sx={{
-          p: 4,
-          backgroundColor: "transparent",
-          minHeight: "100vh",
-          fontFamily: "var(--font-poppins), system-ui, sans-serif",
-        }}
+      <ContentWrapper
+        title="Assign Roles"
+        description="Drag tickets to assign roles or expand and select from dropdown"
       >
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 700,
-              color: "#1E1E1E",
-              mb: 1,
-            }}
-          >
-            Assign Roles
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#757575",
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            }}
-          >
-            Drag tickets to assign roles or expand and select from dropdown
-          </Typography>
-        </Box>
-
         <Box
           sx={{
             display: "grid",
@@ -335,7 +308,7 @@ export default function RoleAssignmentContent() {
                   flexDirection: "row",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
-                  maxWidth: {xs: "100%", xl: "400px"},
+                  maxWidth: { xs: "100%", xl: "400px" },
                 }}
               >
                 {roleKeys.map((roleKey, idx) => (
@@ -434,7 +407,7 @@ export default function RoleAssignmentContent() {
             ))}
           </Box>
         </Box>
-      </Box>
+      </ContentWrapper>
       <DragOverlay>
         {activeId && activeDraggedUser ? (
           <RegisterBox

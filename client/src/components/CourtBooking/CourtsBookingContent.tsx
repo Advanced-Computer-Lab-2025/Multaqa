@@ -3,8 +3,7 @@
 import React from "react";
 import CourtBoard from "@/components/CourtBooking/CourtBoard";
 import { CourtSlot, CourtType } from "@/components/CourtBooking/types";
-import { Box, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 
 const courts: CourtType[] = [
   { id: "basketball", name: "Basketball", colorKey: "primary" },
@@ -99,40 +98,17 @@ const sampleSlots: CourtSlot[] = [
 ];
 
 export default function CourtsBookingContent() {
-  const theme = useTheme();
-
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "transparent" }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-            fontWeight: 700,
-            color: theme.palette.tertiary.dark,
-            mb: 1,
-          }}
-        >
-          Reserve Courts
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#757575",
-            fontFamily: "var(--font-poppins), system-ui, sans-serif",
-          }}
-        >
-          Pick a time slot from a court column. Slots are grouped by day. Click
-          Reserve to book.
-        </Typography>
-      </Box>
-
+    <ContentWrapper
+      title="Reserve Courts"
+      description="Pick a time slot from a court column. Slots are grouped by day. Click Reserve to book."
+    >
       <CourtBoard
         courts={courts}
         slots={sampleSlots}
         currentUser="You"
         embedded
       />
-    </Box>
+    </ContentWrapper>
   );
 }
