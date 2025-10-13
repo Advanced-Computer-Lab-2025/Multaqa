@@ -19,6 +19,7 @@ import theme from '@/themes/lightTheme';
 
 interface BrowseEventsProps {
   registered: boolean;
+  user:string;
 }
 // Define the event type enum
 export enum EventType {
@@ -64,7 +65,7 @@ const mockEvents: Event[] = [
   {
     id: '1',
     type: EventType.CONFERENCE,
-    name: 'Tech Innovation ee33sffdgdgdhgjjgj 2024',
+    name: 'Tech Innovation ee33sffdgdgdwewrwrhgjjgj 2024',
     description: 'A comprehensive conference covering the latest trends in technology, AI, and digital transformation.',
     agenda: 'Day 1: Keynote speeches and AI workshops\nDay 2: Panel discussions and networking\nDay 3: Startup pitches and awards ceremony',
     details: {
@@ -179,7 +180,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
 
@@ -241,7 +242,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
-            user={event.type}
+            user={user}
             registered={registered}
           />
         );
@@ -253,7 +254,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
-            user={event.type}
+            user={user}
             registered={registered}
           />
         );
@@ -264,7 +265,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
             details={event.details}
             name={event.name}
             description={event.description}
-            user={event.type}
+            user={user}
             registered={registered}
           />
         );
@@ -275,7 +276,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
             company={event.company}
             people={event.people}
             details={event.details}
-            user={event.type}
+            user={user}
             registered={registered}
           />
         );
@@ -286,7 +287,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
             details={event.details}
             name={event.name}
             description={event.description}
-            user={event.type}
+            user={user}
             registered={registered}
           />
         );
@@ -302,7 +303,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
          {registered?" My Registered Events": "Browse Events"}
       </Typography>
         <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
-        {registered?"Keep track of which events you have registered for": "Take a look at all the opportunities we have to offer and find yout perfect match(es)"}
+        {registered?"Keep track of which events you have registered for": "Take a look at all the opportunities we have to offer and find your perfect match(es)"}
         </Typography>
       </Box>
 

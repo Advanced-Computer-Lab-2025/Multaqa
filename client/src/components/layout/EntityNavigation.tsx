@@ -302,6 +302,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         sections: [],
       },
       {
+        key: "events",
+        label: "Events Management",
+        icon: Calendar,
+        sections: [
+          { id: "all-events", label: "All Events" },
+        ],
+      },
+      {
         key: "users",
         label: "User Management",
         icon: Users,
@@ -371,10 +379,9 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bazaars & Booths",
         icon: Store,
         sections: [
+          { id: "opportunities", label: "Browse Opportunities" },
+          { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
-          { id: "available", label: "Available Opportunities" },
-          { id: "apply-bazaar", label: "Apply for Bazaar" },
-          { id: "apply-booth", label: "Apply for Booth" },
         ],
       },
       {

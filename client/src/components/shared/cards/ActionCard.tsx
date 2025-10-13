@@ -58,6 +58,8 @@ export default function ActionCard({
         maxHeight: isExpanded ? 400 : 280,
         width: "100%",
         transition: "max-height 0.3s ease",
+        maxWidth: 300,
+        minWidth: 300,
     };
 
     // These are the styles you want to apply ONLY if type is "events"
@@ -90,12 +92,12 @@ export default function ActionCard({
       sx={{
         display: "flex",
         flexDirection: "column",
-       
         borderRadius: 2,
         background,
         border: borderColor ? `1px solid ${borderColor}` : "1px solid rgba(0,0,0,0.06)",
         boxShadow,
         overflow: "hidden",
+        padding:"4px",
         ...currentType,
         ...sx,
       }}
@@ -142,7 +144,7 @@ export default function ActionCard({
                 fontWeight: 700,
                 color: "#1E1E1E",
                 overflow: "hidden",
-                maxWidth: type=="events"?"250":"90%",
+                maxWidth: type=="events"?"250px":"90%",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}

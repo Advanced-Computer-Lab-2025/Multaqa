@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, Chip } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { ConferenceViewProps } from "./types";
 import theme from "@/themes/lightTheme";
+import { CheckIcon } from "lucide-react";
+import { Box, Typography, Chip, IconButton } from "@mui/material";
+import { Copy, Check } from "lucide-react";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, description, agenda, user, registered }) => {
 
@@ -25,15 +27,68 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
     return "";
   };
 
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopyLink = () => {
+    const link = details["Link"] || "";
+    if (link) {
+      navigator.clipboard.writeText(link).then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      });
+    }
+  };
+  
   const metaNodes = [
     <Typography key="date" variant="body2" sx={{ color: "#6b7280" }}>
       {formatDateRange()}
     </Typography>,
     <Typography key="budget" variant="caption" sx={{ color: "#6b7280" }}>
       Budget: {details["Required Budget"] || "TBD"}
-    </Typography>
+    </Typography>,
+    ...(details["Link"] ? [
+      <Box 
+        key="link" 
+        sx={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: 0.5,
+          cursor: "pointer"
+        }}
+      >
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            color: theme.palette.primary.main,
+            textDecoration: "underline",
+            "&:hover": {
+              color: theme.palette.primary.dark,
+            }
+          }}
+          onClick={() => window.open(details["Link"], "_blank")}
+        >
+          {details["Link"]}
+        </Typography>
+        <IconButton 
+          size="small" 
+          onClick={handleCopyLink}
+          sx={{ 
+            padding: 0.25,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.light + "20"
+            }
+          }}
+        >
+          {copySuccess ? (
+            <Check size={14} color="green" />
+          ) : (
+            <Copy size={14} color="#6b7280" />
+          )}
+        </IconButton>
+      </Box>
+    ] : [])
   ];
-
+  
   const detailsContent = (
     <Box>
       {/* Description */}
@@ -92,12 +147,6 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
         }
       ]}
       metaNodes={metaNodes}
-      rightSlot={
-        !registered && (<CustomButton size="small" variant="contained" color="warning" sx={{ borderRadius: 999 }}>
-          Register
-        </CustomButton>
-        )
-      }
       registered={registered}
       expanded={expanded}
       onExpandChange={setExpanded}

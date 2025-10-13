@@ -71,7 +71,7 @@ const BazarView: React.FC<BazarViewProps> = ({ details, name, description, user,
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        !registered && (<CustomButton size="small" variant="contained" color="secondary" sx={{ borderRadius: 999 }}>
+        !registered && (user=="vendor") &&(<CustomButton size="small" variant="contained" color="secondary" sx={{ borderRadius: 999}}>
           Apply
         </CustomButton>)
       }

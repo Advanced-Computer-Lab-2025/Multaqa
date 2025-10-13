@@ -164,10 +164,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       ]}
       metaNodes={metaNodes}
       rightSlot={
-       !registered && ( <CustomButton size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999 }}>
-              Register
-            </CustomButton>
-       )
+        !registered && (user=="staff"||user=="student"||user=="ta"||user=="professor") &&(<CustomButton size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999}}>
+          Register
+        </CustomButton>)
       }
       registered={registered}
       expanded={expanded}

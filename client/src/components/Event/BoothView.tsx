@@ -127,10 +127,10 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details, user , 
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        !registered && ( <CustomButton size="small" variant="contained" color="primary" sx={{ borderRadius: 999 }}>
+        !registered && (user=="vendor") &&(<CustomButton size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
           Apply
         </CustomButton>)
-      } 
+      }
       registered={registered}
        // only in case of vendor
       expanded={expanded}
