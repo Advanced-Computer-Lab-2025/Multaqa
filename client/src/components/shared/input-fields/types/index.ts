@@ -81,7 +81,7 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   // Text field specific props
   autoCapitalizeName?: boolean; // Automatically capitalize names (first, last, full) - default true for text fields
   separateLabels?: boolean; // Separate labels for first and last name when fieldType is "text" and label contains "name"
-  disableLabel?: boolean; // Disable the label and icon - default false (label shown by default)
+  disableIcon?: boolean; // Disable the label and icon - default false (label shown by default)
 }
 
 export interface CustomRatingProps {

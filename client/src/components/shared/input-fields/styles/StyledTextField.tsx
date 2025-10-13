@@ -61,7 +61,7 @@ export const StyledTextField = styled(TextField, {
       },
     }),
   },
-  // Hide label when it's empty (disableLabel is true)
+  // Hide label when it's empty (disableIcon is true)
   "& .MuiInputLabel-root:empty": {
     display: "none",
   },

@@ -6,7 +6,7 @@ import { capitalizeName } from "../utils";
 
 // Custom styled component - no MUI dependency
 const StyledDefaultTextField: React.FC<
-  CustomTextFieldProps & { separateLabels?: boolean; disableLabel?: boolean }
+  CustomTextFieldProps & { separateLabels?: boolean; disableIcon?: boolean }
 > = ({
   label,
   fieldType,
@@ -23,7 +23,7 @@ const StyledDefaultTextField: React.FC<
   separateLabels = false,
   disableDynamicMorphing = true,
   stakeholderType = "staff",
-  disableLabel = false,
+  disableIcon = false,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -457,7 +457,7 @@ const StyledDefaultTextField: React.FC<
   return (
     <div style={{ width: "100%" }}>
       {/* Separate Label - Rendered outside when neumorphic */}
-      {label && !disableLabel && (
+      {label && !disableIcon && (
         <label style={getLabelStyles()}>
           {getFieldIcon()}
           {label}

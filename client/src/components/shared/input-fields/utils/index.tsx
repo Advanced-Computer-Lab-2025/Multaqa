@@ -62,17 +62,13 @@ export const getFieldIcon = (fieldType: FieldType) => {
 export const createLabelWithIcon = (
   label?: string,
   fieldType?: FieldType,
-  disableLabel?: boolean
+  disableIcon?: boolean
 ) => {
   if (!label || !fieldType) return undefined;
 
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
-      {!disableLabel && 
-        <>
-          {getFieldIcon(fieldType)}
-        </>
-      }
+      {!disableIcon && <>{getFieldIcon(fieldType)}</>}
       {label}
     </Box>
   );

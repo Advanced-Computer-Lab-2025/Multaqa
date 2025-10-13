@@ -27,7 +27,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   disableDynamicMorphing = true,
   autoCapitalizeName = true,
   separateLabels = false,
-  disableLabel = false,
+  disableIcon = false,
   value,
   onChange,
   ...props
@@ -131,7 +131,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   };
 
   // Create label with icon
-  const labelWithIcon = createLabelWithIcon(label, fieldType, !disableLabel);
+  const labelWithIcon = createLabelWithIcon(label, fieldType, !disableIcon);
 
   // Get the appropriate endAdornment based on field type
   const getEndAdornment = () => {
@@ -177,7 +177,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     <>
       {separateLabels ? (
         <StyledDefaultTextField
-          label={!disableLabel ? label : undefined}
+          label={!disableIcon ? label : undefined}
           fieldType={fieldType}
           placeholder={props.placeholder}
           value={getDisplayValue()}
@@ -198,7 +198,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           disableDynamicMorphing={disableDynamicMorphing}
           stakeholderType={stakeholderType}
           separateLabels={separateLabels}
-          disableLabel={disableLabel}
+          disableIcon={disableIcon}
         />
       ) : (
         <>
@@ -219,10 +219,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                 <StyledTextField
                   {...props}
                   fullWidth
-                  label={
-                    !disableLabel ? labelWithIcon : props.placeholder || ""
-                  }
-                  placeholder={disableLabel ? undefined : props.placeholder}
+                  label={!disableIcon ? labelWithIcon : props.placeholder || ""}
+                  placeholder={disableIcon ? undefined : props.placeholder}
                   fieldType={fieldType}
                   stakeholderType={stakeholderType}
                   neumorphicBox={neumorphicBox}
@@ -269,8 +267,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             <StyledTextField
               {...props}
               fullWidth
-              label={!disableLabel ? labelWithIcon : props.placeholder || ""}
-              placeholder={disableLabel ? undefined : props.placeholder}
+              label={!disableIcon ? labelWithIcon : props.placeholder || ""}
+              placeholder={disableIcon ? undefined : props.placeholder}
               fieldType={fieldType}
               stakeholderType={stakeholderType}
               variant="standard"
