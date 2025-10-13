@@ -30,6 +30,10 @@ const SimpleFormExample: React.FC = () => {
   const [openCreateTrip, setOpenCreateTrip] = useState(false);
   const [openEditTrip, setOpenEditTrip] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
   const handleCallApi = async () => {
     setLoading(true);
     setError(null);
@@ -297,4 +301,4 @@ const SimpleFormExample: React.FC = () => {
   );
 };
 
-export default CallApiButton;
+export default SimpleFormExample;
