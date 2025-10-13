@@ -12,6 +12,7 @@ import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
+import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -98,6 +99,11 @@ export default function EntityCatchAllPage() {
       }
       if (section === "all-events") {
         return <BrowseEvents/>;
+      }
+    }
+    if ( tab === "workshop-requests") {
+      if (section === "all-requests") {
+        return <WorkshopReviewUI/>;
       }
     }
 
