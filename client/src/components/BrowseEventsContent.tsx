@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Box, Typography, Container } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import FilterPanel from "./shared/FilterCard/FilterPanel";
 import { FilterGroup } from "./shared/FilterCard/types";
 import ConferenceView from "./Event/ConferenceView";
@@ -309,8 +309,11 @@ const BrowseEvents: React.FC = () => {
   };
 
   return (
-    <ContentWrapper title="Browse Events">
-      <Container maxWidth="lg" sx={{ p: 0 }}>
+    <ContentWrapper
+      title="Browse Events"
+      description="Discover and explore upcoming events, workshops, conferences, and activities"
+    >
+      <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
         {/* Search and Filter Row */}
         <Box
           sx={{
@@ -389,7 +392,7 @@ const BrowseEvents: React.FC = () => {
             </Typography>
           </Box>
         )}
-      </Container>
+      </Box>
     </ContentWrapper>
   );
 };
