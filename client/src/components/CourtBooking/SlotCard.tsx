@@ -1,9 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, Typography, Button, Stack, Chip } from '@mui/material';
+import { Card, CardContent, Typography, Stack, Chip } from '@mui/material';
 import { CourtSlot } from './types';
 import { formatTimeRange } from './utils';
+import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 interface Props {
   slot: CourtSlot;
@@ -38,14 +39,26 @@ const SlotCard: React.FC<Props> = ({ slot, color, currentUser, onReserve, onCanc
 
         <Stack direction="row" spacing={1} mt={1}>
           {isAvailable && (
-            <Button size="small" variant="contained" color={color} onClick={() => onReserve?.(slot)}>
+            <CustomButton
+              size="small"
+              variant="contained"
+              color="primary"
+              onClick={() => onReserve?.(slot)}
+              sx={{ borderRadius: '12px', fontWeight: 700 }}
+            >
               Reserve
-            </Button>
+            </CustomButton>
           )}
           {isYours && (
-            <Button size="small" variant="outlined" color={color} onClick={() => onCancel?.(slot)}>
+            <CustomButton
+              size="small"
+              variant="outlined"
+              color="primary"
+              onClick={() => onCancel?.(slot)}
+              sx={{ borderRadius: '12px', fontWeight: 700 }}
+            >
               Cancel
-            </Button>
+            </CustomButton>
           )}
         </Stack>
       </CardContent>
