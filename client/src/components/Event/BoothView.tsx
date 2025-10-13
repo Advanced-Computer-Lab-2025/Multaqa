@@ -1,13 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar } from "@mui/material";
+import { Box, Typography, Avatar, IconButton } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BoothViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
+import { Trash2 } from "lucide-react";
 
 const BoothView: React.FC<BoothViewProps> = ({ company, people, details, user , registered}) => {
   const [expanded, setExpanded] = useState(false);
+  const handleDelete = () => {
+    // Your delete logic here
+    console.log("Delete clicked");
+  };
   // Helper function to extract initials from name
   const getInitials = (name: string) => {
     const parts = name.trim().split(" ");
@@ -132,7 +137,21 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details, user , 
         </CustomButton>)
       }
       registered={registered || !(user=="vendor")}
-       // only in case of vendor
+      rightIcon={user==="events-office"? (<IconButton
+        size="small"
+        onClick={handleDelete}
+        sx={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          "&:hover": {
+            backgroundColor: "rgba(255, 0, 0, 0.1)",
+            color: "error.main",
+          },
+        }}
+      >
+        <Trash2 size={16} />
+      </IconButton>): null
+    }
+  
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}

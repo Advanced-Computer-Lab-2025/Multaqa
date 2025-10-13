@@ -1,13 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar } from "@mui/material";
+import { Box, Typography, Avatar, IconButton } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
+import { Trash2 } from "lucide-react";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description, agenda, user, registered }) => {
   const [expanded, setExpanded] = useState(false);
+  const handleDelete = () => {
+    // Your delete logic here
+    console.log("Delete clicked");
+  };
   // Helper function to extract initials from professor name
   const getInitials = (name: string) => {
     let cleanName = name.trim();
@@ -168,6 +173,20 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
           Register
         </CustomButton>)
       }
+      rightIcon={user==="events-office"? (<IconButton
+        size="small"
+        onClick={handleDelete}
+        sx={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          "&:hover": {
+            backgroundColor: "rgba(255, 0, 0, 0.1)",
+            color: "error.main",
+          },
+        }}
+      >
+        <Trash2 size={16} />
+      </IconButton>): null
+    }
       registered={registered || !(user=="staff"||user=="student"||user=="ta"||user=="professor")}
       expanded={expanded}
       onExpandChange={setExpanded}

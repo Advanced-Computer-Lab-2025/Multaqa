@@ -21,6 +21,7 @@ export default function ActionCard({
   type="events",
   registered=true,
   leftIcon,
+  rightIcon,
   tags,
   subtitleNode,
   metaNodes,
@@ -54,7 +55,7 @@ export default function ActionCard({
 // These are the styles you want to apply ONLY if type is "events"
     const eventStyles = {
         height: isExpanded ? "100%" : "auto",
-        minHeight: isExpanded ? 280 : 240,
+        minHeight: isExpanded ? 280 : 280,
         maxHeight: isExpanded ? 400 : 280,
         width: "100%",
         transition: "max-height 0.3s ease",
@@ -102,6 +103,19 @@ export default function ActionCard({
         ...sx,
       }}
     >
+      {/* Right Icon - Top Right Corner */}
+    {rightIcon && (
+      <Box
+        sx={{
+          width:"100%",
+          display:"flex",
+          alignItems:"end",
+        }}
+      >
+        {rightIcon}
+      </Box>
+    )}
+
       {/* Scrollable Content Area */}
       <Box
         sx={{

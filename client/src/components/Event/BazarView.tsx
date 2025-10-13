@@ -1,7 +1,7 @@
 "use client";
-
+import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, IconButton } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
@@ -9,6 +9,10 @@ import CustomButton from "../shared/Buttons/CustomButton";
 
 const BazarView: React.FC<BazarViewProps> = ({ details, name, description, user, registered}) => {
   const [expanded, setExpanded] = useState(false);
+  const handleDelete = () => {
+    // Your delete logic here
+    console.log("Delete clicked");
+  };
 
   const metaNodes = [
     <Typography key="datetime" variant="body2" sx={{ color: "#6b7280" }}> 
@@ -75,6 +79,20 @@ const BazarView: React.FC<BazarViewProps> = ({ details, name, description, user,
           Apply
         </CustomButton>)
       }
+      rightIcon={user==="events-office"? (<IconButton
+        size="small"
+        onClick={handleDelete}
+        sx={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          "&:hover": {
+            backgroundColor: "rgba(255, 0, 0, 0.1)",
+            color: "error.main",
+          },
+        }}
+      >
+        <Trash2 size={16} />
+      </IconButton>): null
+    }
       registered={registered || !(user=="vendor")}
       expanded={expanded}
       onExpandChange={setExpanded}

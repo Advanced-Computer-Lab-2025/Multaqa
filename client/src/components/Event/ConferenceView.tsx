@@ -1,17 +1,19 @@
 "use client";
-
 import React, { useState } from "react";
 import ActionCard from "../shared/cards/ActionCard";
-import CustomButton from "../shared/Buttons/CustomButton";
 import { ConferenceViewProps } from "./types";
 import theme from "@/themes/lightTheme";
-import { CheckIcon } from "lucide-react";
-import { Box, Typography, Chip, IconButton } from "@mui/material";
+import { Trash2 } from "lucide-react";
+import { Box, Typography,IconButton } from "@mui/material";
 import { Copy, Check } from "lucide-react";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, description, agenda, user, registered }) => {
 
   const [expanded, setExpanded] = useState(false);
+  const handleDelete = () => {
+    // Your delete logic here
+    console.log("Delete clicked");
+  };
   // Format key details for display
   const formatDateRange = () => {
     const startDate = details["Start Date"];
@@ -146,6 +148,20 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
           size: "small" 
         }
       ]}
+      rightIcon={user==="events-office"? (<IconButton
+        size="small"
+        onClick={handleDelete}
+        sx={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          "&:hover": {
+            backgroundColor: "rgba(255, 0, 0, 0.1)",
+            color: "error.main",
+          },
+        }}
+      >
+        <Trash2 size={16} />
+      </IconButton>): null
+    }
       metaNodes={metaNodes}
       registered={true}
       expanded={expanded}
