@@ -101,7 +101,12 @@ const StyledDefaultTextField: React.FC<
     if (fieldType === "password") {
       return showPassword ? "text" : "password";
     }
-    return type || fieldType || "text";
+    // Use text type for all fields to avoid browser restrictions
+    // Validation is handled by pattern attributes and on submit
+    if (fieldType === "email") {
+      return "email";
+    }
+    return type || "text";
   };
 
   // Get email domain based on stakeholder type
@@ -191,9 +196,11 @@ const StyledDefaultTextField: React.FC<
           return label ? `Enter ${label.toLowerCase()}` : "Enter text";
         }
       case "phone":
-        return "e.g., +1 234 567 8900";
+        return "e.g., +20 123 456 7890";
       case "numeric":
-        return "Enter a number";
+        return "e.g., 123";
+      case "numeric-float":
+        return "e.g., 123.45";
       default:
         return "";
     }
@@ -276,6 +283,7 @@ const StyledDefaultTextField: React.FC<
           </svg>
         );
       case "numeric":
+      case "numeric-float":
         return (
           <svg
             width={iconSize}
@@ -503,6 +511,12 @@ const StyledDefaultTextField: React.FC<
           }
           disabled={disabled}
           style={getInputStyles()}
+          // Add inputMode for better mobile keyboard support
+          {...(fieldType === "numeric" && { inputMode: "numeric" as const })}
+          {...(fieldType === "numeric-float" && {
+            inputMode: "decimal" as const,
+          })}
+          {...(fieldType === "phone" && { inputMode: "tel" as const })}
         />
 
         {/* Hidden measurement element for domain text width (not visible) */}

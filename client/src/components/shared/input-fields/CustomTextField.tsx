@@ -173,6 +173,19 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     );
   };
 
+  // Map custom fieldType to HTML input type
+  const getInputType = () => {
+    if (fieldType === "password") {
+      return showPassword ? "text" : "password";
+    }
+    // Use text type for numeric and phone fields to avoid browser restrictions
+    // Validation is handled by pattern attributes and on submit
+    if (fieldType === "email") {
+      return "email";
+    }
+    return props.type || "text";
+  };
+
   return (
     <>
       {separateLabels ? (
@@ -185,13 +198,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyPress={handleKeyPress}
-          type={
-            fieldType === "password"
-              ? showPassword
-                ? "text"
-                : "password"
-              : props.type
-          }
+          type={getInputType()}
           disabled={props.disabled || false}
           autoCapitalizeName={autoCapitalizeName}
           neumorphicBox={neumorphicBox}
@@ -226,13 +233,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   neumorphicBox={neumorphicBox}
                   variant="outlined"
                   size="small"
-                  type={
-                    fieldType === "password"
-                      ? showPassword
-                        ? "text"
-                        : "password"
-                      : props.type
-                  }
+                  type={getInputType()}
                   value={getDisplayValue()}
                   onChange={handleChange}
                   onKeyPress={handleKeyPress}
@@ -243,6 +244,16 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   InputProps={{
                     endAdornment: getEndAdornment(),
                     ...InputProps,
+                  }}
+                  // Add inputMode attributes for better mobile keyboard support
+                  inputProps={{
+                    ...(fieldType === "numeric" && {
+                      inputMode: "numeric" as const,
+                    }),
+                    ...(fieldType === "numeric-float" && {
+                      inputMode: "decimal" as const,
+                    }),
+                    ...(fieldType === "phone" && { inputMode: "tel" as const }),
                   }}
                 />
               </NeumorphicBox>
@@ -272,13 +283,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
               fieldType={fieldType}
               stakeholderType={stakeholderType}
               variant="standard"
-              type={
-                fieldType === "password"
-                  ? showPassword
-                    ? "text"
-                    : "password"
-                  : props.type
-              }
+              type={getInputType()}
               value={getDisplayValue()}
               onChange={handleChange}
               onKeyPress={handleKeyPress}
@@ -287,6 +292,16 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
               InputProps={{
                 endAdornment: getEndAdornment(),
                 ...InputProps,
+              }}
+              // Add inputMode attributes for better mobile keyboard support
+              inputProps={{
+                ...(fieldType === "numeric" && {
+                  inputMode: "numeric" as const,
+                }),
+                ...(fieldType === "numeric-float" && {
+                  inputMode: "decimal" as const,
+                }),
+                ...(fieldType === "phone" && { inputMode: "tel" as const }),
               }}
             />
           )}

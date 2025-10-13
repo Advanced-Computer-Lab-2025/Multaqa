@@ -5,6 +5,7 @@ export type FieldType =
   | "email"
   | "password"
   | "numeric"
+  | "numeric-float"
   | "phone";
 
 export type SelectFieldType =

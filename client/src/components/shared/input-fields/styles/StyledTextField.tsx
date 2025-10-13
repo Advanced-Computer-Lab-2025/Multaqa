@@ -99,6 +99,14 @@ export const StyledTextField = styled(TextField, {
     padding: "12px 0px 12px 18px",
     fontSize: "1rem",
     fontWeight: 500,
+    // Hide number input spinners
+    "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "&[type=number]": {
+      MozAppearance: "textfield",
+    },
     "&::placeholder": {
       color: "#999",
       opacity: 1,
@@ -132,6 +140,14 @@ export const StyledTextField = styled(TextField, {
     padding: "8px 16px",
     fontSize: "1rem",
     fontWeight: 500,
+    // Hide number input spinners
+    "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+      WebkitAppearance: "none",
+      margin: 0,
+    },
+    "&[type=number]": {
+      MozAppearance: "textfield",
+    },
     "&::placeholder": {
       color: "#999",
       opacity: 1,

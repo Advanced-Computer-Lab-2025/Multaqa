@@ -9,6 +9,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ListIcon from "@mui/icons-material/List";
+import TagIcon from "@mui/icons-material/Tag";
 import {
   FieldType,
   StakeholderType,
@@ -48,9 +49,11 @@ export const getFieldIcon = (fieldType: FieldType) => {
       return <PersonIcon sx={{ mr: 1, fontSize: "1rem" }} />;
     case "password":
       return <LockIcon sx={{ mr: 1, fontSize: "1rem" }} />;
-    case "numeric":
     case "phone":
       return <PhoneIcon sx={{ mr: 1, fontSize: "1rem" }} />;
+    case "numeric":
+    case "numeric-float":
+      return <TagIcon sx={{ mr: 1, fontSize: "1rem" }} />; // Using hash/tag icon for numbers
     default:
       return null;
   }
