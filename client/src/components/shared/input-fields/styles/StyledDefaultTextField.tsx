@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { useEffect, useRef } from 'react';
-import { CustomTextFieldProps } from '../types';
-import theme from '@/themes/lightTheme';
+import React, { useState } from "react";
+import { useEffect, useRef } from "react";
+import { CustomTextFieldProps } from "../types";
+import theme from "@/themes/lightTheme";
 
 // Custom styled component - no MUI dependency
-const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?: boolean }> = ({
+const StyledDefaultTextField: React.FC<
+  CustomTextFieldProps & { separateLabels?: boolean }
+> = ({
   label,
   fieldType,
   placeholder,
@@ -52,16 +54,18 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (fieldType === "text" && autoCapitalizeName) {
-      const words = e.target.value.split(' ');
-      const capitalized = words.map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      ).join(' ');
-      
+      const words = e.target.value.split(" ");
+      const capitalized = words
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
+
       const syntheticEvent = {
         ...e,
-        target: { ...e.target, value: capitalized }
+        target: { ...e.target, value: capitalized },
       } as React.ChangeEvent<HTMLInputElement>;
-      
+
       if (onChange) onChange(syntheticEvent);
     } else {
       if (onChange) onChange(e);
@@ -114,7 +118,7 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
     // Use ResizeObserver to pick up font-load or style changes that affect width
     let ro: ResizeObserver | null = null;
     const observedEl = domainMeasureRef.current;
-    if (typeof ResizeObserver !== 'undefined' && observedEl) {
+    if (typeof ResizeObserver !== "undefined" && observedEl) {
       ro = new ResizeObserver(() => {
         measure();
       });
@@ -127,31 +131,40 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(measure);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
 
     return () => {
-  if (ro && observedEl) ro.unobserve(observedEl);
-      window.removeEventListener('resize', onResize);
+      if (ro && observedEl) ro.unobserve(observedEl);
+      window.removeEventListener("resize", onResize);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [stakeholderType, neumorphicBox, isFocused, value]);
 
   const getPlaceholderText = () => {
     if (placeholder) return placeholder;
-    
-    const labelLower = label?.toLowerCase() || '';
-    
+
+    const labelLower = label?.toLowerCase() || "";
+
     switch (fieldType) {
       case "email":
         return "example@domain.com";
       case "password":
         return "Enter a strong password (min 8 characters)";
       case "text":
-        if (labelLower.includes('first name') || labelLower.includes('firstname')) {
+        if (
+          labelLower.includes("first name") ||
+          labelLower.includes("firstname")
+        ) {
           return "e.g., John";
-        } else if (labelLower.includes('last name') || labelLower.includes('lastname')) {
+        } else if (
+          labelLower.includes("last name") ||
+          labelLower.includes("lastname")
+        ) {
           return "e.g., Doe";
-        } else if (labelLower.includes('full name') || labelLower.includes('name')) {
+        } else if (
+          labelLower.includes("full name") ||
+          labelLower.includes("name")
+        ) {
           return "e.g., John Doe";
         } else {
           return label ? `Enter ${label.toLowerCase()}` : "Enter text";
@@ -167,47 +180,91 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   // Get icon based on field type
   const getFieldIcon = () => {
-    // Icon color: gray when not focused, tertiary color when focused (for both neumorphic and non-neumorphic)
-    const iconColor = isFocused ? theme.palette.tertiary.main : '#999';
-    const iconStyle = { 
-      fontSize: '0.75rem',
+    // Icon color: red when error, tertiary when focused, gray otherwise
+    const iconColor = props.error
+      ? "#d32f2f"
+      : isFocused
+      ? theme.palette.tertiary.main
+      : "#999";
+    const iconStyle = {
+      fontSize: "0.75rem",
       color: iconColor,
-      transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      transition: "color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
     };
-    
+
     const iconSize = 12;
-    
+
     switch (fieldType) {
       case "email":
         return (
-          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg
+            width={iconSize}
+            height={iconSize}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            style={iconStyle}
+          >
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
             <polyline points="22,6 12,13 2,6" />
           </svg>
         );
       case "password":
         return (
-          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg
+            width={iconSize}
+            height={iconSize}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            style={iconStyle}
+          >
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         );
       case "text":
         return (
-          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg
+            width={iconSize}
+            height={iconSize}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            style={iconStyle}
+          >
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
         );
       case "phone":
         return (
-          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg
+            width={iconSize}
+            height={iconSize}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            style={iconStyle}
+          >
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
         );
       case "numeric":
         return (
-          <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={iconStyle}>
+          <svg
+            width={iconSize}
+            height={iconSize}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            style={iconStyle}
+          >
             <line x1="4" y1="9" x2="20" y2="9" />
             <line x1="4" y1="15" x2="20" y2="15" />
             <line x1="10" y1="3" x2="8" y2="21" />
@@ -221,12 +278,23 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
   // Get styles based on neumorphicBox prop
   const getInputStyles = () => {
-    const domainStakeholders = ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'];
-    const isDomainStakeholder = domainStakeholders.includes(stakeholderType as string);
+    const domainStakeholders = [
+      "student",
+      "staff",
+      "ta",
+      "professor",
+      "admin",
+      "events-office",
+    ];
+    const isDomainStakeholder = domainStakeholders.includes(
+      stakeholderType as string
+    );
     if (neumorphicBox) {
-      // Determine border color: focus > hover > transparent
-      let borderColor = 'transparent';
-      if (isFocused) {
+      // Determine border color: error > focus > hover > transparent
+      let borderColor = "transparent";
+      if (props.error) {
+        borderColor = "#d32f2f";
+      } else if (isFocused) {
         borderColor = theme.palette.tertiary.main;
       } else if (isHovered) {
         borderColor = theme.palette.primary.main;
@@ -234,107 +302,150 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
 
       // Neumorphic styling with border on hover/focus
       return {
-        width: '100%',
-        padding: '12px 18px',
-  // small extra gap so username sits close to the domain adornment
-  // clamp domainWidth to avoid excessive padding for extremely long domains
-        paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder && (neumorphicBox || separateLabels) ? `${Math.max(0, Math.min(domainWidth, 320)) + 18}px` : '18px'),
-        fontSize: '1rem',
+        width: "100%",
+        padding: "12px 18px",
+        // small extra gap so username sits close to the domain adornment
+        // clamp domainWidth to avoid excessive padding for extremely long domains
+        paddingRight:
+          fieldType === "password"
+            ? "48px"
+            : fieldType === "email" &&
+              isDomainStakeholder &&
+              (neumorphicBox || separateLabels)
+            ? `${Math.max(0, Math.min(domainWidth, 320)) + 18}px`
+            : "18px",
+        fontSize: "1rem",
         fontWeight: 500,
-        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+        fontFamily: "var(--font-poppins), system-ui, sans-serif",
         color: theme.palette.text.primary,
-        backgroundColor: disabled ? '#f3f4f6' : theme.palette.background.default,
+        backgroundColor: disabled
+          ? "#f3f4f6"
+          : theme.palette.background.default,
         border: `2px solid ${borderColor}`,
-        borderRadius: '50px',
-        outline: 'none',
-        transition: 'box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        borderRadius: "50px",
+        outline: "none",
+        transition:
+          "box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
         boxShadow: disableDynamicMorphing
-          ? '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)'
+          ? "-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)"
           : isFocused
-            ? 'inset -2px -2px 5px 0 #FAFBFF, inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25)' 
-            : '-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)',
+          ? "inset -2px -2px 5px 0 #FAFBFF, inset 2px 2px 5px 0 rgba(22, 27, 29, 0.25)"
+          : "-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.25)",
         transform: disableDynamicMorphing
-          ? 'scale(1)'
-          : isFocused ? 'scale(0.998)' : 'scale(1)',
-        cursor: disabled ? 'not-allowed' : 'text',
+          ? "scale(1)"
+          : isFocused
+          ? "scale(0.998)"
+          : "scale(1)",
+        cursor: disabled ? "not-allowed" : "text",
         // Right align text for email inputs that use an external domain adornment
-        ...(fieldType === 'email' && isDomainStakeholder && (neumorphicBox || separateLabels) ? { textAlign: 'right' as const } : {}),
+        ...(fieldType === "email" &&
+        isDomainStakeholder &&
+        (neumorphicBox || separateLabels)
+          ? { textAlign: "right" as const }
+          : {}),
       };
     } else {
       // Standard MUI-like styling with underline (thin by default, thicker on hover/focus)
       let borderBottom;
-      if (isFocused) {
+      if (props.error) {
+        borderBottom = "2px solid #d32f2f";
+      } else if (isFocused) {
         borderBottom = `2px solid ${theme.palette.primary.main}`;
       } else if (isHovered) {
-        borderBottom = '2px solid rgba(0, 0, 0, 0.42)';
+        borderBottom = "2px solid rgba(0, 0, 0, 0.42)";
       } else {
-        borderBottom = '1px solid rgba(0, 0, 0, 0.42)';
+        borderBottom = "1px solid rgba(0, 0, 0, 0.42)";
       }
 
       return {
-        width: '100%',
-  padding: '8px 16px',
-  // slightly smaller extra padding for non-neumorphic mode
-         paddingRight: fieldType === "password" ? '48px' : (fieldType === 'email' && isDomainStakeholder ? `${Math.max(0, Math.min(domainWidth, 320)) + (separateLabels && !neumorphicBox ? 18 : 12)}px` : '16px'),
-        paddingBottom: '8px',
-        fontSize: '1rem',
+        width: "100%",
+        padding: "8px 16px",
+        // slightly smaller extra padding for non-neumorphic mode
+        paddingRight:
+          fieldType === "password"
+            ? "48px"
+            : fieldType === "email" && isDomainStakeholder
+            ? `${
+                Math.max(0, Math.min(domainWidth, 320)) +
+                (separateLabels && !neumorphicBox ? 18 : 12)
+              }px`
+            : "16px",
+        paddingBottom: "8px",
+        fontSize: "1rem",
         fontWeight: 500,
-        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+        fontFamily: "var(--font-poppins), system-ui, sans-serif",
         color: theme.palette.text.primary,
-        backgroundColor: 'transparent',
-        border: 'none',
+        backgroundColor: "transparent",
+        border: "none",
         borderBottom,
-        borderRadius: '0',
-        outline: 'none',
-        transition: isFocused ? 'border-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none',
-        cursor: disabled ? 'not-allowed' : 'text',
-        ...(fieldType === 'email' && isDomainStakeholder && (neumorphicBox || separateLabels) ? { textAlign: 'right' as const } : {}),
+        borderRadius: "0",
+        outline: "none",
+        transition: isFocused
+          ? "border-bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+          : "none",
+        cursor: disabled ? "not-allowed" : "text",
+        ...(fieldType === "email" &&
+        isDomainStakeholder &&
+        (neumorphicBox || separateLabels)
+          ? { textAlign: "right" as const }
+          : {}),
       };
     }
   };
 
   const getLabelStyles = () => {
+    // Label color: red when error, tertiary when focused, gray otherwise
+    const labelColor = props.error
+      ? "#d32f2f"
+      : isFocused
+      ? theme.palette.tertiary.main
+      : "#999";
+
     if (neumorphicBox) {
       // Neumorphic mode: same size as non-neumorphic, changes to tertiary color on focus, with left padding
       return {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '2px',
-        marginBottom: '8px',
-        fontSize: '0.75rem',
+        display: "flex",
+        alignItems: "center",
+        gap: "2px",
+        marginBottom: "8px",
+        fontSize: "0.75rem",
         fontWeight: 500,
         lineHeight: 1.4375,
-        color: isFocused ? theme.palette.tertiary.main : '#999',
-        paddingLeft: '16px',
-        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-        transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        color: labelColor,
+        paddingLeft: "16px",
+        fontFamily: "var(--font-poppins), system-ui, sans-serif",
+        transition: "color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       };
     } else {
       // Standard MUI-like mode: smaller sizing, changes to tertiary color on focus, tight spacing
       return {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '2px',
-        marginBottom: '4px',
-        fontSize: '0.75rem',
+        display: "flex",
+        alignItems: "center",
+        gap: "2px",
+        marginBottom: "4px",
+        fontSize: "0.75rem",
         fontWeight: 500,
         lineHeight: 1.4375,
-        color: isFocused ? theme.palette.tertiary.main : '#999',
-        fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-        transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        color: labelColor,
+        fontFamily: "var(--font-poppins), system-ui, sans-serif",
+        transition: "color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       };
     }
   };
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: "100%" }}>
       {/* Separate Label - Rendered outside when neumorphic */}
       {label && (
         <label style={getLabelStyles()}>
           {getFieldIcon()}
           {label}
           {props.required && (
-            <span style={{ color: theme.palette.error.main, marginLeft: '2px' }}>*</span>
+            <span
+              style={{ color: theme.palette.error.main, marginLeft: "2px" }}
+            >
+              *
+            </span>
           )}
         </label>
       )}
@@ -342,8 +453,8 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
       {/* Input Container */}
       <div
         style={{
-          position: 'relative',
-          width: '100%',
+          position: "relative",
+          width: "100%",
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -351,32 +462,65 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         <input
           {...inputProps}
           type={getInputType()}
-          value={value || ''}
+          value={value || ""}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyPress={onKeyPress}
-            placeholder={fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) ? '' : getPlaceholderText()}
+          placeholder={
+            fieldType === "email" &&
+            [
+              "student",
+              "staff",
+              "ta",
+              "professor",
+              "admin",
+              "events-office",
+            ].includes(stakeholderType as string)
+              ? ""
+              : getPlaceholderText()
+          }
           disabled={disabled}
           style={getInputStyles()}
         />
 
-    {/* Hidden measurement element for domain text width (not visible) */}
-    <span ref={domainMeasureRef} style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap', fontSize: '1rem', fontWeight: 500, fontFamily: 'var(--font-poppins), system-ui, sans-serif' }}>{getEmailDomain()}</span>
+        {/* Hidden measurement element for domain text width (not visible) */}
+        <span
+          ref={domainMeasureRef}
+          style={{
+            position: "absolute",
+            visibility: "hidden",
+            whiteSpace: "nowrap",
+            fontSize: "1rem",
+            fontWeight: 500,
+            fontFamily: "var(--font-poppins), system-ui, sans-serif",
+          }}
+        >
+          {getEmailDomain()}
+        </span>
 
-    {/* Left-aligned overlay placeholder for email with domain stakeholders */}
-          {fieldType === 'email' && ['student', 'staff', 'ta', 'professor', 'admin', 'events-office'].includes(stakeholderType as string) && !value && (
+        {/* Left-aligned overlay placeholder for email with domain stakeholders */}
+        {fieldType === "email" &&
+          [
+            "student",
+            "staff",
+            "ta",
+            "professor",
+            "admin",
+            "events-office",
+          ].includes(stakeholderType as string) &&
+          !value && (
             <span
               style={{
-                position: 'absolute',
-                left: '18px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#999',
-                fontSize: '1rem',
+                position: "absolute",
+                left: "18px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#999",
+                fontSize: "1rem",
                 fontWeight: 500,
-                pointerEvents: 'none',
-                fontFamily: 'var(--font-poppins), system-ui, sans-serif',
+                pointerEvents: "none",
+                fontFamily: "var(--font-poppins), system-ui, sans-serif",
               }}
             >
               {getPlaceholderText()}
@@ -387,18 +531,26 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
         {fieldType === "email" && stakeholderType !== "vendor" && (
           <span
             style={{
-              position: 'absolute',
-              right: neumorphicBox ? '18px' : '16px',
-              top: '50%',
-              transform: `translateY(-50%) ${isFocused || (value && String(value).length > 0) ? 'translateX(0px)' : 'translateX(20px)'}`,
+              position: "absolute",
+              right: neumorphicBox ? "18px" : "16px",
+              top: "50%",
+              transform: `translateY(-50%) ${
+                isFocused || (value && String(value).length > 0)
+                  ? "translateX(0px)"
+                  : "translateX(20px)"
+              }`,
               color: theme.palette.tertiary.dark,
-              fontSize: '1rem',
+              fontSize: "1rem",
               fontWeight: 500,
-              fontFamily: 'var(--font-poppins), system-ui, sans-serif',
-              pointerEvents: 'none',
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              pointerEvents: "none",
               opacity: isFocused || (value && String(value).length > 0) ? 1 : 0,
-              transition: 'opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-              visibility: isFocused || (value && String(value).length > 0) ? 'visible' : 'hidden',
+              transition:
+                "opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+              visibility:
+                isFocused || (value && String(value).length > 0)
+                  ? "visible"
+                  : "hidden",
             }}
           >
             {getEmailDomain()}
@@ -413,26 +565,29 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
             onMouseDown={(e) => e.preventDefault()}
             disabled={disabled}
             style={{
-              position: 'absolute',
-              right: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'none',
-              border: 'none',
-              cursor: disabled ? 'not-allowed' : 'pointer',
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#999',
-              transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              position: "absolute",
+              right: "16px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              cursor: disabled ? "not-allowed" : "pointer",
+              padding: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#999",
+              transition: "color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
               opacity: disabled ? 0.5 : 1,
             }}
             onMouseEnter={(e) => {
-              if (!disabled) e.currentTarget.style.color = theme.palette.primary.main;
+              if (!disabled)
+                e.currentTarget.style.color = theme.palette.primary.main;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = isFocused ? theme.palette.primary.main : '#999';
+              e.currentTarget.style.color = isFocused
+                ? theme.palette.primary.main
+                : "#999";
             }}
           >
             {showPassword ? (
@@ -469,6 +624,23 @@ const StyledDefaultTextField: React.FC<CustomTextFieldProps & { separateLabels?:
           </button>
         )}
       </div>
+
+      {/* Error/Helper Text */}
+      {props.error && props.helperText && (
+        <p
+          style={{
+            color: "#d32f2f",
+            fontSize: "0.75rem",
+            marginTop: "3px",
+            marginLeft: neumorphicBox ? "16px" : "0px",
+            marginRight: "14px",
+            fontWeight: 400,
+            lineHeight: 1.66,
+          }}
+        >
+          {props.helperText}
+        </p>
+      )}
     </div>
   );
 };

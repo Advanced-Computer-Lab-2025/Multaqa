@@ -259,7 +259,7 @@ export default function ManageEventOfficeAccount() {
               sx={{
                 fontFamily: "var(--font-jost), system-ui, sans-serif",
                 fontWeight: 700,
-                color: theme.palette.primary.main,
+                color: theme.palette.tertiary.main,
                 textAlign: "center",
                 mb: 3,
               }}
