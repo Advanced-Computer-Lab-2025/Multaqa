@@ -9,6 +9,7 @@ import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
 import BrowseEvents from "@/components/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
+import { mapEntityToRole } from "@/utils";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -22,30 +23,13 @@ export default function EntityCatchAllPage() {
   const tab = segments[2] || "";
   const section = segments[3] || "";
 
-  const mapEntityToRole = (e: string) => {
-    switch (e) {
-      case "admin":
-        return "admin";
-      case "events-office":
-        return "events-office";
-      case "vendor":
-        return "vendor";
-      case "professor":
-        return "professor";
-      case "ta":
-        return "ta";
-      case "staff":
-        return "staff";
-      case "student":
-      default:
-        return "student";
-    }
-  };
-
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
     // Courts booking page for stakeholders
-    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "courts") {
+    if (
+      ["student", "staff", "ta", "professor"].includes(entity) &&
+      tab === "courts"
+    ) {
       if (section === "reserve" || section === "") {
         return <CourtsBookingContent />;
       }
