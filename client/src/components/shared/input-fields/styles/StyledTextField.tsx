@@ -61,6 +61,10 @@ export const StyledTextField = styled(TextField, {
       },
     }),
   },
+  // Hide label when it's empty (disableLabel is true)
+  "& .MuiInputLabel-root:empty": {
+    display: "none",
+  },
   "& .MuiOutlinedInput-root": {
     borderRadius: "50px",
     "& fieldset": {

@@ -27,6 +27,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   disableDynamicMorphing = true,
   autoCapitalizeName = true,
   separateLabels = false,
+  disableLabel = false,
   value,
   onChange,
   ...props
@@ -130,7 +131,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   };
 
   // Create label with icon
-  const labelWithIcon = createLabelWithIcon(label, fieldType);
+  const labelWithIcon = createLabelWithIcon(label, fieldType, !disableLabel);
 
   // Get the appropriate endAdornment based on field type
   const getEndAdornment = () => {
@@ -176,7 +177,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     <>
       {separateLabels ? (
         <StyledDefaultTextField
-          label={label}
+          label={!disableLabel ? label : undefined}
           fieldType={fieldType}
           placeholder={props.placeholder}
           value={getDisplayValue()}
@@ -197,6 +198,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           disableDynamicMorphing={disableDynamicMorphing}
           stakeholderType={stakeholderType}
           separateLabels={separateLabels}
+          disableLabel={disableLabel}
         />
       ) : (
         <>
@@ -217,7 +219,10 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                 <StyledTextField
                   {...props}
                   fullWidth
-                  label={labelWithIcon}
+                  label={
+                    !disableLabel ? labelWithIcon : props.placeholder || ""
+                  }
+                  placeholder={disableLabel ? undefined : props.placeholder}
                   fieldType={fieldType}
                   stakeholderType={stakeholderType}
                   neumorphicBox={neumorphicBox}
@@ -264,7 +269,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             <StyledTextField
               {...props}
               fullWidth
-              label={labelWithIcon}
+              label={!disableLabel ? labelWithIcon : props.placeholder || ""}
+              placeholder={disableLabel ? undefined : props.placeholder}
               fieldType={fieldType}
               stakeholderType={stakeholderType}
               variant="standard"
