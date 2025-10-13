@@ -65,6 +65,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
         ],
       },
       {
@@ -90,6 +92,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
         ],
       },
       {
@@ -114,6 +118,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
         ],
       },
       {
@@ -138,6 +144,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "browse-events", label: "Browse Events" },
+          { id: "my-registered", label: "My Registered Events" },
+          { id: "favorites", label: "My Favorites" },
         ],
       },
       {
