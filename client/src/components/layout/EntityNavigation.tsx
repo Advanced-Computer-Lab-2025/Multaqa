@@ -59,7 +59,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -72,10 +71,11 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "courts",
-        label: "Courts Booking",
+        label: "Courts",
         icon: Trophy,
         sections: [
           { id: "reserve", label: "Reserve Courts" },
+          { id: "my-reserved", label: "My Reservations" },
           // Future: { id: "my-reservations", label: "My Reservations" },
         ],
       },
@@ -88,13 +88,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
-      },
     ],
   },
   staff: {
@@ -103,7 +96,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -112,15 +104,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
-        ],
-      },
-      {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
         ],
       },
       {
@@ -131,13 +114,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-sessions", label: "Browse Sessions" },
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
       },
     ],
   },
@@ -402,16 +378,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key: "participation",
-        label: "My Participation",
-        icon: Calendar,
-        sections: [
-          { id: "upcoming", label: "Upcoming" },
-          { id: "past", label: "Past" },
-          { id: "registered-visitors", label: "Registered Visitors" },
-        ],
-      },
-      {
         key: "payments",
         label: "Payments",
         icon: CreditCard,
@@ -561,8 +527,8 @@ export default function EntityNavigation({
           sectionItems={sectionItems}
         />
 
-        <div className="flex-1 overflow-auto bg-[#f9fbfc] min-h-0 p-4">
-           <div className="flex-1 bg-white min-h-0"  style={{borderRadius:"16px",boxShadow:"0 1px 3px rgba(0, 0, 0, 0.08)",  padding: "20px 28px",  border: "1px solid #e5e7eb"}}>{children}</div>
+        <div className="flex-1 bg-[#f9fbfc] min-h-0 p-4">
+           <div className="flex-1 bg-white min-h-0 overflow-auto"  style={{borderRadius:"16px",boxShadow:"0 1px 3px rgba(0, 0, 0, 0.08)",  padding: "20px 28px",  border: "1px solid #e5e7eb", minHeight:"73vh", maxHeight:"73vh"}}>{children}</div>
            </div>
       </div>
     </div>

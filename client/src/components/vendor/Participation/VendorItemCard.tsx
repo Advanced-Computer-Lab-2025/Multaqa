@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import { VendorParticipationItem, VendorRequestItem } from "./types";
 import ActionCard from "@/components/shared/cards/ActionCard";
@@ -18,6 +18,7 @@ const typeColor: Record<string, { bg: string; fg: string }> = {
 };
 
 export default function VendorItemCard({ item, rightSlot, expanded = false, details }: Props) {
+  const [expandedd, setExpanded] = useState(expanded);
   const t = item.type;
   const color = typeColor[t] ?? { bg: "#b2cee2", fg: "#1E1E1E" };
 
@@ -28,6 +29,7 @@ export default function VendorItemCard({ item, rightSlot, expanded = false, deta
   return (
     <ActionCard
       title={item.title}
+      type="vendor"
       tags={[{ label: t === "BAZAAR" ? "Bazaar" : "Platform Booth", sx: { bgcolor: color.bg, color: color.fg, fontWeight: 600 } }]}
       subtitleNode={<Typography variant="body2" sx={{ color: "#6299d0" }}>{item.location}</Typography>}
       metaNodes={[
@@ -39,7 +41,8 @@ export default function VendorItemCard({ item, rightSlot, expanded = false, deta
         ) : null,
       ].filter(Boolean) as React.ReactNode[]}
       rightSlot={rightSlot}
-      expanded={expanded}
+      expanded={expandedd}
+      onExpandChange={setExpanded}
       details={details}
       borderColor={color.bg}
     />

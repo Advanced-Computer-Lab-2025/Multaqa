@@ -1,34 +1,87 @@
 "use client";
 
-import React from "react";
-import { Box } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography } from "@mui/material";
+import ActionCard from "../shared/cards/ActionCard";
 import { BazarViewProps } from "./types";
+import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
-import { AccentContainer, EventBox, DescriptionAccordion, DetailsAccordion } from ".";
 
 const BazarView: React.FC<BazarViewProps> = ({ details, name, description }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const metaNodes = [
+    <Typography key="datetime" variant="body2" sx={{ color: "#6b7280" }}> 
+     Deadline: {details["Registration Deadline"] || "TBD"} 
+   </Typography>,
+    <Typography key="datetime" variant="caption" sx={{ color: "#6b7280" }}>
+     {details["Start Date"] || "TBD"} - {details["End Date"] || "TBD"} 
+    </Typography>,
+    <Typography key="location" variant="caption" sx={{ color: "#6b7280" }}>
+     {details["Location"] || "TBD"}
+    </Typography>,
+    <Typography key="vendors" variant="caption" sx={{ color: "#6b7280" }}>
+      {details["Vendor Count"] ? `${details["Vendor Count"]} vendors` : ""}
+    </Typography>
+  ];
+
+  const detailsContent = (
+    <Box>
+      {/* Description */}
+      {description && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+            Description
+          </Typography>
+          <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
+            {description}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Event Details */}
+      <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+          Event Details
+        </Typography>
+        {Object.entries(details)
+          .map(([key, value]) => (
+            <Box key={key} sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+              <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                {key}:
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                {value}
+              </Typography>
+            </Box>
+          ))}
+      </Box>
+    </Box>
+  );
+
   return (
-    <AccentContainer title="Bazaar" accent="primary">
-      <EventBox
-        sections={[
-          <DescriptionAccordion
-            key="desc"
-            name={name}
-            description={description}
-            accent="primary"
-          />,
-          <DetailsAccordion key="details" details={details} accent="primary"/>,
-          <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            {/* <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
-              Register
-            </CustomButton> */}
-          </Box>
-        ]}
-      />
-    </AccentContainer>
+    <ActionCard
+      title={name}
+      tags={[
+        { 
+          label: "Bazaar", 
+          sx: { bgcolor: theme.palette.tertiary.light, color: theme.palette.tertiary.contrastText, fontWeight: 600 },
+          size: "small" 
+        }
+      ]}
+      metaNodes={metaNodes}
+      rightSlot={
+        <CustomButton size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999 }}>
+          Apply
+        </CustomButton>
+      }
+      expanded={expanded}
+      onExpandChange={setExpanded}
+      details={detailsContent}
+      borderColor={theme.palette.tertiary.main}
+      elevation="soft"
+    />
   );
 };
 
 export default BazarView;
-
-

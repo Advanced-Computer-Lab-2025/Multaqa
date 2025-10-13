@@ -1,3 +1,6 @@
+//Notes:
+//
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -80,7 +83,7 @@ const mockEvents: Event[] = [
     agenda: 'Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session',
     details: {
       'Start Date': '2024-03-20',
-      'End Date': '2024-03-20',
+      'End Date': '2024-04-20',
       'Start Time': '10:00',
       'End Time': '16:00',
       'Location': 'GUC Cairo',
@@ -99,11 +102,12 @@ const mockEvents: Event[] = [
     name: 'Spring Arts & Crafts Bazaar',
     description: 'A vibrant marketplace featuring local artisans and their handmade creations.',
     details: {
-      'Date': '2024-03-25',
+      'Registration Deadline': '2024-03-15',
+      'Start Date': '2024-03-25',
+      'End Date': '2024-03-25',
       'Time': '10:00 - 20:00',
       'Location': 'GUC Main Hall',
       'Vendor Count': '25',
-      'Entry Fee': 'Free'
     }
   },
   {
@@ -115,10 +119,9 @@ const mockEvents: Event[] = [
       '2': { id: '2', name: 'Sarah Johnson', email: 'sarah.johnson@microsoft.com' }
     },
     details: {
-      'Duration': '2 days',
+      'Duration': '2 weeks',
       'Location': 'GUC Career Center',
-      'Booth Size': 'Large (20x10 ft)',
-      'Setup Time': '09:00',
+      'Booth Size': '2x2',
       'Description': 'Explore career opportunities at Microsoft and meet with recruiters.'
     }
   },
@@ -128,13 +131,14 @@ const mockEvents: Event[] = [
     name: 'Alexandria Cultural Tour',
     description: 'Explore the rich history and culture of Alexandria with guided tours.',
     details: {
-      'Date': '2024-04-01',
+      'Registration Deadline': '2024-03-15',
+      'Start Date': '2024-04-01',
+      'End Date': '2024-04-01',
+      'Location': "Alexandria, Egypt",
       'Departure Time': '08:00',
       'Return Time': '18:00',
-      'Transportation': 'Air-conditioned bus',
-      'Lunch': 'Included',
       'Cost': 'EGP 200',
-      'Capacity': '50'
+      'Capacity': '50',
     }
   },
   {
@@ -150,7 +154,7 @@ const mockEvents: Event[] = [
       'End Time': '17:30',
       'Required Budget': '$35,000',
       'Source of Funding': 'External',
-      'Extra Required Resources': 'Sustainable catering, eco-friendly materials',
+      'Extra Required Resources': 'Sustainable catering, eco-friendly materials,  eco-friendly materials',
       'Link': 'https://sustainabilityconf2024.com'
     }
   }
@@ -280,9 +284,14 @@ const BrowseEvents: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4, overflow:"auto" }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
-        Browse Events
+        <Box sx={{ mb: 2 }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
+          Browse Events
       </Typography>
+        <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
+          Take a look at all the opportunities we have to offer and find yout perfect match(es)
+        </Typography>
+      </Box>
 
       {/* Search and Filter Row */}
       <Box sx={{ 
@@ -294,26 +303,6 @@ const BrowseEvents: React.FC = () => {
       }}>
         <Box sx={{ flexGrow: 0.3, minWidth: '300px' }}>
           <CustomSearchBar width="50vw" type="outwards" />
-          {/* <TextField
-            fullWidth
-            variant="outlined"
-            size="small"
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="primary" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-              }
-            }}
-          /> */}
         </Box>
         <FilterPanel
           filterGroups={filterGroups}

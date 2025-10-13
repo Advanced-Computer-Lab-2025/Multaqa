@@ -1,27 +1,143 @@
 "use client";
-
-import React from "react";
-import { Box } from "@mui/material";
-import { AccentContainer, EventBox } from ".";
-import CustomButton from "../shared/Buttons/CustomButton";
+import React, { useState } from "react";
+import { Box, Typography, Avatar } from "@mui/material";
+import ActionCard from "../shared/cards/ActionCard";
 import { BoothViewProps } from "./types";
-import { BoothData } from "./helpers/Event";
+import theme from "@/themes/lightTheme";
+import CustomButton from "../shared/Buttons/CustomButton";
 
 const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
+  const [expanded, setExpanded] = useState(false);
+  // Helper function to extract initials from name
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name[0].toUpperCase();
+  };
+
+  // Helper function to get a color based on name
+  const getAvatarColor = (name: string) => {
+    const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
+    const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  };
+
+  const metaNodes = [
+    <Typography key="duration" variant="body2" sx={{ color: "#6b7280" }}>
+    {details["Duration"] || "TBD"}
+    </Typography>,
+    <Typography key="location" variant="caption" sx={{ color: "#6b7280" }}>
+   {details["Location"] || "TBD"}
+    </Typography>,
+    <Typography key="booth-size" variant="caption" sx={{ color: "#6b7280" }}>
+      Size: {details["Booth Size"] || "TBD"}
+    </Typography>
+  ];
+
+  const detailsContent = (
+    <Box>
+      {/* Description */}
+      {details["Description"] && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
+            Description
+          </Typography>
+          <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
+            {details["Description"]}
+          </Typography>
+        </Box>
+      )}
+
+      {/* People Section */}
+      {people && Object.keys(people).length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
+            Representatives
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {Object.entries(people).map(([key, person]) => (
+              <Box
+                key={person.id}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  p: 1,
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 1,
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    backgroundColor: getAvatarColor(person.name),
+                    fontSize: "12px",
+                    fontWeight: 600,
+                  }}
+                >
+                  {getInitials(person.name)}
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="caption" sx={{ fontSize: "12px", color: "text.primary", fontWeight: 500 }}>
+                    {person.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontSize: "11px", color: "text.secondary", display: "block" }}>
+                    {person.email}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      {/* Other Details */}
+      <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
+          Booth Details
+        </Typography>
+        {Object.entries(details)
+          .filter(([key]) => !["Description", "people"].includes(key))
+          .map(([key, value]) => (
+            <Box key={key} sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+              <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                {key}:
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                {value}
+              </Typography>
+            </Box>
+          ))}
+      </Box>
+    </Box>
+  );
+
   return (
-    <AccentContainer title="Booth" accent="primary">
-      <EventBox
-        sections={[
-          <BoothData company={company } people={people} details={details}/>
-          ,
-          <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            {/* <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
-              Register
-            </CustomButton> */}
-          </Box>,
-        ]}
-      />
-    </AccentContainer>
+    <ActionCard
+      title={company}
+      tags={[
+        { 
+          label: "Booth", 
+          sx: { bgcolor: theme.palette.warning.light, color: theme.palette.warning.contrastText, fontWeight: 600 },
+          size: "small" 
+        }
+      ]}
+      metaNodes={metaNodes}
+      rightSlot={
+        <CustomButton size="small" variant="contained" color="warning" sx={{ borderRadius: 999 }}>
+          Apply
+        </CustomButton>
+      } 
+       // only in case of vendor
+      expanded={expanded}
+      onExpandChange={setExpanded}
+      details={detailsContent}
+      borderColor={theme.palette.warning.main}
+      elevation="soft"
+    />
   );
 };
 

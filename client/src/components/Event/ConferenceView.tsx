@@ -1,41 +1,108 @@
 "use client";
 
-import React from "react";
-import { Box } from "@mui/material";
-import { AccentContainer, EventBox, DescriptionAccordion, DetailsAccordion } from ".";
+import React, { useState } from "react";
+import { Box, Typography, Chip } from "@mui/material";
+import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { ConferenceViewProps } from "./types";
-import { ConferenceData } from "./helpers/Event";
-
-
+import theme from "@/themes/lightTheme";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, description, agenda }) => {
+
+  const [expanded, setExpanded] = useState(false);
+  // Format key details for display
+  const formatDateRange = () => {
+    const startDate = details["Start Date"];
+    const endDate = details["End Date"];
+    const startTime = details["Start Time"];
+    const endTime = details["End Time"];
+    
+    if (startDate && endDate) {
+      const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+      const timeRange = startTime && endTime ? `${startTime} - ${endTime}` : "";
+      return timeRange ? `${dateRange}, ${timeRange}` : dateRange;
+    }
+    return "";
+  };
+
+  const metaNodes = [
+    <Typography key="date" variant="body2" sx={{ color: "#6b7280" }}>
+      {formatDateRange()}
+    </Typography>,
+    <Typography key="budget" variant="caption" sx={{ color: "#6b7280" }}>
+      Budget: {details["Required Budget"] || "TBD"}
+    </Typography>
+  ];
+
+  const detailsContent = (
+    <Box>
+      {/* Description */}
+      {description && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
+            Description
+          </Typography>
+          <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
+            {description}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Agenda */}
+      {agenda && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
+            Full Agenda
+          </Typography>
+          <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5, whiteSpace: "pre-line" }}>
+            {agenda}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Other Details */}
+      <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
+          Additional Details
+        </Typography>
+        {Object.entries(details)
+          .filter(([key]) => !["Start Date", "End Date", "Start Time", "End Time"].includes(key))
+          .map(([key, value]) => (
+            <Box key={key} sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+              <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                {key}:
+              </Typography>
+              <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                {value}
+              </Typography>
+            </Box>
+          ))}
+      </Box>
+    </Box>
+  );
+
   return (
-    <AccentContainer title="Conference" accent="primary">
-      <EventBox
-        sections={[
-          <DescriptionAccordion
-            key="desc"
-            name={name}
-            description={description}
-            accent="primary"
-          />,
-          <DescriptionAccordion
-          key="desc"
-          name={"Full Agenda"}
-          description={agenda}
-          accent="primary"
-        />,
-        <ConferenceData details={details}/>
-          ,
-          <Box key="cta" sx={{ display:"flex", justifyContent:"center", alignItems:"center"}}>
-            {/* <CustomButton fullWidth size="small" variant="contained" color="primary" sx={{ borderRadius: 999}}>
-              Register
-            </CustomButton> */}
-          </Box>,
-        ]}
-      />
-    </AccentContainer>
+    <ActionCard
+      title={name}
+      tags={[
+        { 
+          label: "Conference", 
+          sx: { bgcolor: theme.palette.primary.light, color: theme.palette.primary.contrastText, fontWeight: 600 },
+          size: "small" 
+        }
+      ]}
+      metaNodes={metaNodes}
+      rightSlot={
+        <CustomButton size="small" variant="contained" color="primary" sx={{ borderRadius: 999 }}>
+          Register
+        </CustomButton>
+      }
+      expanded={expanded}
+      onExpandChange={setExpanded}
+      details={detailsContent}
+      borderColor={theme.palette.primary.main}
+      elevation="soft"
+    />
   );
 };
 
