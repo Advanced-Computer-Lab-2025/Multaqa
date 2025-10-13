@@ -1,4 +1,5 @@
 import { mapEntityToRole, UserRole } from "@/utils";
+import { useParams } from "next/navigation";
 
 /**
  * Custom hook to get the current user's role from the URL
