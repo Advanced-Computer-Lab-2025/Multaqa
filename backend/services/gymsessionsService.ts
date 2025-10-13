@@ -52,7 +52,7 @@ export class GymSessionsService {
 
     return this.gymSessionRepo.findAll(filter, {
       select:
-        " sessionType trainer event_start_date event_start_time event_end_time",
+        " sessionType eventName trainer eventStartDate eventStartTime eventEndTime location description"
     });
   }
 }
