@@ -3,6 +3,7 @@ import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
+import { populateMap } from "../utils/userPopulationMap";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -20,7 +21,7 @@ export class UserService {
       }
     );
 
-    const formattedUsers = users.map(user => {
+    const formattedUsers = users.map((user) => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword as Omit<IUser, "password">;
     });
@@ -28,12 +29,31 @@ export class UserService {
     return formattedUsers;
   }
 
+  getPopulateOptionsByRole(role: string): string[] {
+    const basePopulate = ["companyName"];
+    if (role === "admin") {
+      return [...basePopulate, "adminField1", "adminField2"];
+    }
+    return basePopulate;
+  }
+
   async getUserById(id: string): Promise<Omit<IUser, "password">> {
     const user = await this.userRepo.findById(id);
     if (!user) {
       throw createError(404, "User not found");
     }
-    const { password, ...userWithoutPassword } = user;
+
+    const populateFields = populateMap[user.role] || [];
+
+    // Fetch again with populate
+    const populatedUser = await this.userRepo.findById(id, {
+      populate: populateFields,
+    });
+
+    const plainUser = populatedUser?.toObject();
+
+    // Remove password
+    const { password, ...userWithoutPassword } = plainUser!;
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
