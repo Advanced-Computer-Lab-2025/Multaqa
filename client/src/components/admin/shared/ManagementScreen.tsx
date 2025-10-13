@@ -43,7 +43,7 @@ export default function ManagementScreen<T>({
           sx={{
             fontFamily: "var(--font-jost), system-ui, sans-serif",
             fontWeight: 700,
-            color: "text.primary",
+            color: theme.palette.tertiary.dark,
             mb: 1,
           }}
         >

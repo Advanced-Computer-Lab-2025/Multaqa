@@ -4,6 +4,7 @@ import React from "react";
 import CourtBoard from "@/components/CourtBooking/CourtBoard";
 import { CourtSlot, CourtType } from "@/components/CourtBooking/types";
 import { Box, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 const courts: CourtType[] = [
   { id: "basketball", name: "Basketball", colorKey: "primary" },
@@ -98,6 +99,8 @@ const sampleSlots: CourtSlot[] = [
 ];
 
 export default function CourtsBookingContent() {
+  const theme = useTheme();
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "transparent" }}>
       <Box sx={{ mb: 4 }}>
@@ -106,7 +109,7 @@ export default function CourtsBookingContent() {
           sx={{
             fontFamily: "var(--font-jost), system-ui, sans-serif",
             fontWeight: 700,
-            color: "text.primary",
+            color: theme.palette.tertiary.dark,
             mb: 1,
           }}
         >

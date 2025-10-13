@@ -280,7 +280,6 @@ export default function ManageEventOfficeAccount() {
                 fieldType="text"
                 placeholder="Enter full name"
                 name="fullName"
-                disableIcon
                 value={formik.values.fullName}
                 onChange={(event) => {
                   // Let CustomTextField handle capitalization first, then update Formik
