@@ -1,4 +1,4 @@
-import { mapEntityToRole, UserRole } from "@/utils";
+import { mapEntityToRole } from "@/utils";
 import { useParams } from "next/navigation";
 
 /**
