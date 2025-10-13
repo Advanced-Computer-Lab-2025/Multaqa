@@ -1,4 +1,6 @@
+import { UserRole } from "../constants/user.constants";
 import { getAvailableCourtsResponse } from "../interfaces/responses/courtResponses.interface";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { CourtService } from "../services/courtService";
 import { Router, Request, Response } from "express";
 import createError from "http-errors";
@@ -29,5 +31,5 @@ export async function getAvailableTimeSlots(req: Request, res: Response<getAvail
 }
 
 const router = Router();
-router.get("/:courtId/available-slots", getAvailableTimeSlots);
+router.get("/:courtId/available-slots", authorizeRoles({ userRoles: [UserRole.STUDENT] }), getAvailableTimeSlots);
 export default router;
