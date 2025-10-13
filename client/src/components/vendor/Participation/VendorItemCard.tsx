@@ -31,7 +31,7 @@ export default function VendorItemCard({ item, rightSlot, expanded = false, deta
       title={item.title}
       type="vendor"
       tags={[{ label: t === "BAZAAR" ? "Bazaar" : "Platform Booth", sx: { bgcolor: color.bg, color: color.fg, fontWeight: 600 } }]}
-      subtitleNode={<Typography variant="body2" sx={{ color: "#6299d0" }}>{item.location}</Typography>}
+      subtitleNode={<Typography variant="body2" sx={{ color: "#575d69" }}>{item.location}</Typography>}
       metaNodes={[
         <Typography key="range" variant="body2" sx={{ color: "#6b7280" }}>{dateRange}</Typography>,
         "status" in item ? (

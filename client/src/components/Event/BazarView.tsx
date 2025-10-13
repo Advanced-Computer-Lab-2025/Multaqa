@@ -7,7 +7,7 @@ import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
 
-const BazarView: React.FC<BazarViewProps> = ({ details, name, description }) => {
+const BazarView: React.FC<BazarViewProps> = ({ details, name, description, user, registered}) => {
   const [expanded, setExpanded] = useState(false);
 
   const metaNodes = [
@@ -30,7 +30,7 @@ const BazarView: React.FC<BazarViewProps> = ({ details, name, description }) => 
       {/* Description */}
       {description && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.secondary.dark, mb: 1 }}>
             Description
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
@@ -41,7 +41,7 @@ const BazarView: React.FC<BazarViewProps> = ({ details, name, description }) => 
 
       {/* Event Details */}
       <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.secondary.dark, mb: 1 }}>
           Event Details
         </Typography>
         {Object.entries(details)
@@ -65,20 +65,20 @@ const BazarView: React.FC<BazarViewProps> = ({ details, name, description }) => 
       tags={[
         { 
           label: "Bazaar", 
-          sx: { bgcolor: theme.palette.tertiary.light, color: theme.palette.tertiary.contrastText, fontWeight: 600 },
+          sx: { bgcolor: theme.palette.secondary.light, color: theme.palette.secondary.contrastText, fontWeight: 600 },
           size: "small" 
         }
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        <CustomButton size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999 }}>
+        !registered && (<CustomButton size="small" variant="contained" color="secondary" sx={{ borderRadius: 999 }}>
           Apply
-        </CustomButton>
+        </CustomButton>)
       }
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}
-      borderColor={theme.palette.tertiary.main}
+      borderColor={theme.palette.secondary.main}
       elevation="soft"
     />
   );

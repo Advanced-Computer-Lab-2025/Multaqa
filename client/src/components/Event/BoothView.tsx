@@ -6,7 +6,7 @@ import { BoothViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
 
-const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
+const BoothView: React.FC<BoothViewProps> = ({ company, people, details, user , registered}) => {
   const [expanded, setExpanded] = useState(false);
   // Helper function to extract initials from name
   const getInitials = (name: string) => {
@@ -41,7 +41,7 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
       {/* Description */}
       {details["Description"] && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
             Description
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
@@ -53,7 +53,7 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
       {/* People Section */}
       {people && Object.keys(people).length > 0 && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
             Representatives
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -96,7 +96,7 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
 
       {/* Other Details */}
       <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
           Booth Details
         </Typography>
         {Object.entries(details)
@@ -121,21 +121,21 @@ const BoothView: React.FC<BoothViewProps> = ({ company, people, details }) => {
       tags={[
         { 
           label: "Booth", 
-          sx: { bgcolor: theme.palette.warning.light, color: theme.palette.warning.contrastText, fontWeight: 600 },
+          sx: { bgcolor:"#b2cee2", color: "#1E1E1E", fontWeight: 600 },
           size: "small" 
         }
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        <CustomButton size="small" variant="contained" color="warning" sx={{ borderRadius: 999 }}>
+        !registered && ( <CustomButton size="small" variant="contained" color="primary" sx={{ borderRadius: 999 }}>
           Apply
-        </CustomButton>
+        </CustomButton>)
       } 
        // only in case of vendor
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}
-      borderColor={theme.palette.warning.main}
+      borderColor={theme.palette.primary.main}
       elevation="soft"
     />
   );

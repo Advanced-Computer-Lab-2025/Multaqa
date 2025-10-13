@@ -7,7 +7,7 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { ConferenceViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 
-const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, description, agenda }) => {
+const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, description, agenda, user, registered }) => {
 
   const [expanded, setExpanded] = useState(false);
   // Format key details for display
@@ -39,7 +39,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
       {/* Description */}
       {description && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
             Description
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
@@ -51,7 +51,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
       {/* Agenda */}
       {agenda && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
             Full Agenda
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5, whiteSpace: "pre-line" }}>
@@ -62,7 +62,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
 
       {/* Other Details */}
       <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.primary.dark, mb: 1 }}>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.warning.dark, mb: 1 }}>
           Additional Details
         </Typography>
         {Object.entries(details)
@@ -87,20 +87,21 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({ details, name, descript
       tags={[
         { 
           label: "Conference", 
-          sx: { bgcolor: theme.palette.primary.light, color: theme.palette.primary.contrastText, fontWeight: 600 },
+          sx: { bgcolor: theme.palette.warning.light, color: theme.palette.warning.contrastText, fontWeight: 600 },
           size: "small" 
         }
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        <CustomButton size="small" variant="contained" color="primary" sx={{ borderRadius: 999 }}>
+        !registered && (<CustomButton size="small" variant="contained" color="warning" sx={{ borderRadius: 999 }}>
           Register
         </CustomButton>
+        )
       }
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}
-      borderColor={theme.palette.primary.main}
+      borderColor={theme.palette.warning.main}
       elevation="soft"
     />
   );

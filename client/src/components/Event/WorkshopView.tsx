@@ -6,7 +6,7 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 
-const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description, agenda }) => {
+const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description, agenda, user, registered }) => {
   const [expanded, setExpanded] = useState(false);
   // Helper function to extract initials from professor name
   const getInitials = (name: string) => {
@@ -71,7 +71,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       {/* Description */}
       {description && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.secondary.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
             Description
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
@@ -83,7 +83,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       {/* Agenda */}
       {agenda && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.secondary.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
             Full Agenda
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5, whiteSpace: "pre-line" }}>
@@ -95,7 +95,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       {/* Professors */}
       {professors.length > 0 && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.secondary.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
             Professors Participating
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -133,7 +133,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
 
       {/* Other Details */}
       <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.secondary.dark, mb: 1 }}>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
           Additional Details
         </Typography>
         {Object.entries(details)
@@ -158,20 +158,21 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       tags={[
         { 
           label: "Workshop", 
-          sx: { bgcolor: theme.palette.secondary.main, color: theme.palette.secondary.contrastText, fontWeight: 600 },
+          sx: { bgcolor: theme.palette.tertiary.main, color: theme.palette.tertiary.contrastText, fontWeight: 600 },
           size: "small" 
         }
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        <CustomButton size="small" variant="contained" color="secondary" sx={{ borderRadius: 999 }}>
+       !registered && ( <CustomButton size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999 }}>
               Register
             </CustomButton>
+       )
       }
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}
-      borderColor={theme.palette.secondary.main}
+      borderColor={theme.palette.tertiary.main}
       elevation="soft"
     />
   );

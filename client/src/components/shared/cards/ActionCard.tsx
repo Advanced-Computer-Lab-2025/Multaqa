@@ -49,9 +49,8 @@ export default function ActionCard({
   const getConditionalStyles = (
     type: string | undefined, // Type can be a string or undefined/null
     isExpanded: boolean
-)=> { // 2. Explicitly define the return type as object
-
-    // These are the styles you want to apply ONLY if type is "events"
+)=> { 
+// These are the styles you want to apply ONLY if type is "events"
     const eventStyles = {
         height: isExpanded ? "100%" : "auto",
         minHeight: isExpanded ? 280 : 240,

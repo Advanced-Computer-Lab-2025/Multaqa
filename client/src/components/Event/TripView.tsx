@@ -7,7 +7,7 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 
-const TripView: React.FC<BazarViewProps> = ({ details, name, description }) => {
+const TripView: React.FC<BazarViewProps> = ({ details, name, description, user, registered }) => {
   const [expanded, setExpanded] = useState(false);
   // Format key details for display
   const formatDateTime = () => {
@@ -43,7 +43,7 @@ const TripView: React.FC<BazarViewProps> = ({ details, name, description }) => {
       {/* Description */}
       {description && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.error.dark, mb: 1 }}>
+          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.info.dark, mb: 1 }}>
             Description
           </Typography>
           <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
@@ -54,7 +54,7 @@ const TripView: React.FC<BazarViewProps> = ({ details, name, description }) => {
 
       {/* Trip Details */}
       <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.error.dark, mb: 1 }}>
+        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.info.dark, mb: 1 }}>
           Trip Details
         </Typography>
         {Object.entries(details)
@@ -78,20 +78,20 @@ const TripView: React.FC<BazarViewProps> = ({ details, name, description }) => {
       tags={[
         { 
           label: "Trip", 
-          sx: { bgcolor: theme.palette.error.light, color: theme.palette.error.contrastText, fontWeight: 600 },
+          sx: { bgcolor: theme.palette.info.light, color: theme.palette.info.contrastText, fontWeight: 600 },
           size: "small" 
         }
       ]}
       metaNodes={metaNodes}
       rightSlot={
-        <CustomButton size="small" variant="contained" color="error" sx={{ borderRadius: 999}}>
+        <CustomButton size="small" variant="contained" color="info" sx={{ borderRadius: 999}}>
           Register
         </CustomButton>
       }
       expanded={expanded}
       onExpandChange={setExpanded}
       details={detailsContent}
-      borderColor={theme.palette.error.main}
+      borderColor={theme.palette.info.main}
       elevation="soft"
     />
   );

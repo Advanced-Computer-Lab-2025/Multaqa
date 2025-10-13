@@ -95,16 +95,19 @@ export default function EntityCatchAllPage() {
 
      if ( tab === "events" || tab === "events-management") {
       if (section === "browse-events") {
-        return <BrowseEvents/>;
+        return <BrowseEvents registered={false}/>;
       }
       if (section === "all-events") {
-        return <BrowseEvents/>;
+        return <BrowseEvents registered={false}/>;
       }
     }
     if ( tab === "workshop-requests") {
       if (section === "all-requests") {
         return <WorkshopReviewUI/>;
       }
+    }
+    if ( tab === "events" && section === "my-registered" ) {
+      return <BrowseEvents registered={true}/>;
     }
 
 

@@ -17,6 +17,9 @@ import { ConferenceViewProps, WorkshopViewProps, BazarViewProps, BoothViewProps 
 import CustomSearchBar from './shared/Searchbar/CustomSearchBar';
 import theme from '@/themes/lightTheme';
 
+interface BrowseEventsProps {
+  registered: boolean;
+}
 // Define the event type enum
 export enum EventType {
   CONFERENCE = 'conference',
@@ -176,7 +179,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC = () => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
 
@@ -228,7 +231,7 @@ const BrowseEvents: React.FC = () => {
   };
 
   // Render event component based on type
-  const renderEventComponent = (event: Event) => {
+  const renderEventComponent = (event: Event, registered:boolean) => {
     switch (event.type) {
       case EventType.CONFERENCE:
         return (
@@ -238,6 +241,8 @@ const BrowseEvents: React.FC = () => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
+            user={event.type}
+            registered={registered}
           />
         );
       case EventType.WORKSHOP:
@@ -248,6 +253,8 @@ const BrowseEvents: React.FC = () => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
+            user={event.type}
+            registered={registered}
           />
         );
       case EventType.BAZAAR:
@@ -257,6 +264,8 @@ const BrowseEvents: React.FC = () => {
             details={event.details}
             name={event.name}
             description={event.description}
+            user={event.type}
+            registered={registered}
           />
         );
       case EventType.BOOTH:
@@ -266,6 +275,8 @@ const BrowseEvents: React.FC = () => {
             company={event.company}
             people={event.people}
             details={event.details}
+            user={event.type}
+            registered={registered}
           />
         );
       case EventType.TRIP:
@@ -275,6 +286,8 @@ const BrowseEvents: React.FC = () => {
             details={event.details}
             name={event.name}
             description={event.description}
+            user={event.type}
+            registered={registered}
           />
         );
       default:
@@ -286,10 +299,10 @@ const BrowseEvents: React.FC = () => {
     <Container maxWidth="lg" sx={{ py: 4, overflow:"auto" }}>
         <Box sx={{ mb: 2 }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
-          Browse Events
+         {registered?" My Registered Events": "Browse Events"}
       </Typography>
         <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
-          Take a look at all the opportunities we have to offer and find yout perfect match(es)
+        {registered?"Keep track of which events you have registered for": "Take a look at all the opportunities we have to offer and find yout perfect match(es)"}
         </Typography>
       </Box>
 
@@ -302,7 +315,7 @@ const BrowseEvents: React.FC = () => {
         flexWrap: 'wrap'
       }}>
         <Box sx={{ flexGrow: 0.3, minWidth: '300px' }}>
-          <CustomSearchBar width="50vw" type="outwards" />
+          <CustomSearchBar width="60vw" type="outwards" />
         </Box>
         <FilterPanel
           filterGroups={filterGroups}
@@ -324,7 +337,7 @@ const BrowseEvents: React.FC = () => {
       }}>
         {filteredEvents.map((event) => (
           <Box key={event.id}>
-            {renderEventComponent(event)}
+            {renderEventComponent(event, registered)}
           </Box>
         ))}
       </Box>
