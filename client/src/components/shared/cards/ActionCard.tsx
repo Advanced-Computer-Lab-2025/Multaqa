@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react"; // Removed useRef, useEffect
 import {
   Box,
   Stack,
   Typography,
   Chip,
+  // Collapse is kept for the potential small detail section in the collapsed state
   Collapse,
   IconButton,
   Portal,
@@ -19,11 +20,8 @@ import { ActionCardProps } from "./types";
  * ActionCard
  * A flexible, neumorphic-leaning card for listing items with a title, tags, optional metadata, and expandable details.
  *
- * New Features:
- * - Fixed height with scrollable content area
- * - Expand/collapse button at the bottom
- * - Smooth animations for expand/collapse
- * - Word wrapping for title and content (no horizontal overflow)
+ * NEW APPROACH: The expanded view is now a standard, centered modal (position: fixed)
+ * This removes fragile positioning logic and resolves horizontal misalignment issues in grid layouts.
  */
 export default function ActionCard({
   title,
@@ -47,35 +45,12 @@ export default function ActionCard({
   onExpandChange,
 }: ActionCardProps) {
   const [internalExpanded, setInternalExpanded] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [cardPosition, setCardPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-    height: 0,
-  });
+  
+  // NOTE: cardRef and cardPosition state have been REMOVED as they are no longer needed
+  // The useEffect hook for calculating position has also been REMOVED
 
   const isExpanded =
     controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
-
-  // Calculate card position when expanded
-  useEffect(() => {
-    if (isExpanded && cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-
-      // Use the same width as defined in getConditionalStyles for consistency
-      const cardWidth = type === "events" ? 300 : rect.width;
-
-      setCardPosition({
-        top: rect.top + scrollTop,
-        left: rect.left,
-        width: cardWidth,
-        height: rect.height,
-      });
-    }
-  }, [isExpanded, type]);
 
   const handleExpandClick = () => {
     const newExpanded = !isExpanded;
@@ -98,8 +73,8 @@ export default function ActionCard({
     const eventStyles = {
       height: "auto",
       minHeight: 280,
-      maxHeight: 280, // Fixed height to prevent layout shift
-      width: 300, // Fixed width to match expanded card
+      maxHeight: 280, // Fixed height
+      width: 300, 
       maxWidth: 300,
       minWidth: 300,
     };
@@ -126,7 +101,7 @@ export default function ActionCard({
       ? "-8px -8px 16px 0 #FAFBFF, 8px 8px 16px 0 rgba(22, 27, 29, 0.18)"
       : "-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.12)";
 
-  // Render the card content
+  // Render the card content (Collapsed View)
   const renderCardContent = () => (
     <Box
       sx={{
@@ -247,7 +222,9 @@ export default function ActionCard({
         </Box>
         {children ? <Box sx={{ mt: 1.5 }}>{children}</Box> : null}
 
-        {/* Expanded Details - Only show in collapsed state */}
+        {/* This Collapse logic for the collapsed view is questionable, 
+            but kept for now as it was in the original code. 
+            It typically only shows content in the expanded modal state. */}
         <Collapse in={isExpanded && !isExpanded} timeout={300} unmountOnExit>
           <Box
             sx={{
@@ -306,12 +283,13 @@ export default function ActionCard({
     </Box>
   );
 
+  // NOTE: The ref is also removed from the return statement
   return (
     <>
       {/* Regular card - always rendered */}
-      <Box ref={cardRef}>{renderCardContent()}</Box>
+      <Box>{renderCardContent()}</Box>
 
-      {/* Overlay and expanded card - only when expanded */}
+      {/* Overlay and expanded card - only when expanded (Modal View) */}
       {isExpanded && (
         <Portal>
           {/* Semi-transparent overlay - behind the card */}
@@ -327,25 +305,31 @@ export default function ActionCard({
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
                 zIndex: 1300,
                 cursor: "pointer",
-                overflowY: "auto", // Allow scrolling within the overlay
-                minHeight: "100vh", // Ensure overlay covers full viewport height
+                overflowY: "auto",
+                minHeight: "100vh",
               }}
             />
           </Fade>
 
-          {/* Expanded card positioned absolutely - above the overlay */}
+          {/* Expanded card positioned FIXED and CENTERED - above the overlay */}
           <Fade in={isExpanded} timeout={400}>
             <Box
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the card
               sx={{
-                position: "absolute",
-                top: cardPosition.top,
-                left: cardPosition.left,
-                width: cardPosition.width,
+                // *** NEW CENTERING CSS ***
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)", // Center the card relative to viewport
+                // *** END NEW CENTERING CSS ***
+                
                 zIndex: 1301,
-                maxHeight: "80vh",
+                maxHeight: "90vh", // Use 90vh to leave margin
+                // Set a sensible, fixed width for the modal
+                width: "90%",
+                maxWidth: 500, 
                 overflow: "hidden",
-                transform: "translateZ(0)", // Force hardware acceleration for better positioning
+                boxSizing: 'border-box', // Ensure padding/border is calculated correctly
               }}
             >
               <Box
@@ -361,11 +345,9 @@ export default function ActionCard({
                   overflowY: "auto", // Allow vertical scrolling within the expanded card
                   padding: "4px",
                   height: "auto",
-                  maxHeight: "80vh",
+                  maxHeight: "90vh",
                   minHeight: 400,
-                  width: "100%",
-                  maxWidth: type === "events" ? 300 : "100%", // Ensure same max width as collapsed
-                  minWidth: type === "events" ? 300 : "auto", // Ensure same min width as collapsed
+                  width: "100%", // Take up full width of the centered container
                 }}
               >
                 {/* Right Icon - Top Right with Flex */}
@@ -436,7 +418,8 @@ export default function ActionCard({
                             fontWeight: 700,
                             color: "#1E1E1E",
                             overflow: "hidden",
-                            maxWidth: type == "events" ? "250px" : "90%",
+                            // No need to constrain width for the modal
+                            // maxWidth: type == "events" ? "250px" : "90%",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
                           }}
@@ -471,7 +454,7 @@ export default function ActionCard({
                   </Box>
                   {children ? <Box sx={{ mt: 1.5 }}>{children}</Box> : null}
 
-                  {/* Expanded Details - Always visible in overlay */}
+                  {/* Expanded Details - Always visible in modal/overlay */}
                   {details && (
                     <Box
                       sx={{
@@ -490,7 +473,7 @@ export default function ActionCard({
                   )}
                 </Box>
 
-                {/* Expand/Collapse Button - Fixed at Bottom */}
+                {/* Collapse Button - Fixed at Bottom */}
                 {details && (
                   <Box
                     sx={{
@@ -503,13 +486,13 @@ export default function ActionCard({
                       background: "rgba(255,255,255,0.8)",
                     }}
                   >
-                    {/* Expand/Collapse Icon Button */}
+                    {/* Collapse Icon Button */}
                     <IconButton
                       onClick={handleExpandClick}
                       size="small"
                       sx={{
                         transition: "all 0.3s ease",
-                        transform: "rotate(180deg)", // Always rotated in overlay
+                        transform: "rotate(180deg)", // Always rotated in modal
                         color: borderColor || "rgba(0,0,0,0.5)",
                         "&:hover": {
                           background: borderColor
