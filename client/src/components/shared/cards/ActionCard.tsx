@@ -10,6 +10,8 @@ import {
   IconButton,
   Portal, // Re-introduced Portal for out-of-flow rendering
   Fade,
+  SxProps,
+  Theme,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import type { ChipProps } from "@mui/material";
@@ -59,7 +61,7 @@ export default function ActionCard({
   useEffect(() => {
     if (isExpanded && cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
-      
+
       const scrollTop =
         window.pageYOffset || document.documentElement.scrollTop;
       const scrollLeft =
@@ -97,29 +99,37 @@ export default function ActionCard({
   // Styles are now only for the COLLAPSED state
   const getConditionalStyles = (type: string | undefined) => {
     const baseStyles = {
-        height: "auto" as const,
-        minHeight: 280, // minHeight property is only for the collapsed card
-        maxHeight: 280,
-        transition: "all 0.3s ease-in-out",
-        position: "relative" as const,
-        zIndex: "auto" as const,
-        transform: "scale(1)",
+      height: "auto" as const,
+      minHeight: 280, // minHeight property is only for the collapsed card
+      maxHeight: 280,
+      transition: "all 0.3s ease-in-out",
+      position: "relative" as const,
+      zIndex: "auto" as const,
+      transform: "scale(1)",
     };
 
     const eventStyles = {
-        ...baseStyles,
-        width: 300,
-        maxWidth: 300,
-        minWidth: 300,
-        "&:hover": { transform: "scale(1.02)", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 5 },
+      ...baseStyles,
+      width: 300,
+      maxWidth: 300,
+      minWidth: 300,
+      "&:hover": {
+        transform: "scale(1.02)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        zIndex: 5,
+      },
     };
 
     const vendorStyles = {
-        ...baseStyles,
-        minHeight: 150,
-        maxHeight: 260,
-        width: "100%",
-        "&:hover": { transform: "scale(1.02)", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 5 },
+      ...baseStyles,
+      minHeight: 150,
+      maxHeight: 260,
+      width: "100%",
+      "&:hover": {
+        transform: "scale(1.02)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        zIndex: 5,
+      },
     };
 
     if (type && type.trim() === "events") {
@@ -129,7 +139,7 @@ export default function ActionCard({
     }
     return baseStyles;
   };
-  
+
   const currentType = getConditionalStyles(type);
   const boxShadow =
     elevation === "none"
@@ -138,14 +148,13 @@ export default function ActionCard({
       ? "-8px -8px 16px 0 #FAFBFF, 8px 8px 16px 0 rgba(22, 27, 29, 0.18)"
       : "-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.12)";
 
-
   // Render the card content (Used for BOTH collapsed view and the expanded modal content)
   const renderCardContent = ({
     isModal = false,
     extraStyles = {},
   }: {
     isModal?: boolean;
-    extraStyles?: React.CSSProperties;
+    extraStyles?: SxProps<Theme>;
   }) => (
     <Box
       sx={{
@@ -153,7 +162,7 @@ export default function ActionCard({
         flexDirection: "column",
         borderRadius: 2,
         // Modal uses a solid white background, collapsed uses the prop background
-        background: isModal ? "#ffffff" : background, 
+        background: isModal ? "#ffffff" : background,
         border: borderColor
           ? `1px solid ${borderColor}`
           : "1px solid rgba(0,0,0,0.06)",
@@ -168,7 +177,14 @@ export default function ActionCard({
       {/* Right Icon */}
       {rightIcon && (
         <Box
-          sx={{ display: "flex", justifyContent: "flex-end", width: "100%", pt: 0.5, pr: 0.5, pointerEvents: "auto", }}
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            width: "100%",
+            pt: 0.5,
+            pr: 0.5,
+            pointerEvents: "auto",
+          }}
         >
           {rightIcon}
         </Box>
@@ -184,57 +200,95 @@ export default function ActionCard({
           scrollbarGutter: "stable",
           "&::-webkit-scrollbar": { width: "6px" },
           "&::-webkit-scrollbar-track": { background: "transparent" },
-          "&::-webkit-scrollbar-thumb": { background: "rgba(0,0,0,0.2)", borderRadius: "3px" },
+          "&::-webkit-scrollbar-thumb": {
+            background: "rgba(0,0,0,0.2)",
+            borderRadius: "3px",
+          },
           "&::-webkit-scrollbar-thumb:hover": { background: "rgba(0,0,0,0.3)" },
         }}
       >
         {/* Header content (title, tags, etc.) - same as before */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, ...headerSx, }}>
-            {/* Stack containing title, tags, subtitleNode, metaNodes */}
-            <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
-                {/* ... (Title, Tags, etc. logic) */}
-                <Stack direction={type === "events" ? "column" : "row"} spacing={1} alignItems={type === "events" ? "start" : "center"} sx={{ minWidth: 0, flexWrap: "wrap" }}>
-                    {leftIcon ? <Box sx={{ display: "flex", alignItems: "center" }}>{leftIcon}</Box> : null}
-                    <Typography
-                        sx={{
-                            fontWeight: 700,
-                            color: "#1E1E1E",
-                            overflow: "hidden",
-                            maxWidth: isModal ? "100%" : (type == "events" ? "250px" : "90%"), // Full width in modal
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                        }}
-                    >
-                        {title}
-                    </Typography>
-                    {tags?.map((t, idx) => {
-                        const { label, size, ...rest } = t as { label: React.ReactNode; size?: ChipProps["size"]; } & Partial<ChipProps>;
-                        return (<Chip key={idx} size={size ?? "small"} label={label} {...rest} />);
-                    })}
-                </Stack>
-                {subtitleNode}
-                {metaNodes?.map((node, i) => (<React.Fragment key={i}>{node}</React.Fragment>))}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            ...headerSx,
+          }}
+        >
+          {/* Stack containing title, tags, subtitleNode, metaNodes */}
+          <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+            {/* ... (Title, Tags, etc. logic) */}
+            <Stack
+              direction={type === "events" ? "column" : "row"}
+              spacing={1}
+              alignItems={type === "events" ? "start" : "center"}
+              sx={{ minWidth: 0, flexWrap: "wrap" }}
+            >
+              {leftIcon ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  {leftIcon}
+                </Box>
+              ) : null}
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  color: "#1E1E1E",
+                  overflow: "hidden",
+                  maxWidth: isModal
+                    ? "100%"
+                    : type == "events"
+                    ? "250px"
+                    : "90%", // Full width in modal
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {title}
+              </Typography>
+              {tags?.map((t, idx) => {
+                const { label, size, ...rest } = t as {
+                  label: React.ReactNode;
+                  size?: ChipProps["size"];
+                } & Partial<ChipProps>;
+                return (
+                  <Chip
+                    key={idx}
+                    size={size ?? "small"}
+                    label={label}
+                    {...rest}
+                  />
+                );
+              })}
             </Stack>
-            {type === "vendor" && rightSlot}
+            {subtitleNode}
+            {metaNodes?.map((node, i) => (
+              <React.Fragment key={i}>{node}</React.Fragment>
+            ))}
+          </Stack>
+          {type === "vendor" && rightSlot}
         </Box>
         {children ? <Box sx={{ mt: 1.5 }}>{children}</Box> : null}
 
         {/* Expanded Details - Only visible in Modal, or controlled collapse in collapsed state */}
         {(isModal || !isExpanded) && details && (
-            <Collapse in={isModal} timeout={300} unmountOnExit={!isModal}>
-                <Box
-                    sx={{
-                        mt: 2,
-                        p: 2,
-                        borderRadius: 1.5,
-                        background: "rgba(98,153,208,0.06)",
-                        border: borderColor ? `1px dashed ${borderColor}` : "1px dashed rgba(0,0,0,0.08)",
-                        ...detailsSx,
-                    }}
-                >
-                    {details}
-                </Box>
-            </Collapse>
+          <Collapse in={isModal} timeout={300} unmountOnExit={!isModal}>
+            <Box
+              sx={{
+                mt: 2,
+                p: 2,
+                borderRadius: 1.5,
+                background: "rgba(98,153,208,0.06)",
+                border: borderColor
+                  ? `1px dashed ${borderColor}`
+                  : "1px dashed rgba(0,0,0,0.08)",
+                ...detailsSx,
+              }}
+            >
+              {details}
+            </Box>
+          </Collapse>
         )}
       </Box>
 
@@ -260,14 +314,20 @@ export default function ActionCard({
               transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
               color: borderColor || "rgba(0,0,0,0.5)",
               "&:hover": {
-                background: borderColor ? `${borderColor}15` : "rgba(0,0,0,0.04)",
-                transform: isExpanded ? "rotate(180deg) scale(1.1)" : "rotate(0deg) scale(1.1)",
+                background: borderColor
+                  ? `${borderColor}15`
+                  : "rgba(0,0,0,0.04)",
+                transform: isExpanded
+                  ? "rotate(180deg) scale(1.1)"
+                  : "rotate(0deg) scale(1.1)",
               },
             }}
           >
             <KeyboardArrowDownIcon />
           </IconButton>
-          {type === "events" && !registered && rightSlot && (<Box>{rightSlot}</Box>)}
+          {type === "events" && !registered && rightSlot && (
+            <Box>{rightSlot}</Box>
+          )}
         </Box>
       )}
     </Box>
@@ -276,7 +336,7 @@ export default function ActionCard({
   return (
     <>
       {/* 1. Regular card - only visible when not expanded */}
-      <Box ref={cardRef} sx={{ visibility: isExpanded ? 'hidden' : 'visible' }}>
+      <Box ref={cardRef} sx={{ visibility: isExpanded ? "hidden" : "visible" }}>
         {renderCardContent({ isModal: false, extraStyles: sx })}
       </Box>
 
@@ -288,9 +348,14 @@ export default function ActionCard({
             <Box
               onClick={handleOverlayClick}
               sx={{
-                position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
-                zIndex: 1300, cursor: "pointer",
+                zIndex: 1300,
+                cursor: "pointer",
               }}
             />
           </Fade>
@@ -309,21 +374,21 @@ export default function ActionCard({
                 transform: "scale(1.05)",
                 transition: "transform 0.4s ease-out",
                 // Allow the card content to dictate its new, larger height
-                height: 'auto',
-                maxHeight: '90vh',
-                overflow: 'hidden',
+                height: "auto",
+                maxHeight: "90vh",
+                overflow: "hidden",
                 // Keep the width of the collapsed card, and the inner content will grow within it
               }}
             >
-              {renderCardContent({ 
-                isModal: true, 
+              {renderCardContent({
+                isModal: true,
                 // Ensure the expanded content is still the same width as the collapsed card
-                extraStyles: { 
-                    width: cardPosition.width,
-                    minWidth: cardPosition.width,
-                    maxWidth: cardPosition.width,
-                    maxHeight: '90vh',
-                } 
+                extraStyles: {
+                  width: cardPosition.width,
+                  minWidth: cardPosition.width,
+                  maxWidth: cardPosition.width,
+                  maxHeight: "90vh",
+                },
               })}
             </Box>
           </Fade>
