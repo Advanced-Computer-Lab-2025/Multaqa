@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, Typography, Stack, Chip } from '@mui/material';
+import { Card, CardContent, Typography, Stack, Box } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { CourtSlot } from './types';
 import { formatTimeRange } from './utils';
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -61,7 +62,7 @@ const SlotCard: React.FC<Props> = ({
                 ? "rgba(98, 153, 208, 0.1)"
                 : isReserved
                 ? "rgba(158, 158, 158, 0.1)"
-                : theme.palette.primary.main + "90",
+                : theme.palette.success.main,
               color: isYours
                 ? theme.palette.primary.main
                 : isReserved
