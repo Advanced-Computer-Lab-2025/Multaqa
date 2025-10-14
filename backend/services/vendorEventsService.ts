@@ -117,7 +117,7 @@ export class VendorEventsService {
         { path: 'vendors.vendor', select: 'companyName logo' }
       ] as any[]
     });
-
+  
     if (!event) {
       throw createError(404, "Event not found");
     }

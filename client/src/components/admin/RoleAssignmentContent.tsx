@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
@@ -139,38 +140,10 @@ export default function RoleAssignmentContent() {
       onDragStart={(e) => handleDragStart(e, setActiveId)}
       onDragEnd={handleDragEndWithConfirmation}
     >
-      <Box
-        sx={{
-          p: 4,
-          backgroundColor: "transparent",
-          minHeight: "100vh",
-          fontFamily: "var(--font-poppins), system-ui, sans-serif",
-        }}
+      <ContentWrapper
+        title="Assign Roles"
+        description="Drag tickets to assign roles or expand and select from dropdown"
       >
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 700,
-              color: "#1E1E1E",
-              mb: 1,
-            }}
-          >
-            Assign Roles
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#757575",
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            }}
-          >
-            Drag tickets to assign roles or expand and select from dropdown
-          </Typography>
-        </Box>
-
         <Box
           sx={{
             display: "grid",
@@ -311,16 +284,7 @@ export default function RoleAssignmentContent() {
             }}
           >
             {/* Role Tabs */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
-                gap: 2,
-              }}
-            >
+            <Box className="w-full flex flex-col 2xl:flex-row justify-between items-start 2xl:items-center mb-3 gap-2">
               <Typography
                 variant="h6"
                 sx={{
@@ -328,6 +292,7 @@ export default function RoleAssignmentContent() {
                   fontWeight: 600,
                   color: "#3a4f99",
                   fontSize: "18px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Assigned Users
@@ -335,14 +300,15 @@ export default function RoleAssignmentContent() {
 
               <NeumorphicBox
                 containerType="inwards"
+                className="w-full 2xl:w-fit"
                 sx={{
-                  width: "auto",
                   padding: "8px",
                   borderRadius: "9999px",
                   display: "flex",
                   flexDirection: "row",
-                  gap: 1,
+                  justifyContent: "space-between",
                   flexWrap: "wrap",
+                  maxWidth: { xs: "100%", xl: "400px" },
                 }}
               >
                 {roleKeys.map((roleKey, idx) => (
@@ -353,8 +319,8 @@ export default function RoleAssignmentContent() {
                     variant={activeRoleIndex === idx ? "contained" : "outlined"}
                     color={activeRoleIndex === idx ? "tertiary" : "primary"}
                     onClick={() => setActiveRoleIndex(idx)}
-                    width="90px"
                     height="36px"
+                    className="w-1/3 2xl:w-auto"
                     sx={{
                       fontSize: "12px",
                       fontWeight: 700,
@@ -441,7 +407,7 @@ export default function RoleAssignmentContent() {
             ))}
           </Box>
         </Box>
-      </Box>
+      </ContentWrapper>
       <DragOverlay>
         {activeId && activeDraggedUser ? (
           <RegisterBox
