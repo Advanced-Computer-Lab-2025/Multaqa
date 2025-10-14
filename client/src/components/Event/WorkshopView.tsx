@@ -6,23 +6,43 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
+import { CustomModal } from "../shared/modals";
 
-const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description, agenda, user, registered }) => {
+const WorkshopView: React.FC<WorkshopViewProps> = ({
+  details,
+  name,
+  description,
+  agenda,
+  user,
+  registered,
+}) => {
   const [expanded, setExpanded] = useState(false);
-  const handleDelete = () => {
+  const [eventToDelete, setEventToDelete] = useState<boolean>(false);
+
+  const handleOpenDeleteModal = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setEventToDelete(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setEventToDelete(false);
+  };
+
+  const deleteEventHandler = () => {
     // Your delete logic here
-    console.log("Delete clicked");
+    console.log("Delete clicked for workshop:", name);
+    handleCloseDeleteModal();
   };
   // Helper function to extract initials from professor name
   const getInitials = (name: string) => {
     let cleanName = name.trim();
-    
+
     // Remove title (Dr., Eng., Prof., etc.) if present
     if (cleanName.includes(".")) {
       const dotIndex = cleanName.indexOf(".");
       cleanName = cleanName.substring(dotIndex + 1).trim();
     }
-    
+
     const parts = cleanName.split(" ");
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
@@ -32,8 +52,19 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
 
   // Helper function to get a color based on name
   const getAvatarColor = (name: string) => {
-    const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
-    const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colors = [
+      "#FF6B6B",
+      "#4ECDC4",
+      "#45B7D1",
+      "#FFA07A",
+      "#98D8C8",
+      "#F7DC6F",
+      "#BB8FCE",
+      "#85C1E2",
+    ];
+    const hash = name
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
 
@@ -50,9 +81,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
     const endDate = details["End Date"];
     const startTime = details["Start Time"];
     const endTime = details["End Time"];
-    
+
     if (startDate && endDate) {
-      const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+      const dateRange =
+        startDate === endDate ? startDate : `${startDate} - ${endDate}`;
       const timeRange = startTime && endTime ? `${startTime} - ${endTime}` : "";
       return timeRange ? `${dateRange}, ${timeRange}` : dateRange;
     }
@@ -68,7 +100,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
     </Typography>,
     <Typography key="capacity" variant="caption" sx={{ color: "#6b7280" }}>
       Capacity: {details["Capacity"] || "TBD"}
-    </Typography>
+    </Typography>,
   ];
 
   const detailsContent = (
@@ -76,10 +108,17 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       {/* Description */}
       {description && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+          >
             Description
           </Typography>
-          <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5 }}>
+          <Typography
+            variant="body2"
+            sx={{ fontSize: "14px", lineHeight: 1.5 }}
+          >
             {description}
           </Typography>
         </Box>
@@ -88,10 +127,17 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       {/* Agenda */}
       {agenda && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+          >
             Full Agenda
           </Typography>
-          <Typography variant="body2" sx={{ fontSize: "14px", lineHeight: 1.5, whiteSpace: "pre-line" }}>
+          <Typography
+            variant="body2"
+            sx={{ fontSize: "14px", lineHeight: 1.5, whiteSpace: "pre-line" }}
+          >
             {agenda}
           </Typography>
         </Box>
@@ -100,7 +146,11 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
       {/* Professors */}
       {professors.length > 0 && (
         <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+          >
             Professors Participating
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -127,7 +177,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
                 >
                   {getInitials(professor)}
                 </Avatar>
-                <Typography variant="caption" sx={{ fontSize: "12px", color: "text.primary" }}>
+                <Typography
+                  variant="caption"
+                  sx={{ fontSize: "12px", color: "text.primary" }}
+                >
                   {professor}
                 </Typography>
               </Box>
@@ -138,13 +191,29 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
 
       {/* Other Details */}
       <Box>
-        <Typography variant="body2" fontWeight={600} sx={{ color: theme.palette.tertiary.dark, mb: 1 }}>
+        <Typography
+          variant="body2"
+          fontWeight={600}
+          sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+        >
           Additional Details
         </Typography>
         {Object.entries(details)
-          .filter(([key]) => !["Start Date", "End Date", "Start Time", "End Time", "Professors Participating"].includes(key))
+          .filter(
+            ([key]) =>
+              ![
+                "Start Date",
+                "End Date",
+                "Start Time",
+                "End Time",
+                "Professors Participating",
+              ].includes(key)
+          )
           .map(([key, value]) => (
-            <Box key={key} sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+            <Box
+              key={key}
+              sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
+            >
               <Typography variant="caption" sx={{ fontWeight: 500 }}>
                 {key}:
               </Typography>
@@ -158,45 +227,146 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({ details, name, description,
   );
 
   return (
-    <ActionCard
-      title={name}
-      tags={[
-        { 
-          label: "Workshop", 
-          sx: { bgcolor: theme.palette.tertiary.main, color: theme.palette.tertiary.contrastText, fontWeight: 600 },
-          size: "small" 
-        }
-      ]}
-      metaNodes={metaNodes}
-      rightSlot={
-        !registered && (user=="staff"||user=="student"||user=="ta"||user=="professor") &&(<CustomButton size="small" variant="contained" color="tertiary" sx={{ borderRadius: 999}}>
-          Register
-        </CustomButton>)
-      }
-      rightIcon={user==="events-office"? (<IconButton
-        size="small"
-        onClick={handleDelete}
-        sx={{
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          "&:hover": {
-            backgroundColor: "rgba(255, 0, 0, 0.1)",
-            color: "error.main",
+    <>
+      <ActionCard
+        title={name}
+        tags={[
+          {
+            label: "Workshop",
+            sx: {
+              bgcolor: theme.palette.tertiary.main,
+              color: theme.palette.tertiary.contrastText,
+              fontWeight: 600,
+            },
+            size: "small",
           },
+        ]}
+        metaNodes={metaNodes}
+        rightSlot={
+          !registered &&
+          (user == "staff" ||
+            user == "student" ||
+            user == "ta" ||
+            user == "professor") && (
+            <CustomButton
+              size="small"
+              variant="contained"
+              color="tertiary"
+              sx={{ borderRadius: 999 }}
+            >
+              Register
+            </CustomButton>
+          )
+        }
+        rightIcon={
+          user === "events-office" ? (
+            <IconButton
+              size="small"
+              onClick={handleOpenDeleteModal}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 0, 0, 0.1)",
+                  color: "error.main",
+                },
+              }}
+            >
+              <Trash2 size={16} />
+            </IconButton>
+          ) : null
+        }
+        registered={
+          registered ||
+          !(
+            user == "staff" ||
+            user == "student" ||
+            user == "ta" ||
+            user == "professor"
+          )
+        }
+        expanded={expanded}
+        onExpandChange={setExpanded}
+        details={detailsContent}
+        borderColor={theme.palette.tertiary.main}
+        elevation="soft"
+      />
+
+      {/* Delete Confirmation Modal */}
+      <CustomModal
+        open={eventToDelete}
+        onClose={handleCloseDeleteModal}
+        title="Delete Workshop"
+        description={`Are you sure you want to delete the workshop "${name}"? This action cannot be undone.`}
+        modalType="delete"
+        borderColor={theme.palette.error.main}
+        buttonOption1={{
+          label: "Delete Workshop",
+          variant: "contained",
+          color: "error",
+          onClick: deleteEventHandler,
+        }}
+        buttonOption2={{
+          label: "Cancel",
+          variant: "outlined",
+          color: "error",
+          onClick: handleCloseDeleteModal,
         }}
       >
-        <Trash2 size={16} />
-      </IconButton>): null
-    }
-      registered={registered || !(user=="staff"||user=="student"||user=="ta"||user=="professor")}
-      expanded={expanded}
-      onExpandChange={setExpanded}
-      details={detailsContent}
-      borderColor={theme.palette.tertiary.main}
-      elevation="soft"
-    />
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Typography
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              color: "text.primary",
+              mb: 2,
+              fontSize: "1.1rem",
+              fontWeight: 600,
+            }}
+          >
+            {name}
+          </Typography>
+
+          <Typography
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              color: "#666",
+              mb: 1,
+              fontSize: "0.95rem",
+            }}
+          >
+            {details["Start Date"] === details["End Date"]
+              ? details["Start Date"] || "TBD"
+              : `${details["Start Date"] || "TBD"} - ${
+                  details["End Date"] || "TBD"
+                }`}
+          </Typography>
+
+          <Typography
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              color: "#666",
+              mb: 3,
+              fontSize: "0.9rem",
+            }}
+          >
+            {details["Location"] || "TBD"} • Capacity:{" "}
+            {details["Capacity"] || "TBD"}
+          </Typography>
+
+          <Typography
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              color: theme.palette.error.main,
+              fontSize: "0.9rem",
+              fontWeight: 500,
+            }}
+          >
+            Are you sure you want to delete this workshop? This action cannot be
+            undone.
+          </Typography>
+        </Box>
+      </CustomModal>
+    </>
   );
 };
 
 export default WorkshopView;
-
-

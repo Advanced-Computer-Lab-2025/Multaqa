@@ -21,19 +21,15 @@ const TripView: React.FC<BazarViewProps> = ({
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    e?.preventDefault();
-    console.log("Opening modal - Before:", tripToDelete);
     setTripToDelete(true);
-    // Log after next render
-    setTimeout(() => console.log("Opening modal - After:", tripToDelete), 0);
   };
 
   const handleCloseDeleteModal = () => {
-    console.log("Closing modal");
     setTripToDelete(false);
   };
 
   const deleteTripHandler = () => {
+    // Your delete logic here
     console.log("Delete clicked for trip:", name);
     handleCloseDeleteModal();
   };
@@ -43,13 +39,9 @@ const TripView: React.FC<BazarViewProps> = ({
       Deadline: {details["Registration Deadline"] || "TBD"}
     </Typography>,
     <Typography key="date-range" variant="caption" sx={{ color: "#6b7280" }}>
-      {
-        details["Start Date"] === details["End Date"]
-          ? details["Start Date"] || "TBD"
-          : `${details["Start Date"] || "TBD"} - ${
-              details["End Date"] || "TBD"
-            }`
-      }
+      {details["Start Date"] === details["End Date"]
+        ? details["Start Date"] || "TBD"
+        : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"}`}
     </Typography>,
     <Typography
       key="transportation"
