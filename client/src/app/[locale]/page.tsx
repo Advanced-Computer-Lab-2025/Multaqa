@@ -141,7 +141,7 @@ export default function HomePage() {
     //   </div>
     // </div>
     <div className="flex items-center justify-center gap-5 flex-row">
-      <RegistrationForm UserType="student" />
+      <RegistrationForm UserType="staff" />
       <RegistrationForm UserType="vendor" />
       <LoginForm />
     </div>

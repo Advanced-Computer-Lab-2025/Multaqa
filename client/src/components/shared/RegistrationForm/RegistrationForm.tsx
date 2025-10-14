@@ -1,6 +1,6 @@
 import React from "react";
 import { Formik } from "formik";
-import { UserType, RegistrationFormProps } from "./types";
+import { RegistrationFormProps } from "./types";
 import { getValidationSchema } from "./utils";
 import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
@@ -76,7 +76,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                         id="firstName"
                         label="First Name"
                         fieldType="text"
-                        {...formik.getFieldProps("firstName")}
+                        onChange={(e) => {
+                          formik.setFieldValue("firstName", e.target.value);
+                        }}
+                        onBlur={() => {
+                          formik.setFieldTouched("firstName", true);
+                        }}
                       />
                       {formik.touched.firstName && formik.errors.firstName && (
                         <Box display="flex" alignItems="center" mt={1}>
@@ -96,7 +101,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                         id="lastName"
                         label="Last Name"
                         fieldType="text"
-                        {...formik.getFieldProps("lastName")}
+                        onChange={(e) => {
+                          formik.setFieldValue("lastName", e.target.value);
+                        }}
+                        onBlur={() => {
+                          formik.setFieldTouched("lastName", true);
+                        }}
                       />
                       {formik.touched.lastName && formik.errors.lastName && (
                         <Box display="flex" alignItems="center" mt={1}>
@@ -113,10 +123,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   </div>
                   <div className="w-full">
                     <CustomTextField
-                      id="studentId"
+                      id="gucId"
                       label="Student/Staff ID"
                       fieldType="text"
-                      {...formik.getFieldProps("gucId")}
+                      onChange={(e) => {
+                        formik.setFieldValue("gucId", e.target.value);
+                      }}
+                      onBlur={() => {
+                        formik.setFieldTouched("gucId", true);
+                      }}
                     />
                     {formik.touched.gucId && formik.errors.gucId && (
                       <Box display="flex" alignItems="center" mt={1}>
@@ -137,7 +152,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     id="companyName"
                     label="Company Name"
                     fieldType="text"
-                    {...formik.getFieldProps("companyName")}
+                    onChange={(e) => {
+                      formik.setFieldValue("companyName", e.target.value);
+                    }}
+                    onBlur={() => {
+                      formik.setFieldTouched("companyName", true);
+                    }}
                   />
                   {formik.touched.companyName && formik.errors.companyName && (
                     <Box display="flex" alignItems="center" mt={1}>
@@ -159,8 +179,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   id="email"
                   label="Email"
                   fieldType="email"
-                  stakeholderType={UserType as UserType}
-                  {...formik.getFieldProps("email")}
+                  stakeholderType="vendor"
+                  onChange={(e) => {
+                    formik.setFieldValue("email", e.target.value);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("email", true);
+                  }}
                 />
                 {formik.touched.email && formik.errors.email && (
                   <Box display="flex" alignItems="center" mt={1}>
@@ -180,7 +205,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   id="password"
                   label="Password"
                   fieldType="password"
-                  {...formik.getFieldProps("password")}
+                  onChange={(e) => {
+                    formik.setFieldValue("password", e.target.value);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("password", true);
+                  }}
                 />
                 {formik.touched.password && formik.errors.password && (
                   <Box display="flex" alignItems="center" mt={1}>
@@ -200,7 +230,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   id="confirmPassword"
                   label="Confirm Password"
                   fieldType="password"
-                  {...formik.getFieldProps("confirmPassword")}
+                  onChange={(e) => {
+                    formik.setFieldValue("confirmPassword", e.target.value);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("confirmPassword", true);
+                  }}
                 />
                 {formik.touched.confirmPassword &&
                   formik.errors.confirmPassword && (
