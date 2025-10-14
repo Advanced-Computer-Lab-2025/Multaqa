@@ -1,5 +1,4 @@
 // components/Create/Create.tsx
-
 "use client";
 import * as React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
@@ -7,7 +6,7 @@ import { useFormik, FormikProvider, FormikConfig } from 'formik'; // 💡 Import
 import * as yup from 'yup'; // 💡 Import yup for validation
 import EventCreationStep1Modal from './Box1';
 import EventCreationStep2Details from './Box2';
-import { wrapperContainerStyles, horizontalLayoutStyles } from './styles';
+import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles } from './styles';
 import { EventFormData,FormHandlerProps } from './types/'; // <-- Assuming this is the full type
 
 // --- Formik Configuration and Schema ---
@@ -21,7 +20,8 @@ const initialFormData: EventFormData = {
     fundingSource: '',
     website: '', // Added from Step 2 fields
     resources: [], // Assuming resources from Step 2
-    agenda: '',    // Assuming agenda from Step 2
+    agenda: '',
+    extraResources: []    // Assuming agenda from Step 2
 };
 
 // 💡 Define the validation schema (simplified for now)
@@ -57,11 +57,10 @@ const Create: React.FC = () => {
     // but the `onFinalSubmit` prop on the child will call it.
 
     return (
-        <Box sx={wrapperContainerStyles}>
-            <Typography variant="h4" sx={{ mb: 4, fontWeight: 600, fontFamily: 'var(--font-poppins), system-ui, sans-serif', color:theme.palette.tertiary.dark}}>
+        <Box sx={wrapperContainerStyles}>    
+            <Typography sx={{...detailTitleStyles(theme),fontSize: '34px',alignSelf: 'flex-start'}}>
                 Create Conference
-            </Typography>
-            
+            </Typography>        
             {/* 💡 2. Wrap the entire form in FormikProvider */}
             <FormikProvider value={formik}>
                 <Box 
@@ -69,14 +68,12 @@ const Create: React.FC = () => {
                     onSubmit={formik.handleSubmit} // Formik handles the submit
                     sx={horizontalLayoutStyles(theme)}
                 >
-                    
                     {/* 3. BOX 1 (Left): Props simplified */}
                     <EventCreationStep1Modal 
                         // Removed formData and onFieldChange props
                         onNext={handleNext} 
                         onClose={handleClose}
                     />
-
                     {/* 4. BOX 2 (Right): Props simplified */}
                     <EventCreationStep2Details
                         // Removed formData and onFieldChange props

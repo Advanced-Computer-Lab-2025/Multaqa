@@ -80,18 +80,20 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
 
                 {/* 2. Full Agenda */}
                 <CustomTextField 
+                    name='agenda'
                     fieldType="text"
                     label="Conference Agenda"
                     placeholder="Enter full agenda"
-                    value={values.name} // 💡 From Formik context
+                    value={values.agenda} // 💡 From Formik context
                     onChange={handleChange('agenda')} // 💡 From Formik context
                     onBlur={handleBlur('agenda')} // 💡 For validation
-                    error={touched.name && Boolean(errors.agenda)} // 💡 For validation
+                    error={touched.agenda && Boolean(errors.agenda)} // 💡 For validation
                     sx={{ mb: 1 }} 
                     required
                 />
                  {/* 3. Conference Website Link */}
                 <CustomTextField
+                    name='website'
                     label="Website URL"
                     fieldType="text"
                     placeholder="https://example.guc.edu.eg"
@@ -103,6 +105,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                 />
                 {/* 4. Required Budget */}
                 <CustomTextField
+                    name='budget'
                     label="Budget Amount (EGP)"
                     fieldType="numeric"
                     placeholder="Enter required budget"
@@ -133,7 +136,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
            {/* Footer */}
             <Box sx={modalFooterStyles}>
             <CustomButton color="tertiary" variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}} onClick={onBack}>
-                    Create Conference
+                    Create 
             </CustomButton>
             </Box>
         </Box>

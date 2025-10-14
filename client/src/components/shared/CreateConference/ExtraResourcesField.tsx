@@ -57,7 +57,7 @@ const ExtraResourcesField: React.FC = () => {
                     onClick={handleAddResource} 
                     size="small"
                     color="secondary"
-                    sx={{ p: 0.5, border: '1px solid', borderColor: 'secondary.main' }}
+                    sx={{ p: 0.5, border: '1px solid', borderColor: 'secondary.main', padding:"4px" }}
                 >
                     <AddIcon fontSize="small" />
                 </IconButton>
