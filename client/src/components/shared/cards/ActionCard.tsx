@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Stack, Typography, Chip, Collapse, IconButton } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  Chip,
+  Collapse,
+  IconButton,
+} from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import type { ChipProps, SxProps, Theme } from "@mui/material";
 import { ActionCardProps } from "./types";
@@ -9,7 +16,7 @@ import { ActionCardProps } from "./types";
 /**
  * ActionCard
  * A flexible, neumorphic-leaning card for listing items with a title, tags, optional metadata, and expandable details.
- * 
+ *
  * New Features:
  * - Fixed height with scrollable content area
  * - Expand/collapse button at the bottom
@@ -18,8 +25,8 @@ import { ActionCardProps } from "./types";
  */
 export default function ActionCard({
   title,
-  type="events",
-  registered=true,
+  type = "events",
+  registered = true,
   leftIcon,
   rightIcon,
   tags,
@@ -38,7 +45,8 @@ export default function ActionCard({
   onExpandChange,
 }: ActionCardProps) {
   const [internalExpanded, setInternalExpanded] = useState(false);
-  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
+  const isExpanded =
+    controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
 
   const handleExpandClick = () => {
     const newExpanded = !isExpanded;
@@ -51,16 +59,16 @@ export default function ActionCard({
   const getConditionalStyles = (
     type: string | undefined, // Type can be a string or undefined/null
     isExpanded: boolean
-)=> { 
-// These are the styles you want to apply ONLY if type is "events"
+  ) => {
+    // These are the styles you want to apply ONLY if type is "events"
     const eventStyles = {
-        height: isExpanded ? "100%" : "auto",
-        minHeight: isExpanded ? 280 : 280,
-        maxHeight: isExpanded ? 400 : 280,
-        width: "100%",
-        transition: "max-height 0.3s ease",
-        maxWidth: 300,
-        minWidth: 300,
+      height: isExpanded ? "100%" : "auto",
+      minHeight: isExpanded ? 280 : 280,
+      maxHeight: isExpanded ? 400 : 280,
+      width: "100%",
+      transition: "max-height 0.3s ease",
+      maxWidth: 300,
+      minWidth: 300,
     };
 
     // These are the styles you want to apply ONLY if type is "events"
@@ -70,16 +78,15 @@ export default function ActionCard({
       maxHeight: isExpanded ? 400 : 260,
       width: "100%",
       transition: "all 0.5s ease",
-  };
+    };
 
     // Return the eventStyles object if the condition is met, otherwise return an empty object {}
     if (type && type.trim() === "events") {
       return eventStyles;
-    }
-    else if (type && type.trim() === "vendor") {
+    } else if (type && type.trim() === "vendor") {
       return vendorStyles;
     }
-  }
+  };
   const currentType = getConditionalStyles(type, isExpanded);
   const boxShadow =
     elevation === "none"
@@ -95,26 +102,32 @@ export default function ActionCard({
         flexDirection: "column",
         borderRadius: 2,
         background,
-        border: borderColor ? `1px solid ${borderColor}` : "1px solid rgba(0,0,0,0.06)",
+        border: borderColor
+          ? `1px solid ${borderColor}`
+          : "1px solid rgba(0,0,0,0.06)",
         boxShadow,
         overflow: "hidden",
-        padding:"4px",
+        padding: "4px",
         ...currentType,
         ...sx,
       }}
     >
-      {/* Right Icon - Top Right Corner */}
-    {rightIcon && (
-      <Box
-        sx={{
-          width:"100%",
-          display:"flex",
-          alignItems:"end",
-        }}
-      >
-        {rightIcon}
-      </Box>
-    )}
+      {/* Right Icon - Top Right with Flex */}
+      {rightIcon && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            width: "100%",
+            pt: 0.5,
+            pr: 0.5,
+            pointerEvents: "auto",
+          }}
+        >
+          {rightIcon}
+        </Box>
+      )}
 
       {/* Scrollable Content Area */}
       <Box
@@ -140,50 +153,66 @@ export default function ActionCard({
           },
         }}
       >
-            {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 2,
-          ...headerSx,
-        }}
-      >
-        <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
-          <Stack direction={type === "events" ? "column" : "row"} spacing={1} alignItems={type === "events" ? "start" : "center"} sx={{ minWidth: 0, flexWrap: "wrap"}}>
-            {leftIcon ? <Box sx={{ display: "flex", alignItems: "center" }}>{leftIcon}</Box> : null}
-            <Typography
-              sx={{
-                fontWeight: 700,
-                color: "#1E1E1E",
-                overflow: "hidden",
-                maxWidth: type=="events"?"250px":"90%",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
+        {/* Header */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            ...headerSx,
+          }}
+        >
+          <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+            <Stack
+              direction={type === "events" ? "column" : "row"}
+              spacing={1}
+              alignItems={type === "events" ? "start" : "center"}
+              sx={{ minWidth: 0, flexWrap: "wrap" }}
             >
-              {title}
-            </Typography>
-            {tags?.map((t, idx) => {
-              const { label, size, ...rest } = t as {
-                label: React.ReactNode;
-                size?: ChipProps["size"];
-              } & Partial<ChipProps>;
-              return <Chip key={idx} size={size ?? "small"} label={label} {...rest} />;
-            })}
+              {leftIcon ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  {leftIcon}
+                </Box>
+              ) : null}
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  color: "#1E1E1E",
+                  overflow: "hidden",
+                  maxWidth: type == "events" ? "250px" : "90%",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {title}
+              </Typography>
+              {tags?.map((t, idx) => {
+                const { label, size, ...rest } = t as {
+                  label: React.ReactNode;
+                  size?: ChipProps["size"];
+                } & Partial<ChipProps>;
+                return (
+                  <Chip
+                    key={idx}
+                    size={size ?? "small"}
+                    label={label}
+                    {...rest}
+                  />
+                );
+              })}
+            </Stack>
+
+            {subtitleNode}
+
+            {metaNodes?.map((node, i) => (
+              <React.Fragment key={i}>{node}</React.Fragment>
+            ))}
           </Stack>
 
-          {subtitleNode}
-
-          {metaNodes?.map((node, i) => (
-            <React.Fragment key={i}>{node}</React.Fragment>
-          ))}
-        </Stack>
-        
-        {/* Show rightSlot in header only if type is vendor */}
-        {type === "vendor" && rightSlot}
-      </Box>
+          {/* Show rightSlot in header only if type is vendor */}
+          {type === "vendor" && rightSlot}
+        </Box>
         {children ? <Box sx={{ mt: 1.5 }}>{children}</Box> : null}
 
         {/* Expanded Details */}
@@ -194,7 +223,9 @@ export default function ActionCard({
               p: 2,
               borderRadius: 1.5,
               background: "rgba(98,153,208,0.06)",
-              border: borderColor ? `1px dashed ${borderColor}` : "1px dashed rgba(0,0,0,0.08)",
+              border: borderColor
+                ? `1px dashed ${borderColor}`
+                : "1px dashed rgba(0,0,0,0.08)",
               ...detailsSx,
             }}
           >
@@ -202,39 +233,43 @@ export default function ActionCard({
           </Box>
         </Collapse>
       </Box>
-    {/* Expand/Collapse Button - Fixed at Bottom */}
-    {details && (
-      <Box
-        sx={{
-          borderTop: "1px solid rgba(0,0,0,0.06)",
-          display: "flex",
-          justifyContent: registered ? "center" : "space-between",
-          alignItems: "center",
-          py: 1,
-          px: 2,
-          background: "rgba(255,255,255,0.8)",
-        }}
-      >
-        {/* Expand/Collapse Icon Button */}
-        <IconButton
-          onClick={handleExpandClick}
-          size="small"
+      {/* Expand/Collapse Button - Fixed at Bottom */}
+      {details && (
+        <Box
           sx={{
-            transition: "all 0.3s ease",
-            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-            color: borderColor || "rgba(0,0,0,0.5)",
-            "&:hover": {
-              background: borderColor ? `${borderColor}15` : "rgba(0,0,0,0.04)",
-            },
+            borderTop: "1px solid rgba(0,0,0,0.06)",
+            display: "flex",
+            justifyContent: registered ? "center" : "space-between",
+            alignItems: "center",
+            py: 1,
+            px: 2,
+            background: "rgba(255,255,255,0.8)",
           }}
         >
-          <KeyboardArrowDownIcon />
-        </IconButton>
+          {/* Expand/Collapse Icon Button */}
+          <IconButton
+            onClick={handleExpandClick}
+            size="small"
+            sx={{
+              transition: "all 0.3s ease",
+              transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+              color: borderColor || "rgba(0,0,0,0.5)",
+              "&:hover": {
+                background: borderColor
+                  ? `${borderColor}15`
+                  : "rgba(0,0,0,0.04)",
+              },
+            }}
+          >
+            <KeyboardArrowDownIcon />
+          </IconButton>
 
-        {/* Register/Action Button - Right (show for events type when not registered) */}
-        {type === "events" && !registered && rightSlot && <Box>{rightSlot}</Box>}
-      </Box>
-    )}
+          {/* Register/Action Button - Right (show for events type when not registered) */}
+          {type === "events" && !registered && rightSlot && (
+            <Box>{rightSlot}</Box>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }
