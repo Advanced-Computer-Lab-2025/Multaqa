@@ -14,6 +14,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   description,
   user,
   registered,
+  onDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -28,8 +29,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   };
 
   const deleteEventHandler = () => {
-    // Your delete logic here
-    console.log("Delete clicked for bazaar:", name);
+    // Call the onDelete callback to remove from parent state
+    onDelete?.();
     handleCloseDeleteModal();
   };
 
@@ -158,7 +159,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         modalType="delete"
         borderColor={theme.palette.error.main}
         buttonOption1={{
-          label: "Delete Bazaar",
+          label: "Delete",
           variant: "contained",
           color: "error",
           onClick: deleteEventHandler,

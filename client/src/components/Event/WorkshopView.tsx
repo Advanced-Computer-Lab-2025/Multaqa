@@ -15,6 +15,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   agenda,
   user,
   registered,
+  onDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -29,8 +30,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   };
 
   const deleteEventHandler = () => {
-    // Your delete logic here
-    console.log("Delete clicked for workshop:", name);
+    // Call the onDelete callback to remove from parent state
+    onDelete?.();
     handleCloseDeleteModal();
   };
   // Helper function to extract initials from professor name
@@ -300,7 +301,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         modalType="delete"
         borderColor={theme.palette.error.main}
         buttonOption1={{
-          label: "Delete Workshop",
+          label: "Delete",
           variant: "contained",
           color: "error",
           onClick: deleteEventHandler,

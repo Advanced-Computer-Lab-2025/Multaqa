@@ -15,6 +15,7 @@ const TripView: React.FC<BazarViewProps> = ({
   description,
   user,
   registered,
+  onDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -29,8 +30,8 @@ const TripView: React.FC<BazarViewProps> = ({
   };
 
   const deleteTripHandler = () => {
-    // Your delete logic here
-    console.log("Delete clicked for trip:", name);
+    // Call the onDelete callback to remove from parent state
+    onDelete?.();
     handleCloseDeleteModal();
   };
 
@@ -178,7 +179,7 @@ const TripView: React.FC<BazarViewProps> = ({
         modalType="delete"
         borderColor={theme.palette.error.main}
         buttonOption1={{
-          label: "Delete Trip",
+          label: "Delete",
           variant: "contained",
           color: "error",
           onClick: deleteTripHandler,

@@ -15,6 +15,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   agenda,
   user,
   registered,
+  onDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -29,8 +30,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   };
 
   const deleteEventHandler = () => {
-    // Your delete logic here
-    console.log("Delete clicked for conference:", name);
+    // Call the onDelete callback to remove from parent state
+    onDelete?.();
     handleCloseDeleteModal();
   };
   // Format key details for display
@@ -236,7 +237,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         modalType="delete"
         borderColor={theme.palette.error.main}
         buttonOption1={{
-          label: "Delete Conference",
+          label: "Delete",
           variant: "contained",
           color: "error",
           onClick: deleteEventHandler,
