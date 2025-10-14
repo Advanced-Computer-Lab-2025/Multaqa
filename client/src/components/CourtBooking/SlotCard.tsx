@@ -66,11 +66,11 @@ const SlotCard: React.FC<Props> = ({
               color: isYours
                 ? theme.palette.primary.main
                 : isReserved
-                ? "#9e9e9e"
+                ? "#6e6e6e"
                 : "#fff",
               borderRadius: "16px",
               padding: "4px 12px",
-              fontSize: "12px",
+              fontSize: "10px",
               fontWeight: 600,
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
             }}
@@ -86,7 +86,6 @@ const SlotCard: React.FC<Props> = ({
               variant="contained"
               color="primary"
               onClick={() => onReserve?.(slot)}
-              sx={{ borderRadius: '12px', fontWeight: 700 }}
             >
               Reserve
             </CustomButton>
