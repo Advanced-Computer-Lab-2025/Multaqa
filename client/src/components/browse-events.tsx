@@ -4,14 +4,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import {
-  Box,
-  Typography,
-  Container,
-  TextField,
-  InputAdornment,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Box, Typography, Container } from "@mui/material";
 import FilterPanel from "./shared/FilterCard/FilterPanel";
 import { FilterGroup } from "./shared/FilterCard/types";
 import ConferenceView from "./Event/ConferenceView";
@@ -75,6 +68,15 @@ type Event =
   | BazaarEvent
   | BoothEvent
   | TripEvent;
+
+// Define filter value types
+type FilterValue = string | string[] | number | boolean;
+
+// Define filters type
+interface Filters {
+  eventType?: string[];
+  [key: string]: FilterValue | undefined;
+}
 
 // Mock data for different event types
 const mockEvents: Event[] = [
@@ -212,7 +214,7 @@ const filterGroups: FilterGroup[] = [
 
 const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>(mockEvents);
 
   // Handle event deletion
@@ -256,15 +258,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
 
     // Apply type filter
     if (filters.eventType && filters.eventType.length > 0) {
-      filtered = filtered.filter((event) =>
-        filters.eventType.includes(event.type)
-      );
+      const eventTypes = filters.eventType;
+      filtered = filtered.filter((event) => eventTypes.includes(event.type));
     }
 
     return filtered;
   }, [searchQuery, filters, events]);
 
-  const handleFilterChange = (groupId: string, value: any) => {
+  const handleFilterChange = (groupId: string, value: FilterValue) => {
     setFilters((prev) => ({
       ...prev,
       [groupId]: value,

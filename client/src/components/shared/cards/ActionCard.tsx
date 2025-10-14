@@ -46,6 +46,7 @@ export default function ActionCard({
   onExpandChange,
 }: ActionCardProps) {
   const [internalExpanded, setInternalExpanded] = useState(false);
+  const [chevronRotated, setChevronRotated] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null); // Ref is back for positioning
   const [cardPosition, setCardPosition] = useState({
     top: 0,
@@ -56,6 +57,13 @@ export default function ActionCard({
 
   const isExpanded =
     controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
+
+  // Sync chevron rotation with expanded state when controlled
+  React.useEffect(() => {
+    if (controlledExpanded !== undefined) {
+      setChevronRotated(controlledExpanded);
+    }
+  }, [controlledExpanded]);
 
   // *** POSITION CALCULATION LOGIC (FIXED) ***
   useEffect(() => {
@@ -80,20 +88,44 @@ export default function ActionCard({
   }, [isExpanded, type]);
   // *** END POSITION CALCULATION LOGIC ***
 
+  // For chevron rotation to open
   const handleExpandClick = () => {
     const newExpanded = !isExpanded;
-    if (controlledExpanded === undefined) {
-      setInternalExpanded(newExpanded);
+
+    // Immediately rotate chevron
+    setChevronRotated(newExpanded);
+
+    if (newExpanded) {
+      // Expanding with delay to show chevron rotation
+      setTimeout(() => {
+        if (controlledExpanded === undefined) {
+          setInternalExpanded(newExpanded);
+        }
+        onExpandChange?.(newExpanded);
+      }, 500); // 0.5s delay
+    } else {
+      // Collapsing with delay to show chevron rotation
+      setTimeout(() => {
+        if (controlledExpanded === undefined) {
+          setInternalExpanded(newExpanded);
+        }
+        onExpandChange?.(newExpanded);
+      }, 500); // 0.5s delay
     }
-    onExpandChange?.(newExpanded);
   };
 
+  // For chevron rotation to close
   const handleOverlayClick = () => {
     const newExpanded = false;
-    if (controlledExpanded === undefined) {
-      setInternalExpanded(newExpanded);
-    }
-    onExpandChange?.(newExpanded);
+    // Immediately rotate chevron back
+    setChevronRotated(false);
+    // Collapsing with delay to show chevron rotation
+    setTimeout(() => {
+      if (controlledExpanded === undefined) {
+        setInternalExpanded(newExpanded);
+      }
+      onExpandChange?.(newExpanded);
+    }, 200); // 0.2s delay
   };
 
   // Styles are now only for the COLLAPSED state
@@ -310,14 +342,14 @@ export default function ActionCard({
             onClick={handleExpandClick}
             size="small"
             sx={{
-              transition: "all 0.3s ease",
-              transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+              transform: chevronRotated ? "rotate(180deg)" : "rotate(0deg)",
               color: borderColor || "rgba(0,0,0,0.5)",
               "&:hover": {
                 background: borderColor
                   ? `${borderColor}15`
                   : "rgba(0,0,0,0.04)",
-                transform: isExpanded
+                transform: chevronRotated
                   ? "rotate(180deg) scale(1.1)"
                   : "rotate(0deg) scale(1.1)",
               },
