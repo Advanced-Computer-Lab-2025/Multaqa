@@ -19,23 +19,8 @@ export const StyledFilterBox = styled(Box, {
 }>(({ theme, containerType }) => {
     const lightShadowColor = theme.palette.mode === 'light' ? '#FAFBFF' : alpha(theme.palette.common.white, 0.06);
     const darkShadowColor = alpha(theme.palette.common.black, 0.25);
-
-    const getShadows = (type: ContainerType) => {
-        const darkShadow = `5px 5px 10px 0 ${darkShadowColor}`;
-        const lightShadow = `-5px -5px 10px 0 ${lightShadowColor}`;
-
-        if (type === 'inwards') {
-            // Pressed Effect (for selected filters, text inputs)
-            return getPressedShadowString(theme);
-        }
-
-        // Lifted Effect (for the main card container)
-        return `${darkShadow}, ${lightShadow}`;
-    };
-
     return {
         backgroundColor: theme.palette.background.default,
-        boxShadow: getShadows(containerType),
         fontFamily: 'var(--font-poppins), system-ui, sans-serif',
         transition: 'all 0.3s ease-in-out',
         borderRadius: '20px',

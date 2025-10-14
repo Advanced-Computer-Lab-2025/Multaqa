@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IUser } from "../../interfaces/user.interface";
+import { IUser } from "../../interfaces/models/user.interface";
 import { UserRole } from "../../constants/user.constants";
 import { UserStatus } from "../../constants/user.constants";
 
@@ -29,7 +29,8 @@ const userSchema = new Schema<IUser>(
       ],
       default: [],
     },
-    createdAt: { type: Date, default: Date.now },
+    registeredAt: { type: Date, default: Date.now },
+    verifiedAt: { type: Date },
     updatedAt: { type: Date, default: Date.now },
   },
   { discriminatorKey: "role", collection: "users" }

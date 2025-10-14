@@ -6,17 +6,9 @@ import {
   RequestHandler,
 } from "express";
 import createError, { HttpError } from "http-errors";
+import { MongooseError } from "mongoose";
+import { ErrorResponse} from "../interfaces/errors/errorResponse.interface";
 
-// Error response type
-interface ErrorResponse {
-  success: boolean;
-  error: string;
-  statusCode: number;
-  code?: string | number;
-  type?: string;
-  errors?: Array<{ field: string; message: string }>;
-  stack?: string;
-}
 
 // Centralized error handler middleware using http-errors
 export const errorHandler = (
@@ -25,6 +17,48 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
+  // Handle Mongoose ValidationError
+  if (err?.name === "ValidationError" && err.errors) {
+    const errors = Object.values(err.errors).map((e: any) => ({
+      field: e.path,
+      message: e.message,
+    }));
+    const response: ErrorResponse = {
+      success: false,
+      error: "Validation Error",
+      statusCode: 400,
+      type: "MongooseValidationError",
+      errors,
+    };
+    if (process.env.NODE_ENV === "development") response.stack = err.stack;
+    res.status(400).json(response);
+  }
+
+  // Handle Mongoose CastError (e.g., invalid ObjectId)
+  if (err?.name === "CastError") {
+    const response: ErrorResponse = {
+      success: false,
+      error: `Invalid value for field '${err.path}': ${err.value}`,
+      statusCode: 400,
+      type: "MongooseCastError",
+    };
+    if (process.env.NODE_ENV === "development") response.stack = err.stack;
+    res.status(400).json(response);
+  }
+
+  // Handle Mongoose duplicate key error
+  if (err?.code === 11000) {
+    const fields = Object.keys(err.keyValue || {});
+    const response: ErrorResponse = {
+      success: false,
+      error: `Duplicate value for field(s): ${fields.join(", ")}`,
+      statusCode: 409,
+      type: "MongooseDuplicateKeyError",
+    };
+    if (process.env.NODE_ENV === "development") response.stack = err.stack;
+    res.status(409).json(response);
+  }
+
   // If not an HttpError, convert to one
   const httpError: HttpError =
     err instanceof HttpError
@@ -38,7 +72,6 @@ export const errorHandler = (
     success: false,
     error: message,
     statusCode,
-
     type,
   };
   if (process.env.NODE_ENV === "development") response.stack = err.stack;

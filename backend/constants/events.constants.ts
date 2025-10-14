@@ -4,6 +4,7 @@ export enum EVENT_TYPES {
   PLATFORM_BOOTH = "platform_booth",
   CONFERENCE = "conference",
   GYM_SESSION = "gym_session",
+  TRIP = "trip",
 }
 
 export enum FUNDING_SOURCES {

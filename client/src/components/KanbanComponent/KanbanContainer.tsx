@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { Box } from "@mui/material";
 import KanbanColumn from "./KanbanColumn";
-import RegisterBox from "../RegistredComponent/Registree";
+import RegisterBox from "../admin/shared/RegistredComponent/Registree";
 import { KanbanContainerProps, KanbanItem, KanbanStatus } from "./types";
 import {
   filterItemsByStatus,
@@ -61,7 +61,11 @@ const KanbanContainer: React.FC<KanbanContainerProps> = ({
     if (validStatuses.includes(overId as KanbanStatus)) {
       const activeItem = localItems.find((item) => item.id === activeId);
       if (activeItem && activeItem.status !== overId) {
-        const updatedItems = moveItem(localItems, activeId, overId as KanbanStatus);
+        const updatedItems = moveItem(
+          localItems,
+          activeId,
+          overId as KanbanStatus
+        );
         setLocalItems(updatedItems);
         if (onItemsChange) {
           onItemsChange(updatedItems);
@@ -86,7 +90,11 @@ const KanbanContainer: React.FC<KanbanContainerProps> = ({
     if (validStatuses.includes(overId as KanbanStatus)) {
       const activeItem = localItems.find((item) => item.id === activeId);
       if (activeItem && activeItem.status !== overId) {
-        const updatedItems = moveItem(localItems, activeId, overId as KanbanStatus);
+        const updatedItems = moveItem(
+          localItems,
+          activeId,
+          overId as KanbanStatus
+        );
         setLocalItems(updatedItems);
         if (onItemsChange) {
           onItemsChange(updatedItems);

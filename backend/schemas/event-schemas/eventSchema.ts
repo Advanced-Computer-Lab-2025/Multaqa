@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
-import { IEvent } from "../../interfaces/event.interface";
+import { IEvent } from "../../interfaces/models/event.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
 import "../stakeholder-schemas/userSchema";
 import { UserRole } from "../../constants/user.constants";
@@ -19,21 +19,20 @@ const EventSchema = new Schema<IEvent>(
     attendees: [{ type: Schema.Types.ObjectId, ref: "User" }],
     allowedUsers: [{ type: String, enum: Object.values(UserRole) }],
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
-    event_name: { type: String, required: true },
-    event_start_date: { type: Date, required: true },
-    event_end_date: { type: Date, required: true },
-    event_start_time: { type: String, required: true },
-    event_end_time: { type: String, required: true },
-    registration_deadline: { type: Date, required: true },
+    eventName: { type: String, required: true },
+    eventStartDate: { type: Date, required: true },
+    eventEndDate: { type: Date, required: true },
+    eventStartTime: { type: String, required: true },
+    eventEndTime: { type: String, required: true },
+    registrationDeadline: { type: Date, required: true },
     location: { type: String, required: true },
     description: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 },
   },
   { discriminatorKey: "type", collection: "events" }
 );
 
-EventSchema.virtual("is_passed").get(function (this: IEvent) {
-  return new Date() > this.event_end_date;
+EventSchema.virtual("isPassed").get(function (this: IEvent) {
+  return new Date() > this.eventEndDate;
 });
 
 EventSchema.set("toJSON", {
