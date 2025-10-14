@@ -163,9 +163,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
       {
         key: "gym",
@@ -219,9 +217,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
       {
         key: "gym",
@@ -323,6 +319,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Dashboard",
         icon: LayoutDashboard,
         sections: [],
+      },
+      {
+        key: "events",
+        label: "Events Management",
+        icon: Calendar,
+        sections: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "users",
@@ -535,7 +537,7 @@ export default function EntityNavigation({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-">
+    <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
       <TopNavigation companyName="Multaqa" header={headerProps} />
 
@@ -560,9 +562,21 @@ export default function EntityNavigation({
           sectionItems={sectionItems}
         />
 
-        <div className="flex-1 overflow-auto bg-[#f9fbfc] min-h-0 p-4">
-           <div className="flex-1 bg-white min-h-0"  style={{borderRadius:"16px",boxShadow:"0 1px 3px rgba(0, 0, 0, 0.08)",  padding: "20px 28px",  border: "1px solid #e5e7eb"}}>{children}</div>
-           </div>
+        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
+          <div
+            className="flex-1 bg-white min-h-0 overflow-auto"
+            style={{
+              borderRadius: "16px",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+              padding: "20px 28px",
+              border: "1px solid #e5e7eb",
+              minHeight: "73vh",
+              maxHeight: "73vh",
+            }}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );
