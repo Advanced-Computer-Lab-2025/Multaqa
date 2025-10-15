@@ -2,17 +2,7 @@ import { Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { Theme } from "@mui/material/styles";
 import type { ButtonProps } from "@mui/material/Button";
-
-
-// Resolve a Button color to its palette entry in a type-safe way
-const resolveButtonPalette = (
-  theme: Theme,
-  color: ButtonProps["color"]
-) => {
-  if (!color || color === "inherit") return theme.palette.primary;
-  return theme.palette[color];
-};
-
+import {resolveButtonPalette } from "../../../utils"
 
 // styled wrapper for MUI Button
 export const StyledButton = styled(Button)<ButtonProps>(({ theme , color}) => ({
@@ -70,15 +60,15 @@ export const StyledDeleteButton = styled(Button)(({ theme }) => ({
     borderColor: theme.palette.error.dark,
     color: theme.palette.error.main,
   },
-// "&:hover": {
-//     background: "#a81818",
-//     color: theme.palette.primary.contrastText,
-//     border: "2px solid #a81818",
-//     boxShadow: `
-//    -53px -3px 8px 0 #fffff7,
-//     5px 5px 8px 0 rgba(153, 153, 142, 0.6)
-//   `,
-//   },
+"&:hover": {
+    background: "#a81818",
+    color: theme.palette.primary.contrastText,
+    border: "2px solid #a81818",
+    boxShadow: `
+   -3px -3px 8px 0 #fffff7,
+    5px 5px 8px 0 rgba(153, 153, 142, 0.6)
+  `,
+  },
   "&.MuiButton-outlined:hover": {
     borderWidth: "2px",
     borderStyle: "solid",

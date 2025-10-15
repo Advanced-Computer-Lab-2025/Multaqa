@@ -1,41 +1,42 @@
 import { Model, Document, FilterQuery, Query } from "mongoose";
-// Helper to apply populate logic to a query
-function applyPopulate<T>(
-  query: Query<any, T>,
-  populate?: string | string[]
-): Query<any, T> {
-  if (populate) {
-    if (Array.isArray(populate)) {
-      for (const field of populate) {
-        query = query.populate(field);
-      }
-    } else {
-      query = query.populate(populate);
-    }
-  }
-  return query;
-}
-
-// Helper to apply select logic to a query
-function applySelect<T>(
-  query: Query<any, T>,
-  select?: string | string[]
-): Query<any, T> {
-  if (select) {
-    if (Array.isArray(select)) {
-      query = query.select(select.join(" "));
-    } else {
-      query = query.select(select);
-    }
-  }
-  return query;
-}
 
 export default class GenericRepository<T extends Document> {
   private readonly model: Model<T>;
 
   constructor(model: Model<T>) {
     this.model = model;
+  }
+
+  // Helper to apply select logic to a query
+  applySelect<T>(
+    query: Query<any, T>,
+    select?: string | string[]
+  ): Query<any, T> {
+    if (select) {
+      if (Array.isArray(select)) {
+        query = query.select(select.join(" "));
+      } else {
+        query = query.select(select);
+      }
+    }
+    return query;
+  }
+
+  // Helper to apply populate logic to a query
+  applyPopulate<T>(
+    query: Query<any, T>,
+    populate?: string | string[]
+  ): Query<any, T> {
+    if (populate) {
+      if (Array.isArray(populate)) {
+        for (const field of populate) {
+          query = query.populate(field);
+        }
+      } else {
+        query = query.populate(populate);
+      }
+    }
+    return query;
   }
 
   async create(data: Partial<T>): Promise<T> {
@@ -52,8 +53,8 @@ export default class GenericRepository<T extends Document> {
   ): Promise<T | null> {
     try {
       let query = this.model.findById(id);
-      query = applyPopulate(query, options.populate);
-      query = applySelect(query, options.select);
+      query = this.applyPopulate(query, options.populate);
+      query = this.applySelect(query, options.select);
       return await query.exec();
     } catch (err) {
       throw err;
@@ -66,8 +67,8 @@ export default class GenericRepository<T extends Document> {
   ): Promise<T[]> {
     try {
       let query = this.model.find(filter);
-      query = applyPopulate(query, options.populate);
-      query = applySelect(query, options.select);
+      query = this.applyPopulate(query, options.populate);
+      query = this.applySelect(query, options.select);
       return await query.exec();
     } catch (err) {
       throw err;
@@ -96,8 +97,8 @@ export default class GenericRepository<T extends Document> {
   ): Promise<T | null> {
     try {
       let query = this.model.findOne(filter);
-      query = applyPopulate(query, options.populate);
-      query = applySelect(query, options.select);
+      query = this.applyPopulate(query, options.populate);
+      query = this.applySelect(query, options.select);
       return await query.exec();
     } catch (err) {
       throw err;

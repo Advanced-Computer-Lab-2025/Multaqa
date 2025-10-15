@@ -7,7 +7,11 @@ import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import { ManageEventOfficeAccount } from "@/components/admin";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
+import BrowseEvents from "@/components/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
+import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
+import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
+import { mapEntityToRole } from "@/utils";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -21,30 +25,25 @@ export default function EntityCatchAllPage() {
   const tab = segments[2] || "";
   const section = segments[3] || "";
 
-  const mapEntityToRole = (e: string) => {
-    switch (e) {
-      case "admin":
-        return "admin";
-      case "events-office":
-        return "events-office";
-      case "vendor":
-        return "vendor";
-      case "professor":
-        return "professor";
-      case "ta":
-        return "ta";
-      case "staff":
-        return "staff";
-      case "student":
-      default:
-        return "student";
-    }
-  };
-
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+    // Vendor - Bazaars & Booths tab
+    if (entity === "vendor" && tab === "opportunities") {
+      if (section === "available") {
+        // Interpreting "Available Opportunities" as upcoming accepted participation view for consistency
+        return <VendorUpcomingParticipation />;
+      }
+      if (section === "my-applications") {
+        // Interpreting "My Applications" as pending/rejected requests list
+        return <VendorRequestsList />;
+      }
+    }
+
     // Courts booking page for stakeholders
-    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "courts") {
+    if (
+      ["student", "staff", "ta", "professor"].includes(entity) &&
+      tab === "courts"
+    ) {
       if (section === "reserve" || section === "") {
         return <CourtsBookingContent />;
       }
@@ -92,6 +91,16 @@ export default function EntityCatchAllPage() {
         return <BlockUnblockUsersContent />;
       }
     }
+
+     if ( tab === "events" || tab === "events-management") {
+      if (section === "browse-events") {
+        return <BrowseEvents/>;
+      }
+      if (section === "all-events") {
+        return <BrowseEvents/>;
+      }
+    }
+
 
     // Default placeholder content
     return (

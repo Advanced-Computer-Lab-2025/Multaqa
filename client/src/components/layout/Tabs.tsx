@@ -8,7 +8,7 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
   return (
-    <div className="border-b border-gray-300">
+    <div className="border-b border-gray-100">
       <div className="flex gap-8">
         {tabs.map((tab, index) => {
           const isActive = activeTab === index;

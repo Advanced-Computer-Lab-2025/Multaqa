@@ -4,6 +4,10 @@ import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
 import { WorkshopService } from "../services/workshopsService";
 import { CreateWorkshopResponse, UpdateWorkshopResponse } from "../interfaces/responses/workshopsResponses.interface";
+import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
 
 const workshopService = new WorkshopService();
 
@@ -12,7 +16,11 @@ async function createWorkshop(
   res: Response<CreateWorkshopResponse>
 ) {
   try {
-    const professorid = (req as any).user.id;
+    const professorid = req.params.professorId;
+
+    // To be used when authentication is automatically handled by the frontend
+    // const professorid = (req as any).user.id;
+
     let validationResult = validateWorkshop(req.body);
 
     // Handle Joi validation errors
@@ -41,7 +49,8 @@ async function updateWorkshop(
   res: Response<UpdateWorkshopResponse>
 ) {
   try {
-    const professorid = (req as any).user.id;
+    // const professorid = (req as any).user.id;
+    const professorid = req.params.professorId;
     const workshopId = req.params.workshopId;
     const validationResult = validateUpdateWorkshop(req.body);
 
@@ -53,6 +62,7 @@ async function updateWorkshop(
     }
 
     const updatedWorkshop = await workshopService.updateWorkshop(
+      professorid,
       workshopId,
       req.body
     );
@@ -98,8 +108,8 @@ async function updateWorkshopStatus(
 }
 
 const router = Router();
-router.post("/", createWorkshop);
-router.patch("/:workshopId", updateWorkshop);
-router.patch("/:workshopId/status", updateWorkshopStatus);
+router.post("/:professorId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), createWorkshop);
+router.patch("/:professorId/:workshopId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), updateWorkshop);
+router.patch("/:professorId/:workshopId/status", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateWorkshopStatus);
 
 export default router;
