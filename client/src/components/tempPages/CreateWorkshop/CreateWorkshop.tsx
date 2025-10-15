@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import {useFormik, Formik} from 'formik'
 
 import { Chip, Grid, InputAdornment, TextField, Typography, Box } from '@mui/material'
 import { CustomSelectField, CustomTextField } from '@/components/shared/input-fields'
@@ -24,6 +25,17 @@ const CreateWorkshop = () => {
   const [faculty, setFaculty] = useState<string>("");
   const [fundingSource, setFundingSource] = useState<string>("");
 
+  const initialValues ={
+      workshopName: "",
+      budget: 0,
+      capacity: 0,
+      startDate: null,
+      endDate: null, 
+      registrationDeadline: null,
+      description:"",
+      agenda: "",
+  };
+
   const professors = [
   { label: 'Prof. Ahmed Ali', value: 'ahmed-ali' },
   { label: 'Prof. Mona Hassan', value: 'mona-hassan' },
@@ -36,6 +48,17 @@ const CreateWorkshop = () => {
     return professors.find(prof => prof.value === value);
   };
 
+  const onSubmit = async (values: any, actions: any) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); 
+    actions.resetForm();
+    console.log(JSON.stringify(values))
+  };
+
+  const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
+    initialValues,
+    validationSchema: workshopSchema,
+    onSubmit: onSubmit,
+  });
 
   return (
     <>
@@ -52,6 +75,8 @@ const CreateWorkshop = () => {
                         autoCapitalize='off'
                         autoCapitalizeName={false}
                         neumorphicBox
+                        value={values.workshopName}
+                        onChange={handleChange}
                     />
 
                 </Grid>
@@ -108,6 +133,7 @@ const CreateWorkshop = () => {
                 <Grid size={4}>
                     <TextField
                         name="budget"
+                        id='budget'
                         label="Budget"
                         type="number"
                         fullWidth
@@ -120,16 +146,28 @@ const CreateWorkshop = () => {
                                 )
                             }
                         }}
+                        value={values.budget}
+                        onChange={handleChange}
                     />
                 </Grid>
                 <Grid size={4}>
                     <TextField
                       name="capacity"
+                      id='budget'
                       label="Capacity"
                       type="number"
                       fullWidth
                       variant='outlined'
-                      placeholder="Enter Capacity"
+                      placeholder='Enter Capacity'
+                      slotProps={{
+                            input: {
+                                startAdornment:(
+                                    <InputAdornment position="start"></InputAdornment>
+                                )
+                            }
+                        }}
+                      value={values.capacity}
+                      onChange={handleChange}
                   /> 
                 </Grid>
         </Grid>
