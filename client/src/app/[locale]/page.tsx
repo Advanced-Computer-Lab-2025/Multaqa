@@ -14,6 +14,7 @@ import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationF
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import PlatformMap from "@/components/shared/PlatformMap/PlatformMap";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
+import BazarApplicationForm from "@/components/shared/BazarApplicationForm/BazarApplicationForm";
 
 
 export default function HomePage() {
@@ -144,7 +145,8 @@ export default function HomePage() {
     //   </div>
     // </div>
     <div className="flex items-center justify-center gap-5 flex-col mt-10">
-      <BoothForm />
+      {/* <BoothForm /> */}
+      <BazarApplicationForm />
     </div>
   );
 }
