@@ -51,7 +51,7 @@ const Create: React.FC = () => {
     setResponse([]);
     try {
         // TODO: Replace with your API route
-        const res = await api.post("/events", payload);
+        const res = await api.patch("/events", payload);
         setResponse(res.data);
         console.log("Success! Response:", res.data);
         alert('Conference created successfully!');
@@ -112,7 +112,7 @@ const Create: React.FC = () => {
                 </Box>
                 <Box sx={modalFooterStyles}>
                 <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
-                    Create 
+                    Edit 
                 </CustomButton>
                 </Box>
             </form>
