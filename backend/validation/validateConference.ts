@@ -9,7 +9,7 @@ export function validateConference(data: any) {
     location: Joi.string().valid("").required(),
     eventStartDate: Joi.date().required(),
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).required(),
-    registrationDeadline: Joi.date().required(),
+    registrationDeadline: Joi.date().required().default(new Date()),
     eventStartTime: Joi.string().required(),
     eventEndTime: Joi.string().required(),
     description: Joi.string().required(),
