@@ -37,8 +37,8 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
                     label="Conference Name"
                     placeholder="Enter conference name"
                     value={values.eventName} // 💡 From Formik context
-                    onChange={handleChange('name')} // 💡 From Formik context
-                    onBlur={handleBlur('name')} // 💡 For validation
+                    onChange={handleChange('eventName')} // 💡 From Formik context
+                    onBlur={handleBlur('eventName')} // 💡 For validation
                     error={touched.eventName && Boolean(errors.eventName)} // 💡 For validation
                     sx={{ mb: 1 }} 
                     required

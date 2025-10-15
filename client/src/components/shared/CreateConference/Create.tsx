@@ -1,6 +1,6 @@
 // components/Create/Create.tsx
 "use client";
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { useFormik, FormikProvider} from 'formik';
 import * as yup from 'yup';
@@ -8,6 +8,8 @@ import EventCreationStep1Modal from './Box1';
 import EventCreationStep2Details from './Box2';
 import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles } from './styles';
 import { EventFormData} from './types/'; 
+import {api} from "../../../api";
+
 
 const initialFormData: EventFormData = {
     eventName: '',
@@ -39,14 +41,48 @@ const validationSchema = yup.object({
 });
 const Create: React.FC = () => {
     const theme = useTheme();
+    const [loading, setLoading] = useState(false);
+    const [response, setResponse] = useState<any[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleCallApi = async (payload:any) => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+        // TODO: Replace with your API route
+        const res = await api.post("/events", payload);
+        setResponse(res.data);
+    } catch (err: any) {
+        setError(err?.message || "API call failed");
+    } finally {
+        setLoading(false);
+    }
+    };
+
+const onSubmit = async (values: any, actions: any) => {
+    const payload = {
+    type:"conference",
+    eventName: values.eventName,
+    eventStartDate: values.eventStartDate,
+    eventEndDate: values.eventEndDate,
+    eventStartTime: values.eventStartTime,
+    eventEndTime:values.eventEndTime,
+    description: values.description,
+    fullAgenda: values.fullAgenda,
+    websiteLink: values.websiteLink, 
+    requiredBudget:values.requiredBudget,
+    fundingSource:values.fundingSource,
+    extraRequiredResources:values.extraRequiredResources
+    }
+    handleCallApi(payload); }
+
+
 
     const formik = useFormik<EventFormData>({
         initialValues: initialFormData,
         validationSchema: validationSchema,
-        onSubmit: (values) => {
-            console.log("Final Form Data Submitted:", values);
-            alert('Form Data Ready for Submission! Check console.');
-        },
+        onSubmit:onSubmit,
     });
 
     const handleClose = () => { console.log("Modal flow closed/canceled."); };
