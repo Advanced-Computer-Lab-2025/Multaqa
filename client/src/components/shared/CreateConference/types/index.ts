@@ -1,16 +1,18 @@
 import { FormEvent } from 'react';
 
 export interface EventFormData {
-    name: string;
-    description: string;
-    startDate: string;
-    endDate: string;
-    budget: string;
-    website: string;
-    agenda: string;
-    resources: string[]; 
-    fundingSource: string;
-    extraResources: string[]; 
+    eventName:string,
+    eventStartDate:string,
+    location:string,
+    eventEndDate:string,
+    eventStartTime:string,
+    eventEndTime:string,
+    description:string,
+    fullAgenda: string,
+    websiteLink: string, 
+    requiredBudget:string,
+    fundingSource:string,
+    extraRequiredResources:string[] 
 }
 
 export interface Step1Props {

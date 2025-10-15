@@ -10,27 +10,32 @@ import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles } from
 import { EventFormData} from './types/'; 
 
 const initialFormData: EventFormData = {
-    name: '',
+    eventName: '',
+    eventStartDate: '',
+    location:'',
+    eventEndDate: '',
+    eventStartTime:'',
+    eventEndTime:'',
     description: '',
-    startDate: '',
-    endDate: '',
-    budget: '',
+    fullAgenda: '',
+    websiteLink: '', 
+    requiredBudget: '',
     fundingSource: '',
-    website: '', 
-    resources: [], 
-    agenda: '',
-    extraResources: [] 
+    extraRequiredResources: [] 
 }
 
 //Define the validation schema 
 const validationSchema = yup.object({
-    name: yup.string().required('Conference Name is required').min(3, 'Name must be at least 3 characters'),
+    eventName: yup.string().required('Conference Name is required').min(3, 'Name must be at least 3 characters'),
     description: yup.string().required('Description is required'),
-    startDate: yup.string().required('Start Date is required'),
-    endDate: yup.string().required('End Date is required'),
-    budget: yup.number().typeError('Budget must be a number').positive('Budget must be positive').required('Budget is required'),
+    eventStartDate: yup.string().required('Start Date is required'),
+    eventEndDate: yup.string().required('End Date is required'),
+    eventStartTime: yup.string().required('Start Time is required'),
+    eventEndTime: yup.string().required('End Time is required'),
+    requiredBudget: yup.number().typeError('Budget must be a number').positive('Budget must be positive').required('Budget is required'),
     fundingSource: yup.string().required('Funding Source is required'),
-    // Add validation for other fields as needed
+    websiteLink: yup.string().required('Link is required'),
+
 });
 const Create: React.FC = () => {
     const theme = useTheme();

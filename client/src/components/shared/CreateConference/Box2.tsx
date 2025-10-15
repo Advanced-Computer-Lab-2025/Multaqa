@@ -11,7 +11,7 @@ import ExtraResourcesField from './ExtraResourcesField';
 import { CustomCheckboxGroup, CustomRadio} from '../input-fields';
 import { Step2Props } from './types';
 
-const CustomDateTimePicker = (props: any) => <CustomTextField {...props} fieldType="text" placeholder="YYYY-MM-DD HH:MM" />;
+const CustomDatePicker = (props: any) => <CustomTextField {...props} fieldType="text" placeholder="YYYY-MM-DD" />;
 const EventCreationStep2Details: React.FC<Step2Props> = ({ 
     onClose, 
     onFinalSubmit 
@@ -38,24 +38,24 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                 {/* 1. Start and End Dates/Times */}
                 <Box sx={{display:"flex", gap:1, mt:0}}>
                     {/* Start Date/Time */}
-                    <CustomDateTimePicker
-                        label="Start Date/Time"
-                        value={values.startDate}
-                        onChange={handleChange('startDate')}
-                        onBlur={handleBlur('startDate')}
-                        error={touched.startDate && Boolean(errors.startDate)}
-                        helperText={touched.startDate && errors.startDate}
+                    <CustomDatePicker
+                        label="Event Start Date"
+                        value={values.eventStartDate}
+                        onChange={handleChange('eventStartDate')}
+                        onBlur={handleBlur('eventStartDate')}
+                        error={touched.eventStartDate && Boolean(errors.eventStartDate)}
+                        helperText={touched.eventStartDate && errors.eventStartDate}
                         sx={{ mb: 1 }} 
                         required
                     />
                      {/* End Date/Time */}
-                    <CustomDateTimePicker
-                        label="End Date/Time"
-                        value={values.endDate}
-                        onChange={handleChange('endDate')}
-                        onBlur={handleBlur('endDate')}
-                        error={touched.endDate && Boolean(errors.endDate)}
-                        helperText={touched.endDate && errors.endDate}
+                    <CustomDatePicker
+                        label="Event End Date"
+                        value={values.eventEndDate}
+                        onChange={handleChange('eventEndDate')}
+                        onBlur={handleBlur('eventEndDate')}
+                        error={touched.eventEndDate && Boolean(errors.eventEndDate)}
+                        helperText={touched.eventEndDate && errors.eventEndDate}
                         sx={{ mb: 1 }} 
                         required
                     />
@@ -63,39 +63,39 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
 
                 {/* 2. Full Agenda */}
                 <CustomTextField 
-                    name='agenda'
+                    name='fullAgenda'
                     fieldType="text"
                     label="Conference Agenda"
                     placeholder="Enter full agenda"
-                    value={values.agenda} // 💡 From Formik context
-                    onChange={handleChange('agenda')} // 💡 From Formik context
-                    onBlur={handleBlur('agenda')} // 💡 For validation
-                    error={touched.agenda && Boolean(errors.agenda)} // 💡 For validation
+                    value={values.fullAgenda} // 💡 From Formik context
+                    onChange={handleChange('fullAgenda')} // 💡 From Formik context
+                    onBlur={handleBlur('fullAgenda')} // 💡 For validation
+                    error={touched.fullAgenda && Boolean(errors.fullAgenda)} // 💡 For validation
                     sx={{ mb: 1 }} 
                     required
                  />
                  {/* 3. Conference Website Link */}
                 <CustomTextField
-                    name='website'
+                    name='websiteLink'
                     label="Website URL"
                     fieldType="text"
                     placeholder="https://example.guc.edu.eg"
-                    value={values.website}
-                    onChange={handleChange('website')}
-                    onBlur={handleBlur('website')}
-                    error={touched.website && Boolean(errors.website)}
+                    value={values.websiteLink}
+                    onChange={handleChange('websiteLink')}
+                    onBlur={handleBlur('websiteLink')}
+                    error={touched.websiteLink && Boolean(errors.websiteLink)}
                     sx={{ mb: 1 }} 
                 />
                 {/* 4. Required Budget */}
                 <CustomTextField
-                    name='budget'
+                    name='requiredBudget'
                     label="Budget Amount (EGP)"
                     fieldType="numeric"
                     placeholder="Enter required budget"
-                    value={values.budget}
-                    onChange={handleChange('budget')}
-                    onBlur={handleBlur('budget')}
-                    error={touched.budget && Boolean(errors.budget)}
+                    value={values.requiredBudget}
+                    onChange={handleChange('requiredBudget')}
+                    onBlur={handleBlur('requiredBudget')}
+                    error={touched.requiredBudget && Boolean(errors.requiredBudget)}
                     sx={{ mb: 1, mt:0 }} 
                     required
                 />
