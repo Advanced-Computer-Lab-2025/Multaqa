@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Formik } from "formik";
-import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import PlatformMap from "../PlatformMap/PlatformMap";
@@ -43,12 +42,7 @@ const BoothForm: React.FC = () => {
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
-          <NeumorphicBox
-            containerType="outwards"
-            padding="50px"
-            borderRadius="20px"
-            className="max-w-[1500px] mx-auto"
-          >
+          <Box sx={{ padding: "20px" }}>
             <div className="flex flex-col lg:flex-row items-stretch justify-between gap-10">
               {/* Left Side: Form Fields */}
               <div className="flex flex-col flex-1 lg:w-1/2 gap-4">
@@ -241,7 +235,9 @@ const BoothForm: React.FC = () => {
                       onBlur={() =>
                         formik.setFieldTouched("boothDuration", true)
                       }
-                      onFocus={() => formik.setFieldTouched("boothDuration", true)}
+                      onFocus={() =>
+                        formik.setFieldTouched("boothDuration", true)
+                      }
                     />
                     {formik.touched.boothDuration &&
                       formik.errors.boothDuration && (
@@ -354,7 +350,7 @@ const BoothForm: React.FC = () => {
                 </Box>
               </Box>
             </div>
-          </NeumorphicBox>
+          </Box>
         </form>
       )}
     </Formik>

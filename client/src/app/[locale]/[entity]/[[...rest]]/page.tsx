@@ -12,6 +12,7 @@ import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
+import BoothForm from "@/components/shared/BoothForm/BoothForm";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -37,7 +38,15 @@ export default function EntityCatchAllPage() {
         // Interpreting "My Applications" as pending/rejected requests list
         return <VendorRequestsList />;
       }
+      if (section === "apply-booth") {
+        return (
+          <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
+            <BoothForm />
+          </div>
+        );
+      }
     }
+
 
     // Courts booking page for stakeholders
     if (
@@ -92,15 +101,14 @@ export default function EntityCatchAllPage() {
       }
     }
 
-     if ( tab === "events" || tab === "events-management") {
+    if (tab === "events" || tab === "events-management") {
       if (section === "browse-events") {
-        return <BrowseEvents/>;
+        return <BrowseEvents />;
       }
       if (section === "all-events") {
-        return <BrowseEvents/>;
+        return <BrowseEvents />;
       }
     }
-
 
     // Default placeholder content
     return (
