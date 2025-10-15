@@ -1,16 +1,17 @@
 // components/Create/styles/CreateStyles.ts
 import { SxProps, Theme } from '@mui/material/styles';
-const STEP1_WIDTH = '370px'; // New, smaller width for Box 1
+const STEP1_WIDTH = '370px'; 
 const STEP2_WIDTH = '550px';
-const STEP2_HEIGHT = '540px'// Wider width for Box 2
-const GAP_WIDTH = 24;        // 3 * 8px = 24px (MUI spacing 3)
+const STEP2_HEIGHT = '540px'
+const GAP_WIDTH = 24;    
 const TOTAL_WIDTH = `${parseInt(STEP1_WIDTH) + parseInt(STEP2_WIDTH) + GAP_WIDTH}px`; 
-// Outer container style (for centering the entire block on the page)
+
+// Outer container style 
 export const wrapperContainerStyles: SxProps<Theme> = {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center', // Center the content block horizontally
-    padding: 4,
+    alignItems: 'center', 
+    padding:0,
 };
 
 // Style for the container holding the two boxes side-by-side
@@ -41,16 +42,16 @@ export const step1BoxStyles = (theme: Theme): SxProps<Theme> => ({
 
 // Style for the fixed width of Box 2 (Wider)
 export const step2BoxStyles = (theme: Theme): SxProps<Theme> => ({
-    width: STEP2_WIDTH, 
-    height: STEP2_HEIGHT,
+    width: STEP2_WIDTH, 
+    height: STEP2_HEIGHT,
     display: 'flex',
     flexDirection: 'column', 
-    justifyContent: 'flex-start',
-    flexShrink: 0,
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: '6px',
-    padding: '0 16px', // No vertical padding on outer box
-    boxShadow: theme.shadows[5],
+    justifyContent: 'flex-start',
+    flexShrink: 0,
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: '6px',
+    padding: '8px 16px', // No vertical padding on outer box
+    boxShadow: theme.shadows[5],
     overflow: 'hidden',
 });
 
@@ -64,7 +65,7 @@ export const detailTitleStyles = (theme: Theme): SxProps<Theme> => ({
 
 // Styles for the main form content area
 export const modalFormStyles: SxProps<Theme> = {
-    padding: '0px 16px 0px 16px',
+    padding: '8px 16px 0px 16px',
     marginTop: 0,
     flexGrow: 1,
     minHeight:'0px',

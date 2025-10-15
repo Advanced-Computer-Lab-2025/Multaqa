@@ -8,24 +8,17 @@ import { useFormikContext } from 'formik';
 import RichTextField from '../TextField/TextField'; 
 import CustomTextField from '@/components/shared/input-fields/CustomTextField'; 
 import { step1BoxStyles, modalFormStyles,modalHeaderStyles,detailTitleStyles } from './styles';
-import { EventFormData } from './types'; // 💡 Import the full type for context
-
-// 💡 UPDATED PROPS INTERFACE (Simplified)
-interface Step1Props {
-    onClose: () => void;
-    onNext: () => void;
-}
+import { EventFormData } from './types'; 
+import { Step1Props } from './types';
 
 const EventCreationStep1Modal: React.FC<Step1Props> = ({ 
     onClose, 
-    onNext 
 }) => {
-    // 💡 Access Formik state and helpers from context
     const formik = useFormikContext<EventFormData>();
     const { values, handleChange, handleBlur, errors, touched, setFieldValue } = formik;
     const theme = useTheme();
 
-    // 💡 HANDLER: Updates the content of the RichTextField ('description')
+    // Updates the content of the RichTextField ('description')
     const handleDescriptionChange = (htmlContent: string) => {
         // 💡 Use Formik's setFieldValue for custom inputs
         setFieldValue('description', htmlContent);

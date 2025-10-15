@@ -2,15 +2,13 @@
 "use client";
 import * as React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
-import { useFormik, FormikProvider, FormikConfig } from 'formik'; // 💡 Import Formik tools
-import * as yup from 'yup'; // 💡 Import yup for validation
+import { useFormik, FormikProvider} from 'formik';
+import * as yup from 'yup';
 import EventCreationStep1Modal from './Box1';
 import EventCreationStep2Details from './Box2';
 import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles } from './styles';
-import { EventFormData,FormHandlerProps } from './types/'; // <-- Assuming this is the full type
+import { EventFormData} from './types/'; 
 
-// --- Formik Configuration and Schema ---
-// 💡 Define the initial values
 const initialFormData: EventFormData = {
     name: '',
     description: '',
@@ -18,13 +16,13 @@ const initialFormData: EventFormData = {
     endDate: '',
     budget: '',
     fundingSource: '',
-    website: '', // Added from Step 2 fields
-    resources: [], // Assuming resources from Step 2
+    website: '', 
+    resources: [], 
     agenda: '',
-    extraResources: []    // Assuming agenda from Step 2
-};
+    extraResources: [] 
+}
 
-// 💡 Define the validation schema (simplified for now)
+//Define the validation schema 
 const validationSchema = yup.object({
     name: yup.string().required('Conference Name is required').min(3, 'Name must be at least 3 characters'),
     description: yup.string().required('Description is required'),
@@ -37,49 +35,36 @@ const validationSchema = yup.object({
 const Create: React.FC = () => {
     const theme = useTheme();
 
-    // 💡 1. Initialize Formik
     const formik = useFormik<EventFormData>({
         initialValues: initialFormData,
         validationSchema: validationSchema,
         onSubmit: (values) => {
             console.log("Final Form Data Submitted:", values);
             alert('Form Data Ready for Submission! Check console.');
-            // Place your API call logic here
         },
     });
 
-    // Stubs for flow control (can be removed if not needed)
-    const handleNext = () => { console.log("Next step triggered (Box 1 data collected)."); };
-    const handleBack = () => { console.log("Back triggered."); };
     const handleClose = () => { console.log("Modal flow closed/canceled."); };
-
-    // We'll use the formik.handleSubmit on the Step 2 button, 
-    // but the `onFinalSubmit` prop on the child will call it.
 
     return (
         <Box sx={wrapperContainerStyles}>    
-            <Typography sx={{...detailTitleStyles(theme),fontSize: '34px',alignSelf: 'flex-start'}}>
+            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start'}}>
                 Create Conference
             </Typography>        
-            {/* 💡 2. Wrap the entire form in FormikProvider */}
+
             <FormikProvider value={formik}>
                 <Box 
-                    component="form" // Use Box as a form element
-                    onSubmit={formik.handleSubmit} // Formik handles the submit
+                    component="form" 
+                    onSubmit={formik.handleSubmit} 
                     sx={horizontalLayoutStyles(theme)}
                 >
-                    {/* 3. BOX 1 (Left): Props simplified */}
                     <EventCreationStep1Modal 
-                        // Removed formData and onFieldChange props
-                        onNext={handleNext} 
                         onClose={handleClose}
                     />
-                    {/* 4. BOX 2 (Right): Props simplified */}
                     <EventCreationStep2Details
-                        // Removed formData and onFieldChange props
-                        onBack={handleBack}
-                        onSubmit={formik.handleSubmit} // The button will trigger Formik's submit
                         onClose={handleClose}
+                        onFinalSubmit={formik.handleSubmit} 
+                        
                     />
                 </Box>
             </FormikProvider>
