@@ -2,21 +2,22 @@ import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { User } from '../schemas/stakeholder-schemas/userSchema';
 import { UserRole } from '../constants/user.constants';
-import { IUser } from '../interfaces/user.interface';
-import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
+import { IUser } from '../interfaces/models/user.interface';
 import GenericRepository from '../repos/genericRepo';
-import { IStudent } from '../interfaces/student.interface';
+import { IStudent } from '../interfaces/models/student.interface';
 import { Student } from '../schemas/stakeholder-schemas/studentSchema';
-import { IStaffMember } from '../interfaces/staffMember.interface';
+import { IStaffMember } from '../interfaces/models/staffMember.interface';
 import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
 import redisClient from '../config/redisClient';
-import { IVendor } from '../interfaces/vendor.interface';
+import { IVendor } from '../interfaces/models/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
 import { StaffPosition } from '../constants/staffMember.constants';
 import createError from 'http-errors';
 import { sendVerification } from './emailService';
 import { VerificationService } from './verificationService';
-import { AdministrationService } from './administrationService';
+import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
+import { IAdministration } from '../interfaces/models/administration.interface';
+import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -24,7 +25,7 @@ export class AuthService {
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
   private verificationService: VerificationService;
-  private administrationService: AdministrationService;
+  private adminRepo: GenericRepository<IAdministration>;
 
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
@@ -32,11 +33,11 @@ export class AuthService {
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
     this.verificationService = new VerificationService();
-    this.administrationService = new AdministrationService();
+    this.adminRepo = new GenericRepository<IAdministration>(Administration); 
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IUser, 'password'> }> {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<Omit<IUser, 'password'>> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -108,9 +109,7 @@ export class AuthService {
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return {
-      user: userWithoutPassword as Omit<IUser, 'password'>,
-    };
+    return userWithoutPassword as Omit<IUser, 'password'>;
   }
 
   // for all users
@@ -139,9 +138,21 @@ export class AuthService {
       throw createError(403, 'Please verify your email before logging in');
     }
 
+    // -------- Fetch extended info if needed in generating tokens --------
+    let extendedUser: IUser = user;
+
+    if (user.role === UserRole.ADMINISTRATION) {
+      const admin = await this.adminRepo.findOne({ _id: user._id });
+      if (admin) extendedUser = Object.assign(user.toObject(), { roleType: admin.roleType });
+    }
+    else if (user.role === UserRole.STAFF_MEMBER) {
+      const staff = await this.staffRepo.findOne({ _id: user._id });
+      if (staff) extendedUser = Object.assign(user.toObject(), { position: staff.position });
+    }
+
     // Generate JWT tokens
-    const accessToken = this.generateAccessToken(user);
-    const refreshToken = this.generateRefreshToken(user);
+    const accessToken = this.generateAccessToken(extendedUser);
+    const refreshToken = this.generateRefreshToken(extendedUser);
 
     // Store refresh token in Redis with expiration (7 days)
     await redisClient.setEx(
@@ -187,16 +198,45 @@ export class AuthService {
     await redisClient.del(`refresh:${token}`);
   }
 
-
   generateAccessToken(user: IUser): string {
-    return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.ACCESS_TOKEN_SECRET! as Secret, {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRES
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Add sub-role info dynamically
+    if (user.role === UserRole.ADMINISTRATION && (user as any).roleType) {
+      payload.adminRole = (user as any).roleType; // e.g. "admin" | "eventsOffice"
+    }
+
+    if (user.role === UserRole.STAFF_MEMBER && (user as any).position) {
+      payload.staffPosition = (user as any).position; // e.g. "professor" | "TA"
+    }
+
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRES,
     } as SignOptions);
   }
 
   generateRefreshToken(user: IUser): string {
-    return jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET! as Secret, {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRES
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Add sub-role info dynamically
+    if (user.role === UserRole.ADMINISTRATION && (user as any).roleType) {
+      payload.adminRole = (user as any).roleType;
+    }
+
+    if (user.role === UserRole.STAFF_MEMBER && (user as any).position) {
+      payload.staffPosition = (user as any).position;
+    }
+
+    return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
     } as SignOptions);
   }
 

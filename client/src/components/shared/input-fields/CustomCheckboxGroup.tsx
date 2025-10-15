@@ -38,7 +38,7 @@ const CustomCheckboxGroup: React.FC<CustomCheckboxGroupProps> = ({
           color: error ? "error.main" : theme.palette.primary.dark,
           fontWeight: 600,
           marginBottom: 1,
-          fontSize:"20px",
+          fontSize:"14px",
           marginLeft:"12px"
         }}
       >
@@ -63,7 +63,7 @@ const CustomCheckboxGroup: React.FC<CustomCheckboxGroupProps> = ({
                 multaqaFill={multaqaFill}
                 size={size}
               />
-              <span style={{ marginLeft: 8 }}>{option.label}</span>
+              <span style={{ marginLeft: 8,fontSize:"12px" }}>{option.label}</span>
             </div>
           ))}
         </RadioGroup>

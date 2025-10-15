@@ -34,7 +34,10 @@ export const getValidationSchema = (userType: UserType) => {
             "Please enter a valid GUC ID format (e.g., 49-12345)."
           )
           .required("Please enter your GUC ID."),
-        email: emailSchema,
+        email: emailSchema.matches(
+          /^[A-Za-z0-9._%+-]+@student\.guc\.edu\.eg$/,
+          "Email must end with @student.guc.edu.eg."
+        ),
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
       });
@@ -48,7 +51,10 @@ export const getValidationSchema = (userType: UserType) => {
           .max(20, "Last name cannot be more than 20 characters.")
           .required("Please enter your last name."),
         gucId: Yup.string().required("Please enter your Staff ID."),
-        email: emailSchema,
+        email: emailSchema.matches(
+          /^[A-Za-z0-9._%+-]+@guc\.edu\.eg$/,
+          "Email must end with @guc.edu.eg."
+        ),
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
       });
@@ -62,6 +68,7 @@ export const getValidationSchema = (userType: UserType) => {
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
       });
+
     default:
       return Yup.object({
         email: emailSchema,

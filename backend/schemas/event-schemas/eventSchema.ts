@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
-import { IEvent } from "../../interfaces/event.interface";
+import { IEvent } from "../../interfaces/models/event.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
 import "../stakeholder-schemas/userSchema";
 import { UserRole } from "../../constants/user.constants";
@@ -25,9 +25,8 @@ const EventSchema = new Schema<IEvent>(
     eventStartTime: { type: String, required: true },
     eventEndTime: { type: String, required: true },
     registrationDeadline: { type: Date, required: true },
-    location: { type: String, required: true },
+    location: { type: String, required: true, default: "" },
     description: { type: String, required: true },
-    price: { type: Number, required: true, min: 0 },
   },
   { discriminatorKey: "type", collection: "events" }
 );

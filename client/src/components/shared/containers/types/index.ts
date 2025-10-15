@@ -8,3 +8,14 @@ export interface CustomBoxProps extends BoxProps {
   height?: string;
   borderRadius?: string | number;
 }
+
+export interface ManagementCardProps {
+  id: string;
+  name: string;
+  email: string;
+  details: React.ReactNode;
+  statusComponent: React.ReactNode;
+  actions: React.ReactNode;
+  hoverBorderColor: string;
+  hoverBoxShadow: string;
+}

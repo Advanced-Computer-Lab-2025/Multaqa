@@ -1,0 +1,11 @@
+import { ButtonProps, Theme } from "@mui/material";
+
+
+// Resolve a Button color to its palette entry in a type-safe way
+export const resolveButtonPalette = (
+  theme: Theme,
+  color: ButtonProps["color"]
+) => {
+  if (!color || color === "inherit") return theme.palette.primary;
+  return theme.palette[color];
+};

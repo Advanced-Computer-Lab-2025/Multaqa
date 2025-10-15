@@ -52,12 +52,18 @@ const theme = createTheme({
       main: "#db3030",
       dark: "#c72c2c",
     },
+    warning: {
+      main: "#ff9800",
+      dark: "#ff8a00",
+      contrastText: "#fff",
+    },
     background: {
-      default: "#e6e6da",
+      default: "#fff",
     },
     text: {
       primary: "#1E1E1E",
       secondary: "#6299d0",
+      disabled: "#25346b",
     },
   },
   typography: {

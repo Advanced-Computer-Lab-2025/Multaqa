@@ -13,9 +13,9 @@ const LoginForm: React.FC = () => {
   const theme = useTheme();
 
   const initialValues = {
-          email: "",
-          password: "",    
-  }
+    email: "",
+    password: "",
+  };
 
   return (
     <Formik
@@ -64,7 +64,12 @@ const LoginForm: React.FC = () => {
                   fieldType="email"
                   neumorphicBox
                   stakeholderType={"vendor"} //to always render the normal email field
-                  {...formik.getFieldProps("email")}
+                  onChange={(e) => {
+                    formik.setFieldValue("email", e.target.value);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("email", true);
+                  }}
                 />
                 {formik.touched.email && formik.errors.email && (
                   <Box display="flex" alignItems="center" mt={1}>
@@ -85,7 +90,12 @@ const LoginForm: React.FC = () => {
                   label="Password"
                   fieldType="password"
                   neumorphicBox
-                  {...formik.getFieldProps("password")}
+                  onChange={(e) => {
+                    formik.setFieldValue("password", e.target.value);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("password", true);
+                  }}
                 />
                 {formik.touched.password && formik.errors.password && (
                   <Box display="flex" alignItems="center" mt={1}>
