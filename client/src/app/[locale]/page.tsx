@@ -13,6 +13,7 @@ import CreateTrip from '@/components/tempPages/CreateTrip/CreateTrip';
 import EditTrip from '@/components/tempPages/EditTrip/EditTrip';
 import EditBazaar from '@/components/tempPages/EditBazaar/EditBazaar';
 import CreateWorkshop from '@/components/tempPages/CreateWorkshop/CreateWorkshop';
+import EditWorkshop from '@/components/tempPages/EditWorkshop/EditWorkshop';
 
 const SimpleFormExample: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -30,6 +31,7 @@ const SimpleFormExample: React.FC = () => {
   const [openCreateTrip, setOpenCreateTrip] = useState(false);
   const [openEditTrip, setOpenEditTrip] = useState(false);
   const [openCreateWorkshop, setOpenCreateWorkshop] = useState(false);
+  const [openEditWorkshop, setOpenEditWorkshop] = useState(false);
 
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -351,8 +353,47 @@ const SimpleFormExample: React.FC = () => {
 
         <CustomButton onClick={() => setOpenCreateWorkshop(true)}>Create Workshop</CustomButton>
         <CustomModalLayout open={openCreateWorkshop} onClose={()=> setOpenCreateWorkshop(false)}>
-          <CreateWorkshop/>
+          <CreateWorkshop 
+            setOpenCreateWorkshop={setOpenCreateWorkshop} 
+            professors={[
+                { id: '1', name: 'Prof. Ahmed Ali' },
+                { id: '2', name: 'Prof. Mona Hassan' },
+                { id: 'Prof. Samir Youssef', name: 'Prof. Samir Youssef' }
+            ]
+            }
+            />
         </CustomModalLayout>
+
+        <CustomButton onClick={() => setOpenEditWorkshop(true)}>Edit Workshop</CustomButton>
+        <CustomModalLayout open={openEditWorkshop} onClose={()=> setOpenEditWorkshop(false)}>
+          <EditWorkshop 
+              setOpenEditWorkshop={setOpenEditWorkshop} 
+              professors={[
+                  { id: '1', name: 'Prof. Ahmed Ali' },
+                  { id: '2', name: 'Prof. Mona Hassan' },
+                  { id: 'Prof. Samir Youssef', name: 'Prof. Samir Youssef' }
+              ]
+              }
+              workshopName='hey'
+              budget={0}
+              capacity={0}
+              startDate={new Date("10/19/2025")}
+              endDate={new Date("10/25/2025")}
+              registrationDeadline={new Date("10/18/2025")}
+              description='67'
+              agenda='67'
+              location='GUC Berlin'
+              faculty='MET'
+              fundingSource='GUC'
+              initialProfessors={[
+                { id: '1', name: 'Prof. Ahmed Ali' },
+                { id: '2', name: 'Prof. Mona Hassan' }
+              ]
+              }
+              extraResources={["1","67"]}
+            />
+        </CustomModalLayout>
+
       </div>
 
       {/* Props Guide */}

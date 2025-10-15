@@ -9,7 +9,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomIcon from '@/components/shared/Icons/CustomIcon';
 
-import {workshopSchema} from "./schemas/workshop";
+import {workshopSchema} from "../CreateWorkshop/schemas/workshop";
+import dayjs from 'dayjs';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 
@@ -18,29 +19,58 @@ interface Professor {
   name: string;
 }
 
-interface CreateWorkshopProps {
-  setOpenCreateWorkshop: (open: boolean) => void;
+interface EditWorkshopProps {
+  setOpenEditWorkshop: (open: boolean) => void;
   professors: Professor[];
+  workshopName?: string;
+  budget?: number;
+  capacity?: number;
+  startDate: Date | null;
+  endDate: Date | null;
+  registrationDeadline: Date | null;  
+  description?: string;
+  agenda?: string;
+  location?: string;
+  faculty?: string;
+  fundingSource?: string;
+  initialProfessors?: Professor[];
+  extraResources?: string[];
 }
 
-const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps) => {
+const EditWorkshop = ({
+    setOpenEditWorkshop, 
+    professors,
+    workshopName = "",
+    budget = 0,
+    capacity = 0,
+    startDate = null,
+    endDate = null,
+    registrationDeadline = null,
+    description = "",
+    agenda = "",
+    location = "",
+    faculty = "",
+    fundingSource = "",
+    initialProfessors = [],
+    extraResources = [],
+  }: EditWorkshopProps) => {
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
 
   const initialValues ={
-      workshopName: "",
-      budget: 0,
-      capacity: 0,
-      startDate: null,
-      endDate: null, 
-      registrationDeadline: null,
-      description:"",
-      agenda: "",
-      professors: [] as Professor[],
-      location: "",
-      faculty: "",
-      fundingSource: "",
-      extraResources: [] as string[],
+      workshopName,
+      budget,
+      capacity,
+      startDate: startDate? dayjs(startDate) : null,
+      endDate: endDate ? dayjs(endDate) : null,
+      registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
+      description,
+      agenda,
+      professors: initialProfessors,
+      location,
+      faculty,
+      fundingSource,
+      extraResources,
   };
 
   // Function to find professor by value
@@ -52,7 +82,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     alert(JSON.stringify(values));
-    setOpenCreateWorkshop(false);
+    setOpenEditWorkshop(false);
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -64,7 +94,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Create Workshop</Typography>
+        <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Edit Workshop</Typography>
         <Grid container spacing={2} sx={{mb:2}}>
                 <Grid size={4}>
                     <CustomTextField
@@ -377,11 +407,11 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
           </Grid>
         </Grid>
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "Submitting" : 'Create Workshop'} variant='contained' color='primary' fullWidth  type='submit'/>
+            <CustomButton disabled={isSubmitting } label={isSubmitting ? "Submitting" : 'Edit Information'} variant='contained' color='primary' fullWidth  type='submit'/>
         </Box>
       </form>          
     </>
   )
 }
 
-export default CreateWorkshop
+export default EditWorkshop
