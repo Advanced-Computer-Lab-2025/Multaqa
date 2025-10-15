@@ -13,6 +13,10 @@ const workshopSchema = yup.object().shape({
   .min(new Date(), "Registration deadline can't be in the past"),
   description: yup.string().required('Description is required'),
   agenda: yup.string().required('Agenda is required'),
+  professors: yup.array().min(1, "At least one professor should participate").required("Participating professors are required"),
+  location: yup.string().required("Location is required"),
+  faculty: yup.string().required("Faculty is required"),
+  fundingSource: yup.string().required("Funding source is required"),
 });
 
 export { workshopSchema };

@@ -10,20 +10,17 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomIcon from '@/components/shared/Icons/CustomIcon';
 
 import {workshopSchema} from "./schemas/workshop";
+import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 
 interface Professor {
-  label: string;
-  value: string;
+  id: string;
+  name: string;
 }
 
 const CreateWorkshop = () => {
   const [selectedProf, setSelectedProf] = useState<string>("");
-  const [selectedProfs, setSelectedProfs] = useState<Professor[]>([]);
-
-  const [location, setLocation] = useState<string>("");
-  const [faculty, setFaculty] = useState<string>("");
-  const [fundingSource, setFundingSource] = useState<string>("");
+  const [resourceInput, setResourceInput] = useState<string>("");
 
   const initialValues ={
       workshopName: "",
@@ -34,24 +31,29 @@ const CreateWorkshop = () => {
       registrationDeadline: null,
       description:"",
       agenda: "",
+      professors: [] as Professor[],
+      location: "",
+      faculty: "",
+      fundingSource: "",
+      extraResources: [] as string[],
   };
 
   const professors = [
-  { label: 'Prof. Ahmed Ali', value: 'ahmed-ali' },
-  { label: 'Prof. Mona Hassan', value: 'mona-hassan' },
-  { label: 'Prof. Samir Youssef', value: 'samir-youssef' },
+  { id: '1', name: 'Prof. Ahmed Ali' },
+  { id: '2', name: 'Prof. Mona Hassan' },
+  { id: 'Prof. Samir Youssef', name: 'Prof. Samir Youssef' },
   // ...add more
   ];
 
   // Function to find professor by value
-  const findProfessorByValue = (value: string) => {
-    return professors.find(prof => prof.value === value);
+  const findProfessorByID = (value: string) => {
+    return professors.find(prof => prof.id === value);
   };
 
   const onSubmit = async (values: any, actions: any) => {
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    console.log(JSON.stringify(values))
+    alert(JSON.stringify(values))
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -62,6 +64,7 @@ const CreateWorkshop = () => {
 
   return (
     <>
+      <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Create Workshop</Typography>
         <Grid container spacing={2} sx={{mb:2}}>
                 <Grid size={4}>
@@ -78,7 +81,7 @@ const CreateWorkshop = () => {
                         value={values.workshopName}
                         onChange={handleChange}
                     />
-
+                    { errors.workshopName && touched.workshopName ? <p style={{color:"#db3030"}}>{errors.workshopName}</p> : <></>}
                 </Grid>
                 <Grid size={4}>
                   <CustomSelectField
@@ -88,11 +91,10 @@ const CreateWorkshop = () => {
                       { label: 'GUC Cairo', value: 'GUC Cairo' },
                       { label: 'GUC Berlin', value: 'GUC Berlin' },
                     ]}
-                    value={location}
-                    onChange={(e: any) => {
-                      setLocation(e.target ? e.target.value : e);
-                    }}
-                  />    
+                    value={values.location}
+                    onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)}
+                  />
+                  {errors.location && touched.location && (<p style={{ color: "#db3030" }}>{errors.location}</p>)}    
                 </Grid>
                 <Grid size={4}>
                   <CustomSelectField
@@ -108,11 +110,10 @@ const CreateWorkshop = () => {
                       { label: 'Law', value: 'Law' },
                       { label: 'Dentistry', value: 'dentistry' },
                     ]}
-                    value={faculty}
-                    onChange={(e: any) => {
-                      setFaculty(e.target ? e.target.value : e);
-                    }}
-                  />    
+                    value={values.faculty}
+                    onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)}
+                  />
+                  {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
                 </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
@@ -124,11 +125,10 @@ const CreateWorkshop = () => {
                       { label: 'GUC', value: 'GUC' },
                       { label: 'External', value: 'external' },
                     ]}
-                    value={fundingSource}
-                    onChange={(e: any) => {
-                      setFundingSource(e.target ? e.target.value : e);
-                    }}
-                  />    
+                    value={values.fundingSource}
+                    onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
+                  />
+                  {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
                 </Grid>
                 <Grid size={4}>
                     <TextField
@@ -149,6 +149,7 @@ const CreateWorkshop = () => {
                         value={values.budget}
                         onChange={handleChange}
                     />
+                    { errors.budget && touched.budget ? <p style={{color:"#db3030"}}>{errors.budget}</p> : <></>}
                 </Grid>
                 <Grid size={4}>
                     <TextField
@@ -168,7 +169,8 @@ const CreateWorkshop = () => {
                         }}
                       value={values.capacity}
                       onChange={handleChange}
-                  /> 
+                    /> 
+                    { errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
                 </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
@@ -187,7 +189,10 @@ const CreateWorkshop = () => {
                                   sx: { zIndex: 1500 },
                               }
                           }}
+                          value={values.startDate}
+                          onChange={(value) => setFieldValue('startDate', value)}
                       />
+                      {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
               </LocalizationProvider>
           </Grid>
           <Grid size={6}>
@@ -205,8 +210,11 @@ const CreateWorkshop = () => {
                                   sx: { zIndex: 1500 },
                               }
                           }}
-                      />
-                </LocalizationProvider>
+                          value={values.endDate}
+                          onChange={(value) => setFieldValue('endDate', value)}
+                  />
+                  {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
+               </LocalizationProvider>
           </Grid>
           <Grid size={6}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -223,22 +231,29 @@ const CreateWorkshop = () => {
                                   sx: { zIndex: 1500 },
                               }                       
                           }}
+                          value={values.registrationDeadline}
+                          onChange={(value) => setFieldValue('registrationDeadline', value)}
                       />
+                      {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
               </LocalizationProvider>
           </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
-          <Grid size={6}>
+          <Grid size={5}>
                 <CustomSelectField
                   label="Participating Professors"
                   fieldType="single"
-                  options={professors}
+                  options={professors.map(prof => ({
+                    label:prof.name,
+                    value:prof.id
+                  }))}
                   value={selectedProf}
                   onChange={(e: any) => {
                     // If your CustomSelectField returns the value directly:
                     setSelectedProf(e.target ? e.target.value : e);
                   }}
                 />
+                { errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>}
           </Grid>
           <Grid size={1}>
             <CustomIcon 
@@ -246,32 +261,81 @@ const CreateWorkshop = () => {
               size='medium' 
               containerType='outwards'
               onClick={() => {
-                const profToAdd = findProfessorByValue(selectedProf);
+                const profToAdd = findProfessorByID(selectedProf);
                 if (
                   profToAdd && 
-                  !selectedProfs.some(p => p.value === selectedProf)
+                  !values.professors.some(p => p.id === selectedProf)
                 ) {
-                  setSelectedProfs(prev => [...prev, profToAdd]);
+                  setFieldValue('professors', [...values.professors, profToAdd]);
                   setSelectedProf(""); // Clear selection after adding
                 }
               }}
             />
           </Grid>
-          <Grid size={12}>
+          <Grid size={5}>
+            <CustomTextField 
+              label='Extra Resources'
+              name='extraResources'
+              id = 'extraResources' 
+              fieldType='text' 
+              neumorphicBox
+              value={resourceInput}
+              onChange={(e: any) => setResourceInput(e.target.value)}
+              placeholder="e.g., Lab Equipment"
+              autoCapitalize='off'
+              autoCapitalizeName={false}
+            />
+          </Grid>
+          <Grid size={1}>
+            <CustomIcon
+              icon="add"
+              size="medium"
+              containerType="outwards"
+              onClick={() => {
+                const trimmed = resourceInput.trim();
+                if (trimmed && !values.extraResources.includes(trimmed)) {
+                  setFieldValue("extraResources", [...values.extraResources, trimmed]);
+                  setResourceInput("");
+                }
+              }}
+            />
+          </Grid>
+          <Grid size={6}>
             <Typography variant='h6'>Participating Professors:</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1}}>
-              {selectedProfs.map((prof) => (
+              {values.professors.map((prof) => (
                 <Chip
-                  key={prof.value}
-                  label={prof.label}
+                  key={prof.id}
+                  label={prof.name}
                   onDelete={() =>
-                    setSelectedProfs((prev) =>
-                      prev.filter((p) =>p.value !== prof.value)
+                    setFieldValue(
+                      'professors',
+                      values.professors.filter((p) => p.id !== prof.id)
                     )
                   }
                   color="primary"
                   variant="outlined"
                   sx={{m:0.5}}
+                />
+              ))}
+            </Box>
+          </Grid>
+          <Grid size={6}>
+            <Typography variant="h6">Extra Resources:</Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {values.extraResources.map((res) => (
+                <Chip
+                  key={res}
+                  label={res}
+                  onDelete={() =>
+                    setFieldValue(
+                      "extraResources",
+                      values.extraResources.filter((r) => r !== res)
+                    )
+                  }
+                  color="primary"
+                  variant="outlined"
+                  sx={{ m: 0.5 }}
                 />
               ))}
             </Box>
@@ -290,7 +354,10 @@ const CreateWorkshop = () => {
                 neumorphicBox={true}
                 autoCapitalize='off'
                 autoCapitalizeName={false}
+                value={values.description}
+                onChange={handleChange}
               />
+              { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
           </Grid>
           <Grid size={12}>
               <CustomTextField 
@@ -304,9 +371,16 @@ const CreateWorkshop = () => {
                 neumorphicBox={true}
                 autoCapitalize='off'
                 autoCapitalizeName={false}
+                value={values.agenda}
+                onChange={handleChange}
               />
+              { errors.agenda && touched.agenda ? <p style={{color:"#db3030"}}>{errors.agenda}</p> : <></>}
           </Grid>
-        </Grid>        
+        </Grid>
+        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
+            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth  type='submit'/>
+        </Box>
+      </form>          
     </>
   )
 }
