@@ -6,8 +6,7 @@ interface AttendeeInfo {
 
 export interface BoothFormValues {
   attendees: AttendeeInfo[];
-  startDate: Date | null;
-  endDate: Date | null;
+  boothDuration: string;
   boothSize: string;
   selectedBoothId: number | null;
 }

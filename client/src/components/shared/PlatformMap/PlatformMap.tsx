@@ -6,7 +6,7 @@ import Booth from "../Booth/Booth";
 import CheckIcon from "@mui/icons-material/Check";
 import  {PlatformMapProps}  from "./types";
 
-const mockBoothList: number[] = [1, 2, 3, 5, 6, 8, 9, 10]; // available ones mock data
+const BoothList: number[] = [1, 2, 3,4, 5, 6, 7, 8, 9, 10]; 
 
 const boothList: number[] = Array.from({ length: 10 }, (_, i) => i + 1); //10 booths
 
@@ -153,7 +153,7 @@ const PlatformMap: React.FC<PlatformMapProps> = ({
             <Booth
               id={booth.id}
               isSelected={selectedBooth === booth.id}
-              isAvailable={mockBoothList.includes(booth.id)}
+              isAvailable={BoothList.includes(booth.id)}
               curvePosition={booth.curvePosition}
               onClick={handleBoothClick}
             />

@@ -11,7 +11,6 @@ import { BoothFormValues } from "./types";
 import { validationSchema } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import CustomIcon from "../Icons/CustomIcon";
-import DatePicker from "../DatePicker";
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
@@ -27,8 +26,7 @@ const BoothForm: React.FC = () => {
   const initialValues: BoothFormValues = {
     attendees: [{ name: "", email: "" }],
     boothSize: "",
-    startDate: null,
-    endDate: null,
+    boothDuration: "",
     selectedBoothId: null,
   };
 
@@ -193,40 +191,10 @@ const BoothForm: React.FC = () => {
                   ))}
                 </Box>
 
-                <div className="flex items-start gap-5 w-full px-4 mb-5">
-                  <div className="w-[300px]">
-                    <DatePicker
-                      id="startDate"
-                      name="startDate"
-                      label="Start Date"
-                      value={formik.values.startDate}
-                      onChange={(date) => {
-                        formik.setFieldValue("startDate", date);
-                        if (formik.values.endDate) {
-                          formik.validateField("endDate");
-                        }
-                      }}
-                    />
-                  </div>
-
-                  <div className="w-[300px]">
-                    <DatePicker
-                      id="endDate"
-                      name="endDate"
-                      label="End Date"
-                      value={formik.values.endDate}
-                      onChange={(date) => {
-                        formik.setFieldValue("endDate", date);
-                      }}
-                      minDate={formik.values.startDate || undefined}
-                    />
-                  </div>
-                </div>
-
                 {/* Booth Size Select */}
 
-                <div className="flex justify-center items-center w-full mb-4">
-                  <div className="w-[300px]">
+                <div className="flex items-center justify-center gap-10 flex-col mt-5 mb-10">
+                  <div className="w-[500px]">
                     <CustomSelectField
                       label="Booth Size"
                       fieldType="single"
@@ -240,6 +208,7 @@ const BoothForm: React.FC = () => {
                         formik.setFieldValue("boothSize", value || "")
                       }
                       onBlur={() => formik.setFieldTouched("boothSize", true)}
+                      onFocus={() => formik.setFieldTouched("boothSize", true)}
                     />
                     {formik.touched.boothSize && formik.errors.boothSize && (
                       <Box display="flex" alignItems="center" mt={1}>
@@ -252,6 +221,40 @@ const BoothForm: React.FC = () => {
                         </Typography>
                       </Box>
                     )}
+                  </div>
+                  {/* Duration Select */}
+                  <div className="w-[500px]">
+                    <CustomSelectField
+                      label="Booth Duration"
+                      fieldType="single"
+                      neumorphicBox
+                      options={[
+                        { label: "1 week", value: "1week" },
+                        { label: "2 weeks", value: "2week" },
+                        { label: "3 weeks", value: "3week" },
+                        { label: "4 weeks", value: "4week" },
+                      ]}
+                      value={formik.values.boothDuration}
+                      onChange={(value) =>
+                        formik.setFieldValue("boothDuration", value || "")
+                      }
+                      onBlur={() =>
+                        formik.setFieldTouched("boothDuration", true)
+                      }
+                      onFocus={() => formik.setFieldTouched("boothDuration", true)}
+                    />
+                    {formik.touched.boothDuration &&
+                      formik.errors.boothDuration && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.boothDuration}
+                          </Typography>
+                        </Box>
+                      )}
                   </div>
                 </div>
 

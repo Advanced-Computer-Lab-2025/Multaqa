@@ -145,7 +145,7 @@ export default function HomePage() {
     //   </div>
     // </div>
     <div className="flex items-center justify-center gap-5 flex-col mt-10">
-      {/* <BoothForm /> */}
+      <BoothForm />
       <BazarApplicationForm />
     </div>
   );
