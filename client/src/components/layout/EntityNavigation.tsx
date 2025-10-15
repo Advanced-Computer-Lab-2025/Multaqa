@@ -487,7 +487,7 @@ export default function EntityNavigation({
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout logic here
+    // TODO: Implement logout server logic here
     // This could include:
     // - Clearing authentication tokens
     // - Clearing user session data
