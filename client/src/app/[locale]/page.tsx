@@ -17,6 +17,11 @@ export default function HomePage() {
   // const [selectedValue, setSelectedValue] = useState<string | number | string[] | number[]>("");
   // const [isFocused, setIsFocused] = useState(false);
 
+/**
+ * Main page component for the Event Creation interface.
+ * It primarily serves as a wrapper to render the Create component centered on the screen.
+ */
+const CreateEventPage: React.FC = () => {
   return (
     // <div className=" min-h-screen flex items-center justify-center gap-5 flex-col">
     //   {/* CustomButton */}
@@ -146,4 +151,5 @@ export default function HomePage() {
       <LoginForm />
     </div>
   );
+}
 }
