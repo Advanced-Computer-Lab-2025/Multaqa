@@ -151,7 +151,7 @@ const mockEvents: Event[] = [
       },
     },
     details: {
-      Duration: "2 weeks",
+      "Setup Duration": "2 weeks",
       Location: "GUC Career Center",
       "Booth Size": "2x2",
       Description:
@@ -410,7 +410,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
         {filteredEvents.map((event) => (
           <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
         ))}
-        
+
         {/* Results count */}
         {filteredEvents.length > 0 && (
           <Box sx={{ mt: 3, textAlign: "center" }}>

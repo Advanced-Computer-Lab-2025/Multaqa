@@ -110,10 +110,10 @@ export default function EntityCatchAllPage() {
     //Shared Content
     if (tab === "events" || tab === "events-management") {
       if (section === "browse-events") {
-        return <BrowseEventsContent registered={false} user="student" />;
+        return <BrowseEventsContent registered={false} user={entity} />;
       }
       if (section === "all-events") {
-        return <BrowseEventsContent registered={false} user="events-office" />;
+        return <BrowseEventsContent registered={false} user={entity} />;
       }
     }
     if (tab === "events") {

@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
 import { CustomModal } from "../shared/modals";
+import Utilities from "../shared/Utilities";
 
 const TripView: React.FC<BazarViewProps> = ({
   details,
@@ -137,23 +138,23 @@ const TripView: React.FC<BazarViewProps> = ({
           )
         }
         rightIcon={
-          user === "events-office" ? (
+          user === "admin" ? (
+            <Tooltip title="Delete">
             <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-                cursor: "pointer",
-                zIndex: 10,
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          ) : null
+                    size="medium"
+                    onClick={onDelete}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : (user==="events-office"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={
           registered ||

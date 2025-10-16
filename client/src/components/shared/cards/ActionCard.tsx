@@ -111,9 +111,11 @@ export default function ActionCard({
           display:"flex",
           alignItems:"end",
           justifyContent:"end",
+          flexDirection:"row",
         }}
       >
         {rightIcon}
+
       </Box>
     )}
 
