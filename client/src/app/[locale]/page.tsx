@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
-
-export default function RootPage() {
-  redirect("/en");
+export default function LocalePage() {
+  return (
+    <main>
+      <h1>Hello World</h1>
+    </main>
+  );
 }

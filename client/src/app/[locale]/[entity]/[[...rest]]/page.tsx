@@ -41,7 +41,7 @@ export default function EntityCatchAllPage() {
       }
       if (section === "opportunities") {
         // Interpreting "My Applications" as pending/rejected requests list
-        return <BrowseEvents registered={false} user="vendor" />;
+        return <BrowseEventsContent registered={false} user="vendor" />;
       }
       if (section === "apply-booth") {
         return <BoothForm />;
@@ -105,19 +105,21 @@ export default function EntityCatchAllPage() {
       if (section === "all-requests") {
         return <WorkshopReviewUI />;
       }
-  
-    //Shared Content 
-    if ( tab === "events" || tab === "events-management") {
+    }
+
+    //Shared Content
+    if (tab === "events" || tab === "events-management") {
       if (section === "browse-events") {
-        return <BrowseEvents registered={false} user="student"/>;
+        return <BrowseEventsContent registered={false} user="student" />;
       }
       if (section === "all-events") {
-        return <BrowseEvents registered={false} user="events-office" />;
+        return <BrowseEventsContent registered={false} user="events-office" />;
       }
     }
     if (tab === "events") {
       if (section === "my-registered") {
-        return <BrowseEvents registered={true} user="student" />;
+        return <BrowseEventsContent registered={true} user="student" />;
+      }
     }
 
     // Default placeholder content
