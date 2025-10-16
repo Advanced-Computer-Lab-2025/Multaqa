@@ -1,4 +1,5 @@
 import { IEvent } from "../models/event.interface";
+import { IStaffMember } from "../models/staffMember.interface";
 import { IUser } from "../models/user.interface";
 
 export interface GetAllUsersResponse {
@@ -22,4 +23,10 @@ export interface RegisterUserResponse {
   success: boolean;
   message: string;
   data: IEvent;
+}
+
+export interface AssignRoleResponse {
+  success: boolean;
+  message: string;
+  user: Omit<IStaffMember, "password">;
 }
