@@ -69,8 +69,8 @@ async function getAllAdmins(req: Request, res: Response<GetAllAdminsResponse>) {
   }
 }
 
+router.get('/', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllAdmins);
 router.post('/',  authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), createAdmin);
 router.delete('/:adminId', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), deleteAdmin);
-router.get('/', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllAdmins);
 
 export default router;
