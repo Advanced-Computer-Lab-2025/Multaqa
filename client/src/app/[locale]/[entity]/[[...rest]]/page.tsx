@@ -12,6 +12,7 @@ import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
+import GymSchedule from "@/components/gym/GymSchedule";
 import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
 
@@ -55,6 +56,21 @@ export default function EntityCatchAllPage() {
     ) {
       if (section === "reserve" || section === "") {
         return <CourtsBookingContent />;
+      }
+    }
+
+    // Gym sessions for stakeholders
+    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "gym") {
+      if (section === "browse-sessions" || section === "") {
+        return <GymSchedule />;
+      }
+      if (section === "my-sessions") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">My Registered Sessions</h2>
+            <p className="text-gray-600">Coming soon: your registered gym sessions.</p>
+          </div>
+        );
       }
     }
 
