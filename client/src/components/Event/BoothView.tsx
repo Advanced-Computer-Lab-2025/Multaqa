@@ -96,7 +96,7 @@ const BoothView: React.FC<BoothViewProps> = ({
       )}
 
       {/* People Section */}
-      {(user === "events-office" || user === "admin") && people && Object.keys(people).length > 0 && (
+      {(user === "events-office" || user === "admin") && people && people.length > 0 && (
   <Box sx={{ mb: 2 }}>
     <Typography
       variant="body2"
@@ -106,56 +106,58 @@ const BoothView: React.FC<BoothViewProps> = ({
       Representatives
     </Typography>
 
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      {Object.entries(people).map(([key, person]) => (
-        <Box
-          key={person.id}
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+  {people.map((person, index) => (
+    <Box
+      key={index}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        p: 1,
+        backgroundColor: "#f5f5f5",
+        borderRadius: 1,
+      }}
+    >
+      <Avatar
+        sx={{
+          width: 32,
+          height: 32,
+          backgroundColor: getAvatarColor(person.name),
+          fontSize: "12px",
+          fontWeight: 600,
+        }}
+      >
+        {getInitials(person.name)}
+      </Avatar>
+
+      <Box sx={{ flex: 1 }}>
+        <Typography
+          variant="caption"
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            p: 1,
-            backgroundColor: "#f5f5f5",
-            borderRadius: 1,
+            fontSize: "12px",
+            color: "text.primary",
+            fontWeight: 500,
           }}
         >
-          <Avatar
-            sx={{
-              width: 32,
-              height: 32,
-              backgroundColor: getAvatarColor(person.name),
-              fontSize: "12px",
-              fontWeight: 600,
-            }}
-          >
-            {getInitials(person.name)}
-          </Avatar>
+          {person.name}
+        </Typography>
 
-          <Box sx={{ flex: 1 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                fontSize: "12px",
-                color: "text.primary",
-                fontWeight: 500,
-              }}
-            >
-              {person.name}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                fontSize: "11px",
-                color: "text.secondary",
-                display: "block",
-              }}
-            >
-              {person.email}
-            </Typography>
-          </Box>
-        </Box>
-      ))}
+        <Typography
+          variant="caption"
+          sx={{
+            fontSize: "11px",
+            color: "text.secondary",
+            display: "block",
+          }}
+        >
+          {person.email}
+        </Typography>
+      </Box>
     </Box>
+  ))}
+</Box>
+
   </Box>
 )}
 

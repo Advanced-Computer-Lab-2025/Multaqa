@@ -47,16 +47,6 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
 
-
-          <CustomTextField
-              label="ID"
-              fieldType="text"
-              placeholder="Enter your GUC ID"
-              name="id"
-              required
-              neumorphicBox
-              fullWidth
-            />
             <CustomTextField
               label="Name"
               fieldType="text"
