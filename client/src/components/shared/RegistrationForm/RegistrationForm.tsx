@@ -9,13 +9,40 @@ import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
-import UploadField from "../UploadField/UploadField";
-import DescriptionIcon from "@mui/icons-material/Description";
-import BusinessIcon from "@mui/icons-material/Business";
+// import UploadField from "../UploadField/UploadField";
+// import DescriptionIcon from "@mui/icons-material/Description";
+// import BusinessIcon from "@mui/icons-material/Business";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
+import {
+  SignupStudentStaffData,
+  SignupVendorData,
+  SignupData,
+} from "@/context/AuthContext";
+
+interface SignupResponse {
+  success: boolean;
+  message?: string;
+  user?: Record<string, unknown>;
+}
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
+  // We're using useAuth hook here, which requires this component to be wrapped in AuthProvider
+  const { signup } = useAuth();
+
+  // Helper function to handle registration
+  const handleRegistration = async (
+    data: SignupData
+  ): Promise<SignupResponse> => {
+    try {
+      const result = await signup(data);
+      return result as unknown as SignupResponse;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const initialValues =
     UserType !== "vendor"
@@ -38,11 +65,69 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
     <Formik
       initialValues={initialValues}
       validationSchema={getValidationSchema(UserType)}
-      onSubmit={(values, { setSubmitting }) => {
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
+      onSubmit={async (values, { setSubmitting, resetForm }) => {
+        try {
+          // Prepare data for signup based on user type
+          const signupData =
+            UserType !== "vendor"
+              ? ({
+                  firstName: values.firstName as string,
+                  lastName: values.lastName as string,
+                  email: values.email,
+                  password: values.password,
+                  gucId: values.gucId as string,
+                } as SignupStudentStaffData)
+              : ({
+                  companyName: values.companyName as string,
+                  email: values.email,
+                  password: values.password,
+                } as SignupVendorData);
+
+          // Call signup method and cast the result
+          const response = await handleRegistration(signupData);
+
+          // If successful, show success message and redirect
+          if (response && response.success) {
+            // Reset form
+            resetForm();
+
+            // Show success toast with custom config
+            toast.success(
+              "Registration successful! Please check your email for verification.",
+              {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              }
+            );
+
+            // The router navigation is handled in the page component
+          }
+        } catch (err) {
+          // Show error toast with custom config
+          toast.error(
+            err instanceof Error
+              ? err.message
+              : "Registration failed. Please try again.",
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+        } finally {
           setSubmitting(false);
-        }, 400);
+        }
       }}
     >
       {(formik) => (
@@ -290,12 +375,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     )}
                 </div>
                 {/* File Upload Field */}
-                {UserType === "vendor" && (
+                {/* {UserType === "vendor" && (
                   <div
                     className="flex items-start justify-between gap-10 flex-row w-full"
                     style={{ marginTop: "30px", marginBottom: "20px" }}
                   >
-                    {/* Tax Card Upload */}
+                    
                     <div className="flex flex-col w-full">
                       <Typography
                         variant="subtitle1"
@@ -321,7 +406,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                       />
                     </div>
 
-                    {/* Company Logo Upload */}
+                    
                     <div className="flex flex-col w-full">
                       <Typography
                         variant="subtitle1"
@@ -347,7 +432,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                       />
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* Submit Button */}
                 <div className="w-full mt-4">
@@ -378,6 +463,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   </div>
                 </div>
 
+                {/* Error messages are now shown via toast notifications */}
+
                 {/* Login Link */}
                 <div className="mt-4 text-center">
                   <p
@@ -386,7 +473,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   >
                     Already have an account?{" "}
                     <Link
-                      href="/en/login"
+                      href="/login"
                       className="font-medium hover:underline"
                       style={{ color: theme.palette.primary.main }}
                     >

@@ -34,7 +34,10 @@ export const getValidationSchema = (userType: UserType) => {
             "Please enter a valid GUC ID format (e.g., 49-12345)."
           )
           .required("Please enter your GUC ID."),
-        email: emailSchema,
+        email: emailSchema.matches(
+          /^[a-zA-Z0-9._%+-]+@(guc\.edu\.eg|student\.guc\.edu\.eg)$/,
+          "Email must be a GUC or student GUC email address."
+        ),
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
       });
