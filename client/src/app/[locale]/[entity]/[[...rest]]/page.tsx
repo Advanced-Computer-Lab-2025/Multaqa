@@ -12,6 +12,7 @@ import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
+import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -36,6 +37,10 @@ export default function EntityCatchAllPage() {
       if (section === "my-applications") {
         // Interpreting "My Applications" as pending/rejected requests list
         return <VendorRequestsList />;
+      }
+      if (section === "opportunities") {
+        // Interpreting "My Applications" as pending/rejected requests list
+        return <BrowseEvents registered={false} user="vendor"/>;
       }
     }
 
@@ -92,15 +97,26 @@ export default function EntityCatchAllPage() {
       }
     }
 
-     if ( tab === "events" || tab === "events-management") {
-      if (section === "browse-events") {
-        return <BrowseEventsContent/>;
-      }
-      if (section === "all-events") {
-        return <BrowseEventsContent/>;
+    if ( tab === "workshop-requests") {
+      if (section === "all-requests") {
+        return <WorkshopReviewUI/>;
       }
     }
 
+    //Shared Content 
+    if ( tab === "events" || tab === "events-management") {
+      if (section === "browse-events") {
+        return <BrowseEvents registered={false} user="student"/>;
+      }
+      if (section === "all-events") {
+        return <BrowseEvents registered={false} user="events-office" />;
+      }
+    }
+    if (tab==="events"){
+      if (section === "my-registered") {
+        return <BrowseEvents registered={true} user="student"/>;
+      }
+    }
 
     // Default placeholder content
     return (

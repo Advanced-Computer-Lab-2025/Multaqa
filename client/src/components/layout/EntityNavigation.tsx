@@ -71,11 +71,21 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "courts",
-        label: "Courts Booking",
+        label: "Courts",
         icon: Trophy,
         sections: [
           { id: "reserve", label: "Reserve Courts" },
+          { id: "my-reserved", label: "My Reservations" },
           // Future: { id: "my-reservations", label: "My Reservations" },
+        ],
+      },
+      {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
     ],
@@ -100,8 +110,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
+      },
+      {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
         sections: [
-          { id: "reserve", label: "Reserve Courts" },
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
     ],
@@ -126,9 +143,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
     ],
   },
@@ -152,9 +167,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
     ],
   },
@@ -172,6 +185,54 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "all-events", label: "All Events" },
         ],
       },
+      {
+        key: "workshop-requests",
+        label: "Workshop Requests",
+        icon: FileText,
+        sections: [
+          { id: "all-requests", label: "All Requests" },
+          { id: "pending", label: "Pending Requests" },
+          { id: "accepted", label: "Accepted Requests" },
+          { id: "rejected", label: "Rejected Requests" },
+        ],
+      },
+      {
+        key: "vendors",
+        label: "Vendor Management",
+        icon: Store,
+        sections: [
+          { id: "all-vendors", label: "All Vendors" },
+          { id: "participation-requests", label: "Participation Requests" },
+          { id: "loyalty-partners", label: "Loyalty Program Partners" },
+          { id: "documents", label: "View Documents" },
+        ],
+      },
+      {
+        key: "reports",
+        label: "Reports",
+        icon: BarChart3,
+        sections: [
+          { id: "attendee-reports", label: "Attendee Reports" },
+          { id: "sales-reports", label: "Sales Reports" },
+        ],
+      },
+      {
+        key: "gym",
+        label: "Gym Management",
+        icon: Dumbbell,
+        sections: [
+          { id: "all-sessions", label: "All Sessions" },
+          { id: "create-session", label: "Create Session" },
+          { id: "vendor-polls", label: "Create Vendor Polls" },
+        ],
+      },
+      { key: "archive", label: "Archive", icon: Archive, sections: [] },
+      {
+        key: "notifications",
+        label: "Notifications",
+        icon: ClipboardList,
+        sections: [],
+      },
     ],
   },
   admin: {
@@ -180,6 +241,18 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "users",
     defaultSection: "",
     tabs: [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        sections: [],
+      },
+      {
+        key: "events",
+        label: "Events Management",
+        icon: Calendar,
+        sections: [{ id: "all-events", label: "All Events" }],
+      },
       {
         key: "users",
         label: "User Management",
@@ -278,6 +351,18 @@ export default function EntityNavigation({
     router.push(`${base}${entitySeg}${tabSeg}/${id}`);
   };
 
+  const handleLogout = () => {
+    // TODO: Implement logout server logic here
+    // This could include:
+    // - Clearing authentication tokens
+    // - Clearing user session data
+    // - Redirecting to login page
+    console.log("Logout clicked");
+    // Example logout implementation:
+    // localStorage.removeItem('authToken');
+    // router.push('/login');
+  };
+
   // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
   React.useEffect(() => {
     // Only run when we have an entity but no tab
@@ -321,7 +406,7 @@ export default function EntityNavigation({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-">
+    <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
       <TopNavigation companyName="Multaqa" header={headerProps} />
 
@@ -344,11 +429,24 @@ export default function EntityNavigation({
           activeItem={section}
           onItemClick={handleSectionClick}
           sectionItems={sectionItems}
+          onLogout={handleLogout}
         />
 
-        <div className="flex-1 overflow-auto bg-[#f9fbfc] min-h-0 p-4">
-           <div className="flex-1 bg-white min-h-0"  style={{borderRadius:"16px",boxShadow:"0 1px 3px rgba(0, 0, 0, 0.08)",  padding: "20px 28px",  border: "1px solid #e5e7eb"}}>{children}</div>
-           </div>
+        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
+          <div
+            className="flex-1 bg-white min-h-0 overflow-auto"
+            style={{
+              borderRadius: "16px",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+              padding: "20px 28px",
+              border: "1px solid #e5e7eb",
+              minHeight: "73vh",
+              maxHeight: "73vh",
+            }}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );

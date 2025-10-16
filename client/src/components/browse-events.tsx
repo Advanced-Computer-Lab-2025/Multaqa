@@ -1,7 +1,10 @@
+//Notes:
+//
+
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Container } from "@mui/material";
 import FilterPanel from "./shared/FilterCard/FilterPanel";
 import { FilterGroup } from "./shared/FilterCard/types";
 import ConferenceView from "./Event/ConferenceView";
@@ -17,7 +20,12 @@ import {
 } from "./Event/types";
 import CustomSearchBar from "./shared/Searchbar/CustomSearchBar";
 import ContentWrapper from "./shared/containers/ContentWrapper";
+import theme from "@/themes/lightTheme";
 
+interface BrowseEventsProps {
+  registered: boolean;
+  user: string;
+}
 // Define the event type enum
 export enum EventType {
   CONFERENCE = "conference",
@@ -61,6 +69,15 @@ type Event =
   | BazaarEvent
   | BoothEvent
   | TripEvent;
+
+// Define filter value types
+type FilterValue = string | string[] | number | boolean;
+
+// Define filters type
+interface Filters {
+  eventType?: string[];
+  [key: string]: FilterValue | undefined;
+}
 
 // Mock data for different event types
 const mockEvents: Event[] = [
@@ -113,11 +130,12 @@ const mockEvents: Event[] = [
     description:
       "A vibrant marketplace featuring local artisans and their handmade creations.",
     details: {
-      Date: "2024-03-25",
+      "Registration Deadline": "2024-03-15",
+      "Start Date": "2024-03-25",
+      "End Date": "2024-03-25",
       Time: "10:00 - 20:00",
       Location: "GUC Main Hall",
       "Vendor Count": "25",
-      "Entry Fee": "Free",
     },
   },
   {
@@ -133,10 +151,9 @@ const mockEvents: Event[] = [
       },
     },
     details: {
-      Duration: "2 days",
+      Duration: "2 weeks",
       Location: "GUC Career Center",
-      "Booth Size": "Large (20x10 ft)",
-      "Setup Time": "09:00",
+      "Booth Size": "2x2",
       Description:
         "Explore career opportunities at Microsoft and meet with recruiters.",
     },
@@ -148,11 +165,12 @@ const mockEvents: Event[] = [
     description:
       "Explore the rich history and culture of Alexandria with guided tours.",
     details: {
-      Date: "2024-04-01",
+      "Registration Deadline": "2024-03-15",
+      "Start Date": "2024-04-01",
+      "End Date": "2024-04-01",
+      Location: "Alexandria, Egypt",
       "Departure Time": "08:00",
       "Return Time": "18:00",
-      Transportation: "Air-conditioned bus",
-      Lunch: "Included",
       Cost: "EGP 200",
       Capacity: "50",
     },
@@ -173,7 +191,7 @@ const mockEvents: Event[] = [
       "Required Budget": "$35,000",
       "Source of Funding": "External",
       "Extra Required Resources":
-        "Sustainable catering, eco-friendly materials",
+        "Sustainable catering, eco-friendly materials,  eco-friendly materials",
       Link: "https://sustainabilityconf2024.com",
     },
   },
@@ -200,14 +218,21 @@ interface FilterState {
   eventType?: EventType[];
   [key: string]: EventType[] | string[] | number[] | undefined;
 }
-
-const BrowseEvents: React.FC = () => {
+  const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<FilterState>({});
+  const [filters, setFilters] = useState<Filters>({});
+  const [events, setEvents] = useState<Event[]>(mockEvents);
+
+  // Handle event deletion
+  const handleDeleteEvent = (eventId: string) => {
+    setEvents((prevEvents) =>
+      prevEvents.filter((event) => event.id !== eventId)
+    );
+  };
 
   // Filter and search logic
   const filteredEvents = useMemo(() => {
-    let filtered = mockEvents;
+    let filtered = events;
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -239,18 +264,14 @@ const BrowseEvents: React.FC = () => {
 
     // Apply type filter
     if (filters.eventType && filters.eventType.length > 0) {
-      filtered = filtered.filter((event) =>
-        filters.eventType!.includes(event.type)
-      );
+      const eventTypes = filters.eventType;
+      filtered = filtered.filter((event) => eventTypes.includes(event.type));
     }
 
     return filtered;
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, events]);
 
-  const handleFilterChange = (
-    groupId: string,
-    value: EventType[] | string[] | number[]
-  ) => {
+  const handleFilterChange = (groupId: string, value: FilterValue) => {
     setFilters((prev) => ({
       ...prev,
       [groupId]: value,
@@ -263,7 +284,7 @@ const BrowseEvents: React.FC = () => {
   };
 
   // Render event component based on type
-  const renderEventComponent = (event: Event) => {
+  const renderEventComponent = (event: Event, registered: boolean) => {
     switch (event.type) {
       case EventType.CONFERENCE:
         return (
@@ -273,6 +294,9 @@ const BrowseEvents: React.FC = () => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
+            user={user}
+            registered={registered}
+            onDelete={() => handleDeleteEvent(event.id)}
           />
         );
       case EventType.WORKSHOP:
@@ -283,6 +307,9 @@ const BrowseEvents: React.FC = () => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
+            user={user}
+            registered={registered}
+            onDelete={() => handleDeleteEvent(event.id)}
           />
         );
       case EventType.BAZAAR:
@@ -292,6 +319,9 @@ const BrowseEvents: React.FC = () => {
             details={event.details}
             name={event.name}
             description={event.description}
+            user={user}
+            registered={registered}
+            onDelete={() => handleDeleteEvent(event.id)}
           />
         );
       case EventType.BOOTH:
@@ -301,6 +331,9 @@ const BrowseEvents: React.FC = () => {
             company={event.company}
             people={event.people}
             details={event.details}
+            user={user}
+            registered={registered}
+            onDelete={() => handleDeleteEvent(event.id)}
           />
         );
       case EventType.TRIP:
@@ -310,6 +343,9 @@ const BrowseEvents: React.FC = () => {
             details={event.details}
             name={event.name}
             description={event.description}
+            user={user}
+            registered={registered}
+            onDelete={() => handleDeleteEvent(event.id)}
           />
         );
       default:
@@ -318,50 +354,78 @@ const BrowseEvents: React.FC = () => {
   };
 
   return (
-    <ContentWrapper
-      title="Browse Events"
-      description="Discover and explore upcoming events, workshops, conferences, and activities"
-    >
-      <Box sx={{ maxWidth: "1200px", mx: "auto" }}>
-        {/* Search and Filter Row */}
-        <Box
+    <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
+      <Box sx={{ mb: 2 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
           sx={{
-            display: "flex",
-            gap: 2,
-            alignItems: "center",
-            mb: 6,
-            flexWrap: "wrap",
+            mb: 2,
+            textAlign: "left",
+            fontFamily: "var(--font-jost), system-ui, sans-serif",
+            color: `${theme.palette.tertiary.dark}`,
           }}
         >
-          <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
-            <CustomSearchBar width="50vw" type="outwards" />
-            {/* <TextField
-            fullWidth
-            variant="outlined"
-            size="small"
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="primary" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-              }
-            }}
-          /> */}
-          </Box>
-          <FilterPanel
-            filterGroups={filterGroups}
-            onFilterChange={handleFilterChange}
-            currentFilters={filters}
-            onReset={handleResetFilters}
-          />
+          {registered ? " My Registered Events" : "Browse Events"}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
+        >
+          {registered
+            ? "Keep track of which events you have registered for"
+            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"}
+        </Typography>
+      </Box>
+
+      {/* Search and Filter Row */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+          mb: 6,
+          flexWrap: "wrap",
+        }}
+      >
+        <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
+          <CustomSearchBar width="60vw" type="outwards" />
+        </Box>
+        <FilterPanel
+          filterGroups={filterGroups}
+          onFilterChange={handleFilterChange}
+          currentFilters={filters}
+          onReset={handleResetFilters}
+        />
+      </Box>
+
+      {/* Events Grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "repeat(2, 1fr)",
+            lg: "repeat(3, 1fr)",
+          },
+          gap: 3,
+        }}
+      >
+        {filteredEvents.map((event) => (
+          <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
+        ))}
+      </Box>
+
+      {/* No results message */}
+      {filteredEvents.length === 0 && (
+        <Box sx={{ textAlign: "center", py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            No events found matching your criteria
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Try adjusting your search or filters
+          </Typography>
         </Box>
 
         {/* Events Grid */}
@@ -379,6 +443,12 @@ const BrowseEvents: React.FC = () => {
           {filteredEvents.map((event) => (
             <Box key={event.id}>{renderEventComponent(event)}</Box>
           ))}
+      {/* Results count */}
+      {filteredEvents.length > 0 && (
+        <Box sx={{ mt: 3, textAlign: "center" }}>
+          <Typography variant="body2" color="text.secondary">
+            Showing {filteredEvents.length} of {mockEvents.length} events
+          </Typography>
         </Box>
 
         {/* No results message */}
