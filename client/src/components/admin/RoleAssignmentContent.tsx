@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
@@ -9,7 +9,12 @@ import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
 import { Applicant } from "./types";
-import { handleDragStart, assignToRole, handleAssignRole } from "./utils";
+import {
+  handleDragStart,
+  assignToRole,
+  handleAssignRole,
+  fetchUnassignedStaff,
+} from "./utils";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
 
@@ -25,29 +30,9 @@ function DroppableZone({
   return <div ref={setNodeRef}>{children}</div>;
 }
 
-const initialApplicants: Applicant[] = [
-  {
-    id: "58-5727",
-    name: "Angelina J",
-    email: "angelina@gmail.com",
-    registrationDate: "25/08/2025",
-  },
-  {
-    id: "58-5728",
-    name: "Vini JR",
-    email: "vinijr@gmail.com",
-    registrationDate: "26/08/2025",
-  },
-  {
-    id: "58-5729",
-    name: "Sam Carter",
-    email: "sam.carter@example.com",
-    registrationDate: "27/08/2025",
-  },
-];
-
 export default function RoleAssignmentContent() {
-  const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const roleKeys = ["staff", "ta", "professor"] as const;
   const roleLabels: Record<(typeof roleKeys)[number], string> = {
@@ -71,6 +56,24 @@ export default function RoleAssignmentContent() {
     role: string;
     applicant: Applicant;
   } | null>(null);
+
+  // Fetch unassigned staff members on component mount
+  useEffect(() => {
+    const loadUnassignedStaff = async () => {
+      try {
+        setLoading(true);
+        const staff = await fetchUnassignedStaff();
+        setApplicants(staff);
+      } catch (error) {
+        console.error("Failed to load unassigned staff:", error);
+        // You might want to show an error toast/notification here
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUnassignedStaff();
+  }, []);
 
   const activeDraggedUser =
     applicants.find((a) => a.id === activeId) ||
@@ -234,7 +237,20 @@ export default function RoleAssignmentContent() {
                     : "100px",
               }}
             >
-              {applicants.length === 0 && (
+              {loading && (
+                <Typography
+                  sx={{
+                    color: "#757575",
+                    fontSize: "14px",
+                    textAlign: "center",
+                    py: 4,
+                  }}
+                >
+                  Loading unassigned staff...
+                </Typography>
+              )}
+
+              {!loading && applicants.length === 0 && (
                 <Typography
                   sx={{
                     color: "#757575",

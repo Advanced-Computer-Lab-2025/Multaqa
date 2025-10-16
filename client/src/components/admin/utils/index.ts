@@ -230,6 +230,93 @@ export const handleToggleBlock = async (
   }
 };
 
+// Fetch all users
+export const fetchAllUsers = async (): Promise<User[]> => {
+  try {
+    console.log('📋 Fetching all users...');
+
+    const response = await api.get('/users');
+    const users = response.data.data;
+
+    console.log(`✅ Found ${users.length} user(s)`);
+
+    // Map backend data to User interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return users.map((user: any) => ({
+      id: user._id,
+      name: user.firstName && user.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user.name || 'Unknown',
+      email: user.email,
+      role: mapBackendRoleToFrontend(user.role, user.position, user.roleType),
+      status: user.status === 'active' ? 'Active' : 'Blocked',
+      createdDate: formatDate(user.registeredAt || user.createdAt || new Date().toISOString()),
+    }));
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('❌ Failed to fetch users:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error('❌ Failed to fetch users:', error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch users");
+  }
+};
+
+// Map backend role to frontend UserRole
+function mapBackendRoleToFrontend(role: string, position?: string, roleType?: string): string {
+  if (role === 'staffMember') {
+    if (position === 'TA') return 'TA';
+    if (position === 'PROFESSOR') return 'Professor';
+    if (position === 'STAFF') return 'Staff';
+    return 'Staff';
+  }
+  if (role === 'student') return 'Student';
+  if (role === 'administration') {
+    if (roleType === 'admin') return 'Admin';
+    if (roleType === 'eventsOffice') return 'Event Office';
+    return 'Admin';
+  }
+  if (role === 'vendor') return 'Vendor';
+  return 'Student'; // default
+}
+
+// Fetch unassigned staff members
+export const fetchUnassignedStaff = async (): Promise<Applicant[]> => {
+  try {
+    console.log('📋 Fetching unassigned staff members...');
+
+    const response = await api.get('/users/unassigned-staff');
+    const staffMembers = response.data.data;
+
+    console.log(`✅ Found ${staffMembers.length} unassigned staff member(s)`);
+
+    // Map backend data to Applicant interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return staffMembers.map((staff: any) => ({
+      id: staff._id,
+      name: `${staff.firstName} ${staff.lastName}`,
+      email: staff.email,
+      gucId: staff.gucId,
+      registrationDate: formatDate(staff.registeredAt || staff.createdAt || new Date().toISOString()),
+    }));
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('❌ Failed to fetch unassigned staff:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error('❌ Failed to fetch unassigned staff:', error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch unassigned staff");
+  }
+};
+
 // Assign role to a user
 export const handleAssignRole = async (
   userId: string,
