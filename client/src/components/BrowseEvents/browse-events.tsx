@@ -109,11 +109,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
 
   async function handleCallAPI (){
     try{
+      if(!registered){
       const res = await api.get("/events");
       const data = res.data.data;
       const result = frameData(data);
       setEvents(result);
       console.log(res.data.data);
+      }
     }
     catch(err){
       console.error(err);
