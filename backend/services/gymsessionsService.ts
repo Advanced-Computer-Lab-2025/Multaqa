@@ -45,14 +45,14 @@ export class GymSessionsService {
 
     const date = new Date();
 
-    filter.event_start_date = {
+    filter.eventStartDate = {
       $gte: new Date(date.getFullYear(), date.getMonth(), 1),
       $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),
     };
 
     return this.gymSessionRepo.findAll(filter, {
       select:
-        " sessionType trainer event_start_date event_start_time event_end_time",
+        " sessionType eventName trainer eventStartDate eventStartTime eventEndTime location description"
     });
   }
 }

@@ -16,6 +16,8 @@ import createError from 'http-errors';
 import { sendVerification } from './emailService';
 import { VerificationService } from './verificationService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
+import { IAdministration } from '../interfaces/models/administration.interface';
+import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -23,6 +25,7 @@ export class AuthService {
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
   private verificationService: VerificationService;
+  private adminRepo: GenericRepository<IAdministration>;
 
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
@@ -30,10 +33,11 @@ export class AuthService {
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
     this.verificationService = new VerificationService();
+    this.adminRepo = new GenericRepository<IAdministration>(Administration); 
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise< Omit<IUser, 'password'> > {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<Omit<IUser, 'password'>> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -134,9 +138,21 @@ export class AuthService {
       throw createError(403, 'Please verify your email before logging in');
     }
 
+    // -------- Fetch extended info if needed in generating tokens --------
+    let extendedUser: IUser = user;
+
+    if (user.role === UserRole.ADMINISTRATION) {
+      const admin = await this.adminRepo.findOne({ _id: user._id });
+      if (admin) extendedUser = Object.assign(user.toObject(), { roleType: admin.roleType });
+    }
+    else if (user.role === UserRole.STAFF_MEMBER) {
+      const staff = await this.staffRepo.findOne({ _id: user._id });
+      if (staff) extendedUser = Object.assign(user.toObject(), { position: staff.position });
+    }
+
     // Generate JWT tokens
-    const accessToken = this.generateAccessToken(user);
-    const refreshToken = this.generateRefreshToken(user);
+    const accessToken = this.generateAccessToken(extendedUser);
+    const refreshToken = this.generateRefreshToken(extendedUser);
 
     // Store refresh token in Redis with expiration (7 days)
     await redisClient.setEx(
@@ -183,14 +199,45 @@ export class AuthService {
   }
 
   generateAccessToken(user: IUser): string {
-    return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.ACCESS_TOKEN_SECRET! as Secret, {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRES
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Add sub-role info dynamically
+    if (user.role === UserRole.ADMINISTRATION && (user as any).roleType) {
+      payload.adminRole = (user as any).roleType; // e.g. "admin" | "eventsOffice"
+    }
+
+    if (user.role === UserRole.STAFF_MEMBER && (user as any).position) {
+      payload.staffPosition = (user as any).position; // e.g. "professor" | "TA"
+    }
+
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRES,
     } as SignOptions);
   }
 
   generateRefreshToken(user: IUser): string {
-    return jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.REFRESH_TOKEN_SECRET! as Secret, {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRES
+    const payload: any = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // Add sub-role info dynamically
+    if (user.role === UserRole.ADMINISTRATION && (user as any).roleType) {
+      payload.adminRole = (user as any).roleType;
+    }
+
+    if (user.role === UserRole.STAFF_MEMBER && (user as any).position) {
+      payload.staffPosition = (user as any).position;
+    }
+
+    return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET! as Secret, {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES,
     } as SignOptions);
   }
+
 }

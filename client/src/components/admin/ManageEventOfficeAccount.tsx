@@ -141,9 +141,18 @@ export default function ManageEventOfficeAccount() {
           onClick={() => handleOpenDeleteModal(account)}
           startIcon={<DeleteIcon />}
           sx={{
-            fontSize: "14px",
             width: "100%",
-            maxWidth: "120px",
+            maxWidth: "100px !important",
+            padding: "4px 12px !important",
+            fontSize: "12px !important",
+            height: "32px !important",
+            minHeight: "32px !important",
+            "& .MuiButton-startIcon": {
+              marginRight: "4px",
+              "& svg": {
+                fontSize: "16px",
+              },
+            },
           }}
         />
       }
@@ -257,7 +266,7 @@ export default function ManageEventOfficeAccount() {
               sx={{
                 fontFamily: "var(--font-jost), system-ui, sans-serif",
                 fontWeight: 700,
-                color: theme.palette.primary.main,
+                color: theme.palette.tertiary.main,
                 textAlign: "center",
                 mb: 3,
               }}
@@ -272,7 +281,10 @@ export default function ManageEventOfficeAccount() {
                 placeholder="Enter full name"
                 name="fullName"
                 value={formik.values.fullName}
-                onChange={formik.handleChange}
+                onChange={(event) => {
+                  // Let CustomTextField handle capitalization first, then update Formik
+                  formik.setFieldValue("fullName", event.target.value);
+                }}
                 onBlur={formik.handleBlur}
                 error={
                   formik.touched.fullName && Boolean(formik.errors.fullName)
@@ -291,13 +303,17 @@ export default function ManageEventOfficeAccount() {
                 placeholder="Enter GUC email (name@guc.edu.eg)"
                 name="email"
                 value={formik.values.email}
-                onChange={formik.handleChange}
+                onChange={(event) => {
+                  // Let CustomTextField handle email domain appending, then update Formik
+                  formik.setFieldValue("email", event.target.value);
+                }}
                 onBlur={formik.handleBlur}
                 error={formik.touched.email && Boolean(formik.errors.email)}
                 helperText={formik.touched.email ? formik.errors.email : ""}
                 neumorphicBox
                 required
                 fullWidth
+                stakeholderType="staff"
               />
 
               <CustomTextField

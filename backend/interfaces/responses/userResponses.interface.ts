@@ -1,3 +1,4 @@
+import { IEvent } from "../models/event.interface";
 import { IUser } from "../models/user.interface";
 
 export interface GetAllUsersResponse {
@@ -15,4 +16,10 @@ export interface GetUserByIdResponse {
 export interface BlockUserResponse {
   success: boolean;
   message: string;
+}
+
+export interface RegisterUserResponse {
+  success: boolean;
+  message: string;
+  data: IEvent;
 }

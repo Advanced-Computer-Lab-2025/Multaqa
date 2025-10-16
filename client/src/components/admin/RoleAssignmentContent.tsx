@@ -4,11 +4,14 @@ import React, { useState } from "react";
 import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
 import { Applicant } from "./types";
-import { handleDragStart, handleDragEnd, assignToRole } from "./utils";
+import { handleDragStart, assignToRole } from "./utils";
+import CustomModal from "@/components/shared/modals/CustomModal";
+import type { DragEndEvent } from "@dnd-kit/core";
 
 // Droppable zone component
 function DroppableZone({
@@ -62,58 +65,85 @@ export default function RoleAssignmentContent() {
   const [activeRoleIndex, setActiveRoleIndex] = useState<number>(0);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Modal state for confirmation
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pendingAssignment, setPendingAssignment] = useState<{
+    role: string;
+    applicant: Applicant;
+  } | null>(null);
+
   const activeDraggedUser =
     applicants.find((a) => a.id === activeId) ||
     Object.values(assigned)
       .flat()
       .find((u) => u.id === activeId);
 
+  // Handler to confirm the assignment
+  const handleConfirmAssignment = () => {
+    // Assignment already happened optimistically, just close modal
+    setModalOpen(false);
+    setPendingAssignment(null);
+  };
+
+  // Handler to cancel the assignment - revert the optimistic update
+  const handleCancelAssignment = () => {
+    if (pendingAssignment) {
+      // Move the applicant back to pending
+      setAssigned((prev) => ({
+        ...prev,
+        [pendingAssignment.role]: prev[pendingAssignment.role].filter(
+          (a) => a.id !== pendingAssignment.applicant.id
+        ),
+      }));
+      setApplicants((prev) => [...prev, pendingAssignment.applicant]);
+    }
+    setModalOpen(false);
+    setPendingAssignment(null);
+  };
+
+  // Custom drag end handler that triggers confirmation
+  const handleDragEndWithConfirmation = (e: DragEndEvent) => {
+    const { active, over } = e;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const draggedId = String(active.id);
+    const targetRole = String(over.id);
+
+    // Check if the target is a valid role
+    if (!roleKeys.includes(targetRole as (typeof roleKeys)[number])) return;
+
+    // Find the applicant being dragged
+    const applicant = applicants.find((a) => a.id === draggedId);
+
+    if (applicant) {
+      // Optimistically assign the role first (move visually)
+      assignToRole(targetRole, applicant, setAssigned, setApplicants);
+
+      // Switch to the correct tab to show where it was assigned
+      const roleIndex = roleKeys.indexOf(
+        targetRole as (typeof roleKeys)[number]
+      );
+      if (roleIndex !== -1) {
+        setActiveRoleIndex(roleIndex);
+      }
+
+      // Then show confirmation modal
+      setPendingAssignment({ role: targetRole, applicant });
+      setModalOpen(true);
+    }
+  };
+
   return (
     <DndContext
       onDragStart={(e) => handleDragStart(e, setActiveId)}
-      onDragEnd={(e) =>
-        handleDragEnd(
-          e,
-          setActiveId,
-          applicants,
-          roleKeys,
-          setAssigned,
-          setApplicants
-        )
-      }
+      onDragEnd={handleDragEndWithConfirmation}
     >
-      <Box
-        sx={{
-          p: 4,
-          backgroundColor: "transparent",
-          minHeight: "100vh",
-          fontFamily: "var(--font-poppins), system-ui, sans-serif",
-        }}
+      <ContentWrapper
+        title="Assign Roles"
+        description="Drag tickets to assign roles or expand and select from dropdown"
       >
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 700,
-              color: "#1E1E1E",
-              mb: 1,
-            }}
-          >
-            Assign Roles
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#757575",
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            }}
-          >
-            Drag tickets to assign roles or expand and select from dropdown
-          </Typography>
-        </Box>
-
         <Box
           sx={{
             display: "grid",
@@ -215,12 +245,26 @@ export default function RoleAssignmentContent() {
                         role="N/A"
                         onRoleChange={(newRole: string) => {
                           if (newRole !== "N/A") {
+                            const role = newRole.toLowerCase();
+                            // Optimistically assign the role first (move visually)
                             assignToRole(
-                              newRole.toLowerCase(),
+                              role,
                               applicant,
                               setAssigned,
                               setApplicants
                             );
+
+                            // Switch to the correct tab to show where it was assigned
+                            const roleIndex = roleKeys.indexOf(
+                              role as (typeof roleKeys)[number]
+                            );
+                            if (roleIndex !== -1) {
+                              setActiveRoleIndex(roleIndex);
+                            }
+
+                            // Then show confirmation modal
+                            setPendingAssignment({ role, applicant });
+                            setModalOpen(true);
                           }
                         }}
                       />
@@ -240,16 +284,7 @@ export default function RoleAssignmentContent() {
             }}
           >
             {/* Role Tabs */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
-                gap: 2,
-              }}
-            >
+            <Box className="w-full flex flex-col 2xl:flex-row justify-between items-start 2xl:items-center mb-3 gap-2">
               <Typography
                 variant="h6"
                 sx={{
@@ -257,6 +292,7 @@ export default function RoleAssignmentContent() {
                   fontWeight: 600,
                   color: "#3a4f99",
                   fontSize: "18px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Assigned Users
@@ -264,14 +300,15 @@ export default function RoleAssignmentContent() {
 
               <NeumorphicBox
                 containerType="inwards"
+                className="w-full 2xl:w-fit"
                 sx={{
-                  width: "auto",
                   padding: "8px",
                   borderRadius: "9999px",
                   display: "flex",
                   flexDirection: "row",
-                  gap: 1,
+                  justifyContent: "space-between",
                   flexWrap: "wrap",
+                  maxWidth: { xs: "100%", xl: "400px" },
                 }}
               >
                 {roleKeys.map((roleKey, idx) => (
@@ -282,8 +319,8 @@ export default function RoleAssignmentContent() {
                     variant={activeRoleIndex === idx ? "contained" : "outlined"}
                     color={activeRoleIndex === idx ? "tertiary" : "primary"}
                     onClick={() => setActiveRoleIndex(idx)}
-                    width="90px"
                     height="36px"
+                    className="w-1/3 2xl:w-auto"
                     sx={{
                       fontSize: "12px",
                       fontWeight: 700,
@@ -308,8 +345,8 @@ export default function RoleAssignmentContent() {
                     fontSize: "14px",
                   }}
                 >
-                  {roleLabels[roleKey]} ({(assigned[roleKey] || []).length}
-                  users)
+                  {roleLabels[roleKey]} ({(assigned[roleKey] || []).length}{" "}
+                  {(assigned[roleKey] || []).length === 1 ? "user" : "users"})
                 </Typography>
 
                 {/* Droppable zone for this role */}
@@ -370,7 +407,7 @@ export default function RoleAssignmentContent() {
             ))}
           </Box>
         </Box>
-      </Box>
+      </ContentWrapper>
       <DragOverlay>
         {activeId && activeDraggedUser ? (
           <RegisterBox
@@ -382,6 +419,45 @@ export default function RoleAssignmentContent() {
           />
         ) : null}
       </DragOverlay>
+
+      {/* Confirmation Modal */}
+      <CustomModal
+        title="Confirm Role Assignment"
+        modalType="warning"
+        open={modalOpen}
+        onClose={handleCancelAssignment}
+        buttonOption1={{
+          label: "Confirm",
+          variant: "contained",
+          color: "warning",
+          onClick: handleConfirmAssignment,
+        }}
+        buttonOption2={{
+          label: "Cancel",
+          variant: "outlined",
+          color: "warning",
+          onClick: handleCancelAssignment,
+        }}
+      >
+        <Typography
+          sx={{
+            mt: 2,
+            fontFamily: "var(--font-poppins), system-ui, sans-serif",
+            textAlign: "center",
+          }}
+        >
+          Are you sure you want to assign{" "}
+          <strong>{pendingAssignment?.applicant.name}</strong> to the role of{" "}
+          <strong>
+            {pendingAssignment?.role &&
+              roleLabels[pendingAssignment.role as keyof typeof roleLabels]}
+          </strong>
+          ?
+          <br />
+          <br />
+          This action is <strong>irreversible</strong>.
+        </Typography>
+      </CustomModal>
     </DndContext>
   );
 }

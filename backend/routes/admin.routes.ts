@@ -3,9 +3,14 @@ import { AdministrationService } from '../services/adminService';
 import { createAdminValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
 import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse } from "../interfaces/responses/administrationResponses.interface";
+import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
+import { UserRole } from '../constants/user.constants';
+import { StaffMember } from '../schemas/stakeholder-schemas/staffMemberSchema';
+import { StaffPosition } from '../constants/staffMember.constants';
+import { AdministrationRoleType } from '../constants/administration.constants';
 
 const router = Router();
-const adminService = new AdministrationService();
+const adminService = new AdministrationService();   
 
 // Create admin/Event Office account
 async function createAdmin(req: Request, res: Response<CreateAdminResponse>) {
@@ -64,8 +69,8 @@ async function getAllAdmins(req: Request, res: Response<GetAllAdminsResponse>) {
   }
 }
 
-router.post('/', createAdmin);
-router.delete('/:adminId', deleteAdmin);
-router.get('/', getAllAdmins);
+router.get('/', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllAdmins);
+router.post('/',  authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), createAdmin);
+router.delete('/:adminId', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), deleteAdmin);
 
 export default router;

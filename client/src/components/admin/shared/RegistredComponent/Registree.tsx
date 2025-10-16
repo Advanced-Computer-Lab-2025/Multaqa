@@ -15,7 +15,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import IdChip from "./IdChip";
 import NeumorphicBox from "../../../shared/containers/NeumorphicBox";
-import theme from "@/themes/lightTheme";
 import { RegisterBoxProps } from "./types";
 import { TruncatedText } from "./utils";
 import { useState } from "react";
@@ -35,6 +34,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const theme = useTheme();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRoleChange = (event: any) => {
     const newRole = event.target.value;
     setSelectedRole(newRole);
@@ -74,7 +74,8 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
           alignItems: "center",
           cursor: "grab",
         }}
-        onPointerDown={(e) => e.stopPropagation()}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onPointerDown={(e: any) => e.stopPropagation()}
         {...dragHandleProps}
       >
         <DragIndicatorIcon sx={{ fontSize: "16px" }} />
@@ -115,8 +116,8 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
               borderRadius: "20px",
               boxShadow: `
                       -3px -3px 8px 0 #FAFBFF,
-                      5px 5px 8px 0 rgba(107, 79, 150, 0.6)
-                                         `,
+                      5px 5px 8px 0 rgba(98, 153, 208, 0.6)
+                                        `,
               flexShrink: 0,
             }}
           >

@@ -59,7 +59,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -72,10 +71,11 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "courts",
-        label: "Courts Booking",
+        label: "Courts",
         icon: Trophy,
         sections: [
           { id: "reserve", label: "Reserve Courts" },
+          { id: "my-reserved", label: "My Reservations" },
           // Future: { id: "my-reservations", label: "My Reservations" },
         ],
       },
@@ -88,13 +88,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
-      },
     ],
   },
   staff: {
@@ -103,7 +96,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -112,16 +104,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
         ],
       },
       {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
       {
         key: "gym",
@@ -131,13 +120,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-sessions", label: "Browse Sessions" },
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
       },
     ],
   },
@@ -147,7 +129,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -156,42 +137,22 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
         ],
       },
       {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
-      },
-      {
-        key: "gym",
-        label: "Gym Sessions",
-        icon: Dumbbell,
-        sections: [
-          { id: "browse-sessions", label: "Browse Sessions" },
-          { id: "my-sessions", label: "My Registered Sessions" },
-        ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
     ],
   },
   professor: {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "workshops",
+    defaultTab: "events",
     defaultSection: "create-workshop",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -200,67 +161,28 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
-        ],
-      },
-      {
-        key: "workshops",
-        label: "My Workshops",
-        icon: FileText,
-        sections: [
-          { id: "create-workshop", label: "Create Workshop" },
-          { id: "draft", label: "Draft" },
-          { id: "submitted", label: "Submitted" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
         ],
       },
       {
         key: "courts",
         label: "Courts Booking",
         icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
-      },
-      {
-        key: "gym",
-        label: "Gym Sessions",
-        icon: Dumbbell,
-        sections: [
-          { id: "browse-sessions", label: "Browse Sessions" },
-          { id: "my-sessions", label: "My Registered Sessions" },
-        ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
     ],
   },
   "events-office": {
     headerTitle: "Events Office",
     icon: <Calendar size={32} className="text-[#6299d0]" />,
-    defaultTab: "dashboard",
+    defaultTab: "events",
     defaultSection: "",
     tabs: [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        sections: [],
-      },
       {
         key: "events",
         label: "Events Management",
         icon: Calendar,
         sections: [
           { id: "all-events", label: "All Events" },
-          { id: "create-event", label: "Create Event" },
-          { id: "event-details", label: "Event Details" },
         ],
       },
       {
@@ -268,9 +190,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Workshop Requests",
         icon: FileText,
         sections: [
-          { id: "pending", label: "Pending" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
+          { id: "all-requests", label: "All Requests" },
+          { id: "pending", label: "Pending Requests" },
+          { id: "accepted", label: "Accepted Requests" },
+          { id: "rejected", label: "Rejected Requests" },
         ],
       },
       {
@@ -315,7 +238,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   admin: {
     headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
-    defaultTab: "dashboard",
+    defaultTab: "users",
     defaultSection: "",
     tabs: [
       {
@@ -323,6 +246,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Dashboard",
         icon: LayoutDashboard,
         sections: [],
+      },
+      {
+        key: "events",
+        label: "Events Management",
+        icon: Calendar,
+        sections: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "users",
@@ -339,8 +268,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: ClipboardList,
         sections: [
           { id: "assign-roles", label: "Assign Roles" },
-          { id: "view-assignments", label: "Current Assignments" },
-          { id: "role-history", label: "Role Change History" },
         ],
       },
       {
@@ -348,28 +275,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Event Office Accounts",
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
-      },
-      {
-        key: "activity-logs",
-        label: "Activity Logs",
-        icon: FileText,
-        sections: [
-          { id: "recent-activity", label: "Recent Activity" },
-          { id: "user-actions", label: "User Actions" },
-          { id: "system-events", label: "System Events" },
-          { id: "login-history", label: "Login History" },
-        ],
-      },
-      {
-        key: "settings",
-        label: "System Settings",
-        icon: Settings,
-        sections: [
-          { id: "general", label: "General Settings" },
-          { id: "security", label: "Security Settings" },
-          { id: "email-config", label: "Email Configuration" },
-          { id: "maintenance", label: "Maintenance Mode" },
-        ],
       },
     ],
   },
@@ -379,45 +284,16 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "opportunities",
     defaultSection: "available",
     tabs: [
-      {
-        key: "profile",
-        label: "My Profile",
-        icon: User,
-        sections: [
-          { id: "company-details", label: "Company Details" },
-          { id: "documents", label: "Upload Documents" },
-          { id: "verification", label: "Verification Status" },
-        ],
-      },
+      
       {
         key: "opportunities",
         label: "Bazaars & Booths",
         icon: Store,
         sections: [
-          { id: "available", label: "Available Opportunities" },
-          { id: "apply-bazaar", label: "Apply for Bazaar" },
-          { id: "apply-booth", label: "Apply for Booth" },
+          { id: "opportunities", label: "Browse Opportunities" },
+          { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
-        ],
-      },
-      {
-        key: "participation",
-        label: "My Participation",
-        icon: Calendar,
-        sections: [
-          { id: "upcoming", label: "Upcoming" },
-          { id: "past", label: "Past" },
-          { id: "registered-visitors", label: "Registered Visitors" },
-        ],
-      },
-      {
-        key: "payments",
-        label: "Payments",
-        icon: CreditCard,
-        sections: [
-          { id: "payment-history", label: "Payment History" },
-          { id: "receipts", label: "Receipts" },
-          { id: "refunds", label: "Refund Status" },
+          { id: "apply-booth", label: "Apply for Booth" },
         ],
       },
       { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },
@@ -431,12 +307,18 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "partners", label: "View Partners" },
         ],
       },
-      {
-        key: "notifications",
-        label: "Notifications",
-        icon: ClipboardList,
-        sections: [],
-      },
+      // TODO: Add your first page and sections here
+      // {
+      //   key: "opportunities",
+      //   label: "Bazaars & Booths",
+      //   icon: Store,
+      //   sections: [
+      //     { id: "available", label: "Available Opportunities" },
+      //     { id: "apply-bazaar", label: "Apply for Bazaar" },
+      //     { id: "apply-booth", label: "Apply for Booth" },
+      //     { id: "my-applications", label: "My Applications" },
+      //   ],
+      // },
     ],
   },
 };
@@ -492,6 +374,18 @@ export default function EntityNavigation({
     router.push(`${base}${entitySeg}${tabSeg}/${id}`);
   };
 
+  const handleLogout = () => {
+    // TODO: Implement logout server logic here
+    // This could include:
+    // - Clearing authentication tokens
+    // - Clearing user session data
+    // - Redirecting to login page
+    console.log("Logout clicked");
+    // Example logout implementation:
+    // localStorage.removeItem('authToken');
+    // router.push('/login');
+  };
+
   // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
   React.useEffect(() => {
     // Only run when we have an entity but no tab
@@ -535,7 +429,7 @@ export default function EntityNavigation({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#e6e6da]">
+    <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
       <TopNavigation companyName="Multaqa" header={headerProps} />
 
@@ -558,9 +452,24 @@ export default function EntityNavigation({
           activeItem={section}
           onItemClick={handleSectionClick}
           sectionItems={sectionItems}
+          onLogout={handleLogout}
         />
 
-        <div className="flex-1 overflow-auto bg-white min-h-0">{children}</div>
+        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
+          <div
+            className="flex-1 bg-white min-h-0 overflow-auto"
+            style={{
+              borderRadius: "16px",
+              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+              padding: "20px 28px",
+              border: "1px solid #e5e7eb",
+              minHeight: "73vh",
+              maxHeight: "73vh",
+            }}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );
