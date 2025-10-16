@@ -89,12 +89,18 @@ async function registerForEvent(req: Request, res: Response<RegisterUserResponse
 async function blockUser(req: Request, res: Response<BlockUserResponse>) {
   try {
     const userId = req.params.id;
+    console.log('🔒 Blocking user:', userId);
+
     await userService.blockUser(userId);
+
+    console.log('✅ User blocked successfully');
+
     res.json({
       success: true,
       message: "User blocked successfully",
     });
   } catch (err: any) {
+    console.error('❌ Failed to block user:', err.message);
     throw createError(500, err.message);
   }
 }
@@ -102,7 +108,12 @@ async function blockUser(req: Request, res: Response<BlockUserResponse>) {
 async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
   try {
     const userId = req.params.id;
+    console.log('🔓 Unblocking user:', userId);
+
     await userService.unBlockUser(userId);
+
+    console.log('✅ User unblocked successfully');
+
     res.json({
       success: true,
       message: "User unblocked successfully",

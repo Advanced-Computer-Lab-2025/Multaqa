@@ -84,7 +84,7 @@ export default function BlockUnblockUsersContent() {
           size="small"
           onClick={async () => {
             try {
-              await handleToggleBlock(user.id, setUsers);
+              await handleToggleBlock(user.id, user.status, setUsers);
             } catch (error: unknown) {
               const errorMessage =
                 error instanceof Error

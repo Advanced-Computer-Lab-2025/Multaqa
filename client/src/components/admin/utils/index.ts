@@ -194,14 +194,16 @@ export const handleDragEnd = (
 
 export const handleToggleBlock = async (
   userId: string,
+  currentStatus: "Active" | "Blocked",
   setUsers: React.Dispatch<React.SetStateAction<User[]>>
 ) => {
   try {
-    console.log('🔒 Toggling block status for user:', userId);
+    const action = currentStatus === "Active" ? "block" : "unblock";
+    console.log(`🔒 ${action === "block" ? "Blocking" : "Unblocking"} user:`, userId);
 
-    const response = await api.post(`/users/${userId}/block`);
+    const response = await api.post(`/users/${userId}/${action}`);
 
-    console.log('✅ Block status toggled:', response.data.message);
+    console.log('✅ Action successful:', response.data.message);
 
     // Update local state
     setUsers((prevUsers) =>
