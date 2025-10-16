@@ -289,6 +289,14 @@ export class VendorEventsService {
 
       event.RequestData.status = status;
       event.markModified("RequestData");
+
+      const { boothSetupDuration } = event.RequestData;
+      // Calculate start date: now + boothSetupDuration (in weeks)
+      const now = new Date();
+      const startDate = new Date(
+        now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+      );
+      event.eventStartDate = startDate;
     } else {
       throw createError(400, "Invalid event type");
     }

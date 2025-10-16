@@ -16,13 +16,11 @@ export function validateConference(data: any) {
     price: Joi.number().min(0).required(),
 
     // Conference-specific fields
-    keynoteSpeaker: Joi.string().required(),
     fullAgenda: Joi.string().required(),
     websiteLink: Joi.string().uri().required(),
     requiredBudget: Joi.number().min(0).required(),
     fundingSource: Joi.string().valid("external", "GUC").required(),
     extraRequiredResources: Joi.array().items(Joi.string()).optional(),
-    topics: Joi.array().items(Joi.string()).required(),
   });
 
   return schema.validate(data);

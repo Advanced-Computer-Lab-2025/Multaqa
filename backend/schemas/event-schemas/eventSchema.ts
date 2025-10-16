@@ -25,7 +25,7 @@ const EventSchema = new Schema<IEvent>(
     eventStartTime: { type: String, required: true },
     eventEndTime: { type: String, required: true },
     registrationDeadline: { type: Date, required: true },
-    location: { type: String, required: true },
+    location: { type: String, required: true, default: "GUC" },
     description: { type: String, required: true },
   },
   { discriminatorKey: "type", collection: "events" }
