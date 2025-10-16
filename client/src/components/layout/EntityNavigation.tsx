@@ -376,6 +376,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "opportunities", label: "Browse Opportunities" },
           { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
+          { id: "apply-booth", label: "Apply for Booth" },
         ],
       },
       {

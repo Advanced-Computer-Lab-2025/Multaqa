@@ -1,8 +1,7 @@
 import { Formik } from "formik";
-import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
-import { Box, Typography, CircularProgress, Divider } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
 import { BazarFormValues } from "./types";
@@ -31,17 +30,14 @@ const BazarForm: React.FC = () => {
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
-          <NeumorphicBox
-            containerType="outwards"
-            padding="50px"
-            borderRadius="20px"
+          <Box
             className="max-w-[600px] mx-auto"
           >
             <div className="flex flex-col flex-1  gap-4">
               {/* Header */}
-              <div className="text-center mb-6 w-full">
+              <div className="text-center mb-4 w-full">
                 <h1
-                  className="text-4xl font-bold mb-2"
+                  className="text-2xl font-bold mb-2"
                   style={{ color: theme.palette.text.primary }}
                 >
                   Bazar Application
@@ -50,8 +46,6 @@ const BazarForm: React.FC = () => {
                   Join a Bazar event by filling out the application form below
                 </p>
               </div>
-
-              <Divider sx={{ width: "100%", mb: 4 }} />
 
               {/* Attendee Info */}
               <Box>
@@ -245,7 +239,7 @@ const BazarForm: React.FC = () => {
                 </Box>
               </Box>
             </div>
-          </NeumorphicBox>
+          </Box>
         </form>
       )}
     </Formik>
