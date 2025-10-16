@@ -213,12 +213,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-// Filter state type
-interface FilterState {
-  eventType?: EventType[];
-  [key: string]: EventType[] | string[] | number[] | undefined;
-}
-  const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>(mockEvents);

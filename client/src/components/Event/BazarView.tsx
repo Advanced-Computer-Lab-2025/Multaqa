@@ -7,6 +7,7 @@ import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModal } from "../shared/modals";
+import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 
 const BazarView: React.FC<BazarViewProps> = ({
   details,
@@ -18,7 +19,15 @@ const BazarView: React.FC<BazarViewProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     setEventToDelete(true);
@@ -120,8 +129,13 @@ const BazarView: React.FC<BazarViewProps> = ({
               variant="contained"
               color="secondary"
               sx={{ borderRadius: 999 }}
+              onClick={handleOpenModal}
             >
               Apply
+              <BazarFormModalWrapper
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+              />
             </CustomButton>
           )
         }

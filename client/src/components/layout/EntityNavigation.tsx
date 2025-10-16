@@ -284,6 +284,29 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "opportunities",
     defaultSection: "available",
     tabs: [
+      
+      {
+        key: "opportunities",
+        label: "Bazaars & Booths",
+        icon: Store,
+        sections: [
+          { id: "opportunities", label: "Browse Opportunities" },
+          { id: "available", label: "My Participations" },
+          { id: "my-applications", label: "My Applications" },
+          { id: "apply-booth", label: "Apply for Booth" },
+        ],
+      },
+      { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },
+      {
+        key: "loyalty",
+        label: "Loyalty Program",
+        icon: Award,
+        sections: [
+          { id: "program-status", label: "Program Status" },
+          { id: "discount-rates", label: "Discount Rates" },
+          { id: "partners", label: "View Partners" },
+        ],
+      },
       // TODO: Add your first page and sections here
       // {
       //   key: "opportunities",
