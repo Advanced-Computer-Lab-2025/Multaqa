@@ -44,7 +44,7 @@ const initialAccounts: Account[] = [
   },
 ];
 
-export default function ManageEventOfficeAccount() {
+export default function ManageEventOfficeAccountContent() {
   const theme = useTheme();
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
@@ -138,15 +138,16 @@ export default function ManageEventOfficeAccount() {
         <DeleteButton
           label="Delete"
           variant="outlined"
+          size="small"
           onClick={() => handleOpenDeleteModal(account)}
           startIcon={<DeleteIcon />}
           sx={{
             width: "100%",
             maxWidth: "100px !important",
-            padding: "4px 12px !important",
-            fontSize: "12px !important",
-            height: "32px !important",
-            minHeight: "32px !important",
+            padding: "4px 16px !important",
+            fontSize: "14px !important",
+            height: "40px !important",
+            minHeight: "40px !important",
             "& .MuiButton-startIcon": {
               marginRight: "4px",
               "& svg": {
@@ -266,7 +267,7 @@ export default function ManageEventOfficeAccount() {
               sx={{
                 fontFamily: "var(--font-jost), system-ui, sans-serif",
                 fontWeight: 700,
-                color: theme.palette.tertiary.main,
+                color: theme.palette.primary.main,
                 textAlign: "center",
                 mb: 3,
               }}
