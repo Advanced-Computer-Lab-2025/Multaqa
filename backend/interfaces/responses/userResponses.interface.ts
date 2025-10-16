@@ -35,3 +35,9 @@ export interface AssignRoleResponse {
   message: string;
   user: Omit<IStaffMember, "password">;
 }
+
+export interface getAllUnAssignedStaffMembersResponse {
+  success: boolean;
+  data: Omit<IStaffMember, "password">[];
+  message: string;
+}

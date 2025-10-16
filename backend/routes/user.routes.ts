@@ -10,7 +10,8 @@ import {
   BlockUserResponse,
   RegisterUserResponse,
   AssignRoleResponse, 
-  UnblockUserResponse
+  UnblockUserResponse, 
+  getAllUnAssignedStaffMembersResponse
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
@@ -111,6 +112,20 @@ async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
   }
 }
 
+async function getAllUnAssignedStaffMembers(req: Request, res: Response<getAllUnAssignedStaffMembersResponse>) {
+  try{
+    const staffMembers = await userService.getAllUnAssignedStaffMembers();
+    return res.json({
+      success: true,
+      data: staffMembers,
+      message: "Unassigned staff members retrieved successfully"
+    });
+  }
+  catch(err: any){
+    throw createError(500, err.message);
+  }
+}
+
 // Assign role to staffMember and send verification email
 async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
   try {
@@ -130,7 +145,7 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
 }
 
 const router = Router();
-
+router.get("/unassigned-staff", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllUnAssignedStaffMembers);
 router.get("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllUsers);
 router.post("/:id/block", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), blockUser);
 router.post("/:id/unblock", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), unBlockUser);
