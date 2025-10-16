@@ -33,7 +33,9 @@ export class UserService {
     );
 
     const formattedUsers = users.map((user) => {
-      const { password, ...userWithoutPassword } = user;
+      // Convert Mongoose document to plain object
+      const plainUser = user.toObject();
+      const { password, ...userWithoutPassword } = plainUser;
       return userWithoutPassword as Omit<IUser, "password">;
     });
 
@@ -140,6 +142,8 @@ export class UserService {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.UNKNOWN,
     });
-    return staffMembers;
+    
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
   }
 }
