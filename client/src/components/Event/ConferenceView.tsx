@@ -215,7 +215,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
             <Tooltip title="Delete">
             <IconButton
                     size="medium"
-                    onClick={onDelete}
+                    onClick={handleOpenDeleteModal}
                     sx={{
                       backgroundColor: "rgba(255, 255, 255, 0.9)",
                       "&:hover": {
@@ -285,17 +285,6 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
               : `${details["Start Date"] || "TBD"} - ${
                   details["End Date"] || "TBD"
                 }`}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            Budget: {details["Required Budget"] || "TBD"}
           </Typography>
 
           <Typography

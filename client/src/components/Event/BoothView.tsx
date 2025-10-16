@@ -224,7 +224,7 @@ const BoothView: React.FC<BoothViewProps> = ({
           <Tooltip title="Delete">
           <IconButton
                   size="medium"
-                  onClick={onDelete}
+                  onClick={handleOpenDeleteModal}
                   sx={{
                     backgroundColor: "rgba(255, 255, 255, 0.9)",
                     "&:hover": {

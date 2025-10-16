@@ -9,6 +9,7 @@ import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
+import RegisterEventModal from "./Modals/RegisterModal";
 
 const TripView: React.FC<BazarViewProps> = ({
   details,
@@ -20,6 +21,7 @@ const TripView: React.FC<BazarViewProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
+  const [register, setRegister] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -132,6 +134,7 @@ const TripView: React.FC<BazarViewProps> = ({
               variant="contained"
               color="info"
               sx={{ borderRadius: 999 }}
+              onClick={()=> {setRegister(true)}}
             >
               Register
             </CustomButton>
@@ -142,7 +145,7 @@ const TripView: React.FC<BazarViewProps> = ({
             <Tooltip title="Delete">
             <IconButton
                     size="medium"
-                    onClick={onDelete}
+                    onClick={handleOpenDeleteModal}
                     sx={{
                       backgroundColor: "rgba(255, 255, 255, 0.9)",
                       "&:hover": {
@@ -223,17 +226,6 @@ const TripView: React.FC<BazarViewProps> = ({
           <Typography
             sx={{
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} • Cost: {details["Cost"] || "TBD"}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
               color: theme.palette.error.main,
               fontSize: "0.9rem",
               fontWeight: 500,
@@ -244,6 +236,8 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
+      eventType={"Trip"}/>
     </>
   );
 };

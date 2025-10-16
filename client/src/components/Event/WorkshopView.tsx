@@ -8,6 +8,7 @@ import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
+import RegisterEventModal from "./Modals/RegisterModal";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   details,
@@ -20,6 +21,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
+  const [register, setRegister] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -273,6 +275,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               variant="contained"
               color="tertiary"
               sx={{ borderRadius: 999 }}
+              onClick={()=> {setRegister(true)}}
             >
               Register
             </CustomButton>
@@ -283,7 +286,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           <Tooltip title="Delete">
           <IconButton
                   size="medium"
-                  onClick={onDelete}
+                  onClick={handleOpenDeleteModal}
                   sx={{
                     backgroundColor: "rgba(255, 255, 255, 0.9)",
                     "&:hover": {
@@ -362,17 +365,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 }`}
           </Typography>
 
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} • Capacity:{" "}
-            {details["Capacity"] || "TBD"}
-          </Typography>
 
           <Typography
             sx={{
@@ -387,6 +379,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
+      eventType={"Workshop"}/>
     </>
   );
 };

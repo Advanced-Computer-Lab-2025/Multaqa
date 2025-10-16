@@ -145,7 +145,7 @@ const BazarView: React.FC<BazarViewProps> = ({
             <Tooltip title="Delete">
             <IconButton
                     size="medium"
-                    onClick={onDelete}
+                    onClick={handleOpenDeleteModal}
                     sx={{
                       backgroundColor: "rgba(255, 255, 255, 0.9)",
                       "&:hover": {
@@ -210,20 +210,6 @@ const BazarView: React.FC<BazarViewProps> = ({
             }}
           >
             {details["Start Date"] || "TBD"} - {details["End Date"] || "TBD"}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} •{" "}
-            {details["Vendor Count"]
-              ? `${details["Vendor Count"]} vendors`
-              : ""}
           </Typography>
 
           <Typography
