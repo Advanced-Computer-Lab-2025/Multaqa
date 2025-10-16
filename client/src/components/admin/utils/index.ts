@@ -9,7 +9,8 @@ import {
 } from "../types";
 import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { api } from "@/api";
-import { CreateAdminResponse, DeleteAdminResponse, GetAllAdminsResponse } from "../../../../../backend/interfaces/responses/administrationResponses.interface";
+import { CreateAdminResponse, GetAllAdminsResponse } from "../../../../../backend/interfaces/responses/administrationResponses.interface";
+import { AxiosError } from "axios";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -191,19 +192,82 @@ export const handleDragEnd = (
   }
 };
 
-export const handleToggleBlock = (
+export const handleToggleBlock = async (
   userId: string,
   setUsers: React.Dispatch<React.SetStateAction<User[]>>
 ) => {
-  // TODO: API call to update user status
-  setUsers((prevUsers) =>
-    prevUsers.map((user) =>
-      user.id === userId
-        ? {
-          ...user,
-          status: user.status === "Active" ? "Blocked" : "Active",
-        }
-        : user
-    )
-  );
+  try {
+    console.log('🔒 Toggling block status for user:', userId);
+
+    const response = await api.post(`/users/${userId}/block`);
+
+    console.log('✅ Block status toggled:', response.data.message);
+
+    // Update local state
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === userId
+          ? {
+            ...user,
+            status: user.status === "Active" ? "Blocked" : "Active",
+          }
+          : user
+      )
+    );
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('❌ Failed to toggle block status:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error('❌ Failed to toggle block status:', error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to toggle block status");
+  }
+};
+
+// Assign role to a user
+export const handleAssignRole = async (
+  userId: string,
+  position: string,
+  applicant: Applicant,
+  setAssigned: React.Dispatch<React.SetStateAction<Record<string, Applicant[]>>>,
+  setApplicants: React.Dispatch<React.SetStateAction<Applicant[]>>
+) => {
+  try {
+    console.log('👤 Assigning role:', { userId, position });
+
+    const response = await api.post(`/users/${userId}/assign-role`, {
+      position: position.toUpperCase(), // Backend expects uppercase: TA, PROFESSOR, STAFF
+    });
+
+    console.log('✅ Role assigned successfully:', response.data.message);
+
+    // Keep the optimistic update that was already done
+    // The assignment was already moved visually, we just confirm it worked
+
+    return response.data;
+  } catch (error: unknown) {
+    // If it fails, revert the optimistic update
+    let errorMessage = "Failed to assign role";
+
+    if (error instanceof AxiosError) {
+      errorMessage = error.response?.data?.error || error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    console.error('❌ Failed to assign role:', errorMessage);
+
+    // Revert: move applicant back to pending
+    setAssigned((prev) => ({
+      ...prev,
+      [position]: prev[position].filter((a) => a.id !== applicant.id),
+    }));
+    setApplicants((prev) => [...prev, applicant]);
+
+    throw new Error(errorMessage);
+  }
 };

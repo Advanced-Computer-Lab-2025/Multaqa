@@ -9,11 +9,11 @@ import {
   GetUserByIdResponse,
   BlockUserResponse,
   RegisterUserResponse,
+  AssignRoleResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
-import { AssignRoleResponse } from "../interfaces/responses/administrationResponses.interface";
 import { StaffPosition } from "../constants/staffMember.constants";
 
 const userService = new UserService();

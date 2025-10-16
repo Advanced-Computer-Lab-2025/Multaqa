@@ -82,7 +82,22 @@ export default function BlockUnblockUsersContent() {
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
           size="small"
-          onClick={() => handleToggleBlock(user.id, setUsers)}
+          onClick={async () => {
+            try {
+              await handleToggleBlock(user.id, setUsers);
+            } catch (error: unknown) {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : "Failed to toggle block status";
+              console.error("Error toggling block status:", errorMessage);
+              alert(
+                `Failed to ${
+                  user.status === "Active" ? "block" : "unblock"
+                } user: ${errorMessage}`
+              );
+            }
+          }}
           startIcon={
             user.status === "Active" ? (
               <BlockIcon />
@@ -104,7 +119,6 @@ export default function BlockUnblockUsersContent() {
                 fontSize: "16px",
               },
             },
-            
           }}
         />
       }

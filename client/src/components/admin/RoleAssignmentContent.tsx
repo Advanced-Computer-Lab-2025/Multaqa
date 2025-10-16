@@ -9,7 +9,7 @@ import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
 import { Applicant } from "./types";
-import { handleDragStart, assignToRole } from "./utils";
+import { handleDragStart, assignToRole, handleAssignRole } from "./utils";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
 
@@ -79,10 +79,32 @@ export default function RoleAssignmentContent() {
       .find((u) => u.id === activeId);
 
   // Handler to confirm the assignment
-  const handleConfirmAssignment = () => {
-    // Assignment already happened optimistically, just close modal
-    setModalOpen(false);
-    setPendingAssignment(null);
+  const handleConfirmAssignment = async () => {
+    if (!pendingAssignment) return;
+
+    try {
+      // Call the API to assign the role
+      await handleAssignRole(
+        pendingAssignment.applicant.id,
+        pendingAssignment.role,
+        pendingAssignment.applicant,
+        setAssigned,
+        setApplicants
+      );
+
+      // Assignment successful, close modal
+      setModalOpen(false);
+      setPendingAssignment(null);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to assign role";
+      console.error("Error assigning role:", errorMessage);
+      // The revert has already been handled in handleAssignRole
+      setModalOpen(false);
+      setPendingAssignment(null);
+      // You might want to show an error toast/notification here
+      alert(`Failed to assign role: ${errorMessage}`);
+    }
   };
 
   // Handler to cancel the assignment - revert the optimistic update
