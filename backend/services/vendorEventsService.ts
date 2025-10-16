@@ -293,10 +293,10 @@ export class VendorEventsService {
       const { boothSetupDuration } = event.RequestData;
       // Calculate start date: now + boothSetupDuration (in weeks)
       const now = new Date();
-      const startDate = new Date(
+      event.eventStartDate = now;
+      event.eventEndDate = new Date(
         now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
       );
-      event.eventStartDate = startDate;
     } else {
       throw createError(400, "Invalid event type");
     }
@@ -304,6 +304,7 @@ export class VendorEventsService {
     await event.save();
   }
   async getAvailableBooths(startDate: any, endDate: any): Promise<string[]> {
+    // Input validation
     if (!startDate || !endDate) {
       throw createError(
         400,
@@ -313,6 +314,12 @@ export class VendorEventsService {
 
     const start = new Date(startDate as string);
     const end = new Date(endDate as string);
+    console.log({
+      start,
+      end,
+      typeofStart: typeof start,
+      typeofEnd: typeof end,
+    });
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       throw createError(400, "Invalid date format for startDate or endDate");
@@ -322,34 +329,34 @@ export class VendorEventsService {
       throw createError(400, "startDate must be before endDate");
     }
 
-    // Find all platform booth events that overlap with the given date range
-    const overlappingEvents = await this.eventRepo.findAll({
-      type: EVENT_TYPES.PLATFORM_BOOTH,
-      $or: [
-        {
-          eventStartDate: { $lt: end },
-          eventEndDate: { $gt: start },
-        },
-      ],
+    // First get all platform booth events
+    const allPlatformBoothEvents = await this.eventRepo.findAll({
+      type: "platform_booth",
+      "RequestData.status": Event_Request_Status.APPROVED,
     });
 
-    // Extract booked booth locations from overlapping events
-    const bookedBooths = new Set<string>();
-    for (const event of overlappingEvents) {
-      if (
-        event.RequestData &&
-        event.RequestData.boothLocation &&
-        event.RequestData.status === Event_Request_Status.APPROVED
-      ) {
-        bookedBooths.add(event.RequestData.boothLocation);
-      }
-    }
+    // Manually filter for overlapping events
+    const overlappingEvents = allPlatformBoothEvents.filter((event) => {
+      const eventStart = new Date(event.eventStartDate);
+      const eventEnd = new Date(event.eventEndDate);
 
-    // All possible booth locations
-    const allBooths = Object.values(BOOTH_LOCATIONS);
-    const availableBooths = allBooths.filter(
-      (booth) => !bookedBooths.has(booth)
+      // Events overlap if:
+      // 1. Event starts before query period ends AND
+      // 2. Event ends after query period starts
+      return eventStart <= end && eventEnd >= start;
+    });
+
+    console.log("Overlapping Events:", overlappingEvents);
+
+    // Get reserved booth locations from overlapping events
+    const reservedBooths = new Set(
+      overlappingEvents
+        .map((event) => event.RequestData?.boothLocation)
+        .filter(Boolean) // Remove undefined/null values
     );
-    return availableBooths;
+    // Return all booth locations except reserved ones
+    return Object.values(BOOTH_LOCATIONS).filter(
+      (booth) => !reservedBooths.has(booth)
+    );
   }
 }

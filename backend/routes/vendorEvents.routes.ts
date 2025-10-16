@@ -171,6 +171,15 @@ async function getAvailableBooths(
 }
 
 const router = Router();
+
+router.get(
+  "/available-booths",
+  authorizeRoles({
+    userRoles: [UserRole.VENDOR],
+  }),
+  getAvailableBooths
+);
+
 router.get(
   "/:vendorId",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
@@ -213,14 +222,6 @@ router.patch(
     ],
   }),
   updateVendorRequest
-);
-
-router.get(
-  "/available-booths",
-  authorizeRoles({
-    userRoles: [UserRole.VENDOR],
-  }),
-  getAvailableBooths
 );
 
 export default router;
