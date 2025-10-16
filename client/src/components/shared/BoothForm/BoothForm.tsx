@@ -66,12 +66,12 @@ const BoothForm: React.FC = () => {
                   {formik.values.attendees.map((attendee, index) => (
                     <Box key={index}>
                       <div className="flex items-start gap-5 w-full px-4 mb-5">
-                        <div className="w-[300px]">
+                        <div className="flex-1">
                           <CustomTextField
                             id={`attendees.${index}.name`}
                             label={`Attendee ${index + 1} name`}
                             fieldType="text"
-                            width="300px"
+                            width="100%"
                             onChange={(e) => {
                               formik.setFieldValue(
                                 `attendees.${index}.name`,
@@ -103,12 +103,12 @@ const BoothForm: React.FC = () => {
                               </Box>
                             )}
                         </div>
-                        <div className="w-[300px]">
+                        <div className="flex-1">
                           <CustomTextField
                             id={`attendees.${index}.email`}
                             label={`Attendee ${index + 1} email`}
                             fieldType="email"
-                            width="300px"
+                            width="100%"
                             stakeholderType="vendor"
                             onChange={(e) => {
                               formik.setFieldValue(
@@ -188,7 +188,7 @@ const BoothForm: React.FC = () => {
                 {/* Booth Size Select */}
 
                 <div className="flex items-center justify-center gap-10 flex-col mt-5 mb-10">
-                  <div className="w-[500px]">
+                  <div className="w-full max-w-md">
                     <CustomSelectField
                       label="Booth Size"
                       fieldType="single"
@@ -217,7 +217,7 @@ const BoothForm: React.FC = () => {
                     )}
                   </div>
                   {/* Duration Select */}
-                  <div className="w-[500px]">
+                  <div className="w-full max-w-md">
                     <CustomSelectField
                       label="Booth Duration"
                       fieldType="single"
@@ -260,7 +260,8 @@ const BoothForm: React.FC = () => {
                   <Box
                     sx={{
                       position: "relative",
-                      width: "400px",
+                      width: "100%",
+                      maxWidth: "400px",
                       margin: "0 auto",
                     }}
                   >
