@@ -114,7 +114,7 @@ export class UserService {
     }
 
     // Check if position is valid
-    if (position !== "professor" && position !== "TA" && position !== "staff") {
+    if (position !== "PROFESSOR" && position !== "TA" && position !== "STAFF") {
       throw createError(400, "Invalid position");
     }
 

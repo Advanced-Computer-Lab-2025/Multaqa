@@ -86,10 +86,11 @@ export default function RoleAssignmentContent() {
     if (!pendingAssignment) return;
 
     try {
+      console.log("Confirming assignment:", pendingAssignment);
       // Call the API to assign the role
       await handleAssignRole(
         pendingAssignment.applicant.id,
-        pendingAssignment.role,
+        (pendingAssignment.role).toUpperCase(),
         pendingAssignment.applicant,
         setAssigned,
         setApplicants
