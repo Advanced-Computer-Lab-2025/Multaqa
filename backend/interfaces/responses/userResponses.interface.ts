@@ -19,6 +19,11 @@ export interface BlockUserResponse {
   message: string;
 }
 
+export interface UnblockUserResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface RegisterUserResponse {
   success: boolean;
   message: string;

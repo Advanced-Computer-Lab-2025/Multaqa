@@ -111,6 +111,7 @@ export class UserService {
     await user.save();
     return user;
   }
+
   async blockUser(id: string): Promise<void> {
     const user = await this.userRepo.findById(id);
     if (!user) {
@@ -120,6 +121,18 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    await user.save();
+  }
+
+  async unBlockUser(id: string): Promise<void> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    if (user.status === UserStatus.ACTIVE) {
+      throw createError(400, "User is already Active");
+    }
+    user.status = UserStatus.ACTIVE;
     await user.save();
   }
 }
