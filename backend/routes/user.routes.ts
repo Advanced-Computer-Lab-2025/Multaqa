@@ -9,8 +9,8 @@ import {
   GetUserByIdResponse,
   BlockUserResponse,
   RegisterUserResponse,
-  AssignRoleResponse, 
-  UnblockUserResponse, 
+  AssignRoleResponse,
+  UnblockUserResponse,
   getAllUnAssignedStaffMembersResponse
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
@@ -124,7 +124,7 @@ async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
 }
 
 async function getAllUnAssignedStaffMembers(req: Request, res: Response<getAllUnAssignedStaffMembersResponse>) {
-  try{
+  try {
     const staffMembers = await userService.getAllUnAssignedStaffMembers();
     return res.json({
       success: true,
@@ -132,7 +132,7 @@ async function getAllUnAssignedStaffMembers(req: Request, res: Response<getAllUn
       message: "Unassigned staff members retrieved successfully"
     });
   }
-  catch(err: any){
+  catch (err: any) {
     throw createError(500, err.message);
   }
 }
