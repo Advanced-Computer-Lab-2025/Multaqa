@@ -6,6 +6,7 @@ import CustomButton from "../Buttons/CustomButton";
 import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@mui/material/styles";
 import * as Yup from "yup";
 
@@ -41,6 +42,36 @@ const LoginForm: React.FC = () => {
             borderRadius="20px"
             padding={"1px"}
           >
+            <Box sx={{ position: "relative" }}>
+              <Link
+                href="/"
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  left: "16px",
+                  textDecoration: "none",
+                  color: theme.palette.primary.main,
+                  cursor: "pointer",
+                  zIndex: 10,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4px",
+                  borderRadius: "50%",
+                  transition: "background-color 0.2s ease",
+                }}
+              >
+                <ArrowBackIcon
+                  fontSize="large"
+                  sx={{
+                    "&:hover": {
+                      color: theme.palette.primary.dark,
+                    },
+                  }}
+                />
+              </Link>
+            </Box>
+
             <Box
               sx={{
                 border: `2px solid ${theme.palette.primary.main}`,
@@ -52,116 +83,116 @@ const LoginForm: React.FC = () => {
                 {/* Header */}
                 <div className="text-center mb-6">
                   <h1
-                  className={"text-4xl" + " font-bold"}
-                  style={{ color: theme.palette.text.primary }}
-                >
-                  Multaqa
-                </h1>
-                <p style={{ color: theme.palette.text.secondary }}>
-                  Log in to your account to continue
-                </p>
-              </div>
+                    className={"text-4xl" + " font-bold"}
+                    style={{ color: theme.palette.text.primary }}
+                  >
+                    Multaqa
+                  </h1>
+                  <p style={{ color: theme.palette.text.secondary }}>
+                    Log in to your account to continue
+                  </p>
+                </div>
 
-              {/* Common Fields */}
-              <div className="w-full">
-                <CustomTextField
-                  id="email"
-                  label="Email"
-                  fieldType="email"
-                  neumorphicBox
-                  stakeholderType={"vendor"} //to always render the normal email field
-                  onChange={(e) => {
-                    formik.setFieldValue("email", e.target.value);
-                  }}
-                  onBlur={() => {
-                    formik.setFieldTouched("email", true);
-                  }}
-                />
-                {formik.touched.email && formik.errors.email && (
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <ErrorOutlineIcon
-                      color="error"
-                      sx={{ fontSize: 16, mr: 0.5 }}
-                    />
-                    <Typography variant="caption" color="error">
-                      {formik.errors.email}
-                    </Typography>
-                  </Box>
-                )}
-              </div>
-
-              <div className="w-full">
-                <CustomTextField
-                  id="password"
-                  label="Password"
-                  fieldType="password"
-                  neumorphicBox
-                  onChange={(e) => {
-                    formik.setFieldValue("password", e.target.value);
-                  }}
-                  onBlur={() => {
-                    formik.setFieldTouched("password", true);
-                  }}
-                />
-                {formik.touched.password && formik.errors.password && (
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <ErrorOutlineIcon
-                      color="error"
-                      sx={{ fontSize: 16, mr: 0.5 }}
-                    />
-                    <Typography variant="caption" color="error">
-                      {formik.errors.password}
-                    </Typography>
-                  </Box>
-                )}
-              </div>
-
-              {/* Submit Button */}
-              <div className="w-full mt-4">
-                <div style={{ position: "relative", width: "100%" }}>
-                  <CustomButton
-                    type="submit"
-                    variant="contained"
-                    width="100%"
-                    disableElevation
-                    label={formik.isSubmitting ? "" : "Login"}
-                    disabled={formik.isSubmitting}
-                    className="w-full"
+                {/* Common Fields */}
+                <div className="w-full">
+                  <CustomTextField
+                    id="email"
+                    label="Email"
+                    fieldType="email"
+                    neumorphicBox
+                    stakeholderType={"vendor"} //to always render the normal email field
+                    onChange={(e) => {
+                      formik.setFieldValue("email", e.target.value);
+                    }}
+                    onBlur={() => {
+                      formik.setFieldTouched("email", true);
+                    }}
                   />
-                  {formik.isSubmitting && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <CircularProgress size={24} sx={{ color: "white" }} />
-                    </span>
+                  {formik.touched.email && formik.errors.email && (
+                    <Box display="flex" alignItems="center" mt={1}>
+                      <ErrorOutlineIcon
+                        color="error"
+                        sx={{ fontSize: 16, mr: 0.5 }}
+                      />
+                      <Typography variant="caption" color="error">
+                        {formik.errors.email}
+                      </Typography>
+                    </Box>
                   )}
                 </div>
-              </div>
 
-              {/* Login Link */}
-              <div className="mt-4 text-center">
-                <p
-                  className="text-sm"
-                  style={{ color: theme.palette.text.primary }}
-                >
-                  Don&apos;t have an account?{" "}
-                  <Link
-                    href="/register"
-                    className="font-medium hover:underline"
-                    style={{ color: theme.palette.primary.main }}
+                <div className="w-full">
+                  <CustomTextField
+                    id="password"
+                    label="Password"
+                    fieldType="password"
+                    neumorphicBox
+                    onChange={(e) => {
+                      formik.setFieldValue("password", e.target.value);
+                    }}
+                    onBlur={() => {
+                      formik.setFieldTouched("password", true);
+                    }}
+                  />
+                  {formik.touched.password && formik.errors.password && (
+                    <Box display="flex" alignItems="center" mt={1}>
+                      <ErrorOutlineIcon
+                        color="error"
+                        sx={{ fontSize: 16, mr: 0.5 }}
+                      />
+                      <Typography variant="caption" color="error">
+                        {formik.errors.password}
+                      </Typography>
+                    </Box>
+                  )}
+                </div>
+
+                {/* Submit Button */}
+                <div className="w-full mt-4">
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <CustomButton
+                      type="submit"
+                      variant="contained"
+                      width="100%"
+                      disableElevation
+                      label={formik.isSubmitting ? "" : "Login"}
+                      disabled={formik.isSubmitting}
+                      className="w-full"
+                    />
+                    {formik.isSubmitting && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <CircularProgress size={24} sx={{ color: "white" }} />
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Login Link */}
+                <div className="mt-4 text-center">
+                  <p
+                    className="text-sm"
+                    style={{ color: theme.palette.text.primary }}
                   >
-                    Create an account
-                  </Link>
-                </p>
+                    Don&apos;t have an account?{" "}
+                    <Link
+                      href="/register"
+                      className="font-medium hover:underline"
+                      style={{ color: theme.palette.primary.main }}
+                    >
+                      Create an account
+                    </Link>
+                  </p>
+                </div>
               </div>
-            </div>
             </Box>
           </NeumorphicBox>
         </form>

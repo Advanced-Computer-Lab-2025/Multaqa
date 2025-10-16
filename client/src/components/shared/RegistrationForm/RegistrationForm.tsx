@@ -12,6 +12,7 @@ import { useTheme } from "@mui/material/styles";
 import UploadField from "../UploadField/UploadField";
 import DescriptionIcon from "@mui/icons-material/Description";
 import BusinessIcon from "@mui/icons-material/Business";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
@@ -53,6 +54,35 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             width="650px"
             borderRadius="20px"
           >
+            <Box sx={{ position: "relative" }}>
+              <Link
+                href="/"
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  left: "16px",
+                  textDecoration: "none",
+                  color: theme.palette.primary.main,
+                  cursor: "pointer",
+                  zIndex: 10,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4px",
+                  borderRadius: "50%",
+                  transition: "background-color 0.2s ease",
+                }}
+              >
+                <ArrowBackIcon
+                  fontSize="large"
+                  sx={{
+                    "&:hover": {
+                      color: theme.palette.primary.dark,
+                    },
+                  }}
+                />
+              </Link>
+            </Box>
             <Box
               sx={{
                 border: `2px solid ${theme.palette.primary.main}`,
