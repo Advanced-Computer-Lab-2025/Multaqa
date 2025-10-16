@@ -13,16 +13,14 @@ async function signup(req: Request, res: Response<SignupResponse>) {
   try {
     // Validate request body based on role
     let schema;
-    if (req.body.role === 'vendor') {
+    if (req.body.type === 'vendor') {
       schema = signupVendorValidationSchema;
     } else {
       schema = signupStudentAndStaffValidationSchema; 
     }
     const { error, value } = schema.validate(req.body);
     if (error) {
-      throw createError(400, 'Validation error', {
-        errors: error.details.map(detail => detail.message)
-      });
+      throw createError(400, 'Validation error', error.message);
     }
 
     // Create user
