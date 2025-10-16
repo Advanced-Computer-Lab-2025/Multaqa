@@ -53,7 +53,7 @@ async function applyToBazaarOrBooth(req: Request, res: Response<ApplyToBazaarOrB
 
 async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestResponse>) {
   try {
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
     const requests = await vendorEventsService.getVendorsRequest(eventId);
 
     res.json({
@@ -71,8 +71,8 @@ async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestR
 
 async function getVendorRequestsDetails(req: Request, res: Response<GetVendorRequestDetailsResponse>) {
   try {
-    const eventId = req.params.id;
-    const vendorId = req.params.vendorid;
+    const eventId = req.params.eventId;
+    const vendorId = req.params.vendorId;
     const request = await vendorEventsService.getVendorsRequestsDetails(eventId, vendorId);
 
     res.json({
@@ -90,8 +90,8 @@ async function getVendorRequestsDetails(req: Request, res: Response<GetVendorReq
 
 async function updateVendorRequest(req: Request, res: Response<RespondToVendorRequestResponse>) {
   try {
-    const eventId = req.params.eventid;
-    const vendorId = req.params.vendorid;
+    const eventId = req.params.eventId;
+    const vendorId = req.params.vendorId;
     const { status } = req.body;
 
     if (!eventId || !vendorId || !status) {

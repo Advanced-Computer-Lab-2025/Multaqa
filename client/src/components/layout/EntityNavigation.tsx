@@ -104,7 +104,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
+          { id: "my-ratings", label: "My Ratings & Comments" },
         ],
+      },
+      {
+        key: "courts",
+        label: "Courts Booking",
+        icon: Trophy,
+        sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
       {
         key: "gym",
@@ -460,6 +467,18 @@ export default function EntityNavigation({
     router.push(`${base}${entitySeg}${tabSeg}/${id}`);
   };
 
+  const handleLogout = () => {
+    // TODO: Implement logout server logic here
+    // This could include:
+    // - Clearing authentication tokens
+    // - Clearing user session data
+    // - Redirecting to login page
+    console.log("Logout clicked");
+    // Example logout implementation:
+    // localStorage.removeItem('authToken');
+    // router.push('/login');
+  };
+
   // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
   React.useEffect(() => {
     // Only run when we have an entity but no tab
@@ -526,6 +545,7 @@ export default function EntityNavigation({
           activeItem={section}
           onItemClick={handleSectionClick}
           sectionItems={sectionItems}
+          onLogout={handleLogout}
         />
 
         <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
