@@ -90,7 +90,7 @@ export default function RoleAssignmentContent() {
       // Call the API to assign the role
       await handleAssignRole(
         pendingAssignment.applicant.id,
-        (pendingAssignment.role).toUpperCase(),
+        pendingAssignment.role,
         pendingAssignment.applicant,
         setAssigned,
         setApplicants

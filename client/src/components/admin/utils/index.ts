@@ -270,8 +270,8 @@ export const fetchAllUsers = async (): Promise<User[]> => {
 function mapBackendRoleToFrontend(role: string, position?: string, roleType?: string): string {
   if (role === 'staffMember') {
     if (position === 'TA') return 'TA';
-    if (position === 'PROFESSOR') return 'Professor';
-    if (position === 'STAFF') return 'Staff';
+    if (position === 'Professor') return 'Professor';
+    if (position === 'Staff') return 'Staff';
     return 'Staff';
   }
   if (role === 'student') return 'Student';
@@ -329,7 +329,7 @@ export const handleAssignRole = async (
     console.log('👤 Assigning role:', { userId, position });
 
     const response = await api.post(`/users/${userId}/assign-role`, {
-      position: position.toUpperCase(), // Backend expects uppercase: TA, PROFESSOR, STAFF
+      position: position, // Backend expects : TA, professor, staff
     });
 
     console.log('✅ Role assigned successfully:', response.data.message);
