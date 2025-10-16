@@ -110,6 +110,7 @@ export default function ActionCard({
           width:"100%",
           display:"flex",
           alignItems:"end",
+          justifyContent:"end",
         }}
       >
         {rightIcon}
