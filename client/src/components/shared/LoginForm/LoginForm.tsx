@@ -37,16 +37,22 @@ const LoginForm: React.FC = () => {
         <form onSubmit={formik.handleSubmit}>
           <NeumorphicBox
             containerType="outwards"
-            padding="30px"
-            margin="20px"
-            width="550px"
+            width={"550px"}
             borderRadius="20px"
+            padding={"1px"}
           >
-            <div className="flex flex-col items-center justify-center gap-10">
-              {/* Header */}
-              <div className="text-center mb-6">
-                <h1
-                  className="text-4xl font-bold"
+            <Box
+              sx={{
+                border: `2px solid ${theme.palette.primary.main}`,
+                borderRadius: "20px",
+                padding: "30px",
+              }}
+            >
+              <div className="flex flex-col items-center justify-center gap-10">
+                {/* Header */}
+                <div className="text-center mb-6">
+                  <h1
+                  className={"text-4xl" + " font-bold"}
                   style={{ color: theme.palette.text.primary }}
                 >
                   Multaqa
@@ -156,6 +162,7 @@ const LoginForm: React.FC = () => {
                 </p>
               </div>
             </div>
+            </Box>
           </NeumorphicBox>
         </form>
       )}

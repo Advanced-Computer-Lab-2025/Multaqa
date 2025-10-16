@@ -33,7 +33,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-12 bg-background">
+    <div className="flex flex-col items-center justify-center" style={{ transform: "scale(0.8)" }}>
       <RegistrationForm UserType={userType} />
     </div>
   );

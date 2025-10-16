@@ -26,7 +26,7 @@ export default function HomePage() {
   const userTypes = [
     {
       type: "university member",
-      path: `/register?userType=university-member`,
+      path: `/en/register?userType=university-member`,
       icon: <SchoolIcon sx={{ fontSize: 40 }} />,
       color: theme.palette.primary.main,
       description:
@@ -34,7 +34,7 @@ export default function HomePage() {
     },
     {
       type: "vendor",
-      path: `/register?userType=vendor`,
+      path: `/en/register?userType=vendor`,
       icon: <StorefrontIcon sx={{ fontSize: 40 }} />,
       color: theme.palette.secondary.dark,
       description:
@@ -116,7 +116,7 @@ export default function HomePage() {
               color="secondary"
               size="large"
               component={Link}
-              href={`/login`}
+              href={`/en/login`}
               sx={{
                 fontWeight: "bold",
                 color: theme.palette.text.primary,
