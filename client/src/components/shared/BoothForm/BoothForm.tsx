@@ -49,7 +49,7 @@ const BoothForm: React.FC = () => {
                 {/* Header */}
                 <div className="text-center mb-6 w-full">
                   <h1
-                    className="text-4xl font-bold mb-2"
+                    className="text-2xl font-bold mb-2"
                     style={{ color: theme.palette.text.primary }}
                   >
                     Booth Application
@@ -340,7 +340,14 @@ const BoothForm: React.FC = () => {
                     formik.errors.selectedBoothId && {
                       border: `2px solid ${theme.palette.error.main}`,
                       borderRadius: "30px",
+                      display: "flex",
+                      alignItems: "center",
                     })}
+                  sx={{
+                    width: "100%",
+                    maxWidth: "500px",
+                    height: { xs: "250px", md: "400px" },
+                  }}
                 >
                   <PlatformMap
                     onBoothSelect={(boothId) =>

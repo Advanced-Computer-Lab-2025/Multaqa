@@ -88,11 +88,15 @@ const PlatformMap: React.FC<PlatformMapProps> = ({
   return (
     <NeumorphicBox
       containerType="inwards"
-      width="600px"
-      height="600px"
-      borderRadius="20px"
-      padding="1px"
-      margin="2px"
+      width="100%"
+      marginLeft="20px"
+      borderRadius="30px"
+      padding="2px"
+      sx={{
+        position: "relative",
+        aspectRatio: "1 / 1",
+        overflow: "hidden",
+      }}
     >
       <Box
         sx={{
@@ -109,20 +113,25 @@ const PlatformMap: React.FC<PlatformMapProps> = ({
             position: "relative",
             width: "100%",
             height: "100%",
-            overflow: "hidden",
-            borderRadius: "30px",
+            aspectRatio: "16 / 9",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          data-booths={boothList.join(",")}
         >
           <Image
             src="/platformMap.svg"
             alt="Platform Map"
             fill
-            style={{ objectFit: "contain" }}
+            style={{
+              objectFit: "contain",
+              objectPosition: "center",
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
             priority
           />
         </Box>
-
         {/* Booths positioned over the map */}
         {boothConfigurations.map((booth) => (
           <Box
@@ -133,6 +142,8 @@ const PlatformMap: React.FC<PlatformMapProps> = ({
               left: booth.left,
               transform: "translate(-50%, -50%)", // Center the booth on the position
               zIndex: 2,
+              width: "9%",
+              height: "8%",
             }}
           >
             {/* selected icon from MUI if selected on top right corner */}

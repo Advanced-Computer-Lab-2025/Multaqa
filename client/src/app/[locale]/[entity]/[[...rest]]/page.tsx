@@ -40,9 +40,7 @@ export default function EntityCatchAllPage() {
       }
       if (section === "apply-booth") {
         return (
-          <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
             <BoothForm />
-          </div>
         );
       }
     }

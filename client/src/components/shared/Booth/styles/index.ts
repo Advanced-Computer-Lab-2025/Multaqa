@@ -9,8 +9,8 @@ export interface StyledBoothProps {
 }
 
 const getBorderRadius = (curvePosition: BoothCurvePosition): string => {
-  const regularRadius = "8px";
-  const curvedRadius = "24px";
+  const regularRadius = "20%";
+  const curvedRadius = "50%";
 
   switch (curvePosition) {
     case "upleft":
@@ -48,8 +48,8 @@ const getHoverColor = (isSelected: boolean, isAvailable: boolean): string => {
 
 export const StyledBooth = styled(Box)<StyledBoothProps>(
   ({ isSelected, isAvailable, curvePosition }) => ({
-    width: `58px`,
-    height: `50px`,
+    width: `100%`,
+    height: `100%`,
     backgroundColor: getBoothColor(isSelected, isAvailable),
     borderRadius: getBorderRadius(curvePosition),
     border: `2px solid ${isSelected ? "#0D47A1" : "transparent"}`,
