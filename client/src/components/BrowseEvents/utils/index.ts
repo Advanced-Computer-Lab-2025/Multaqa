@@ -88,7 +88,7 @@ function transformEvent(event: any) {
           "Vendor Count": event.vendors.length,
       }
     };
-    case "booth":
+    case "platform_booth":
       return {
         id,
         type: EventType.BOOTH,
