@@ -410,35 +410,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
         {filteredEvents.map((event) => (
           <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
         ))}
-      </Box>
-
-      {/* No results message */}
-      {filteredEvents.length === 0 && (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            No events found matching your criteria
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Try adjusting your search or filters
-          </Typography>
-        </Box>
-      )}
-
-      {/* Events Grid */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-          },
-          gap: 3,
-        }}
-      >
-        {filteredEvents.map((event) => (
-          <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
-        ))}
+        
         {/* Results count */}
         {filteredEvents.length > 0 && (
           <Box sx={{ mt: 3, textAlign: "center" }}>
@@ -456,15 +428,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Try adjusting your search or filters
-            </Typography>
-          </Box>
-        )}
-
-        {/* Results count */}
-        {filteredEvents.length > 0 && (
-          <Box sx={{ mt: 3, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              Showing {filteredEvents.length} of {mockEvents.length} events
             </Typography>
           </Box>
         )}
