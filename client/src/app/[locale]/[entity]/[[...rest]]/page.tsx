@@ -4,14 +4,16 @@ import React from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
-import { ManageEventOfficeAccount } from "@/components/admin";
+import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
-import BrowseEvents from "@/components/browse-events";
+import BrowseEventsContent from "@/components/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
+import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
+import BoothForm from "@/components/shared/BoothForm/BoothForm";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -36,6 +38,13 @@ export default function EntityCatchAllPage() {
       if (section === "my-applications") {
         // Interpreting "My Applications" as pending/rejected requests list
         return <VendorRequestsList />;
+      }
+      if (section === "opportunities") {
+        // Interpreting "My Applications" as pending/rejected requests list
+        return <BrowseEventsContent registered={false} user="vendor" />;
+      }
+      if (section === "apply-booth") {
+        return <BoothForm />;
       }
     }
 
@@ -79,7 +88,7 @@ export default function EntityCatchAllPage() {
     // Event Office content
     if (entity === "admin" && tab === "event-office") {
       if (section === "manage-eo-account") {
-        return <ManageEventOfficeAccount />;
+        return <ManageEventOfficeAccountContent />;
       }
     }
 
@@ -92,15 +101,26 @@ export default function EntityCatchAllPage() {
       }
     }
 
-     if ( tab === "events" || tab === "events-management") {
-      if (section === "browse-events") {
-        return <BrowseEvents/>;
-      }
-      if (section === "all-events") {
-        return <BrowseEvents/>;
+    if (tab === "workshop-requests") {
+      if (section === "all-requests") {
+        return <WorkshopReviewUI />;
       }
     }
 
+    //Shared Content
+    if (tab === "events" || tab === "events-management") {
+      if (section === "browse-events") {
+        return <BrowseEventsContent registered={false} user="student" />;
+      }
+      if (section === "all-events") {
+        return <BrowseEventsContent registered={false} user="events-office" />;
+      }
+    }
+    if (tab === "events") {
+      if (section === "my-registered") {
+        return <BrowseEventsContent registered={true} user="student" />;
+      }
+    }
 
     // Default placeholder content
     return (

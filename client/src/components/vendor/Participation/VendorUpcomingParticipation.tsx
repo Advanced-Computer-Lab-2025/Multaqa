@@ -5,6 +5,7 @@ import { Box, Typography, Stack } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import VendorItemCard from "./VendorItemCard";
 import { VendorParticipationItem } from "./types";
+import theme from "@/themes/lightTheme";
 
 const demoData: VendorParticipationItem[] = [
   {
@@ -47,14 +48,11 @@ export default function VendorUpcomingParticipation() {
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
-        <Typography
-          variant="h5"
-          sx={{ fontFamily: "var(--font-jost)", fontWeight: 700, color: "#1E1E1E" }}
-        >
-          Upcoming Participation
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)" }}>
-          These are accepted bazaars or platform booths you’re participating in.
+      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
+       My Upcoming Participations
+      </Typography>
+        <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
+          Here are the bazaars or platform booths you’re participating in.
         </Typography>
       </Box>
 
@@ -65,17 +63,17 @@ export default function VendorUpcomingParticipation() {
             item={item}
             expanded={openId === item.id}
             details={renderDetails(item)}
-            rightSlot={
-              <CustomButton
-                size="small"
-                variant={openId === item.id ? "outlined" : "contained"}
-                color="primary"
-                onClick={() => toggle(item.id)}
-                label={openId === item.id ? "Hide Details" : "View Details"}
-                width="auto"
-                height="32px"
-              />
-            }
+            // rightSlot={
+              // <CustomButton
+              //   size="small"
+              //   variant={openId === item.id ? "outlined" : "contained"}
+              //   color="primary"
+              //   onClick={() => toggle(item.id)}
+              //   label={openId === item.id ? "Hide Details" : "View Details"}
+              //   width="auto"
+              //   height="32px"
+              // />
+            // }
           />
         ))}
       </Stack>
