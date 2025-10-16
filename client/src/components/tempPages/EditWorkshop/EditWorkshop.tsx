@@ -13,6 +13,8 @@ import {workshopSchema} from "../CreateWorkshop/schemas/workshop";
 import dayjs from 'dayjs';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 
+import {api} from "../../../api";
+
 
 interface Professor {
   id: string;
@@ -21,7 +23,7 @@ interface Professor {
 
 interface EditWorkshopProps {
   setOpenEditWorkshop: (open: boolean) => void;
-  id: string;
+  workshopId:string;
   professors: Professor[];
   workshopName?: string;
   budget?: number;
@@ -40,6 +42,7 @@ interface EditWorkshopProps {
 
 const EditWorkshop = ({
     setOpenEditWorkshop, 
+    workshopId,
     professors,
     workshopName = "",
     budget = 0,
@@ -57,6 +60,10 @@ const EditWorkshop = ({
   }: EditWorkshopProps) => {
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
+
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const initialValues ={
       workshopName,
@@ -79,6 +86,21 @@ const EditWorkshop = ({
     return professors.find(prof => prof.id === value);
   };
 
+  const handleCallApi = async (payload:any) => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+        // TODO: Replace with your API route
+        const res = await api.patch("/workshops" + "/68e8f60bcf1172a5cbc4edd5/" + workshopId, payload);
+        setResponse(res.data);
+    } catch (err: any) {
+        setError(err?.message || "API call failed");
+    } finally {
+        setLoading(false);
+    }
+  };
+
   const onSubmit = async (values: any, actions: any) => {
     const payload ={
       type: "workshop",
@@ -89,17 +111,18 @@ const EditWorkshop = ({
       description: values.description,
       fullAgenda:values.agenda,
       facultyResponsible:values.faculty,
-      associatedProfs:values.professors,
+      associatedProfs:["68f1433886d20633de05f301"],
       requiredBudget:values.budget,
       extraRequiredResources:values.extraResources,
       capacity:values.capacity,
       registrationDeadline:values.registrationDeadline.format("YYYY-MM-DD"),
       eventStartTime:values.startDate.format("HH:mm"),
       eventEndTime:values.endDate.format("HH:mm"),
+      fundingSource:values.fundingSource,
+      price:5,
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    console.log(JSON.stringify(payload));
+    handleCallApi(payload);
     setOpenEditWorkshop(false);
   };
 
@@ -169,8 +192,8 @@ const EditWorkshop = ({
                     label="Funding Source"
                     fieldType="single"
                     options={[
-                      { label: 'GUC', value: 'GUC' },
-                      { label: 'External', value: 'EXTERNAL' },
+                      {label:'GUC',value:'GUC'},
+                      {label: 'External', value: 'External' },
                     ]}
                     value={values.fundingSource}
                     onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}

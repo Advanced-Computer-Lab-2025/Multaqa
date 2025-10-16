@@ -14,6 +14,8 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 import { eventNames } from 'node:process';
 import dayjs from 'dayjs';
 
+import {api} from "../../../api"
+
 
 interface Professor {
   id: string;
@@ -26,6 +28,10 @@ interface CreateWorkshopProps {
 }
 
 const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps) => {
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
 
@@ -45,6 +51,23 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
       extraResources: [] as string[],
   };
 
+  const handleCallApi = async (payload:any) => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+        // TODO: Replace with your API route
+        const res = await api.post("/workshops/"+"68e8f60bcf1172a5cbc4edd5", payload);
+        console.log("posting data")
+        setResponse(res.data);
+        console.log(res.data)
+    } catch (err: any) {
+        setError(err?.message || "API call failed");
+    } finally {
+        setLoading(false);
+    }
+  };
+
   // Function to find professor by value
   const findProfessorByID = (value: string) => {
     return professors.find(prof => prof.id === value);
@@ -60,17 +83,19 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
       description: values.description,
       fullAgenda:values.agenda,
       facultyResponsible:values.faculty,
-      associatedProfs:values.professors,
+      associatedProfs:["68f1433886d20633de05f301"],
       requiredBudget:values.budget,
       extraRequiredResources:values.extraResources,
       capacity:values.capacity,
       registrationDeadline:values.registrationDeadline.format("YYYY-MM-DD"),
       eventStartTime:values.startDate.format("HH:mm"),
       eventEndTime:values.endDate.format("HH:mm"),
+      fundingSource:values.fundingSource,
+      price:5,
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    console.log(JSON.stringify(payload));
+    console.log(payload);
+    handleCallApi(payload);
     setOpenCreateWorkshop(false);
   };
 
@@ -141,7 +166,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
                     fieldType="single"
                     options={[
                       { label: 'GUC', value: 'GUC' },
-                      { label: 'External', value: 'EXTERNAL' },
+                      { label: 'External', value: 'External' },
                     ]}
                     value={values.fundingSource}
                     onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}

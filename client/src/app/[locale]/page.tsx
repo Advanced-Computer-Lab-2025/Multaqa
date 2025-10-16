@@ -368,7 +368,7 @@ const SimpleFormExample: React.FC = () => {
         <CustomModalLayout open={openEditWorkshop} onClose={()=> setOpenEditWorkshop(false)}>
           <EditWorkshop 
               setOpenEditWorkshop={setOpenEditWorkshop} 
-              id='1'
+              workshopId='68f1467f7faf7862f37ef0d8'
               professors={[
                   { id: '1', name: 'Prof. Ahmed Ali' },
                   { id: '2', name: 'Prof. Mona Hassan' },
@@ -385,7 +385,7 @@ const SimpleFormExample: React.FC = () => {
               agenda='67'
               location='GUC Berlin'
               faculty='MET'
-              fundingSource='GUC'
+              fundingSource='External'
               initialProfessors={[
                 { id: '1', name: 'Prof. Ahmed Ali' },
                 { id: '2', name: 'Prof. Mona Hassan' }

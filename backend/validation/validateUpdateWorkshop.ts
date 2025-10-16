@@ -13,7 +13,7 @@ export function validateUpdateWorkshop(data: any) {
     facultyResponsible: Joi.string().optional(),
     associatedProfs: Joi.array().items(Joi.string()).optional(),
     requiredBudget: Joi.number().min(0).optional(),
-    fundingSource: Joi.string().valid("external", "GUC").optional(),
+    fundingSource: Joi.string().valid("External", "GUC").optional(),
     extraRequiredResources: Joi.array().items(Joi.string()).optional(),
     capacity: Joi.number().integer().min(1).optional(),
     registrationDeadline: Joi.date().optional(),
