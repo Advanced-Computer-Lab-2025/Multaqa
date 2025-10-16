@@ -59,7 +59,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -72,10 +71,11 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "courts",
-        label: "Courts Booking",
+        label: "Courts",
         icon: Trophy,
         sections: [
           { id: "reserve", label: "Reserve Courts" },
+          { id: "my-reserved", label: "My Reservations" },
           // Future: { id: "my-reservations", label: "My Reservations" },
         ],
       },
@@ -88,13 +88,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
-      },
     ],
   },
   staff: {
@@ -103,7 +96,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -112,15 +104,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
-        ],
-      },
-      {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [
-          { id: "reserve", label: "Reserve Courts" },
         ],
       },
       {
@@ -131,13 +114,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-sessions", label: "Browse Sessions" },
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
       },
     ],
   },
@@ -264,9 +240,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Workshop Requests",
         icon: FileText,
         sections: [
-          { id: "pending", label: "Pending" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
+          { id: "all-requests", label: "All Requests" },
+          { id: "pending", label: "Pending Requests" },
+          { id: "accepted", label: "Accepted Requests" },
+          { id: "rejected", label: "Rejected Requests" },
         ],
       },
       {
@@ -396,20 +373,9 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bazaars & Booths",
         icon: Store,
         sections: [
+          { id: "opportunities", label: "Browse Opportunities" },
+          { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
-          { id: "available", label: "Available Opportunities" },
-          { id: "apply-bazaar", label: "Apply for Bazaar" },
-          { id: "apply-booth", label: "Apply for Booth" },
-        ],
-      },
-      {
-        key: "participation",
-        label: "My Participation",
-        icon: Calendar,
-        sections: [
-          { id: "upcoming", label: "Upcoming" },
-          { id: "past", label: "Past" },
-          { id: "registered-visitors", label: "Registered Visitors" },
         ],
       },
       {

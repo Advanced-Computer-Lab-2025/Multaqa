@@ -27,7 +27,7 @@ export default function TopNavigation({ companyName = "Acme Corp", header }: Top
   return (
     <div className="bg-white border-b border-gray-300 w-full">
       {/* Company/App Bar */}
-      <div className="flex items-center gap-4 px-4 h-14 border-b ustify-center border-gray-200">
+      <div className="flex items-center gap-4 px-4 h-14 border-b justify-center border-gray-200 bg-[#f9fbfc]">
         <div className="flex items-center gap-2" >
           <span className="text-lg font-heading font-semibold text-[#1E1E1E]">{companyName}</span>
         </div>
@@ -37,7 +37,7 @@ export default function TopNavigation({ companyName = "Acme Corp", header }: Top
       {header && (
         <div className="w-full">
           {/* Title Section */}
-          <div className="flex items-center gap-4 px-6 pt-6 pb-4">
+          <div className="flex items-center gap-4 px-4 pt-4 pb-4">
             {header.showBack && (
               <IconButton 
                 onClick={header.onBack}
@@ -50,7 +50,7 @@ export default function TopNavigation({ companyName = "Acme Corp", header }: Top
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                <ArrowLeft size={24} />
+                <ArrowLeft size={20} />
               </IconButton>
             )}
             {header.leftIcon && (
@@ -58,14 +58,14 @@ export default function TopNavigation({ companyName = "Acme Corp", header }: Top
                 {header.leftIcon}
               </div>
             )}
-            <h1 className="text-2xl font-semibold text-[#1E1E1E] font-heading">
+            <h1 className="text-xl font-semibold text-[#1E1E1E] font-heading">
               {header.title}
             </h1>
           </div>
 
           {/* Tabs Section */}
           {header.tabs && header.tabs.length > 0 && (
-            <div className="border-b border-gray-300 px-6">
+            <div className="border-b border-gray-900 px-6">
               <div className="flex gap-8">
                 {header.tabs.map((tab, index) => {
                   const isActive = header.activeTabIndex === index;
