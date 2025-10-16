@@ -21,6 +21,7 @@ interface Professor {
 
 interface EditWorkshopProps {
   setOpenEditWorkshop: (open: boolean) => void;
+  id: string;
   professors: Professor[];
   workshopName?: string;
   budget?: number;
@@ -79,9 +80,26 @@ const EditWorkshop = ({
   };
 
   const onSubmit = async (values: any, actions: any) => {
+    const payload ={
+      type: "workshop",
+      eventName: values.workshopName,
+      location: values.location,
+      eventStartDate: values.startDate.format("YYYY-MM-DD"),
+      eventEndDate: values.endDate.format("YYYY-MM-DD"), 
+      description: values.description,
+      fullAgenda:values.agenda,
+      facultyResponsible:values.faculty,
+      associatedProfs:values.professors,
+      requiredBudget:values.budget,
+      extraRequiredResources:values.extraResources,
+      capacity:values.capacity,
+      registrationDeadline:values.registrationDeadline.format("YYYY-MM-DD"),
+      eventStartTime:values.startDate.format("HH:mm"),
+      eventEndTime:values.endDate.format("HH:mm"),
+    };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    alert(JSON.stringify(values));
+    console.log(JSON.stringify(payload));
     setOpenEditWorkshop(false);
   };
 
