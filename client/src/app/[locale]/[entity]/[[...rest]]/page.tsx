@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";

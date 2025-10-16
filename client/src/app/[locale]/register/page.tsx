@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
-import { redirect } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 export default function RegisterPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [userType, setUserType] = useState<
     "university-member" | "vendor" | null
   >(null);
@@ -19,9 +20,9 @@ export default function RegisterPage() {
       setUserType(userTypeParam);
     } else {
       // If no valid userType provided, redirect to home page
-      redirect("/");
+      router.replace("/");
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   // Show a loading state or nothing until we've determined the userType
   if (!userType) {

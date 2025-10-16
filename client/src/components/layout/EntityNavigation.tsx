@@ -2,7 +2,7 @@ import React from "react";
 import SidebarNavigation from "./SidebarNavigation";
 import TopNavigation from "./TopNavigation";
 import Tabs from "./Tabs";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   User,
   Calendar,

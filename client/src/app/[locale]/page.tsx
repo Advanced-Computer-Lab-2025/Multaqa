@@ -13,7 +13,7 @@ import {
   IconButton,
   alpha,
 } from "@mui/material";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 // Icons
 import SchoolIcon from "@mui/icons-material/School";

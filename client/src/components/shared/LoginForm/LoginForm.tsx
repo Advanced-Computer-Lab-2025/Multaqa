@@ -3,7 +3,7 @@ import { Formik } from "formik";
 import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
