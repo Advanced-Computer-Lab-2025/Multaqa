@@ -19,6 +19,7 @@ import {
   BoothViewProps,
 } from "./Event/types";
 import CustomSearchBar from "./shared/Searchbar/CustomSearchBar";
+import ContentWrapper from "./shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
 
 interface BrowseEventsProps {
@@ -83,7 +84,7 @@ const mockEvents: Event[] = [
   {
     id: "1",
     type: EventType.CONFERENCE,
-    name: "Tech Innovation ee33sffdgdgdwewrwrhgjjgj 2024",
+    name: "Tech Innovation Summit 2024",
     description:
       "A comprehensive conference covering the latest trends in technology, AI, and digital transformation.",
     agenda:
@@ -109,7 +110,7 @@ const mockEvents: Event[] = [
       "Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session",
     details: {
       "Start Date": "2024-03-20",
-      "End Date": "2024-04-20",
+      "End Date": "2024-03-20",
       "Start Time": "10:00",
       "End Time": "16:00",
       Location: "GUC Cairo",
@@ -212,7 +213,12 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
+// Filter state type
+interface FilterState {
+  eventType?: EventType[];
+  [key: string]: EventType[] | string[] | number[] | undefined;
+}
+  const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>(mockEvents);
@@ -421,8 +427,22 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             Try adjusting your search or filters
           </Typography>
         </Box>
-      )}
 
+        {/* Events Grid */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: "repeat(2, 1fr)",
+              lg: "repeat(3, 1fr)",
+            },
+            gap: 3,
+          }}
+        >
+          {filteredEvents.map((event) => (
+            <Box key={event.id}>{renderEventComponent(event)}</Box>
+          ))}
       {/* Results count */}
       {filteredEvents.length > 0 && (
         <Box sx={{ mt: 3, textAlign: "center" }}>
@@ -430,8 +450,29 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             Showing {filteredEvents.length} of {mockEvents.length} events
           </Typography>
         </Box>
-      )}
-    </Container>
+
+        {/* No results message */}
+        {filteredEvents.length === 0 && (
+          <Box sx={{ textAlign: "center", py: 8 }}>
+            <Typography variant="h6" color="text.secondary">
+              No events found matching your criteria
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Try adjusting your search or filters
+            </Typography>
+          </Box>
+        )}
+
+        {/* Results count */}
+        {filteredEvents.length > 0 && (
+          <Box sx={{ mt: 3, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Showing {filteredEvents.length} of {mockEvents.length} events
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    </ContentWrapper>
   );
 };
 

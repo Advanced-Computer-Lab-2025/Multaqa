@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CustomButton from "../shared/Buttons/CustomButton";
@@ -81,6 +81,7 @@ export default function BlockUnblockUsersContent() {
         <CustomButton
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
+          size="small"
           onClick={() => handleToggleBlock(user.id, setUsers)}
           startIcon={
             user.status === "Active" ? (
@@ -92,12 +93,23 @@ export default function BlockUnblockUsersContent() {
           color={user.status === "Active" ? "error" : "success"}
           sx={{
             width: "100%",
-            maxWidth: "120px",
+            maxWidth: "100px !important",
+            padding: "4px 12px !important",
+            fontSize: "12px !important",
+            height: "32px !important",
+            minHeight: "32px !important",
+            "& .MuiButton-startIcon": {
+              marginRight: "4px",
+              "& svg": {
+                fontSize: "16px",
+              },
+            },
+            
           }}
         />
       }
       hoverBorderColor={
-        user.status === "Active" ? theme.palette.error.main : "success.main"
+        user.status === "Active" ? "success.main" : theme.palette.error.main
       }
       hoverBoxShadow={
         user.status === "Active"

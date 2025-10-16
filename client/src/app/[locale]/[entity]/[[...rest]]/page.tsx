@@ -4,10 +4,10 @@ import React from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
-import { ManageEventOfficeAccount } from "@/components/admin";
+import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
-import BrowseEvents from "@/components/browse-events";
+import BrowseEventsContent from "@/components/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
@@ -84,7 +84,7 @@ export default function EntityCatchAllPage() {
     // Event Office content
     if (entity === "admin" && tab === "event-office") {
       if (section === "manage-eo-account") {
-        return <ManageEventOfficeAccount />;
+        return <ManageEventOfficeAccountContent />;
       }
     }
 

@@ -104,7 +104,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
         ],
       },
       {
@@ -130,7 +129,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "events",
     defaultSection: "browse-events",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -139,7 +137,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
         ],
       },
       {
@@ -147,32 +144,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Courts Booking",
         icon: Trophy,
         sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
-        key: "gym",
-        label: "Gym Sessions",
-        icon: Dumbbell,
-        sections: [
-          { id: "browse-sessions", label: "Browse Sessions" },
-          { id: "my-sessions", label: "My Registered Sessions" },
-        ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
       },
     ],
   },
   professor: {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "workshops",
+    defaultTab: "events",
     defaultSection: "create-workshop",
     tabs: [
-      { key: "profile", label: "My Profile", icon: User, sections: [] },
       {
         key: "events",
         label: "Events",
@@ -181,19 +161,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
-          { id: "my-ratings", label: "My Ratings & Comments" },
-        ],
-      },
-      {
-        key: "workshops",
-        label: "My Workshops",
-        icon: FileText,
-        sections: [
-          { id: "create-workshop", label: "Create Workshop" },
-          { id: "draft", label: "Draft" },
-          { id: "submitted", label: "Submitted" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
         ],
       },
       {
@@ -202,44 +169,20 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Trophy,
         sections: [{ id: "reserve", label: "Reserve Courts" }],
       },
-      {
-        key: "gym",
-        label: "Gym Sessions",
-        icon: Dumbbell,
-        sections: [
-          { id: "browse-sessions", label: "Browse Sessions" },
-          { id: "my-sessions", label: "My Registered Sessions" },
-        ],
-      },
-      { key: "vendors", label: "Vendors", icon: Store, sections: [] },
-      {
-        key: "users",
-        label: "Users",
-        icon: Users,
-        sections: [{ id: "all-users", label: "All Users" }],
-      },
     ],
   },
   "events-office": {
     headerTitle: "Events Office",
     icon: <Calendar size={32} className="text-[#6299d0]" />,
-    defaultTab: "dashboard",
+    defaultTab: "events",
     defaultSection: "",
     tabs: [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        sections: [],
-      },
       {
         key: "events",
         label: "Events Management",
         icon: Calendar,
         sections: [
           { id: "all-events", label: "All Events" },
-          { id: "create-event", label: "Create Event" },
-          { id: "event-details", label: "Event Details" },
         ],
       },
       {
@@ -295,7 +238,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   admin: {
     headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
-    defaultTab: "dashboard",
+    defaultTab: "users",
     defaultSection: "",
     tabs: [
       {
@@ -325,8 +268,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: ClipboardList,
         sections: [
           { id: "assign-roles", label: "Assign Roles" },
-          { id: "view-assignments", label: "Current Assignments" },
-          { id: "role-history", label: "Role Change History" },
         ],
       },
       {
@@ -334,28 +275,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Event Office Accounts",
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
-      },
-      {
-        key: "activity-logs",
-        label: "Activity Logs",
-        icon: FileText,
-        sections: [
-          { id: "recent-activity", label: "Recent Activity" },
-          { id: "user-actions", label: "User Actions" },
-          { id: "system-events", label: "System Events" },
-          { id: "login-history", label: "Login History" },
-        ],
-      },
-      {
-        key: "settings",
-        label: "System Settings",
-        icon: Settings,
-        sections: [
-          { id: "general", label: "General Settings" },
-          { id: "security", label: "Security Settings" },
-          { id: "email-config", label: "Email Configuration" },
-          { id: "maintenance", label: "Maintenance Mode" },
-        ],
       },
     ],
   },
@@ -365,53 +284,18 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "opportunities",
     defaultSection: "available",
     tabs: [
-      {
-        key: "profile",
-        label: "My Profile",
-        icon: User,
-        sections: [
-          { id: "company-details", label: "Company Details" },
-          { id: "documents", label: "Upload Documents" },
-          { id: "verification", label: "Verification Status" },
-        ],
-      },
-      {
-        key: "opportunities",
-        label: "Bazaars & Booths",
-        icon: Store,
-        sections: [
-          { id: "opportunities", label: "Browse Opportunities" },
-          { id: "available", label: "My Participations" },
-          { id: "my-applications", label: "My Applications" },
-        ],
-      },
-      {
-        key: "payments",
-        label: "Payments",
-        icon: CreditCard,
-        sections: [
-          { id: "payment-history", label: "Payment History" },
-          { id: "receipts", label: "Receipts" },
-          { id: "refunds", label: "Refund Status" },
-        ],
-      },
-      { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },
-      {
-        key: "loyalty",
-        label: "Loyalty Program",
-        icon: Award,
-        sections: [
-          { id: "program-status", label: "Program Status" },
-          { id: "discount-rates", label: "Discount Rates" },
-          { id: "partners", label: "View Partners" },
-        ],
-      },
-      {
-        key: "notifications",
-        label: "Notifications",
-        icon: ClipboardList,
-        sections: [],
-      },
+      // TODO: Add your first page and sections here
+      // {
+      //   key: "opportunities",
+      //   label: "Bazaars & Booths",
+      //   icon: Store,
+      //   sections: [
+      //     { id: "available", label: "Available Opportunities" },
+      //     { id: "apply-bazaar", label: "Apply for Bazaar" },
+      //     { id: "apply-booth", label: "Apply for Booth" },
+      //     { id: "my-applications", label: "My Applications" },
+      //   ],
+      // },
     ],
   },
 };
