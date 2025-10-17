@@ -142,14 +142,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
       const data = res.data.data;
       const result = frameData(data);
       setEvents(result);
-      console.log(data);
+      // console.log(data);
       }
       else{
       const res = await api.get(`/users/${userID}`);
       const data2 = res.data.data.registeredEvents;
       const result = frameData(data2);
       setEvents(result);
-      console.log(data2);
+      // console.log(data2);
       }
     }
     catch(err){

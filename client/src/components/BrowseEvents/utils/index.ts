@@ -22,8 +22,8 @@ function transformEvent(event: any) {
   const registrationDeadline= event.registrationDeadline;
   const startDate= event.eventStartDate;
   const endDate =  event.eventEndDate;
-  console.log("look here")
-  console.log(event.createdBy)
+  // console.log("look here")
+  // console.log(event.createdBy)
 
   switch (event.type?.toLowerCase()) {
     case "trip":
@@ -36,6 +36,8 @@ function transformEvent(event: any) {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
           "End Date":endDate,
+          "Start Time": event.eventStartTime,
+          "End Time": event.eventEndTime,
           Location: event.location,
           Cost: `${event.price?.$numberInt || event.price} EGP `,
           Capacity: event.capacity?.$numberInt || event.capacity,
@@ -57,6 +59,10 @@ function transformEvent(event: any) {
           "End Date":endDate,
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
+          "Faculty Responsible": event.associatedFaculty,
+          "Extra Required Resources": event.extraRequiredResources,
+          "Funding Source":event.fundingSource,
+          "Required Budget":event.requiredBudget,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": (event.capacity - event.attendees.length)
@@ -67,16 +73,21 @@ function transformEvent(event: any) {
     case "conference":
       return{
         id,
-        type: EventType.TRIP,
+        type: EventType.CONFERENCE,
         name: event.eventName,
         description:
          event.description,
         agenda: event.fullAgenda,
         details: {
-          "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
           "End Date":endDate,
+          "Start Time": event.eventStartTime,
+          "End Time": event.eventEndTime,
+          "Extra Required Resources": event.extraRequiredResources,
+          "Funding Source":event.fundingSource,
+          "Required Budget":event.requiredBudget,
            Location: event.location,
+           "Link": event.websiteLink,
       }
     };
     case "bazaar":
@@ -86,10 +97,13 @@ function transformEvent(event: any) {
         name: event.eventName,
         description:
           event.description,
+        // vendors: event.vendors,
         details: {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
           "End Date":endDate,
+          "Start Time": event.eventStartTime,
+          "End Time": event.eventEndTime,
           Time: `${event.eventStartTime} - ${event.eventEndTime}`,
           Location: event.location,
           "Vendor Count": event.vendors.length,

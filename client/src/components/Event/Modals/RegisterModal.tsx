@@ -35,16 +35,21 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
     email:isReady?userInfo.name:"",
   };
   
-
   const handleCallApi = async (payload:any) => {
     try {
-      console.log(userInfo.id)
-      console.log(eventId)
+      // console.log(userInfo.id)
+      // console.log(eventId)
+      console.log(payload);
       // TODO: Replace with your API route
-      const res = await api.post(`/users/${userInfo.id}/register/:${eventId}`, payload);
-      console.log(res);
+      const res = await api.post(`/users/${userInfo.id}/register/${eventId}`, payload);
     } catch (err: any) {
-      setError(err?.message || "API call failed");
+      if (err.response && err.response.status === 404) {
+        // Specific handling for 404
+        window.alert("You already registered");
+      } else {
+        // Generic error message
+        setError(err?.message || "API call failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -88,22 +93,26 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
 
             <CustomTextField
+              id="name"
               label="Name"
               fieldType="text"
-              placeholder={isReady?userInfo.name:""}
+              placeholder={userInfo.name}
               name="name"
-              value={isReady?userInfo.name:""}
+              value={userInfo.name}
+              onChange={handleChange}
               neumorphicBox
               required
               fullWidth
             />
 
             <CustomTextField
+              id="email"
               label="Email"
               fieldType="text"
-              placeholder={isReady?userInfo.email:""}
-              value={isReady?userInfo.email:""}
+              placeholder={userInfo.email}
+              value={userInfo.email}
               name="email"
+              onChange={handleChange}
               required
               neumorphicBox
               fullWidth

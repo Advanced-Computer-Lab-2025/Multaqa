@@ -37,7 +37,7 @@ export default function EntityCatchAllPage() {
   console.log(entity)
   console.log(tab)
   console.log(section)
-  const studentUser ="68e3b87c9ba968e059fc1cd9";
+  const studentUser ="68e6d9cfc5de4e0cec12c5a3";
   const professorUser ="68f1433886d20633de05f301" ;
 
   // Render specific content based on entity, tab, and section
