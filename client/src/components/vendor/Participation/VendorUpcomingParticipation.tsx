@@ -7,6 +7,11 @@ import { VendorParticipationItem } from "./types";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 
+// Zero-fallback policy: do not generate client-side IDs. If the server
+// doesn't provide an identifier for the participation (event._id or item._id),
+// we skip the item entirely. This ensures the UI does not rely on client IDs
+// and surfaces backend contract problems early.
+
 
 
 // Map simple event types to participation items
@@ -23,7 +28,10 @@ const mapRequestedEventToParticipation = (item: any, vendorId: string): VendorPa
   const startDate = typeof event?.eventStartDate === "string" ? event.eventStartDate : new Date().toISOString();
   const endDate = typeof event?.eventEndDate === "string" ? event.eventEndDate : undefined;
 
-  const id = event?._id ?? item?._id ?? Math.random().toString(36).slice(2);
+  // Enforce zero-fallback: require server-provided id
+  const serverId = event?._id ?? item?._id;
+  if (!serverId) return null;
+  const id = String(serverId);
   const title = event?.eventName ?? "";
   const location = event?.location ?? "";
 
