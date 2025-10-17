@@ -7,6 +7,7 @@ import { CustomModalLayout } from "@/components/shared/modals";
 import theme from "@/themes/lightTheme";
 import { Typography, Box } from "@mui/material";
 import { api } from "@/api";
+import { useFormik } from "formik";
 
 interface RegisterEventModalProps {
   userInfo:{ id: string; name: string; email:string };
@@ -29,19 +30,39 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (payload: React.FormEvent) => {
-    payload.preventDefault();
+  const initialValues = {
+    name: isReady? userInfo.email:"",
+    email:isReady?userInfo.name:"",
+  };
+  
+
+  const handleCallApi = async (payload:any) => {
     try {
+      console.log(userInfo.id)
+      console.log(eventId)
       // TODO: Replace with your API route
-      const res = await api.post(`/users/:${userInfo.id}/register/:${eventId}`, payload);
-      setResponse(res.data);
+      const res = await api.post(`/users/${userInfo.id}/register/:${eventId}`, payload);
+      console.log(res);
     } catch (err: any) {
       setError(err?.message || "API call failed");
     } finally {
       setLoading(false);
     }
   };
-console.log(userInfo);
+  const onSubmit = async (values: any, actions: any) => {
+    onClose();
+    const payload = {
+        name: values.name,
+        email:values.email,
+    };
+    actions.resetForm();
+    handleCallApi(payload);
+  };
+  const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
+    initialValues,
+    onSubmit: onSubmit,
+  });
+
   return (
     <CustomModalLayout
       open={open}
@@ -79,7 +100,7 @@ console.log(userInfo);
 
             <CustomTextField
               label="Email"
-              fieldType="email"
+              fieldType="text"
               placeholder={isReady?userInfo.email:""}
               value={isReady?userInfo.email:""}
               name="email"
@@ -101,7 +122,8 @@ console.log(userInfo);
               sx={{ width: "160px", height: "44px" }}
             />
             <CustomButton
-              label="Register"
+             disabled={isSubmitting} 
+             label={isSubmitting ? "Registering":"Register"}
               type="submit"
               variant="contained"
               color="primary"

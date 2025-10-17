@@ -111,7 +111,6 @@ const TripView: React.FC<BazarViewProps> = ({
     </Box>
   );
 
-  console.log("TripView render - tripToDelete:", tripToDelete);
 
   return (
     <>
