@@ -112,11 +112,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
   const [createTrip, setTrip] = useState(false);
   const [createWorkshop, setWorkshop] = useState(false);
   const [createSession, setSession] = useState(false);
+  const [UserInfo, setUserInfo] =  useState<{ id: string; name: string; email:string }>({id:"", name:"", email:""});
+  const [isReady, setReady] = useState(false);
+
+  useEffect(() => {
+    handleCallAPI2()
+  }, []); 
 
   useEffect(() => {
     handleCallAPI()
   }, [refresh]); 
   // Handle event deletion
+  async function handleCallAPI2 (){
+    const res = await api.get(`/users/${userID}`);
+    const data = res.data.data;
+    const user = {
+      id: data._id,
+      name: `${data.firstName}  ${data.lastName}`,
+      email: data.email,
+    }
+    setUserInfo(user);
+    setReady(true);
+  }
 
   async function handleCallAPI (){
     try{
@@ -233,7 +250,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             agenda={event.agenda}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.WORKSHOP:
@@ -248,7 +267,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             agenda={event.agenda}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.BAZAAR:
@@ -262,7 +283,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             description={event.description}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.BOOTH:
@@ -276,7 +299,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             details={event.details}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.TRIP:
@@ -290,7 +315,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             description={event.description}
             user={user}
             registered={registered}
+            userInfo={UserInfo}   
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       default:

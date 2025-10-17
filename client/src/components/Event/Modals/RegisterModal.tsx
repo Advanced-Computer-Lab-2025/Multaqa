@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import {
   CustomTextField,  
@@ -6,23 +6,42 @@ import {
 import { CustomModalLayout } from "@/components/shared/modals";
 import theme from "@/themes/lightTheme";
 import { Typography, Box } from "@mui/material";
+import { api } from "@/api";
 
 interface RegisterEventModalProps {
+  userInfo:{ id: string; name: string; email:string };
   open: boolean;
   onClose: () => void;
   eventType: string;
+  isReady:boolean;
+  eventId:string;
 }
 
 const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
+  userInfo,
   open,
   onClose,
   eventType,
+  isReady,
+  eventId
 }) => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Add registration logic here (e.g., API call)
-  };
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
+  const handleSubmit = async (payload: React.FormEvent) => {
+    payload.preventDefault();
+    try {
+      // TODO: Replace with your API route
+      const res = await api.post(`/users/:${userInfo.id}/register/:${eventId}`, payload);
+      setResponse(res.data);
+    } catch (err: any) {
+      setError(err?.message || "API call failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+console.log(userInfo);
   return (
     <CustomModalLayout
       open={open}
@@ -50,8 +69,9 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
             <CustomTextField
               label="Name"
               fieldType="text"
-              placeholder="Enter your name"
+              placeholder={isReady?userInfo.name:""}
               name="name"
+              value={isReady?userInfo.name:""}
               neumorphicBox
               required
               fullWidth
@@ -60,7 +80,8 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
             <CustomTextField
               label="Email"
               fieldType="email"
-              placeholder="Enter your GUC email"
+              placeholder={isReady?userInfo.email:""}
+              value={isReady?userInfo.email:""}
               name="email"
               required
               neumorphicBox

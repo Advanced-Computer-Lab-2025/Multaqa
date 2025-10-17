@@ -38,6 +38,7 @@ app.use("/users", userRouter);
 app.use("/gymsessions", gymSessionsRouter);
 app.use("/admins", adminRouter);
 app.use("/vendorEvents", vendorEventsRouter);
+app.use("/eventsOffice", workshopsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 
