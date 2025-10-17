@@ -20,19 +20,12 @@ import {
   SignupVendorData,
   SignupData,
 } from "@/context/AuthContext";
-
-interface SignupResponse {
-  success: boolean;
-  message?: string;
-  user?: Record<string, unknown>;
-}
+import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface"; 
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
-  // We're using useAuth hook here, which requires this component to be wrapped in AuthProvider
   const { signup } = useAuth();
 
-  // Helper function to handle registration
   const handleRegistration = async (
     data: SignupData
   ): Promise<SignupResponse> => {
@@ -76,26 +69,24 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   email: values.email,
                   password: values.password,
                   gucId: values.gucId as string,
+                  type: "studentOrStaff",
                 } as SignupStudentStaffData)
               : ({
                   companyName: values.companyName as string,
                   email: values.email,
                   password: values.password,
+                  type: "vendor",
                 } as SignupVendorData);
 
-          // Call signup method and cast the result
           const response = await handleRegistration(signupData);
 
-          // If successful, show success message and redirect
           if (response && response.success) {
-            // Reset form
             resetForm();
 
-            // Show success toast with custom config
             toast.success(
               "Registration successful! Please check your email for verification.",
               {
-                position: "top-right",
+                position: "bottom-right",
                 autoClose: 5000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -106,16 +97,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
               }
             );
 
-            // The router navigation is handled in the page component
           }
         } catch (err) {
           // Show error toast with custom config
+          console.error("Registration error:", err);
           toast.error(
             err instanceof Error
               ? err.message
               : "Registration failed. Please try again.",
             {
-              position: "top-right",
+              position: "bottom-right",
               autoClose: 5000,
               hideProgressBar: false,
               closeOnClick: true,

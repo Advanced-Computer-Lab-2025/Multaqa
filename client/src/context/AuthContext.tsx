@@ -7,21 +7,9 @@ import React, {
   ReactNode,
 } from "react";
 import { api } from "../api";
-
-// Define roles to match backend
-export enum UserRole {
-  STUDENT = "student",
-  STAFF_MEMBER = "staffMember",
-  VENDOR = "vendor",
-  ADMINISTRATION = "administration",
-}
-
-// Define user type (from backend)
-interface INotification {
-  title: string;
-  message: string;
-  createdAt: string;
-}
+import { UserRole } from "@/components/admin/types";
+import { INotification } from "../../../backend/interfaces/models/user.interface";
+import { useRouter } from "@/i18n/navigation";
 
 export interface User {
   _id: string;
@@ -97,7 +85,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const router = useRouter();
   // Bootstrap user on load
   useEffect(() => {
     const initializeAuth = async () => {
@@ -108,19 +96,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       try {
-        // Make sure Authorization header is added to request in the API interceptor
         const response = await api.get("/auth/me");
 
-        // Check if response has the expected structure
         if (response.data?.user) {
           setUser(response.data.user);
         } else {
           console.error("Invalid response format:", response.data);
           localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
         }
-      } catch (err) {
-        console.error("Token invalid or expired:", err);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
       } finally {
         setIsLoading(false);
       }
@@ -134,10 +122,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setError(null);
     try {
       const response = await api.post("/auth/login", credentials);
-      const { success, message, accessToken, user } = response.data;
+      const { success, message, accessToken, user, refreshToken } = response.data;
 
       if (success) {
         localStorage.setItem("token", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
         setUser(user);
       } else {
         throw new Error(message || "Login failed");
@@ -162,12 +151,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await api.post("/auth/signup", data);
 
-      // Backend returns success and user data but does not automatically log in
-      // based on the response: { success: true, message: string, user: User }
-
-      // Return the response data for further processing if needed
-      // The user will need to verify their email and login separately
-      return response.data;
+      if (!response.data?.success) {
+        return response.data;
+      }
     } catch (error: unknown) {
       const message =
         error instanceof Error
@@ -182,20 +168,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   // Logout
-  const logout = useCallback(async () => {
-    try {
-      // The backend handles clearing the refreshToken cookie
-      await api.post("/auth/logout");
-    } catch (err) {
-      console.warn("Logout error:", err);
-    } finally {
-      // We still need to clear the access token from localStorage
-      localStorage.removeItem("token");
-      setUser(null);
-      // Redirect to login page
-      window.location.href = "/login";
-    }
-  }, []);
+    const logout = useCallback(async () => {
+      try {
+        await api.post("/auth/logout");
+      } catch (err) {
+        console.warn("Logout error:", err);
+      } finally {
+        localStorage.removeItem("token");
+        setUser(null);
+        router.replace("/login");
+      }
+    }, [router]);
 
   // Clear errors
   const clearError = useCallback(() => setError(null), []);
@@ -215,7 +198,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

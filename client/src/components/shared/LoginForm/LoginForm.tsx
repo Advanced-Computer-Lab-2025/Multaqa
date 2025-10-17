@@ -9,9 +9,14 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@mui/material/styles";
 import * as Yup from "yup";
+import { useAuth } from "../../../context/AuthContext";
+import { toast } from "react-toastify";
+import { useRouter } from "@/i18n/navigation";
 
 const LoginForm: React.FC = () => {
   const theme = useTheme();
+  const { login } = useAuth();
+  const router = useRouter();
 
   const initialValues = {
     email: "",
@@ -27,11 +32,41 @@ const LoginForm: React.FC = () => {
           .required("Please enter your email address."),
         password: Yup.string().required("Please enter your password."),
       })}
-      onSubmit={(values, { setSubmitting }) => {
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
+      onSubmit={async (values, { setSubmitting, resetForm }) => {
+        try {
+          await login(values);
+          resetForm();
+          toast.success("Login successful! Redirecting...", {
+            position: "bottom-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
+          // router.push("/"); //TODO: change to dashboard
+        } catch (err) {
+          console.error("Login error:", err);
+          toast.error(
+            err instanceof Error
+              ? err.message
+              : "Login failed. Please check your credentials.",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+        } finally {
           setSubmitting(false);
-        }, 400);
+        }
       }}
     >
       {(formik) => (
