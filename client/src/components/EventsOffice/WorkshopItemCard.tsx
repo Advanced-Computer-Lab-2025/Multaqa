@@ -37,11 +37,7 @@ type Props = {
 export default function WorkshopItemCard({ item, rightSlot, expanded = false , userId}: Props) {
 
   // Parse professors string into array
- const professorString = item.details["Professors Participating"] || "";
- const professors = professorString
-   .split(",")
-   .map((prof) => prof.trim())
-   .filter((prof) => prof.length > 0);
+ const professors = item.professors;
 
     // Helper function to extract initials from professor name
   const getInitials = (name: string) => {

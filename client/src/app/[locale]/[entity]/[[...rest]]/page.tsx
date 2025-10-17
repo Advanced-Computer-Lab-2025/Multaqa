@@ -14,9 +14,10 @@ import VendorUpcomingParticipation from "@/components/vendor/Participation/Vendo
 import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
-import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
+import WorkshopDetails, { Workshop } from "@/components/EventsOffice/WorkshopDetails";
 import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
 import WorkshopList from "@/components/shared/Professor/WorkshopList";
+import { demoworkshop } from ".";
 
 
 
@@ -32,7 +33,7 @@ export default function EntityCatchAllPage() {
   const tab = segments[2] || "";
   const section = segments[3] || "";
   const [Evaluating, setEvaluating] = useState(false);
-  const [specificWorkshop, setSpecificWorkshop] = useState('');
+  const [specificWorkshop, setSpecificWorkshop] = useState<Workshop>(demoworkshop);
   console.log(entity)
   console.log(tab)
   console.log(section)
@@ -136,12 +137,12 @@ export default function EntityCatchAllPage() {
 
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
-        return Evaluating ? (
-          <WorkshopDetails workshopID={specificWorkshop} setEvaluating={setEvaluating} />
+        return Evaluating  ? (
+          <WorkshopDetails workshop={specificWorkshop} setEvaluating={setEvaluating} />
         ) : (
           <WorkshopRequests
             setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop}
+            setSpecificWorkshop={setSpecificWorkshop!}
           />
         );
       }

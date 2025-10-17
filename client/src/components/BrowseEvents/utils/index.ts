@@ -11,6 +11,10 @@ export const frameData = (data: any) => {
   return res;
 };
 
+const flattenName = (profs:{ firstName: string; lastName: string }[])=>{
+  const profNames = profs.map(prof => `${prof.firstName} ${prof.lastName}`);
+}
+
 
 
 function transformEvent(event: any) {
@@ -51,6 +55,7 @@ function transformEvent(event: any) {
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Location: event.location,
+          "Professors Participating": flattenName(event.associatedProfs.push(event.createdBy)),
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": (event.capacity - event.attendees.length)
         },

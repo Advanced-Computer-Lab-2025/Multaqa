@@ -15,6 +15,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   details,
   name,
   description,
+  professors,
   agenda,
   user,
   registered,
@@ -75,12 +76,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     return colors[hash % colors.length];
   };
 
-  // Parse professors string into array
-  const professorString = details["Professors Participating"] || "";
-  const professors = professorString
-    .split(",")
-    .map((prof) => prof.trim())
-    .filter((prof) => prof.length > 0);
+
 
   // Format key details for display
   const formatDateRange = () => {

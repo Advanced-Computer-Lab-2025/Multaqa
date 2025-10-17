@@ -264,6 +264,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             details={event.details}
             name={event.name}
             description={event.description}
+            professors={event.professors}
             agenda={event.agenda}
             user={user}
             registered={registered}

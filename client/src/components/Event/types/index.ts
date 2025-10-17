@@ -39,5 +39,6 @@ export type WorkshopViewProps = BasicProps & {
   name: string,
   description: string,
   agenda: string,
+  professors:[string]
   details: Record<string, string>,
 }

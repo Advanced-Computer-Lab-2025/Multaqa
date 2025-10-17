@@ -7,6 +7,8 @@ import theme from "@/themes/lightTheme";
 import WorkshopItemCard from "./WorkshopItemCard";
 import { EventType } from "../BrowseEvents/browse-events";
 import { api } from "@/api";
+import { frameData } from "../BrowseEvents/utils";
+import { Workshop } from "./WorkshopDetails";
 
 const demoData: any[] = [
   {
@@ -59,7 +61,7 @@ const demoData: any[] = [
 
 interface WorkshopRequestsProps {
   setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
-  setSpecificWorkshop: React.Dispatch<React.SetStateAction<string>>;
+  setSpecificWorkshop: React.Dispatch<React.SetStateAction<Workshop>>;
 }
 
 const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
@@ -74,10 +76,10 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
 
   async function handleCallAPI (){
     try{
-      const res = await api.get(`/events?type=workshop`);
+      const res = await api.get(`/events/workshops`);
       const data = res.data.data;
-      //const result = frameData(data);
-      //setRequestsdata);
+      const result = frameData(data);
+      setRequests(result);
       console.log(data);
       }
     catch(err){

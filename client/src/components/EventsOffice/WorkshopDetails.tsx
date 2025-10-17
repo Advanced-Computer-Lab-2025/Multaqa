@@ -26,16 +26,42 @@ import CustomButton from '../shared/Buttons/CustomButton';
 import CustomIcon from '../shared/Icons/CustomIcon';
 import NeumorphicBox from '../shared/containers/NeumorphicBox';
 import { CustomModal } from '../shared/modals';
+import { EventType } from '../BrowseEvents/browse-events';
+
+
+export interface Workshop {
+  id: string;
+  type: EventType.WORKSHOP,
+  name: string;
+  description: string;
+  agenda: string;
+  details: {
+    [key: string]: string; // if the keys are not fixed, or:
+    "Start Date": string;
+    "End Date": string;
+    "Start Time": string;
+    "End Time": string;
+    Location: string;
+    "Faculty Responsible": string;
+    "Professors Participating": string;
+    "Required Budget": string;
+    "Funding Source": string;
+    "Extra Required Resources": string;
+    Capacity: string;
+    "Registration Deadline": string;
+  };
+}
+
 
 interface WorkshopDetailsProps {
-  workshopID:string,
+  workshop:Workshop;
   setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
- workshopID,
+ workshop,
  setEvaluating,
 }) =>  {
-  console.log(workshopID);
+  console.log(workshop);
   const [status, setStatus] = useState("N/A");
   const [comment, setComment] = useState('');
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -49,45 +75,19 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     }
   ]);
 
+  const professorString = workshop.details["Professors Participating"] || "";
+  const professors = professorString
+    .split(",")
+    .map((prof) => prof.trim())
+    .filter((prof) => prof.length > 0);
+
   // Status options for CustomSelectField
   const statusOptions = [
     { label: 'Awaiting Review', value: 'awaiting_review' },
     { label: 'Accept & Publish', value: 'accept_publish' },
     { label: 'Reject', value: 'reject' },
     { label: 'N/A', value: 'N/A' }
-  ];
-
-  // Sample workshop data
-  const workshop = {
-    name: 'Advanced Machine Learning Workshop',
-    location: 'GUC Cairo',
-    startDate: '2024-11-15',
-    startTime: '09:00',
-    endDate: '2024-11-17',
-    endTime: '17:00',
-    shortDescription: 'An intensive 3-day workshop covering advanced machine learning techniques, deep learning frameworks, and practical applications in industry.',
-    fullAgenda: `Day 1: Introduction to Deep Learning
-- 09:00-10:30: Neural Networks Fundamentals
-- 10:45-12:30: Convolutional Neural Networks
-- 14:00-17:00: Hands-on Lab Session
-
-Day 2: Advanced Architectures
-- 09:00-10:30: Recurrent Neural Networks & LSTMs
-- 10:45-12:30: Transformer Models
-- 14:00-17:00: Project Work
-
-Day 3: Industry Applications
-- 09:00-10:30: Computer Vision Applications
-- 10:45-12:30: NLP Applications
-- 14:00-17:00: Final Project Presentations`,
-    faculty: 'MET',
-    professors: ['Dr. Sarah Ahmed', 'Dr. Mohamed Ali', 'Prof. John Smith'],
-    budget: '50,000 EGP',
-    fundingSource: 'External',
-    extraResources: 'High-performance computing lab, GPU workstations (10 units), Cloud computing credits',
-    capacity: 30,
-    registrationDeadline: '2024-10-30'
-  };
+  ];  
 
   const handleAddComment = () => {
     if (comment.trim() && (status === 'awaiting_review'|| status==="N/A")) {
@@ -226,13 +226,13 @@ const handleCancelStatus = () => {
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <Chip
               icon={<LocationOn />}
-              label={workshop.location}
+              label={workshop.details["Location"]}
               color="primary"
               variant="outlined"
             />
             <Chip
               icon={<People />}
-              label={`Capacity: ${workshop.capacity}`}
+              label={`Capacity: ${workshop.details["Capacity"]}`}
               color="primary"
               variant="outlined"
             />
@@ -254,7 +254,7 @@ const handleCancelStatus = () => {
                   Start Date & Time
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  {workshop.startDate} at {workshop.startTime}
+                  {workshop.details["Start Date"]} at {workshop.details["Start Time"]}
                 </Typography>
               </Grid>
               <Grid sx={{xs:'6'}}>
@@ -262,7 +262,7 @@ const handleCancelStatus = () => {
                   End Date & Time
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  {workshop.endDate} at {workshop.endTime}
+                  {workshop.details["End Date"]} at {workshop.details["End Time"]}
                 </Typography>
               </Grid>
             </Grid>
@@ -271,7 +271,7 @@ const handleCancelStatus = () => {
               Registration Deadline
             </Typography>
             <Typography variant="body1" sx={{ fontWeight: 600, color: 'error.main' }}>
-              {workshop.registrationDeadline}
+              {workshop.details["Registration Deadline"]}
             </Typography>
           </CardContent>
         </Card>
@@ -282,7 +282,7 @@ const handleCancelStatus = () => {
             Description
           </Typography>
           <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#374151' }}>
-            {workshop.shortDescription}
+            {workshop.description}
           </Typography>
         </Box>
 
@@ -305,7 +305,7 @@ const handleCancelStatus = () => {
                 m: 0
               }}
             >
-              {workshop.fullAgenda}
+              {workshop.agenda}
             </Typography>
           </CardContent>
         </Card>
@@ -321,7 +321,7 @@ const handleCancelStatus = () => {
                 Faculty Responsible
               </Typography>
               <Chip
-                label={workshop.faculty}
+                label={workshop.details["Faculty Responsible"]}
                 color="secondary"
                 sx={{ fontWeight: 600, fontSize: '0.95rem' }}
               />
@@ -331,7 +331,7 @@ const handleCancelStatus = () => {
                 Professors Participating
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {workshop.professors.map((prof, idx) => (
+                {professors.map((prof, idx) => (
                   <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '0.9rem' }}>
                       {prof.charAt(0)}
@@ -361,7 +361,7 @@ const handleCancelStatus = () => {
                   Required Budget
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                  {workshop.budget}
+                  {workshop.details["Required Budget"]}
                 </Typography>
               </Grid>
               <Grid sx={{xs:'6'}}>
@@ -369,8 +369,8 @@ const handleCancelStatus = () => {
                   Funding Source
                 </Typography>
                 <Chip
-                  label={workshop.fundingSource}
-                  color={workshop.fundingSource === 'External' ? 'info' : 'success'}
+                  label={workshop.details["Funding Source"]}
+                  color={workshop.details["Funding Source"] === 'External' ? 'info' : 'success'}
                   sx={{ fontWeight: 600 }}
                 />
               </Grid>
@@ -386,7 +386,7 @@ const handleCancelStatus = () => {
           <Card sx={{ bgcolor: '#fffbeb', border: '1px solid #fcd34d', boxShadow: 'none' }}>
             <CardContent>
               <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#374151' }}>
-                {workshop.extraResources}
+                {workshop.details["Extra Required Resources"]}
               </Typography>
             </CardContent>
           </Card>
