@@ -44,7 +44,7 @@ export class EventsService {
       ],
     };
     if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
-if (location) filter.location = { $regex: new RegExp(location, "i") };
+    if (location) filter.location = { $regex: new RegExp(location, "i") };
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
@@ -107,6 +107,7 @@ if (location) filter.location = { $regex: new RegExp(location, "i") };
         { path: "vendors", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
         { path: "attendees", select: "firstName lastName email gucId " } as any,
+        { path: "createdBy", select: "firstName lastName email gucId " } as any,
       ],
     };
     const event = await this.eventRepo.findById(id, options);
