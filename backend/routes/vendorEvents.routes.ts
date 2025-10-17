@@ -140,7 +140,7 @@ async function updateVendorRequest(
 
 async function getAvailableBooths(
   req: Request,
-  res: Response<{ success: boolean; data: string[]; message: string }>
+  res: Response<getAvailableBoothsResponse>
 ) {
   try {
     const { startDate, endDate } = req.query;
