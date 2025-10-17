@@ -14,4 +14,5 @@ export interface IGymSessionEvent extends IEvent {
   trainer?: string | null;
   sessionType: GYM_SESSION_TYPES;
   capacity: number;
+  duration: number;
 }

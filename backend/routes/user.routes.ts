@@ -120,7 +120,29 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
   }
 }
 
+  async function getAllProfessors(req: Request, res: Response<GetAllUsersResponse>) {
+    try {
+      const professors = await userService.getAllProfessors();
+      if (!professors || professors.length === 0) {
+        throw createError(404, "No professors found");
+      }
+      res.json({
+        success: true,
+        data: professors,
+        message: "Professors retrieved successfully",
+      });
+    } catch (err: any) {
+      if (err.status || err.statusCode) {
+        throw err;
+      }
+      throw createError(500, err.message);
+    }
+  }
+
+
 const router = Router();
+
+
 
 router.get(
   "/",
@@ -129,6 +151,14 @@ router.get(
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
   getAllUsers
+);
+router.get(
+"/professors",
+ authorizeRoles({
+  userRoles: [ UserRole.STAFF_MEMBER], 
+  staffPositions: [StaffPosition.PROFESSOR],
+}),
+ getAllProfessors
 );
 router.post(
   "/:id/block",
