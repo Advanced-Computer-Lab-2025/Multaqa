@@ -25,6 +25,7 @@ import theme from '@/themes/lightTheme';
 import CustomButton from '../shared/Buttons/CustomButton';
 import CustomIcon from '../shared/Icons/CustomIcon';
 import NeumorphicBox from '../shared/containers/NeumorphicBox';
+import { CustomModal } from '../shared/modals';
 
 interface WorkshopDetailsProps {
   workshopID:string,
@@ -35,12 +36,14 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
  setEvaluating,
 }) =>  {
   console.log(workshopID);
-  const [status, setStatus] = useState('awaiting_review');
+  const [status, setStatus] = useState("N/A");
   const [comment, setComment] = useState('');
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [statusFinalized, setStatusFinalized] = useState(false);
   const [comments, setComments] = useState([
     {
       id: 1,
-      author: 'Dr. Ahmed Hassan',
       text: 'The budget seems reasonable. Please confirm external funding source.',
       timestamp: '2 hours ago'
     }
@@ -50,7 +53,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   const statusOptions = [
     { label: 'Awaiting Review', value: 'awaiting_review' },
     { label: 'Accept & Publish', value: 'accept_publish' },
-    { label: 'Reject', value: 'reject' }
+    { label: 'Reject', value: 'reject' },
+    { label: 'N/A', value: 'N/A' }
   ];
 
   // Sample workshop data
@@ -86,12 +90,11 @@ Day 3: Industry Applications
   };
 
   const handleAddComment = () => {
-    if (comment.trim() && status === 'awaiting_review') {
+    if (comment.trim() && (status === 'awaiting_review'|| status==="N/A")) {
       setComments([
         ...comments,
         {
           id: comments.length + 1,
-          author: 'Current User',
           text: comment,
           timestamp: 'Just now'
         }
@@ -104,40 +107,79 @@ Day 3: Industry Applications
     setComments(comments.filter(c => c.id !== commentId));
   };
 
-  const getStatusLabel = () => {
-    switch (status) {
-      case 'accept_publish':
-        return 'Accept & Publish';
-      case 'reject':
-        return 'Reject';
-      case 'awaiting_review':
-        return 'Awaiting Review';
-      default:
-        return '';
-    }
-  };
+  // Map status value to readable label
+const getStatusLabel = (statusValue: string) => {
+  switch (statusValue) {
+    case "accept_publish":
+      return "Accepted & Published";
+    case "reject":
+      return "Rejected";
+    case "awaiting_review":
+      return "Awaiting Review";
+    default:
+      return "N/A";
+  }
+};
 
-  const getStatusColor = () => {
-    switch (status) {
-      case 'accept_publish':
-        return 'success';
-      case 'reject':
-        return 'error';
-      case 'awaiting_review':
-        return 'warning';
-      default:
-        return 'default';
+
+const getStatusColor = (statusValue: string) => {
+  switch (statusValue) {
+    case "accept_publish":
+      return "success";
+    case "reject":
+      return "error";
+    case "awaiting_review":
+      return "warning";
+    default:
+      return "default";
+  }
+};
+
+// When selecting a new status → open modal for confirmation
+const handleStatusChange = (value: string) => {
+  console.log(value)
+  if(value!=="N/A"){
+  setPendingStatus(value);
+  setModalOpen(true);
+  console.log("true")
+  }
+  else {
+  setStatus("N/A");
+  setPendingStatus(null);
+  setModalOpen(false);
+  console.log("false")
+}
+};
+
+// Confirm change
+const handleConfirmStatus = () => {
+  if (pendingStatus) {
+    setStatus(pendingStatus);
+    if (pendingStatus !== "N/A") {
+      setStatusFinalized(true); // hide UI for finalized status
     }
-  };
+    setPendingStatus(null);
+  }
+  setModalOpen(false);
+};
+
+// Cancel → revert to previous (do nothing)
+const handleCancelStatus = () => {
+  setPendingStatus(null);
+  setModalOpen(false);
+};
+
 
   return (
-    <Box sx={{ display: 'flex', gap: 0, p: 0, maxHeight: '69vh' , flexDirection:"column"}}>
+    <>
+    <Box sx={{ display: 'flex', gap: 0, p: 0 , flexDirection:"column"}}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding:"0px 25px", paddingTop: 2, paddingRight:"40px"}}>
     <IconButton 
     onClick={() => {setEvaluating(false)}}
     sx={{ 
-      color: '#6299d0',
+      color: theme.palette.tertiary.main,
       '&:hover': {
-        backgroundColor: '#b2cee2',
+        backgroundColor: theme.palette.secondary.main,
         transform: 'scale(1.05) rotate(-5deg)',
       },
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -147,8 +189,23 @@ Day 3: Industry Applications
   >
     <ArrowLeft size={20} />
   </IconButton>
-    
-    <Box sx={{ display: 'flex', gap: 3, p: 4, maxHeight: '69vh' }}>
+  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0, color: theme.palette.tertiary.main, fontFamily:"var(--font-jost), system-ui, sans-serif" }}>
+            Your Evaluation Hub
+          </Typography>
+          {!statusFinalized && (
+    <Box sx={{ textAlign: 'center' }}>
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+        Current Status
+      </Typography>
+      <Chip
+        label={getStatusLabel(status || "N/A")}
+        color={getStatusColor(status || "N/A")}
+        sx={{ fontWeight: 600 }}
+      />
+    </Box>
+  )}
+  </Box>
+    <Box sx={{ display: 'flex', gap: 3, p: 4, maxHeight: '65vh' }}>
       {/* Left Side - Workshop Details */}
       <Paper
         elevation={1}
@@ -163,7 +220,7 @@ Day 3: Industry Applications
       >
         {/* Header Section */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#111827', fontFamily:"var(--font-jost), system-ui, sans-serif" }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#111827', fontFamily:"var(--font-jost), system-ui, sans-serif" }}>
             {workshop.name}
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -346,7 +403,9 @@ Day 3: Industry Applications
           bgcolor: '#ffffff',
           border: `1px solid ${theme.palette.secondary.dark}`,
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          maxHeight: statusFinalized?"20%":"40%", // adjust depending on your header height
+          overflow: 'auto' // hides any content that shouldn't overflow here
         }}
       >
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -354,7 +413,7 @@ Day 3: Industry Applications
         </Typography>
 
         {/* Comments Section */}
-        <Box sx={{ flex: 1, overflowY: 'auto', mb: 3 }}>
+        <Box sx={{ flex: 1, overflowY: 'auto', mb: 2, minHeight:"30%", pr: 1  }}>
           {comments.map((c) => (
             <Box key={c.id} sx={{ mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
@@ -363,7 +422,7 @@ Day 3: Industry Applications
                     {c.timestamp}
                   </Typography>
                 </Box>
-                {status === 'awaiting_review' && (
+                {status === 'awaiting_review' || status === 'N/A' && !statusFinalized && (
                   <CustomIcon
                     icon="delete"
                     size="small"
@@ -393,27 +452,31 @@ Day 3: Industry Applications
         </Box>
 
         <Divider sx={{ mb: 2 }} />
-
+      
+            {/* Add Comment */}
+            {!statusFinalized && (
+      <>
         {/* Add Comment */}
         <Box sx={{ mb: 4, display:"flex", flexDirection:"row", gap:"6px", justifyContent:"center", alignItems:"center"}}>
           <TextField
             multiline
-            rows={2}
+            rows={1}
             placeholder={
-              status === 'awaiting_review'
+              status === 'N/A' ||  status === 'awaiting_review'
                 ? 'Add a comment...'
                 : 'Comments disabled when not awaiting review'
             }
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            disabled={status !== 'awaiting_review'}
+            disabled={(status !== 'awaiting_review' && status!== 'N/A')}
             sx={{ mb: 1 , width:"100%", mr:3, 
               '& .MuiOutlinedInput-root': {
                   '&.Mui-focused fieldset': {
                     borderColor: `${theme.palette.tertiary.main}`, 
                     borderWidth: 2,
                   },
-    },}}
+              },
+            }}
           />
           <CustomButton 
             label="Add" 
@@ -421,8 +484,12 @@ Day 3: Industry Applications
             color="tertiary" 
             size="small"
             onClick={handleAddComment}
+            disabled={(status !== 'awaiting_review' && status!== 'N/A')}
           />
         </Box>
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 2 , fontSize:"12px"}}>
+           Add <strong>all </strong>your comments before setting this workshops's status. Comments are only added in the case of an <strong>Awaiting Review</strong> Status.
+          </Typography>
 
         {/* Status Dropdown */}
         <Box sx={{ mb: 2 }}>
@@ -431,36 +498,66 @@ Day 3: Industry Applications
             fieldType="single"
             options={statusOptions}
             value={status}
-            onChange={(value) => {
-              const newStatus = value as string;
-              setStatus(newStatus);
-              // Reset comment section when accepting/publishing or rejecting
-              if (newStatus === 'accept_publish' || newStatus === 'reject') {
-                setComments([]);
-                setComment('');
-              }
-            }}
+            onChange={(value) => handleStatusChange(value as string)}
             placeholder="Select status..."
             size="small"
             fullWidth={true}
             neumorphicBox={true}
           />
         </Box>
+      </>
+    )}
 
         {/* Current Status Display */}
-        <Box sx={{ textAlign: 'center' }}>
+       { statusFinalized&&(<Box sx={{ textAlign: 'center' }}>
           <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
             Current Status
           </Typography>
           <Chip
-            label={getStatusLabel()}
-            color={getStatusColor()}
+            label={getStatusLabel(status||"N/A")}
+            color={getStatusColor(status||"N/A")}
             sx={{ fontWeight: 600 }}
           />
         </Box>
+       )}
       </Paper>
     </Box>
     </Box>
+     {/* Confirmation Modal */}
+            <CustomModal
+          title="Confirm Evaluation Status"
+          modalType="warning"
+          open={modalOpen}
+          onClose={handleCancelStatus}
+          buttonOption1={{
+            label: "Confirm",
+            variant: "contained",
+            color: "warning",
+            onClick: handleConfirmStatus,
+          }}
+          buttonOption2={{
+            label: "Cancel",
+            variant: "outlined",
+            color: "warning",
+            onClick: handleCancelStatus,
+          }}
+        >
+          <Typography
+            sx={{
+              mt: 2,
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              textAlign: "center",
+            }}
+          >
+            Are you sure you want to set this workshop's status to{" "}
+            <strong>{getStatusLabel(pendingStatus || "N/A")}</strong>?
+            <br />
+            <br />
+            This action is <strong>irreversible</strong>.
+          </Typography>
+        </CustomModal>
+
+    </>
   );
 }
 
