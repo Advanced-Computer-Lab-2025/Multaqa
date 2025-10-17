@@ -327,11 +327,11 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         description={description}
         eventStartDate = {details["Start Date"]} 
         eventEndDate =  {details["End Date"]}
-        requiredBudget = {""}
-        fundingSource = {""}
-        websiteLink = {""}
+        requiredBudget = {details["Required Budget"]}
+        fundingSource = {details["Funding Source"]}
+        websiteLink = {details["Link"]}
         agenda={agenda}
-        extraRequiredResources={[]}
+        extraRequiredResources={details["Extra Required Resources"]}
       />
     </>
   );

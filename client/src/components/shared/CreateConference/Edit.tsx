@@ -37,7 +37,7 @@ interface EditConferenceProps {
     fundingSource:string;
     websiteLink:string;
     agenda:string;
-    extraRequiredResources: [];
+    extraRequiredResources: any;
  }
 
 const Edit: React.FC<EditConferenceProps> = ({
