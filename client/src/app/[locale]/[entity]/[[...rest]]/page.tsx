@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
@@ -12,8 +12,9 @@ import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
-import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
+import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
+import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -26,6 +27,8 @@ export default function EntityCatchAllPage() {
   const segments = pathname.split("/").filter(Boolean);
   const tab = segments[2] || "";
   const section = segments[3] || "";
+  const [Evaluating, setEvaluating] = useState(false);
+  const [specificWorkshop, setSpecificWorkshop] = useState('');
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
@@ -103,7 +106,14 @@ export default function EntityCatchAllPage() {
 
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
-        return <WorkshopReviewUI />;
+        return Evaluating ? (
+          <WorkshopDetails workshopID={specificWorkshop} setEvaluating={setEvaluating} />
+        ) : (
+          <WorkshopRequests
+            setEvaluating={setEvaluating}
+            setSpecificWorkshop={setSpecificWorkshop}
+          />
+        );
       }
     }
 

@@ -55,7 +55,7 @@ export default function ActionCard({
 // These are the styles you want to apply ONLY if type is "events"
     const eventStyles = {
         height: isExpanded ? "100%" : "auto",
-        minHeight: isExpanded ? 280 : 280,
+        minHeight: 305,
         maxHeight: isExpanded ? 400 : 280,
         width: "100%",
         transition: "max-height 0.3s ease",
