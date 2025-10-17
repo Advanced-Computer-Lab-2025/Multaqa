@@ -227,7 +227,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                     <Trash2 size={16} />
                   </IconButton>
             </Tooltip>
-          ) : (user==="events-office"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
+          ) : (user==="events-office"|| user==="events-only"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         metaNodes={metaNodes}
         registered={true}

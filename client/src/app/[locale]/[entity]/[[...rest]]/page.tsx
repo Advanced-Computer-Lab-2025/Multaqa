@@ -13,10 +13,11 @@ import VendorRequestsList from "@/components/vendor/Participation/VendorRequests
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
-import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
 import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
 import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
+
+
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -112,6 +113,12 @@ export default function EntityCatchAllPage() {
       }
     }
 
+    if (entity === "events-office" && tab === "events") {
+      if (section === "my-creations") {
+        return <BrowseEventsContent registered={false} user="events-only" />;
+      }
+    }
+
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
         return <AllUsersContent />;
@@ -135,7 +142,7 @@ export default function EntityCatchAllPage() {
     }
 
     //Shared Content
-    if (tab === "events" || tab === "events-management") {
+    if (tab === "events") {
       if (section === "browse-events") {
         return <BrowseEventsContent registered={false} user={entity} />;
       }

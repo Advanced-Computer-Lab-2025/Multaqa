@@ -25,7 +25,7 @@ const MenuOption: React.FC<MenuOptionProps> = ({ label, onClick, icon: Icon }) =
       <Icon sx={{...iconStyle(theme)}} 
       />
       <Typography variant="body2" sx={{ 
-        color: theme.palette.text.primary, 
+        color: theme.palette.tertiary.main, 
         fontWeight: 500,
         fontSize: '11px'
       }}>

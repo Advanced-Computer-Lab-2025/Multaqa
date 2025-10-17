@@ -162,7 +162,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <Trash2 size={16} />
                   </IconButton>
             </Tooltip>
-          ) : (user==="events-office"?<Utilities onEdit={()=> setEdit(true)} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
+          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={()=> setEdit(true)} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={
           registered ||

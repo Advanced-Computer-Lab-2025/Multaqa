@@ -20,6 +20,11 @@ import {
   QrCode,
   Award,
 } from "lucide-react";
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import EventIcon from '@mui/icons-material/Event';
+import PollIcon from '@mui/icons-material/Poll';
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
@@ -183,6 +188,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "all-events", label: "All Events" },
+          { id: "my-creations", label: "Creation Hub" },
         ],
       },
       {

@@ -17,13 +17,16 @@ import { themes } from 'storybook/internal/theming';
 import {tripSchema} from "./schemas/trip";
 
 import {api} from "../../../api";
+import { CustomModalLayout } from '@/components/shared/modals';
 
 
 interface CreateTripProps {
-  setOpenCreateTrip: (open: boolean) => void;
+  open:boolean;
+  onClose: () => void;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
  }
 
-const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
+const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
   const handleCallApi = async (payload:any) => {
     setLoading(true);
     setError(null);
@@ -32,6 +35,7 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
       // TODO: Replace with your API route
       const res = await api.post("/events", payload);
       setResponse(res.data);
+      setRefresh((prev)=> !prev);
     } catch (err: any) {
       setError(err?.message || "API call failed");
     } finally {
@@ -55,6 +59,7 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
   };
   
   const onSubmit = async (values: any, actions: any) => {
+    onClose();
     const startDateObj = values.startDate; // dayjs object
     const endDateObj = values.endDate;
     const registrationDeadlineObj = values.registrationDeadline;
@@ -74,7 +79,6 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
     };
     await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    setOpenCreateTrip(false);
     handleCallApi(payload);
   };
 
@@ -86,6 +90,7 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
 
   return (
     <>
+     <CustomModalLayout open={open} onClose={onClose}>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Create trip</Typography>
         <Grid container spacing={2}>
@@ -241,6 +246,7 @@ const CreateTrip = ({setOpenCreateTrip}: CreateTripProps) => {
             <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Create Trip"} variant='contained' fullWidth type='submit'/>
         </Box>
         </form>
+        </CustomModalLayout>
     </>
   )
 }

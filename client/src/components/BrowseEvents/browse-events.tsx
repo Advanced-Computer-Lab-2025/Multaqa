@@ -19,6 +19,13 @@ import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { frameData } from "./utils";
+import MenuOptionComponent from "../createButton/MenuOptionComponent";
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import EventIcon from '@mui/icons-material/Event';
+import PollIcon from '@mui/icons-material/Poll';
+import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 
 
 interface BrowseEventsProps {
@@ -99,6 +106,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
+  const [createconference, setConference] = useState(false);
+  const [createBazaar, setBazaar] = useState(false);
+  const [createTrip, setTrip] = useState(false);
+  const [createWorkshop, setWorkshop] = useState(false);
+  const [createSession, setSession] = useState(false);
+
   useEffect(() => {
     handleCallAPI()
   }, [refresh]); 
@@ -129,6 +142,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
+    if(user==="events-only"){
+   filtered=filtered = filtered.filter((event) =>
+    ["bazaar", "trip", "conference"].includes(event.type)
+  );
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -178,6 +196,19 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
     setFilters({});
     setSearchQuery("");
   };
+  const Eventoptions = [
+    { label: 'Gym', icon: FitnessCenterIcon },
+    { label: 'Bazaars', icon: StorefrontIcon },
+    { label: 'Trips', icon: FlightTakeoffIcon },
+    { label: 'Conference', icon: EventIcon },
+   // { label: 'Polls', icon: PollIcon },
+  ];
+  const EventOptionsSetters = [
+   setSession,
+   setBazaar,
+   setTrip,
+   setConference
+  ];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -279,9 +310,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           variant="body2"
           sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
         >
-          {registered
-            ? "Keep track of which events you have registered for"
-            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"}
+          {user!=="events-only"
+            ? (registered ? "Keep track of which events you have registered for"
+            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"): "Keep track of and manage events you have created"
+          }
         </Typography>
       </Box>
 
@@ -304,6 +336,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           currentFilters={filters}
           onReset={handleResetFilters}
         />
+       
+      {user === "events-only"&& (
+       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters} setRefresh={setRefresh}/>
+      )}
       </Box>
 
       {/* Events Grid */}
@@ -343,6 +379,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           </Box>
         )}
       </Box>
+      <CreateTrip open={createTrip} onClose={()=> setTrip(false)} setRefresh={setRefresh}/>
     </Container>
   );
 };
