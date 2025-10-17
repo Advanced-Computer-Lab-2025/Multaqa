@@ -10,5 +10,9 @@ export interface IWorkshop extends IEvent {
   fundingSource?: string;
   extraRequiredResources?: string[];
   capacity?: number;
-  comments?: string; // optional field (since sometimes there are no comments)
+  comments?: Array<{
+    commenter: string; // ObjectId as string
+    timestamp: Date;
+    text: string;
+  }>;
 }
