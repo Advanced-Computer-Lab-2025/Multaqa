@@ -59,6 +59,7 @@ function transformEvent(event: any) {
           "End Date":endDate,
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
+          "Created By": event.createdBy,
           "Faculty Responsible": event.associatedFaculty,
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source":event.fundingSource,

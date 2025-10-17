@@ -39,6 +39,7 @@ export default function EntityCatchAllPage() {
   console.log(section)
   const studentUser ="68e6d9cfc5de4e0cec12c5a3";
   const professorUser ="68f1433886d20633de05f301" ;
+  const eventOfficeUser ="68ec2c696cf5628987e49d69";
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
@@ -138,7 +139,7 @@ export default function EntityCatchAllPage() {
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
         return Evaluating  ? (
-          <WorkshopDetails workshop={specificWorkshop} setEvaluating={setEvaluating} />
+          <WorkshopDetails workshop={specificWorkshop} setEvaluating={setEvaluating} eventsOfficeId={eventOfficeUser}/>
         ) : (
           <WorkshopRequests
             setEvaluating={setEvaluating}

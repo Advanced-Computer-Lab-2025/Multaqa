@@ -151,20 +151,14 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
           Additional Details
         </Typography>
         {Object.entries(item.details)
-        //   .filter(
-        //     ([key]) =>{ 
-        //                 // Base fields to always exclude
-        //     const baseExcluded = [
-        //       "Start Date",
-        //       "End Date",
-        //       "Start Time",
-        //       "End Time",
-        //     ];
-
-
-        //   return !baseExcluded.includes(key);
-        // }
-        //   )
+          .filter(
+            ([key]) =>{            // Base fields to always exclude
+            const baseExcluded = [
+            "Created By"
+            ];
+          return !baseExcluded.includes(key);
+        }
+          )
           .map(([key, value]) => (
             <Box
               key={key}

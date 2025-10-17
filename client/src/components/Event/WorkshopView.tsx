@@ -210,7 +210,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               "End Date",
               "Start Time",
               "End Time",
-              "Professors Participating",
+              "Created By",
             ];
 
           // Additional fields to exclude for non-admin/non-events users
