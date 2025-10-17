@@ -3,7 +3,10 @@ import createError from "http-errors";
 import { validateWorkshop } from "../validation/validateWorkshop";
 import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
 import { WorkshopService } from "../services/workshopsService";
-import { CreateWorkshopResponse, UpdateWorkshopResponse } from "../interfaces/responses/workshopsResponses.interface";
+import {
+  CreateWorkshopResponse,
+  UpdateWorkshopResponse,
+} from "../interfaces/responses/workshopsResponses.interface";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserRole } from "../constants/user.constants";
@@ -83,7 +86,7 @@ async function updateWorkshopStatus(
   res: Response<UpdateWorkshopResponse>
 ) {
   try {
-    const workshopId = req.params.id;
+    const { professorId, workshopId } = req.params;
     const { approvalStatus, comments } = req.body;
 
     const { error } = validateUpdateWorkshop({ approvalStatus, comments });
@@ -92,6 +95,7 @@ async function updateWorkshopStatus(
     }
 
     const updatedWorkshop = await workshopService.updateWorkshopStatus(
+      professorId,
       workshopId,
       { approvalStatus, comments }
     );
@@ -108,8 +112,29 @@ async function updateWorkshopStatus(
 }
 
 const router = Router();
-router.patch("/:professorId/:workshopId/status", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateWorkshopStatus);
-router.patch("/:professorId/:workshopId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), updateWorkshop);
-router.post("/:professorId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), createWorkshop);
+router.patch(
+  "/:professorId/:workshopId/status",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  updateWorkshopStatus
+);
+router.patch(
+  "/:professorId/:workshopId",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  updateWorkshop
+);
+router.post(
+  "/:professorId",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  createWorkshop
+);
 
 export default router;
