@@ -18,8 +18,7 @@ const CreateConferenceModalWrapper = () => {
       width={modalWidthClass}
       borderColor="#5A67D8"
     >
-      <Create 
-      />
+      <Create open={false} onClose={() => console.log("")} setRefresh={() => console.log("")}/>
     </CustomModalLayout>
   );
 };

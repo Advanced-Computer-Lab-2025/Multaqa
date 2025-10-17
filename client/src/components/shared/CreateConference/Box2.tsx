@@ -72,6 +72,8 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     error={touched.fullAgenda && Boolean(errors.fullAgenda)} // 💡 For validation
                     sx={{ mb: 1 }} 
                     required
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
                  />
                  {/* 3. Conference Website Link */}
                 <CustomTextField
@@ -84,6 +86,8 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     onBlur={handleBlur('websiteLink')}
                     error={touched.websiteLink && Boolean(errors.websiteLink)}
                     sx={{ mb: 1 }} 
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
                 />
                 {/* 4. Required Budget */}
                 <CustomTextField

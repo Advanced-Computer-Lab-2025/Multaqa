@@ -26,6 +26,8 @@ import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import EventIcon from '@mui/icons-material/Event';
 import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
+import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
+import Create from "../shared/CreateConference/Create";
 
 
 interface BrowseEventsProps {
@@ -379,7 +381,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           </Box>
         )}
       </Box>
-      <CreateTrip open={createTrip} onClose={()=> setTrip(false)} setRefresh={setRefresh}/>
+      <CreateTrip open={createTrip} onClose={()=> setTrip(false)} setRefresh={setRefresh}/> 
+      <CreateBazaar open={createBazaar} onClose={() => setBazaar(false)} setRefresh={setRefresh}/>
+      {/* Create Conference Form */}
+      <Create open={createconference} onClose={() => setConference(false)} setRefresh={setRefresh}/>
     </Container>
   );
 };

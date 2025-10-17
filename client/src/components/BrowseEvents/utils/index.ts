@@ -60,7 +60,7 @@ function transformEvent(event: any) {
     case "conference":
       return{
         id,
-        type: EventType.TRIP,
+        type: EventType.CONFERENCE,
         name: event.eventName,
         description:
          event.description,

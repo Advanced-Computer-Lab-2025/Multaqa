@@ -92,7 +92,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
   });
   return (
     <>
-      <CustomModalLayout open={open} onClose={onClose}>
+      <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]'>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Edit Bazaar</Typography>
             <Grid container spacing={2}>
