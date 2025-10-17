@@ -8,6 +8,7 @@ import { capitalizeName } from "../utils";
 const StyledDefaultTextField: React.FC<
   CustomTextFieldProps & { separateLabels?: boolean; disableIcon?: boolean }
 > = ({
+  name,
   label,
   fieldType,
   placeholder,
@@ -489,6 +490,7 @@ const StyledDefaultTextField: React.FC<
         onMouseLeave={handleMouseLeave}
       >
         <input
+          name={name}
           {...inputProps}
           type={getInputType()}
           value={value || ""}

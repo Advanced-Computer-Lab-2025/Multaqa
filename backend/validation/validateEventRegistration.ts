@@ -1,9 +1,8 @@
 import Joi from "joi";
 
 export const eventRegistrationSchema = Joi.object({
-  name: Joi.string().min(1).max(100).required(),
   email: Joi.string().email().required(),
-  id: Joi.string().required(),
+  name: Joi.string().min(3).max(100).required(),
 });
 
 export function validateEventRegistration(data: any) {

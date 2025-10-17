@@ -23,7 +23,7 @@ async function createGymSession(req: Request, res: Response<CreateGymSessionResp
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Gym Session registered successfully',
       data: newSession
     });
 

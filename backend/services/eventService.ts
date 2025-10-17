@@ -43,8 +43,8 @@ export class EventsService {
         },
       ],
     };
-    if (type) filter.type = type;
-    if (location) filter.location = location;
+    if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
+    if (location) filter.location = { $regex: new RegExp(location, "i") };
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
@@ -90,6 +90,16 @@ export class EventsService {
     return events;
   }
 
+  async getAllWorkshops(): Promise<IEvent[]> {
+    const filter: any = { type: EVENT_TYPES.WORKSHOP };
+    return this.eventRepo.findAll(filter, {
+      populate: [
+        { path: "associatedProfs", select: "firstName lastName email" },
+        { path: "attendees", select: "firstName lastName email gucId " },
+      ] as any,
+    });
+  }
+
   async getEventById(id: string): Promise<IEvent | null> {
     const options = {
       populate: [
@@ -97,6 +107,7 @@ export class EventsService {
         { path: "vendors", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
         { path: "attendees", select: "firstName lastName email gucId " } as any,
+        { path: "createdBy", select: "firstName lastName email gucId " } as any,
       ],
     };
     const event = await this.eventRepo.findById(id, options);
@@ -133,7 +144,7 @@ export class EventsService {
     return deleteResult;
   }
 
-  async registerUserForEvent(eventId: string, userData: any, userId: any) {
+  async registerUserForEvent(eventId: string, userId: any) {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
       throw createError(404, "Event not found");
