@@ -5,64 +5,15 @@ import { Box, Chip, Divider, Stack, Typography, Alert } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
-
-// colors handled by `GymSessionCard`
-
-type Props = {
-  month?: Date; // initial month
-  sessions?: GymSession[]; // optional external data, else fetch from API
-};
+type Props = { month?: Date; sessions?: GymSession[] };
 import { api } from "@/api";
-
-// Map server gym session shape to client GymSession type
-const mapServerToClient = (s: any): GymSession => {
-  // server fields include: sessionType, eventName, trainer, eventStartDate, eventStartTime, eventEndTime, location, description
-  const startIso = new Date(s.eventStartDate).toISOString();
-
-  // compute end time: prefer eventEndTime if present, otherwise fallback to start
-  let endIso: string;
-  if (s.eventEndTime) {
-    try {
-      const d = new Date(s.eventStartDate);
-      const [h, m] = (String(s.eventEndTime) || "").split(":").map(Number);
-      if (!Number.isNaN(h)) d.setHours(h, Number.isNaN(m) ? 0 : m, 0, 0);
-      endIso = d.toISOString();
-    } catch {
-      endIso = startIso;
-    }
-  } else {
-    endIso = startIso;
-  }
-
-  // Normalize sessionType to client union (e.g. 'Zumba' -> 'ZUMBA')
-  const rawType = String(s.sessionType ?? s.sessionType ?? "").trim();
-  const normalized = rawType
-    .toUpperCase()
-    .replace(/\s+/g, "_")
-    .replace(/-/g, "_");
-
-  const allowedTypes = new Set<string>(["YOGA", "PILATES", "AEROBICS", "ZUMBA", "CROSS_CIRCUIT", "KICK_BOXING"]);
-  const type = (allowedTypes.has(normalized) ? normalized : "YOGA") as GymSessionType;
-
-  return {
-    id: s._id ?? `${s.eventName}-${startIso}`,
-    title: s.eventName ?? s.sessionType ?? "Gym Session",
-    type,
-    start: startIso,
-    end: endIso,
-    instructor: s.trainer ?? undefined,
-    location: s.location ?? "Gym",
-    spotsTotal: s.spotsTotal ?? 20,
-    spotsTaken: s.spotsTaken ?? 0,
-  } as GymSession;
-};
+import { mapServerToClient, FILTER_CHIPS } from "./helpers";
 
 export default function GymSchedule({ month, sessions }: Props) {
   const [current, setCurrent] = useState<Date>(month ?? new Date());
   const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
   const [items, setItems] = useState<GymSession[]>(sessions ?? []);
   const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<unknown>(null);
 
   const all = useMemo(() => (sessions && sessions.length ? sessions : items), [sessions, items]);
   const filtered = useMemo(
@@ -103,7 +54,6 @@ export default function GymSchedule({ month, sessions }: Props) {
         const mapped = list.map(mapServerToClient);
         if (!cancelled) {
           setItems(mapped);
-          setResponse(mapped);
         }
       } catch (err: any) {
         if (cancelled) return;
@@ -126,15 +76,7 @@ export default function GymSchedule({ month, sessions }: Props) {
 
 
   type FilterKey = GymSessionType | "ALL";
-  const filterChips: Array<{ key: FilterKey; label: string }> = [
-    { key: "ALL", label: "All" },
-    { key: "YOGA", label: SESSION_LABEL.YOGA },
-    { key: "PILATES", label: SESSION_LABEL.PILATES },
-    { key: "AEROBICS", label: SESSION_LABEL.AEROBICS },
-    { key: "ZUMBA", label: SESSION_LABEL.ZUMBA },
-    { key: "CROSS_CIRCUIT", label: SESSION_LABEL.CROSS_CIRCUIT },
-    { key: "KICK_BOXING", label: SESSION_LABEL.KICK_BOXING },
-  ];
+  const filterChips = FILTER_CHIPS.map((c) => ({ key: c.key as FilterKey, label: c.key === "ALL" ? "All" : (SESSION_LABEL as any)[c.key] ?? c.label }));
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
