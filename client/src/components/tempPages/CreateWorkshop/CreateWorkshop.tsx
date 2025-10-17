@@ -25,9 +25,10 @@ interface Professor {
 interface CreateWorkshopProps {
   setOpenCreateWorkshop: (open: boolean) => void;
   professors: Professor[];
+  creatingProfessor:string;
 }
 
-const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps) => {
+const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: CreateWorkshopProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +36,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
 
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
-  const [mprofessors, setProfessors] = useState<any[]>([]);
+  const [availableProfessors, setAvailableProfessors] = useState<any[]>([]);
 
   useEffect(() => {
     //Runs only on the first render
@@ -81,7 +82,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
     setResponse([]);
     try {
         // TODO: Replace with your API route
-        const res = await api.post("/workshops/"+"68e8f60bcf1172a5cbc4edd5", payload);
+        const res = await api.post("/workshops/"+creatingProfessor, payload);
         console.log("posting data")
         setResponse(res.data);
         console.log(res.data)
