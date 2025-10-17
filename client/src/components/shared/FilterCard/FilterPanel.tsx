@@ -43,7 +43,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filterGroups, onFilterChange,
                 aria-expanded={open}
                 aria-label={open ? 'Close filters' : 'Open filters'}
             >
-                Filters
+                Filter
             </CustomButton>
 
             <Popper

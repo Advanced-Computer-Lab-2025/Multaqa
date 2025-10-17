@@ -108,8 +108,8 @@ async function updateWorkshopStatus(
 }
 
 const router = Router();
-router.post("/:professorId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), createWorkshop);
-router.patch("/:professorId/:workshopId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), updateWorkshop);
 router.patch("/:professorId/:workshopId/status", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateWorkshopStatus);
+router.patch("/:professorId/:workshopId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), updateWorkshop);
+router.post("/:professorId", authorizeRoles({ userRoles: [UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR] }), createWorkshop);
 
 export default router;

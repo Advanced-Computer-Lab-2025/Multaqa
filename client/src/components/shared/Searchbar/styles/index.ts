@@ -17,10 +17,11 @@ export const StyledSearchField = styled(TextField)(({ theme }) => ({
     fontWeight: 500,
   },
   '& .MuiInputLabel-root': {
-    fontWeight: 600,
-    fontSize:"16px",
-    padding:"3px 0px",
+    fontWeight: 500,
+    fontSize:"14px",
+    padding:"4px 0px",
     transition: 'all 0.3s ease-out',
+    fontFamily:"var(--font-poppins), system-ui, sans-serif"
   },
 
 }));

@@ -5,6 +5,7 @@ export type FieldType =
   | "email"
   | "password"
   | "numeric"
+  | "numeric-float"
   | "phone";
 
 export type SelectFieldType =
@@ -81,18 +82,19 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   // Text field specific props
   autoCapitalizeName?: boolean; // Automatically capitalize names (first, last, full) - default true for text fields
   separateLabels?: boolean; // Separate labels for first and last name when fieldType is "text" and label contains "name"
+  disableIcon?: boolean; // Disable the label and icon - default false (label shown by default)
 }
 
 export interface CustomRatingProps {
-  multaqaFill?: boolean; 
+  multaqaFill?: boolean;
 }
 
 export interface CustomCheckboxProps {
-  multaqaFill?: boolean; 
+  multaqaFill?: boolean;
 }
 
 export interface CustomRadioProps {
-  multaqaFill?: boolean; 
+  multaqaFill?: boolean;
 }
 
 export interface CheckboxOption {
