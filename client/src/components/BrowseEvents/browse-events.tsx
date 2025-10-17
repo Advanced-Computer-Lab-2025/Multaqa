@@ -31,6 +31,7 @@ import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
+  userID?:string;
 }
 // Define the event type enum
 export enum EventType {
@@ -101,7 +102,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
@@ -124,7 +125,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       const data = res.data.data;
       const result = frameData(data);
       setEvents(result);
-      console.log(res.data.data);
+      console.log(data);
+      }
+      else{
+      const res = await api.get(`/users/${userID}`);
+      const data2 = res.data.data.registeredEvents;
+      const result = frameData(data2);
+      setEvents(result);
+      console.log(data2);
       }
     }
     catch(err){

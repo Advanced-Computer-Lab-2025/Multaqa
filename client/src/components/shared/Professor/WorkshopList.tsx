@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import theme from "@/themes/lightTheme";
 import WorkshopItemCard from "@/components/EventsOffice/WorkshopItemCard";
 import { EventType } from "@/components/BrowseEvents/browse-events";
+import { api } from "@/api";
 
 const demoData: any[] = [
   {
@@ -62,6 +63,24 @@ interface WorkshopListProps {
 
 const WorkshopList: React.FC<WorkshopListProps> = ({ userId }) => {
   const [workshops, setWorkshops] = useState(demoData);
+  useEffect(() => {
+    handleCallAPI()
+  }, []); 
+  // Handle event deletion
+
+  async function handleCallAPI (){
+    try{
+      const res = await api.get(`/users/${userId}`);
+      const data = res.data.data;
+      //const result = frameData(data);
+      // setWorkshops(data);
+      console.log(data);
+      }
+    catch(err){
+      console.error(err);
+    }
+ 
+  };
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import theme from "@/themes/lightTheme";
 import WorkshopItemCard from "./WorkshopItemCard";
 import { EventType } from "../BrowseEvents/browse-events";
+import { api } from "@/api";
 
 const demoData: any[] = [
   {
@@ -65,8 +66,25 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
   setEvaluating,
   setSpecificWorkshop,
 }) =>  {
+   const [requests, setRequests] = useState(demoData);
+   useEffect(() => {
+    handleCallAPI()
+  }, []); 
+  // Handle event deletion
 
-
+  async function handleCallAPI (){
+    try{
+      const res = await api.get(`/events?type=workshop`);
+      const data = res.data.data;
+      //const result = frameData(data);
+      //setRequestsdata);
+      console.log(data);
+      }
+    catch(err){
+      console.error(err);
+    }
+ 
+  };
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
@@ -79,7 +97,7 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
       </Box>
 
       <Stack spacing={2}>
-        {demoData.map((item) => (
+        {requests.map((item) => (
           <WorkshopItemCard
             id={item.id}  
             key={item.id}
