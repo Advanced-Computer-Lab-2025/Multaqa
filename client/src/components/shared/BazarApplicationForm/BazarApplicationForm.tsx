@@ -8,31 +8,37 @@ import { BazarFormValues } from "./types";
 import { validationSchema } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import CustomIcon from "../Icons/CustomIcon";
+import { submitBazarForm } from "./utils";
+import {BazarApplicationFormProps} from "./types"
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const BazarForm: React.FC = () => {
+const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
   const theme = useTheme();
- 
+
   const initialValues: BazarFormValues = {
-    attendees: [{ name: "", email: "" }],
+    bazaarAttendees: [{ name: "", email: "" }],
     boothSize: "",
   };
 
   return (
+    <>
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={(values, { setSubmitting }) => {
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
-          setSubmitting(false);
-        }, 400);
+      onSubmit={(values, { setSubmitting, resetForm }) => {
+        const vendorId = "68f17b38fae011215b7cf682"; // TODO: Replace with actual vendorIdy
+        submitBazarForm(
+          values,
+          { setSubmitting, resetForm },
+          vendorId,
+          eventId
+        );
       }}
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
-          <Box
-            className="max-w-[600px] mx-auto"
-          >
+          <Box className="max-w-[600px] mx-auto">
             <div className="flex flex-col flex-1  gap-4">
               {/* Header */}
               <div className="text-center mb-4 w-full">
@@ -49,80 +55,83 @@ const BazarForm: React.FC = () => {
 
               {/* Attendee Info */}
               <Box>
-                {formik.values.attendees.map((attendee, index) => (
+                {formik.values.bazaarAttendees.map((attendee, index) => (
                   <Box key={index}>
                     <div className="flex items-start gap-5 w-full px-4 mb-5">
                       <div className="w-[300px]">
                         <CustomTextField
-                          id={`attendees.${index}.name`}
+                          id={`bazaarAttendees.${index}.name`}
                           label={`Attendee ${index + 1} name`}
                           fieldType="text"
                           width="300px"
                           onChange={(e) => {
                             formik.setFieldValue(
-                              `attendees.${index}.name`,
+                              `bazaarAttendees.${index}.name`,
                               e.target.value
                             );
                           }}
                           onBlur={() =>
                             formik.setFieldTouched(
-                              `attendees.${index}.name`,
+                              `bazaarAttendees.${index}.name`,
                               true
                             )
                           }
                         />
-                        {formik.touched.attendees?.[index]?.name &&
-                          typeof formik.errors.attendees?.[index] !==
+                        {formik.touched.bazaarAttendees?.[index]?.name &&
+                          typeof formik.errors.bazaarAttendees?.[index] !==
                             "string" &&
-                          formik.errors.attendees?.[index]?.name && (
+                          formik.errors.bazaarAttendees?.[index]?.name && (
                             <Box display="flex" alignItems="center" mt={1}>
                               <ErrorOutlineIcon
                                 color="error"
                                 sx={{ fontSize: 16, mr: 0.5 }}
                               />
                               <Typography variant="caption" color="error">
-                                {typeof formik.errors.attendees?.[index] !==
-                                "string"
-                                  ? formik.errors.attendees?.[index]?.name
-                                  : formik.errors.attendees?.[index]}
+                                {typeof formik.errors.bazaarAttendees?.[
+                                  index
+                                ] !== "string"
+                                  ? formik.errors.bazaarAttendees?.[index]?.name
+                                  : formik.errors.bazaarAttendees?.[index]}
                               </Typography>
                             </Box>
                           )}
                       </div>
                       <div className="w-[300px]">
                         <CustomTextField
-                          id={`attendees.${index}.email`}
+                          id={`bazaarAttendees.${index}.email`}
                           label={`Attendee ${index + 1} email`}
                           fieldType="email"
                           width="300px"
                           stakeholderType="vendor"
                           onChange={(e) => {
                             formik.setFieldValue(
-                              `attendees.${index}.email`,
+                              `bazaarAttendees.${index}.email`,
                               e.target.value
                             );
                           }}
                           onBlur={() =>
                             formik.setFieldTouched(
-                              `attendees.${index}.email`,
+                              `bazaarAttendees.${index}.email`,
                               true
                             )
                           }
                         />
-                        {formik.touched.attendees?.[index]?.email &&
-                          typeof formik.errors.attendees?.[index] !==
+                        {formik.touched.bazaarAttendees?.[index]?.email &&
+                          typeof formik.errors.bazaarAttendees?.[index] !==
                             "string" &&
-                          formik.errors.attendees?.[index]?.email && (
+                          formik.errors.bazaarAttendees?.[index]?.email && (
                             <Box display="flex" alignItems="center" mt={1}>
                               <ErrorOutlineIcon
                                 color="error"
                                 sx={{ fontSize: 16, mr: 0.5 }}
                               />
                               <Typography variant="caption" color="error">
-                                {typeof formik.errors.attendees?.[index] !==
-                                "string"
-                                  ? formik.errors.attendees?.[index]?.email
-                                  : formik.errors.attendees?.[index]}
+                                {typeof formik.errors.bazaarAttendees?.[
+                                  index
+                                ] !== "string"
+                                  ? formik.errors.bazaarAttendees?.[index]
+                                      ?.email
+                                  : formik.errors.bazaarAttendees?.[index]}
                               </Typography>
                             </Box>
                           )}
@@ -134,10 +143,13 @@ const BazarForm: React.FC = () => {
                             size="medium"
                             onClick={() => {
                               const newAttendees =
-                                formik.values.attendees.filter(
+                                formik.values.bazaarAttendees.filter(
                                   (_, i) => i !== index
                                 );
-                              formik.setFieldValue("attendees", newAttendees);
+                              formik.setFieldValue(
+                                "bazaarAttendees",
+                                newAttendees
+                              );
                             }}
                             containerType="inwards"
                             sx={{
@@ -151,9 +163,10 @@ const BazarForm: React.FC = () => {
                               icon="add"
                               size="medium"
                               onClick={() => {
-                                if (formik.values.attendees.length >= 5) return; // Limit to 5 attendees
-                                formik.setFieldValue("attendees", [
-                                  ...formik.values.attendees,
+                                if (formik.values.bazaarAttendees.length >= 5)
+                                  return; // Limit to 5 attendees
+                                formik.setFieldValue("bazaarAttendees", [
+                                  ...formik.values.bazaarAttendees,
                                   { name: "", email: "" },
                                 ]);
                               }}
@@ -243,6 +256,8 @@ const BazarForm: React.FC = () => {
         </form>
       )}
     </Formik>
+    <ToastContainer/>
+    </>
   );
 };
 

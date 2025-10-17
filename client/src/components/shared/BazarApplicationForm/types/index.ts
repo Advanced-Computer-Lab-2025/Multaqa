@@ -4,6 +4,10 @@ interface AttendeeInfo {
 }
 
 export interface BazarFormValues {
-  attendees: AttendeeInfo[];
+  bazaarAttendees: AttendeeInfo[];
   boothSize: string;
+}
+
+export interface BazarApplicationFormProps {
+  eventId: string;
 }
