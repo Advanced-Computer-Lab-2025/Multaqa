@@ -143,11 +143,6 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
 const router = Router();
 
 
-router.get("/professors", authorizeRoles({ userRoles: [ UserRole.STAFF_MEMBER],  staffPositions: [StaffPosition.PROFESSOR] }), getAllProfessors);
-
-
-
-
 
 router.get(
   "/",
