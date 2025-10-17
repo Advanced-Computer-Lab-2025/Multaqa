@@ -15,6 +15,7 @@ const BoothView: React.FC<BoothViewProps> = ({
   user,
   registered,
   onDelete,
+  id
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);

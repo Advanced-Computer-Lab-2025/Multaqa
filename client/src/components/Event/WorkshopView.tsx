@@ -11,6 +11,7 @@ import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
+  id,
   details,
   name,
   description,
@@ -18,6 +19,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   user,
   registered,
   onDelete,
+  isReady, 
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -379,8 +382,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
-      eventType={"Workshop"}/>
+        <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
+      eventType={"Trip"} userInfo={userInfo} eventId={id}/>
     </>
   );
 };
