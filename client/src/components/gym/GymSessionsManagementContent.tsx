@@ -24,6 +24,7 @@ import { useTheme } from "@mui/material/styles";
 import CustomButton from "../shared/Buttons/CustomButton";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import CreateGymSession from "./CreateGymSession";
+import SessionTypeDropdown from "./SessionTypeDropdown";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
 
 // Mock data for demonstration
@@ -100,6 +101,9 @@ export default function GymSessionsManagementContent() {
   const theme = useTheme();
   const [sessions, setSessions] = useState<GymSession[]>(initialSessions);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [selectedSessionType, setSelectedSessionType] = useState<
+    GymSessionType | undefined
+  >();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -140,12 +144,14 @@ export default function GymSessionsManagementContent() {
     return { label: "Available", color: theme.palette.success.main };
   };
 
-  const handleCreateSession = () => {
+  const handleSessionTypeSelect = (sessionType: GymSessionType) => {
+    setSelectedSessionType(sessionType);
     setCreateModalOpen(true);
   };
 
   const handleCloseCreateModal = () => {
     setCreateModalOpen(false);
+    setSelectedSessionType(undefined);
   };
 
   const handleSubmitSession = (sessionData: any) => {
@@ -201,17 +207,9 @@ export default function GymSessionsManagementContent() {
         >
           All Sessions ({sessions.length})
         </Typography>
-        <CustomButton
-          label="Create Session"
-          variant="contained"
-          color="primary"
-          onClick={handleCreateSession}
-          sx={{
-            borderRadius: "12px",
-            fontWeight: 600,
-            textTransform: "none",
-          }}
-        />
+        <Box sx={{ position: "relative" }}>
+          <SessionTypeDropdown onSessionTypeSelect={handleSessionTypeSelect} />
+        </Box>
       </Box>
 
       {/* Sessions Table */}
@@ -445,6 +443,7 @@ export default function GymSessionsManagementContent() {
         open={createModalOpen}
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitSession}
+        preselectedType={selectedSessionType}
       />
     </ContentWrapper>
   );
