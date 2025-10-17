@@ -145,21 +145,7 @@ async function getAllTAs(req: Request, res: Response<GetAllTAsResponse>) {
     return res.json({
       success: true,
       data: staffMembers,
-      message: "Unassigned staff members retrieved successfully"
-    });
-  }
-  catch (err: any) {
-    throw createError(500, err.message);
-  }
-}
-
-async function getAllProfessors(req: Request, res: Response<GetAllProfessorsResponse>) {
-  try {
-    const staffMembers = await userService.getAllProfessors();
-    return res.json({
-      success: true,
-      data: staffMembers,
-      message: "Unassigned staff members retrieved successfully"
+      message: "TAs retrieved successfully"
     });
   }
   catch (err: any) {
@@ -173,7 +159,7 @@ async function getAllStaff(req: Request, res: Response<GetAllStaffResponse>) {
     return res.json({
       success: true,
       data: staffMembers,
-      message: "Unassigned staff members retrieved successfully"
+      message: "Staff retrieved successfully"
     });
   }
   catch (err: any) {
@@ -206,24 +192,24 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
   }
 }
 
-  async function getAllProfessors(req: Request, res: Response<GetAllUsersResponse>) {
-    try {
-      const professors = await userService.getAllProfessors();
-      if (!professors || professors.length === 0) {
-        throw createError(404, "No professors found");
-      }
-      res.json({
-        success: true,
-        data: professors,
-        message: "Professors retrieved successfully",
-      });
-    } catch (err: any) {
-      if (err.status || err.statusCode) {
-        throw err;
-      }
-      throw createError(500, err.message);
+async function getAllProfessors(req: Request, res: Response<GetAllProfessorsResponse>) {
+  try {
+    const professors = await userService.getAllProfessors();
+    if (!professors || professors.length === 0) {
+      throw createError(404, "No professors found");
     }
+    res.json({
+      success: true,
+      data: professors,
+      message: "Professors retrieved successfully",
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw err;
+    }
+    throw createError(500, err.message);
   }
+}
 
 
 const router = Router();
