@@ -39,9 +39,7 @@ export default function EntityCatchAllPage() {
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
-     if(entity==="professor" && tab==="workshops" && section === "my-workshops"){
-        <WorkshopList userId="123"/>
-    }
+     
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {
@@ -161,7 +159,12 @@ export default function EntityCatchAllPage() {
         return <BrowseEventsContent registered={true} user="student" />;
       }
     }
-
+    
+    if(entity==="professor" && tab==="workshops" ){
+      if (section === "my-workshops") {
+        return  <WorkshopList userId="123"/>;
+      }
+    }
     // Default placeholder content
     return (
       <div className="p-6 bg-white">
