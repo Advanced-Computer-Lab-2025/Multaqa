@@ -3,6 +3,8 @@ type BasicProps = {
   user?: string,
   registered?: boolean,
   onDelete?: () => void,
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  id:string,
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;

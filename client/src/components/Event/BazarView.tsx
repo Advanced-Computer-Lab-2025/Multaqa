@@ -9,18 +9,22 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModal } from "../shared/modals";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import Utilities from "../shared/Utilities";
+import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
 
 const BazarView: React.FC<BazarViewProps> = ({
+  id,
   details,
   name,
   description,
   user,
   registered,
   onDelete,
+  setRefresh,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [edit, setEdit] = useState(false)
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -157,7 +161,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                     <Trash2 size={16} />
                   </IconButton>
             </Tooltip>
-          ) : (user==="events-office"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
+          ) : (user==="events-office"?<Utilities onEdit={()=>{setEdit(true)}} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={registered || !(user == "vendor")}
         expanded={expanded}
@@ -225,6 +229,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <EditBazaar setRefresh={setRefresh} bazaarId={id} bazaarName={name} location={details["Location"]}  description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} open={edit} onClose={()=> {setEdit(false)}}/>
     </>
   );
 };

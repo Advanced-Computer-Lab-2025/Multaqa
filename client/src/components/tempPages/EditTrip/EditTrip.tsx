@@ -15,6 +15,7 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 import {tripSchema} from "../CreateTrip/schemas/trip";
 
 import {api} from "../../../api";
+import { CustomModalLayout } from '@/components/shared/modals';
 
 
 interface EditTripProps { 
@@ -27,11 +28,13 @@ interface EditTripProps {
   endDate: Date | null;
   registrationDeadline: Date | null; 
   capacity: number;
-  setOpenEditTrip: (open: boolean) => void;
+  open: boolean;
+  onClose: () => void;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
  }
 
-const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price, 
-  description, startDate, endDate, registrationDeadline, capacity}: EditTripProps) => {
+const EditTrip = ({tripId, tripName, location, price, 
+  description, startDate, endDate, registrationDeadline, capacity, open, onClose, setRefresh}: EditTripProps) => {
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);  
@@ -44,13 +47,13 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
         // TODO: Replace with your API route
         const res = await api.patch("/events/" + tripId, payload);
         setResponse(res.data);
+        setRefresh((refresh) => !refresh);
         } catch (err: any) {
         setError(err?.message || "API call failed");
         } finally {
         setLoading(false);
         }
     };
-
   const initialValues = {
     tripName: tripName,
     location: location,
@@ -63,6 +66,7 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
   };
   
   const onSubmit = async (values: any, actions: any) => {
+    onClose();
     const startDateObj = values.startDate; // dayjs object
     const endDateObj = values.endDate;
     const registrationDeadlineObj = values.registrationDeadline;
@@ -80,9 +84,7 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
         registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
         capacity: values.capacity,
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    setOpenEditTrip(false);
     handleCallApi(payload);
   };
 
@@ -93,7 +95,7 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
   });
 
   return (
-    <>
+    <CustomModalLayout open={open} onClose={onClose}>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Edit trip</Typography>
         <Grid container spacing={2}>
@@ -250,7 +252,7 @@ const EditTrip = ({setOpenEditTrip, tripId, tripName, location, price,
             <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Confirm Edits"} variant='contained' fullWidth type='submit'/>
         </Box>
         </form>
-    </>
+        </CustomModalLayout>
   )
 }
 

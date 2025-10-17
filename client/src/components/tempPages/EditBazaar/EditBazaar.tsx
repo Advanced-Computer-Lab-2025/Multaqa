@@ -13,6 +13,7 @@ import CustomButton from '../../shared/Buttons/CustomButton';
 import { bazaarSchema } from "../CreateBazaar/schemas/bazaar";
 import dayjs from 'dayjs';
 import {api} from "../../../api";
+import { CustomModalLayout } from '@/components/shared/modals';
 
 interface EditBazaarProps {
   bazaarId: string;
@@ -22,10 +23,12 @@ interface EditBazaarProps {
   startDate: Date | null;
   endDate: Date | null;
   registrationDeadline: Date | null;   
-  setOpenEditBazaar: (open: boolean) => void;
+  open:boolean;
+  onClose: () => void;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
  }
 
-const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline}: EditBazaarProps) => { 
+const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline, open, onClose, setRefresh}: EditBazaarProps) => { 
 
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<any[]>([]);
@@ -48,6 +51,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
           // TODO: Replace with your API route
           const res = await api.patch("/events/"+bazaarId, payload);
           setResponse(res.data);
+          setRefresh((refresh) => !refresh);
       } catch (err: any) {
           setError(err?.message || "API call failed");
       } finally {
@@ -56,6 +60,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
       };
   
     const onSubmit = async (values: any, actions: any) => {
+     onClose();
       const startDateObj = values.startDate; // dayjs object
       const endDateObj = values.endDate;
       const registrationDeadlineObj = values.registrationDeadline;
@@ -73,7 +78,6 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
       };
       await new Promise((resolve) => setTimeout(resolve, 1000)); 
       actions.resetForm();
-      setOpenEditBazaar(false);
       handleCallApi(payload);
     };
   
@@ -88,6 +92,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
   });
   return (
     <>
+      <CustomModalLayout open={open} onClose={onClose}>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Edit Bazaar</Typography>
             <Grid container spacing={2}>
@@ -205,6 +210,7 @@ const EditBazaar = ({setOpenEditBazaar, bazaarId, bazaarName, location, descript
             <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Confirm Edits'} variant='contained' color='primary' fullWidth sx={{mt:2}} type='submit'/>
         </Box>
         </form>
+        </CustomModalLayout>
     </>
   )
 }

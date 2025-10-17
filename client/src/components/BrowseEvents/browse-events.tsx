@@ -1,6 +1,3 @@
-//Notes:
-//
-
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -104,7 +101,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [refresh, setRefresh] = useState(false);
   useEffect(() => {
     handleCallAPI()
-  }, []); 
+  }, [refresh]); 
   // Handle event deletion
 
   async function handleCallAPI (){
@@ -188,6 +185,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       case EventType.CONFERENCE:
         return (
           <ConferenceView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -201,6 +200,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       case EventType.WORKSHOP:
         return (
           <WorkshopView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -213,7 +214,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
         );
       case EventType.BAZAAR:
         return (
-          <BazarView
+          <BazarView 
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -226,6 +229,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       case EventType.BOOTH:
         return (
           <BoothView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             company={event.company}
             people={event.people}
@@ -238,6 +243,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       case EventType.TRIP:
         return (
           <TripView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}

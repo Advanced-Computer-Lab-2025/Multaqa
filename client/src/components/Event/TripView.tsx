@@ -10,19 +10,24 @@ import { Trash2 } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
+import EditTrip from "../tempPages/EditTrip/EditTrip";
 
 const TripView: React.FC<BazarViewProps> = ({
+  id,
   details,
   name,
   description,
   user,
   registered,
   onDelete,
+  setRefresh
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
+  const [edit, setEdit] = useState(false);
 
+  const finalPrice = parseInt(details["Cost"], 10); // base 10
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     setTripToDelete(true);
@@ -157,7 +162,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <Trash2 size={16} />
                   </IconButton>
             </Tooltip>
-          ) : (user==="events-office"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
+          ) : (user==="events-office"?<Utilities onEdit={()=> setEdit(true)} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={
           registered ||
@@ -236,6 +241,7 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={0} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
       eventType={"Trip"}/>
     </>
