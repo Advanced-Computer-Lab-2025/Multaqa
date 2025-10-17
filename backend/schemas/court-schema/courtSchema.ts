@@ -24,7 +24,7 @@ const courtSchema = new Schema<ICourt>({
     }
   }]
 },
-{collection: 'courts'}
+{collection: 'court'}
 );
 
 courtSchema.set("toObject", { virtuals: true });
