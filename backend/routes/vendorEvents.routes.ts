@@ -8,6 +8,7 @@ import {
   GetVendorsRequestResponse,
   GetVendorRequestDetailsResponse,
   RespondToVendorRequestResponse,
+  getAvailableBoothsResponse,
 } from "../interfaces/responses/vendorEventsResponses.interface";
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
@@ -175,6 +176,38 @@ async function updateVendorRequest(
     res.json({
       success: true,
       message: "Vendor request updated successfully",
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw createError(err.status, err.message);
+    }
+    throw createError(500, err.message);
+  }
+}
+
+async function getAvailableBooths(
+  req: Request,
+  res: Response<getAvailableBoothsResponse>
+) {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      throw createError(
+        400,
+        "Missing required query parameters: startDate and endDate"
+      );
+    }
+
+    const booths = await vendorEventsService.getAvailableBooths(
+      startDate,
+      endDate
+    );
+
+    res.json({
+      success: true,
+      data: booths,
+      message: "Available booths retrieved successfully",
     });
   } catch (err: any) {
     if (err.status || err.statusCode) {

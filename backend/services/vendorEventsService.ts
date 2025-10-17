@@ -11,15 +11,20 @@ import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
+import { BOOTH_LOCATIONS } from "../constants/boothLocations.constants";
+import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
+import { IPlatformBooth } from "../interfaces/platformBooth.interface";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
+  private platformBoothRepo: GenericRepository<IPlatformBooth>;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
+    this.platformBoothRepo = new GenericRepository(PlatformBooth);
   }
 
   /**
@@ -294,10 +299,74 @@ export class VendorEventsService {
 
       event.RequestData.status = status;
       event.markModified("RequestData");
+
+      const { boothSetupDuration } = event.RequestData;
+      // Calculate start date: now + boothSetupDuration (in weeks)
+      const now = new Date();
+      event.eventStartDate = now;
+      event.eventEndDate = new Date(
+        now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+      );
     } else {
       throw createError(400, "Invalid event type");
     }
 
     await event.save();
+  }
+  async getAvailableBooths(startDate: any, endDate: any): Promise<string[]> {
+    // Input validation
+    if (!startDate || !endDate) {
+      throw createError(
+        400,
+        "Missing required query parameters: startDate and endDate"
+      );
+    }
+
+    const start = new Date(startDate as string);
+    const end = new Date(endDate as string);
+    console.log({
+      start,
+      end,
+      typeofStart: typeof start,
+      typeofEnd: typeof end,
+    });
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw createError(400, "Invalid date format for startDate or endDate");
+    }
+
+    if (start >= end) {
+      throw createError(400, "startDate must be before endDate");
+    }
+
+    // First get all platform booth events
+    const allPlatformBoothEvents = await this.eventRepo.findAll({
+      type: "platform_booth",
+      "RequestData.status": Event_Request_Status.APPROVED,
+    });
+
+    // Manually filter for overlapping events
+    const overlappingEvents = allPlatformBoothEvents.filter((event) => {
+      const eventStart = new Date(event.eventStartDate);
+      const eventEnd = new Date(event.eventEndDate);
+
+      // Events overlap if:
+      // 1. Event starts before query period ends AND
+      // 2. Event ends after query period starts
+      return eventStart <= end && eventEnd >= start;
+    });
+
+    console.log("Overlapping Events:", overlappingEvents);
+
+    // Get reserved booth locations from overlapping events
+    const reservedBooths = new Set(
+      overlappingEvents
+        .map((event) => event.RequestData?.boothLocation)
+        .filter(Boolean) // Remove undefined/null values
+    );
+    // Return all booth locations except reserved ones
+    return Object.values(BOOTH_LOCATIONS).filter(
+      (booth) => !reservedBooths.has(booth)
+    );
   }
 }
