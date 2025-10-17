@@ -4,6 +4,7 @@ import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, lo
 import createError from 'http-errors';
 import { VerificationService } from '../services/verificationService';
 import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse } from '../interfaces/responses/authResponses.interface';
+import verifyJWT from '../middleware/verifyJWT.middleware';
 
 const router = Router();
 const authService = new AuthService();
@@ -36,6 +37,19 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     throw createError(400, error.message || 'Registration failed');
   }
 }
+
+// --- Get Current User ---
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+
+    // req.user is already populated by middleware
+    res.status(200).json({ user: user });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 async function verifyUser(req: Request, res: Response) {
   try {
@@ -102,6 +116,7 @@ async function logout(req: Request, res: Response<LogoutResponse>) {
   }
 }
 
+router.post('/me', verifyJWT, getMe);
 router.post('/signup', signup);
 router.get('/verify', verifyUser);
 router.post('/login', login);
