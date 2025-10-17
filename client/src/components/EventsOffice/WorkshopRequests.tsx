@@ -12,51 +12,73 @@ import { Workshop } from "./WorkshopDetails";
 
 const demoData: any[] = [
   {
-    id: "2",
+    id: "demo1",
     type: EventType.WORKSHOP,
-    name: "React Masterclass Workshop",
-    description:
-      "Learn advanced React patterns and best practices in this hands-on workshop.",
-    agenda:
-      "Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session",
+    name: 'Advanced Machine Learning Workshop',
+    description: 'An intensive 3-day workshop covering advanced machine learning techniques, deep learning frameworks, and practical applications in industry.',
+    agenda: `Day 1: Introduction to Deep Learning
+  - 09:00-10:30: Neural Networks Fundamentals
+  - 10:45-12:30: Convolutional Neural Networks
+  - 14:00-17:00: Hands-on Lab Session
+  
+  Day 2: Advanced Architectures
+  - 09:00-10:30: Recurrent Neural Networks & LSTMs
+  - 10:45-12:30: Transformer Models
+  - 14:00-17:00: Project Work
+  
+  Day 3: Industry Applications
+  - 09:00-10:30: Computer Vision Applications
+  - 10:45-12:30: NLP Applications
+  - 14:00-17:00: Final Project Presentations`,
+  professors:[ 'Dr. Sarah Ahmed',' Dr. Mohamed Ali', 'Prof. John Smith'],
     details: {
-      "Start Date": "2024-03-20",
-      "End Date": "2024-03-20",
-      "Start Time": "10:00",
-      "End Time": "16:00",
-      Location: "GUC Cairo",
-      "Faculty Responsible": "MET",
-      "Professors Participating": "Dr. Ahmed Hassan, Dr. Sarah Mohamed",
-      "Required Budget": "$5,000",
-      "Funding Source": "GUC",
-      "Extra Required Resources": "Laptops, projectors",
-      Capacity: "30",
-      "Registration Deadline": "2024-03-15",
-    },
+      "Start Date": '2024-11-15',
+      "End Date": '2024-11-17',
+      "Start Time": '09:00',
+      "End Time": '17:00',
+      Location: 'GUC Cairo',
+      "Faculty Responsible": 'MET',
+      "Required Budget": '50,000 EGP',
+      "Funding Source": 'External',
+      "Extra Required Resources": 'High-performance computing lab, GPU workstations (10 units), Cloud computing credits',
+      Capacity: '30',
+      "Registration Deadline": '2024-10-30'
+    }
   },
-  {
-    id: "3",
-    type: EventType.WORKSHOP,
-    name: "React Masterclass Workshop",
-    description:
-      "Learn advanced React patterns and best practices in this hands-on workshop.",
-    agenda:
-      "Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session",
-    details: {
-      "Start Date": "2024-03-20",
-      "End Date": "2024-03-20",
-      "Start Time": "10:00",
-      "End Time": "16:00",
-      Location: "GUC Cairo",
-      "Faculty Responsible": "MET",
-      "Professors Participating": "Dr. Ahmed Hassan, Dr. Sarah Mohamed",
-      "Required Budget": "$5,000",
-      "Funding Source": "GUC",
-      "Extra Required Resources": "Laptops, projectors",
-      Capacity: "30",
-      "Registration Deadline": "2024-03-15",
+    {
+      id: "demo2",
+      type: EventType.WORKSHOP,
+      name: 'Advanced Machine Learning Workshop',
+      description: 'An intensive 3-day workshop covering advanced machine learning techniques, deep learning frameworks, and practical applications in industry.',
+      agenda: `Day 1: Introduction to Deep Learning
+    - 09:00-10:30: Neural Networks Fundamentals
+    - 10:45-12:30: Convolutional Neural Networks
+    - 14:00-17:00: Hands-on Lab Session
+    
+    Day 2: Advanced Architectures
+    - 09:00-10:30: Recurrent Neural Networks & LSTMs
+    - 10:45-12:30: Transformer Models
+    - 14:00-17:00: Project Work
+    
+    Day 3: Industry Applications
+    - 09:00-10:30: Computer Vision Applications
+    - 10:45-12:30: NLP Applications
+    - 14:00-17:00: Final Project Presentations`,
+    professors:[ 'Dr. Sarah Ahmed',' Dr. Mohamed Ali', 'Prof. John Smith'],
+      details: {
+        "Start Date": '2024-11-15',
+        "End Date": '2024-11-17',
+        "Start Time": '09:00',
+        "End Time": '17:00',
+        Location: 'GUC Cairo',
+        "Faculty Responsible": 'MET',
+        "Required Budget": '50,000 EGP',
+        "Funding Source": 'External',
+        "Extra Required Resources": 'High-performance computing lab, GPU workstations (10 units), Cloud computing credits',
+        Capacity: '30',
+        "Registration Deadline": '2024-10-30'
+      }
     },
-  },
 ];
 
 interface WorkshopRequestsProps {
@@ -109,7 +131,7 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
                 size="small"
                 variant="contained"
                 color="tertiary"
-                onClick={() => {setEvaluating(true); setSpecificWorkshop(item.id)}}
+                onClick={() => {setEvaluating(true); setSpecificWorkshop(item)}}
                 label="View & Evaluate"
                 width="auto"
                 height="32px"

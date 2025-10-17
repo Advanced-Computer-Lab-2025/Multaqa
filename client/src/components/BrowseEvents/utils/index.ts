@@ -12,7 +12,7 @@ export const frameData = (data: any) => {
 };
 
 const flattenName = (profs:{ firstName: string; lastName: string }[])=>{
-  const profNames = profs.map(prof => `${prof.firstName} ${prof.lastName}`);
+  return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
 
 
@@ -22,6 +22,8 @@ function transformEvent(event: any) {
   const registrationDeadline= event.registrationDeadline;
   const startDate= event.eventStartDate;
   const endDate =  event.eventEndDate;
+  console.log("look here")
+  console.log(event.createdBy)
 
   switch (event.type?.toLowerCase()) {
     case "trip":
@@ -48,6 +50,7 @@ function transformEvent(event: any) {
         name: event.eventName,
         description: event.description,
         agenda: event.fullAgenda,
+        professors:flattenName(event.associatedProfs),
         details: {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
@@ -55,7 +58,6 @@ function transformEvent(event: any) {
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Location: event.location,
-          "Professors Participating": flattenName(event.associatedProfs.push(event.createdBy)),
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": (event.capacity - event.attendees.length)
         },

@@ -38,7 +38,6 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
 
   // Parse professors string into array
  const professors = item.professors;
-
     // Helper function to extract initials from professor name
   const getInitials = (name: string) => {
     let cleanName = name.trim();

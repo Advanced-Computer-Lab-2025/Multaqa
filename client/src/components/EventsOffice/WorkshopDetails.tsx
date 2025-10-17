@@ -35,6 +35,7 @@ export interface Workshop {
   name: string;
   description: string;
   agenda: string;
+  professors:string[],
   details: {
     [key: string]: string; // if the keys are not fixed, or:
     "Start Date": string;
@@ -43,7 +44,6 @@ export interface Workshop {
     "End Time": string;
     Location: string;
     "Faculty Responsible": string;
-    "Professors Participating": string;
     "Required Budget": string;
     "Funding Source": string;
     "Extra Required Resources": string;
@@ -75,11 +75,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     }
   ]);
 
-  const professorString = workshop.details["Professors Participating"] || "";
-  const professors = professorString
-    .split(",")
-    .map((prof) => prof.trim())
-    .filter((prof) => prof.length > 0);
+  const professors = workshop.professors;
+  
 
   // Status options for CustomSelectField
   const statusOptions = [

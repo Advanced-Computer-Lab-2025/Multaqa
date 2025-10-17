@@ -20,6 +20,7 @@ Day 3: Industry Applications
 - 09:00-10:30: Computer Vision Applications
 - 10:45-12:30: NLP Applications
 - 14:00-17:00: Final Project Presentations`,
+professors:[ 'Dr. Sarah Ahmed',' Dr. Mohamed Ali', 'Prof. John Smith'],
   details: {
     "Start Date": '2024-11-15',
     "End Date": '2024-11-17',
@@ -27,7 +28,6 @@ Day 3: Industry Applications
     "End Time": '17:00',
     Location: 'GUC Cairo',
     "Faculty Responsible": 'MET',
-    "Professors Participating": 'Dr. Sarah Ahmed, Dr. Mohamed Ali, Prof. John Smith',
     "Required Budget": '50,000 EGP',
     "Funding Source": 'External',
     "Extra Required Resources": 'High-performance computing lab, GPU workstations (10 units), Cloud computing credits',
