@@ -111,7 +111,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     size='small'
                     options={[
                         { label: 'GUC Internal Funds', value: 'GUC' },
-                        { label: 'External Sponsor', value: 'External' },
+                        { label: 'External Sponsor', value: 'external' },
                         { label: 'Hybrid', value: 'Hybrid' },
                     ]}
                     onChange={handleSelectChange} 
