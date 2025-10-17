@@ -1,13 +1,14 @@
 "use client";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModal } from "../shared/modals";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
+import Utilities from "../shared/Utilities";
 
 const BazarView: React.FC<BazarViewProps> = ({
   details,
@@ -140,21 +141,23 @@ const BazarView: React.FC<BazarViewProps> = ({
           )
         }
         rightIcon={
-          user === "events-office" ? (
+          user === "admin" ? (
+            <Tooltip title="Delete">
             <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          ) : null
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : (user==="events-office"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={registered || !(user == "vendor")}
         expanded={expanded}
@@ -207,20 +210,6 @@ const BazarView: React.FC<BazarViewProps> = ({
             }}
           >
             {details["Start Date"] || "TBD"} - {details["End Date"] || "TBD"}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} •{" "}
-            {details["Vendor Count"]
-              ? `${details["Vendor Count"]} vendors`
-              : ""}
           </Typography>
 
           <Typography

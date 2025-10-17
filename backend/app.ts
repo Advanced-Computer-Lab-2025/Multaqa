@@ -15,9 +15,11 @@ import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import cors from "cors";
+
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(json());
 app.use(cookieParser());
 app.use(cors());

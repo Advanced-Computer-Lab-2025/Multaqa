@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
 import { CustomModal } from "../shared/modals";
+import Utilities from "../shared/Utilities";
+import RegisterEventModal from "./Modals/RegisterModal";
 
 const TripView: React.FC<BazarViewProps> = ({
   details,
@@ -19,6 +21,7 @@ const TripView: React.FC<BazarViewProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
+  const [register, setRegister] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -131,29 +134,30 @@ const TripView: React.FC<BazarViewProps> = ({
               variant="contained"
               color="info"
               sx={{ borderRadius: 999 }}
+              onClick={()=> {setRegister(true)}}
             >
               Register
             </CustomButton>
           )
         }
         rightIcon={
-          user === "events-office" ? (
+          user === "admin" ? (
+            <Tooltip title="Delete">
             <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-                cursor: "pointer",
-                zIndex: 10,
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          ) : null
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : (user==="events-office"?<Utilities onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={
           registered ||
@@ -222,17 +226,6 @@ const TripView: React.FC<BazarViewProps> = ({
           <Typography
             sx={{
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} • Cost: {details["Cost"] || "TBD"}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
               color: theme.palette.error.main,
               fontSize: "0.9rem",
               fontWeight: 500,
@@ -243,6 +236,8 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
+      eventType={"Trip"}/>
     </>
   );
 };

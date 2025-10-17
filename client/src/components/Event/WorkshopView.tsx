@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
 import { CustomModal } from "../shared/modals";
+import Utilities from "../shared/Utilities";
+import RegisterEventModal from "./Modals/RegisterModal";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   details,
@@ -19,6 +21,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
+  const [register, setRegister] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -201,14 +204,32 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         </Typography>
         {Object.entries(details)
           .filter(
-            ([key]) =>
-              ![
-                "Start Date",
-                "End Date",
-                "Start Time",
-                "End Time",
-                "Professors Participating",
-              ].includes(key)
+            ([key]) =>{ 
+                        // Base fields to always exclude
+            const baseExcluded = [
+              "Start Date",
+              "End Date",
+              "Start Time",
+              "End Time",
+              "Professors Participating",
+            ];
+
+          // Additional fields to exclude for non-admin/non-events users
+          const extraExcluded = [
+            "Required Budget",
+            "Source of Funding",
+            "Extra Required Resources",
+            'Funding Source'
+          ];
+
+          // Combine exclusion lists depending on the user
+          const excludedKeys =
+            user !== "events-office" && user !== "admin"
+              ? [...baseExcluded, ...extraExcluded]
+              : baseExcluded;
+
+          return !excludedKeys.includes(key);
+        }
           )
           .map(([key, value]) => (
             <Box
@@ -254,27 +275,30 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               variant="contained"
               color="tertiary"
               sx={{ borderRadius: 999 }}
+              onClick={()=> {setRegister(true)}}
             >
               Register
             </CustomButton>
           )
         }
         rightIcon={
-          user === "events-office" ? (
-            <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          ) : null
+         (user === "events-office"|| user === "admin" )? (
+          <Tooltip title="Delete">
+          <IconButton
+                  size="medium"
+                  onClick={handleOpenDeleteModal}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 0, 0, 0.1)",
+                      color: "error.main",
+                    },
+                  }}
+                >
+                  <Trash2 size={16} />
+                </IconButton>
+          </Tooltip>
+          ) : (registered && user==="professor"? <Utilities/>: null)
         }
         registered={
           registered ||
@@ -341,17 +365,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 }`}
           </Typography>
 
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} • Capacity:{" "}
-            {details["Capacity"] || "TBD"}
-          </Typography>
 
           <Typography
             sx={{
@@ -366,6 +379,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
+      eventType={"Workshop"}/>
     </>
   );
 };
