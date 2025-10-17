@@ -8,6 +8,7 @@ import {
   GetVendorsRequestResponse,
   GetVendorRequestDetailsResponse,
   RespondToVendorRequestResponse,
+  getAvailableBoothsResponse,
 } from "../interfaces/responses/vendorEventsResponses.interface";
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
