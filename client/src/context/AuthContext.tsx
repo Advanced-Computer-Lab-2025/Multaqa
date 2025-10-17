@@ -10,6 +10,7 @@ import { api } from "../api";
 import { UserRole } from "@/components/admin/types";
 import { INotification } from "../../../backend/interfaces/models/user.interface";
 import { useRouter } from "@/i18n/navigation";
+import axios from "axios";
 
 export interface User {
   _id: string;
@@ -103,12 +104,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         } else {
           console.error("Invalid response format:", response.data);
           localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
+          // clear refresh token cookie by making a logout request
+          await axios.post("http://localhost:4000/auth/logout", {}, {
+            withCredentials: true,
+          });
         }
       } catch (error) {
         console.error("Failed to fetch user:", error);
         localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
+        // clear refresh token cookie by making a logout request
+        await axios.post("http://localhost:4000/auth/logout", {}, {
+          withCredentials: true,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -122,11 +129,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setError(null);
     try {
       const response = await api.post("/auth/login", credentials);
-      const { success, message, accessToken, user, refreshToken } = response.data;
+      const { success, message, accessToken, user } = response.data;
 
       if (success) {
         localStorage.setItem("token", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
         setUser(user);
       } else {
         throw new Error(message || "Login failed");
@@ -136,7 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         error instanceof Error
           ? error.message
           : (error as { response?: { data?: { message?: string } } })?.response
-              ?.data?.message || "Login failed.";
+            ?.data?.message || "Login failed.";
       setError(message);
       throw new Error(message);
     } finally {
@@ -159,7 +165,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         error instanceof Error
           ? error.message
           : (error as { response?: { data?: { message?: string } } })?.response
-              ?.data?.message || "Signup failed.";
+            ?.data?.message || "Signup failed.";
       setError(message);
       throw new Error(message);
     } finally {
@@ -168,17 +174,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   // Logout
-    const logout = useCallback(async () => {
-      try {
-        await api.post("/auth/logout");
-      } catch (err) {
-        console.warn("Logout error:", err);
-      } finally {
-        localStorage.removeItem("token");
-        setUser(null);
-        router.replace("/login");
-      }
-    }, [router]);
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (err) {
+      console.warn("Logout error:", err);
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+      router.replace("/login");
+    }
+  }, [router]);
 
   // Clear errors
   const clearError = useCallback(() => setError(null), []);

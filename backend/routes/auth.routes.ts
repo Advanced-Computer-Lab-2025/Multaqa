@@ -34,6 +34,7 @@ async function signup(req: Request, res: Response<SignupResponse>) {
       user: result
     });
   } catch (error: any) {
+    console.error('Registration error:', error.message);
     throw createError(400, error.message || 'Registration failed');
   }
 }
@@ -87,6 +88,7 @@ async function login(req: Request, res: Response<LoginResponse>) {
       accessToken: accessToken
     });
   } catch (error: any) {
+    console.error('Login error:', error.message);
     throw createError(400, error.message || 'Login failed');
   }
 }

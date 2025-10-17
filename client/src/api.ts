@@ -28,8 +28,8 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const res = await axios.post("http://localhost:4000/auth/refresh", {
-          refreshToken: localStorage.getItem("refreshToken"),
+        const res = await axios.post("http://localhost:4000/auth/refresh", {}, {
+          withCredentials: true,
         });
 
         const newAccessToken = res.data.accessToken;
@@ -42,7 +42,10 @@ api.interceptors.response.use(
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        // clear refresh token cookie by making a logout request
+        await axios.post("http://localhost:4000/auth/logout", {}, {
+          withCredentials: true,
+        });
         window.location.href = "/login";
       }
     }
