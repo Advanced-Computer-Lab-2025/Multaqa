@@ -11,16 +11,20 @@ import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
+
+import cors from "cors";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
-import cors from "cors";
+
+
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(json());
 app.use(cookieParser());
-app.use(cors());
+
 
 // Dummy route
 app.get("/", (req, res) => {

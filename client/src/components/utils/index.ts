@@ -1,5 +1,4 @@
 import { ButtonProps, Theme } from "@mui/material";
-import { useParams } from "next/navigation";
 
 
 // Resolve a Button color to its palette entry in a type-safe way
@@ -17,3 +16,4 @@ export const resolveButtonPalette = (
 //   const userRole = mapEntityToRole(entity);
 //   return userRole;
 // }
+

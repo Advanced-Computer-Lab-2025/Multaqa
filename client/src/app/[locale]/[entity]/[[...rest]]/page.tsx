@@ -1,20 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
-import BrowseEventsContent from "@/components/browse-events";
+import BrowseEventsContent from "@/components/BrowseEvents/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
-import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
+import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
+import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
+import WorkshopList from "@/components/shared/Professor/WorkshopList";
+
+
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -27,9 +31,17 @@ export default function EntityCatchAllPage() {
   const segments = pathname.split("/").filter(Boolean);
   const tab = segments[2] || "";
   const section = segments[3] || "";
+  const [Evaluating, setEvaluating] = useState(false);
+  const [specificWorkshop, setSpecificWorkshop] = useState('');
+  console.log(entity)
+  console.log(tab)
+  console.log(section)
+  const studentUser ="68e3b87c9ba968e059fc1cd9";
+  const professorUser ="68f1433886d20633de05f301" ;
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+     
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {
@@ -42,7 +54,7 @@ export default function EntityCatchAllPage() {
       }
       if (section === "opportunities") {
         // Interpreting "My Applications" as pending/rejected requests list
-        return <BrowseEventsContent registered={false} user="vendor" />;
+        return <BrowseEventsContent registered={false} user="vendor"  userID={studentUser} />;
       }
       if (section === "apply-booth") {
         return <BoothForm />;
@@ -58,7 +70,6 @@ export default function EntityCatchAllPage() {
         return <CourtsBookingContent />;
       }
     }
-
     // Gym sessions for stakeholders
     if (["student", "staff", "ta", "professor"].includes(entity) && tab === "gym") {
       if (section === "browse-sessions" || section === "") {
@@ -108,6 +119,12 @@ export default function EntityCatchAllPage() {
       }
     }
 
+    if (entity === "events-office" && tab === "events") {
+      if (section === "my-creations") {
+        return <BrowseEventsContent registered={false} user="events-only"  userID={studentUser} />;
+      }
+    }
+
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
         return <AllUsersContent />;
@@ -119,25 +136,37 @@ export default function EntityCatchAllPage() {
 
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
-        return <WorkshopReviewUI />;
+        return Evaluating ? (
+          <WorkshopDetails workshopID={specificWorkshop} setEvaluating={setEvaluating} />
+        ) : (
+          <WorkshopRequests
+            setEvaluating={setEvaluating}
+            setSpecificWorkshop={setSpecificWorkshop}
+          />
+        );
       }
     }
 
     //Shared Content
-    if (tab === "events" || tab === "events-management") {
+    if (tab === "events") {
       if (section === "browse-events") {
-        return <BrowseEventsContent registered={false} user="student" />;
+        return <BrowseEventsContent registered={false} user={entity} userID={studentUser} />;
       }
       if (section === "all-events") {
-        return <BrowseEventsContent registered={false} user="events-office" />;
+        return <BrowseEventsContent registered={false} user={entity} userID={studentUser}  />;
       }
     }
     if (tab === "events") {
       if (section === "my-registered") {
-        return <BrowseEventsContent registered={true} user="student" />;
+        return <BrowseEventsContent registered={true} user="student" userID={studentUser} />;
       }
     }
-
+    
+    if(entity==="professor" && tab==="workshops" ){
+      if (section === "my-workshops") {
+        return  <WorkshopList userId={professorUser}/>;
+      }
+    }
     // Default placeholder content
     return (
       <div className="p-6 bg-white">

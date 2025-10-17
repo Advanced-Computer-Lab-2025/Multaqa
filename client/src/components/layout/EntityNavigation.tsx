@@ -20,6 +20,11 @@ import {
   QrCode,
   Award,
 } from "lucide-react";
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import EventIcon from '@mui/icons-material/Event';
+import PollIcon from '@mui/icons-material/Poll';
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
@@ -150,9 +155,17 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   professor: {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "events",
-    defaultSection: "create-workshop",
+    defaultTab: "workshops",
+    defaultSection: "my-workshops",
     tabs: [
+      {
+        key: "workshops",
+        label: "Workshops",
+        icon: Calendar,
+        sections: [
+          { id: "my-workshops", label: "My Workshops" },
+        ],
+      },
       {
         key: "events",
         label: "Events",
@@ -183,6 +196,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "all-events", label: "All Events" },
+          { id: "my-creations", label: "Creation Hub" },
         ],
       },
       {
@@ -191,8 +205,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: FileText,
         sections: [
           { id: "all-requests", label: "All Requests" },
-          { id: "pending", label: "Pending Requests" },
           { id: "accepted", label: "Accepted Requests" },
+          { id: "pending", label: "Under Review Requests" },
           { id: "rejected", label: "Rejected Requests" },
         ],
       },
@@ -272,7 +286,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "event-office",
-        label: "Event Office Accounts",
+        label: "Accounts Hub",
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
@@ -463,8 +477,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "73vh",
-              maxHeight: "73vh",
+              minHeight: "75vh",
+              maxHeight: "75vh",
             }}
           >
             {children}
