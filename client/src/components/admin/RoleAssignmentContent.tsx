@@ -298,7 +298,7 @@ export default function RoleAssignmentContent() {
                     <SortableTicket id={applicant.id}>
                       <RegisterBox
                         name={applicant.name}
-                        id={applicant.id}
+                        id={applicant.gucId}
                         email={applicant.email}
                         registrationDate={applicant.registrationDate}
                         role="N/A"
@@ -451,7 +451,7 @@ export default function RoleAssignmentContent() {
                         <Box sx={{ flex: 1, minWidth: "280px" }}>
                           <RegisterBox
                             name={user.name}
-                            id={user.id}
+                            id={user.gucId}
                             email={user.email}
                             registrationDate={user.registrationDate}
                             role={roleLabels[roleKey]}
