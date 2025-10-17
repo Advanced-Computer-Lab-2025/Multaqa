@@ -146,4 +146,30 @@ export class UserService {
     // Convert Mongoose documents to plain objects
     return staffMembers.map(staff => staff.toObject());
   }
+
+  async getAllTAs(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.TA,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
+  }
+
+  async getAllProfessors(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.PROFESSOR,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
+  }
+
+  async getAllStaff(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll();
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
+  }
+
 }

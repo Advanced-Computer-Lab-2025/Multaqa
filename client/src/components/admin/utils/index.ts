@@ -12,7 +12,7 @@ import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { api } from "@/api";
 import { CreateAdminResponse, GetAllAdminsResponse } from "../../../../../backend/interfaces/responses/administrationResponses.interface";
 import { AxiosError } from "axios";
-import { GetAllUsersResponse } from "../../../../../backend/interfaces/responses/userResponses.interface";
+import { GetAllUnAssignedStaffMembersResponse, GetAllUsersResponse, GetAllProfessorsResponse, GetAllStaffResponse, GetAllTAsResponse } from "../../../../../backend/interfaces/responses/userResponses.interface";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -290,7 +290,7 @@ export const fetchUnassignedStaff = async (): Promise<Applicant[]> => {
   try {
     console.log('📋 Fetching unassigned staff members...');
 
-    const response = await api.get('/users/unassigned-staff');
+    const response = await api.get<GetAllUnAssignedStaffMembersResponse>('/users/unassigned-staff');
     const staffMembers = response.data.data;
 
     console.log(`✅ Found ${staffMembers.length} unassigned staff member(s)`);
@@ -315,6 +315,101 @@ export const fetchUnassignedStaff = async (): Promise<Applicant[]> => {
       throw new Error(error.message);
     }
     throw new Error("Failed to fetch unassigned staff");
+  }
+};
+
+// Fetch all TAs
+export const fetchAllTAs = async (): Promise<Applicant[]> => {
+  try {
+    console.log('📋 Fetching all TAs...');
+    const response = await api.get<GetAllTAsResponse>('/users/tas');
+    const tas = response.data.data;
+
+    console.log(`✅ Found ${tas.length} TA(s)`);
+
+    // Map backend data to Applicant interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return tas.map((ta: any) => ({
+      id: ta._id,
+      name: `${ta.firstName} ${ta.lastName}`,
+      email: ta.email,
+      gucId: ta.gucId,
+      registrationDate: formatDate(ta.registeredAt || ta.createdAt || new Date().toISOString()),
+    }));
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('❌ Failed to fetch all TAs:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error('❌ Failed to fetch all TAs:', error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch all TAs");
+  }
+};
+
+// Fetch all Professors
+export const fetchAllProfessors = async (): Promise<Applicant[]> => {
+  try {
+    console.log('📋 Fetching all Professors...');
+    const response = await api.get<GetAllProfessorsResponse>('/users/professors');
+    const professors = response.data.data;
+    console.log(`✅ Found ${professors.length} Professor(s)`);
+
+    // Map backend data to Applicant interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return professors.map((professor: any) => ({
+      id: professor._id,
+      name: `${professor.firstName} ${professor.lastName}`,
+      email: professor.email,
+      gucId: professor.gucId,
+      registrationDate: formatDate(professor.registeredAt || professor.createdAt || new Date().toISOString()),
+    }));
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('❌ Failed to fetch all Professors:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error('❌ Failed to fetch all Professors:', error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch all Professors");
+  }
+};
+
+// Fetch all Staff
+export const fetchAllStaff = async (): Promise<Applicant[]> => {
+  try {
+    console.log('📋 Fetching all Staff...');
+    const response = await api.get<GetAllStaffResponse>('/users/staff');
+    const staff = response.data.data;
+
+    console.log(`✅ Found ${staff.length} Staff member(s)`);
+
+    // Map backend data to Applicant interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return staff.map((staffMember: any) => ({
+      id: staffMember._id,
+      name: `${staffMember.firstName} ${staffMember.lastName}`,
+      email: staffMember.email,
+      gucId: staffMember.gucId,
+      registrationDate: formatDate(staffMember.registeredAt || staffMember.createdAt || new Date().toISOString()),
+    }));
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error('❌ Failed to fetch all Staff:', errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error('❌ Failed to fetch all Staff:', error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch all Staff");
   }
 };
 

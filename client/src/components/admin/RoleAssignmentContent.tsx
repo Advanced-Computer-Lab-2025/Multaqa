@@ -14,6 +14,9 @@ import {
   assignToRole,
   handleAssignRole,
   fetchUnassignedStaff,
+  fetchAllTAs,
+  fetchAllProfessors,
+  fetchAllStaff,
 } from "./utils";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
@@ -57,22 +60,39 @@ export default function RoleAssignmentContent() {
     applicant: Applicant;
   } | null>(null);
 
-  // Fetch unassigned staff members on component mount
+  // Fetch unassigned staff members and assigned roles on component mount
   useEffect(() => {
-    const loadUnassignedStaff = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const staff = await fetchUnassignedStaff();
-        setApplicants(staff);
+        
+        // Fetch unassigned staff for pending section
+        const unassignedStaff = await fetchUnassignedStaff();
+        setApplicants(unassignedStaff);
+
+        // Fetch already assigned staff for each role
+        const [assignedStaff, assignedTAs, assignedProfessors] = await Promise.all([
+          fetchAllStaff(),
+          fetchAllTAs(),
+          fetchAllProfessors(),
+        ]);
+
+        // Set the assigned users for each role
+        setAssigned({
+          staff: assignedStaff,
+          ta: assignedTAs,
+          professor: assignedProfessors,
+        });
+
       } catch (error) {
-        console.error("Failed to load unassigned staff:", error);
+        console.error("Failed to load data:", error);
         // You might want to show an error toast/notification here
       } finally {
         setLoading(false);
       }
     };
 
-    loadUnassignedStaff();
+    loadData();
   }, []);
 
   const activeDraggedUser =

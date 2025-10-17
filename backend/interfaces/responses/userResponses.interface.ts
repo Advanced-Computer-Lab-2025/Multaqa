@@ -36,7 +36,25 @@ export interface AssignRoleResponse {
   user: Omit<IStaffMember, "password">;
 }
 
-export interface getAllUnAssignedStaffMembersResponse {
+export interface GetAllUnAssignedStaffMembersResponse {
+  success: boolean;
+  data: Omit<IStaffMember, "password">[];
+  message: string;
+}
+
+export interface GetAllTAsResponse {
+  success: boolean;
+  data: Omit<IStaffMember, "password">[];
+  message: string;
+}
+
+export interface GetAllProfessorsResponse {
+  success: boolean;
+  data: Omit<IStaffMember, "password">[];
+  message: string;
+}
+
+export interface GetAllStaffResponse {
   success: boolean;
   data: Omit<IStaffMember, "password">[];
   message: string;
