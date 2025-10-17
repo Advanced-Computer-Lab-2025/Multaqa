@@ -24,7 +24,7 @@ const EventSchema = new Schema<IEvent>(
     eventEndDate: { type: Date, required: true },
     eventStartTime: { type: String, required: true },
     eventEndTime: { type: String, required: true },
-    registrationDeadline: { type: Date },
+    registrationDeadline: { type: Date, required: true },
     location: { type: String, required: true, default: "" },
     description: { type: String, required: true },
   },

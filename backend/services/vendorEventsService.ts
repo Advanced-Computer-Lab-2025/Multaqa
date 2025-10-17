@@ -69,6 +69,7 @@ export class VendorEventsService {
       archived: false,
       attendees: [],
       allowedUsers: [],
+      registrationDeadline: new Date(),
       // Set default dates based on booth setup duration
       eventStartDate: new Date(), // TODO: Calculate proper start date
       eventEndDate: new Date(
