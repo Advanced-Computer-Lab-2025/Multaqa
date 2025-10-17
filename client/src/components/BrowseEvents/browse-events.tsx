@@ -1,30 +1,37 @@
-//Notes:
-//
-
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Box, Typography, Container } from "@mui/material";
-import FilterPanel from "./shared/FilterCard/FilterPanel";
-import { FilterGroup } from "./shared/FilterCard/types";
-import ConferenceView from "./Event/ConferenceView";
-import WorkshopView from "./Event/WorkshopView";
-import BazarView from "./Event/BazarView";
-import BoothView from "./Event/BoothView";
-import TripView from "./Event/TripView";
+import FilterPanel from "../shared/FilterCard/FilterPanel";
+import { FilterGroup } from "../shared/FilterCard/types";
+import ConferenceView from "../Event/ConferenceView";
+import WorkshopView from "../Event/WorkshopView";
+import BazarView from "../Event/BazarView";
+import BoothView from "../Event/BoothView";
+import TripView from "../Event/TripView";
 import {
   ConferenceViewProps,
   WorkshopViewProps,
   BazarViewProps,
   BoothViewProps,
-} from "./Event/types";
-import CustomSearchBar from "./shared/Searchbar/CustomSearchBar";
-import ContentWrapper from "./shared/containers/ContentWrapper";
+} from "../Event/types";
+import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
+import { api } from "@/api";
+import { frameData } from "./utils";
+import MenuOptionComponent from "../createButton/MenuOptionComponent";
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import EventIcon from '@mui/icons-material/Event';
+import PollIcon from '@mui/icons-material/Poll';
+import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
+
 
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
+  userID?:string;
 }
 // Define the event type enum
 export enum EventType {
@@ -79,124 +86,6 @@ interface Filters {
   [key: string]: FilterValue | undefined;
 }
 
-// Mock data for different event types
-const mockEvents: Event[] = [
-  {
-    id: "1",
-    type: EventType.CONFERENCE,
-    name: "Tech Innovation Summit 2024",
-    description:
-      "A comprehensive conference covering the latest trends in technology, AI, and digital transformation.",
-    agenda:
-      "Day 1: Keynote speeches and AI workshops\nDay 2: Panel discussions and networking\nDay 3: Startup pitches and awards ceremony",
-    details: {
-      "Start Date": "2024-03-15",
-      "End Date": "2024-03-17",
-      "Start Time": "09:00",
-      "End Time": "18:00",
-      "Required Budget": "$50,000",
-      "Source of Funding": "External",
-      "Extra Required Resources": "AV equipment, catering",
-      Link: "https://techsummit2024.com",
-    },
-  },
-  {
-    id: "2",
-    type: EventType.WORKSHOP,
-    name: "React Masterclass Workshop",
-    description:
-      "Learn advanced React patterns and best practices in this hands-on workshop.",
-    agenda:
-      "Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session",
-    details: {
-      "Start Date": "2024-03-20",
-      "End Date": "2024-03-20",
-      "Start Time": "10:00",
-      "End Time": "16:00",
-      Location: "GUC Cairo",
-      "Faculty Responsible": "MET",
-      "Professors Participating": "Dr. Ahmed Hassan, Dr. Sarah Mohamed",
-      "Required Budget": "$5,000",
-      "Funding Source": "GUC",
-      "Extra Required Resources": "Laptops, projectors",
-      Capacity: "30",
-      "Registration Deadline": "2024-03-15",
-    },
-  },
-  {
-    id: "3",
-    type: EventType.BAZAAR,
-    name: "Spring Arts & Crafts Bazaar",
-    description:
-      "A vibrant marketplace featuring local artisans and their handmade creations.",
-    details: {
-      "Registration Deadline": "2024-03-15",
-      "Start Date": "2024-03-25",
-      "End Date": "2024-03-25",
-      Time: "10:00 - 20:00",
-      Location: "GUC Main Hall",
-      "Vendor Count": "25",
-    },
-  },
-  {
-    id: "4",
-    type: EventType.BOOTH,
-    company: "Microsoft Career Booth",
-    people: {
-      "1": { id: "1", name: "John Smith", email: "john.smith@microsoft.com" },
-      "2": {
-        id: "2",
-        name: "Sarah Johnson",
-        email: "sarah.johnson@microsoft.com",
-      },
-    },
-    details: {
-      Duration: "2 weeks",
-      Location: "GUC Career Center",
-      "Booth Size": "2x2",
-      Description:
-        "Explore career opportunities at Microsoft and meet with recruiters.",
-    },
-  },
-  {
-    id: "5",
-    type: EventType.TRIP,
-    name: "Alexandria Cultural Tour",
-    description:
-      "Explore the rich history and culture of Alexandria with guided tours.",
-    details: {
-      "Registration Deadline": "2024-03-15",
-      "Start Date": "2024-04-01",
-      "End Date": "2024-04-01",
-      Location: "Alexandria, Egypt",
-      "Departure Time": "08:00",
-      "Return Time": "18:00",
-      Cost: "EGP 200",
-      Capacity: "50",
-    },
-  },
-  {
-    id: "6",
-    type: EventType.CONFERENCE,
-    name: "Sustainability & Green Technology",
-    description:
-      "Exploring sustainable solutions for a greener future through technology.",
-    agenda:
-      "Opening keynote on climate change\nPanel: Renewable energy solutions\nWorkshop: Sustainable coding practices",
-    details: {
-      "Start Date": "2024-04-10",
-      "End Date": "2024-04-12",
-      "Start Time": "09:30",
-      "End Time": "17:30",
-      "Required Budget": "$35,000",
-      "Source of Funding": "External",
-      "Extra Required Resources":
-        "Sustainable catering, eco-friendly materials,  eco-friendly materials",
-      Link: "https://sustainabilityconf2024.com",
-    },
-  },
-];
-
 // Filter groups for the filter panel
 const filterGroups: FilterGroup[] = [
   {
@@ -213,12 +102,62 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
-  const [events, setEvents] = useState<Event[]>(mockEvents);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [refresh, setRefresh] = useState(false);
+  const [createconference, setConference] = useState(false);
+  const [createBazaar, setBazaar] = useState(false);
+  const [createTrip, setTrip] = useState(false);
+  const [createWorkshop, setWorkshop] = useState(false);
+  const [createSession, setSession] = useState(false);
+  const [UserInfo, setUserInfo] =  useState<{ id: string; name: string; email:string }>({id:"", name:"", email:""});
+  const [isReady, setReady] = useState(false);
 
+  useEffect(() => {
+    handleCallAPI2()
+  }, []); 
+
+  useEffect(() => {
+    handleCallAPI()
+  }, [refresh]); 
   // Handle event deletion
+  async function handleCallAPI2 (){
+    const res = await api.get(`/users/${userID}`);
+    const data = res.data.data;
+    const user = {
+      id: data._id,
+      name: `${data.firstName}  ${data.lastName}`,
+      email: data.email,
+    }
+    setUserInfo(user);
+    setReady(true);
+  }
+
+  async function handleCallAPI (){
+    try{
+      if(!registered){
+      const res = await api.get("/events");
+      const data = res.data.data;
+      const result = frameData(data);
+      setEvents(result);
+      console.log(data);
+      }
+      else{
+      const res = await api.get(`/users/${userID}`);
+      const data2 = res.data.data.registeredEvents;
+      const result = frameData(data2);
+      setEvents(result);
+      console.log(data2);
+      }
+    }
+    catch(err){
+      console.error(err);
+    }
+ 
+  };
+
   const handleDeleteEvent = (eventId: string) => {
     setEvents((prevEvents) =>
       prevEvents.filter((event) => event.id !== eventId)
@@ -228,6 +167,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
+    if(user==="events-only"){
+   filtered=filtered = filtered.filter((event) =>
+    ["bazaar", "trip", "conference"].includes(event.type)
+  );
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -277,6 +221,19 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
     setFilters({});
     setSearchQuery("");
   };
+  const Eventoptions = [
+    { label: 'Gym', icon: FitnessCenterIcon },
+    { label: 'Bazaars', icon: StorefrontIcon },
+    { label: 'Trips', icon: FlightTakeoffIcon },
+    { label: 'Conference', icon: EventIcon },
+   // { label: 'Polls', icon: PollIcon },
+  ];
+  const EventOptionsSetters = [
+   setSession,
+   setBazaar,
+   setTrip,
+   setConference
+  ];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -284,6 +241,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       case EventType.CONFERENCE:
         return (
           <ConferenceView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -291,12 +250,16 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             agenda={event.agenda}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.WORKSHOP:
         return (
           <WorkshopView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -304,43 +267,57 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             agenda={event.agenda}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.BAZAAR:
         return (
-          <BazarView
+          <BazarView 
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
             description={event.description}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.BOOTH:
         return (
           <BoothView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             company={event.company}
             people={event.people}
             details={event.details}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.TRIP:
         return (
           <TripView
+            id={event.id}
+            setRefresh={setRefresh}
             key={event.id}
             details={event.details}
             name={event.name}
             description={event.description}
             user={user}
             registered={registered}
+            userInfo={UserInfo}   
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       default:
@@ -368,9 +345,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           variant="body2"
           sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
         >
-          {registered
-            ? "Keep track of which events you have registered for"
-            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"}
+          {user!=="events-only"
+            ? (registered ? "Keep track of which events you have registered for"
+            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"): "Keep track of and manage events you have created"
+          }
         </Typography>
       </Box>
 
@@ -393,6 +371,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           currentFilters={filters}
           onReset={handleResetFilters}
         />
+       
+      {user === "events-only"&& (
+       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters} setRefresh={setRefresh}/>
+      )}
       </Box>
 
       {/* Events Grid */}
@@ -410,12 +392,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
         {filteredEvents.map((event) => (
           <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
         ))}
-        
+
         {/* Results count */}
         {filteredEvents.length > 0 && (
           <Box sx={{ mt: 3, textAlign: "center" }}>
             <Typography variant="body2" color="text.secondary">
-              Showing {filteredEvents.length} of {mockEvents.length} events
+              Showing {filteredEvents.length} of {events.length} events
             </Typography>
           </Box>
         )}
@@ -432,6 +414,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
           </Box>
         )}
       </Box>
+      <CreateTrip open={createTrip} onClose={()=> setTrip(false)} setRefresh={setRefresh}/>
     </Container>
   );
 };

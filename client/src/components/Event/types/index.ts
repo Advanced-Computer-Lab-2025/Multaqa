@@ -3,6 +3,10 @@ type BasicProps = {
   user?: string,
   registered?: boolean,
   onDelete?: () => void,
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  id:string,
+  userInfo:{ id: string; name: string; email:string };
+  isReady:boolean;
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
@@ -13,7 +17,7 @@ export type BazarViewProps = BasicProps & {
 //names and emails of a max of 5 individuals attending, duration of booth set up, location of booth setup, booth size 
 export type BoothViewProps = BasicProps & {
   company: string,
-  people?: Record<string, { id: string, name: string, email: string }>
+  people?: { name: string; email: string }[];
   details: Record<string, string>,
 }
 
