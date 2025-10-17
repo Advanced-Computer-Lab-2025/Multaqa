@@ -392,7 +392,7 @@ export default function ManageEventOfficeAccountContent() {
                 variant="outlined"
                 color="primary"
                 onClick={handleCloseCreate}
-                sx={{ width: "160px", height: "44px", borderRadius: "12px" }}
+                sx={{ width: "160px", height: "44px" }}
               />
               <CustomButton
                 label="Create"
@@ -404,7 +404,6 @@ export default function ManageEventOfficeAccountContent() {
                 sx={{
                   width: "160px",
                   height: "44px",
-                  borderRadius: "12px",
                   fontWeight: 700,
                 }}
               />
