@@ -166,8 +166,10 @@ export class UserService {
   }
 
   async getAllStaff(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll();
-
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.STAFF,
+    });
+    
     // Convert Mongoose documents to plain objects
     return staffMembers.map(staff => staff.toObject());
   }
