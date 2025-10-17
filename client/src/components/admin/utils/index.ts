@@ -6,11 +6,13 @@ import {
   Applicant,
   AccountCreationFormValues,
   UserCreationFormValues,
+  UserRole,
 } from "../types";
 import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { api } from "@/api";
 import { CreateAdminResponse, GetAllAdminsResponse } from "../../../../../backend/interfaces/responses/administrationResponses.interface";
 import { AxiosError } from "axios";
+import { GetAllUsersResponse } from "../../../../../backend/interfaces/responses/userResponses.interface";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -235,20 +237,19 @@ export const fetchAllUsers = async (): Promise<User[]> => {
   try {
     console.log('📋 Fetching all users...');
 
-    const response = await api.get('/users');
+    const response = await api.get<GetAllUsersResponse>('/users');
     const users = response.data.data;
 
     console.log(`✅ Found ${users.length} user(s)`);
 
     // Map backend data to User interface
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return users.map((user: any) => ({
       id: user._id,
       name: user.firstName && user.lastName
         ? `${user.firstName} ${user.lastName}`
         : user.name || 'Unknown',
       email: user.email,
-      role: mapBackendRoleToFrontend(user.role, user.position, user.roleType),
+      role: mapBackendRoleToFrontend(user.role, user.position, user.roleType) as UserRole,
       status: user.status === 'active' ? 'Active' : 'Blocked',
       createdDate: formatDate(user.registeredAt || user.createdAt || new Date().toISOString()),
     }));
@@ -270,8 +271,8 @@ export const fetchAllUsers = async (): Promise<User[]> => {
 function mapBackendRoleToFrontend(role: string, position?: string, roleType?: string): string {
   if (role === 'staffMember') {
     if (position === 'TA') return 'TA';
-    if (position === 'Professor') return 'Professor';
-    if (position === 'Staff') return 'Staff';
+    if (position === 'professor') return 'Professor';
+    if (position === 'staff') return 'Staff';
     return 'Staff';
   }
   if (role === 'student') return 'Student';
