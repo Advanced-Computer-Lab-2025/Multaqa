@@ -12,3 +12,9 @@ export interface UpdateWorkshopResponse {
   data: IWorkshop;
   message: string;
 }
+
+export interface UpdateWorkshopStatusResponse {
+  success: boolean;
+  data: IWorkshop;
+  message: string;
+}

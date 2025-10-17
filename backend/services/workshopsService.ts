@@ -42,16 +42,19 @@ export class WorkshopService {
 
       return createdEvent;
     }
-    throw createError(404, "Professor not found"); 
+    throw createError(404, "Professor not found");
   }
 
-  async updateWorkshop(professorId: string, workshopId: string, updateData: any) {
+  async updateWorkshop(
+    professorId: string,
+    workshopId: string,
+    updateData: any
+  ) {
     const professor = await this.staffRepo.findById(professorId);
-    if (!professor)
-      throw createError(404, "Professor not found");
+    if (!professor) throw createError(404, "Professor not found");
     if (!professor.myWorkshops || professor.myWorkshops.length === 0)
       throw createError(403, "You have no workshops to update");
-    if (!professor.myWorkshops.some(id => id.toString() === workshopId))
+    if (!professor.myWorkshops.some((id) => id.toString() === workshopId))
       throw createError(403, "You are not authorized to update this workshop");
 
     const updatedWorkshop = await this.eventRepo.update(workshopId, updateData);
@@ -63,21 +66,36 @@ export class WorkshopService {
     return updatedWorkshop;
   }
 
-  async updateWorkshopStatus( workshopId: string, updateData: Partial<IWorkshop>) : Promise<IWorkshop>{
+  async updateWorkshopStatus(
+    professorId: string,
+    workshopId: string,
+    updateData: Partial<IWorkshop>
+  ): Promise<IWorkshop> {
     const { approvalStatus, comments } = updateData;
 
-    const hasComments = comments && comments.trim() !== "";
+    const workshop = await this.workshopRepo.findById(workshopId);
+    if (workshop && professorId != workshop?.createdBy.toString()) {
+      throw createError(403, "Not authorized to update this workshop status");
+    }
 
+    // normalize timestamps
+    const commentsWithTimestamps = comments?.map((c) => ({
+      ...c,
+      timestamp: c.timestamp ? new Date(c.timestamp) : new Date(),
+    }));
+
+    const hasComments =
+      Array.isArray(commentsWithTimestamps) &&
+      commentsWithTimestamps.length > 0;
     const finalStatus = hasComments
       ? Event_Request_Status.PENDING
       : approvalStatus;
 
-    const newData: Partial<IWorkshop> = {
+    const updatedWorkshop = await this.workshopRepo.update(workshopId, {
       approvalStatus: finalStatus,
-      comments: comments || "",
-    };
+      comments: commentsWithTimestamps,
+    });
 
-    const updatedWorkshop = await this.workshopRepo.update(workshopId, newData);
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
 
     return updatedWorkshop;

@@ -2,6 +2,12 @@ import Joi from "joi";
 import { Event_Request_Status } from "../constants/user.constants";
 
 export function validateUpdateWorkshop(data: any) {
+  const commentSchema = Joi.object({
+    commenter: Joi.string().required(),
+    text: Joi.string().allow("").required(),
+    timestamp: Joi.date().optional(),
+  });
+
   const schema = Joi.object({
     type: Joi.string().valid("workshop").optional(),
     eventName: Joi.string().min(3).max(100).optional(),
@@ -23,7 +29,8 @@ export function validateUpdateWorkshop(data: any) {
     approvalStatus: Joi.string()
       .valid(...Object.values(Event_Request_Status))
       .optional(),
-    comments: Joi.string().allow("").optional(),
+
+    comments: Joi.array().items(commentSchema).optional(),
   });
 
   return schema.validate(data);
