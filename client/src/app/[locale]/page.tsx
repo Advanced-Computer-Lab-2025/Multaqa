@@ -1,304 +1,65 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from 'react';
-import CustomTextField from '@/components/shared/input-fields/CustomTextField';
-import CustomSelectField from '@/components/shared/input-fields/CustomSelectField';
-import CustomCheckboxGroup from '@/components/shared/input-fields/CustomCheckboxGroup';
-import CustomRating from '@/components/shared/input-fields/CustomRating';
-import { CustomModal, CustomModalLayout } from '@/components/shared/modals';
-import theme from '@/themes/lightTheme';
-import CreateBazaar from '@/components/tempPages/CreateBazaar/CreateBazaar';
-import CustomButton from '@/components/shared/Buttons/CustomButton';
-import CreateTrip from '@/components/tempPages/CreateTrip/CreateTrip';
-import EditTrip from '@/components/tempPages/EditTrip/EditTrip';
-import EditBazaar from '@/components/tempPages/EditBazaar/EditBazaar';
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@mui/material";
+import { ArrowRight } from "lucide-react";
 
-const SimpleFormExample: React.FC = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    userType: '',
-    interests: [] as string[],
-    rating: 0,
-  });
-  const [openLayout, setOpenLayout] = useState(false);
-  const [openCreateBazaar, setOpenCreateBazaar] = useState(false);
-  const [openEditBazaar, setOpenEditBazaar] = useState(false);
-  const [openCreateTrip, setOpenCreateTrip] = useState(false);
-  const [openEditTrip, setOpenEditTrip] = useState(false);
+const stakeholders = [
+  { role: "student", label: "Student Portal", color: "bg-blue-500" },
+  { role: "staff", label: "Staff Portal", color: "bg-purple-500" },
+  { role: "ta", label: "TA Portal", color: "bg-green-500" },
+  { role: "professor", label: "Professor Portal", color: "bg-orange-500" },
+  { role: "admin", label: "Admin Panel", color: "bg-red-500" },
+  { role: "events-office", label: "Events Office", color: "bg-indigo-500" },
+  { role: "vendor", label: "Vendor Portal", color: "bg-pink-500" },
+];
 
-  const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
+export default function LocalePage() {
+  const router = useRouter();
+  const params = useParams() as { locale?: string };
+  const locale = params.locale || "en";
 
-  const handleCallApi = async () => {
-    setLoading(true);
-    setError(null);
-    setResponse([]);
-    try {
-      // TODO: Replace with your API route
-      const res = await api.get("/events");
-      setResponse(res.data);
-    } catch (err: any) {
-      setError(err?.message || "API call failed");
-    } finally {
-      setLoading(false);
-    }
+  const handleNavigate = (role: string) => {
+    router.push(`/${locale}/${role}`);
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: "100vh",
-        background: "#f9fafb",
-      }}
-    >
-      <button
-        onClick={handleCallApi}
-        disabled={loading}
-        style={{
-          padding: "16px 32px",
-          fontSize: "1.25rem",
-          fontWeight: 600,
-          borderRadius: "12px",
-          backgroundColor: "#7851da",
-          color: "#fff",
-          border: "none",
-          cursor: loading ? "not-allowed" : "pointer",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          margin: "32px 0",
-        }}
-      >
-        {loading ? "Calling API..." : "Call API"}
-      </button>
-      {error && (
-        <div style={{ color: "red", marginBottom: "24px" }}>{error}</div>
-      )}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 800,
-          display: "flex",
-          flexDirection: "column",
-          gap: 24,
-        }}
-      >
-        {Array.isArray(response) &&
-          response.length > 0 &&
-          response.map((event: any) => (
-            <div
-              key={event._id}
-              style={{
-                background: "#fff",
-                borderRadius: "16px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                padding: "24px",
-                marginBottom: "8px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px",
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: "1.5rem",
-                  fontWeight: 700,
-                  color: "#7851da",
-                  margin: 0,
-                }}
-              >
-                {event.event_name}
-              </h2>
-              <div style={{ color: "#374151", fontWeight: 500 }}>
-                {event.type.toUpperCase()}
-              </div>
-              <div style={{ color: "#6b7280" }}>{event.location}</div>
-              <div style={{ color: "#6b7280" }}>
-                Start: {new Date(event.event_start_date).toLocaleString()}
-              </div>
-              <div style={{ color: "#6b7280" }}>
-                End: {new Date(event.event_end_date).toLocaleString()}
-              </div>
-              <div style={{ color: "#6b7280" }}>
-                Price: {event.price ? `$${event.price}` : "Free"}
-              </div>
-              <div style={{ color: "#6b7280" }}>
-                Description: {event.description}
-              </div>
-              {event.vendors &&
-                Array.isArray(event.vendors) &&
-                event.vendors.length > 0 && (
-                  <div style={{ marginTop: 8 }}>
-                    <strong>Vendors:</strong>
-                    <ul style={{ margin: 0, paddingLeft: 16 }}>
-                      {event.vendors.map((v: any) => (
-                        <li key={v._id}>
-                          Vendor ID: {v.vendor}
-                          <br />
-                          Booth Size:{" "}
-                          {v.RequestData?.value?.boothSize ||
-                            v.RequestData?.data?.value?.boothSize ||
-                            "N/A"}
-                          <br />
-                          Attendees:{" "}
-                          {Array.isArray(v.RequestData?.value?.bazaarAttendees)
-                            ? v.RequestData.value.bazaarAttendees
-                                .map((a: any) => a.name)
-                                .join(", ")
-                            : "N/A"}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-            </div>
-          ))}
-      </div>
-
-      <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-        <CustomModal
-          title="Example Modal"
-          description="This is a simple example of the CustomModal component."
-          buttonOption1={{
-            label: 'Close',
-            variant: 'contained',
-            color: 'primary',
-            onClick: () => alert('Modal closed!'),
-          }}
-          buttonOption2={{
-            label: 'Save',
-            variant: 'contained',
-            color: 'secondary',
-            onClick: () => alert('Secondary action clicked!'),
-          }}
-          modalType="warning"
-          // borderColor="#7851da" // Optional custom border color
-          width="w-[90vw] sm:w-[80vw] md:w-[40vw]"
-          open={false}
-          borderColor={theme.palette.primary.main}
-          onClose={() => {
-          }}
-        />
-
-        <button onClick={() => setOpenLayout(true)} style={{ padding: '10px 14px', borderRadius: '10px' }}>Open Layout Modal</button>
-
-        <CustomModalLayout open={openLayout} onClose={() => setOpenLayout(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <div style={{ textAlign: 'center' }}>
-            <h2 style={{ marginTop: 0 }}>Hellow there</h2>
-            <p>This is content inside the real <code>CustomModalLayout</code>.</p>
-          </div>
-        </CustomModalLayout>
-
-        <CustomButton onClick={() => setOpenCreateBazaar(true)}>Create Bazaar</CustomButton>
-        <CustomModalLayout open={openCreateBazaar} onClose={() => setOpenCreateBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <CreateBazaar  setOpenCreateBazaar={setOpenCreateBazaar}/>
-        </CustomModalLayout>
-
-        <CustomButton onClick={() => setOpenEditBazaar(true)}>Edit Bazaar</CustomButton>  
-        <CustomModalLayout open={openEditBazaar} onClose={() => setOpenEditBazaar(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <EditBazaar
-            setOpenEditBazaar={setOpenEditBazaar} 
-            bazaarId='68ed4f8a991f22c57a20061c'
-            bazaarName='ma3rad el sanaseer'
-            location='center dr. catherine (IG zone)'
-            description='67'
-            startDate={new Date("2025-10-16T21:00:00.000+00:00")}
-            endDate={new Date("2025-10-24T21:00:00.000+00:00")}
-            registrationDeadline={new Date("2025-10-14T21:00:00.000+00:00")}
-          />
-        </CustomModalLayout>
-
-        <CustomButton onClick={() => setOpenCreateTrip(true)}>Create Trip</CustomButton>
-        <CustomModalLayout open={openCreateTrip} onClose={() => setOpenCreateTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <CreateTrip setOpenCreateTrip={setOpenCreateTrip}/>
-        </CustomModalLayout>
-
-        <CustomButton onClick={() => setOpenEditTrip(true)}>Edit Trip</CustomButton>  
-        <CustomModalLayout open={openEditTrip} onClose={() => setOpenEditTrip(false)} width="w-[90vw] sm:w-[80vw] md:w-[60vw]">
-          <EditTrip 
-            setOpenEditTrip={setOpenEditTrip} 
-            tripId='68ed4c9d991f22c57a20061a'
-            tripName='kendrick lamar concert'
-            location='67'
-            price={67}
-            description='67'
-            startDate={new Date("2025-10-22T12:00:00.000+00:00")}
-            endDate={new Date("2025-10-25T14:00:00.000+00:00")}
-            registrationDeadline={new Date("October 11, 2025 03:24:00")}
-            capacity={67}
-          />
-        </CustomModalLayout>
-      </div>
-
-      {/* Props Guide */}
-      <section style={{ 
-        marginTop: '40px',
-        backgroundColor: '#fff',
-        padding: '24px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-      }}>
-        <h2 style={{ 
-          fontSize: '1.25rem', 
-          fontWeight: 600, 
-          marginBottom: '16px',
-          color: '#374151' 
-        }}>
-          📚 Quick Props Reference
-        </h2>
-
-        
-        <div style={{ 
-          display: 'grid', 
-          gap: '8px',
-          fontSize: '0.9rem',
-          color: '#4b5563',
-          lineHeight: '1.6'
-        }}>
-          <div><strong>CustomTextField Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>fieldType:</strong> &quot;text&quot; | &quot;email&quot; | &quot;password&quot; | &quot;phone&quot; | &quot;numeric&quot;
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>separateLabels:</strong> true (outwards neumorphic) | false (MUI standard)
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>stakeholderType:</strong> &quot;student&quot; | &quot;staff&quot; | &quot;ta&quot; | &quot;professor&quot; | &quot;admin&quot; | &quot;vendor&quot;
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>required:</strong> Shows red asterisk (*)
-          </div>
-          
-          <div style={{ marginTop: '12px' }}><strong>CustomSelectField Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>fieldType:</strong> &quot;single&quot; | &quot;multiple&quot;
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>options:</strong> Array of &#123;label, value&#125; objects
-          </div>
-          
-          <div style={{ marginTop: '12px' }}><strong>CustomCheckboxGroup Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>enableMoreThanOneOption:</strong> true (checkboxes) | false (radio)
-          </div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>multaqaFill:</strong> Uses primary color (#7851da)
-          </div>
-          
-          <div style={{ marginTop: '12px' }}><strong>CustomRating Props:</strong></div>
-          <div style={{ paddingLeft: '12px' }}>
-            • <strong>multaqaFill:</strong> Uses primary color instead of yellow
-          </div>
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            Welcome to Multaqa
+          </h1>
+          <p className="text-lg text-gray-600">
+            University Event Management Platform
+          </p>
         </div>
-      </section>
-    </div>
-  );
-};
 
-export default SimpleFormExample;
+        {/* Buttons Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stakeholders.map((stakeholder) => (
+            <button
+              key={stakeholder.role}
+              onClick={() => handleNavigate(stakeholder.role)}
+              className={`${stakeholder.color} hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-lg p-6 text-white font-semibold text-lg flex items-center justify-between group`}
+            >
+              <span>{stakeholder.label}</span>
+              <ArrowRight
+                size={24}
+                className="group-hover:translate-x-2 transition-transform"
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-12 text-center text-gray-600 text-sm">
+          <p>
+            Select your role above to access the portal designed for your needs.
+          </p>
+        </div>
+      </div>
+    </main>
+  );
+}

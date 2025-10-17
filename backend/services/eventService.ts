@@ -133,7 +133,7 @@ export class EventsService {
     return deleteResult;
   }
 
-  async registerUserForEvent(eventId: string, userData: any, userId: any) {
+  async registerUserForEvent(eventId: string, userId: any) {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
       throw createError(404, "Event not found");

@@ -16,10 +16,12 @@ import cors from "cors";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(json());
 app.use(cookieParser());
 app.use(cors());
@@ -36,7 +38,7 @@ app.use("/users", userRouter);
 app.use("/gymsessions", gymSessionsRouter);
 app.use("/admins", adminRouter);
 app.use("/vendorEvents", vendorEventsRouter);
-app.use("/workshops", workshopsRouter); 
+app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 
 const MONGO_URI =

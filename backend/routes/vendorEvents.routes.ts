@@ -11,7 +11,7 @@ const vendorEventsService = new VendorEventsService();
 
 async function getVendorUpcomingEvents(req: Request, res: Response<GetVendorEventsResponse>) {
   try {
-    const vendorId =  req.params.id;
+    const vendorId =  req.params.vendorId;
     // const vendorId = (req as any).user.id;
 
     const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
@@ -53,7 +53,7 @@ async function applyToBazaarOrBooth(req: Request, res: Response<ApplyToBazaarOrB
 
 async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestResponse>) {
   try {
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
     const requests = await vendorEventsService.getVendorsRequest(eventId);
 
     res.json({
@@ -71,8 +71,8 @@ async function getVendorsRequests(req: Request, res: Response<GetVendorsRequestR
 
 async function getVendorRequestsDetails(req: Request, res: Response<GetVendorRequestDetailsResponse>) {
   try {
-    const eventId = req.params.id;
-    const vendorId = req.params.vendorid;
+    const eventId = req.params.eventId;
+    const vendorId = req.params.vendorId;
     const request = await vendorEventsService.getVendorsRequestsDetails(eventId, vendorId);
 
     res.json({
@@ -90,8 +90,8 @@ async function getVendorRequestsDetails(req: Request, res: Response<GetVendorReq
 
 async function updateVendorRequest(req: Request, res: Response<RespondToVendorRequestResponse>) {
   try {
-    const eventId = req.params.eventid;
-    const vendorId = req.params.vendorid;
+    const eventId = req.params.eventId;
+    const vendorId = req.params.vendorId;
     const { status } = req.body;
 
     if (!eventId || !vendorId || !status) {
@@ -114,10 +114,10 @@ async function updateVendorRequest(req: Request, res: Response<RespondToVendorRe
 }
 
 const router = Router();
-router.get("/:vendorId", authorizeRoles({ userRoles: [UserRole.VENDOR] }), getVendorUpcomingEvents);
 router.post("/:vendorId/:eventId/applications", authorizeRoles({ userRoles: [UserRole.VENDOR] }), applyToBazaarOrBooth);
-router.get("/:eventId/vendor-requests", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), getVendorsRequests);
 router.get("/:eventId/vendor-requests/:vendorId", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), getVendorRequestsDetails);
 router.patch("/:eventId/vendor-requests/:vendorId", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), updateVendorRequest);
+router.get("/:eventId/vendor-requests", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN] }), getVendorsRequests);
+router.get("/:vendorId", authorizeRoles({ userRoles: [UserRole.VENDOR] }), getVendorUpcomingEvents);
 
 export default router;
