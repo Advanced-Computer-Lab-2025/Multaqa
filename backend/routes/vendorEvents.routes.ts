@@ -11,7 +11,7 @@ const vendorEventsService = new VendorEventsService();
 
 async function getVendorUpcomingEvents(req: Request, res: Response<GetVendorEventsResponse>) {
   try {
-    const vendorId =  req.params.id;
+    const vendorId =  req.params.vendorId;
     // const vendorId = (req as any).user.id;
 
     const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
