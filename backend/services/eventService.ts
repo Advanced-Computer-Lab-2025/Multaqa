@@ -43,8 +43,8 @@ export class EventsService {
         },
       ],
     };
-    if (type) filter.type = type;
-    if (location) filter.location = location;
+    if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
+if (location) filter.location = { $regex: new RegExp(location, "i") };
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
@@ -88,6 +88,16 @@ export class EventsService {
     }
 
     return events;
+  }
+
+  async getAllWorkshops(): Promise<IEvent[]> {
+    const filter: any = { type: EVENT_TYPES.WORKSHOP };
+    return this.eventRepo.findAll(filter, {
+      populate: [
+        { path: "associatedProfs", select: "firstName lastName email" },
+        { path: "attendees", select: "firstName lastName email gucId " },
+      ] as any,
+    });
   }
 
   async getEventById(id: string): Promise<IEvent | null> {
