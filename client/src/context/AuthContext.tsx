@@ -1,3 +1,4 @@
+"use client";
 import React, {
   createContext,
   useContext,
@@ -70,7 +71,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<{ user: User } | undefined>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
@@ -94,6 +95,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       if (!token) {
         setIsLoading(false);
         return;
+      } else {
+        // Set token in axios default headers for all requests
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        // Also set it explicitly for the API instance
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       }
 
       try {
@@ -101,21 +107,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
         if (response.data?.user) {
           setUser(response.data.user);
+          console.log("User loaded successfully:", response.data.user);
         } else {
           console.error("Invalid response format:", response.data);
           localStorage.removeItem("token");
           // clear refresh token cookie by making a logout request
-          await axios.post("http://localhost:4000/auth/logout", {}, {
-            withCredentials: true,
-          });
+          await api.post(
+            "/auth/logout",
+            {},
+            {
+              withCredentials: true,
+            }
+          );
         }
       } catch (error) {
         console.error("Failed to fetch user:", error);
         localStorage.removeItem("token");
         // clear refresh token cookie by making a logout request
-        await axios.post("http://localhost:4000/auth/logout", {}, {
-          withCredentials: true,
-        });
+        await api.post(
+          "/auth/logout",
+          {},
+          {
+            withCredentials: true,
+          }
+        );
       } finally {
         setIsLoading(false);
       }
@@ -132,8 +147,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const { success, message, accessToken, user } = response.data;
 
       if (success) {
+        // Set token in local storage
         localStorage.setItem("token", accessToken);
+        // Set token in cookie for middleware
+        document.cookie = `token=${accessToken}; path=/; max-age=86400; SameSite=Strict`;
+        // Set token in axios headers for future requests
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${accessToken}`;
+        api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+
         setUser(user);
+        console.log("User set after login:", user);
+        // Return the user data for navigation purposes
+        return { user };
       } else {
         throw new Error(message || "Login failed");
       }
@@ -142,7 +169,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         error instanceof Error
           ? error.message
           : (error as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || "Login failed.";
+              ?.data?.message || "Login failed.";
       setError(message);
       throw new Error(message);
     } finally {
@@ -165,7 +192,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         error instanceof Error
           ? error.message
           : (error as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || "Signup failed.";
+              ?.data?.message || "Signup failed.";
       setError(message);
       throw new Error(message);
     } finally {
@@ -176,11 +203,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   // Logout
   const logout = useCallback(async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post("/auth/logout", {}, { withCredentials: true });
     } catch (err) {
       console.warn("Logout error:", err);
     } finally {
+      // Clear token from localStorage
       localStorage.removeItem("token");
+
       setUser(null);
       router.replace("/login");
     }

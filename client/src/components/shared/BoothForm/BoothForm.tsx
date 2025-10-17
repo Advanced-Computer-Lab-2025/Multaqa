@@ -13,10 +13,12 @@ import CustomIcon from "../Icons/CustomIcon";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { submitBoothForm } from "./utils";
+import {useAuth} from "../../../context/AuthContext";
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
   const [selectedBooth, setSelectedBooth] = useState<number | null>(null);
+  const { user } = useAuth();
   const handleBoothSelection = (
     boothId: number,
     setFieldValue: (field: string, value: unknown) => void
@@ -38,7 +40,9 @@ const BoothForm: React.FC = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting, resetForm }) => {
-          const vendorId = "68f17b38fae011215b7cf682"; // TODO: Replace with actual vendorId
+          const vendorId = String(user?._id); 
+          console.log("Submitting booth form for vendor ID:", vendorId);
+          console.log("User data:", user);
           submitBoothForm(values, { setSubmitting, resetForm }, vendorId);
         }}
       >

@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { AuthProvider } from "../../context/AuthContext"; // Update this path to match your actual AuthProvider location
 
 export default async function LocaleLayout({
   children,
@@ -20,7 +21,9 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      {children}
+      <AuthProvider>
+        {children}
+      </AuthProvider>
     </NextIntlClientProvider>
   );
 }

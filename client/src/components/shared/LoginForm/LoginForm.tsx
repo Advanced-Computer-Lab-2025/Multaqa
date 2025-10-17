@@ -10,17 +10,39 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@mui/material/styles";
 import * as Yup from "yup";
 import { useAuth } from "../../../context/AuthContext";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useRouter } from "@/i18n/navigation";
 
 const LoginForm: React.FC = () => {
   const theme = useTheme();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const router = useRouter();
 
   const initialValues = {
     email: "",
     password: "",
+  };
+
+  // Function to determine where to redirect based on user role
+  const getRedirectPath = (role: string) => {
+    console.log("User role for redirection:", role);
+    console.log(typeof role);
+    switch (role) {
+      case "admin":
+        return `/admin/users`;
+      case "student":
+        return `/student`;
+      case "staff":
+        return `/staff`;
+      case "ta":
+        return `/ta/`;
+      case "professor":
+        return `/professor`;
+      case "events-office":
+        return `/events-office`;
+      case "vendor":
+        return `/vendor`;
+    }
   };
 
   return (
@@ -34,11 +56,15 @@ const LoginForm: React.FC = () => {
       })}
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         try {
-          await login(values);
+          const response = await login(values);
           resetForm();
+
+          // Get user info from login response
+          const userRole = response?.user?.role;
+
           toast.success("Login successful! Redirecting...", {
             position: "bottom-right",
-            autoClose: 3000,
+            autoClose: 1500,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -46,7 +72,13 @@ const LoginForm: React.FC = () => {
             progress: undefined,
             theme: "colored",
           });
-          // router.push("/"); //TODO: change to dashboard
+
+          // Short delay for toast to be visible before redirect
+          setTimeout(() => {
+            const redirectPath = getRedirectPath(userRole);
+            console.log("Redirecting to:", redirectPath);
+            router.push(redirectPath);
+          }, 1500);
         } catch (err) {
           console.error("Login error:", err);
           toast.error(

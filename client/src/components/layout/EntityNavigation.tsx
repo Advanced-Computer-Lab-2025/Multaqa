@@ -3,6 +3,7 @@ import SidebarNavigation from "./SidebarNavigation";
 import TopNavigation from "./TopNavigation";
 import Tabs from "./Tabs";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/context/AuthContext";
 import {
   User,
   Calendar,
@@ -58,6 +59,7 @@ type TabItem = {
 type SectionItem = { id: string; label: string };
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
+  
   student: {
     headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
@@ -344,6 +346,7 @@ export default function EntityNavigation({
 }: EntityNavigationProps) {
   const pathname = usePathname() || "";
   const router = useRouter();
+  const { logout } = useAuth();
   const segments = pathname.split("/").filter(Boolean);
   const locale = segments[0] || "en";
   const entity = segments[1] || "";
@@ -389,15 +392,8 @@ export default function EntityNavigation({
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout server logic here
-    // This could include:
-    // - Clearing authentication tokens
-    // - Clearing user session data
-    // - Redirecting to login page
-    console.log("Logout clicked");
-    // Example logout implementation:
-    // localStorage.removeItem('authToken');
-    // router.push('/login');
+    logout();
+    router.replace('/login');
   };
 
   // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
