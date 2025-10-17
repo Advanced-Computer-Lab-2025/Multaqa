@@ -11,6 +11,8 @@ import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
+import { Vendor } from "./schemas/stakeholder-schemas/vendorSchema";
+import cors from "cors";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
