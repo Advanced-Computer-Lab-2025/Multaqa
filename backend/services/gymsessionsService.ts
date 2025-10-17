@@ -17,6 +17,7 @@ export class GymSessionsService {
     data: IGymSessionCreationRequest
   ): Promise<IGymSessionEvent> {
     const [h, m] = data.time.split(":").map(Number);
+    const durationMinutes = Number(data.duration);
 
     // Ensure date is a Date object
     const sessionDate = new Date(data.date);
@@ -35,7 +36,9 @@ export class GymSessionsService {
         sessionDate.getTime() - 24 * 60 * 60 * 1000
       ), // 1 day before
       location: "Gym",
-      description: `${data.sessionType} class instructed by ${data.trainer}`,
+     description: data.trainer
+  ? `${data.sessionType} class instructed by ${data.trainer}`
+  : `${data.sessionType} class`,
       price: 0,
       allowedUsers: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
     });
@@ -52,7 +55,7 @@ export class GymSessionsService {
 
     return this.gymSessionRepo.findAll(filter, {
       select:
-        " sessionType eventName trainer eventStartDate eventStartTime eventEndTime location description"
+        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description"
     });
   }
 }
