@@ -20,7 +20,7 @@ async function getVendorUpcomingEvents(
   res: Response<GetVendorEventsResponse>
 ) {
   try {
-    const vendorId = req.params.id;
+    const vendorId = req.params.vendorId;
     // const vendorId = (req as any).user.id;
 
     const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
@@ -37,27 +37,73 @@ async function getVendorUpcomingEvents(
   }
 }
 
-async function applyToBazaarOrBooth(
+async function applyToBooth(
   req: Request,
   res: Response<ApplyToBazaarOrBoothResponse>
 ) {
-  // const vendorId = (req as any).user.id;
   const { vendorId, eventId } = req.params;
   const validatedData = validateCreateApplicationData(req.body);
-  const applicationResult = await vendorEventsService.applyToBazaarOrBooth(
+
+  // Handle validation errors
+  if (validatedData.error) {
+    throw createError(400, validatedData.error.message);
+  }
+
+  // Ensure this is a platform booth application
+  if (validatedData.value.eventType !== "platform_booth") {
+    throw createError(
+      400,
+      "Invalid event type. Expected platform booth application"
+    );
+  }
+
+  const applicationResult = await vendorEventsService.applyToPlatformBooth(
+    vendorId,
+    validatedData
+  );
+
+  if (!applicationResult) {
+    throw createError(400, "Platform booth application failed");
+  }
+
+  res.status(200).json({
+    success: true,
+    data: applicationResult,
+    message: "Platform booth application successful",
+  });
+}
+
+async function applyToBazaar(
+  req: Request,
+  res: Response<ApplyToBazaarOrBoothResponse>
+) {
+  const { vendorId, eventId } = req.params;
+  const validatedData = validateCreateApplicationData(req.body);
+
+  // Handle validation errors
+  if (validatedData.error) {
+    throw createError(400, validatedData.error.message);
+  }
+
+  // Ensure this is a bazaar application
+  if (validatedData.value.eventType !== "bazaar") {
+    throw createError(400, "Invalid event type. Expected bazaar application");
+  }
+
+  const applicationResult = await vendorEventsService.applyToBazaar(
     vendorId,
     eventId,
     validatedData
   );
 
   if (!applicationResult) {
-    throw createError(400, "Application failed");
+    throw createError(400, "Bazaar application failed");
   }
 
   res.status(200).json({
     success: true,
     data: applicationResult,
-    message: "Application successful",
+    message: "Bazaar application successful",
   });
 }
 
@@ -66,7 +112,7 @@ async function getVendorsRequests(
   res: Response<GetVendorsRequestResponse>
 ) {
   try {
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
     const requests = await vendorEventsService.getVendorsRequest(eventId);
 
     res.json({
@@ -87,8 +133,8 @@ async function getVendorRequestsDetails(
   res: Response<GetVendorRequestDetailsResponse>
 ) {
   try {
-    const eventId = req.params.id;
-    const vendorId = req.params.vendorid;
+    const eventId = req.params.eventId;
+    const vendorId = req.params.vendorId;
     const request = await vendorEventsService.getVendorsRequestsDetails(
       eventId,
       vendorId
@@ -112,8 +158,8 @@ async function updateVendorRequest(
   res: Response<RespondToVendorRequestResponse>
 ) {
   try {
-    const eventId = req.params.eventid;
-    const vendorId = req.params.vendorid;
+    const eventId = req.params.eventId;
+    const vendorId = req.params.vendorId;
     const { status } = req.body;
 
     if (!eventId || !vendorId || !status) {
@@ -172,24 +218,20 @@ async function getAvailableBooths(
 
 const router = Router();
 
-router.get(
-  "/available-booths",
-  authorizeRoles({
-    userRoles: [UserRole.VENDOR],
-  }),
-  getAvailableBooths
-);
-
+// Single parameter routes
 router.get(
   "/:vendorId",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   getVendorUpcomingEvents
 );
+
 router.post(
-  "/:vendorId/:eventId/applications",
+  "/:vendorId/booth",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
-  applyToBazaarOrBooth
+  applyToBooth
 );
+
+// Two parameter routes
 router.get(
   "/:eventId/vendor-requests",
   authorizeRoles({
@@ -201,6 +243,14 @@ router.get(
   }),
   getVendorsRequests
 );
+
+router.post(
+  "/:vendorId/:eventId/bazaar",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  applyToBazaar
+);
+
+// Two parameters with complex paths
 router.get(
   "/:eventId/vendor-requests/:vendorId",
   authorizeRoles({
@@ -212,6 +262,7 @@ router.get(
   }),
   getVendorRequestsDetails
 );
+
 router.patch(
   "/:eventId/vendor-requests/:vendorId",
   authorizeRoles({

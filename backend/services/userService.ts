@@ -122,4 +122,15 @@ export class UserService {
     user.status = UserStatus.BLOCKED;
     await user.save();
   }
+
+  async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
+    const professors = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.PROFESSOR, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status",
+      }
+    );
+   return professors.map(prof => prof.toObject());
+  }
 }

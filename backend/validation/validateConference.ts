@@ -6,14 +6,13 @@ export function validateConference(data: any) {
 
     // Base event fields
     eventName: Joi.string().min(3).max(300).required(),
-    location: Joi.string().allow("").default("").optional(),
+    location: Joi.string().valid("").required(),
     eventStartDate: Joi.date().required(),
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).required(),
-    registrationDeadline: Joi.date().required(),
+    registrationDeadline: Joi.date().required().default(new Date()),
     eventStartTime: Joi.string().required(),
     eventEndTime: Joi.string().required(),
     description: Joi.string().required(),
-    price: Joi.number().min(0).required(),
 
     // Conference-specific fields
     fullAgenda: Joi.string().required(),

@@ -48,15 +48,68 @@ export class VendorEventsService {
   }
 
   /**
-   * This method allows a vendor to apply to either a bazaar or a platform booth event
-   * adds to the vendor and event documents accordingly with a default status of PENDING.
-   * @param vendorId  vendor's ID
-   * @param eventId event's ID
+   * This method allows a vendor to apply to a platform booth event
+   * @param vendorId vendor's ID
    * @param data validated form data
-   * @param eventType type of event ("bazaar" or "platformBooth")
-   * @returns updated vendor & event document, or null if operation fails
+   * @returns updated vendor & event document
    */
-  async applyToBazaarOrBooth(
+  async applyToPlatformBooth(
+    vendorId: string,
+    data: any
+  ): Promise<IApplicationResult> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    // Default status
+    const applicationStatus = Event_Request_Status.PENDING;
+
+    // Create a new platform booth event for this vendor
+    const event = await this.eventRepo.create({
+      type: EVENT_TYPES.PLATFORM_BOOTH,
+      eventName: `${vendor.companyName} Booth`,
+      vendor: vendorId,
+      RequestData: { ...data.value, status: applicationStatus },
+      archived: false,
+      attendees: [],
+      allowedUsers: [],
+      registrationDeadline: new Date(),
+      // Set default dates based on booth setup duration
+      eventStartDate: new Date(), // TODO: Calculate proper start date
+      eventEndDate: new Date(
+        Date.now() + data.value.boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+      ),
+      eventStartTime: "09:00",
+      eventEndTime: "18:00",
+      location: data.value.boothLocation,
+      description: `Platform booth for ${vendor.companyName}`,
+    });
+
+    // Add request to vendor's requestedEvents
+    vendor.requestedEvents.push({
+      event: event._id as string,
+      RequestData: data.value,
+      status: applicationStatus,
+    });
+
+    await vendor.save();
+
+    return {
+      vendor,
+      event,
+      applicationStatus,
+    };
+  }
+
+  /**
+   * This method allows a vendor to apply to a bazaar event
+   * @param vendorId vendor's ID
+   * @param eventId bazaar event's ID
+   * @param data validated form data
+   * @returns updated vendor & event document
+   */
+  async applyToBazaar(
     vendorId: string,
     eventId: string,
     data: any
@@ -68,68 +121,25 @@ export class VendorEventsService {
       throw createError(404, "Vendor or Event not found");
     }
 
+    if (event.type !== EVENT_TYPES.BAZAAR) {
+      throw createError(400, "Event is not a bazaar");
+    }
+
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Add request to vendor
+    // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
       event: eventId,
-      RequestData: data,
+      RequestData: data.value,
       status: applicationStatus,
     });
 
-    // Add request to event depending on its type
-    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
-      if (data.value.eventType === EVENT_TYPES.BAZAAR) {
-        throw createError(
-          400,
-          "Mismatched event type in RequestData for platform booth application"
-        );
-      }
-
-      //create a new PlatformBooth event for this vendor with status pending
-      await this.platformBoothRepo.create({
-        eventName: vendor.companyName + " Booth",
-        type: EVENT_TYPES.PLATFORM_BOOTH,
-        archived: false,
-        attendees: [],
-        allowedUsers: [],
-        reviews: [],
-        //TODO FIGURE OUT THE DATES
-        eventStartDate: new Date(), // You may want to set this dynamically
-        eventEndDate: new Date(), // Placeholder far future date
-        eventStartTime: "09:00", // Set as needed
-        eventEndTime: "18:00", // Set as needed
-        registrationDeadline: new Date(), // Set as needed
-        location: "GUC", // Set as needed
-        description: "Platform booth event for vendor",
-        vendor: vendorId,
-        RequestData: {
-          boothSetupDuration: data.value.boothSetupDuration,
-          boothLocation: data.value.boothLocation,
-          boothAttendees: data.value.boothAttendees,
-          boothSize: data.value.boothSize,
-          status: applicationStatus,
-        },
-      });
-    } else if (event.type === EVENT_TYPES.BAZAAR) {
-      if (data.value.eventType === EVENT_TYPES.PLATFORM_BOOTH) {
-        throw createError(
-          400,
-          "Mismatched event type in RequestData for bazaar application"
-        );
-      }
-
-      event.vendors?.push({
-        vendor: vendorId,
-        RequestData: { ...data.value, status: applicationStatus },
-      });
-    } else {
-      throw createError(
-        400,
-        "Invalid Event Type, must be 'bazaar' or 'platform_booth'"
-      );
-    }
+    // Add vendor to bazaar's vendors list
+    event.vendors?.push({
+      vendor: vendorId,
+      RequestData: { ...data.value, status: applicationStatus },
+    });
 
     await event.save();
     await vendor.save();

@@ -10,6 +10,7 @@ const gymSessionSchema = new Schema({
     required: true,
   },
   capacity: { type: Number, min: 1, default: 10, required: true },
+  duration: { type: Number, min: 1, default: 60, required: true }, 
 });
 
 export const GymSession = Event.discriminator("gym_session", gymSessionSchema);

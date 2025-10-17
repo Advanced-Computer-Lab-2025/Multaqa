@@ -3,6 +3,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { ManagementScreenProps } from "../types";
 import { useTheme } from "@mui/material/styles";
 
@@ -28,38 +29,7 @@ export default function ManagementScreen<T>({
 }: ManagementScreenProps<T>) {
   const theme = useTheme();
   return (
-    <Box
-      sx={{
-        p: 4,
-        backgroundColor: "transparent",
-        minHeight: "100vh",
-        fontFamily: "var(--font-poppins), system-ui, sans-serif",
-      }}
-    >
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-            fontWeight: 700,
-            color: "text.primary",
-            mb: 1,
-          }}
-        >
-          {pageTitle}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#757575",
-            fontFamily: "var(--font-poppins), system-ui, sans-serif",
-          }}
-        >
-          {pageSubtitle}
-        </Typography>
-      </Box>
-
+    <ContentWrapper title={pageTitle} description={pageSubtitle}>
       <Box
         sx={{
           maxWidth: "1200px",
@@ -162,6 +132,6 @@ export default function ManagementScreen<T>({
           )}
         </Box>
       </Box>
-    </Box>
+    </ContentWrapper>
   );
 }
