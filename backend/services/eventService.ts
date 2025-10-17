@@ -90,6 +90,16 @@ if (location) filter.location = { $regex: new RegExp(location, "i") };
     return events;
   }
 
+  async getAllWorkshops(): Promise<IEvent[]> {
+    const filter: any = { type: EVENT_TYPES.WORKSHOP };
+    return this.eventRepo.findAll(filter, {
+      populate: [
+        { path: "associatedProfs", select: "firstName lastName email" },
+        { path: "attendees", select: "firstName lastName email gucId " },
+      ] as any,
+    });
+  }
+
   async getEventById(id: string): Promise<IEvent | null> {
     const options = {
       populate: [
