@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import theme from "@/themes/lightTheme";
-import WorkshopItemCard from "./WorkshopItemCard";
-import { EventType } from "../BrowseEvents/browse-events";
+import WorkshopItemCard from "@/components/EventsOffice/WorkshopItemCard";
+import { EventType } from "@/components/BrowseEvents/browse-events";
 
 const demoData: any[] = [
   {
@@ -56,50 +56,54 @@ const demoData: any[] = [
   },
 ];
 
-interface WorkshopRequestsProps {
-  setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
-  setSpecificWorkshop: React.Dispatch<React.SetStateAction<string>>;
+interface WorkshopListProps {
+  userId: string;
 }
 
-const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
-  setEvaluating,
-  setSpecificWorkshop,
-}) =>  {
-
+const WorkshopList: React.FC<WorkshopListProps> = ({ userId }) => {
+  const [workshops, setWorkshops] = useState(demoData);
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
-       Workshop Requests
-      </Typography>
-        <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
-          Here are all workshop requests. Make sure to evaluate wisely.
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            mb: 2,
+            textAlign: 'left',
+            fontFamily: "var(--font-jost), system-ui, sans-serif",
+            color: theme.palette.tertiary.dark
+          }}
+        >
+          Your Workshops
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#757575",
+            fontFamily: "var(--font-poppins)",
+            mb: 4
+          }}
+        >
+          Here are all the workshops you have created. Thanks for your continuous effort!
         </Typography>
       </Box>
 
       <Stack spacing={2}>
-        {demoData.map((item) => (
+        {workshops.map((item) => (
           <WorkshopItemCard
-            id={item.id}  
+            id={item.id}
             key={item.id}
             item={item}
-            rightSlot={
-              <CustomButton
-                size="small"
-                variant="contained"
-                color="tertiary"
-                onClick={() => {setEvaluating(true); setSpecificWorkshop(item.id)}}
-                label="View & Evaluate"
-                width="auto"
-                height="32px"
-              />
-            }
+            userId={userId}
           />
         ))}
       </Stack>
     </Box>
   );
-}
+};
 
-export default WorkshopRequests;
+export default WorkshopList;
+

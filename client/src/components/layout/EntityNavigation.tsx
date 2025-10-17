@@ -159,6 +159,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultSection: "create-workshop",
     tabs: [
       {
+        key: "workshops",
+        label: "Workshops",
+        icon: Calendar,
+        sections: [
+          { id: "my-workshops", label: "My Workshops" },
+        ],
+      },
+      {
         key: "events",
         label: "Events",
         icon: Calendar,
@@ -278,7 +286,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "event-office",
-        label: "Event Office Accounts",
+        label: "Accounts Hub",
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },

@@ -7,9 +7,11 @@ import { WorkshopViewProps } from "../Event/types";
 import theme from "@/themes/lightTheme";
 
 type Props = {
-  item: WorkshopViewProps,
+  id: string;
+  item: WorkshopViewProps;
   rightSlot?: React.ReactNode;
   expanded?: boolean;
+  userId?:string;
 };
 
 
@@ -32,7 +34,7 @@ type Props = {
   };
 
 
-export default function WorkshopItemCard({ item, rightSlot, expanded = false }: Props) {
+export default function WorkshopItemCard({ item, rightSlot, expanded = false , userId}: Props) {
 
   // Parse professors string into array
  const professorString = item.details["Professors Participating"] || "";

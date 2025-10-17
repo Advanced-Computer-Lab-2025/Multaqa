@@ -16,6 +16,7 @@ import GymSchedule from "@/components/gym/GymSchedule";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
 import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
 import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
+import WorkshopList from "@/components/shared/Professor/WorkshopList";
 
 
 
@@ -32,9 +33,15 @@ export default function EntityCatchAllPage() {
   const section = segments[3] || "";
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState('');
+  console.log(entity)
+  console.log(tab)
+  console.log(section)
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+     if(entity==="professor" && tab==="workshops" && section === "my-workshops"){
+        <WorkshopList userId="123"/>
+    }
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {
@@ -63,7 +70,6 @@ export default function EntityCatchAllPage() {
         return <CourtsBookingContent />;
       }
     }
-
     // Gym sessions for stakeholders
     if (["student", "staff", "ta", "professor"].includes(entity) && tab === "gym") {
       if (section === "browse-sessions" || section === "") {
