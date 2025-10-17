@@ -39,7 +39,7 @@ async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
 }
 
 async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
-  try {
+  //try {
     const user = await userService.getUserById(req.params.id);
     if (!user) {
       throw createError(404, "User not found");
@@ -49,9 +49,9 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
       data: user,
       message: "User retrieved successfully",
     });
-  } catch (err: any) {
-    throw createError(500, err.message);
-  }
+  // } catch (err: any) {
+  //   throw createError(500, err.message);
+  // }
 }
 
 // this will come back in sprint 2 guys (Stripe API)

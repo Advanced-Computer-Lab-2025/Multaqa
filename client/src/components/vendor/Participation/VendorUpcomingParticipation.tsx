@@ -1,35 +1,59 @@
 "use client";
 
-import React, { useState } from "react";
-import { Box, Typography, Stack } from "@mui/material";
-import CustomButton from "@/components/shared/Buttons/CustomButton";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Stack, Alert } from "@mui/material";
 import VendorItemCard from "./VendorItemCard";
 import { VendorParticipationItem } from "./types";
 import theme from "@/themes/lightTheme";
+import { api } from "@/api";
 
-const demoData: VendorParticipationItem[] = [
-  {
-    id: "e1",
-    title: "Spring Campus Bazaar",
-    type: "BAZAAR",
-    location: "Main Courtyard",
-    startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    endDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "e2",
-    title: "Tech Hall Booth Setup",
-    type: "PLATFORM_BOOTH",
-    location: "Tech Hall A3",
-    startDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    setupDurationWeeks: 2,
-  },
-];
+
+
+// Map simple event types to participation items
+const mapRequestedEventToParticipation = (item: any, vendorId: string): VendorParticipationItem | null => {
+  const event = item?.event ?? {};
+  const typeRaw = typeof event?.type === "string" ? event.type.toLowerCase() : "";
+  const isBazaar = typeRaw === "bazaar";
+
+  // Determine the status (top-level or nested RequestData)
+  const rawStatus = item?.status ?? item?.RequestData?.status ?? item?.RequestData?.value?.status ?? "pending";
+  const status = String(rawStatus).toLowerCase();
+  if (status !== "approved" && status !== "accepted") return null; // only upcoming participations
+
+  const startDate = typeof event?.eventStartDate === "string" ? event.eventStartDate : new Date().toISOString();
+  const endDate = typeof event?.eventEndDate === "string" ? event.eventEndDate : undefined;
+
+  const id = event?._id ?? item?._id ?? Math.random().toString(36).slice(2);
+  const title = event?.eventName ?? "";
+  const location = event?.location ?? "";
+
+  const participation: VendorParticipationItem = {
+    id: String(id),
+    title,
+    type: isBazaar ? "BAZAAR" : "PLATFORM_BOOTH",
+    location,
+    startDate,
+  };
+
+  if (isBazaar && endDate) participation.endDate = endDate;
+
+  if (!isBazaar) {
+    const rawDuration = item?.RequestData?.boothSetupDuration ?? item?.RequestData?.value?.boothSetupDuration;
+    const numeric = Number(rawDuration);
+    if (!Number.isNaN(numeric)) participation.setupDurationWeeks = numeric;
+  }
+
+  return participation;
+};
 
 export default function VendorUpcomingParticipation() {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<unknown>(null);
+  const [items, setItems] = useState<VendorParticipationItem[]>([]);
 
   const toggle = (id: string) => setOpenId((prev) => (prev === id ? null : id));
+
   const renderDetails = (item: VendorParticipationItem) => (
     <Stack spacing={1}>
       <Typography variant="body2" sx={{ color: "#1E1E1E" }}>
@@ -45,6 +69,46 @@ export default function VendorUpcomingParticipation() {
 
   // Shared presentation (type chips, location, date range) handled by VendorItemCard
 
+  useEffect(() => {
+    let cancelled = false;
+    const vendorId = "68f17b38fae011215b7cf682"; // TODO: replace with localStorage retrieval when available
+    if (!vendorId) return;
+
+    const fetchUpcoming = async () => {
+      setError(null);
+      try {
+        const res = await api.get(`/users/${vendorId}`);
+        const payloadRoot = res.data?.data ?? res.data;
+        const requested = payloadRoot?.requestedEvents ?? [];
+        const mapped = (Array.isArray(requested) ? requested : []).map((r: any) => mapRequestedEventToParticipation(r, vendorId)).filter(Boolean) as VendorParticipationItem[];
+
+        if (!cancelled) {
+          const unique = new Map<string, VendorParticipationItem>();
+          mapped.forEach((p) => {
+            if (!unique.has(p.id)) unique.set(p.id, p);
+          });
+          setItems(Array.from(unique.values()));
+        }
+      } catch (err: any) {
+        if (cancelled) return;
+        if (err?.response?.status === 404) {
+          setItems([]);
+          setError(null);
+          return;
+        }
+        setError(err?.response?.data?.message ?? err?.message ?? "Failed to load upcoming participations");
+        setItems([]);
+      }
+    };
+
+
+    fetchUpcoming();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
@@ -55,25 +119,17 @@ export default function VendorUpcomingParticipation() {
           Here are the bazaars or platform booths you’re participating in.
         </Typography>
       </Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+      )}
 
       <Stack spacing={2}>
-        {demoData.map((item) => (
+        {(items.length ? items : []).map((item) => (
           <VendorItemCard
             key={item.id}
             item={item}
             expanded={openId === item.id}
             details={renderDetails(item)}
-            // rightSlot={
-              // <CustomButton
-              //   size="small"
-              //   variant={openId === item.id ? "outlined" : "contained"}
-              //   color="primary"
-              //   onClick={() => toggle(item.id)}
-              //   label={openId === item.id ? "Hide Details" : "View Details"}
-              //   width="auto"
-              //   height="32px"
-              // />
-            // }
           />
         ))}
       </Stack>

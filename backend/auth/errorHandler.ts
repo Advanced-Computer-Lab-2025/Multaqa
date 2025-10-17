@@ -32,6 +32,7 @@ export const errorHandler = (
     };
     if (process.env.NODE_ENV === "development") response.stack = err.stack;
     res.status(400).json(response);
+    return;
   }
 
   // Handle Mongoose CastError (e.g., invalid ObjectId)
@@ -44,6 +45,7 @@ export const errorHandler = (
     };
     if (process.env.NODE_ENV === "development") response.stack = err.stack;
     res.status(400).json(response);
+    return;
   }
 
   // Handle Mongoose duplicate key error
@@ -57,6 +59,7 @@ export const errorHandler = (
     };
     if (process.env.NODE_ENV === "development") response.stack = err.stack;
     res.status(409).json(response);
+    return;
   }
 
   // If not an HttpError, convert to one
@@ -76,6 +79,7 @@ export const errorHandler = (
   };
   if (process.env.NODE_ENV === "development") response.stack = err.stack;
   res.status(statusCode).json(response);
+  return;
 };
 
 // Async handler wrapper for routes
