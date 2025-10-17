@@ -55,7 +55,10 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
 }
 
 // this will come back in sprint 2 guys (Stripe API)
-async function registerForEvent(req: Request, res: Response<RegisterUserResponse>) {
+async function registerForEvent(
+  req: Request,
+  res: Response<RegisterUserResponse>
+) {
   const { eventId, id } = req.params;
 
   const validatedData = validateEventRegistration(req.body);
@@ -66,11 +69,7 @@ async function registerForEvent(req: Request, res: Response<RegisterUserResponse
     );
   }
 
-  const updatedEvent = await eventsService.registerUserForEvent(
-    eventId,
-    validatedData.value,
-    id
-  );
+  const updatedEvent = await eventsService.registerUserForEvent(eventId, id);
 
   await userService.addEventToUser(
     id,
@@ -103,25 +102,99 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
     const { userId } = req.params;
     const { position } = req.body;
 
-    const result = await userService.assignRoleAndSendVerification(userId, position);
+    const result = await userService.assignRoleAndSendVerification(
+      userId,
+      position
+    );
 
     res.json({
       success: true,
       message: "Role assigned and verification email sent successfully",
-      user: result
+      user: result,
     });
   } catch (error: any) {
-    throw createError(error.status || 500, error.message || 'Failed to assign role and send verification email');
+    throw createError(
+      error.status || 500,
+      error.message || "Failed to assign role and send verification email"
+    );
   }
 }
 
+  async function getAllProfessors(req: Request, res: Response<GetAllUsersResponse>) {
+    try {
+      const professors = await userService.getAllProfessors();
+      if (!professors || professors.length === 0) {
+        throw createError(404, "No professors found");
+      }
+      res.json({
+        success: true,
+        data: professors,
+        message: "Professors retrieved successfully",
+      });
+    } catch (err: any) {
+      if (err.status || err.statusCode) {
+        throw err;
+      }
+      throw createError(500, err.message);
+    }
+  }
+
+
 const router = Router();
 
-router.get("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllUsers);
-router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getUserById);
-router.post("/:id/block", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), blockUser);
-router.post('/:userId/assign-role', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), assignRole);
-router.post("/:id/register/:eventId", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.TA, StaffPosition.STAFF] }), registerForEvent);
 
+
+router.get(
+  "/",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllUsers
+);
+router.get(
+"/professors",
+ authorizeRoles({
+  userRoles: [ UserRole.STAFF_MEMBER], 
+  staffPositions: [StaffPosition.PROFESSOR],
+}),
+ getAllProfessors
+);
+router.post(
+  "/:id/block",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  blockUser
+);
+router.post(
+  "/:id/register/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  registerForEvent
+);
+router.post(
+  "/:userId/assign-role",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  assignRole
+);
+router.get(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getUserById
+);
 
 export default router;

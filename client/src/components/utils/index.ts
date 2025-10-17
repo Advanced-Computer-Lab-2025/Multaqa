@@ -9,3 +9,11 @@ export const resolveButtonPalette = (
   if (!color || color === "inherit") return theme.palette.primary;
   return theme.palette[color];
 };
+
+// export default function extractEntity(){
+//   const params = useParams();
+//   const entity = params.entity;
+//   const userRole = mapEntityToRole(entity);
+//   return userRole;
+// }
+

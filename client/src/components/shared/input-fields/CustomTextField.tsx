@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import NeumorphicBox from '../containers/NeumorphicBox';
-import { CustomTextFieldProps } from './types';
-import { StyledTextField } from './styles/StyledTextField';
-import StyledDefaultTextField from './styles/StyledDefaultTextField';
+import NeumorphicBox from "../containers/NeumorphicBox";
+import { CustomTextFieldProps } from "./types";
+import { StyledTextField } from "./styles/StyledTextField";
+import StyledDefaultTextField from "./styles/StyledDefaultTextField";
 import {
   createLabelWithIcon,
   getEmailEndAdornment,
@@ -16,7 +16,7 @@ import {
   createBlurHandler,
   capitalizeName,
   getEmailDomain,
-} from './utils';
+} from "./utils";
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
   label,
@@ -27,6 +27,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   disableDynamicMorphing = true,
   autoCapitalizeName = true,
   separateLabels = false,
+  disableIcon = false,
   value,
   onChange,
   ...props
@@ -39,17 +40,20 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   // This prevents the domain from being accidentally merged into the editable value
   // when the stakeholderType toggles between vendor (no domain) and non-vendor (domain).
   React.useEffect(() => {
-    if (fieldType !== 'email') return;
+    if (fieldType !== "email") return;
 
-  const domain = (stakeholderType && stakeholderType !== 'vendor') ? (getEmailDomain(stakeholderType) as string) : '';
-    const current = String(value || '');
+    const domain =
+      stakeholderType && stakeholderType !== "vendor"
+        ? (getEmailDomain(stakeholderType) as string)
+        : "";
+    const current = String(value || "");
 
     // If switching to vendor: remove any domain from the stored value and notify parent
-    if (stakeholderType === 'vendor') {
+    if (stakeholderType === "vendor") {
       // Remove any @ and domain suffix
-      const usernameOnly = current.split('@')[0];
+      const usernameOnly = current.split("@")[0];
       // If parent value still contains a domain, call onChange with cleaned value
-      if (current.includes('@')) {
+      if (current.includes("@")) {
         if (onChange) {
           const syntheticEvent = {
             target: {
@@ -65,14 +69,16 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
     // For non-vendor stakeholder types: extract username portion from value so separateLabels shows only username
     if (domain) {
-      const username = current.split('@')[0];
+      const username = current.split("@")[0];
       setEmailUsername(username);
     }
   }, [stakeholderType, value, fieldType, onChange]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
   };
 
@@ -80,22 +86,35 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Handle email fields
     if (fieldType === "email") {
-      handleEmailInputChange(event, fieldType, stakeholderType, setEmailUsername, onChange);
+      handleEmailInputChange(
+        event,
+        fieldType,
+        stakeholderType,
+        setEmailUsername,
+        onChange
+      );
     }
     // Handle text fields with name capitalization
     else if (fieldType === "text" && autoCapitalizeName) {
       const inputValue = event.target.value;
-      const capitalizedValue = capitalizeName(inputValue);
+      // Preserve spaces during typing (true), normalize on blur (handled in blur handler)
+      const capitalizedValue = capitalizeName(inputValue, true);
 
       if (onChange) {
-        const syntheticEvent = {
-          ...event,
-          target: {
-            ...event.target,
-            value: capitalizedValue
-          }
-        } as React.ChangeEvent<HTMLInputElement>;
-        onChange(syntheticEvent);
+        // Only create synthetic event if value actually changed to avoid unnecessary updates
+        if (inputValue !== capitalizedValue) {
+          const syntheticEvent = {
+            ...event,
+            target: {
+              ...event.target,
+              value: capitalizedValue,
+            },
+          } as React.ChangeEvent<HTMLInputElement>;
+          onChange(syntheticEvent);
+        } else {
+          // Pass through the original event if no capitalization needed
+          onChange(event);
+        }
       }
     }
     // Handle all other fields normally
@@ -112,14 +131,21 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   };
 
   // Create label with icon
-  const labelWithIcon = createLabelWithIcon(label, fieldType);
+  const labelWithIcon = createLabelWithIcon(label, fieldType, !disableIcon);
 
   // Get the appropriate endAdornment based on field type
   const getEndAdornment = () => {
     if (fieldType === "email" && stakeholderType !== "vendor") {
-      return getEmailEndAdornment(stakeholderType);
+      return getEmailEndAdornment(
+        stakeholderType,
+        props.error || props.isError
+      );
     } else if (fieldType === "password") {
-      return getPasswordEndAdornment(showPassword, handleClickShowPassword, handleMouseDownPassword);
+      return getPasswordEndAdornment(
+        showPassword,
+        handleClickShowPassword,
+        handleMouseDownPassword
+      );
     }
     return undefined;
   };
@@ -133,19 +159,38 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     stakeholderType,
     value,
     emailUsername,
-    onChange
+    onChange,
+    autoCapitalizeName
   );
 
   // Get the display value for email fields
   const getDisplayValue = () => {
-    return getEmailDisplayValue(value, fieldType, stakeholderType, emailUsername);
+    return getEmailDisplayValue(
+      value,
+      fieldType,
+      stakeholderType,
+      emailUsername
+    );
+  };
+
+  // Map custom fieldType to HTML input type
+  const getInputType = () => {
+    if (fieldType === "password") {
+      return showPassword ? "text" : "password";
+    }
+    // Use text type for numeric and phone fields to avoid browser restrictions
+    // Validation is handled by pattern attributes and on submit
+    if (fieldType === "email") {
+      return "email";
+    }
+    return props.type || "text";
   };
 
   return (
     <>
       {separateLabels ? (
         <StyledDefaultTextField
-          label={label}
+          label={!disableIcon ? label : undefined}
           fieldType={fieldType}
           placeholder={props.placeholder}
           value={getDisplayValue()}
@@ -153,53 +198,92 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyPress={handleKeyPress}
-          type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+          type={getInputType()}
           disabled={props.disabled || false}
           autoCapitalizeName={autoCapitalizeName}
           neumorphicBox={neumorphicBox}
           disableDynamicMorphing={disableDynamicMorphing}
           stakeholderType={stakeholderType}
           separateLabels={separateLabels}
+          disableIcon={disableIcon}
         />
       ) : (
         <>
           {neumorphicBox ? (
-            <NeumorphicBox
-              containerType={disableDynamicMorphing ? "outwards" : (isFocused ? "inwards" : "outwards")}
-              padding="2px"
-              borderRadius="50px"
-              width="100%"
-            >
-              <StyledTextField
-                {...props}
-                fullWidth
-                label={labelWithIcon}
-                fieldType={fieldType}
-                stakeholderType={stakeholderType}
-                neumorphicBox={neumorphicBox}
-                variant="outlined"
-                size="small"
-                type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
-                value={getDisplayValue()}
-                onChange={handleChange}
-                onKeyPress={handleKeyPress}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                InputProps={{
-                  endAdornment: getEndAdornment(),
-                  ...InputProps,
-                }}
-              />
-            </NeumorphicBox>
+            <div style={{ width: "100%" }}>
+              <NeumorphicBox
+                containerType={
+                  disableDynamicMorphing
+                    ? "outwards"
+                    : isFocused
+                    ? "inwards"
+                    : "outwards"
+                }
+                padding="2px"
+                borderRadius="50px"
+                width="100%"
+              >
+                <StyledTextField
+                  {...props}
+                  fullWidth
+                  label={!disableIcon ? labelWithIcon : props.placeholder || ""}
+                  placeholder={disableIcon ? undefined : props.placeholder}
+                  fieldType={fieldType}
+                  stakeholderType={stakeholderType}
+                  neumorphicBox={neumorphicBox}
+                  variant="outlined"
+                  size="small"
+                  type={getInputType()}
+                  value={getDisplayValue()}
+                  onChange={handleChange}
+                  onKeyPress={handleKeyPress}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  // Don't show helperText inside the box
+                  helperText=""
+                  InputProps={{
+                    endAdornment: getEndAdornment(),
+                    ...InputProps,
+                  }}
+                  // Add inputMode attributes for better mobile keyboard support
+                  inputProps={{
+                    ...(fieldType === "numeric" && {
+                      inputMode: "numeric" as const,
+                    }),
+                    ...(fieldType === "numeric-float" && {
+                      inputMode: "decimal" as const,
+                    }),
+                    ...(fieldType === "phone" && { inputMode: "tel" as const }),
+                  }}
+                />
+              </NeumorphicBox>
+              {/* Render error/helperText outside the neumorphic box */}
+              {props.error && props.helperText && (
+                <p
+                  style={{
+                    color: "#d32f2f",
+                    fontSize: "0.75rem",
+                    marginTop: "3px",
+                    marginLeft: "14px",
+                    marginRight: "14px",
+                    fontWeight: 400,
+                    lineHeight: 1.66,
+                  }}
+                >
+                  {props.helperText}
+                </p>
+              )}
+            </div>
           ) : (
             <StyledTextField
               {...props}
               fullWidth
-              label={labelWithIcon}
+              label={!disableIcon ? labelWithIcon : props.placeholder || ""}
+              placeholder={disableIcon ? undefined : props.placeholder}
               fieldType={fieldType}
               stakeholderType={stakeholderType}
               variant="standard"
-              type={fieldType === "password" ? (showPassword ? "text" : "password") : props.type}
+              type={getInputType()}
               value={getDisplayValue()}
               onChange={handleChange}
               onKeyPress={handleKeyPress}
@@ -208,6 +292,16 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
               InputProps={{
                 endAdornment: getEndAdornment(),
                 ...InputProps,
+              }}
+              // Add inputMode attributes for better mobile keyboard support
+              inputProps={{
+                ...(fieldType === "numeric" && {
+                  inputMode: "numeric" as const,
+                }),
+                ...(fieldType === "numeric-float" && {
+                  inputMode: "decimal" as const,
+                }),
+                ...(fieldType === "phone" && { inputMode: "tel" as const }),
               }}
             />
           )}

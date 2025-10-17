@@ -13,17 +13,15 @@ export function validateUpdateConference(data: any) {
     eventStartTime: Joi.string().optional(),
     eventEndTime: Joi.string().optional(),
     description: Joi.string().optional(),
-    price: Joi.number().min(0).optional(),
 
     // Conference-specific fields
-    keynoteSpeaker: Joi.string().optional(),
+
     fullAgenda: Joi.string().optional(),
     websiteLink: Joi.string().uri().optional(),
     requiredBudget: Joi.number().min(0).optional(),
     fundingSource: Joi.string().valid("external", "GUC").optional(),
     extraRequiredResources: Joi.array().items(Joi.string()).optional(),
-    topics: Joi.array().items(Joi.string()).optional(),
-  }).min(1); // ensures at least one field is provided for update
+  }); // ensures at least one field is provided for update
 
   return schema.validate(data);
 }
