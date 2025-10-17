@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState , useEffect, use } from 'react'
 import {useFormik, Formik} from 'formik'
 
 import { Chip, Grid, InputAdornment, TextField, Typography, Box } from '@mui/material'
@@ -31,9 +31,33 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loadingProfessors, setLoadingProfessors] = useState(true);
 
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
+  const [mprofessors, setProfessors] = useState<any[]>([]);
+
+  useEffect(() => {
+    //Runs only on the first render
+    handleLoadProfessors();
+  }, []);
+
+  const handleLoadProfessors = async () => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+        // TODO: Replace with your API route
+        const res = await api.get("/users/professors");
+        setResponse(res.data);
+        console.log(res.data);
+        setLoadingProfessors(false);
+    } catch (err: any) {
+        setError(err?.message || "API call failed");
+    } finally {
+        setLoading(false);
+    }
+  };
 
   const initialValues ={
       workshopName: "",
@@ -421,7 +445,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors}: CreateWorkshopProps
           </Grid>
         </Grid>
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "Submitting" : 'Create Workshop'} variant='contained' color='primary' fullWidth  type='submit'/>
+            <CustomButton disabled={isSubmitting  || loadingProfessors} label={isSubmitting ? "Submitting" : 'Create Workshop'} variant='contained' color='primary' fullWidth  type='submit'/>
         </Box>
       </form>          
     </>
