@@ -55,6 +55,7 @@ export interface CustomSelectFieldProps {
 }
 
 export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "children"> {
+  name: string;
   fieldType: FieldType;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
