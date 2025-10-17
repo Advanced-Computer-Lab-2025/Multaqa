@@ -21,7 +21,7 @@ export interface IEvent extends Document {
   location: string;
   description: string;
   isPassed: boolean;
-  price: number;
+  price?: number;
   vendors?: { vendor: IVendor | string; RequestData: any }[];
   bazaarAttendees?: { name: string; email: string }[];
   RequestData?: any;
