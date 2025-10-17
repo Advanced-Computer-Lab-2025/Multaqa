@@ -42,9 +42,9 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
         payload
       );
     } catch (err: any) {
-      if (err.response && err.response.status === 404) {
+      if (err.response && err.response.status === 409) {
         // Specific handling for 404
-        window.alert("You already registered");
+        window.alert("You already registered for this event");
       } else {
         // Generic error message
         setError(err?.message || "API call failed");
@@ -99,31 +99,34 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            <CustomTextField
-              id="name"
-              label="Name"
-              fieldType="text"
-              placeholder={userInfo.name}
-              name="name"
-              value={values.name} // ✅ Use formik.values
-              onChange={handleChange} // ✅ Use formik.handleChange
-              neumorphicBox
-              required
-              fullWidth
-            />
+                 <CustomTextField
+                id={`name-${eventId}`}
+                label="Name"
+                fieldType="text"
+                placeholder={userInfo.name}
+                name="name"
+                value={values.name}
+                onChange={handleChange('name')}
+                onBlur={handleBlur}
+                neumorphicBox
+                required
+                fullWidth
+              />
 
-            <CustomTextField
-              id="email"
-              label="Email"
-              fieldType="text"
-              placeholder={userInfo.email}
-              name="email"
-              value={values.email} // ✅ Use formik.values
-              onChange={handleChange} // ✅ Use formik.handleChange
-              required
-              neumorphicBox
-              fullWidth
-            />
+              <CustomTextField
+                id={`email-${eventId}`}
+                label="Email"
+                fieldType="text"
+                placeholder={userInfo.email}
+                name="email"
+                value={values.email}
+                onChange={handleChange('email')}
+                onBlur={handleBlur}
+                required
+                neumorphicBox
+                fullWidth
+              />
+
           </Box>
 
           <Box
