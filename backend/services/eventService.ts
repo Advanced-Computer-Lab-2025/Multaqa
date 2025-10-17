@@ -43,8 +43,8 @@ export class EventsService {
         },
       ],
     };
-    if (type) filter.type = type;
-    if (location) filter.location = location;
+    if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
+if (location) filter.location = { $regex: new RegExp(location, "i") };
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
