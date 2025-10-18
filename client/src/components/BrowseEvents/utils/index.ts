@@ -1,3 +1,4 @@
+import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import { EventType } from "../browse-events";
 
 export const frameData = (data: any) => {
@@ -14,6 +15,29 @@ export const frameData = (data: any) => {
 const flattenName = (profs:{ firstName: string; lastName: string }[])=>{
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
+const flattenCompanyNames = (vendorsArray: { 
+  vendor: {
+    _id: string;
+    email: string;
+    role: string;
+    companyName: string;
+    logo: string;
+    id: string;
+  }; 
+  RequestData: {
+    eventType: string;
+    bazaarAttendees: {
+      name: string;
+      email: string;
+    }[];
+    boothSize: string;
+    status: string;
+  };
+  _id: string;
+}[]) => {
+  const companyNames = vendorsArray.map(item => item.vendor.companyName);
+  return companyNames;
+}
 
 
 
@@ -22,7 +46,16 @@ function transformEvent(event: any) {
   const registrationDeadline= event.registrationDeadline;
   const startDate= event.eventStartDate;
   const endDate =  event.eventEndDate;
-  // console.log("look here")
+  let vendors=null;
+
+  console.log(event.vendors);
+  if(event.type?.toLowerCase()=="bazaar"){
+    if(event.vendors.length>0){
+      console.log(event.vendors.vendor);
+      vendors= flattenCompanyNames(event.vendors);
+    }
+  }
+
   // console.log(event.createdBy)
 
   switch (event.type?.toLowerCase()) {
@@ -96,9 +129,8 @@ function transformEvent(event: any) {
         id,
         type: EventType.BAZAAR,
         name: event.eventName,
-        description:
-          event.description,
-        // vendors: event.vendors,
+        description:event.description,
+        vendors:vendors,
         details: {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,

@@ -1,7 +1,7 @@
 "use client";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { Box, Typography, IconButton, Tooltip } from "@mui/material";
+import { Box, Typography, IconButton, Tooltip, Avatar } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
@@ -10,11 +10,13 @@ import { CustomModal } from "../shared/modals";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import Utilities from "../shared/Utilities";
 import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
+import { getAvatarColor, getInitials } from "./helpers";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
   details,
   name,
+  vendors,
   description,
   user,
   registered,
@@ -81,6 +83,52 @@ const BazarView: React.FC<BazarViewProps> = ({
           >
             {description}
           </Typography>
+        </Box>
+      )}
+
+       {/* Vendors */}
+       {vendors && vendors.length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+          >
+          Vendors Participating
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {vendors.map((vendor, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  p: 1,
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 1,
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    backgroundColor: getAvatarColor(vendor),
+                    fontSize: "12px",
+                    fontWeight: 600,
+                  }}
+                >
+                  {getInitials(vendor)}
+                </Avatar>
+                <Typography
+                  variant="caption"
+                  sx={{ fontSize: "12px", color: "text.primary" }}
+                >
+                  {vendor}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
       )}
 

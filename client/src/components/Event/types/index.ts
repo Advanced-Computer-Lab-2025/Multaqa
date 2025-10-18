@@ -11,7 +11,7 @@ type BasicProps = {
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
   name: string;
-  // vendors:
+  vendors?: string[],
   description: string;
 };
 

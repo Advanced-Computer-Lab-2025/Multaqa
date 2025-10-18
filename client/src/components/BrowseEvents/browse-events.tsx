@@ -279,6 +279,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             id={event.id}
             setRefresh={setRefresh}
             key={event.id}
+            vendors={event.vendors}
             details={event.details}
             name={event.name}
             description={event.description}
