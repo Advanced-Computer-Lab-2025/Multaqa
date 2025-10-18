@@ -70,6 +70,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                     <div className="flex items-start gap-5 w-full px-4 mb-5">
                       <div className="w-[300px]">
                         <CustomTextField
+                          name={`bazaarAttendees.${index}.name`}
                           id={`bazaarAttendees.${index}.name`}
                           label={`Attendee ${index + 1} name`}
                           fieldType="text"
@@ -108,6 +109,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                       </div>
                       <div className="w-[300px]">
                         <CustomTextField
+                          name={`bazaarAttendees.${index}.email`}
                           id={`bazaarAttendees.${index}.email`}
                           label={`Attendee ${index + 1} email`}
                           fieldType="email"
@@ -198,6 +200,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
               <div className="flex justify-center items-center w-full mb-4">
                 <div className="w-[300px]">
                   <CustomSelectField
+                    name="boothSize"
                     label="Booth Size"
                     fieldType="single"
                     neumorphicBox
