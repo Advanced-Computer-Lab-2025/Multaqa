@@ -10,40 +10,41 @@ type Props = {
   id: string;
   item: WorkshopViewProps;
   rightSlot?: React.ReactNode;
+  rightIcon?:React.ReactNode;
+  status?: React.ReactNode;
   expanded?: boolean;
-  userId?:string;
+  userId?: string;
 };
 
+// Helper function to get a color based on name
+const getAvatarColor = (name: string) => {
+  const colors = [
+    "#FF6B6B",
+    "#4ECDC4",
+    "#45B7D1",
+    "#FFA07A",
+    "#98D8C8",
+    "#F7DC6F",
+    "#BB8FCE",
+    "#85C1E2",
+  ];
+  const hash = name
+    .split("")
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+};
 
-  // Helper function to get a color based on name
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      "#FF6B6B",
-      "#4ECDC4",
-      "#45B7D1",
-      "#FFA07A",
-      "#98D8C8",
-      "#F7DC6F",
-      "#BB8FCE",
-      "#85C1E2",
-    ];
-    const hash = name
-      .split("")
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-  };
-
-
-export default function WorkshopItemCard({ item, rightSlot, expanded = false , userId}: Props) {
-
+export default function WorkshopItemCard({
+  item,
+  rightSlot,
+  expanded = false,
+  rightIcon,
+  status,
+  userId,
+}: Props) {
   // Parse professors string into array
- const professorString = item.details["Professors Participating"] || "";
- const professors = professorString
-   .split(",")
-   .map((prof) => prof.trim())
-   .filter((prof) => prof.length > 0);
-
-    // Helper function to extract initials from professor name
+  const professors = item.professors;
+  // Helper function to extract initials from professor name
   const getInitials = (name: string) => {
     let cleanName = name.trim();
 
@@ -101,7 +102,7 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
       )}
 
       {/* Professors */}
-      {professors.length > 0 && (
+      {professors && professors.length > 0 && (
         <Box sx={{ mb: 2 }}>
           <Typography
             variant="body2"
@@ -111,7 +112,7 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
             Professors Participating
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {professors.map((professor:string, index:number) => (
+            {professors.map((professor: string, index: number) => (
               <Box
                 key={index}
                 sx={{
@@ -156,20 +157,13 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
           Additional Details
         </Typography>
         {Object.entries(item.details)
-        //   .filter(
-        //     ([key]) =>{ 
-        //                 // Base fields to always exclude
-        //     const baseExcluded = [
-        //       "Start Date",
-        //       "End Date",
-        //       "Start Time",
-        //       "End Time",
-        //     ];
-
-
-        //   return !baseExcluded.includes(key);
-        // }
-        //   )
+          .filter(([key]) => {
+            const baseExcluded = [
+             "Created By",
+              "Status",
+            ];
+          return !baseExcluded.includes(key);
+          })
           .map(([key, value]) => (
             <Box
               key={key}
@@ -189,8 +183,12 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
   const [expandedd, setExpanded] = useState(expanded);
 
   const dateRange = item.details.endDate
-    ? `${new Date(item.details["Start Date"] ).toLocaleDateString()} - ${new Date(item.details["End Date"] ).toLocaleDateString()}`
-    : new Date(item.details["Start Date"] ).toLocaleString();
+    ? `${new Date(
+        item.details["Start Date"]
+      ).toLocaleDateString()} - ${new Date(
+        item.details["End Date"]
+      ).toLocaleDateString()}`
+    : new Date(item.details["Start Date"]).toLocaleString();
 
   return (
     <ActionCard
@@ -207,16 +205,29 @@ export default function WorkshopItemCard({ item, rightSlot, expanded = false , u
           size: "small",
         },
       ]}
-      subtitleNode={<Typography variant="body2" sx={{ color: "#575d69" }}>{item.details["Location"] }</Typography>}
-      metaNodes={[
-        <Typography key="range" variant="body2" sx={{ color: "#6b7280" }}>{dateRange}</Typography>,
-        "status" in item ? (
-          <Typography key="submitted" variant="caption" sx={{ color: "#6b7280" }}>
-            Submitted: {new Date(item.details.submittedAt).toLocaleString()}
-          </Typography>
-        ) : null,
-      ].filter(Boolean) as React.ReactNode[]}
+      subtitleNode={
+        <Typography variant="body2" sx={{ color: "#575d69" }}>
+          {item.details["Location"]}
+        </Typography>
+      }
+      metaNodes={
+        [
+          <Typography key="range" variant="body2" sx={{ color: "#6b7280" }}>
+            {dateRange}
+          </Typography>,
+          "status" in item ? (
+            <Typography
+              key="submitted"
+              variant="caption"
+              sx={{ color: "#6b7280" }}
+            >
+              Submitted: {new Date(item.details.submittedAt).toLocaleString()}
+            </Typography>
+          ) : null,
+        ].filter(Boolean) as React.ReactNode[]
+      }
       rightSlot={rightSlot}
+      rightIcon={rightIcon}
       expanded={expandedd}
       onExpandChange={setExpanded}
       details={detailsContent}

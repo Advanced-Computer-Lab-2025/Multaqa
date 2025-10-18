@@ -98,7 +98,7 @@ export default function ActionCard({
         border: borderColor ? `1px solid ${borderColor}` : "1px solid rgba(0,0,0,0.06)",
         boxShadow,
         overflow: "hidden",
-        padding:"4px",
+        padding:"12px 12px 4px 4px",
         ...currentType,
         ...sx,
       }}

@@ -39,6 +39,7 @@ const workshopSchema = new Schema<IWorkshop>({
   comments: {
     type: [
       {
+        id: { type: Number, required: true },
         commenter: { type: Schema.Types.ObjectId, ref: "User", required: true },
         timestamp: { type: Date, default: Date.now },
         text: { type: String, required: true },

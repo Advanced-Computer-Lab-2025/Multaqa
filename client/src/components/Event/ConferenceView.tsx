@@ -10,6 +10,7 @@ import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
+  id,
   details,
   name,
   description,

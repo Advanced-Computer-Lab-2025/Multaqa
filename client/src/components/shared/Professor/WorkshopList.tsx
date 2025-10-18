@@ -1,68 +1,29 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Stack } from "@mui/material";
-import CustomButton from "@/components/shared/Buttons/CustomButton";
+import { Box, Typography, Stack, Chip } from "@mui/material";
 import theme from "@/themes/lightTheme";
 import WorkshopItemCard from "@/components/EventsOffice/WorkshopItemCard";
-import { EventType } from "@/components/BrowseEvents/browse-events";
 import { api } from "@/api";
+import { frameData } from "@/components/BrowseEvents/utils";
+import { WorkshopViewProps } from "@/components/Event/types";
 
-const demoData: any[] = [
-  {
-    id: "2",
-    type: EventType.WORKSHOP,
-    name: "React Masterclass Workshop",
-    description:
-      "Learn advanced React patterns and best practices in this hands-on workshop.",
-    agenda:
-      "Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session",
-    details: {
-      "Start Date": "2024-03-20",
-      "End Date": "2024-03-20",
-      "Start Time": "10:00",
-      "End Time": "16:00",
-      Location: "GUC Cairo",
-      "Faculty Responsible": "MET",
-      "Professors Participating": "Dr. Ahmed Hassan, Dr. Sarah Mohamed",
-      "Required Budget": "$5,000",
-      "Funding Source": "GUC",
-      "Extra Required Resources": "Laptops, projectors",
-      Capacity: "30",
-      "Registration Deadline": "2024-03-15",
-    },
-  },
-  {
-    id: "3",
-    type: EventType.WORKSHOP,
-    name: "React Masterclass Workshop",
-    description:
-      "Learn advanced React patterns and best practices in this hands-on workshop.",
-    agenda:
-      "Morning: Advanced hooks and state management\nAfternoon: Performance optimization and testing\nEvening: Q&A session",
-    details: {
-      "Start Date": "2024-03-20",
-      "End Date": "2024-03-20",
-      "Start Time": "10:00",
-      "End Time": "16:00",
-      Location: "GUC Cairo",
-      "Faculty Responsible": "MET",
-      "Professors Participating": "Dr. Ahmed Hassan, Dr. Sarah Mohamed",
-      "Required Budget": "$5,000",
-      "Funding Source": "GUC",
-      "Extra Required Resources": "Laptops, projectors",
-      Capacity: "30",
-      "Registration Deadline": "2024-03-15",
-    },
-  },
-];
+
+const statusChip = (status: string) => {
+  if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
+  if (status === "awaiting_review") return <Chip size="small" label="Awaiting Review" color="info" variant="outlined" />;
+  if (status === "rejected") return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
+  return <Chip size="small" label="Accepted" color="success" variant="outlined" />;
+};
+
 
 interface WorkshopListProps {
   userId: string;
+  filter:string,
 }
 
-const WorkshopList: React.FC<WorkshopListProps> = ({ userId }) => {
-  const [workshops, setWorkshops] = useState(demoData);
+const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
+  const [workshops, setWorkshops] = useState<WorkshopViewProps[]>();
   useEffect(() => {
     handleCallAPI()
   }, []); 
@@ -71,10 +32,10 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId }) => {
   async function handleCallAPI (){
     try{
       const res = await api.get(`/users/${userId}`);
-      const data = res.data.data;
-      //const result = frameData(data);
-      // setWorkshops(data);
-      console.log(data);
+      const data = res.data.data.myWorkshops;
+      const result = frameData(data);
+//       console.log(result);
+      setWorkshops(result);
       }
     catch(err){
       console.error(err);
@@ -111,12 +72,20 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId }) => {
       </Box>
 
       <Stack spacing={2}>
-        {workshops.map((item) => (
-          <WorkshopItemCard
-            id={item.id}
-            key={item.id}
-            item={item}
-            userId={userId}
+      {workshops &&
+        workshops
+          .filter((item) => filter === "none" || item.details["Status"] === filter)
+          .map((item) => (
+            <WorkshopItemCard
+              id={item.id}
+              key={item.id}
+              item={item}
+              userId={userId}
+              rightIcon={
+                <Stack direction="row" spacing={1} alignItems="center">
+                  {statusChip(item.details["Status"])}
+                </Stack>
+              }
           />
         ))}
       </Stack>

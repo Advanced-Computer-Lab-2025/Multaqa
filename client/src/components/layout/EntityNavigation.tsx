@@ -174,6 +174,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "my-workshops", label: "My Workshops" },
+          { id: "my-pending-workshops", label: "Pending" },
+          { id: "my-accepted-workshops", label: "Accepted" },
+          { id: "my-rejected-workshops", label: "Rejected" },
+          { id: "my-under-workshops", label: "To Review" },
         ],
       },
       {
@@ -215,9 +219,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: FileText,
         sections: [
           { id: "all-requests", label: "All Requests" },
-          { id: "accepted", label: "Accepted Requests" },
-          { id: "pending", label: "Under Review Requests" },
-          { id: "rejected", label: "Rejected Requests" },
+          { id: "pending", label: "Pending" },
+          { id: "awating_review", label: "Awaiting Review" },
+          { id: "accepted", label: "Accepted" },
+          { id: "rejected", label: "Rejected" },
         ],
       },
       {
@@ -310,10 +315,9 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bazaars & Booths",
         icon: Store,
         sections: [
-          { id: "opportunities", label: "Browse Opportunities" },
           { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
-          { id: "apply-booth", label: "Apply for Booth" },
+          { id: "apply-booth", label: "Booth Hub" },
         ],
       },
       { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },

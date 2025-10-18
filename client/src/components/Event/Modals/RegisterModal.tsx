@@ -1,20 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
-import {
-  CustomTextField,  
-} from "@/components/shared/input-fields";
+import { CustomTextField } from "@/components/shared/input-fields";
 import { CustomModalLayout } from "@/components/shared/modals";
 import theme from "@/themes/lightTheme";
 import { Typography, Box } from "@mui/material";
 import { api } from "@/api";
+import { useFormik } from "formik";
 
 interface RegisterEventModalProps {
-  userInfo:{ id: string; name: string; email:string };
+  userInfo: { id: string; name: string; email: string };
   open: boolean;
   onClose: () => void;
   eventType: string;
-  isReady:boolean;
-  eventId:string;
+  isReady: boolean;
+  eventId: string;
 }
 
 const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
@@ -23,25 +23,59 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   onClose,
   eventType,
   isReady,
-  eventId
+  eventId,
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (payload: React.FormEvent) => {
-    payload.preventDefault();
+  const initialValues = {
+    name: isReady ? userInfo.name : "",
+    email: isReady ? userInfo.email : "",
+  };
+
+  const handleCallApi = async (payload: any) => {
     try {
-      // TODO: Replace with your API route
-      const res = await api.post(`/users/:${userInfo.id}/register/:${eventId}`, payload);
-      setResponse(res.data);
+      console.log("Payload being sent:", payload); // ✅ Debug payload
+      const res = await api.post(
+        `/users/${userInfo.id}/register/${eventId}`,
+        payload
+      );
     } catch (err: any) {
-      setError(err?.message || "API call failed");
+      if (err.response && err.response.status === 409) {
+        // Specific handling for 404
+        window.alert("You already registered for this event");
+      } else {
+        // Generic error message
+        setError(err?.message || "API call failed");
+      }
     } finally {
       setLoading(false);
     }
   };
-console.log(userInfo);
+  const onSubmit = async (values: any, actions: any) => {
+    onClose();
+    const payload = {
+      name: values.name,
+      email: values.email,
+    };
+    actions.resetForm();
+    await handleCallApi(payload); // ✅ Await the API call
+  };
+  const {
+    handleSubmit,
+    values,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    setFieldValue,
+    errors,
+    touched,
+  } = useFormik({
+    initialValues,
+    onSubmit: onSubmit,
+  });
+
   return (
     <CustomModalLayout
       open={open}
@@ -65,28 +99,33 @@ console.log(userInfo);
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                 <CustomTextField
+                id={`name-${eventId}`}
+                label="Name"
+                fieldType="text"
+                placeholder={userInfo.name}
+                name="name"
+                value={values.name}
+                onChange={handleChange('name')}
+                onBlur={handleBlur}
+                neumorphicBox
+                required
+                fullWidth
+              />
 
-            <CustomTextField
-              label="Name"
-              fieldType="text"
-              placeholder={isReady?userInfo.name:""}
-              name="name"
-              value={isReady?userInfo.name:""}
-              neumorphicBox
-              required
-              fullWidth
-            />
-
-            <CustomTextField
-              label="Email"
-              fieldType="email"
-              placeholder={isReady?userInfo.email:""}
-              value={isReady?userInfo.email:""}
-              name="email"
-              required
-              neumorphicBox
-              fullWidth
-            />
+              <CustomTextField
+                id={`email-${eventId}`}
+                label="Email"
+                fieldType="text"
+                placeholder={userInfo.email}
+                name="email"
+                value={values.email}
+                onChange={handleChange('email')}
+                onBlur={handleBlur}
+                required
+                neumorphicBox
+                fullWidth
+              />
 
           </Box>
 
@@ -101,7 +140,8 @@ console.log(userInfo);
               sx={{ width: "160px", height: "44px" }}
             />
             <CustomButton
-              label="Register"
+              disabled={isSubmitting}
+              label={isSubmitting ? "Registering" : "Register"}
               type="submit"
               variant="contained"
               color="primary"

@@ -1,9 +1,8 @@
-import { ButtonProps } from "@mui/material";
 type BasicProps = {
   user?: string,
   registered?: boolean,
   onDelete?: () => void,
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
   id:string,
   userInfo:{ id: string; name: string; email:string };
   isReady:boolean;
@@ -11,6 +10,7 @@ type BasicProps = {
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
   name: string;
+  // vendors:
   description: string;
 };
 
@@ -39,5 +39,6 @@ export type WorkshopViewProps = BasicProps & {
   name: string,
   description: string,
   agenda: string,
+  professors:string []
   details: Record<string, string>,
 }
