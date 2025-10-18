@@ -116,13 +116,23 @@ export class EventsService {
   }
 
   async updateEvent(eventId: string, updateData: any) {
-    const updatedEvent = await this.eventRepo.update(eventId, updateData);
-
-    if (!updatedEvent) {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
       throw createError(404, "Event not found");
     }
 
-    return updatedEvent;
+    if (event.type === EVENT_TYPES.BAZAAR || event.type === EVENT_TYPES.TRIP) {
+      if (new Date(event.eventStartDate) < new Date()) {
+        // If the event has already started, prevent updates
+        throw createError(
+          400,
+          "Cannot update bazaars & trips that have already started"
+        );
+      }
+    }
+
+    const updatedEvent = await this.eventRepo.update(eventId, updateData);
+    return updatedEvent!; //! to assert that updatedEvent is not null (we already checked for existence above)
   }
 
   async deleteEvent(id: string): Promise<IEvent> {
