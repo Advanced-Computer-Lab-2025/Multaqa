@@ -1,21 +1,40 @@
+"use client";
+
+import { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useRouter } from "@/i18n/navigation";
-import { useEffect, ReactNode } from "react";
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       router.replace("/login");
     }
-  }, [user, router]);
+  }, [isLoading, user, router]);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "1.2rem",
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
 
   if (!user) return null;
-  return children;
+
+  return <>{children}</>;
 }
