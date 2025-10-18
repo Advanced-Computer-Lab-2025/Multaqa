@@ -138,6 +138,7 @@ export default function CreateGymSession({
               label="Session Type"
               fieldType="single"
               options={sessionTypeOptions}
+              name="type"
               value={formik.values.type}
               onChange={(value) => formik.setFieldValue("type", value)}
               onBlur={() => formik.setFieldTouched("type", true)}
@@ -149,7 +150,7 @@ export default function CreateGymSession({
               neumorphicBox
               required
               fullWidth
-              size="medium"
+              size="small"
             />
 
             {/* Start Date and Time */}
