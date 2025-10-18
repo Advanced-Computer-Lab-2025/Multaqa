@@ -233,10 +233,12 @@ export default function VendorParticipationRequests() {
     setError(null);
 
     try {
-      await api.patch(`/vendor-events/${request.eventId}/vendor-requests/${request.vendorId}`, {
-        status: status === "approved" ? "approved" : "rejected",
-      });
-
+      await api.patch(
+        `/vendorEvents/${request.eventId}/vendor-requests/${request.vendorId}`,
+        { status },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      
       setRequests((prev) =>
         prev.map((item) =>
           item.id === request.id
