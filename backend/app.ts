@@ -48,7 +48,7 @@ app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 
 const MONGO_URI =
-  process.env.MONGO_URI;
+  process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";;
 
 async function startServer() {
   try {
