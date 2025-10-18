@@ -12,9 +12,8 @@ export function authorizeRoles(options: {
   staffPositions?: StaffPosition[];
 }) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (process.env.NODE_ENV === "development") return next();
+    if(process.env.NODE_ENV === 'development') { return next(); }
     const user = req.user;
-
     if (!user) {
       throw createError(401, "Not authenticated");
     }

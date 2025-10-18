@@ -1,25 +1,30 @@
 "use client";
 import { Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModal } from "../shared/modals";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
+import Utilities from "../shared/Utilities";
+import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
 
 const BazarView: React.FC<BazarViewProps> = ({
+  id,
   details,
   name,
   description,
   user,
   registered,
   onDelete,
+  setRefresh,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [edit, setEdit] = useState(false)
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -135,26 +140,29 @@ const BazarView: React.FC<BazarViewProps> = ({
               <BazarFormModalWrapper
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
+                bazarId={id}
               />
             </CustomButton>
           )
         }
         rightIcon={
-          user === "events-office" ? (
+          user === "admin" ? (
+            <Tooltip title="Delete">
             <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          ) : null
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={()=>{setEdit(true)}} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
         }
         registered={registered || !(user == "vendor")}
         expanded={expanded}
@@ -212,20 +220,6 @@ const BazarView: React.FC<BazarViewProps> = ({
           <Typography
             sx={{
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            {details["Location"] || "TBD"} •{" "}
-            {details["Vendor Count"]
-              ? `${details["Vendor Count"]} vendors`
-              : ""}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
               color: theme.palette.error.main,
               fontSize: "0.9rem",
               fontWeight: 500,
@@ -236,6 +230,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <EditBazaar setRefresh={setRefresh} bazaarId={id} bazaarName={name} location={details["Location"]}  description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} open={edit} onClose={()=> {setEdit(false)}}/>
     </>
   );
 };

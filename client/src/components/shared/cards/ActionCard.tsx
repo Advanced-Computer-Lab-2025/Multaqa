@@ -55,7 +55,7 @@ export default function ActionCard({
 // These are the styles you want to apply ONLY if type is "events"
     const eventStyles = {
         height: isExpanded ? "100%" : "auto",
-        minHeight: isExpanded ? 280 : 280,
+        minHeight: 305,
         maxHeight: isExpanded ? 400 : 280,
         width: "100%",
         transition: "max-height 0.3s ease",
@@ -98,7 +98,7 @@ export default function ActionCard({
         border: borderColor ? `1px solid ${borderColor}` : "1px solid rgba(0,0,0,0.06)",
         boxShadow,
         overflow: "hidden",
-        padding:"4px",
+        padding:"12px 12px 4px 4px",
         ...currentType,
         ...sx,
       }}
@@ -111,9 +111,11 @@ export default function ActionCard({
           display:"flex",
           alignItems:"end",
           justifyContent:"end",
+          flexDirection:"row",
         }}
       >
         {rightIcon}
+
       </Box>
     )}
 

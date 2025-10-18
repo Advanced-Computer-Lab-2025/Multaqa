@@ -17,8 +17,8 @@ export interface VendorRequest {
 
 export interface IVendor extends IUser {
   companyName: string;
-  taxCard: string;
-  logo: string;
+  // taxCard: string;
+  // logo: string;
   loyaltyProgram?: {
     discountRate: number;
     promoCode: string;

@@ -1,20 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
-import BrowseEventsContent from "@/components/browse-events";
+import BrowseEventsContent from "@/components/BrowseEvents/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
-import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
+import GymSessionsManagementContent from "@/components/gym/GymSessionsManagementContent";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
+import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
+import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
+import WorkshopList from "@/components/shared/Professor/WorkshopList";
+import { WorkshopViewProps } from "@/components/Event/types";
+import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
 
 export default function EntityCatchAllPage() {
@@ -28,9 +33,14 @@ export default function EntityCatchAllPage() {
   const segments = pathname.split("/").filter(Boolean);
   const tab = segments[2] || "";
   const section = segments[3] || "";
+  const [Evaluating, setEvaluating] = useState(false);
+  const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
+  const { user } = useAuth();
+  const userId = String(user?._id);
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+     
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {
@@ -43,7 +53,13 @@ export default function EntityCatchAllPage() {
       }
       if (section === "opportunities") {
         // Interpreting "My Applications" as pending/rejected requests list
-        return <BrowseEventsContent registered={false} user="vendor" />;
+        return (
+          <BrowseEventsContent
+            registered={false}
+            user="vendor"
+            userID={userId}
+          />
+        );
       }
       if (section === "apply-booth") {
         return <BoothForm />;
@@ -59,17 +75,23 @@ export default function EntityCatchAllPage() {
         return <CourtsBookingContent />;
       }
     }
-
     // Gym sessions for stakeholders
-    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "gym") {
+    if (
+      ["student", "staff", "ta", "professor"].includes(entity) &&
+      tab === "gym"
+    ) {
       if (section === "browse-sessions" || section === "") {
         return <GymSchedule />;
       }
       if (section === "my-sessions") {
         return (
           <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">My Registered Sessions</h2>
-            <p className="text-gray-600">Coming soon: your registered gym sessions.</p>
+            <h2 className="text-xl font-semibold mb-4">
+              My Registered Sessions
+            </h2>
+            <p className="text-gray-600">
+              Coming soon: your registered gym sessions.
+            </p>
           </div>
         );
       }
@@ -106,6 +128,18 @@ export default function EntityCatchAllPage() {
     if (entity === "admin" && tab === "event-office") {
       if (section === "manage-eo-account") {
         return <ManageEventOfficeAccountContent />;
+      }
+    }
+
+    if (entity === "events-office" && tab === "events") {
+      if (section === "my-creations") {
+        return (
+          <BrowseEventsContent
+            registered={false}
+            user="events-only"
+            userID={userId}
+          />
+        );
       }
     }
 
@@ -153,25 +187,123 @@ export default function EntityCatchAllPage() {
 
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
-        return <WorkshopReviewUI />;
+        return Evaluating  && specificWorkshop ? (
+          <WorkshopDetails
+            workshop={specificWorkshop}
+            setEvaluating={setEvaluating}
+            eventsOfficeId={userId}
+          />
+        ) : (
+          <WorkshopRequests
+            setEvaluating={setEvaluating}
+            setSpecificWorkshop={setSpecificWorkshop!}
+            evaluate={true}
+            filter="none"
+          />
+        );
+      }
+        if (section === "pending") {
+          console.log(section);
+            return <WorkshopRequests
+              setEvaluating={setEvaluating}
+              setSpecificWorkshop={setSpecificWorkshop!}
+              evaluate={false}
+              filter="pending"
+            />
+        }
+        else if (section === "accepted") {
+          console.log(section);
+          return <WorkshopRequests
+            setEvaluating={setEvaluating}
+            setSpecificWorkshop={setSpecificWorkshop!}
+            evaluate={false}
+            filter="approved"
+          />
+      }
+      else if (section === "rejected") {
+        console.log(section);
+        return <WorkshopRequests
+          setEvaluating={setEvaluating}
+          setSpecificWorkshop={setSpecificWorkshop!}
+          evaluate={false}
+          filter="rejected"
+        />
+    }
+    else if (section === "awating_review") {
+      console.log(section);
+      return <WorkshopRequests
+          setEvaluating={setEvaluating}
+          setSpecificWorkshop={setSpecificWorkshop!}
+          evaluate={false}
+          filter="awaiting_review"
+        />
+    }
+    }
+
+    // Events Office - Gym Management
+    if (entity === "events-office" && tab === "gym") {
+      if (section === "sessions-management") {
+        return <GymSessionsManagementContent />;
+      }
+    }
+
+    // Events Office - Gym Management
+    if (entity === "events-office" && tab === "gym") {
+      if (section === "sessions-management") {
+        return <GymSessionsManagementContent />;
       }
     }
 
     //Shared Content
-    if (tab === "events" || tab === "events-management") {
+    if (tab === "events") {
       if (section === "browse-events") {
-        return <BrowseEventsContent registered={false} user="student" />;
+        return (
+          <BrowseEventsContent
+            registered={false}
+            user={entity}
+            userID={userId}
+          />
+        );
       }
       if (section === "all-events") {
-        return <BrowseEventsContent registered={false} user="events-office" />;
+        return (
+          <BrowseEventsContent
+            registered={false}
+            user={entity}
+            userID={userId}
+          />
+        );
       }
     }
     if (tab === "events") {
       if (section === "my-registered") {
-        return <BrowseEventsContent registered={true} user="student" />;
+        return (
+          <BrowseEventsContent
+            registered={true}
+            user="student"
+            userID={userId}
+          />
+        );
       }
     }
 
+    if (entity === "professor" && tab === "workshops") {
+      if (section === "my-workshops") {
+        return <WorkshopList userId={userId} filter={"none"} />;
+      }
+      if (section === "my-accepted-workshops") {
+        return <WorkshopList userId={userId} filter={"approved"} />;
+      }
+      if (section === "my-rejected-workshops") {
+        return <WorkshopList userId={userId} filter={"rejected"} />;
+      } 
+      if (section === "my-under-workshops") {
+        return <WorkshopList userId={userId} filter={"awaiting_review"} />;
+      }
+      if (section === "my-pending-workshops") {
+        return <WorkshopList userId={userId} filter={"pending"} />;
+      }
+    }
     // Default placeholder content
     return (
       <div className="p-6 bg-white">

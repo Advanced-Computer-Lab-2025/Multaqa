@@ -14,7 +14,6 @@ import { Step2Props } from './types';
 const CustomDatePicker = (props: any) => <CustomTextField {...props} fieldType="text" placeholder="YYYY-MM-DD" />;
 const EventCreationStep2Details: React.FC<Step2Props> = ({ 
     onClose, 
-    onFinalSubmit 
 }) => {
     const formik = useFormikContext<EventFormData>();
     const { values, handleChange, handleBlur, errors, touched, setFieldValue } = formik;
@@ -118,11 +117,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                 <ExtraResourcesField />
                  </Box>    
            {/* Footer */}
-            <Box sx={modalFooterStyles}>
-            <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
-                    Create 
-            </CustomButton>
-            </Box>
+
         </Box>
             );
 };

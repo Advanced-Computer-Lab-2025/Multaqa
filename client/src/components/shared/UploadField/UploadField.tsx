@@ -20,7 +20,6 @@ const UploadField: React.FC<UploadFieldProps> = ({
   accept,
   className = "",
   disabled = false,
-  width = "280px",
   icon,
   showPreviewAs = "file",
 }) => {
@@ -30,9 +29,8 @@ const UploadField: React.FC<UploadFieldProps> = ({
 
   const handleClick = () => {
     if (files.length !== 0) disabled = true;
-      if (!disabled) inputRef.current?.click();
+    if (!disabled) inputRef.current?.click();
   };
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files ? Array.from(e.target.files) : [];
@@ -44,9 +42,7 @@ const UploadField: React.FC<UploadFieldProps> = ({
       className={className}
       sx={{
         border: `2px dashed ${
-          disabled
-            ? theme.palette.text.disabled
-            : theme.palette.primary.main
+          disabled ? theme.palette.text.disabled : theme.palette.primary.main
         }`,
         "&:hover": {
           borderColor: disabled
@@ -61,7 +57,8 @@ const UploadField: React.FC<UploadFieldProps> = ({
           : "transparent",
         color: theme.palette.text.primary,
         borderRadius: "12px",
-        width,
+        maxWidth: "100%",
+        width: "100%",
         padding: 3,
         transition: "0.3s ease all",
         display: "flex",
@@ -86,7 +83,7 @@ const UploadField: React.FC<UploadFieldProps> = ({
       ) : (
         <CloudUploadIcon
           sx={{
-            fontSize: 40,
+            fontSize: { xs: 30, sm: 40 },
             color: theme.palette.primary.main,
             mb: 1,
           }}
@@ -98,6 +95,7 @@ const UploadField: React.FC<UploadFieldProps> = ({
         sx={{
           fontWeight: 600,
           color: theme.palette.text.primary,
+          fontSize: { xs: "0.9rem", sm: "1rem" },
         }}
       >
         {label}
@@ -119,9 +117,10 @@ const UploadField: React.FC<UploadFieldProps> = ({
                   p: 1,
                   borderRadius: "10px",
                   boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                  flexDirection: { xs: "column", sm: "row" },
                 }}
               >
-                <Box display="flex" alignItems="center" gap={2}>
+                <Box display="flex" alignItems="center" gap={2} width="100%">
                   {showPreviewAs === "image" && isImage ? (
                     <CardMedia
                       component="img"
@@ -140,10 +139,18 @@ const UploadField: React.FC<UploadFieldProps> = ({
                     />
                   )}
                   <CardContent sx={{ p: "0 !important" }}>
-                    <Typography variant="body2" noWrap>
+                    <Typography
+                      variant="body2"
+                      noWrap
+                      sx={{ fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
+                    >
                       {file.name}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
+                    >
                       {formatFileSize(file.size)}
                     </Typography>
                   </CardContent>

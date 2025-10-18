@@ -127,15 +127,23 @@ export default function GymSchedule({ month, sessions }: Props) {
         {byDay.length === 0 ? (
           <Typography variant="body2" sx={{ color: "#6b7280" }}>No sessions for this month.</Typography>
         ) : (
-          byDay.map(([day, list]) => (
-            <Box key={day}>
-              <Typography variant="subtitle2" sx={{ color: "#6299d0", fontWeight: 700, mb: 1 }}>{day}</Typography>
+          byDay.map(([day, list], index) => (
+            <React.Fragment key={day}>
+            {index !== 0 && <Divider sx={{ my: 3 }} />} {/* divider between days */}
+            <Box>
+              <Typography
+                variant="subtitle2"
+                sx={{ color: "#6299d0", fontWeight: 700, mb: 1 }}
+              >
+                {day}
+              </Typography>
               <Stack spacing={1.5}>
                 {list.map((s) => (
                   <GymSessionCard key={s.id} session={s} showSpots />
                 ))}
               </Stack>
             </Box>
+          </React.Fragment>
           ))
         )}
       </Stack>

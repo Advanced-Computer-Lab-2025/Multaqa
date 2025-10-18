@@ -7,6 +7,20 @@ import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
+
+// Import base schemas first
+import "./schemas/stakeholder-schemas/userSchema";
+
+// Import discriminator schemas for users
+import "./schemas/stakeholder-schemas/staffMemberSchema";
+import "./schemas/stakeholder-schemas/studentSchema";
+import "./schemas/stakeholder-schemas/vendorSchema";
+
+// Import event schemas after user schemas are registered
+import "./schemas/event-schemas/eventSchema";
+import "./schemas/event-schemas/workshopEventSchema";
+import "./schemas/event-schemas/bazaarEventSchema";
+import "./schemas/event-schemas/platformBoothEventSchema";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
@@ -15,21 +29,13 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
+
 dotenv.config();
 
 const app = express();
-
-// CORS configuration
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-  })
-);
-
+app.use(cors({origin: "http://localhost:3000", credentials: true}));
 app.use(json());
 app.use(cookieParser());
-app.use(cors());
 
 // Dummy route
 app.get("/", (req, res) => {
@@ -48,7 +54,7 @@ app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 
 const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";;
+  process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {
