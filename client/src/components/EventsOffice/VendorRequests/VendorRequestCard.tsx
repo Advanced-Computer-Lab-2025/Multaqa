@@ -202,7 +202,7 @@ export default function VendorRequestCard({
             <Stack direction="row" spacing={1}>
               <CustomButton
                 variant="outlined"
-                color="secondary"
+                color="error"
                 size="small"
                 disabled={disabled || loadingStatus === "approved"}
                 onClick={() => onRespond("rejected")}
