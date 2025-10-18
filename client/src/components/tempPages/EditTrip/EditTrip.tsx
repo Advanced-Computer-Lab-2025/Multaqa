@@ -39,34 +39,37 @@ const EditTrip = ({tripId, tripName, location, price,
     const [response, setResponse] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);  
 
+    const initialValues = {
+        tripName: tripName,
+        location: location,
+        price: price,
+        description: description,
+        startDate: startDate ? dayjs(startDate) : null,
+        endDate: endDate ? dayjs(endDate) : null,
+        registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
+        capacity: capacity,
+   };
+
     const handleCallApi = async (payload:any) => {
         setLoading(true);
         setError(null);
         setResponse([]);
         try {
         // TODO: Replace with your API route
+        console.log("payload in call");
+        console.log(payload);
         const res = await api.patch("/events/" + tripId, payload);
         setResponse(res.data);
         setRefresh((refresh) => !refresh);
+        return res.data;
         } catch (err: any) {
         setError(err?.message || "API call failed");
         } finally {
         setLoading(false);
         }
     };
-  const initialValues = {
-    tripName: tripName,
-    location: location,
-    price: price,
-    description: description,
-    startDate: startDate ? dayjs(startDate) : null,
-    endDate: endDate ? dayjs(endDate) : null,
-    registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
-    capacity: capacity,
-  };
   
   const onSubmit = async (values: any, actions: any) => {
-    onClose();
     const startDateObj = values.startDate; // dayjs object
     const endDateObj = values.endDate;
     const registrationDeadlineObj = values.registrationDeadline;
@@ -84,8 +87,12 @@ const EditTrip = ({tripId, tripName, location, price,
         registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
         capacity: values.capacity,
     };
-    actions.resetForm();
-    handleCallApi(payload);
+    console.log("payload before call");
+    console.log(payload)
+    const res = await handleCallApi(payload);
+    console.log("response");
+    console.log(res.data);
+    onClose();
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -134,6 +141,7 @@ const EditTrip = ({tripId, tripName, location, price,
                 <Grid size={4}>
                     <TextField
                         name="price"
+                        id='price'
                         label="Price"
                         type="number"
                         fullWidth
@@ -221,11 +229,19 @@ const EditTrip = ({tripId, tripName, location, price,
                 <Grid size={6}>
                     <TextField
                         name="capacity"
+                        id='capacity'
                         label="Capacity"
                         type="number"
                         fullWidth
                         variant='standard'
                         placeholder="Enter Capacity"
+                         slotProps={{
+                            input: {
+                                startAdornment:(
+                                    <InputAdornment position="start"></InputAdornment>
+                                )
+                            }
+                        }}
                         value={values.capacity}
                         onChange={handleChange}
                     />
