@@ -16,7 +16,7 @@ import {
   ClipboardList,
   BarChart3,
   Archive,
-  CreditCard,
+  // CreditCard,
   QrCode,
   Award,
 } from "lucide-react";
@@ -25,6 +25,13 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import EventIcon from '@mui/icons-material/Event';
 import PollIcon from '@mui/icons-material/Poll';
+
+interface CurrentUser {
+  name?: string;
+  profileImage?: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
@@ -36,7 +43,9 @@ interface EntityNavigationProps {
     | "professor"
     | "events-office"
     | "admin"
-    | "vendor";
+    | "vendor"
+    | "company";
+  currentUser?: CurrentUser;
 }
 
 // Role-based navigation configuration
@@ -81,7 +90,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         sections: [
           { id: "reserve", label: "Reserve Courts" },
           { id: "my-reserved", label: "My Reservations" },
-          // Future: { id: "my-reservations", label: "My Reservations" },
         ],
       },
       {
@@ -284,9 +292,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "role-assignment",
         label: "Role Assignment",
         icon: ClipboardList,
-        sections: [
-          { id: "assign-roles", label: "Assign Roles" },
-        ],
+        sections: [{ id: "assign-roles", label: "Assign Roles" }],
       },
       {
         key: "event-office",
@@ -302,7 +308,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "opportunities",
     defaultSection: "available",
     tabs: [
-      
       {
         key: "opportunities",
         label: "Bazaars & Booths",
@@ -326,20 +331,76 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
     ],
   },
+  company: {
+    headerTitle: "Company Portal",
+    icon: <Store size={32} className="text-[#6299d0]" />,
+    defaultTab: "dashboard",
+    defaultSection: "",
+    tabs: [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        sections: [],
+      },
+    ],
+  },
+};
+
+// Mock data for different user types
+const getMockUserData = (role: string) => {
+  const mockUsers: Record<string, CurrentUser> = {
+    student: {
+      name: "Ahmed Hassan",
+      firstName: "Ahmed",
+      lastName: "Hassan",
+    },
+    staff: {
+      name: "Sara Mohamed",
+      firstName: "Sara",
+      lastName: "Mohamed",
+    },
+    ta: {
+      name: "Omar Youssef",
+      firstName: "Omar",
+      lastName: "Youssef",
+    },
+    professor: {
+      name: "Dr. Fatma Ali",
+      firstName: "Fatma",
+      lastName: "Ali",
+    },
+    "events-office": {
+      name: "Events Office",
+    },
+    admin: {
+      name: "System Administrator",
+    },
+    vendor: {
+      name: "Tech Solutions Inc.",
+    },
+    company: {
+      name: "Microsoft Egypt",
+    },
+  };
+  return mockUsers[role] || mockUsers.student;
 };
 
 export default function EntityNavigation({
   children,
   headerTitle,
   userRole = "student",
+  currentUser,
 }: EntityNavigationProps) {
+  // Use provided currentUser or fallback to mock data
+  const userData = currentUser || getMockUserData(userRole);
   const pathname = usePathname() || "";
   const router = useRouter();
   const segments = pathname.split("/").filter(Boolean);
   const locale = segments[0] || "en";
   const entity = segments[1] || "";
-  const tab = segments[2] || ""; // This is now the main tab/page
-  const section = segments[3] || ""; // This is now the sidebar section
+  const tab = segments[2] || "";
+  const section = segments[3] || "";
 
   const config: RoleConfig =
     roleNavigationConfig[userRole] ?? roleNavigationConfig["student"];
@@ -381,21 +442,13 @@ export default function EntityNavigation({
 
   const handleLogout = () => {
     // TODO: Implement logout server logic here
-    // This could include:
-    // - Clearing authentication tokens
-    // - Clearing user session data
-    // - Redirecting to login page
     console.log("Logout clicked");
-    // Example logout implementation:
-    // localStorage.removeItem('authToken');
-    // router.push('/login');
   };
 
   // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
   React.useEffect(() => {
-    // Only run when we have an entity but no tab
     if (!entity) return;
-    if (tab) return; // tab exists, no redirect needed
+    if (tab) return;
 
     const defaultTab = config.defaultTab;
     const defaultSection = config.defaultSection;
@@ -405,7 +458,6 @@ export default function EntityNavigation({
     const entitySeg = `/${entity}`;
     const sectionSeg = defaultSection ? `/${defaultSection}` : "";
 
-    // use replace to avoid creating history entry
     router.replace(`${base}${entitySeg}/${defaultTab}${sectionSeg}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entity, tab, locale, userRole]);
@@ -414,7 +466,6 @@ export default function EntityNavigation({
   React.useEffect(() => {
     if (!entity || !tab) return;
 
-    // Check if current tab has sections
     if (sectionItems.length > 0 && !section) {
       const base = `/${locale}`;
       const entitySeg = `/${entity}`;
@@ -458,6 +509,8 @@ export default function EntityNavigation({
           onItemClick={handleSectionClick}
           sectionItems={sectionItems}
           onLogout={handleLogout}
+          currentUser={userData}
+          userRole={userRole}
         />
 
         <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
@@ -468,8 +521,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "75vh",
-              maxHeight: "75vh",
+              minHeight: "82vh",
+              maxHeight: "82vh",
             }}
           >
             {children}
