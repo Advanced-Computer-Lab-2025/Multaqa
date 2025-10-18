@@ -6,12 +6,13 @@ export enum UserRole {
 }
 
 export enum UserStatus {
-    ACTIVE = "active",
-    BLOCKED = "blocked"
+  ACTIVE = "active",
+  BLOCKED = "blocked",
 }
 
 export enum Event_Request_Status {
   PENDING = "pending",
+  AWAITING_REVIEW = "awaiting_review",
   APPROVED = "approved",
-  REJECTED = "rejected"
+  REJECTED = "rejected",
 }
