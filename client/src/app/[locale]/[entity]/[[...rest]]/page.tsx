@@ -19,6 +19,10 @@ import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
 import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
 import WorkshopList from "@/components/shared/Professor/WorkshopList";
 import { WorkshopViewProps } from "@/components/Event/types";
+import { useAuth } from "@/context/AuthContext";
+
+const { user } = useAuth();
+
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -33,9 +37,7 @@ export default function EntityCatchAllPage() {
   const section = segments[3] || "";
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
-  const studentUser = "68e6d9cfc5de4e0cec12c5a3";
-  const professorUser = "68f1433886d20633de05f301";
-  const eventOfficeUser = "68ec2c696cf5628987e49d69";
+  const userId = String(user?._id);
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
@@ -56,7 +58,7 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={false}
             user="vendor"
-            userID={studentUser}
+            userID={userId}
           />
         );
       }
@@ -136,7 +138,7 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={false}
             user="events-only"
-            userID={studentUser}
+            userID={userId}
           />
         );
       }
@@ -157,7 +159,7 @@ export default function EntityCatchAllPage() {
           <WorkshopDetails
             workshop={specificWorkshop}
             setEvaluating={setEvaluating}
-            eventsOfficeId={eventOfficeUser}
+            eventsOfficeId={userId}
           />
         ) : (
           <WorkshopRequests
@@ -227,7 +229,7 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={false}
             user={entity}
-            userID={studentUser}
+            userID={userId}
           />
         );
       }
@@ -236,7 +238,7 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={false}
             user={entity}
-            userID={studentUser}
+            userID={userId}
           />
         );
       }
@@ -247,7 +249,7 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={true}
             user="student"
-            userID={studentUser}
+            userID={userId}
           />
         );
       }
@@ -255,19 +257,19 @@ export default function EntityCatchAllPage() {
 
     if (entity === "professor" && tab === "workshops") {
       if (section === "my-workshops") {
-        return <WorkshopList userId={professorUser} filter={"none"} />;
+        return <WorkshopList userId={userId} filter={"none"} />;
       }
       if (section === "my-accepted-workshops") {
-        return <WorkshopList userId={professorUser} filter={"approved"} />;
+        return <WorkshopList userId={userId} filter={"approved"} />;
       }
       if (section === "my-rejected-workshops") {
-        return <WorkshopList userId={professorUser} filter={"rejected"} />;
+        return <WorkshopList userId={userId} filter={"rejected"} />;
       } 
       if (section === "my-under-workshops") {
-        return <WorkshopList userId={professorUser} filter={"awaiting_review"} />;
+        return <WorkshopList userId={userId} filter={"awaiting_review"} />;
       }
       if (section === "my-pending-workshops") {
-        return <WorkshopList userId={professorUser} filter={"pending"} />;
+        return <WorkshopList userId={userId} filter={"pending"} />;
       }
     }
     // Default placeholder content

@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
+import cors from "cors";
 import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
@@ -25,7 +26,6 @@ import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./auth/errorHandler";
 import userRouter from "./routes/user.routes";
-import cors from "cors";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
@@ -33,7 +33,7 @@ import courtRouter from "./routes/court.routes";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({origin: "http://localhost:3000/", credentials: true}));
 app.use(json());
 app.use(cookieParser());
 
