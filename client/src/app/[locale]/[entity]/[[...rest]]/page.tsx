@@ -180,6 +180,13 @@ export default function EntityCatchAllPage() {
       }
     }
 
+    // Events Office - Gym Management
+    if (entity === "events-office" && tab === "gym") {
+      if (section === "sessions-management") {
+        return <GymSessionsManagementContent />;
+      }
+    }
+
     //Shared Content
     if (tab === "events") {
       if (section === "browse-events") {

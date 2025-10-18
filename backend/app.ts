@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
-import cors from "cors";
 import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
