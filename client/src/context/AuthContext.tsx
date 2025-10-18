@@ -122,11 +122,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Logout
   const logout = useCallback(async () => {
     try {
+      // clear refreshToken from cookies by making a logout request
       await api.post("/auth/logout", {}, { withCredentials: true });
     } catch { }
     localStorage.removeItem("token");
     setUser(null);
-    // clear refreshToken from cookies by making a logout request
     router.replace("/login");
   }, [router]);
 
