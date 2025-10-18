@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Alert } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -10,12 +10,13 @@ import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import { CustomModalLayout } from "../shared/modals";
 import { DateTimePicker } from "../shared/DateTimePicker";
 import { formatDuration } from "../shared/DateTimePicker/utils";
-import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
+import { GymSessionType, SESSION_LABEL } from "./types";
+import { createGymSession } from "./utils";
 
 interface CreateGymSessionProps {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (sessionData: Partial<GymSession>) => void;
+  onSubmit?: () => void | Promise<void>;
   preselectedType?: GymSessionType;
 }
 
@@ -30,8 +31,8 @@ const gymSessionValidationSchema = Yup.object({
     .required("Duration is required")
     .positive("Duration must be a positive number")
     .integer("Duration must be an integer")
-    .min(15, "Minimum duration is 15 minutes")
-    .max(360, "Maximum duration is 6 hours"),
+    .min(10, "Minimum duration is 10 minutes")
+    .max(180, "Maximum duration is 180 minutes"),
   type: Yup.string()
     .required("Session type is required")
     .oneOf(
@@ -45,6 +46,9 @@ const gymSessionValidationSchema = Yup.object({
     .integer("Max participants must be an integer")
     .min(1, "Must have at least 1 participant")
     .max(100, "Cannot exceed 100 participants"),
+  trainer: Yup.string()
+    .min(2, "Trainer name must be at least 2 characters long")
+    .max(100, "Trainer name must be at most 100 characters long"),
 });
 
 const sessionTypeOptions = Object.entries(SESSION_LABEL).map(
@@ -62,6 +66,7 @@ export default function CreateGymSession({
 }: CreateGymSessionProps) {
   const theme = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -69,36 +74,37 @@ export default function CreateGymSession({
       duration: "",
       type: preselectedType || "",
       maxParticipants: "",
+      trainer: "",
     },
     validationSchema: gymSessionValidationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
       setIsSubmitting(true);
+      setError(null);
       try {
-        const startDateTime = values.startDateTime!;
-        const endDateTime = new Date(
-          startDateTime.getTime() + parseInt(values.duration) * 60000
-        );
-
-        const sessionData = {
-          title: `${SESSION_LABEL[values.type as GymSessionType]} Session`,
+        // Create gym session via API
+        await createGymSession({
+          startDateTime: values.startDateTime!,
+          duration: parseInt(values.duration),
           type: values.type as GymSessionType,
-          start: startDateTime.toISOString(),
-          end: endDateTime.toISOString(),
-          spotsTotal: parseInt(values.maxParticipants),
-          spotsTaken: 0,
-        };
+          maxParticipants: parseInt(values.maxParticipants),
+          trainer: values.trainer || undefined,
+        });
 
+        console.log("✅ Gym session created successfully");
+
+        // Notify parent to refresh data
         if (onSubmit) {
-          await onSubmit(sessionData);
+          await onSubmit();
         }
-
-        console.log("Creating session:", sessionData);
 
         formik.resetForm();
         onClose();
-      } catch (error) {
-        console.error("Error creating session:", error);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to create gym session";
+        setError(errorMessage);
+        console.error("Error creating session:", err);
       } finally {
         setIsSubmitting(false);
       }
@@ -132,6 +138,17 @@ export default function CreateGymSession({
             Create New Gym Session
           </Typography>
 
+          {/* Error Alert */}
+          {error && (
+            <Alert
+              severity="error"
+              sx={{ mb: 3 }}
+              onClose={() => setError(null)}
+            >
+              {error}
+            </Alert>
+          )}
+
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {/* Session Type */}
             <CustomSelectField
@@ -151,6 +168,25 @@ export default function CreateGymSession({
               required
               fullWidth
               size="small"
+            />
+
+            {/* Trainer Name (Optional) */}
+            <CustomTextField
+              label="Trainer Name (Optional)"
+              fieldType="text"
+              name="trainer"
+              value={formik.values.trainer}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
+              helperText={
+                formik.touched.trainer
+                  ? formik.errors.trainer
+                  : "Leave empty if trainer is not assigned yet"
+              }
+              placeholder="Enter trainer name"
+              neumorphicBox
+              fullWidth
             />
 
             {/* Start Date and Time */}
@@ -195,15 +231,15 @@ export default function CreateGymSession({
                   ? formik.errors.duration
                   : formik.values.duration
                   ? `Duration: ${formatDuration(formik.values.duration)}`
-                  : "Enter duration in minutes"
+                  : "Enter duration in minutes (10-180 min)"
               }
               placeholder="Enter duration in minutes"
               neumorphicBox
               required
               fullWidth
               inputProps={{
-                min: 15,
-                max: 360,
+                min: 10,
+                max: 180,
                 pattern: "[0-9]*",
                 inputMode: "numeric",
               }}
