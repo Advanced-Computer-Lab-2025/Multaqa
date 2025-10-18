@@ -10,7 +10,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@mui/material/styles";
 import * as Yup from "yup";
 import { useAuth } from "../../../context/AuthContext";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useRouter } from "@/i18n/navigation";
 
 const LoginForm: React.FC = () => {
@@ -75,9 +75,9 @@ const LoginForm: React.FC = () => {
 
           // Short delay for toast to be visible before redirect
           setTimeout(() => {
-            const redirectPath = getRedirectPath(userRole);
+            const redirectPath = getRedirectPath(String(userRole));
             console.log("Redirecting to:", redirectPath);
-            router.push(redirectPath);
+            router.push(redirectPath!);
           }, 1500);
         } catch (err) {
           console.error("Login error:", err);

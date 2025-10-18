@@ -40,7 +40,7 @@ const BoothForm: React.FC = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting, resetForm }) => {
-          const vendorId = String(user?.id); 
+          const vendorId = String(user?._id); 
           console.log("Submitting booth form for vendor ID:", vendorId);
           console.log("User data:", user);
           submitBoothForm(values, { setSubmitting, resetForm }, vendorId);

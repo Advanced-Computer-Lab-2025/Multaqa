@@ -8,28 +8,27 @@ import React, {
 } from "react";
 import { api } from "../api";
 import { useRouter, usePathname } from "@/i18n/navigation";
-import axios from "axios";
-import { MeResponse } from "../../../backend/interfaces/responses/authResponses.interface";
+import { MeResponse, UserResponse } from "../../../backend/interfaces/responses/authResponses.interface";
 
 interface AuthContextType {
-  user: MeResponse | null;
+  user: UserResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
   login: (credentials: {
     email: string;
     password: string;
-  }) => Promise<{ user: MeResponse } | undefined>;
+  }) => Promise<{ user: UserResponse } | undefined>;
   signup: (data: any) => Promise<void>;
   logout: () => Promise<void>;
-  setUser: React.Dispatch<React.SetStateAction<MeResponse | null>>;
+  setUser: React.Dispatch<React.SetStateAction<UserResponse | null>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<MeResponse | null>(null);
+  const [user, setUser] = useState<UserResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } 
       
       try {
-        const response = await api.post("/auth/me");
+        const response = await api.post<MeResponse>("/auth/me");
         if (response.data?.user) {
           setUser(response.data.user);
           console.log("✅ User loaded:", user);

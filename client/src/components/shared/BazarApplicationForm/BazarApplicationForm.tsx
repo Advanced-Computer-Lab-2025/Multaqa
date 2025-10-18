@@ -12,6 +12,7 @@ import { submitBazarForm } from "./utils";
 import {BazarApplicationFormProps} from "./types"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useAuth } from "@/context/AuthContext";
 
 const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
   const theme = useTheme();
@@ -21,13 +22,22 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
     boothSize: "",
   };
 
+  const { user } = useAuth();
+
   return (
     <>
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
-        const vendorId = "68f17b38fae011215b7cf682"; // TODO: Replace with actual vendorIdy
+        const vendorId = String(user?._id);
+        console.log("Submitting Bazar form for vendorId:", vendorId);
+        
+        if (!vendorId || vendorId === "undefined") {
+          console.error("No valid vendor ID found!", { user });
+          return;
+        }
+        
         submitBazarForm(
           values,
           { setSubmitting, resetForm },

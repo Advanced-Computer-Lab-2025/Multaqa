@@ -15,11 +15,6 @@ import { useTheme } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
-import {
-  SignupStudentStaffData,
-  SignupVendorData,
-  SignupData,
-} from "@/context/AuthContext";
 import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface"; 
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
@@ -27,7 +22,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const { signup } = useAuth();
 
   const handleRegistration = async (
-    data: SignupData
+    data: any
   ): Promise<SignupResponse> => {
     try {
       const result = await signup(data);
@@ -70,13 +65,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   password: values.password,
                   gucId: values.gucId as string,
                   type: "studentOrStaff",
-                } as SignupStudentStaffData)
+                } as any)
               : ({
                   companyName: values.companyName as string,
                   email: values.email,
                   password: values.password,
                   type: "vendor",
-                } as SignupVendorData);
+                } as any);
 
           const response = await handleRegistration(signupData);
 
@@ -84,8 +79,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             resetForm();
 
             toast.success(
-              "Registration successful! Please check your email for verification.",
-              {
+             "Registration successful! Please check your email for verification.",
+             {
                 position: "bottom-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -94,8 +89,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                 draggable: true,
                 progress: undefined,
                 theme: "colored",
-              }
-            );
+             }
+           );
+
 
           }
         } catch (err) {

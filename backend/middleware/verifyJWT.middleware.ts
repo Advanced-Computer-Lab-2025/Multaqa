@@ -41,7 +41,6 @@ export default function verifyJWT(req: AuthenticatedRequest, res: Response, next
     req.user = decoded;
     next();
   } catch (err) {
-    console.log("expired token")
     throw createError(403, "Invalid or expired token");
   }
 }
