@@ -38,9 +38,11 @@ const CustomSearchBar: React.FC<CustomSearchProps>  = (
           }}
         />
       </NeumorphicBox>
-      <CustomIcon icon="search" size="medium" containerType={type} sx={{color:theme.palette.primary.main, borderColor:" rgba(0, 0, 0, 0.3);",  '&:hover': {
+      {icon && (
+        <CustomIcon icon="search" size="medium" containerType={type} sx={{color:theme.palette.primary.main, borderColor:" rgba(0, 0, 0, 0.3);",  '&:hover': {
           borderColor:theme.palette.primary.main, // New border color on hover
         },}} />
+      )}
     </div>
   );   
 };
