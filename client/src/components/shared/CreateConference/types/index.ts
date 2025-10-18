@@ -12,7 +12,8 @@ export interface EventFormData {
     websiteLink: string, 
     requiredBudget:string,
     fundingSource:string,
-    extraRequiredResources:string[] 
+    extraRequiredResources:string[],
+    registrationDeadline:string
 }
 
 export interface Step1Props {
@@ -21,5 +22,4 @@ export interface Step1Props {
 
 export interface Step2Props {
     onClose: () => void;
-    onFinalSubmit: (e?: FormEvent<HTMLFormElement> | undefined) => void;
 }

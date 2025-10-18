@@ -20,6 +20,6 @@ export const internalBox = (theme: any) => ({
 
 export const iconStyle = (theme: any) => ({
     fontSize: 28, 
-    color: theme.palette.grey[700], 
+    color: theme.palette.tertiary.main, 
     marginBottom: theme.spacing(0.5) 
 })

@@ -6,7 +6,7 @@ export function validateConference(data: any) {
 
     // Base event fields
     eventName: Joi.string().min(3).max(300).required(),
-    location: Joi.string().valid("").required(),
+    location: Joi.string().allow("").default("").optional(),
     eventStartDate: Joi.date().required(),
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).required(),
     registrationDeadline: Joi.date().required().default(new Date()),
@@ -18,7 +18,7 @@ export function validateConference(data: any) {
     fullAgenda: Joi.string().required(),
     websiteLink: Joi.string().uri().required(),
     requiredBudget: Joi.number().min(0).required(),
-    fundingSource: Joi.string().valid("external", "GUC").required(),
+    fundingSource: Joi.string().valid("External", "GUC").required(),
     extraRequiredResources: Joi.array().items(Joi.string()).optional(),
   });
 
