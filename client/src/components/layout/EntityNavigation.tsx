@@ -221,8 +221,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Gym Management",
         icon: Dumbbell,
         sections: [
-          { id: "all-sessions", label: "All Sessions" },
-          { id: "create-session", label: "Create Session" },
+          { id: "sessions-management", label: "Sessions Management" },
           { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
