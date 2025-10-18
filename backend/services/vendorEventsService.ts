@@ -44,7 +44,9 @@ export class VendorEventsService {
       throw createError(404, "Vendor not found");
     }
 
-    return vendor.requestedEvents;
+    // Convert to plain object to avoid Mongoose document metadata
+    const plainVendor = vendor.toObject();
+    return plainVendor.requestedEvents;
   }
 
   /**

@@ -26,6 +26,7 @@ export interface Applicant {
   email: string;
   registrationDate?: string;
   avatar?: string;
+  gucId: string;
 }
 
 export type AccountType = "Admin" | "Event Office";

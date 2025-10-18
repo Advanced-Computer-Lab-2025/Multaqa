@@ -30,6 +30,7 @@ export type StakeholderType =
 export interface CustomSelectFieldProps {
   fieldType: SelectFieldType;
   options: SelectOption[];
+  name: string;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   isError?: boolean;
@@ -55,6 +56,7 @@ export interface CustomSelectFieldProps {
 }
 
 export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "children"> {
+  name: string;
   fieldType: FieldType;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
@@ -121,6 +123,7 @@ export interface CustomCheckboxGroupProps {
 export interface CustomSelectFieldV2Props {
   fieldType: SelectFieldType;
   options: SelectOption[];
+  name: string;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   isError?: boolean;
