@@ -11,8 +11,6 @@ import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
 import { sendVerification } from "./emailService";
-import { Event } from "../schemas/event-schemas/eventSchema";
-import "../schemas/event-schemas/workshopEventSchema";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
