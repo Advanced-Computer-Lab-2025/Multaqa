@@ -52,9 +52,6 @@ export class UserService {
 
     const populateFields = populateMap[user.role] || [];
 
-    // Import workshop schema to ensure it's registered before population
-    await import("../schemas/event-schemas/workshopEventSchema");
-
     // Fetch again with populate
     const populatedUser = await this.userRepo.findById(id, {
       populate: populateFields,
