@@ -21,12 +21,10 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     if (
       error.response?.status === 403 &&
-      !originalRequest._retry &&
-      document.cookie.includes("refreshToken")
+      !originalRequest._retry
     ) {
+      console.log("🔄 Attempting to refresh token");
       originalRequest._retry = true;
-
-      console.log("Attempting to refresh token");
       try {
         const res = await axios.post("http://localhost:4000/auth/refresh-token", {}, {
           withCredentials: true,

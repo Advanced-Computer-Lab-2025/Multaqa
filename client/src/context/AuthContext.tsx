@@ -57,14 +57,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error: any) {
         console.error("❌ Failed to fetch user:", error);
-        // Only logout if it's not a 403 (let interceptor handle token refresh)
-        if (error.response?.status !== 403) {
-          localStorage.removeItem("token");
-          await api
-            .post("/auth/logout", {}, { withCredentials: true })
-            .catch(() => { });
-          setUser(null);
-        }
+        // If we get here, it means the interceptor couldn't refresh the token or there was a different error, so we should logout
+        localStorage.removeItem("token");
+        await api
+          .post("/auth/logout", {}, { withCredentials: true })
+          .catch(() => { });
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
