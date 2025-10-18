@@ -13,6 +13,8 @@ import VendorRequestsList from "@/components/vendor/Participation/VendorRequests
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
+import GymSessionsManagementContent from "@/components/gym/GymSessionsManagementContent";
+import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
 import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
 import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
@@ -65,15 +67,22 @@ export default function EntityCatchAllPage() {
     }
 
     // Gym sessions for stakeholders
-    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "gym") {
+    if (
+      ["student", "staff", "ta", "professor"].includes(entity) &&
+      tab === "gym"
+    ) {
       if (section === "browse-sessions" || section === "") {
         return <GymSchedule />;
       }
       if (section === "my-sessions") {
         return (
           <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">My Registered Sessions</h2>
-            <p className="text-gray-600">Coming soon: your registered gym sessions.</p>
+            <h2 className="text-xl font-semibold mb-4">
+              My Registered Sessions
+            </h2>
+            <p className="text-gray-600">
+              Coming soon: your registered gym sessions.
+            </p>
           </div>
         );
       }
@@ -138,6 +147,13 @@ export default function EntityCatchAllPage() {
             setSpecificWorkshop={setSpecificWorkshop}
           />
         );
+      }
+    }
+
+    // Events Office - Gym Management
+    if (entity === "events-office" && tab === "gym") {
+      if (section === "sessions-management") {
+        return <GymSessionsManagementContent />;
       }
     }
 

@@ -1,5 +1,9 @@
 import { IEvent } from "../interfaces/models/event.interface";
-import { IVendor, IRequestedEvent, VendorRequest } from "../interfaces/models/vendor.interface";
+import {
+  IVendor,
+  IRequestedEvent,
+  VendorRequest,
+} from "../interfaces/models/vendor.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
@@ -7,15 +11,20 @@ import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
+import { BOOTH_LOCATIONS } from "../constants/boothLocations.constants";
+import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
+import { IPlatformBooth } from "../interfaces/platformBooth.interface";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
+  private platformBoothRepo: GenericRepository<IPlatformBooth>;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
+    this.platformBoothRepo = new GenericRepository(PlatformBooth);
   }
 
   /**
@@ -35,19 +44,74 @@ export class VendorEventsService {
       throw createError(404, "Vendor not found");
     }
 
-    return vendor.requestedEvents;
+    // Convert to plain object to avoid Mongoose document metadata
+    const plainVendor = vendor.toObject();
+    return plainVendor.requestedEvents;
   }
 
   /**
-   * This method allows a vendor to apply to either a bazaar or a platform booth event
-   * adds to the vendor and event documents accordingly with a default status of PENDING.
-   * @param vendorId  vendor's ID
-   * @param eventId event's ID
+   * This method allows a vendor to apply to a platform booth event
+   * @param vendorId vendor's ID
    * @param data validated form data
-   * @param eventType type of event ("bazaar" or "platformBooth")
-   * @returns updated vendor & event document, or null if operation fails
+   * @returns updated vendor & event document
    */
-  async applyToBazaarOrBooth(
+  async applyToPlatformBooth(
+    vendorId: string,
+    data: any
+  ): Promise<IApplicationResult> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    // Default status
+    const applicationStatus = Event_Request_Status.PENDING;
+
+    // Create a new platform booth event for this vendor
+    const event = await this.eventRepo.create({
+      type: EVENT_TYPES.PLATFORM_BOOTH,
+      eventName: `${vendor.companyName} Booth`,
+      vendor: vendorId,
+      RequestData: { ...data.value, status: applicationStatus },
+      archived: false,
+      attendees: [],
+      allowedUsers: [],
+      registrationDeadline: new Date(),
+      // Set default dates based on booth setup duration
+      eventStartDate: new Date(), // TODO: Calculate proper start date
+      eventEndDate: new Date(
+        Date.now() + data.value.boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+      ),
+      eventStartTime: "09:00",
+      eventEndTime: "18:00",
+      location: data.value.boothLocation,
+      description: `Platform booth for ${vendor.companyName}`,
+    });
+
+    // Add request to vendor's requestedEvents
+    vendor.requestedEvents.push({
+      event: event._id as string,
+      RequestData: data.value,
+      status: applicationStatus,
+    });
+
+    await vendor.save();
+
+    return {
+      vendor,
+      event,
+      applicationStatus,
+    };
+  }
+
+  /**
+   * This method allows a vendor to apply to a bazaar event
+   * @param vendorId vendor's ID
+   * @param eventId bazaar event's ID
+   * @param data validated form data
+   * @returns updated vendor & event document
+   */
+  async applyToBazaar(
     vendorId: string,
     eventId: string,
     data: any
@@ -59,46 +123,25 @@ export class VendorEventsService {
       throw createError(404, "Vendor or Event not found");
     }
 
+    if (event.type !== EVENT_TYPES.BAZAAR) {
+      throw createError(400, "Event is not a bazaar");
+    }
+
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Add request to vendor
+    // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
       event: eventId,
-      RequestData: data,
+      RequestData: data.value,
       status: applicationStatus,
     });
 
-    // Add request to event depending on its type
-    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
-      if (data.value.eventType === EVENT_TYPES.BAZAAR) {
-        throw createError(
-          400,
-          "Mismatched event type in RequestData for platform booth application"
-        );
-      }
-
-      event.vendor = vendorId;
-      event.RequestData = { ...data.value, status: applicationStatus };
-
-    } else if (event.type === EVENT_TYPES.BAZAAR) {
-      if (data.value.eventType === EVENT_TYPES.PLATFORM_BOOTH) {
-        throw createError(
-          400,
-          "Mismatched event type in RequestData for bazaar application"
-        );
-      }
-
-      event.vendors?.push({
-        vendor: vendorId,
-        RequestData: { ...data.value, status: applicationStatus },
-      });
-    } else {
-      throw createError(
-        400,
-        "Invalid Event Type, must be 'bazaar' or 'platform_booth'"
-      );
-    }
+    // Add vendor to bazaar's vendors list
+    event.vendors?.push({
+      vendor: vendorId,
+      RequestData: { ...data.value, status: applicationStatus },
+    });
 
     await event.save();
     await vendor.save();
@@ -113,11 +156,11 @@ export class VendorEventsService {
   async getVendorsRequest(eventId: string): Promise<VendorRequest[]> {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
-        { path: 'vendor', select: 'companyName logo' },
-        { path: 'vendors.vendor', select: 'companyName logo' }
-      ] as any[]
+        { path: "vendor", select: "companyName logo" },
+        { path: "vendors.vendor", select: "companyName logo" },
+      ] as any[],
     });
-  
+
     if (!event) {
       throw createError(404, "Event not found");
     }
@@ -128,7 +171,7 @@ export class VendorEventsService {
         if (vendorEntry.RequestData.status === Event_Request_Status.PENDING) {
           vendors.push({
             vendor: vendorEntry.vendor,
-            RequestData: vendorEntry.RequestData
+            RequestData: vendorEntry.RequestData,
           });
         }
       }
@@ -141,18 +184,21 @@ export class VendorEventsService {
       }
     }
 
-    if(!vendors || vendors.length === 0) {
+    if (!vendors || vendors.length === 0) {
       throw createError(404, "No pending vendor requests found for this event");
     }
     return vendors;
   }
 
-  async getVendorsRequestsDetails(eventId: string, vendorId: string): Promise<VendorRequest> {
+  async getVendorsRequestsDetails(
+    eventId: string,
+    vendorId: string
+  ): Promise<VendorRequest> {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
-        { path: 'vendor', select: 'companyName logo' },
-        { path: 'vendors.vendor', select: 'companyName logo' }
-      ] as any[]
+        { path: "vendor", select: "companyName logo" },
+        { path: "vendors.vendor", select: "companyName logo" },
+      ] as any[],
     });
 
     if (!event) {
@@ -164,7 +210,9 @@ export class VendorEventsService {
     // Check if it's a bazaar with multiple vendors and get the specific vendor's request
     if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
       let vendorreq = event.vendors.find(
-        v => typeof v.vendor !== "string" && v.vendor._id?.toString() === vendorId.toString()
+        (v) =>
+          typeof v.vendor !== "string" &&
+          v.vendor._id?.toString() === vendorId.toString()
       );
       if (vendorreq) {
         vendorRequest = {
@@ -173,9 +221,12 @@ export class VendorEventsService {
         };
       }
     }
-    // Check if it's a platform booth 
+    // Check if it's a platform booth
     else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
-      if (typeof event.vendor !== "string" && event.vendor._id?.toString() === vendorId.toString()) {
+      if (
+        typeof event.vendor !== "string" &&
+        event.vendor._id?.toString() === vendorId.toString()
+      ) {
         vendorRequest = {
           vendor: event.vendor,
           RequestData: event.RequestData,
@@ -193,7 +244,7 @@ export class VendorEventsService {
   async respondToVendorRequest(
     eventId: string,
     vendorId: string,
-    reqBody: { status: 'approved' | 'rejected' }
+    reqBody: { status: "approved" | "rejected" }
   ): Promise<void> {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
@@ -206,27 +257,31 @@ export class VendorEventsService {
     }
 
     const { status } = reqBody;
-    if (status !== 'approved' && status !== 'rejected') {
-      throw createError(400, "Invalid status. Must be 'approved' or 'rejected'");
+    if (status !== "approved" && status !== "rejected") {
+      throw createError(
+        400,
+        "Invalid status. Must be 'approved' or 'rejected'"
+      );
     }
 
     // Update vendor's requestedEvents
     const requestIndex = vendor.requestedEvents.findIndex(
-      req => req.event?.toString() === eventId.toString()
+      (req) => req.event?.toString() === eventId.toString()
     );
 
     if (requestIndex === -1) {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    vendor.requestedEvents[requestIndex].status = status as Event_Request_Status;
-    vendor.markModified('requestedEvents');
+    vendor.requestedEvents[requestIndex].status =
+      status as Event_Request_Status;
+    vendor.markModified("requestedEvents");
     await vendor.save();
 
     // Update event based on type
     if (event.type === EVENT_TYPES.BAZAAR) {
       const vendorIndex = event.vendors?.findIndex(
-        ve => ve.vendor?.toString() === vendorId.toString()
+        (ve) => ve.vendor?.toString() === vendorId.toString()
       );
 
       if (vendorIndex === -1 || vendorIndex === undefined || !event.vendors) {
@@ -234,7 +289,7 @@ export class VendorEventsService {
       }
 
       event.vendors[vendorIndex].RequestData.status = status;
-      event.markModified('vendors');
+      event.markModified("vendors");
     } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (!event.vendor || event.vendor.toString() !== vendorId.toString()) {
         throw createError(404, "Vendor not found in event");
@@ -245,12 +300,75 @@ export class VendorEventsService {
       }
 
       event.RequestData.status = status;
-      event.markModified('RequestData');
+      event.markModified("RequestData");
+
+      const { boothSetupDuration } = event.RequestData;
+      // Calculate start date: now + boothSetupDuration (in weeks)
+      const now = new Date();
+      event.eventStartDate = now;
+      event.eventEndDate = new Date(
+        now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+      );
     } else {
       throw createError(400, "Invalid event type");
     }
 
     await event.save();
   }
+  async getAvailableBooths(startDate: any, endDate: any): Promise<string[]> {
+    // Input validation
+    if (!startDate || !endDate) {
+      throw createError(
+        400,
+        "Missing required query parameters: startDate and endDate"
+      );
+    }
 
+    const start = new Date(startDate as string);
+    const end = new Date(endDate as string);
+    console.log({
+      start,
+      end,
+      typeofStart: typeof start,
+      typeofEnd: typeof end,
+    });
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw createError(400, "Invalid date format for startDate or endDate");
+    }
+
+    if (start >= end) {
+      throw createError(400, "startDate must be before endDate");
+    }
+
+    // First get all platform booth events
+    const allPlatformBoothEvents = await this.eventRepo.findAll({
+      type: "platform_booth",
+      "RequestData.status": Event_Request_Status.APPROVED,
+    });
+
+    // Manually filter for overlapping events
+    const overlappingEvents = allPlatformBoothEvents.filter((event) => {
+      const eventStart = new Date(event.eventStartDate);
+      const eventEnd = new Date(event.eventEndDate);
+
+      // Events overlap if:
+      // 1. Event starts before query period ends AND
+      // 2. Event ends after query period starts
+      return eventStart <= end && eventEnd >= start;
+    });
+
+    console.log("Overlapping Events:", overlappingEvents);
+
+    // Get reserved booth locations from overlapping events
+    const reservedBooths = new Set(
+      overlappingEvents
+        .map((event) => event.RequestData?.boothLocation)
+        .filter(Boolean) // Remove undefined/null values
+    );
+    // Return all booth locations except reserved ones
+    return Object.values(BOOTH_LOCATIONS).filter(
+      (booth) => !reservedBooths.has(booth)
+    );
+  }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -12,55 +12,30 @@ import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import StatusChip from "../layout/StatusChip";
 import ManagementScreen from "./shared/ManagementScreen";
 import { User } from "./types";
-import { userCreationSchema, handleCreateUser } from "./utils";
-
-const initialUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@guc.edu.eg",
-    role: "Admin",
-    status: "Active",
-    createdDate: "15/01/2025",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@guc.edu.eg",
-    role: "Event Office",
-    status: "Active",
-    createdDate: "20/01/2025",
-  },
-  {
-    id: "3",
-    name: "Michael Johnson",
-    email: "michael.johnson@guc.edu.eg",
-    role: "Student",
-    status: "Blocked",
-    createdDate: "25/01/2025",
-  },
-  {
-    id: "4",
-    name: "Emily Davis",
-    email: "emily.davis@guc.edu.eg",
-    role: "Professor",
-    status: "Active",
-    createdDate: "10/02/2025",
-  },
-  {
-    id: "5",
-    name: "David Wilson",
-    email: "david.wilson@guc.edu.eg",
-    role: "TA",
-    status: "Active",
-    createdDate: "12/02/2025",
-  },
-];
+import { userCreationSchema, handleCreateUser, fetchAllUsers } from "./utils";
 
 export default function AllUsersContent() {
   const theme = useTheme();
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch all users on component mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setLoading(true);
+        const fetchedUsers = await fetchAllUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error("Failed to load users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -179,10 +154,14 @@ export default function AllUsersContent() {
         boxSubtitle="Create new user accounts or review existing ones"
         boxIcon={<ManageAccountsIcon fontSize="small" />}
         borderColor={theme.palette.tertiary.main}
-        items={users}
+        items={loading ? [] : users}
         renderItem={renderUserCard}
-        noItemsMessage="No Users Found"
-        noItemsSubtitle="There are no users to display."
+        noItemsMessage={loading ? "Loading users..." : "No Users Found"}
+        noItemsSubtitle={
+          loading
+            ? "Please wait while we fetch the users"
+            : "There are no users to display."
+        }
       />
 
       {/* Create Account Modal */}

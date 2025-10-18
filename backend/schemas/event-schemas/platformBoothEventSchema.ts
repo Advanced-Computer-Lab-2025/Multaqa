@@ -1,8 +1,9 @@
 import { Schema } from "mongoose";
 import { Event } from "./eventSchema";
 import { Event_Request_Status } from "../../constants/user.constants";
+import { IPlatformBooth } from "../../interfaces/platformBooth.interface";
 
-const platformBoothSchema = new Schema({
+const platformBoothSchema = new Schema<IPlatformBooth>({
   vendor: { type: Schema.Types.ObjectId, ref: "vendor", required: true },
   RequestData: {
     type: new Schema(
