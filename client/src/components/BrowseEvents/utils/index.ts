@@ -66,7 +66,8 @@ function transformEvent(event: any) {
           "Required Budget":event.requiredBudget,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": (event.capacity - event.attendees.length)
+          "Spots Left": (event.capacity - event.attendees.length),
+          "Status":event.approvalStatus,
         },
       };
 

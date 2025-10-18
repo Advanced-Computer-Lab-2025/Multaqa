@@ -1,9 +1,8 @@
-import { ButtonProps } from "@mui/material";
 type BasicProps = {
   user?: string,
   registered?: boolean,
   onDelete?: () => void,
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
   id:string,
   userInfo:{ id: string; name: string; email:string };
   isReady:boolean;

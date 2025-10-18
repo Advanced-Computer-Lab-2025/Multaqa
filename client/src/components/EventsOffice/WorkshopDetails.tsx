@@ -24,33 +24,10 @@ import { CustomModal } from "../shared/modals";
 import { EventType } from "../BrowseEvents/browse-events";
 import { format } from "date-fns";
 import { api } from "@/api";
-
-export interface Workshop {
-  id: string;
-  type: EventType.WORKSHOP;
-  name: string;
-  description: string;
-  agenda: string;
-  professors: string[];
-  details: {
-    [key: string]: string; // if the keys are not fixed, or:
-    "Start Date": string;
-    "End Date": string;
-    "Start Time": string;
-    "End Time": string;
-    "Created By": string;
-    Location: string;
-    "Faculty Responsible": string;
-    "Required Budget": string;
-    "Funding Source": string;
-    "Extra Required Resources": string;
-    Capacity: string;
-    "Registration Deadline": string;
-  };
-}
+import { WorkshopViewProps } from "../Event/types";
 
 interface WorkshopDetailsProps {
-  workshop: Workshop;
+  workshop: WorkshopViewProps;
   setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
   eventsOfficeId: string;
 }
@@ -60,12 +37,18 @@ interface CommentItem {
   text: string;
   timestamp: string;
 }
+// Define the type without 'id'
+type CommentWithoutId = Omit<CommentItem, 'id'>;
+
+function removeId(comments: CommentItem[]): CommentWithoutId[] {
+  return comments.map(({ id, ...rest }) => rest);
+}
+
 const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   workshop,
   setEvaluating,
   eventsOfficeId,
 }) => {
-  console.log(workshop);
   const [status, setStatus] = useState("N/A");
   const [comment, setComment] = useState("");
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -145,8 +128,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   };
 
   const handleCallApi = async (payload: {
-    status: string;
-    comments: CommentItem[];
+    approvalStatus: string;
+    comments: CommentWithoutId[];
   }) => {
     const professorId = workshop.details["Created By"];
     console.log(professorId);
@@ -198,8 +181,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     };
 
     const payload = {
-      status: mapToApiStatus(confirmed || status),
-      comments: comments,
+      approvalStatus: mapToApiStatus(confirmed || status),
+      comments: removeId(comments),
     };
 
     handleCallApi(payload);

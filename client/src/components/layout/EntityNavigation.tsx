@@ -164,6 +164,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "my-workshops", label: "My Workshops" },
+          { id: "my-pending-workshops", label: "Pending Workshops" },
+          { id: "my-accepted-workshops", label: "Accepted Workshops" },
+          { id: "my-rejected-workshops", label: "Rejected Workshops" },
+          { id: "my-under-workshops", label: "To Review Workshops" },
         ],
       },
       {
@@ -306,7 +310,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "opportunities", label: "Browse Opportunities" },
           { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
-          { id: "apply-booth", label: "Apply for Booth" },
+          { id: "apply-booth", label: "Booth Applications" },
         ],
       },
       { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },

@@ -218,7 +218,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
             "Required Budget",
             "Source of Funding",
             "Extra Required Resources",
-            'Funding Source'
+            'Funding Source',
+            "Status"
           ];
 
           // Combine exclusion lists depending on the user

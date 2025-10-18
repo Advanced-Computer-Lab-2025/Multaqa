@@ -15,12 +15,10 @@ import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
 import GymSessionsManagementContent from "@/components/gym/GymSessionsManagementContent";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
-import WorkshopDetails, {
-  Workshop,
-} from "@/components/EventsOffice/WorkshopDetails";
+import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
 import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
 import WorkshopList from "@/components/shared/Professor/WorkshopList";
-import { demoworkshop } from ".";
+import { WorkshopViewProps } from "@/components/Event/types";
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -34,11 +32,7 @@ export default function EntityCatchAllPage() {
   const tab = segments[2] || "";
   const section = segments[3] || "";
   const [Evaluating, setEvaluating] = useState(false);
-  const [specificWorkshop, setSpecificWorkshop] =
-    useState<Workshop>(demoworkshop);
-  console.log(entity);
-  console.log(tab);
-  console.log(section);
+  const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
   const studentUser = "68e6d9cfc5de4e0cec12c5a3";
   const professorUser = "68f1433886d20633de05f301";
   const eventOfficeUser = "68ec2c696cf5628987e49d69";
@@ -158,7 +152,7 @@ export default function EntityCatchAllPage() {
 
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
-        return Evaluating ? (
+        return Evaluating  && specificWorkshop ? (
           <WorkshopDetails
             workshop={specificWorkshop}
             setEvaluating={setEvaluating}
@@ -222,7 +216,19 @@ export default function EntityCatchAllPage() {
 
     if (entity === "professor" && tab === "workshops") {
       if (section === "my-workshops") {
-        return <WorkshopList userId={professorUser} />;
+        return <WorkshopList userId={professorUser} filter={"none"} />;
+      }
+      if (section === "my-accepted-workshops") {
+        return <WorkshopList userId={professorUser} filter={"approved"} />;
+      }
+      if (section === "my-rejected-workshops") {
+        return <WorkshopList userId={professorUser} filter={"rejected"} />;
+      } 
+      if (section === "my-under-workshops") {
+        return <WorkshopList userId={professorUser} filter={"awaiting_review"} />;
+      }
+      if (section === "my-pending-workshops") {
+        return <WorkshopList userId={professorUser} filter={"pending"} />;
       }
     }
     // Default placeholder content
