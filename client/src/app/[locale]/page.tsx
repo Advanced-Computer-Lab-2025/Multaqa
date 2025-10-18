@@ -361,33 +361,23 @@ const SimpleFormExample: React.FC = () => {
         </CustomModalLayout>
 
         <CustomButton onClick={() => setOpenEditWorkshop(true)}>Edit Workshop</CustomButton>
-        <CustomModalLayout open={openEditWorkshop} onClose={()=> setOpenEditWorkshop(false)}>
-          <EditWorkshop 
+        <CustomModalLayout open={openEditWorkshop} onClose={()=> setOpenEditWorkshop(false)} width='w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[90vw], xl:w-[90vw]'>
+          <EditWorkshop
+              creatingProfessor='68f1433886d20633de05f301' 
               setOpenEditWorkshop={setOpenEditWorkshop} 
-              workshopId='68f1467f7faf7862f37ef0d8'
-              professors={[
-                  { id: '1', name: 'Prof. Ahmed Ali' },
-                  { id: '2', name: 'Prof. Mona Hassan' },
-                  { id: 'Prof. Samir Youssef', name: 'Prof. Samir Youssef' }
-              ]
-              }
-              workshopName='hey'
-              budget={1}
-              capacity={1}
-              startDate={new Date("10/19/2025")}
-              endDate={new Date("10/25/2025")}
-              registrationDeadline={new Date("10/18/2025")}
-              description='67'
-              agenda='67'
+              workshopId='68f3ddea8e5236b246321a9a'
+              workshopName='hey jude'
+              budget={98}
+              capacity={1010}
+              startDate={new Date("2025-10-23T00:00:00.000+00:00")}
+              endDate={new Date("2025-10-30T00:00:00.000+00:00")}
+              registrationDeadline={new Date("2025-10-22T00:00:00.000+00:00")}
+              description='hey'
+              agenda='bye'
               location='GUC Berlin'
               faculty='MET'
               fundingSource='External'
-              initialProfessors={[
-                { id: '1', name: 'Prof. Ahmed Ali' },
-                { id: '2', name: 'Prof. Mona Hassan' }
-              ]
-              }
-              extraResources={["1","67"]}
+              extraResources={["hat"]}
             />
         </CustomModalLayout>
 

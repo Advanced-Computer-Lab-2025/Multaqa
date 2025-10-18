@@ -124,8 +124,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
       price:5,
     };
     actions.resetForm();
-    console.log(payload);
-    // handleCallApi(payload);
+    handleCallApi(payload);
     setOpenCreateWorkshop(false);
   };
 

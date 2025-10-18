@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect} from 'react'
 import {useFormik, Formik} from 'formik'
 
 import { Chip, Grid, InputAdornment, TextField, Typography, Box } from '@mui/material'
@@ -16,15 +16,14 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 import {api} from "../../../api";
 
 
-interface Professor {
-  id: string;
-  name: string;
+interface ProfessorOption {
+  label: string;
+  value: string; // ideally, the professor _id
 }
 
 interface EditWorkshopProps {
   setOpenEditWorkshop: (open: boolean) => void;
   workshopId:string;
-  professors: Professor[];
   workshopName?: string;
   budget?: number;
   capacity?: number;
@@ -36,14 +35,13 @@ interface EditWorkshopProps {
   location?: string;
   faculty?: string;
   fundingSource?: string;
-  initialProfessors?: Professor[];
   extraResources?: string[];
+  creatingProfessor:string;
 }
 
 const EditWorkshop = ({
     setOpenEditWorkshop, 
     workshopId,
-    professors,
     workshopName = "",
     budget = 0,
     capacity = 0,
@@ -55,15 +53,44 @@ const EditWorkshop = ({
     location = "",
     faculty = "",
     fundingSource = "",
-    initialProfessors = [],
     extraResources = [],
+    creatingProfessor
   }: EditWorkshopProps) => {
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
+  const [loadingProfessors, setLoadingProfessors] = useState(true);
+  const [availableProfessors, setAvailableProfessors] = useState<ProfessorOption[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    handleLoadProfessors();
+  }, []);
+
+  const handleLoadProfessors = async () => {
+      setLoading(true);
+      setError(null);
+      setResponse([]);
+      try {
+        setLoadingProfessors(true);
+        const res = await api.get("/users/professors");
+        
+        const options = res.data.data
+          .filter((prof: any) => prof._id !== creatingProfessor)
+          .map((prof: any) => ({
+            label: `${prof.firstName} ${prof.lastName}`,
+            value: prof._id, // use ID, not name
+        }));
+  
+        setAvailableProfessors(options);
+      } catch (err: any) {
+          setError(err?.message || "API call failed");
+      } finally {
+          setLoadingProfessors(false);
+      }
+    };
 
   const initialValues ={
       workshopName,
@@ -74,16 +101,11 @@ const EditWorkshop = ({
       registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
       description,
       agenda,
-      professors: initialProfessors,
+      professors: [] as ProfessorOption[],
       location,
       faculty,
       fundingSource,
       extraResources,
-  };
-
-  // Function to find professor by value
-  const findProfessorByID = (value: string) => {
-    return professors.find(prof => prof.id === value);
   };
 
   const handleCallApi = async (payload:any) => {
@@ -92,7 +114,7 @@ const EditWorkshop = ({
     setResponse([]);
     try {
         // TODO: Replace with your API route
-        const res = await api.patch("/workshops" + "/68e8f60bcf1172a5cbc4edd5/" + workshopId, payload);
+        const res = await api.patch("/workshops/" + creatingProfessor + "/"+ workshopId, payload);
         setResponse(res.data);
     } catch (err: any) {
         setError(err?.message || "API call failed");
@@ -111,7 +133,7 @@ const EditWorkshop = ({
       description: values.description,
       fullAgenda:values.agenda,
       facultyResponsible:values.faculty,
-      associatedProfs:["68f1433886d20633de05f301"],
+      associatedProfs:values.professors.map((p: { label: string; value: string }) => p.value),
       requiredBudget:values.budget,
       extraRequiredResources:values.extraResources,
       capacity:values.capacity,
@@ -313,14 +335,11 @@ const EditWorkshop = ({
                 <CustomSelectField
                   label="Participating Professors"
                   fieldType="single"
-                  options={professors.map(prof => ({
-                    label:prof.name,
-                    value:prof.id
-                  }))}
+                  options={availableProfessors}
                   value={selectedProf}
                   onChange={(e: any) => {
-                    // If your CustomSelectField returns the value directly:
-                    setSelectedProf(e.target ? e.target.value : e);
+                   const val = e.target ? e.target.value : e;
+                      setSelectedProf(val);
                   }}
                 />
                 { errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>}
@@ -331,13 +350,10 @@ const EditWorkshop = ({
               size='medium' 
               containerType='outwards'
               onClick={() => {
-                const profToAdd = findProfessorByID(selectedProf);
-                if (
-                  profToAdd && 
-                  !values.professors.some(p => p.id === selectedProf)
-                ) {
-                  setFieldValue('professors', [...values.professors, profToAdd]);
-                  setSelectedProf(""); // Clear selection after adding
+                const profToAdd = availableProfessors.find(p => p.value === selectedProf)
+                if (profToAdd && !values.professors.some(p => p.value === profToAdd.value)) {
+                  setFieldValue("professors", [...values.professors, profToAdd]);
+                  setSelectedProf("");
                 }
               }}
             />
@@ -375,12 +391,12 @@ const EditWorkshop = ({
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1}}>
               {values.professors.map((prof) => (
                 <Chip
-                  key={prof.id}
-                  label={prof.name}
+                  key={prof.value}
+                  label={prof.label}
                   onDelete={() =>
                     setFieldValue(
                       'professors',
-                      values.professors.filter((p) => p.id !== prof.id)
+                      values.professors.filter((p) => p.label !== prof.label)
                     )
                   }
                   color="primary"
@@ -448,7 +464,7 @@ const EditWorkshop = ({
           </Grid>
         </Grid>
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "Submitting" : 'Edit Information'} variant='contained' color='primary' fullWidth  type='submit'/>
+            <CustomButton disabled={isSubmitting || loadingProfessors} label={isSubmitting ? "Submitting" : 'Edit Information'} variant='contained' color='primary' fullWidth  type='submit'/>
         </Box>
       </form>          
     </>
