@@ -19,6 +19,7 @@ import {
 } from "./utils";
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
+  name,
   label,
   fieldType,
   InputProps,
@@ -190,6 +191,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     <>
       {separateLabels ? (
         <StyledDefaultTextField
+          name={name}
           label={!disableIcon ? label : undefined}
           fieldType={fieldType}
           placeholder={props.placeholder}
@@ -224,6 +226,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                 width="100%"
               >
                 <StyledTextField
+                  name={name}
                   {...props}
                   fullWidth
                   label={!disableIcon ? labelWithIcon : props.placeholder || ""}
@@ -276,6 +279,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
             </div>
           ) : (
             <StyledTextField
+              name={name}
               {...props}
               fullWidth
               label={!disableIcon ? labelWithIcon : props.placeholder || ""}

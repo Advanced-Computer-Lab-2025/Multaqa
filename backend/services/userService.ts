@@ -33,11 +33,71 @@ export class UserService {
     );
 
     const formattedUsers = users.map((user) => {
-      const { password, ...userWithoutPassword } = user;
+      // Convert Mongoose document to plain object
+      const plainUser = user.toObject();
+      const { password, ...userWithoutPassword } = plainUser;
       return userWithoutPassword as Omit<IUser, "password">;
     });
 
     return formattedUsers;
+  }
+
+  async getUserById(id: string): Promise<Omit<IUser, "password">> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    const populateFields = populateMap[user.role] || [];
+
+    // Fetch again with populate
+    const populatedUser = await this.userRepo.findById(id, {
+      populate: populateFields,
+    });
+
+    const plainUser = populatedUser?.toObject();
+
+    // Remove password
+    const { password, ...userWithoutPassword } = plainUser!;
+    return userWithoutPassword as Omit<IUser, "password">;
+  }
+
+  async addEventToUser(
+    id: string,
+    eventId: Schema.Types.ObjectId
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    user.registeredEvents?.push(eventId);
+    await user.save();
+    return user;
+  }
+
+  async blockUser(id: string): Promise<void> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    if (user.status === UserStatus.BLOCKED) {
+      throw createError(400, "User is already blocked");
+    }
+    user.status = UserStatus.BLOCKED;
+    await user.save();
+  }
+
+  async unBlockUser(id: string): Promise<void> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    if (user.status === UserStatus.ACTIVE) {
+      throw createError(400, "User is already Active");
+    }
+    user.status = UserStatus.ACTIVE;
+    await user.save();
   }
 
   async assignRoleAndSendVerification(
@@ -78,49 +138,31 @@ export class UserService {
     return userWithoutPassword as Omit<IStaffMember, "password">;
   }
 
-  async getUserById(id: string): Promise<Omit<IUser, "password">> {
-    const user = await this.userRepo.findById(id);
-    if (!user) {
-      throw createError(404, "User not found");
-    }
+  async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.UNKNOWN,
+    });
+    
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
+  }
 
-    const populateFields = populateMap[user.role] || [];
-
-    // Fetch again with populate
-    const populatedUser = await this.userRepo.findById(id, {
-      populate: populateFields,
+  async getAllTAs(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.TA,
     });
 
-    const plainUser = populatedUser?.toObject();
-
-    // Remove password
-    const { password, ...userWithoutPassword } = plainUser!;
-    return userWithoutPassword as Omit<IUser, "password">;
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
   }
 
-  async addEventToUser(
-    id: string,
-    eventId: Schema.Types.ObjectId
-  ): Promise<IUser> {
-    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
-    if (!user) {
-      throw createError(404, "User not found");
-    }
-
-    user.registeredEvents?.push(eventId);
-    await user.save();
-    return user;
-  }
-  async blockUser(id: string): Promise<void> {
-    const user = await this.userRepo.findById(id);
-    if (!user) {
-      throw createError(404, "User not found");
-    }
-    if (user.status === UserStatus.BLOCKED) {
-      throw createError(400, "User is already blocked");
-    }
-    user.status = UserStatus.BLOCKED;
-    await user.save();
+  async getAllStaff(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.STAFF,
+    });
+    
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map(staff => staff.toObject());
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
