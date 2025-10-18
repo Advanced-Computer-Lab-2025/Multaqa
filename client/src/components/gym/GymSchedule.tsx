@@ -1,50 +1,21 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import React, { useMemo, useState, useEffect } from "react";
+import { Box, Chip, Divider, Stack, Typography, Alert } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
-
-// colors handled by `GymSessionCard`
-
-type Props = {
-  month?: Date; // initial month
-  sessions?: GymSession[]; // optional external data, else use demo
-};
-
-const demoSessions = (base: Date): GymSession[] => {
-  const y = base.getFullYear();
-  const m = base.getMonth();
-  const mk = (d: number, sh: number, eh: number, t: GymSessionType, title: string): GymSession => ({
-    id: `${y}-${m + 1}-${d}-${t}-${sh}`,
-    title,
-    type: t,
-    start: new Date(y, m, d, sh, 0, 0).toISOString(),
-    end: new Date(y, m, d, eh, 0, 0).toISOString(),
-    instructor: ["Sara", "Omar", "Nora", "Hossam"][d % 4],
-    location: ["Studio A", "Studio B", "Main Hall"][d % 3],
-    spotsTotal: 20,
-    spotsTaken: (d * 3 + sh) % 20,
-  });
-  return [
-    mk(2, 9, 10, "YOGA", "Morning Flow"),
-    mk(3, 18, 19, "ZUMBA", "Evening Zumba"),
-    mk(5, 8, 9, "PILATES", "Core Strength"),
-    mk(8, 17, 18, "AEROBICS", "High Energy"),
-    mk(12, 10, 11, "CROSS_CIRCUIT", "Circuit Blast"),
-    mk(15, 19, 20, "KICK_BOXING", "Kick-boxing Basics"),
-    mk(16, 7, 8, "YOGA", "Sunrise Yoga"),
-    mk(22, 18, 19, "PILATES", "Pilates Reformer"),
-    mk(25, 12, 13, "ZUMBA", "Zumba Party"),
-  ];
-};
+type Props = { month?: Date; sessions?: GymSession[] };
+import { api } from "@/api";
+import { mapServerToClient, FILTER_CHIPS } from "./helpers";
 
 export default function GymSchedule({ month, sessions }: Props) {
   const [current, setCurrent] = useState<Date>(month ?? new Date());
   const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
+  const [items, setItems] = useState<GymSession[]>(sessions ?? []);
+  const [error, setError] = useState<string | null>(null);
 
-  const all = useMemo(() => sessions ?? demoSessions(current), [sessions, current]);
+  const all = useMemo(() => (sessions && sessions.length ? sessions : items), [sessions, items]);
   const filtered = useMemo(
     () => (filter === "ALL" ? all : all.filter((s) => s.type === filter)),
     [all, filter]
@@ -72,17 +43,40 @@ export default function GymSchedule({ month, sessions }: Props) {
   const goPrev = () => setCurrent((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   const goNext = () => setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
 
+  useEffect(() => {
+    let cancelled = false;
+    const fetchSessions = async () => {
+      setError(null);
+      try {
+        const res = await api.get("/gymsessions");
+        const payloadRoot = res.data?.data ?? res.data;
+        const list = Array.isArray(payloadRoot) ? payloadRoot : [];
+        const mapped = list.map(mapServerToClient);
+        if (!cancelled) {
+          setItems(mapped);
+        }
+      } catch (err: any) {
+        if (cancelled) return;
+        if (err?.response?.status === 404) {
+          setItems([]);
+          setError(null);
+          return;
+        }
+        setError(err?.response?.data?.message ?? err?.message ?? "Failed to load gym sessions");
+        setItems([]);
+      }
+    };
+
+    // fetch on mount and when month changes
+    fetchSessions();
+    return () => {
+      cancelled = true;
+    };
+  }, [current]);
+
 
   type FilterKey = GymSessionType | "ALL";
-  const filterChips: Array<{ key: FilterKey; label: string }> = [
-    { key: "ALL", label: "All" },
-    { key: "YOGA", label: SESSION_LABEL.YOGA },
-    { key: "PILATES", label: SESSION_LABEL.PILATES },
-    { key: "AEROBICS", label: SESSION_LABEL.AEROBICS },
-    { key: "ZUMBA", label: SESSION_LABEL.ZUMBA },
-    { key: "CROSS_CIRCUIT", label: SESSION_LABEL.CROSS_CIRCUIT },
-    { key: "KICK_BOXING", label: SESSION_LABEL.KICK_BOXING },
-  ];
+  const filterChips = FILTER_CHIPS.map((c) => ({ key: c.key as FilterKey, label: c.key === "ALL" ? "All" : (SESSION_LABEL as any)[c.key] ?? c.label }));
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -104,6 +98,10 @@ export default function GymSchedule({ month, sessions }: Props) {
           </CustomButton>
         </Stack>
       </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+      )}
 
       <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#1E1E1E" }}>{monthLabel}</Typography>
