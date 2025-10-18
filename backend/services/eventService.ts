@@ -49,8 +49,9 @@ export class EventsService {
     let events = await this.eventRepo.findAll(filter, {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
-        { path: "vendors", select: "companyName email logo" },
+        { path: "vendors.vendor", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
+        { path: "attendees", select: "firstName lastName email gucId " }
       ] as any,
     });
 
@@ -104,7 +105,7 @@ export class EventsService {
     const options = {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
-        { path: "vendors", select: "companyName email logo" },
+        { path: "vendors.vendor", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
         { path: "attendees", select: "firstName lastName email gucId " } as any,
         { path: "createdBy", select: "firstName lastName email gucId " } as any,
