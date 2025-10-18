@@ -21,7 +21,6 @@ import {
   Visibility as ViewIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
-import CustomButton from "../shared/Buttons/CustomButton";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import CreateGymSession from "./CreateGymSession";
 import SessionTypeDropdown from "./SessionTypeDropdown";
@@ -123,42 +122,64 @@ export default function GymSessionsManagementContent() {
     });
   };
 
+  const calculateDuration = (start: string, end: string) => {
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const durationMinutes = Math.round(durationMs / (1000 * 60));
+
+    if (durationMinutes < 60) {
+      return `${durationMinutes} min`;
+    } else {
+      const hours = Math.floor(durationMinutes / 60);
+      const minutes = durationMinutes % 60;
+      return minutes > 0 ? `${hours}h ${minutes}min` : `${hours}h`;
+    }
+  };
+
   const getSessionTypeColor = (type: GymSessionType) => {
     const colors = {
-      YOGA: theme.palette.primary.main,
-      PILATES: theme.palette.secondary.main,
-      AEROBICS: theme.palette.tertiary.main,
-      ZUMBA: "#ff9800",
-      CROSS_CIRCUIT: "#4caf50",
-      KICK_BOXING: "#f44336",
+      YOGA: "#4caf50", // Green - matches SessionTypeDropdown
+      PILATES: "#2196f3", // Blue - matches SessionTypeDropdown
+      AEROBICS: "#ff9800", // Orange - matches SessionTypeDropdown
+      ZUMBA: "#e91e63", // Pink - matches SessionTypeDropdown
+      CROSS_CIRCUIT: "#9c27b0", // Purple - matches SessionTypeDropdown
+      KICK_BOXING: "#f44336", // Red - matches SessionTypeDropdown
     };
     return colors[type];
   };
 
-  const getAvailabilityStatus = (spotsTaken: number, spotsTotal: number) => {
-    const percentage = (spotsTaken / spotsTotal) * 100;
-    if (percentage >= 100)
-      return { label: "Full", color: theme.palette.error.main };
-    if (percentage >= 80)
-      return { label: "Almost Full", color: theme.palette.warning.main };
-    return { label: "Available", color: theme.palette.success.main };
-  };
-
   const handleSessionTypeSelect = (sessionType: GymSessionType) => {
+    console.log("handleSessionTypeSelect called with:", sessionType);
+    // Set the session type first, then open the modal
     setSelectedSessionType(sessionType);
-    setCreateModalOpen(true);
+    // Use a callback to ensure state is updated before opening modal
+    setTimeout(() => {
+      console.log("Opening modal");
+      setCreateModalOpen(true);
+    }, 0);
   };
 
   const handleCloseCreateModal = () => {
     setCreateModalOpen(false);
-    setSelectedSessionType(undefined);
+    // Reset selected type after a slight delay to allow modal to close first
+    setTimeout(() => {
+      setSelectedSessionType(undefined);
+    }, 300);
   };
 
-  const handleSubmitSession = (sessionData: any) => {
+  const handleSubmitSession = (sessionData: Partial<GymSession>) => {
     // Generate a new ID for the session
     const newSession: GymSession = {
-      ...sessionData,
       id: (sessions.length + 1).toString(),
+      title: sessionData.title || "",
+      type: sessionData.type || "YOGA",
+      instructor: sessionData.instructor || "",
+      location: sessionData.location || "",
+      start: sessionData.start || "",
+      end: sessionData.end || "",
+      spotsTotal: sessionData.spotsTotal || 0,
+      spotsTaken: sessionData.spotsTaken || 0,
     };
 
     // Add to sessions list
@@ -207,7 +228,13 @@ export default function GymSessionsManagementContent() {
         >
           All Sessions ({sessions.length})
         </Typography>
-        <Box sx={{ position: "relative" }}>
+        <Box
+          sx={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
           <SessionTypeDropdown onSessionTypeSelect={handleSessionTypeSelect} />
         </Box>
       </Box>
@@ -234,23 +261,16 @@ export default function GymSessionsManagementContent() {
                 },
               }}
             >
-              <TableCell>Session</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Instructor</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Date & Time</TableCell>
-              <TableCell>Availability</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell align="left">Date</TableCell>
+              <TableCell align="center">Time</TableCell>
+              <TableCell align="center">Duration</TableCell>
+              <TableCell align="center">Type</TableCell>
+              <TableCell align="center">Max Participants</TableCell>
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {sessions.map((session) => {
-              const availability = getAvailabilityStatus(
-                session.spotsTaken || 0,
-                session.spotsTotal || 0
-              );
-
               return (
                 <TableRow
                   key={session.id}
@@ -264,21 +284,40 @@ export default function GymSessionsManagementContent() {
                     },
                   }}
                 >
-                  <TableCell>
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 600,
-                          color: theme.palette.text.primary,
-                          fontFamily: "var(--font-jost), system-ui, sans-serif",
-                        }}
-                      >
-                        {session.title}
-                      </Typography>
-                    </Box>
+                  <TableCell align="left">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      {formatDate(session.start)}
+                    </Typography>
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      {formatTime(session.start)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      {calculateDuration(session.start, session.end)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">
                     <Chip
                       label={SESSION_LABEL[session.type]}
                       size="small"
@@ -293,67 +332,16 @@ export default function GymSessionsManagementContent() {
                       }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <Typography
                       variant="body2"
-                      sx={{ color: theme.palette.text.secondary }}
-                    >
-                      {session.instructor}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: theme.palette.text.secondary }}
-                    >
-                      {session.location}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 500,
-                          color: theme.palette.text.primary,
-                        }}
-                      >
-                        {formatDate(session.start)}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{ color: theme.palette.text.secondary }}
-                      >
-                        {formatTime(session.start)} - {formatTime(session.end)}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {session.spotsTaken}/{session.spotsTotal}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: availability.color,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {availability.label}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={availability.label}
-                      size="small"
                       sx={{
-                        backgroundColor: `${availability.color}20`,
-                        color: availability.color,
-                        fontWeight: 600,
+                        fontWeight: 500,
+                        color: theme.palette.text.primary,
                       }}
-                    />
+                    >
+                      {session.spotsTotal}
+                    </Typography>
                   </TableCell>
                   <TableCell align="center">
                     <Box

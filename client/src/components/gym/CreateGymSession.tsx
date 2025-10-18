@@ -8,27 +8,41 @@ import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import { CustomModalLayout } from "../shared/modals";
-import { GymSessionType, SESSION_LABEL } from "./types";
+import { DateTimePicker } from "../shared/DateTimePicker";
+import { formatDuration } from "../shared/DateTimePicker/utils";
+import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
 
 interface CreateGymSessionProps {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (sessionData: any) => void;
+  onSubmit?: (sessionData: Partial<GymSession>) => void;
   preselectedType?: GymSessionType;
 }
 
-const validationSchema = Yup.object({
-  date: Yup.date()
-    .required("Date is required")
-    .min(new Date(), "Date cannot be in the past"),
-  startTime: Yup.string().required("Start time is required"),
+// Create localized validation schema based on rigorousValidationSchema
+const gymSessionValidationSchema = Yup.object({
+  startDateTime: Yup.date()
+    .nullable()
+    .required("Start date and time is required")
+    .min(new Date(), "Date and time cannot be in the past"),
   duration: Yup.number()
+    .typeError("Duration must be a number")
     .required("Duration is required")
+    .positive("Duration must be a positive number")
+    .integer("Duration must be an integer")
     .min(15, "Minimum duration is 15 minutes")
-    .max(180, "Maximum duration is 3 hours"),
-  type: Yup.string().required("Session type is required"),
+    .max(360, "Maximum duration is 6 hours"),
+  type: Yup.string()
+    .required("Session type is required")
+    .oneOf(
+      ["YOGA", "PILATES", "AEROBICS", "ZUMBA", "CROSS_CIRCUIT", "KICK_BOXING"],
+      "Invalid session type"
+    ),
   maxParticipants: Yup.number()
+    .typeError("Max participants must be a number")
     .required("Max participants is required")
+    .positive("Max participants must be a positive number")
+    .integer("Max participants must be an integer")
     .min(1, "Must have at least 1 participant")
     .max(100, "Cannot exceed 100 participants"),
 });
@@ -39,15 +53,6 @@ const sessionTypeOptions = Object.entries(SESSION_LABEL).map(
     value: key,
   })
 );
-
-const durationOptions = [
-  { label: "15 minutes", value: 15 },
-  { label: "30 minutes", value: 30 },
-  { label: "45 minutes", value: 45 },
-  { label: "1 hour", value: 60 },
-  { label: "1.5 hours", value: 90 },
-  { label: "2 hours", value: 120 },
-];
 
 export default function CreateGymSession({
   open,
@@ -60,27 +65,24 @@ export default function CreateGymSession({
 
   const formik = useFormik({
     initialValues: {
-      date: "",
-      startTime: "",
+      startDateTime: null as Date | null,
       duration: "",
       type: preselectedType || "",
       maxParticipants: "",
     },
-    validationSchema,
+    validationSchema: gymSessionValidationSchema,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       setIsSubmitting(true);
       try {
-        // Calculate end time based on start time and duration
-        const startDateTime = new Date(
-          `${values.date}T${values.startTime}:00.000Z`
-        );
+        const startDateTime = values.startDateTime!;
         const endDateTime = new Date(
           startDateTime.getTime() + parseInt(values.duration) * 60000
         );
 
         const sessionData = {
           title: `${SESSION_LABEL[values.type as GymSessionType]} Session`,
-          type: values.type,
+          type: values.type as GymSessionType,
           start: startDateTime.toISOString(),
           end: endDateTime.toISOString(),
           spotsTotal: parseInt(values.maxParticipants),
@@ -91,7 +93,6 @@ export default function CreateGymSession({
           await onSubmit(sessionData);
         }
 
-        // TODO: Make API call to create session
         console.log("Creating session:", sessionData);
 
         formik.resetForm();
@@ -148,81 +149,80 @@ export default function CreateGymSession({
               neumorphicBox
               required
               fullWidth
+              size="medium"
             />
 
-            {/* Date and Time Row */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", md: "row" },
-              }}
-            >
-              <Box sx={{ flex: 1 }}>
-                <CustomTextField
-                  label="Date"
-                  fieldType="date"
-                  name="date"
-                  value={formik.values.date}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.date && Boolean(formik.errors.date)}
-                  helperText={formik.touched.date ? formik.errors.date : ""}
-                  neumorphicBox
-                  required
-                  fullWidth
-                />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <CustomTextField
-                  label="Start Time"
-                  fieldType="time"
-                  name="startTime"
-                  value={formik.values.startTime}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.startTime && Boolean(formik.errors.startTime)
-                  }
-                  helperText={
-                    formik.touched.startTime ? formik.errors.startTime : ""
-                  }
-                  neumorphicBox
-                  required
-                  fullWidth
-                />
-              </Box>
-            </Box>
+            {/* Start Date and Time */}
+            <DateTimePicker
+              id="startDateTime"
+              label="Start Date & Time"
+              name="startDateTime"
+              value={formik.values.startDateTime}
+              onChange={(dateTime) =>
+                formik.setFieldValue("startDateTime", dateTime, true)
+              }
+              onBlur={() => formik.setFieldTouched("startDateTime", true)}
+              error={
+                formik.touched.startDateTime &&
+                Boolean(formik.errors.startDateTime)
+              }
+              errorMessage={
+                formik.touched.startDateTime ? formik.errors.startDateTime : ""
+              }
+              minDate={new Date()}
+              containerType="inwards"
+              touched={formik.touched.startDateTime}
+            />
 
             {/* Duration */}
-            <CustomSelectField
-              label="Duration"
-              fieldType="single"
-              options={durationOptions}
+            <CustomTextField
+              label="Duration (minutes)"
+              fieldType="numeric"
+              name="duration"
               value={formik.values.duration}
-              onChange={(value) => formik.setFieldValue("duration", value)}
-              onBlur={() => formik.setFieldTouched("duration", true)}
-              isError={
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              onKeyPress={(event) => {
+                const char = String.fromCharCode(event.which);
+                if (!/[0-9]/.test(char)) {
+                  event.preventDefault();
+                }
+              }}
+              error={formik.touched.duration && Boolean(formik.errors.duration)}
+              helperText={
                 formik.touched.duration
-                  ? Boolean(formik.errors.duration)
-                  : false
+                  ? formik.errors.duration
+                  : formik.values.duration
+                  ? `Duration: ${formatDuration(formik.values.duration)}`
+                  : "Enter duration in minutes"
               }
-              helperText={formik.touched.duration ? formik.errors.duration : ""}
-              placeholder="Select duration"
+              placeholder="Enter duration in minutes"
               neumorphicBox
               required
               fullWidth
+              inputProps={{
+                min: 15,
+                max: 360,
+                pattern: "[0-9]*",
+                inputMode: "numeric",
+              }}
             />
 
             {/* Max Participants */}
             <CustomTextField
               label="Max Participants"
-              fieldType="number"
+              fieldType="numeric"
               placeholder="Maximum number of participants"
               name="maxParticipants"
               value={formik.values.maxParticipants}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              onKeyPress={(event) => {
+                const char = String.fromCharCode(event.which);
+                if (!/[0-9]/.test(char)) {
+                  event.preventDefault();
+                }
+              }}
               error={
                 formik.touched.maxParticipants &&
                 Boolean(formik.errors.maxParticipants)
@@ -235,7 +235,12 @@ export default function CreateGymSession({
               neumorphicBox
               required
               fullWidth
-              inputProps={{ min: 1, max: 100 }}
+              inputProps={{
+                min: 1,
+                max: 100,
+                pattern: "[0-9]*",
+                inputMode: "numeric",
+              }}
             />
           </Box>
 
@@ -257,7 +262,6 @@ export default function CreateGymSession({
               sx={{
                 width: "160px",
                 height: "44px",
-                borderRadius: "12px",
               }}
             />
             <CustomButton
@@ -269,7 +273,6 @@ export default function CreateGymSession({
               sx={{
                 width: "160px",
                 height: "44px",
-                borderRadius: "12px",
                 fontWeight: 700,
               }}
             />

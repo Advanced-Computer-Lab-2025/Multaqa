@@ -71,18 +71,22 @@ export default function SessionTypeDropdown({
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const paperRef = useRef<HTMLDivElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    console.log("Create New button clicked");
     setAnchorEl(event.currentTarget);
     setOpen(!open);
   };
 
   const handleClose = () => {
+    console.log("Closing dropdown");
     setOpen(false);
     setAnchorEl(null);
   };
 
   const handleSessionTypeClick = (sessionType: GymSessionType) => {
+    console.log("Session type selected:", sessionType);
     onSessionTypeSelect(sessionType);
     handleClose();
   };
@@ -92,7 +96,9 @@ export default function SessionTypeDropdown({
     const handleClickOutside = (event: MouseEvent) => {
       if (
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
+        !buttonRef.current.contains(event.target as Node) &&
+        paperRef.current &&
+        !paperRef.current.contains(event.target as Node)
       ) {
         handleClose();
       }
@@ -117,7 +123,6 @@ export default function SessionTypeDropdown({
         onClick={handleClick}
         startIcon={<AddIcon />}
         sx={{
-          borderRadius: "12px",
           fontWeight: 600,
           textTransform: "none",
           position: "relative",
@@ -125,13 +130,13 @@ export default function SessionTypeDropdown({
       />
 
       {open && (
-        <ClickAwayListener onClickAway={handleClose}>
-          <Paper
+                  <Paper
             elevation={8}
+            ref={paperRef}
             sx={{
               position: "absolute",
               top: "100%",
-              left: 0,
+              right: 0,
               mt: 1,
               p: 2,
               borderRadius: "16px",
@@ -168,7 +173,16 @@ export default function SessionTypeDropdown({
                 return (
                   <Box
                     key={config.type}
-                    onClick={() => handleSessionTypeClick(config.type)}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      console.log("Box mouseDown for:", config.type);
+                      handleSessionTypeClick(config.type);
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Box clicked for:", config.type);
+                      handleSessionTypeClick(config.type);
+                    }}
                     sx={{
                       display: "flex",
                       flexDirection: "column",
@@ -186,20 +200,25 @@ export default function SessionTypeDropdown({
                       },
                     }}
                   >
-                    <IconButton
+                    <Box
                       sx={{
                         backgroundColor: `${config.color}20`,
                         color: config.color,
                         mb: 1,
                         width: 48,
                         height: 48,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        transition: "background-color 0.2s ease",
                         "&:hover": {
                           backgroundColor: `${config.color}30`,
                         },
                       }}
                     >
                       <IconComponent sx={{ fontSize: 24 }} />
-                    </IconButton>
+                    </Box>
                     <Typography
                       variant="caption"
                       sx={{
@@ -231,7 +250,6 @@ export default function SessionTypeDropdown({
               Click on a session type to create
             </Typography>
           </Paper>
-        </ClickAwayListener>
       )}
     </>
   );
