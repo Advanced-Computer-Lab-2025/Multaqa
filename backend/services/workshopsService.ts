@@ -74,26 +74,40 @@ export class WorkshopService {
     const { approvalStatus, comments } = updateData;
 
     const workshop = await this.workshopRepo.findById(workshopId);
+    if (!workshop) throw createError(404, "Workshop not found");
+
     if (workshop && professorId != workshop?.createdBy.toString()) {
       throw createError(403, "Not authorized to update this workshop status");
     }
 
-    // normalize timestamps
-    const commentsWithTimestamps = comments?.map((c) => ({
-      ...c,
-      timestamp: c.timestamp ? new Date(c.timestamp) : new Date(),
-    }));
+    // Check if workshop is already approved or rejected - these are irreversible
+    console.log(
+      "condition:",
+      workshop.approvalStatus == Event_Request_Status.APPROVED
+    );
 
-    const hasComments =
-      Array.isArray(commentsWithTimestamps) &&
-      commentsWithTimestamps.length > 0;
+    if (
+      workshop.approvalStatus == Event_Request_Status.APPROVED ||
+      workshop.approvalStatus == Event_Request_Status.REJECTED
+    ) {
+      throw createError(
+        403,
+        "Cannot update workshop status - already finalized (approved/rejected)"
+      );
+    }
+
+    const hasComments = Array.isArray(comments) && comments.length > 0;
+
+    // Determine final status:
+    // - If there are comments, status becomes AWAITING_REVIEW (requesting edits)
+    // - Otherwise, use the provided status (approved/rejected/pending)
     const finalStatus = hasComments
-      ? Event_Request_Status.PENDING
-      : approvalStatus;
+      ? Event_Request_Status.AWAITING_REVIEW
+      : approvalStatus || Event_Request_Status.PENDING;
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, {
       approvalStatus: finalStatus,
-      comments: commentsWithTimestamps,
+      comments: comments || [],
     });
 
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
