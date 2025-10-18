@@ -181,9 +181,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "events",
         label: "Events Management",
         icon: Calendar,
-        sections: [
-          { id: "all-events", label: "All Events" },
-        ],
+        sections: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "workshop-requests",
@@ -265,9 +263,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "role-assignment",
         label: "Role Assignment",
         icon: ClipboardList,
-        sections: [
-          { id: "assign-roles", label: "Assign Roles" },
-        ],
+        sections: [{ id: "assign-roles", label: "Assign Roles" }],
       },
       {
         key: "event-office",
@@ -283,7 +279,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     defaultTab: "opportunities",
     defaultSection: "available",
     tabs: [
-      
       {
         key: "opportunities",
         label: "Bazaars & Booths",
@@ -452,6 +447,7 @@ export default function EntityNavigation({
           onItemClick={handleSectionClick}
           sectionItems={sectionItems}
           onLogout={handleLogout}
+          pageTitle={headerTitle ?? config.headerTitle}
         />
 
         <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">

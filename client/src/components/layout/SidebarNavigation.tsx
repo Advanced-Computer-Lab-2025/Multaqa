@@ -12,6 +12,7 @@ interface SidebarNavigationProps {
   onItemClick?: (id: string) => void;
   sectionItems?: SectionItem[];
   onLogout?: () => void;
+  pageTitle?: string;
 }
 
 export default function SidebarNavigation({
@@ -19,6 +20,7 @@ export default function SidebarNavigation({
   onItemClick,
   sectionItems = [],
   onLogout,
+  pageTitle,
 }: SidebarNavigationProps) {
   return (
     <div className="w-[240px] bg-[#f9fbfc] h-full flex flex-col p-4 overflow-y-auto min-h-full">
@@ -50,6 +52,31 @@ export default function SidebarNavigation({
               );
             })}
           </nav>
+        </div>
+      )}
+
+      {/* Neumorphic Page Title - Above Logout */}
+      {pageTitle && (
+        <div className="flex items-center justify-center py-4">
+          <h1
+            className="text-2xl font-bold font-heading tracking-wide text-center"
+            style={{
+              color: "#e8f0f7",
+              textShadow: `
+                2px 2px 4px rgba(98, 153, 208, 0.3),
+                -2px -2px 4px rgba(255, 255, 255, 0.8),
+                1px 1px 2px rgba(98, 153, 208, 0.2),
+                -1px -1px 2px rgba(255, 255, 255, 0.6)
+              `,
+              background: "linear-gradient(145deg, #6299d0, #4a7ba7)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: "drop-shadow(0 2px 3px rgba(98, 153, 208, 0.2))",
+            }}
+          >
+            {pageTitle}
+          </h1>
         </div>
       )}
 
