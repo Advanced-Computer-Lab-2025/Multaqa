@@ -34,8 +34,6 @@ export default function TopNavigation({
                 color: "#6299d0",
                 backgroundColor: "rgba(98, 153, 208, 0.1)",
                 "&:hover": {
-                  backgroundColor: "#e5ed6f",
-                  color: "#fff",
                   transform: "scale(1.04) translateX(-2px)",
                 },
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
