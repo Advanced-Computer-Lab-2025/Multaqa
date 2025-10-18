@@ -41,7 +41,7 @@ const LoginForm: React.FC = () => {
       case "events-office":
         return `/events-office`;
       case "vendor":
-        return `/vendor`;
+        return `/vendor/opportunities/available`;
     }
   };
 

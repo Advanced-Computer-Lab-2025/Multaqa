@@ -6,7 +6,6 @@ import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationF
 import { useRouter } from "@/i18n/navigation";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthProvider } from "@/context/AuthContext";
 export default function RegisterPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -36,7 +35,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthProvider>
+    <>
       <div
         className="flex flex-col items-center justify-center"
         style={{ transform: "scale(0.8)" }}
@@ -44,6 +43,6 @@ export default function RegisterPage() {
         <RegistrationForm UserType={userType} />
       </div>
       <ToastContainer />
-    </AuthProvider>
+    </>
   );
 }

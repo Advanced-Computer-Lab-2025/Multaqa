@@ -5,9 +5,11 @@ import createError from 'http-errors';
 import { VerificationService } from '../services/verificationService';
 import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse, MeResponse } from '../interfaces/responses/authResponses.interface';
 import verifyJWT from '../middleware/verifyJWT.middleware';
+import { UserService } from '../services/userService';
 
 const router = Router();
 const authService = new AuthService();
+const userService = new UserService();
 const verificationService = new VerificationService();
 
 async function signup(req: Request, res: Response<SignupResponse>) {
@@ -43,8 +45,12 @@ async function signup(req: Request, res: Response<SignupResponse>) {
 export const getMe = async (req: Request, res: Response<MeResponse>) => {
   try {
     const user = (req as any).user;
+
+    // Fetch full user details
+    const fullUser = await userService.getUserById(user.id);
+    
     res.status(200).json({
-      user: user,
+      user: fullUser,
       message: 'User fetched successfully',
     });
   } catch (error: any) {
