@@ -50,15 +50,6 @@ const mapRequestedEventToVendorRequest = (item: any, vendorId: string): VendorRe
     }
   }
 
-  const notesCandidate =
-    requestData?.rejectionReason ??
-    requestData?.notes ??
-    requestData?.reason ??
-    vendorEntry?.RequestData?.rejectionReason ??
-    vendorEntry?.RequestData?.notes;
-  const notes =
-    typeof notesCandidate === "string" && notesCandidate.trim().length ? notesCandidate : undefined;
-
   const rawId = item?._id ?? eventId ?? Math.random().toString(36).slice(2);
   const id = typeof rawId === "string" ? rawId : String(rawId);
 
@@ -81,10 +72,6 @@ const mapRequestedEventToVendorRequest = (item: any, vendorId: string): VendorRe
 
   if (!isBazaar && setupDurationWeeks !== undefined) {
     mapped.setupDurationWeeks = setupDurationWeeks;
-  }
-
-  if (notes) {
-    mapped.notes = notes;
   }
 
   return mapped;

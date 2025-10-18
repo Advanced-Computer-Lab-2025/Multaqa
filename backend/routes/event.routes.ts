@@ -38,6 +38,24 @@ async function findAll(req: Request, res: Response<GetEventsResponse>) {
     throw createError(500, err.message);
   }
 }
+async function findAllWorkshops(req: Request, res: Response<GetEventsResponse>) {
+  try {
+    const events = await eventsService.getAllWorkshops();
+    if (!events || events.length === 0) {
+      throw createError(404, "No workshops found");
+    }
+    res.json({
+      success: true,
+      data: events,
+      message: "Workshops retrieved successfully"
+    });
+  } catch (err: any) {
+    if (err.status || err.statusCode) {
+      throw err;
+    }
+    throw createError(500, err.message);
+  }
+}
 
 async function findOne(req: Request, res: Response<GetEventByIdResponse>) {
   try {
@@ -156,6 +174,7 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
 const router = Router();
 router.get("/", applyRoleBasedFilters, authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.VENDOR] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findAll);
 router.post("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), createEvent);
+router.get("/workshops", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR] }), findAllWorkshops);
 router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findOne);
 router.delete("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), deleteEvent);
 router.patch("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateEvent);
