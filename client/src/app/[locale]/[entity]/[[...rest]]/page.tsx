@@ -162,9 +162,47 @@ export default function EntityCatchAllPage() {
           <WorkshopRequests
             setEvaluating={setEvaluating}
             setSpecificWorkshop={setSpecificWorkshop!}
+            evaluate={true}
+            filter="none"
           />
         );
       }
+        if (section === "pending") {
+          console.log(section);
+            return <WorkshopRequests
+              setEvaluating={setEvaluating}
+              setSpecificWorkshop={setSpecificWorkshop!}
+              evaluate={false}
+              filter="pending"
+            />
+        }
+        else if (section === "accepted") {
+          console.log(section);
+          return <WorkshopRequests
+            setEvaluating={setEvaluating}
+            setSpecificWorkshop={setSpecificWorkshop!}
+            evaluate={false}
+            filter="approved"
+          />
+      }
+      else if (section === "rejected") {
+        console.log(section);
+        return <WorkshopRequests
+          setEvaluating={setEvaluating}
+          setSpecificWorkshop={setSpecificWorkshop!}
+          evaluate={false}
+          filter="rejected"
+        />
+    }
+    else if (section === "awating_review") {
+      console.log(section);
+      return <WorkshopRequests
+          setEvaluating={setEvaluating}
+          setSpecificWorkshop={setSpecificWorkshop!}
+          evaluate={false}
+          filter="awaiting_review"
+        />
+    }
     }
 
     // Events Office - Gym Management

@@ -209,9 +209,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: FileText,
         sections: [
           { id: "all-requests", label: "All Requests" },
-          { id: "accepted", label: "Accepted Requests" },
-          { id: "pending", label: "Under Review Requests" },
-          { id: "rejected", label: "Rejected Requests" },
+          { id: "pending", label: "Pending" },
+          { id: "awating_review", label: "Awaiting Review" },
+          { id: "accepted", label: "Accepted" },
+          { id: "rejected", label: "Rejected" },
         ],
       },
       {

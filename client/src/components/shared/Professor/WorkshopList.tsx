@@ -11,6 +11,7 @@ import { WorkshopViewProps } from "@/components/Event/types";
 
 const statusChip = (status: string) => {
   if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
+  if (status === "awaiting_review") return <Chip size="small" label="Awaiting Review" color="info" variant="outlined" />;
   if (status === "rejected") return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
   return <Chip size="small" label="Accepted" color="success" variant="outlined" />;
 };
@@ -80,7 +81,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
               key={item.id}
               item={item}
               userId={userId}
-              rightSlot={
+              rightIcon={
                 <Stack direction="row" spacing={1} alignItems="center">
                   {statusChip(item.details["Status"])}
                 </Stack>

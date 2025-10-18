@@ -10,6 +10,8 @@ type Props = {
   id: string;
   item: WorkshopViewProps;
   rightSlot?: React.ReactNode;
+  rightIcon?:React.ReactNode;
+  status?: React.ReactNode;
   expanded?: boolean;
   userId?: string;
 };
@@ -36,6 +38,8 @@ export default function WorkshopItemCard({
   item,
   rightSlot,
   expanded = false,
+  rightIcon,
+  status,
   userId,
 }: Props) {
   // Parse professors string into array
@@ -154,9 +158,11 @@ export default function WorkshopItemCard({
         </Typography>
         {Object.entries(item.details)
           .filter(([key]) => {
-            // Base fields to always exclude
-            const baseExcluded = ["Created By"];
-            return !baseExcluded.includes(key);
+            const baseExcluded = [
+             "Created By",
+              "Status",
+            ];
+          return !baseExcluded.includes(key);
           })
           .map(([key, value]) => (
             <Box
@@ -221,6 +227,7 @@ export default function WorkshopItemCard({
         ].filter(Boolean) as React.ReactNode[]
       }
       rightSlot={rightSlot}
+      rightIcon={rightIcon}
       expanded={expandedd}
       onExpandChange={setExpanded}
       details={detailsContent}
