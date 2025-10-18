@@ -55,7 +55,7 @@ export class GymSessionsService {
 
     return this.gymSessionRepo.findAll(filter, {
       select:
-        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description"
+        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity"
     });
   }
 }
