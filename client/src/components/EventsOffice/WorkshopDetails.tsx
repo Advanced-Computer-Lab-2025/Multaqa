@@ -52,18 +52,18 @@ export interface Workshop {
 interface WorkshopDetailsProps {
   workshop: Workshop;
   setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
-  eventsOfficeId:string;
+  eventsOfficeId: string;
 }
 interface CommentItem {
   id: number;
-  commenter:string;
+  commenter: string;
   text: string;
   timestamp: string;
 }
 const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   workshop,
   setEvaluating,
-  eventsOfficeId
+  eventsOfficeId,
 }) => {
   console.log(workshop);
   const [status, setStatus] = useState("N/A");
@@ -91,7 +91,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
         id: comments.length > 0 ? comments[comments.length - 1].id + 1 : 1,
         commenter: eventsOfficeId,
         text: comment,
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().toISOString(),
       };
       setComments((prev) => [...prev, newComment]);
       setComment("");
@@ -144,48 +144,65 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     }
   };
 
-  const handleCallApi = async (payload:{status:string, comments:CommentItem[]}) => {
-    const professorId= workshop.details["Created By"];
+  const handleCallApi = async (payload: {
+    status: string;
+    comments: CommentItem[];
+  }) => {
+    const professorId = workshop.details["Created By"];
     console.log(professorId);
     console.log(workshop.id);
     try {
-      console.log("Payload being sent:", payload); 
+      console.log("Payload being sent:", payload);
       const res = await api.patch(
         `/eventsOffice/${professorId}/${workshop.id}/status`,
         payload
       );
     } catch (err: any) {
-      if (err.response) {
-        // Specific handling for 404
-        window.alert(err.repsonse);
-      } else {
-        // Generic error message
-        setError(err?.message || "API call failed");
-      }
+      throw err;
     } finally {
       setLoading(false);
     }
-}
+  };
   // Confirm change
   const handleConfirmStatus = () => {
-    if (pendingStatus) {
-      setStatus(pendingStatus);
-      if (pendingStatus !== "N/A") {
+    // Capture the pendingStatus value locally before we clear it
+    const confirmed = pendingStatus;
+
+    if (confirmed) {
+      setStatus(confirmed);
+      if (confirmed !== "N/A") {
         setStatusFinalized(true); // hide UI for finalized status
       }
-      console.log(pendingStatus)
-      if(pendingStatus!=="awaiting_review"){
+      console.log(confirmed);
+      if (confirmed !== "awaiting_review") {
         setComments([]);
-       }
+      }
+      // clear pending after we've captured and used it
       setPendingStatus(null);
-     
     }
+
     setModalOpen(false);
+
+    // map the just-confirmed value to the API expected status
+    const mapToApiStatus = (val: string | null | undefined) => {
+      switch (val) {
+        case "awaiting_review":
+          return "pending";
+        case "accept_publish":
+          return "approved";
+        case "reject":
+          return "rejected";
+        default:
+          return "pending";
+      }
+    };
+
     const payload = {
-      status: status=="awaiting_review"?"pending":(status=="accept_publish"?"approved":"rejected"),
-      comments:comments,
-    }
-   handleCallApi(payload);
+      status: mapToApiStatus(confirmed || status),
+      comments: comments,
+    };
+
+    handleCallApi(payload);
   };
 
   // Cancel → revert to previous (do nothing)
@@ -235,22 +252,21 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
           >
             Your Evaluation Hub
           </Typography>
-           
-            <Box sx={{ textAlign: "center" }}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mb: 0.5, display: "block" }}
-              >
-                Current Status
-              </Typography>
-              <Chip
-                label={getStatusLabel(status || "N/A")}
-                color={getStatusColor(status || "N/A")}
-                sx={{ fontWeight: 600 }}
-              />
-            </Box>
-          
+
+          <Box sx={{ textAlign: "center" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
+              Current Status
+            </Typography>
+            <Chip
+              label={getStatusLabel(status || "N/A")}
+              color={getStatusColor(status || "N/A")}
+              sx={{ fontWeight: 600 }}
+            />
+          </Box>
         </Box>
         <Box sx={{ display: "flex", gap: 3, p: 4, maxHeight: "65vh" }}>
           {/* Left Side - Workshop Details */}
