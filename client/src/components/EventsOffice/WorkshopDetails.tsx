@@ -662,6 +662,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
                     size="small"
                     fullWidth={true}
                     neumorphicBox={true}
+                    name={""}
                   />
                 </Box>
               </>
