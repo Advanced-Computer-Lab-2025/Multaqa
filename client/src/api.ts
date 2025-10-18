@@ -7,7 +7,7 @@ export const api = axios.create({
 
 // Attach token if present
 api.interceptors.request.use((config) => {
-  if(process.env.NODE_ENV === 'development') { return config; }
+  // Always attach token if available, regardless of environment
   console.log("Attaching token to request");
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
