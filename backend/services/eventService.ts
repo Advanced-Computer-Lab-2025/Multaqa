@@ -5,12 +5,16 @@ import createError from "http-errors";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { Schema } from "mongoose";
+import { Trip } from "../schemas/event-schemas/tripSchema";
+import { ITrip } from "../interfaces/models/trip.interface";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
+  private tripRepo: GenericRepository<ITrip>;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
+    this.tripRepo = new GenericRepository(Trip);
   }
 
   async getEvents(
@@ -130,8 +134,14 @@ export class EventsService {
         );
       }
     }
+    let updatedEvent;
 
-    const updatedEvent = await this.eventRepo.update(eventId, updateData);
+    if (event.type === EVENT_TYPES.TRIP) {
+      updatedEvent = await this.tripRepo.update(eventId, updateData);
+    } else {
+      updatedEvent = await this.eventRepo.update(eventId, updateData);
+    }
+
     return updatedEvent!; //! to assert that updatedEvent is not null (we already checked for existence above)
   }
 
