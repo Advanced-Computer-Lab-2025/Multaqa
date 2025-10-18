@@ -11,6 +11,8 @@ import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
 import { sendVerification } from "./emailService";
+import { Event } from "../schemas/event-schemas/eventSchema";
+import "../schemas/event-schemas/workshopEventSchema";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -49,6 +51,9 @@ export class UserService {
     }
 
     const populateFields = populateMap[user.role] || [];
+
+    // Import workshop schema to ensure it's registered before population
+    await import("../schemas/event-schemas/workshopEventSchema");
 
     // Fetch again with populate
     const populatedUser = await this.userRepo.findById(id, {
@@ -142,9 +147,9 @@ export class UserService {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.UNKNOWN,
     });
-    
+
     // Convert Mongoose documents to plain objects
-    return staffMembers.map(staff => staff.toObject());
+    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllTAs(): Promise<IStaffMember[]> {
@@ -153,16 +158,16 @@ export class UserService {
     });
 
     // Convert Mongoose documents to plain objects
-    return staffMembers.map(staff => staff.toObject());
+    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllStaff(): Promise<IStaffMember[]> {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.STAFF,
     });
-    
+
     // Convert Mongoose documents to plain objects
-    return staffMembers.map(staff => staff.toObject());
+    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
@@ -173,6 +178,6 @@ export class UserService {
           "firstName lastName name email role gucId position roleType status",
       }
     );
-   return professors.map(prof => prof.toObject());
+    return professors.map((prof) => prof.toObject());
   }
 }
