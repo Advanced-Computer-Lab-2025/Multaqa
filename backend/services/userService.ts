@@ -34,7 +34,9 @@ export class UserService {
     );
 
     const formattedUsers = users.map((user) => {
-      const { password, ...userWithoutPassword } = user;
+      // Convert Mongoose document to plain object
+      const plainUser = user.toObject();
+      const { password, ...userWithoutPassword } = plainUser;
       return userWithoutPassword as Omit<IUser, "password">;
     });
 
@@ -87,6 +89,45 @@ export class UserService {
     await user.save();
   }
 
+  async unBlockUser(id: string): Promise<void> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    if (user.status === UserStatus.ACTIVE) {
+      throw createError(400, "User is already Active");
+    }
+    user.status = UserStatus.ACTIVE;
+    await user.save();
+  }
+
+  async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.UNKNOWN,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async getAllTAs(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.TA,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async getAllStaff(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.STAFF,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map((staff) => staff.toObject());
+  }
+
   async assignRoleAndSendVerification(
     userId: string,
     position: string
@@ -134,6 +175,6 @@ export class UserService {
           "firstName lastName name email role gucId position roleType status myWorkshops",
       }
     );
-   return professors.map(prof => prof.toObject());
+    return professors.map((prof) => prof.toObject());
   }
 }

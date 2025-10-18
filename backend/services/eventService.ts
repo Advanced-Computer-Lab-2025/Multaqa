@@ -2,22 +2,19 @@ import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
-import "../schemas/event-schemas/workshopEventSchema";
-import "../schemas/event-schemas/bazaarEventSchema";
-import "../schemas/event-schemas/platformBoothEventSchema";
-import "../schemas/event-schemas/conferenceEventSchema";
-import "../schemas/stakeholder-schemas/staffMemberSchema";
-import "../schemas/stakeholder-schemas/vendorSchema";
-import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { Schema } from "mongoose";
+import { Trip } from "../schemas/event-schemas/tripSchema";
+import { ITrip } from "../interfaces/models/trip.interface";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
+  private tripRepo: GenericRepository<ITrip>;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
+    this.tripRepo = new GenericRepository(Trip);
   }
 
   async getEvents(
@@ -43,14 +40,15 @@ export class EventsService {
         },
       ],
     };
-    if (type) filter.type = type;
-    if (location) filter.location = location;
+    if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
+    if (location) filter.location = { $regex: new RegExp(location, "i") };
 
     let events = await this.eventRepo.findAll(filter, {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
-        { path: "vendors", select: "companyName email logo" },
+        { path: "vendors.vendor", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
+        { path: "attendees", select: "firstName lastName email gucId " },
       ] as any,
     });
 
@@ -90,13 +88,24 @@ export class EventsService {
     return events;
   }
 
+  async getAllWorkshops(): Promise<IEvent[]> {
+    const filter: any = { type: EVENT_TYPES.WORKSHOP };
+    return this.eventRepo.findAll(filter, {
+      populate: [
+        { path: "associatedProfs", select: "firstName lastName email" },
+        { path: "attendees", select: "firstName lastName email gucId " },
+      ] as any,
+    });
+  }
+
   async getEventById(id: string): Promise<IEvent | null> {
     const options = {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
-        { path: "vendors", select: "companyName email logo" },
+        { path: "vendors.vendor", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
         { path: "attendees", select: "firstName lastName email gucId " } as any,
+        { path: "createdBy", select: "firstName lastName email gucId " } as any,
       ],
     };
     const event = await this.eventRepo.findById(id, options);
@@ -111,18 +120,34 @@ export class EventsService {
   }
 
   async updateEvent(eventId: string, updateData: any) {
-    const updatedEvent = await this.eventRepo.update(eventId, updateData);
-
-    if (!updatedEvent) {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
       throw createError(404, "Event not found");
     }
 
-    return updatedEvent;
+    if (event.type === EVENT_TYPES.BAZAAR || event.type === EVENT_TYPES.TRIP) {
+      if (new Date(event.eventStartDate) < new Date()) {
+        // If the event has already started, prevent updates
+        throw createError(
+          400,
+          "Cannot update bazaars & trips that have already started"
+        );
+      }
+    }
+    let updatedEvent;
+
+    if (event.type === EVENT_TYPES.TRIP) {
+      updatedEvent = await this.tripRepo.update(eventId, updateData);
+    } else {
+      updatedEvent = await this.eventRepo.update(eventId, updateData);
+    }
+
+    return updatedEvent!; //! to assert that updatedEvent is not null (we already checked for existence above)
   }
 
   async deleteEvent(id: string): Promise<IEvent> {
     const event = await this.eventRepo.findById(id);
-    console.log("THE EVENT GETTING DELETEDDD", event);
+
     if (event && event.attendees && event.attendees.length > 0) {
       throw createError(409, "Cannot delete event with attendees");
     }

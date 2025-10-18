@@ -6,7 +6,7 @@ export function validateUpdateConference(data: any) {
 
     // Base event fields
     eventName: Joi.string().min(3).max(100).optional(),
-    location: Joi.string().valid("GUC Cairo", "GUC Berlin").optional(),
+    location: Joi.string().valid("GUC").optional(),
     eventStartDate: Joi.date().optional(),
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).optional(),
     registrationDeadline: Joi.date().optional(),
@@ -15,7 +15,6 @@ export function validateUpdateConference(data: any) {
     description: Joi.string().optional(),
 
     // Conference-specific fields
-
     fullAgenda: Joi.string().optional(),
     websiteLink: Joi.string().uri().optional(),
     requiredBudget: Joi.number().min(0).optional(),
