@@ -235,7 +235,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
           >
             Your Evaluation Hub
           </Typography>
-          {!statusFinalized && (
+           
             <Box sx={{ textAlign: "center" }}>
               <Typography
                 variant="caption"
@@ -250,7 +250,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
                 sx={{ fontWeight: 600 }}
               />
             </Box>
-          )}
+          
         </Box>
         <Box sx={{ display: "flex", gap: 3, p: 4, maxHeight: "65vh" }}>
           {/* Left Side - Workshop Details */}
