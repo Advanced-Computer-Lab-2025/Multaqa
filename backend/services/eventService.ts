@@ -51,7 +51,7 @@ export class EventsService {
         { path: "associatedProfs", select: "firstName lastName email" },
         { path: "vendors.vendor", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
-        { path: "attendees", select: "firstName lastName email gucId " }
+        { path: "attendees", select: "firstName lastName email gucId " },
       ] as any,
     });
 
@@ -134,7 +134,7 @@ export class EventsService {
 
   async deleteEvent(id: string): Promise<IEvent> {
     const event = await this.eventRepo.findById(id);
-    console.log("THE EVENT GETTING DELETEDDD", event);
+
     if (event && event.attendees && event.attendees.length > 0) {
       throw createError(409, "Cannot delete event with attendees");
     }
