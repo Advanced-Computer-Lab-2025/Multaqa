@@ -352,15 +352,11 @@ const SimpleFormExample: React.FC = () => {
         </CustomModalLayout>
 
         <CustomButton onClick={() => setOpenCreateWorkshop(true)}>Create Workshop</CustomButton>
-        <CustomModalLayout open={openCreateWorkshop} onClose={()=> setOpenCreateWorkshop(false)}>
-          <CreateWorkshop 
+        <CustomModalLayout open={openCreateWorkshop} onClose={()=> setOpenCreateWorkshop(false)} width=' w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[90vw], xl:w-[90vw]'>
+          <CreateWorkshop
+            creatingProfessor='68f1433886d20633de05f301' 
             setOpenCreateWorkshop={setOpenCreateWorkshop} 
-            professors={[
-                { id: '1', name: 'Prof. Ahmed Ali' },
-                { id: '2', name: 'Prof. Mona Hassan' },
-                { id: 'Prof. Samir Youssef', name: 'Prof. Samir Youssef' }
-            ]
-            }
+            professors={[]}
             />
         </CustomModalLayout>
 

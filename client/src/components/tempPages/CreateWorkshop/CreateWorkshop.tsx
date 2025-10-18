@@ -16,15 +16,14 @@ import dayjs from 'dayjs';
 
 import {api} from "../../../api"
 
-
-interface Professor {
-  id: string;
-  name: string;
+interface ProfessorOption {
+  label: string;
+  value: string; // ideally, the professor _id
 }
 
 interface CreateWorkshopProps {
   setOpenCreateWorkshop: (open: boolean) => void;
-  professors: Professor[];
+  professors: [];
   creatingProfessor:string;
 }
 
@@ -36,7 +35,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
 
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
-  const [availableProfessors, setAvailableProfessors] = useState<any[]>([]);
+  const [availableProfessors, setAvailableProfessors] = useState<ProfessorOption[]>([]);
 
   useEffect(() => {
     //Runs only on the first render
@@ -48,15 +47,21 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
     setError(null);
     setResponse([]);
     try {
-        // TODO: Replace with your API route
-        const res = await api.get("/users/professors");
-        setResponse(res.data);
-        console.log(res.data);
-        setLoadingProfessors(false);
+      setLoadingProfessors(true);
+      const res = await api.get("/users/professors");
+      
+      const options = res.data.data
+        .filter((prof: any) => prof._id !== creatingProfessor)
+        .map((prof: any) => ({
+          label: `${prof.firstName} ${prof.lastName}`,
+          value: prof._id, // use ID, not name
+      }));
+
+      setAvailableProfessors(options);
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {
-        setLoading(false);
+        setLoadingProfessors(false);
     }
   };
 
@@ -69,7 +74,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
       registrationDeadline: null,
       description:"",
       agenda: "",
-      professors: [] as Professor[],
+      professors: [] as ProfessorOption[],
       location: "",
       faculty: "",
       fundingSource: "",
@@ -95,7 +100,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
 
   // Function to find professor by value
   const findProfessorByID = (value: string) => {
-    return professors.find(prof => prof.id === value);
+    return response.find(prof => prof.label === value);
   };
 
   const onSubmit = async (values: any, actions: any) => {
@@ -108,7 +113,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
       description: values.description,
       fullAgenda:values.agenda,
       facultyResponsible:values.faculty,
-      associatedProfs:["68f1433886d20633de05f301"],
+      associatedProfs: values.professors.map((p: { label: string; value: string }) => p.value),
       requiredBudget:values.budget,
       extraRequiredResources:values.extraResources,
       capacity:values.capacity,
@@ -120,7 +125,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
     };
     actions.resetForm();
     console.log(payload);
-    handleCallApi(payload);
+    // handleCallApi(payload);
     setOpenCreateWorkshop(false);
   };
 
@@ -145,13 +150,120 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
                         fieldType="text"
                         autoCapitalize='off'
                         autoCapitalizeName={false}
-                        neumorphicBox
                         value={values.workshopName}
                         onChange={handleChange}
                     />
                     { errors.workshopName && touched.workshopName ? <p style={{color:"#db3030"}}>{errors.workshopName}</p> : <></>}
                 </Grid>
+                                <Grid size={4}>
+                    <TextField
+                        name="budget"
+                        id='budget'
+                        label="Budget"
+                        type="number"
+                        fullWidth
+                        variant='standard'
+                        placeholder="Enter Budget"
+                        slotProps={{
+                            input: {
+                                startAdornment:(
+                                    <InputAdornment position="start">EGP</InputAdornment>
+                                )
+                            }
+                        }}
+                        value={values.budget}
+                        onChange={handleChange}
+                    />
+                    { errors.budget && touched.budget ? <p style={{color:"#db3030"}}>{errors.budget}</p> : <></>}
+                </Grid>
                 <Grid size={4}>
+                    <TextField
+                      name="capacity"
+                      id='capacity'
+                      label="Capacity"
+                      type="number"
+                      fullWidth
+                      variant='standard'
+                      placeholder='Enter Capacity'
+                      slotProps={{
+                            input: {
+                                startAdornment:(
+                                    <InputAdornment position="start"></InputAdornment>
+                                )
+                            }
+                        }}
+                      value={values.capacity}
+                      onChange={handleChange}
+                    /> 
+                    { errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
+                </Grid>
+        </Grid>
+        <Grid container spacing={2} sx={{mb:2}}>
+          <Grid size={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                          name='startDate'
+                          label="Start Date and Time"
+                          slotProps={{
+                              textField: {
+                                  fullWidth: true,
+                                  variant:"standard",                              
+                              },
+                              popper: {
+                                  disablePortal: true, // <-- Add this line
+                                  placement: 'right',
+                              },
+                          }}
+                          value={values.startDate}
+                          onChange={(value) => setFieldValue('startDate', value)}
+                      />
+                      {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
+              </LocalizationProvider>
+          </Grid>
+          <Grid size={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateTimePicker 
+                          label="End Date and Time"
+                          name='endDate'
+                          slotProps={{
+                              textField: {
+                                  fullWidth: true,
+                                  variant:"standard",
+                              },
+                              popper: {
+                                  disablePortal: true, // <-- Add this line
+                                  placement: 'left',
+                              }
+                          }}
+                          value={values.endDate}
+                          onChange={(value) => setFieldValue('endDate', value)}
+                  />
+                  {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
+               </LocalizationProvider>
+          </Grid>
+          <Grid size={4}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                          name='registrationDeadline'
+                          label="Deadline to Register"
+                          slotProps={{
+                              textField: {
+                                  fullWidth:true,
+                                  variant:"standard", 
+                              },
+                              popper: {
+                                  disablePortal: true, // <-- Add this line
+                                  placement: 'right',
+                                  sx: { zIndex: 1500 },
+                              }                       
+                          }}
+                          value={values.registrationDeadline}
+                          onChange={(value) => setFieldValue('registrationDeadline', value)}
+                      />
+                      {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
+              </LocalizationProvider>
+          </Grid>
+          <Grid size={4}>
                   <CustomSelectField
                     label="Location"
                     fieldType="single"
@@ -183,8 +295,6 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
                   />
                   {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
                 </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:2}}>
                 <Grid size={4}>
                   <CustomSelectField
                     label="Funding Source"
@@ -198,127 +308,17 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
                   />
                   {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
                 </Grid>
-                <Grid size={4}>
-                    <TextField
-                        name="budget"
-                        id='budget'
-                        label="Budget"
-                        type="number"
-                        fullWidth
-                        variant='outlined'
-                        placeholder="Enter Budget"
-                        slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start">EGP</InputAdornment>
-                                )
-                            }
-                        }}
-                        value={values.budget}
-                        onChange={handleChange}
-                    />
-                    { errors.budget && touched.budget ? <p style={{color:"#db3030"}}>{errors.budget}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
-                    <TextField
-                      name="capacity"
-                      id='budget'
-                      label="Capacity"
-                      type="number"
-                      fullWidth
-                      variant='outlined'
-                      placeholder='Enter Capacity'
-                      slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start"></InputAdornment>
-                                )
-                            }
-                        }}
-                      value={values.capacity}
-                      onChange={handleChange}
-                    /> 
-                    { errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:2}}>
-          <Grid size={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                          name='startDate'
-                          label="Start Date and Time"
-                          slotProps={{
-                              textField: {
-                                  fullWidth: true,                              
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'right',
-                                  sx: { zIndex: 1500 },
-                              }
-                          }}
-                          value={values.startDate}
-                          onChange={(value) => setFieldValue('startDate', value)}
-                      />
-                      {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
-              </LocalizationProvider>
-          </Grid>
-          <Grid size={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker 
-                          label="End Date and Time"
-                          name='endDate'
-                          slotProps={{
-                              textField: {
-                                  fullWidth: true,
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'left',
-                                  sx: { zIndex: 1500 },
-                              }
-                          }}
-                          value={values.endDate}
-                          onChange={(value) => setFieldValue('endDate', value)}
-                  />
-                  {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
-               </LocalizationProvider>
-          </Grid>
-          <Grid size={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                          name='registrationDeadline'
-                          label="Deadline to Register"
-                          slotProps={{
-                              textField: {
-                                  fullWidth:true 
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'right',
-                                  sx: { zIndex: 1500 },
-                              }                       
-                          }}
-                          value={values.registrationDeadline}
-                          onChange={(value) => setFieldValue('registrationDeadline', value)}
-                      />
-                      {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-              </LocalizationProvider>
-          </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
           <Grid size={5}>
                 <CustomSelectField
                   label="Participating Professors"
                   fieldType="single"
-                  options={professors.map(prof => ({
-                    label:prof.name,
-                    value:prof.id
-                  }))}
+                  options={availableProfessors}
                   value={selectedProf}
                   onChange={(e: any) => {
-                    // If your CustomSelectField returns the value directly:
-                    setSelectedProf(e.target ? e.target.value : e);
+                      const val = e.target ? e.target.value : e;
+                      setSelectedProf(val);
                   }}
                 />
                 { errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>}
@@ -329,13 +329,10 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
               size='medium' 
               containerType='outwards'
               onClick={() => {
-                const profToAdd = findProfessorByID(selectedProf);
-                if (
-                  profToAdd && 
-                  !values.professors.some(p => p.id === selectedProf)
-                ) {
-                  setFieldValue('professors', [...values.professors, profToAdd]);
-                  setSelectedProf(""); // Clear selection after adding
+                const profToAdd = availableProfessors.find(p => p.value === selectedProf)
+                if (profToAdd && !values.professors.some(p => p.value === profToAdd.value)) {
+                  setFieldValue("professors", [...values.professors, profToAdd]);
+                  setSelectedProf("");
                 }
               }}
             />
@@ -373,12 +370,12 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1}}>
               {values.professors.map((prof) => (
                 <Chip
-                  key={prof.id}
-                  label={prof.name}
+                  key={prof.value}
+                  label={prof.label}
                   onDelete={() =>
                     setFieldValue(
                       'professors',
-                      values.professors.filter((p) => p.id !== prof.id)
+                      values.professors.filter((p) => p.value !== prof.value)
                     )
                   }
                   color="primary"
@@ -410,7 +407,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
           </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
-          <Grid size={12}>
+          <Grid size={6}>
               <CustomTextField 
                 name='description'
                 id='description'
@@ -427,7 +424,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
               />
               { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
           </Grid>
-          <Grid size={12}>
+          <Grid size={6}>
               <CustomTextField 
                 name='agenda'
                 id='agenda'
