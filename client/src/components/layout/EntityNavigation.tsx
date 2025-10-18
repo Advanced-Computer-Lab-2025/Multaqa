@@ -164,10 +164,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "my-workshops", label: "My Workshops" },
-          { id: "my-pending-workshops", label: "Pending Workshops" },
-          { id: "my-accepted-workshops", label: "Accepted Workshops" },
-          { id: "my-rejected-workshops", label: "Rejected Workshops" },
-          { id: "my-under-workshops", label: "To Review Workshops" },
+          { id: "my-pending-workshops", label: "Pending" },
+          { id: "my-accepted-workshops", label: "Accepted" },
+          { id: "my-rejected-workshops", label: "Rejected" },
+          { id: "my-under-workshops", label: "To Review" },
         ],
       },
       {
@@ -308,10 +308,9 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bazaars & Booths",
         icon: Store,
         sections: [
-          { id: "opportunities", label: "Browse Opportunities" },
           { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
-          { id: "apply-booth", label: "Booth Applications" },
+          { id: "apply-booth", label: "Booth Hub" },
         ],
       },
       { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },
@@ -325,18 +324,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "partners", label: "View Partners" },
         ],
       },
-      // TODO: Add your first page and sections here
-      // {
-      //   key: "opportunities",
-      //   label: "Bazaars & Booths",
-      //   icon: Store,
-      //   sections: [
-      //     { id: "available", label: "Available Opportunities" },
-      //     { id: "apply-bazaar", label: "Apply for Bazaar" },
-      //     { id: "apply-booth", label: "Apply for Booth" },
-      //     { id: "my-applications", label: "My Applications" },
-      //   ],
-      // },
     ],
   },
 };
