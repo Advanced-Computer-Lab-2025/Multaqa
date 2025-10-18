@@ -39,6 +39,7 @@ export default function EntityCatchAllPage() {
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
+     
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {

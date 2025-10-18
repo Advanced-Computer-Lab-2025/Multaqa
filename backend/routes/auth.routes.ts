@@ -3,26 +3,27 @@ import { AuthService } from '../services/authService';
 import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, loginValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
 import { VerificationService } from '../services/verificationService';
-import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse } from '../interfaces/responses/authResponses.interface';
+import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse, MeResponse } from '../interfaces/responses/authResponses.interface';
+import verifyJWT from '../middleware/verifyJWT.middleware';
+import { UserService } from '../services/userService';
 
 const router = Router();
 const authService = new AuthService();
+const userService = new UserService();
 const verificationService = new VerificationService();
 
 async function signup(req: Request, res: Response<SignupResponse>) {
   try {
     // Validate request body based on role
     let schema;
-    if (req.body.role === 'vendor') {
+    if (req.body.type === 'vendor') {
       schema = signupVendorValidationSchema;
     } else {
-      schema = signupStudentAndStaffValidationSchema; 
+      schema = signupStudentAndStaffValidationSchema;
     }
     const { error, value } = schema.validate(req.body);
     if (error) {
-      throw createError(400, 'Validation error', {
-        errors: error.details.map(detail => detail.message)
-      });
+      throw createError(400, 'Validation error', error.message);
     }
 
     // Create user
@@ -35,18 +36,37 @@ async function signup(req: Request, res: Response<SignupResponse>) {
       user: result
     });
   } catch (error: any) {
+    console.error('Registration error:', error.message);
     throw createError(400, error.message || 'Registration failed');
   }
 }
+
+// --- Get Current User ---
+export const getMe = async (req: Request, res: Response<MeResponse>) => {
+  try {
+    const user = (req as any).user;
+
+    // Fetch full user details
+    const fullUser = await userService.getUserById(user.id);
+
+    res.status(200).json({
+      user: fullUser,
+      message: 'User fetched successfully',
+    });
+  } catch (error: any) {
+    throw createError(400, error.message || 'Get Me failed');
+  }
+};
+
 
 async function verifyUser(req: Request, res: Response) {
   try {
     const token = req.query.token as string;
     await verificationService.verifyUser(token);
 
-    return res.redirect(`https://localhost:${process.env.BACKEND_PORT}/login?verified=true`); // should be frontend URL
+    return res.redirect(`http://localhost:${process.env.FRONTEND_PORT}/login?verified=true`); 
   } catch (err) {
-    return res.redirect(`https://localhost:${process.env.BACKEND_PORT}/login?verified=false`); // should be frontend URL
+    return res.redirect(`http://localhost:${process.env.FRONTEND_PORT}/login?verified=false`); 
   }
 }
 
@@ -65,7 +85,13 @@ async function login(req: Request, res: Response<LoginResponse>) {
     const { accessToken, refreshToken } = tokens;
 
     // Set refresh token in HTTP-only cookie to prevent XSS attacks
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,           // cannot be accessed by JS
+      secure: false,
+      sameSite: "lax",
+      path: "/",                // available for all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
 
     // Send HTTP response
     res.status(200).json({
@@ -75,6 +101,7 @@ async function login(req: Request, res: Response<LoginResponse>) {
       accessToken: accessToken
     });
   } catch (error: any) {
+    console.error('Login error:', error.message);
     throw createError(400, error.message || 'Login failed');
   }
 }
@@ -104,6 +131,7 @@ async function logout(req: Request, res: Response<LogoutResponse>) {
   }
 }
 
+router.post('/me', verifyJWT, getMe);
 router.post('/signup', signup);
 router.get('/verify', verifyUser);
 router.post('/login', login);

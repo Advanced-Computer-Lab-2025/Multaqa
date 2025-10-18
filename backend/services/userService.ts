@@ -11,6 +11,7 @@ import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
 import { sendVerification } from "./emailService";
+import { getNgrokUrl } from "../config/NgrokTunnel";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -100,6 +101,33 @@ export class UserService {
     await user.save();
   }
 
+  async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.UNKNOWN,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async getAllTAs(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.TA,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async getAllStaff(): Promise<IStaffMember[]> {
+    const staffMembers = await this.staffMemberRepo.findAll({
+      position: StaffPosition.STAFF,
+    });
+
+    // Convert Mongoose documents to plain objects
+    return staffMembers.map((staff) => staff.toObject());
+  }
+
   async assignRoleAndSendVerification(
     userId: string,
     position: string
@@ -127,7 +155,8 @@ export class UserService {
 
     // Generate verification token and send email
     const token = this.verificationService.generateVerificationToken(user);
-    const link = `http://localhost:${process.env.BACKEND_PORT}/auth/verify?token=${token}`; // should be frontend URL
+    const appUrl = await getNgrokUrl();
+    const link = `${appUrl}/auth/verify?token=${token}`;
     await sendVerification(user.email, link);
 
     // Remove password from response
@@ -136,33 +165,6 @@ export class UserService {
       : user;
 
     return userWithoutPassword as Omit<IStaffMember, "password">;
-  }
-
-  async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.UNKNOWN,
-    });
-
-    // Convert Mongoose documents to plain objects
-    return staffMembers.map((staff) => staff.toObject());
-  }
-
-  async getAllTAs(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.TA,
-    });
-
-    // Convert Mongoose documents to plain objects
-    return staffMembers.map((staff) => staff.toObject());
-  }
-
-  async getAllStaff(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.STAFF,
-    });
-
-    // Convert Mongoose documents to plain objects
-    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {

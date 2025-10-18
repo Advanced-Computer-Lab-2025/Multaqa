@@ -2,7 +2,8 @@ import React from "react";
 import SidebarNavigation from "./SidebarNavigation";
 import TopNavigation from "./TopNavigation";
 import Tabs from "./Tabs";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/context/AuthContext";
 import {
   User,
   Calendar,
@@ -67,6 +68,7 @@ type TabItem = {
 type SectionItem = { id: string; label: string };
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
+  
   student: {
     headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
@@ -396,6 +398,7 @@ export default function EntityNavigation({
   const userData = currentUser || getMockUserData(userRole);
   const pathname = usePathname() || "";
   const router = useRouter();
+  const { logout } = useAuth();
   const segments = pathname.split("/").filter(Boolean);
   const locale = segments[0] || "en";
   const entity = segments[1] || "";
@@ -441,8 +444,8 @@ export default function EntityNavigation({
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout server logic here
-    console.log("Logout clicked");
+    logout();
+    router.replace('/login');
   };
 
   // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
@@ -521,8 +524,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "82vh",
-              maxHeight: "82vh",
+              minHeight: "75vh",
+              maxHeight: "75vh",
             }}
           >
             {children}

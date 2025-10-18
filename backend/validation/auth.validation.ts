@@ -31,7 +31,10 @@ export const signupStudentAndStaffValidationSchema = Joi.object({
     .required()
     .messages({
       'string.pattern.base': 'GUC ID must be in format XX-XXXX or XX-XXXXX or X-XXXX or X-XXXXX (X is a digit)'
-    })
+    }),
+    type: Joi.string()
+    .valid('studentOrStaff')
+    .required(),
 });
 
 export const signupVendorValidationSchema = Joi.object({
@@ -50,12 +53,15 @@ export const signupVendorValidationSchema = Joi.object({
     .min(2)
     .max(100)
     .required(),
-  taxCard: Joi.string()
-    .trim()
+  type: Joi.string()
+    .valid('vendor')
     .required(),
-  logo: Joi.string()
-    .uri()
-    .required()
+  // taxCard: Joi.string()
+  //   .trim()
+  //   .required(),
+  // logo: Joi.string()
+  //   .uri()
+  //   .required()
 });
 
 // for admin/event office accounts (created by another admin)

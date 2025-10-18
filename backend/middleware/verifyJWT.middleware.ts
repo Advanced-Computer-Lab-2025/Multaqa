@@ -18,7 +18,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export default function verifyJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
-  if (process.env.NODE_ENV === "development") return next();
+  if(process.env.NODE_ENV === 'development') { return next(); }
   const header = req.headers["authorization"];
   if (!header) {
     throw createError(401, "You are unauthorized for accessing this route, missing authorization header");
