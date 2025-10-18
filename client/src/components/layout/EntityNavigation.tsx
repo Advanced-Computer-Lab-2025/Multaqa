@@ -16,7 +16,7 @@ import {
   ClipboardList,
   BarChart3,
   Archive,
-  CreditCard,
+  // CreditCard,
   QrCode,
   Award,
 } from "lucide-react";

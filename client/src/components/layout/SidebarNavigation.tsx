@@ -1,5 +1,6 @@
 import React from "react";
 import { LogOut } from "lucide-react";
+import Image from "next/image";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 interface SectionItem {
@@ -158,9 +159,11 @@ export default function SidebarNavigation({
               {/* Profile Avatar */}
               <div className="flex-shrink-0">
                 {currentUser.profileImage ? (
-                  <img
+                  <Image
                     src={currentUser.profileImage}
                     alt={displayName}
+                    width={32}
+                    height={32}
                     className="w-8 h-8 rounded-full object-cover"
                   />
                 ) : (
