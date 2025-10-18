@@ -5,6 +5,7 @@ import createError from 'http-errors';
 import { VerificationService } from '../services/verificationService';
 import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse } from '../interfaces/responses/authResponses.interface';
 import verifyJWT from '../middleware/verifyJWT.middleware';
+import { MeResponse } from '../interfaces/responses/authResponses.interface';
 
 const router = Router();
 const authService = new AuthService();
@@ -40,14 +41,17 @@ async function signup(req: Request, res: Response<SignupResponse>) {
 }
 
 // --- Get Current User ---
-export const getMe = async (req: Request, res: Response) => {
+export const getMe = async (req: Request, res: Response<MeResponse>) => {
   try {
     const user = (req as any).user;
-
+    console.log('Get Me User:', user);
     // req.user is already populated by middleware
-    res.status(200).json({ user: user });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(200).json({ user: user,
+      message: 'User fetched successfully',
+    });
+  } catch (error: any) {
+    console.error('Get Me error:', error.message);
+    throw createError(400, error.message || 'Get Me failed');
   }
 };
 
