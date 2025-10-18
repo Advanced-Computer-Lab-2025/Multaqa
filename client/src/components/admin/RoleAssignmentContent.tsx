@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
@@ -9,7 +9,15 @@ import { Box, Typography } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
 import { Applicant } from "./types";
-import { handleDragStart, assignToRole } from "./utils";
+import {
+  handleDragStart,
+  assignToRole,
+  handleAssignRole,
+  fetchUnassignedStaff,
+  fetchAllTAs,
+  fetchAllProfessors,
+  fetchAllStaff,
+} from "./utils";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
 
@@ -25,29 +33,9 @@ function DroppableZone({
   return <div ref={setNodeRef}>{children}</div>;
 }
 
-const initialApplicants: Applicant[] = [
-  {
-    id: "58-5727",
-    name: "Angelina J",
-    email: "angelina@gmail.com",
-    registrationDate: "25/08/2025",
-  },
-  {
-    id: "58-5728",
-    name: "Vini JR",
-    email: "vinijr@gmail.com",
-    registrationDate: "26/08/2025",
-  },
-  {
-    id: "58-5729",
-    name: "Sam Carter",
-    email: "sam.carter@example.com",
-    registrationDate: "27/08/2025",
-  },
-];
-
 export default function RoleAssignmentContent() {
-  const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const roleKeys = ["staff", "ta", "professor"] as const;
   const roleLabels: Record<(typeof roleKeys)[number], string> = {
@@ -72,6 +60,41 @@ export default function RoleAssignmentContent() {
     applicant: Applicant;
   } | null>(null);
 
+  // Fetch unassigned staff members and assigned roles on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch unassigned staff for pending section
+        const unassignedStaff = await fetchUnassignedStaff();
+        setApplicants(unassignedStaff);
+
+        // Fetch already assigned staff for each role
+        const [assignedStaff, assignedTAs, assignedProfessors] = await Promise.all([
+          fetchAllStaff(),
+          fetchAllTAs(),
+          fetchAllProfessors(),
+        ]);
+
+        // Set the assigned users for each role
+        setAssigned({
+          staff: assignedStaff,
+          ta: assignedTAs,
+          professor: assignedProfessors,
+        });
+
+      } catch (error) {
+        console.error("Failed to load data:", error);
+        // You might want to show an error toast/notification here
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
   const activeDraggedUser =
     applicants.find((a) => a.id === activeId) ||
     Object.values(assigned)
@@ -79,10 +102,33 @@ export default function RoleAssignmentContent() {
       .find((u) => u.id === activeId);
 
   // Handler to confirm the assignment
-  const handleConfirmAssignment = () => {
-    // Assignment already happened optimistically, just close modal
-    setModalOpen(false);
-    setPendingAssignment(null);
+  const handleConfirmAssignment = async () => {
+    if (!pendingAssignment) return;
+
+    try {
+      console.log("Confirming assignment:", pendingAssignment);
+      // Call the API to assign the role
+      await handleAssignRole(
+        pendingAssignment.applicant.id,
+        pendingAssignment.role,
+        pendingAssignment.applicant,
+        setAssigned,
+        setApplicants
+      );
+
+      // Assignment successful, close modal
+      setModalOpen(false);
+      setPendingAssignment(null);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to assign role";
+      console.error("Error assigning role:", errorMessage);
+      // The revert has already been handled in handleAssignRole
+      setModalOpen(false);
+      setPendingAssignment(null);
+      // You might want to show an error toast/notification here
+      alert(`Failed to assign role: ${errorMessage}`);
+    }
   };
 
   // Handler to cancel the assignment - revert the optimistic update
@@ -212,7 +258,20 @@ export default function RoleAssignmentContent() {
                     : "100px",
               }}
             >
-              {applicants.length === 0 && (
+              {loading && (
+                <Typography
+                  sx={{
+                    color: "#757575",
+                    fontSize: "14px",
+                    textAlign: "center",
+                    py: 4,
+                  }}
+                >
+                  Loading unassigned staff...
+                </Typography>
+              )}
+
+              {!loading && applicants.length === 0 && (
                 <Typography
                   sx={{
                     color: "#757575",
@@ -239,7 +298,7 @@ export default function RoleAssignmentContent() {
                     <SortableTicket id={applicant.id}>
                       <RegisterBox
                         name={applicant.name}
-                        id={applicant.id}
+                        id={applicant.gucId}
                         email={applicant.email}
                         registrationDate={applicant.registrationDate}
                         role="N/A"
@@ -392,7 +451,7 @@ export default function RoleAssignmentContent() {
                         <Box sx={{ flex: 1, minWidth: "280px" }}>
                           <RegisterBox
                             name={user.name}
-                            id={user.id}
+                            id={user.gucId}
                             email={user.email}
                             registrationDate={user.registrationDate}
                             role={roleLabels[roleKey]}

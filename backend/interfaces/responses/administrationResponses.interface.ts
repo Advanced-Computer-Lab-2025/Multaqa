@@ -16,9 +16,3 @@ export interface GetAllAdminsResponse {
   success: boolean;
   data: Partial<IAdministration>[];  // // Each item may include some or all of these attributes: name, email, roleType, status, registeredAt, isVerified.
 }
-
-export interface AssignRoleResponse {
-  success: boolean;
-  message: string;
-  user: Omit<IStaffMember, "password">;
-}

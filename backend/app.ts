@@ -2,10 +2,25 @@ import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
+import cors from "cors";
 import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
+
+// Import base schemas first
+import "./schemas/stakeholder-schemas/userSchema";
+
+// Import discriminator schemas for users
+import "./schemas/stakeholder-schemas/staffMemberSchema";
+import "./schemas/stakeholder-schemas/studentSchema";
+import "./schemas/stakeholder-schemas/vendorSchema";
+
+// Import event schemas after user schemas are registered
+import "./schemas/event-schemas/eventSchema";
+import "./schemas/event-schemas/workshopEventSchema";
+import "./schemas/event-schemas/bazaarEventSchema";
+import "./schemas/event-schemas/platformBoothEventSchema";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
@@ -14,10 +29,18 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
-import cors from "cors";
 dotenv.config();
 
 const app = express();
+
+// CORS configuration
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
+  })
+);
+
 app.use(json());
 app.use(cookieParser());
 app.use(cors());
@@ -44,9 +67,9 @@ const MONGO_URI =
 async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(MONGO_URI!);
     console.log("✅ Connected to MongoDB:", mongoose.connection.name);
-    const PORT = process.env.BACKEND_PORT;
+    const PORT = process.env.PORT;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

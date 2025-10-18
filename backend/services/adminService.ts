@@ -73,11 +73,14 @@ export class AdministrationService {
   }
 
   async getAllAdminAccounts(): Promise<Partial<IAdministration>[]> {
-    return await this.administrationRepo.findAll(
+    const admins = await this.administrationRepo.findAll(
       { role: UserRole.ADMINISTRATION },
       {
         select: 'name email roleType status registeredAt isVerified',
       }
     );
+    
+    // Convert Mongoose documents to plain objects
+    return admins.map(admin => admin.toObject());
   }
 }
