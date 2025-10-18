@@ -21,9 +21,6 @@ import WorkshopList from "@/components/shared/Professor/WorkshopList";
 import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
 
-const { user } = useAuth();
-
-
 export default function EntityCatchAllPage() {
   const params = useParams() as {
     locale?: string;
@@ -37,6 +34,7 @@ export default function EntityCatchAllPage() {
   const section = segments[3] || "";
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
+  const { user } = useAuth();
   const userId = String(user?._id);
 
   // Render specific content based on entity, tab, and section
