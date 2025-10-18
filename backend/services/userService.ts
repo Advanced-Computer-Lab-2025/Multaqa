@@ -142,9 +142,9 @@ export class UserService {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.UNKNOWN,
     });
-    
+
     // Convert Mongoose documents to plain objects
-    return staffMembers.map(staff => staff.toObject());
+    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllTAs(): Promise<IStaffMember[]> {
@@ -153,16 +153,16 @@ export class UserService {
     });
 
     // Convert Mongoose documents to plain objects
-    return staffMembers.map(staff => staff.toObject());
+    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllStaff(): Promise<IStaffMember[]> {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.STAFF,
     });
-    
+
     // Convert Mongoose documents to plain objects
-    return staffMembers.map(staff => staff.toObject());
+    return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
@@ -173,6 +173,6 @@ export class UserService {
           "firstName lastName name email role gucId position roleType status",
       }
     );
-   return professors.map(prof => prof.toObject());
+    return professors.map((prof) => prof.toObject());
   }
 }

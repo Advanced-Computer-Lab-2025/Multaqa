@@ -2,15 +2,8 @@ import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
-import "../schemas/event-schemas/workshopEventSchema";
-import "../schemas/event-schemas/bazaarEventSchema";
-import "../schemas/event-schemas/platformBoothEventSchema";
-import "../schemas/event-schemas/conferenceEventSchema";
-import "../schemas/stakeholder-schemas/staffMemberSchema";
-import "../schemas/stakeholder-schemas/vendorSchema";
-import "../schemas/event-schemas/tripSchema";
 import { EVENT_TYPES } from "../constants/events.constants";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { Schema } from "mongoose";
 
 export class EventsService {
@@ -123,13 +116,23 @@ export class EventsService {
   }
 
   async updateEvent(eventId: string, updateData: any) {
-    const updatedEvent = await this.eventRepo.update(eventId, updateData);
-
-    if (!updatedEvent) {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
       throw createError(404, "Event not found");
     }
 
-    return updatedEvent;
+    if (event.type === EVENT_TYPES.BAZAAR || event.type === EVENT_TYPES.TRIP) {
+      if (new Date(event.eventStartDate) < new Date()) {
+        // If the event has already started, prevent updates
+        throw createError(
+          400,
+          "Cannot update bazaars & trips that have already started"
+        );
+      }
+    }
+
+    const updatedEvent = await this.eventRepo.update(eventId, updateData);
+    return updatedEvent!; //! to assert that updatedEvent is not null (we already checked for existence above)
   }
 
   async deleteEvent(id: string): Promise<IEvent> {

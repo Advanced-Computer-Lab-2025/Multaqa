@@ -2,12 +2,7 @@ import { IEvent } from "../interfaces/models/event.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
-import "../schemas/event-schemas/workshopEventSchema";
-import "../schemas/event-schemas/bazaarEventSchema";
-import "../schemas/event-schemas/platformBoothEventSchema";
-import "../schemas/stakeholder-schemas/staffMemberSchema";
-import "../schemas/stakeholder-schemas/vendorSchema";
-import { mapEventDataByType } from "../utils/mapEventDataByType"; // Import the utility function
+import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
