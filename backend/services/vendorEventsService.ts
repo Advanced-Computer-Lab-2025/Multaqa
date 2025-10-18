@@ -183,22 +183,22 @@ export class VendorEventsService {
       };
     if (event.type === EVENT_TYPES.BAZAAR) {
       for (const vendorEntry of event.vendors || []) {
-        if (vendorEntry.RequestData.status === Event_Request_Status.PENDING) {
+       
           vendors.push({
             vendor: vendorEntry.vendor,
             RequestData: vendorEntry.RequestData,
             event: eventDetails, 
           });
-        }
+        
       }
     } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
-      if (event.RequestData.status === Event_Request_Status.PENDING) {
+     
         vendors.push({
           vendor: event.vendor,
           RequestData: event.RequestData,
           event: eventDetails, 
         });
-      }
+      
     }
   }
 
