@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
@@ -18,37 +18,37 @@ import {
   accountCreationSchema,
   handleCreateAccount,
   handleDeleteAccount,
+  fetchAdminAccounts,
 } from "./utils";
-
-const initialAccounts: Account[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@guc.edu.eg",
-    accountType: "Admin",
-    createdDate: "15/01/2025",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@guc.edu.eg",
-    accountType: "Event Office",
-    createdDate: "20/01/2025",
-  },
-  {
-    id: "3",
-    name: "Michael Johnson",
-    email: "michael.johnson@guc.edu.eg",
-    accountType: "Admin",
-    createdDate: "25/01/2025",
-  },
-];
 
 export default function ManageEventOfficeAccountContent() {
   const theme = useTheme();
-  const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch admin accounts on component mount
+  useEffect(() => {
+    const loadAccounts = async () => {
+      try {
+        setLoading(true);
+        const fetchedAccounts = await fetchAdminAccounts();
+        setAccounts(fetchedAccounts);
+        setError(null);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load accounts";
+        setError(errorMessage);
+        console.error("Error loading accounts:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAccounts();
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -59,8 +59,14 @@ export default function ManageEventOfficeAccountContent() {
       accountType: "",
     },
     validationSchema: accountCreationSchema,
-    onSubmit: (values) => {
-      handleCreateAccount(values, setAccounts, handleCloseCreate);
+    onSubmit: async (values) => {
+      try {
+        await handleCreateAccount(values, setAccounts, handleCloseCreate);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to create account";
+        console.error("Error creating account:", errorMessage);
+      }
     },
   });
 
@@ -80,14 +86,20 @@ export default function ManageEventOfficeAccountContent() {
     setAccountToDelete(null);
   };
 
-  const deleteAccountHandler = () => {
+  const deleteAccountHandler = async () => {
     if (accountToDelete) {
-      handleDeleteAccount(
-        accountToDelete,
-        accounts,
-        setAccounts,
-        handleCloseDeleteModal
-      );
+      try {
+        await handleDeleteAccount(
+          accountToDelete,
+          accounts,
+          setAccounts,
+          handleCloseDeleteModal
+        );
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to delete account";
+        console.error("Error deleting account:", errorMessage);
+      }
     }
   };
 
@@ -164,6 +176,24 @@ export default function ManageEventOfficeAccountContent() {
 
   return (
     <>
+      {error && (
+        <Box
+          sx={{
+            backgroundColor: "rgba(211, 47, 47, 0.1)",
+            border: "1px solid",
+            borderColor: "error.main",
+            borderRadius: "12px",
+            padding: "16px",
+            margin: "16px 0",
+            fontFamily: "var(--font-poppins), system-ui, sans-serif",
+          }}
+        >
+          <Typography color="error" sx={{ fontWeight: 600 }}>
+            Error loading accounts: {error}
+          </Typography>
+        </Box>
+      )}
+
       <ManagementScreen
         pageTitle="Manage Accounts"
         pageSubtitle="Create, review, and manage admin and event office accounts"
@@ -174,10 +204,16 @@ export default function ManageEventOfficeAccountContent() {
         createButtonLabel="Create Account"
         createButtonIcon={<PersonAddIcon />}
         onOpenCreate={handleOpenCreate}
-        items={accounts}
+        items={loading ? [] : accounts}
         renderItem={renderAccountCard}
-        noItemsMessage="No Accounts Available"
-        noItemsSubtitle="There are no admin or event office accounts to display."
+        noItemsMessage={
+          loading ? "Loading accounts..." : "No Accounts Available"
+        }
+        noItemsSubtitle={
+          loading
+            ? "Please wait while we fetch the accounts"
+            : "There are no admin or event office accounts to display."
+        }
       />
 
       {/* Delete Confirmation Modal */}
@@ -260,7 +296,12 @@ export default function ManageEventOfficeAccountContent() {
         width="w-[90vw] sm:w-[80vw] md:w-[600px]"
         borderColor={theme.palette.primary.main}
       >
-        <form onSubmit={formik.handleSubmit}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            formik.handleSubmit();
+          }}
+        >
           <Box sx={{ p: 4 }}>
             <Typography
               variant="h5"
@@ -401,6 +442,10 @@ export default function ManageEventOfficeAccountContent() {
                 color="primary"
                 disabled={!(formik.isValid && formik.dirty)}
                 startIcon={<PersonAddIcon />}
+                onClick={(e) => {
+                  e.preventDefault();
+                  formik.handleSubmit();
+                }}
                 sx={{
                   width: "160px",
                   height: "44px",

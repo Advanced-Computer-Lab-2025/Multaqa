@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Typography } from "@mui/material";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -10,55 +10,30 @@ import SecurityIcon from "@mui/icons-material/Security";
 import ManagementScreen from "./shared/ManagementScreen";
 import ManagementCard from "../shared/containers/ManagementCard";
 import { User } from "./types";
-import { handleToggleBlock } from "./utils";
+import { handleToggleBlock, fetchAllUsers } from "./utils";
 import { useTheme } from "@mui/material/styles";
-
-const initialUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@guc.edu.eg",
-    role: "Admin",
-    status: "Active",
-    createdDate: "15/01/2025",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@guc.edu.eg",
-    role: "Event Office",
-    status: "Active",
-    createdDate: "20/01/2025",
-  },
-  {
-    id: "3",
-    name: "Michael Johnson",
-    email: "michael.johnson@guc.edu.eg",
-    role: "Student",
-    status: "Blocked",
-    createdDate: "25/01/2025",
-  },
-  {
-    id: "4",
-    name: "Emily Davis",
-    email: "emily.davis@guc.edu.eg",
-    role: "Professor",
-    status: "Active",
-    createdDate: "10/02/2025",
-  },
-  {
-    id: "5",
-    name: "David Wilson",
-    email: "david.wilson@guc.edu.eg",
-    role: "TA",
-    status: "Active",
-    createdDate: "12/02/2025",
-  },
-];
 
 export default function BlockUnblockUsersContent() {
   const theme = useTheme();
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch all users on component mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setLoading(true);
+        const fetchedUsers = await fetchAllUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error("Failed to load users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
 
   const renderUserCard = (user: User) => (
     <ManagementCard
@@ -82,7 +57,22 @@ export default function BlockUnblockUsersContent() {
           label={user.status === "Active" ? "Block" : "Unblock"}
           variant="outlined"
           size="small"
-          onClick={() => handleToggleBlock(user.id, setUsers)}
+          onClick={async () => {
+            try {
+              await handleToggleBlock(user.id, user.status, setUsers);
+            } catch (error: unknown) {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : "Failed to toggle block status";
+              console.error("Error toggling block status:", errorMessage);
+              alert(
+                `Failed to ${
+                  user.status === "Active" ? "block" : "unblock"
+                } user: ${errorMessage}`
+              );
+            }
+          }}
           startIcon={
             user.status === "Active" ? (
               <BlockIcon />
@@ -104,7 +94,6 @@ export default function BlockUnblockUsersContent() {
                 fontSize: "16px",
               },
             },
-            
           }}
         />
       }
@@ -127,10 +116,14 @@ export default function BlockUnblockUsersContent() {
       boxSubtitle="Restrict or restore user access to the system as needed"
       boxIcon={<SecurityIcon fontSize="small" />}
       borderColor={theme.palette.error.main}
-      items={users}
+      items={loading ? [] : users}
       renderItem={renderUserCard}
-      noItemsMessage="No Users Found"
-      noItemsSubtitle="There are no users to display for access control."
+      noItemsMessage={loading ? "Loading users..." : "No Users Found"}
+      noItemsSubtitle={
+        loading
+          ? "Please wait while we fetch the users"
+          : "There are no users to display for access control."
+      }
     />
   );
 }
