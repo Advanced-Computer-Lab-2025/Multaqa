@@ -13,8 +13,8 @@ export function authorizeRoles(options: {
 }) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === "development") return next();
+    
     const user = req.user;
-
     if (!user) {
       throw createError(401, "Not authenticated");
     }

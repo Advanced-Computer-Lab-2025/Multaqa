@@ -3,9 +3,8 @@ import { AuthService } from '../services/authService';
 import { signupStudentAndStaffValidationSchema, signupVendorValidationSchema, loginValidationSchema } from '../validation/auth.validation';
 import createError from 'http-errors';
 import { VerificationService } from '../services/verificationService';
-import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse } from '../interfaces/responses/authResponses.interface';
+import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse, MeResponse } from '../interfaces/responses/authResponses.interface';
 import verifyJWT from '../middleware/verifyJWT.middleware';
-import { MeResponse } from '../interfaces/responses/authResponses.interface';
 
 const router = Router();
 const authService = new AuthService();
@@ -18,7 +17,7 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     if (req.body.type === 'vendor') {
       schema = signupVendorValidationSchema;
     } else {
-      schema = signupStudentAndStaffValidationSchema; 
+      schema = signupStudentAndStaffValidationSchema;
     }
     const { error, value } = schema.validate(req.body);
     if (error) {
@@ -44,13 +43,11 @@ async function signup(req: Request, res: Response<SignupResponse>) {
 export const getMe = async (req: Request, res: Response<MeResponse>) => {
   try {
     const user = (req as any).user;
-    console.log('Get Me User:', user);
-    // req.user is already populated by middleware
-    res.status(200).json({ user: user,
+    res.status(200).json({
+      user: user,
       message: 'User fetched successfully',
     });
   } catch (error: any) {
-    console.error('Get Me error:', error.message);
     throw createError(400, error.message || 'Get Me failed');
   }
 };
@@ -80,9 +77,15 @@ async function login(req: Request, res: Response<LoginResponse>) {
     // Login user and get tokens
     const { user, tokens } = await authService.login(value);
     const { accessToken, refreshToken } = tokens;
-
+    
     // Set refresh token in HTTP-only cookie to prevent XSS attacks
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,           // cannot be accessed by JS
+      secure: false, 
+      sameSite: "lax",
+      path: "/",                // available for all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
 
     // Send HTTP response
     res.status(200).json({

@@ -7,10 +7,10 @@ export const api = axios.create({
 
 // Attach token if present
 api.interceptors.request.use((config) => {
-  if (process.env.NODE_ENV !== "development") {
-    const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-  }
+  console.log("Attaching token to request");
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+
   return config;
 });
 
@@ -19,21 +19,21 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // Check for token expiration (401) and retry once
     if (
-      error.response?.status === 401 &&
+      error.response?.status === 403 &&
       !originalRequest._retry &&
-      localStorage.getItem("refreshToken")
+      document.cookie.includes("refreshToken")
     ) {
       originalRequest._retry = true;
 
+      console.log("Attempting to refresh token");
       try {
-        const res = await axios.post("http://localhost:4000/auth/refresh", {}, {
+        const res = await axios.post("http://localhost:4000/auth/refresh-token", {}, {
           withCredentials: true,
         });
 
         const newAccessToken = res.data.accessToken;
-        localStorage.setItem("accessToken", newAccessToken);
+        localStorage.setItem("token", newAccessToken);
 
         api.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -41,7 +41,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token failed:", refreshError);
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
         // clear refresh token cookie by making a logout request
         await axios.post("http://localhost:4000/auth/logout", {}, {
           withCredentials: true,

@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // ✅ Avoid calling /auth/me on public routes
+  // Avoid calling /auth/me on public routes
   const publicRoutes = ["/login", "/register", "/signup", "/en"];
   const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
 
@@ -45,37 +45,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!token) {
         setIsLoading(false);
         return;
-      }
-
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+      } 
+      
       try {
         const response = await api.post("/auth/me");
         if (response.data?.user) {
           setUser(response.data.user);
-          console.log("✅ User loaded:", response.data.user);
+          console.log("✅ User loaded:", user);
         } else {
           throw new Error("Invalid /auth/me response");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("❌ Failed to fetch user:", error);
-        localStorage.removeItem("token");
-        await api
-          .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => {});
-        setUser(null);
+        // Only logout if it's not a 403 (let interceptor handle token refresh)
+        if (error.response?.status !== 403) {
+          localStorage.removeItem("token");
+          await api
+            .post("/auth/logout", {}, { withCredentials: true })
+            .catch(() => { });
+          setUser(null);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    // 👇 Only check auth if not on a public route
+    // Only check auth if not on a public route
     if (!isPublic) initializeAuth();
     else setIsLoading(false);
   }, [pathname]);
 
-  // ✅ Login
+  // Login
   const login = useCallback(
     async (credentials: { email: string; password: string }) => {
       setIsLoading(true);
@@ -83,17 +83,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const response = await api.post("/auth/login", credentials);
         const { success, message, accessToken, user } = response.data;
         if (success) {
+          // Set access token in local storage
           localStorage.setItem("token", accessToken);
-          axios.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${accessToken}`;
-          api.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${accessToken}`;
+
           setUser(user);
-          console.log("✅ Logged in as:", user);
+          console.log("User set after login:", user);
+          // Return the user data for navigation purposes
           return { user };
-        } else throw new Error(message || "Login failed");
+        } else {
+          throw new Error(message || "Login failed");
+        }
       } catch (err: any) {
         const msg = err?.response?.data?.message || err.message;
         setError(msg);
@@ -101,11 +100,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } finally {
         setIsLoading(false);
       }
-    },
-    []
+    }, []
   );
 
-  // ✅ Signup
+  // Signup
   const signup = useCallback(async (data: any) => {
     setIsLoading(true);
     try {
@@ -124,13 +122,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // ✅ Logout
+  // Logout
   const logout = useCallback(async () => {
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
-    } catch {}
+    } catch { }
     localStorage.removeItem("token");
     setUser(null);
+    // clear refreshToken from cookies by making a logout request
     router.replace("/login");
   }, [router]);
 
