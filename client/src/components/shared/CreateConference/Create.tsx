@@ -62,6 +62,7 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             const res = await api.post("/events", payload);
             setResponse(res.data);
             setRefresh((prev)=> !prev);
+            return res.data
         } catch (err: any) {
             setError(err?.message || "API call failed");
         } finally {
@@ -70,7 +71,6 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
     };
 
     const onSubmit = async (values: any, actions: any) => {
-        onClose();
         const payload = {
             type:"conference",
             eventName: values.eventName,
@@ -87,9 +87,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             extraRequiredResources:values.extraRequiredResources,
             registrationDeadline:"2025-1-1"
         }
-        console.log(formik.errors)
-        console.log(payload)
-        handleCallApi(payload); 
+        const res = await handleCallApi(payload); 
+        onClose();
     }
 
     const formik = useFormik<EventFormData>({
