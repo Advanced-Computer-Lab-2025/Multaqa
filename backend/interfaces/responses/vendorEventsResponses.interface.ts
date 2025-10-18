@@ -10,7 +10,7 @@ export interface GetVendorEventsResponse {
 
 export interface ApplyToBazaarOrBoothResponse {
   success: boolean;
-  data: IApplicationResult; 
+  data: IApplicationResult;
   message: string;
 }
 
@@ -20,7 +20,6 @@ export interface GetVendorsRequestResponse {
   message: string;
 }
 
-
 export interface GetVendorRequestDetailsResponse {
   success: boolean;
   data: VendorRequest;
@@ -29,5 +28,11 @@ export interface GetVendorRequestDetailsResponse {
 
 export interface RespondToVendorRequestResponse {
   success: boolean;
+  message: string;
+}
+
+export interface getAvailableBoothsResponse {
+  success: boolean;
+  data: string[];
   message: string;
 }
