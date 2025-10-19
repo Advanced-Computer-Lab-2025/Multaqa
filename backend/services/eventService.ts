@@ -7,14 +7,22 @@ import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { Schema } from "mongoose";
 import { Trip } from "../schemas/event-schemas/tripSchema";
 import { ITrip } from "../interfaces/models/trip.interface";
+import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
+import { IWorkshop } from "../interfaces/workshop.interface";
+import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
+import { IConference } from "../interfaces/models/conference.interface";
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
   private tripRepo: GenericRepository<ITrip>;
+  private workshopRepo: GenericRepository<IWorkshop>;
+  private conferenceRepo: GenericRepository<IConference>;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
+    this.workshopRepo = new GenericRepository(Workshop);
+    this.conferenceRepo = new GenericRepository(Conference);
   }
 
   async getEvents(
@@ -115,7 +123,17 @@ export class EventsService {
   async createEvent(user: any, data: any) {
     const mappedData = mapEventDataByType(data.type, data);
 
-    const createdEvent = await this.eventRepo.create(mappedData);
+    let createdEvent;
+    // workshop repo required because extra fields missing from eventRepo
+    if (data.type == EVENT_TYPES.WORKSHOP) {
+      createdEvent = await this.workshopRepo.create(mappedData);
+    } else if (data.type == EVENT_TYPES.TRIP) {
+      createdEvent = await this.tripRepo.create(mappedData);
+    } else if (data.type == EVENT_TYPES.CONFERENCE) {
+      createdEvent = await this.conferenceRepo.create(mappedData);
+    } else {
+      createdEvent = await this.eventRepo.create(mappedData);
+    }
     return createdEvent;
   }
 
@@ -138,6 +156,10 @@ export class EventsService {
 
     if (event.type === EVENT_TYPES.TRIP) {
       updatedEvent = await this.tripRepo.update(eventId, updateData);
+    } else if (event.type === EVENT_TYPES.WORKSHOP) {
+      updatedEvent = await this.workshopRepo.update(eventId, updateData);
+    } else if (event.type === EVENT_TYPES.CONFERENCE) {
+      updatedEvent = await this.conferenceRepo.update(eventId, updateData);
     } else {
       updatedEvent = await this.eventRepo.update(eventId, updateData);
     }
