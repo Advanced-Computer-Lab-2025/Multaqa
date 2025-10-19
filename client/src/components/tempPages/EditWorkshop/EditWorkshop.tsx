@@ -158,7 +158,7 @@ const EditWorkshop = ({
     <>
       <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Edit Workshop</Typography>
-        <Grid container spacing={2} sx={{mb:2}}>
+        <Grid container spacing={2} sx={{mb:3}}>
                 <Grid size={4}>
                     <CustomTextField
                         name='workshopName'
@@ -169,58 +169,10 @@ const EditWorkshop = ({
                         fieldType="text"
                         autoCapitalize='off'
                         autoCapitalizeName={false}
-                        neumorphicBox
                         value={values.workshopName}
                         onChange={handleChange}
                     />
                     { errors.workshopName && touched.workshopName ? <p style={{color:"#db3030"}}>{errors.workshopName}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
-                  <CustomSelectField
-                    label="Location"
-                    fieldType="single"
-                    options={[
-                      { label: 'GUC Cairo', value: 'GUC Cairo' },
-                      { label: 'GUC Berlin', value: 'GUC Berlin' },
-                    ]}
-                    value={values.location}
-                    onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)}
-                  />
-                  {errors.location && touched.location && (<p style={{ color: "#db3030" }}>{errors.location}</p>)}    
-                </Grid>
-                <Grid size={4}>
-                  <CustomSelectField
-                    label="Faculty"
-                    fieldType="single"
-                    options={[
-                      { label: 'MET', value: 'MET' },
-                      { label: 'IET', value: 'IET' },
-                      { label: 'EMS', value: 'EMS' },
-                      { label: 'Pharmacy', value: 'pharmacy' },
-                      { label: 'Management', value: 'management' },
-                      { label: 'Applied Arts', value: 'applied arts' },
-                      { label: 'Law', value: 'Law' },
-                      { label: 'Dentistry', value: 'dentistry' },
-                    ]}
-                    value={values.faculty}
-                    onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)}
-                  />
-                  {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
-                </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:2}}>
-                <Grid size={4}>
-                  <CustomSelectField
-                    label="Funding Source"
-                    fieldType="single"
-                    options={[
-                      {label:'GUC',value:'GUC'},
-                      {label: 'External', value: 'External' },
-                    ]}
-                    value={values.fundingSource}
-                    onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
-                  />
-                  {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
                 </Grid>
                 <Grid size={4}>
                     <TextField
@@ -229,7 +181,7 @@ const EditWorkshop = ({
                         label="Budget"
                         type="number"
                         fullWidth
-                        variant='outlined'
+                        variant='standard'
                         placeholder="Enter Budget"
                         slotProps={{
                             input: {
@@ -240,6 +192,7 @@ const EditWorkshop = ({
                         }}
                         value={values.budget}
                         onChange={handleChange}
+                        sx={{mt:"7px"}}
                     />
                     { errors.budget && touched.budget ? <p style={{color:"#db3030"}}>{errors.budget}</p> : <></>}
                 </Grid>
@@ -250,7 +203,7 @@ const EditWorkshop = ({
                       label="Capacity"
                       type="number"
                       fullWidth
-                      variant='outlined'
+                      variant='standard'
                       placeholder='Enter Capacity'
                       slotProps={{
                             input: {
@@ -261,19 +214,21 @@ const EditWorkshop = ({
                         }}
                       value={values.capacity}
                       onChange={handleChange}
+                      sx={{mt:"7px"}}
                     /> 
                     { errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
                 </Grid>
         </Grid>
-        <Grid container spacing={2} sx={{mb:2}}>
-          <Grid size={6}>
+        <Grid container spacing={2} sx={{mb:3}}>
+          <Grid size={4}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
                           name='startDate'
                           label="Start Date and Time"
                           slotProps={{
                               textField: {
-                                  fullWidth: true,                              
+                                  fullWidth: true,
+                                  variant:"standard"                              
                               },
                               popper: {
                                   disablePortal: true, // <-- Add this line
@@ -287,7 +242,7 @@ const EditWorkshop = ({
                       {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
               </LocalizationProvider>
           </Grid>
-          <Grid size={6}>
+          <Grid size={4}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DateTimePicker 
                           label="End Date and Time"
@@ -295,6 +250,7 @@ const EditWorkshop = ({
                           slotProps={{
                               textField: {
                                   fullWidth: true,
+                                  variant:"standard"
                               },
                               popper: {
                                   disablePortal: true, // <-- Add this line
@@ -308,14 +264,15 @@ const EditWorkshop = ({
                   {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
                </LocalizationProvider>
           </Grid>
-          <Grid size={6}>
+          <Grid size={4}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
                           name='registrationDeadline'
                           label="Deadline to Register"
                           slotProps={{
                               textField: {
-                                  fullWidth:true 
+                                  fullWidth:true,
+                                  variant:"standard", 
                               },
                               popper: {
                                   disablePortal: true, // <-- Add this line
@@ -330,7 +287,54 @@ const EditWorkshop = ({
               </LocalizationProvider>
           </Grid>
         </Grid>
-        <Grid container spacing={2} sx={{mb:2}}>
+        <Grid container spacing={2} sx={{mb:3}}>
+            <Grid size={4}>
+            <CustomSelectField
+              label="Location"
+              fieldType="single"
+              options={[
+                { label: 'GUC Cairo', value: 'GUC Cairo' },
+                { label: 'GUC Berlin', value: 'GUC Berlin' },
+              ]}
+              value={values.location}
+              onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)}
+            />
+            {errors.location && touched.location && (<p style={{ color: "#db3030" }}>{errors.location}</p>)}    
+          </Grid>
+          <Grid size={4}>
+            <CustomSelectField
+              label="Faculty"
+              fieldType="single"
+              options={[
+                { label: 'MET', value: 'MET' },
+                { label: 'IET', value: 'IET' },
+                { label: 'EMS', value: 'EMS' },
+                { label: 'Pharmacy', value: 'pharmacy' },
+                { label: 'Management', value: 'management' },
+                { label: 'Applied Arts', value: 'applied arts' },
+                { label: 'Law', value: 'Law' },
+                { label: 'Dentistry', value: 'dentistry' },
+              ]}
+              value={values.faculty}
+              onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)}
+            />
+            {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
+          </Grid>
+          <Grid size={4}>
+            <CustomSelectField
+              label="Funding Source"
+              fieldType="single"
+              options={[
+                {label:'GUC',value:'GUC'},
+                {label: 'External', value: 'External' },
+              ]}
+              value={values.fundingSource}
+              onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
+            />
+            {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
+          </Grid>
+        </Grid>
+        <Grid container spacing={2} sx={{mb:3}}>
           <Grid size={5}>
                 <CustomSelectField
                   label="Participating Professors"
@@ -428,7 +432,7 @@ const EditWorkshop = ({
           </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
-          <Grid size={12}>
+          <Grid size={6}>
               <CustomTextField 
                 name='description'
                 id='description'
@@ -445,7 +449,7 @@ const EditWorkshop = ({
               />
               { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
           </Grid>
-          <Grid size={12}>
+          <Grid size={6}>
               <CustomTextField 
                 name='agenda'
                 id='agenda'
