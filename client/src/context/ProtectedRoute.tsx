@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const pathname = usePathname();
 
   // List of pages that are public (not protected)
-  const publicRoutes = ["/en", "/login", "/register", "/signup"];
+  const publicRoutes = ["/", "/login", "/register", "/signup"];
 
   const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
 
