@@ -1,27 +1,80 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
-import {
-  CustomTextField,  
-} from "@/components/shared/input-fields";
+import { CustomTextField } from "@/components/shared/input-fields";
 import { CustomModalLayout } from "@/components/shared/modals";
 import theme from "@/themes/lightTheme";
 import { Typography, Box } from "@mui/material";
+import { api } from "@/api";
+import { useFormik } from "formik";
 
 interface RegisterEventModalProps {
+  userInfo: { id: string; name: string; email: string };
   open: boolean;
   onClose: () => void;
   eventType: string;
+  isReady: boolean;
+  eventId: string;
 }
 
 const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
+  userInfo,
   open,
   onClose,
   eventType,
+  isReady,
+  eventId,
 }) => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Add registration logic here (e.g., API call)
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const initialValues = {
+    name: isReady ? userInfo.name : "",
+    email: isReady ? userInfo.email : "",
   };
+
+  const handleCallApi = async (payload: any) => {
+    try {
+      console.log("Payload being sent:", payload); // ✅ Debug payload
+      const res = await api.post(
+        `/users/${userInfo.id}/register/${eventId}`,
+        payload
+      );
+    } catch (err: any) {
+      if (err.response && err.response.status === 409) {
+        // Specific handling for 404
+        window.alert("You already registered for this event");
+      } else {
+        // Generic error message
+        setError(err?.message || "API call failed");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const onSubmit = async (values: any, actions: any) => {
+    onClose();
+    const payload = {
+      name: values.name,
+      email: values.email,
+    };
+    actions.resetForm();
+    await handleCallApi(payload); // ✅ Await the API call
+  };
+  const {
+    handleSubmit,
+    values,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    setFieldValue,
+    errors,
+    touched,
+  } = useFormik({
+    initialValues,
+    onSubmit: onSubmit,
+  });
 
   return (
     <CustomModalLayout
@@ -46,26 +99,33 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                 <CustomTextField
+                id={`name-${eventId}`}
+                label="Name"
+                fieldType="text"
+                placeholder={userInfo.name}
+                name="name"
+                value={values.name}
+                onChange={handleChange('name')}
+                onBlur={handleBlur}
+                neumorphicBox
+                required
+                fullWidth
+              />
 
-            <CustomTextField
-              label="Name"
-              fieldType="text"
-              placeholder="Enter your name"
-              name="name"
-              neumorphicBox
-              required
-              fullWidth
-            />
-
-            <CustomTextField
-              label="Email"
-              fieldType="email"
-              placeholder="Enter your GUC email"
-              name="email"
-              required
-              neumorphicBox
-              fullWidth
-            />
+              <CustomTextField
+                id={`email-${eventId}`}
+                label="Email"
+                fieldType="text"
+                placeholder={userInfo.email}
+                name="email"
+                value={values.email}
+                onChange={handleChange('email')}
+                onBlur={handleBlur}
+                required
+                neumorphicBox
+                fullWidth
+              />
 
           </Box>
 
@@ -80,7 +140,8 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
               sx={{ width: "160px", height: "44px" }}
             />
             <CustomButton
-              label="Register"
+              disabled={isSubmitting}
+              label={isSubmitting ? "Registering" : "Register"}
               type="submit"
               variant="contained"
               color="primary"

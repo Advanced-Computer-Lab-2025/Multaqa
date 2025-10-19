@@ -33,6 +33,7 @@ import Create from "../shared/CreateConference/CreateConference";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
+  userID?:string;
 }
 // Define the event type enum
 export enum EventType {
@@ -103,7 +104,7 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
@@ -113,11 +114,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
   const [createTrip, setTrip] = useState(false);
   const [createWorkshop, setWorkshop] = useState(false);
   const [createSession, setSession] = useState(false);
+  const [UserInfo, setUserInfo] =  useState<{ id: string; name: string; email:string }>({id:"", name:"", email:""});
+  const [isReady, setReady] = useState(false);
+
+  useEffect(() => {
+    handleCallAPI2()
+  }, []); 
 
   useEffect(() => {
     handleCallAPI()
   }, [refresh]); 
   // Handle event deletion
+  async function handleCallAPI2 (){
+    const res = await api.get(`/users/${userID}`);
+    const data = res.data.data;
+    const user = {
+      id: data._id,
+      name: `${data.firstName}  ${data.lastName}`,
+      email: data.email,
+    }
+    setUserInfo(user);
+    setReady(true);
+  }
 
   async function handleCallAPI (){
     try{
@@ -126,7 +144,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       const data = res.data.data;
       const result = frameData(data);
       setEvents(result);
-      // console.log(res.data.data);
+      // console.log(data);
+      }
+      else{
+      const res = await api.get(`/users/${userID}`);
+      const data2 = res.data.data.registeredEvents;
+      const result = frameData(data2);
+      setEvents(result);
+      // console.log(data2);
       }
     }
     catch(err){
@@ -227,7 +252,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             agenda={event.agenda}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.WORKSHOP:
@@ -239,10 +266,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             details={event.details}
             name={event.name}
             description={event.description}
+            professors={event.professors}
             agenda={event.agenda}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.BAZAAR:
@@ -256,7 +286,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             description={event.description}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.BOOTH:
@@ -270,7 +302,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             details={event.details}
             user={user}
             registered={registered}
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       case EventType.TRIP:
@@ -284,7 +318,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
             description={event.description}
             user={user}
             registered={registered}
+            userInfo={UserInfo}   
             onDelete={() => handleDeleteEvent(event.id)}
+            isReady={isReady}
           />
         );
       default:

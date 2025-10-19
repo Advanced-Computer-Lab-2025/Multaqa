@@ -170,7 +170,7 @@ export class UserService {
       { position: StaffPosition.PROFESSOR, isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status",
+          "firstName lastName name email role gucId position roleType status myWorkshops",
       }
     );
     return professors.map((prof) => prof.toObject());

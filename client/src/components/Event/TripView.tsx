@@ -20,7 +20,9 @@ const TripView: React.FC<BazarViewProps> = ({
   user,
   registered,
   onDelete,
-  setRefresh
+  setRefresh,
+  userInfo,
+  isReady
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -241,8 +243,8 @@ const TripView: React.FC<BazarViewProps> = ({
         </Box>
       </CustomModal>
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
-      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
-      eventType={"Trip"}/>
+      <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
+      eventType={"Trip"} userInfo={userInfo} eventId={id}/>
     </>
   );
 };

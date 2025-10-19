@@ -11,13 +11,17 @@ import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
+  id,
   details,
   name,
   description,
+  professors,
   agenda,
   user,
   registered,
   onDelete,
+  isReady, 
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -72,12 +76,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     return colors[hash % colors.length];
   };
 
-  // Parse professors string into array
-  const professorString = details["Professors Participating"] || "";
-  const professors = professorString
-    .split(",")
-    .map((prof) => prof.trim())
-    .filter((prof) => prof.length > 0);
+
 
   // Format key details for display
   const formatDateRange = () => {
@@ -211,7 +210,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               "End Date",
               "Start Time",
               "End Time",
-              "Professors Participating",
+              "Created By",
             ];
 
           // Additional fields to exclude for non-admin/non-events users
@@ -219,7 +218,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
             "Required Budget",
             "Source of Funding",
             "Extra Required Resources",
-            'Funding Source'
+            'Funding Source',
+            "Status"
           ];
 
           // Combine exclusion lists depending on the user
@@ -379,8 +379,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <RegisterEventModal open={register} onClose={()=> {setRegister(false)}}
-      eventType={"Workshop"}/>
+        <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
+      eventType={"Trip"} userInfo={userInfo} eventId={id}/>
     </>
   );
 };
