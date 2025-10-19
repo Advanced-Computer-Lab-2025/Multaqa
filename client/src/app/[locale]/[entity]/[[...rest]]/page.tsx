@@ -60,9 +60,12 @@ export default function EntityCatchAllPage() {
   const router = useRouter();
   const entityFromUrl = params.entity ?? "";
   const segments = pathname.split("/").filter(Boolean);
-  const locale = segments[0] || "en";
-  const tab = segments[2] || "";
-  const section = segments[3] || "";
+  // const entity = segments[0] || "";
+  const tab = segments[1] || "";
+  const section = segments[2] || "";
+  console.log("EntityCatchAllPage segments:", segments);
+  console.log("EntityCatchAllPage tab:", tab);
+  console.log("EntityCatchAllPage section:", section);
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
   const { user, isLoading } = useAuth();
@@ -77,7 +80,7 @@ export default function EntityCatchAllPage() {
 
     // If the entity in URL doesn't match the user's actual role, redirect
     if (entityFromUrl && entityFromUrl !== correctEntitySegment) {
-      const newPath = `/${locale}/${correctEntitySegment}`;
+      const newPath = `/${correctEntitySegment}`;
       router.replace(newPath);
     }
     // If we're on the correct entity but no tab/section, redirect to default
@@ -90,7 +93,6 @@ export default function EntityCatchAllPage() {
     isLoading,
     entityFromUrl,
     correctEntitySegment,
-    locale,
     router,
     tab,
   ]);

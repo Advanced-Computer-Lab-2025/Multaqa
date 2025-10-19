@@ -18,7 +18,6 @@ const LoginForm: React.FC = () => {
   const theme = useTheme();
   const { login, user } = useAuth();
   const router = useRouter();
-  const locale = useLocale();
   const initialValues = {
     email: "",
     password: "",
@@ -47,24 +46,19 @@ const LoginForm: React.FC = () => {
   // };
 
   const getRedirectPath = (role: string) => {
-    console.log("User role for redirection:", role);
-    console.log(typeof role);
-    switch (role) {
-      case "admin":
-        return `${locale}/admin/users/all-users`;
-      case "student":
-        return `${locale}/student/events/browse-events`;
-      case "staff":
-        return `${locale}/staff/events/browse-events`;
-      case "ta":
-        return `${locale}/ta/events/browse-events`;
-      case "professor":
-        return `${locale}/professor/workshops/my-workshops`;
-      case "events-office":
-        return `${locale}/events-office/events/all-events`;
-      case "vendor":
-        return `${locale}/vendor/opportunities/available`;
-    }
+    // DON'T include locale - i18n router adds it automatically
+    // useRouter() from @/i18n/navigation handles locale prefixing
+    const roleRedirects: Record<string, string> = {
+      admin: "/admin/users/all-users",
+      student: "/student/events/browse-events",
+      staff: "/staff/events/browse-events",
+      ta: "/ta/events/browse-events",
+      professor: "/professor/workshops/my-workshops",
+      "events-office": "/events-office/events/all-events",
+      vendor: "/vendor/opportunities/available",
+    };
+  
+    return roleRedirects[role] || "/student/events/browse-events";
   };
 
   return (

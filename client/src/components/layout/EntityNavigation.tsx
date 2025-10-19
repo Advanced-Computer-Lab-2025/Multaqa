@@ -449,9 +449,14 @@ export default function EntityNavigation({
   const { logout } = useAuth();
   const segments = pathname.split("/").filter(Boolean);
   // const locale = segments[0] || "en";
-  const entity = segments[0] || ""; // Get entity from URL, not from user
+
   const tab = segments[1] || "";
   const section = segments[2] || "";
+
+  console.log("EntityNavigation segments:", segments);
+  // console.log("EntityNavigation entity:", entity);
+  console.log("EntityNavigation tab:", tab);
+  console.log("EntityNavigation section:", section);
 
   // Get role key from backend user
   const userRoleKey = getUserRoleKey(user);
@@ -474,7 +479,7 @@ export default function EntityNavigation({
   // Debug logging
   console.log("EntityNavigation state:", {
     pathname,
-    entity,
+    // entity,
     tab,
     section,
     userRoleKey,
@@ -486,41 +491,23 @@ export default function EntityNavigation({
     tabFromIndex: tabKeys[activeTabIndex],
   });
 
+  // Navigation paths don't need locale either
   const handleTabChange = (index: number) => {
-    console.log("handleTabChange called:", {
-      index,
-      tabKey: tabKeys[index],
-      currentTab: tab,
-    });
-
-    if (tabKeys.length === 0) return;
-
-    const tabKey = tabKeys[index];
-
-    // Don't navigate if we're already on this tab
-    if (tabKey === tab) {
-      console.log("Already on this tab, not navigating");
-      return;
-    }
-
-    // const base = `/${locale}`;
-
-    // If the new tab has sections, navigate to first section
     const newTab = tabItems[index];
     const sectionSeg =
       newTab?.sections && newTab.sections.length > 0
         ? `/${newTab.sections[0].id}`
         : "";
 
-    const newPath = `/${entity}/${tabKey}${sectionSeg}`;
-    console.log("Navigating to:", newPath);
+    // No locale prefix needed - i18n router adds it
+    const newPath = `/${userRoleKey}/${newTab.key}${sectionSeg}`;
     router.push(newPath);
   };
 
   const handleSectionClick = (id: string) => {
-    // const base = `/${locale}`;
     const tabSeg = tab ? `/${tab}` : "";
-    router.push(`/${entity}${tabSeg}/${id}`);
+    // No locale prefix needed
+    router.push(`/${userRoleKey}${tabSeg}/${id}`);
   };
 
   const handleLogout = () => {
