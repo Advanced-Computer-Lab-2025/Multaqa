@@ -7,7 +7,7 @@ import * as yup from 'yup';
 import EventCreationStep1Modal from './Box1';
 import EventCreationStep2Details from './Box2';
 import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from './styles';
-import { EventFormData} from './types/'; 
+import { EventFormData} from './types'; 
 import {api} from "../../../api";
 import CustomButton from '../Buttons/CustomButton';
 import { CustomModalLayout } from '../modals';
@@ -77,8 +77,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             eventStartDate: values.eventStartDate,
             eventEndDate: values.eventEndDate,
             location:"GUC",
-            eventStartTime: "06:00",
-            eventEndTime:"07:00",
+            eventStartTime: values.eventStartTime,
+            eventEndTime:values.eventEndTime,
             description: values.description,
             fullAgenda: values.fullAgenda,
             websiteLink: values.websiteLink, 
