@@ -21,7 +21,7 @@ import "./schemas/event-schemas/eventSchema";
 import "./schemas/event-schemas/workshopEventSchema";
 import "./schemas/event-schemas/bazaarEventSchema";
 import "./schemas/event-schemas/platformBoothEventSchema";
-import "./schemas/event-schemas/tripEventSchema";
+import "./schemas/event-schemas/tripSchema";
 import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
