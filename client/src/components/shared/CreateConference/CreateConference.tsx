@@ -77,8 +77,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             eventStartDate: values.eventStartDate,
             eventEndDate: values.eventEndDate,
             location:"GUC",
-            eventStartTime: "06:00",//add this to form
-            eventEndTime:"07:00",//add this to form
+            eventStartTime: values.eventStartTime,
+            eventEndTime:values.eventEndTime,
             description: values.description,
             fullAgenda: values.fullAgenda,
             websiteLink: values.websiteLink, 
