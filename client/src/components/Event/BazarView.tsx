@@ -140,6 +140,7 @@ const BazarView: React.FC<BazarViewProps> = ({
               <BazarFormModalWrapper
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
+                bazarId={id}
               />
             </CustomButton>
           )

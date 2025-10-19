@@ -1,4 +1,4 @@
-export type UserType = "student" | "staff" | "vendor";
+export type UserType = "university-member" | "vendor";
 export interface RegistrationFormProps {
   UserType: UserType;
 }

@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import SidebarNavigation from "./SidebarNavigation";
 import TopNavigation from "./TopNavigation";
 import Tabs from "./Tabs";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   User,
   Calendar,
@@ -20,32 +20,27 @@ import {
   QrCode,
   Award,
 } from "lucide-react";
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
-import EventIcon from '@mui/icons-material/Event';
-import PollIcon from '@mui/icons-material/Poll';
+import { useAuth } from "@/context/AuthContext";
+import { UserRoleKey } from "@/types";
+// import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+// import StorefrontIcon from '@mui/icons-material/Storefront';
+// import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+// import EventIcon from '@mui/icons-material/Event';
+// import PollIcon from '@mui/icons-material/Poll';
 
 interface CurrentUser {
   name?: string;
   profileImage?: string;
   firstName?: string;
   lastName?: string;
+  companyName?: string;
 }
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
   headerTitle?: string;
-  userRole?:
-    | "student"
-    | "staff"
-    | "ta"
-    | "professor"
-    | "events-office"
-    | "admin"
-    | "vendor"
-    | "company";
-  currentUser?: CurrentUser;
+  // Backend UserResponse object
+  user: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 // Role-based navigation configuration
@@ -65,6 +60,64 @@ type TabItem = {
 };
 
 type SectionItem = { id: string; label: string };
+
+// Helper: Map backend user to frontend role key for navigation config
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getUserRoleKey = (user: any): string => {
+  if (!user) return "student";
+
+  if (user.role === "student") return "student";
+  if (user.role === "vendor") return "vendor";
+
+  if (user.role === "staffMember") {
+    if (user.position === "professor") return "professor";
+    if (user.position === "TA") return "ta";
+    if (user.position === "staff") return "staff";
+    return "staff";
+  }
+
+  if (user.role === "administration") {
+    if (user.roleType === "admin") return "admin";
+    if (user.roleType === "eventsOffice") return "events-office";
+    return "admin";
+  }
+
+  return "student";
+};
+
+// Helper: Format user data for display
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const formatUserData = (user: any): CurrentUser => {
+  if (!user) return {};
+
+  // For students and staff members
+  if (user.firstName && user.lastName) {
+    return {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      name: `${user.firstName} ${user.lastName}`,
+    };
+  }
+
+  // For vendors
+  if (user.companyName) {
+    return {
+      name: user.companyName,
+      companyName: user.companyName,
+    };
+  }
+
+  // For administration
+  if (user.name) {
+    return {
+      name: user.name,
+    };
+  }
+
+  return {
+    name: user.email || "User",
+  };
+};
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
   student: {
@@ -348,62 +401,64 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
 };
 
 // Mock data for different user types
-const getMockUserData = (role: string) => {
-  const mockUsers: Record<string, CurrentUser> = {
-    student: {
-      name: "Ahmed Hassan",
-      firstName: "Ahmed",
-      lastName: "Hassan",
-    },
-    staff: {
-      name: "Sara Mohamed",
-      firstName: "Sara",
-      lastName: "Mohamed",
-    },
-    ta: {
-      name: "Omar Youssef",
-      firstName: "Omar",
-      lastName: "Youssef",
-    },
-    professor: {
-      name: "Dr. Fatma Ali",
-      firstName: "Fatma",
-      lastName: "Ali",
-    },
-    "events-office": {
-      name: "Events Office",
-    },
-    admin: {
-      name: "System Administrator",
-    },
-    vendor: {
-      name: "Tech Solutions Inc.",
-    },
-    company: {
-      name: "Microsoft Egypt",
-    },
-  };
-  return mockUsers[role] || mockUsers.student;
-};
+// const getMockUserData = (role: string) => {
+//   const mockUsers: Record<string, CurrentUser> = {
+//     student: {
+//       name: "Ahmed Hassan",
+//       firstName: "Ahmed",
+//       lastName: "Hassan",
+//     },
+//     staff: {
+//       name: "Sara Mohamed",
+//       firstName: "Sara",
+//       lastName: "Mohamed",
+//     },
+//     ta: {
+//       name: "Omar Youssef",
+//       firstName: "Omar",
+//       lastName: "Youssef",
+//     },
+//     professor: {
+//       name: "Dr. Fatma Ali",
+//       firstName: "Fatma",
+//       lastName: "Ali",
+//     },
+//     "events-office": {
+//       name: "Events Office",
+//     },
+//     admin: {
+//       name: "System Administrator",
+//     },
+//     vendor: {
+//       name: "Tech Solutions Inc.",
+//     },
+//     company: {
+//       name: "Microsoft Egypt",
+//     },
+//   };
+//   return mockUsers[role] || mockUsers.student;
+// };
 
 export default function EntityNavigation({
   children,
   headerTitle,
-  userRole = "student",
-  currentUser,
+  user,
 }: EntityNavigationProps) {
-  // Use provided currentUser or fallback to mock data
-  const userData = currentUser || getMockUserData(userRole);
   const pathname = usePathname() || "";
   const router = useRouter();
+  const { logout } = useAuth();
   const segments = pathname.split("/").filter(Boolean);
-  const locale = segments[0] || "en";
-  const entity = segments[1] || "";
-  const tab = segments[2] || "";
-  const section = segments[3] || "";
+  // const locale = segments[0] || "en";
+  const entity = segments[0] || ""; // Get entity from URL, not from user
+  const tab = segments[1] || "";
+  const section = segments[2] || "";
+
+  // Get role key from backend user
+  const userRoleKey = getUserRoleKey(user);
+  const userData = formatUserData(user);
 
   const config: RoleConfig =
-    roleNavigationConfig[userRole] ?? roleNavigationConfig["student"];
+    roleNavigationConfig[userRoleKey] ?? roleNavigationConfig["student"];
 
   // Get tab configuration
   const tabItems: TabItem[] = config.tabs;
@@ -414,14 +469,41 @@ export default function EntityNavigation({
 
   // Get sections for current tab
   const currentTab = tabItems.find((t) => t.key === tab);
-  const sectionItems = currentTab?.sections || [];
+  const sectionItems = useMemo(() => currentTab?.sections || [], [currentTab]);
+
+  // Debug logging
+  console.log("EntityNavigation state:", {
+    pathname,
+    entity,
+    tab,
+    section,
+    userRoleKey,
+    currentTab: currentTab?.key,
+    sectionItemsCount: sectionItems.length,
+    sectionIds: sectionItems.map((s) => s.id),
+    tabKeys,
+    activeTabIndex,
+    tabFromIndex: tabKeys[activeTabIndex],
+  });
 
   const handleTabChange = (index: number) => {
+    console.log("handleTabChange called:", {
+      index,
+      tabKey: tabKeys[index],
+      currentTab: tab,
+    });
+
     if (tabKeys.length === 0) return;
 
     const tabKey = tabKeys[index];
-    const base = `/${locale}`;
-    const entitySeg = entity ? `/${entity}` : "";
+
+    // Don't navigate if we're already on this tab
+    if (tabKey === tab) {
+      console.log("Already on this tab, not navigating");
+      return;
+    }
+
+    // const base = `/${locale}`;
 
     // If the new tab has sections, navigate to first section
     const newTab = tabItems[index];
@@ -430,52 +512,21 @@ export default function EntityNavigation({
         ? `/${newTab.sections[0].id}`
         : "";
 
-    router.push(`${base}${entitySeg}/${tabKey}${sectionSeg}`);
+    const newPath = `/${entity}/${tabKey}${sectionSeg}`;
+    console.log("Navigating to:", newPath);
+    router.push(newPath);
   };
 
   const handleSectionClick = (id: string) => {
-    const base = `/${locale}`;
-    const entitySeg = entity ? `/${entity}` : "";
+    // const base = `/${locale}`;
     const tabSeg = tab ? `/${tab}` : "";
-    router.push(`${base}${entitySeg}${tabSeg}/${id}`);
+    router.push(`/${entity}${tabSeg}/${id}`);
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout server logic here
-    console.log("Logout clicked");
+    logout();
+    router.replace("/login");
   };
-
-  // If user visits only `/:locale/:entity` (no tab), redirect to defaultTab/defaultSection
-  React.useEffect(() => {
-    if (!entity) return;
-    if (tab) return;
-
-    const defaultTab = config.defaultTab;
-    const defaultSection = config.defaultSection;
-    if (!defaultTab) return;
-
-    const base = `/${locale}`;
-    const entitySeg = `/${entity}`;
-    const sectionSeg = defaultSection ? `/${defaultSection}` : "";
-
-    router.replace(`${base}${entitySeg}/${defaultTab}${sectionSeg}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entity, tab, locale, userRole]);
-
-  // If user visits a tab with sections but no section specified, redirect to first section
-  React.useEffect(() => {
-    if (!entity || !tab) return;
-
-    if (sectionItems.length > 0 && !section) {
-      const base = `/${locale}`;
-      const entitySeg = `/${entity}`;
-      const tabSeg = `/${tab}`;
-      const firstSection = sectionItems[0].id;
-
-      router.replace(`${base}${entitySeg}${tabSeg}/${firstSection}`);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entity, tab, section, sectionItems, locale]);
 
   const headerProps = {
     title: headerTitle ?? config.headerTitle,
@@ -507,10 +558,10 @@ export default function EntityNavigation({
         <SidebarNavigation
           activeItem={section}
           onItemClick={handleSectionClick}
-          sectionItems={sectionItems}
+          sectionItems={tab ? sectionItems : []}
           onLogout={handleLogout}
           currentUser={userData}
-          userRole={userRole}
+          userRole={userRoleKey as UserRoleKey}
         />
 
         <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
