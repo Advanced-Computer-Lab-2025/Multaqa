@@ -27,7 +27,7 @@ import EventIcon from '@mui/icons-material/Event';
 import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
-import Create from "../shared/CreateConference/Create";
+import Create from "../shared/CreateConference/CreateConference";
 
 
 interface BrowseEventsProps {
@@ -126,7 +126,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user }) => {
       const data = res.data.data;
       const result = frameData(data);
       setEvents(result);
-      console.log(res.data.data);
+      // console.log(res.data.data);
       }
     }
     catch(err){

@@ -15,6 +15,7 @@ import { eventNames } from 'node:process';
 import dayjs from 'dayjs';
 
 import {api} from "../../../api"
+import { CustomModalLayout } from '@/components/shared/modals';
 
 interface ProfessorOption {
   label: string;
@@ -22,12 +23,14 @@ interface ProfessorOption {
 }
 
 interface CreateWorkshopProps {
-  setOpenCreateWorkshop: (open: boolean) => void;
   professors: [];
   creatingProfessor:string;
+  open:boolean;
+  onClose: () => void;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: CreateWorkshopProps) => {
+const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefresh}: CreateWorkshopProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +128,6 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
     };
     actions.resetForm();
     handleCallApi(payload);
-    setOpenCreateWorkshop(false);
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -136,6 +138,7 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
 
   return (
     <>
+     <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
       <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Create Workshop</Typography>
         <Grid container spacing={2} sx={{mb:2}}>
@@ -264,62 +267,58 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
           </Grid>
           <Grid size={4}>
                   <CustomSelectField
-                    label="Location"
-                    fieldType="single"
-                    options={[
-                      { label: 'GUC Cairo', value: 'GUC Cairo' },
-                      { label: 'GUC Berlin', value: 'GUC Berlin' },
-                    ]}
-                    value={values.location}
-                    onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)}
-                  />
+              label="Location"
+              fieldType="single"
+              options={[
+                { label: 'GUC Cairo', value: 'GUC Cairo' },
+                { label: 'GUC Berlin', value: 'GUC Berlin' },
+              ]}
+              value={values.location}
+              onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)} name={''}                  />
                   {errors.location && touched.location && (<p style={{ color: "#db3030" }}>{errors.location}</p>)}    
                 </Grid>
                 <Grid size={4}>
                   <CustomSelectField
-                    label="Faculty"
-                    fieldType="single"
-                    options={[
-                      { label: 'MET', value: 'MET' },
-                      { label: 'IET', value: 'IET' },
-                      { label: 'EMS', value: 'EMS' },
-                      { label: 'Pharmacy', value: 'pharmacy' },
-                      { label: 'Management', value: 'management' },
-                      { label: 'Applied Arts', value: 'applied arts' },
-                      { label: 'Law', value: 'Law' },
-                      { label: 'Dentistry', value: 'dentistry' },
-                    ]}
-                    value={values.faculty}
-                    onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)}
-                  />
+              label="Faculty"
+              fieldType="single"
+              options={[
+                { label: 'MET', value: 'MET' },
+                { label: 'IET', value: 'IET' },
+                { label: 'EMS', value: 'EMS' },
+                { label: 'Pharmacy', value: 'pharmacy' },
+                { label: 'Management', value: 'management' },
+                { label: 'Applied Arts', value: 'applied arts' },
+                { label: 'Law', value: 'Law' },
+                { label: 'Dentistry', value: 'dentistry' },
+              ]}
+              value={values.faculty}
+              onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)} name={''}                  />
                   {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
                 </Grid>
                 <Grid size={4}>
                   <CustomSelectField
-                    label="Funding Source"
-                    fieldType="single"
-                    options={[
-                      { label: 'GUC', value: 'GUC' },
-                      { label: 'External', value: 'External' },
-                    ]}
-                    value={values.fundingSource}
-                    onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
-                  />
+              label="Funding Source"
+              fieldType="single"
+              options={[
+                { label: 'GUC', value: 'GUC' },
+                { label: 'External', value: 'External' },
+              ]}
+              value={values.fundingSource}
+              onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}                  />
                   {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
                 </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:2}}>
           <Grid size={5}>
                 <CustomSelectField
-                  label="Participating Professors"
-                  fieldType="single"
-                  options={availableProfessors}
-                  value={selectedProf}
-                  onChange={(e: any) => {
-                      const val = e.target ? e.target.value : e;
-                      setSelectedProf(val);
-                  }}
-                />
+              label="Participating Professors"
+              fieldType="single"
+              options={availableProfessors}
+              value={selectedProf}
+              onChange={(e: any) => {
+                const val = e.target ? e.target.value : e;
+                setSelectedProf(val);
+              } } name={''}                />
                 { errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>}
           </Grid>
           <Grid size={1}>
@@ -444,7 +443,8 @@ const CreateWorkshop = ({setOpenCreateWorkshop, professors, creatingProfessor}: 
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
             <CustomButton disabled={isSubmitting  || loadingProfessors} label={isSubmitting ? "Submitting" : 'Create Workshop'} variant='contained' color='primary' fullWidth  type='submit'/>
         </Box>
-      </form>          
+      </form>  
+      </CustomModalLayout>     
     </>
   )
 }

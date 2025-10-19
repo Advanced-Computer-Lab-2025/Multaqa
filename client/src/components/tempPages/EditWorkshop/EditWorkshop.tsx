@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 import {api} from "../../../api";
+import { CustomModalLayout } from '@/components/shared/modals';
 
 
 interface ProfessorOption {
@@ -22,7 +23,6 @@ interface ProfessorOption {
 }
 
 interface EditWorkshopProps {
-  setOpenEditWorkshop: (open: boolean) => void;
   workshopId:string;
   workshopName?: string;
   budget?: number;
@@ -37,10 +37,12 @@ interface EditWorkshopProps {
   fundingSource?: string;
   extraResources?: string[];
   creatingProfessor:string;
+  open:boolean;
+  onClose: () => void;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const EditWorkshop = ({
-    setOpenEditWorkshop, 
     workshopId,
     workshopName = "",
     budget = 0,
@@ -54,7 +56,10 @@ const EditWorkshop = ({
     faculty = "",
     fundingSource = "",
     extraResources = [],
-    creatingProfessor
+    creatingProfessor,
+    open, 
+    setRefresh,
+    onClose
   }: EditWorkshopProps) => {
   const [selectedProf, setSelectedProf] = useState<string>("");
   const [resourceInput, setResourceInput] = useState<string>("");
@@ -145,7 +150,6 @@ const EditWorkshop = ({
     };
     actions.resetForm();
     handleCallApi(payload);
-    setOpenEditWorkshop(false);
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -156,6 +160,7 @@ const EditWorkshop = ({
 
   return (
     <>
+      <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
       <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Edit Workshop</Typography>
         <Grid container spacing={2} sx={{mb:3}}>
@@ -297,8 +302,7 @@ const EditWorkshop = ({
                 { label: 'GUC Berlin', value: 'GUC Berlin' },
               ]}
               value={values.location}
-              onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)}
-            />
+              onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)} name={''}            />
             {errors.location && touched.location && (<p style={{ color: "#db3030" }}>{errors.location}</p>)}    
           </Grid>
           <Grid size={4}>
@@ -316,8 +320,7 @@ const EditWorkshop = ({
                 { label: 'Dentistry', value: 'dentistry' },
               ]}
               value={values.faculty}
-              onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)}
-            />
+              onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)} name={''}            />
             {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
           </Grid>
           <Grid size={4}>
@@ -325,27 +328,25 @@ const EditWorkshop = ({
               label="Funding Source"
               fieldType="single"
               options={[
-                {label:'GUC',value:'GUC'},
-                {label: 'External', value: 'External' },
+                { label: 'GUC', value: 'GUC' },
+                { label: 'External', value: 'External' },
               ]}
               value={values.fundingSource}
-              onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
-            />
+              onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}            />
             {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
           </Grid>
         </Grid>
         <Grid container spacing={2} sx={{mb:3}}>
           <Grid size={5}>
                 <CustomSelectField
-                  label="Participating Professors"
-                  fieldType="single"
-                  options={availableProfessors}
-                  value={selectedProf}
-                  onChange={(e: any) => {
-                   const val = e.target ? e.target.value : e;
-                      setSelectedProf(val);
-                  }}
-                />
+              label="Participating Professors"
+              fieldType="single"
+              options={availableProfessors}
+              value={selectedProf}
+              onChange={(e: any) => {
+                const val = e.target ? e.target.value : e;
+                setSelectedProf(val);
+              } } name={''}                />
                 { errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>}
           </Grid>
           <Grid size={1}>
@@ -470,7 +471,8 @@ const EditWorkshop = ({
         <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
             <CustomButton disabled={isSubmitting || loadingProfessors} label={isSubmitting ? "Submitting" : 'Edit Information'} variant='contained' color='primary' fullWidth  type='submit'/>
         </Box>
-      </form>          
+      </form>  
+      </CustomModalLayout>        
     </>
   )
 }

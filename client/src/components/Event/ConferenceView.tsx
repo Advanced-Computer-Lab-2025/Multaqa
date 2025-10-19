@@ -22,7 +22,6 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   onDelete,
   setRefresh
 }) => {
-  console.log(details);
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [edit, setEdit] = useState(false)

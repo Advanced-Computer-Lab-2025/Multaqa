@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import Create from '../../../components/shared/CreateConference/Create'; // Adjust path
+import Create from '../../../components/shared/CreateConference/CreateConference'; // Adjust path
 import CustomModalLayout from '../../../components/shared/modals/CustomModalLayout'; // 💡 Adjust path
 
 const CreateConferenceModalWrapper = () => {
