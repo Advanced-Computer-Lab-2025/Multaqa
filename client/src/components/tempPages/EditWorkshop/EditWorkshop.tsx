@@ -76,6 +76,15 @@ const EditWorkshop = ({
     handleLoadProfessors();
   }, []);
 
+  useEffect(() => {
+    if (availableProfessors.length > 0 && associatedProfs.length > 0) {
+      const matchingProfs = availableProfessors.filter(prof =>
+        associatedProfs.includes(prof.value)
+      );
+      setFieldValue('professors', matchingProfs);
+    }
+  }, [availableProfessors, associatedProfs]);
+
   const handleLoadProfessors = async () => {
       setLoading(true);
       setError(null);
@@ -90,7 +99,6 @@ const EditWorkshop = ({
             label: `${prof.firstName} ${prof.lastName}`,
             value: prof._id, // use ID, not name
         }));
-  
         setAvailableProfessors(options);
       } catch (err: any) {
           setError(err?.message || "API call failed");

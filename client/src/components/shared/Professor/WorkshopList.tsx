@@ -34,7 +34,7 @@ interface WorkshopListProps {
 
 const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
   const [workshops, setWorkshops] = useState<WorkshopViewProps[]>();
-  const[rawWorkshops, setRawWorkshops] = useState([]);
+  const[rawWorkshops, setRawWorkshops] = useState<any []>([]);
   const [refresh, setRefresh] = useState(false);
   const [creation, setCreation] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -52,10 +52,9 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
       const res = await api.get(`/users/${userId}`);
       const data = res.data.data.myWorkshops;
       const result = frameData(data);
-      console.log("here")
-      console.log(result);
-      setRawWorkshops(data);
+      console.log(data)
       setWorkshops(result);
+      setRawWorkshops(data)
       }
     catch(err){
       console.error(err);
@@ -95,7 +94,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
       {workshops &&
         workshops
           .filter((item) => filter === "none" || item.details["Status"] === filter)
-          .map((item) => (
+          .map((item, index) => (
             <>
             <WorkshopItemCard
               id={item.id}
@@ -124,6 +123,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
               }
           />
           <EditWorkshop
+            key={index}
             workshopId={item.id}  
             open={edit} 
             workshopName={item.name}
@@ -137,9 +137,8 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
             location={item.details.Location}
             fundingSource={item.details["Funding Source"]} 
             creatingProfessor={item.details["Created By"]} 
-            faculty={item.details["Faculty Responsible"]}
             extraResources={item.details["Extra Required Resources"]}
-            associatedProfs={item.professorsId}
+            associatedProfs={rawWorkshops[index].associatedProfs}
             onClose={()=>{setEdit(false)}} 
             setRefresh={setRefresh}/>
           </>

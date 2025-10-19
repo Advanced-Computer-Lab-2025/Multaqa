@@ -87,7 +87,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             extraRequiredResources:values.extraRequiredResources,
             registrationDeadline:"2025-1-1"
         }
-        const res = await handleCallApi(payload); 
+        const res = await handleCallApi(payload);
+        console.log(res.data) ;
         onClose();
     }
 
