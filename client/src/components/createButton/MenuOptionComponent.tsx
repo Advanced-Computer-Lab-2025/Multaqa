@@ -18,14 +18,9 @@ interface MenuOption {
 interface MenuOptionTestPageProps {
   options: MenuOption[];
   setters: Dispatch<SetStateAction<boolean>>[];
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const MenuOptionComponent: React.FC<MenuOptionTestPageProps> = ({ options, setters }) => {
-  const handleTestClick = (label: string) => {
-    console.log(`Clicked: ${label}`);
-  };
-  
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
