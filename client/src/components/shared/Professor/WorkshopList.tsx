@@ -34,6 +34,7 @@ interface WorkshopListProps {
 
 const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
   const [workshops, setWorkshops] = useState<WorkshopViewProps[]>();
+  const[rawWorkshops, setRawWorkshops] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [creation, setCreation] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -51,7 +52,9 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
       const res = await api.get(`/users/${userId}`);
       const data = res.data.data.myWorkshops;
       const result = frameData(data);
+      console.log("here")
       console.log(result);
+      setRawWorkshops(data);
       setWorkshops(result);
       }
     catch(err){
@@ -120,7 +123,25 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
                 </Stack>
               }
           />
-          <EditWorkshop open={edit} workshopId={item.id} startDate={new Date(item.details["Start Date"])} endDate={new Date(item.details["End Date"])} registrationDeadline={new Date(item.details["Registration Deadline"])} creatingProfessor={item.details["Created By"]} onClose={()=>{setEdit(false)}} setRefresh={setRefresh}/>
+          <EditWorkshop
+            workshopId={item.id}  
+            open={edit} 
+            workshopName={item.name}
+            budget={parseInt(item.details["Required Budget"],10)}
+            capacity={parseInt(item.details.Capacity,10)}  
+            startDate={new Date(item.details["Start Date"])} 
+            endDate={new Date(item.details["End Date"])} 
+            registrationDeadline={new Date(item.details["Registration Deadline"])}
+            description={item.description}
+            agenda={item.agenda}
+            location={item.details.Location}
+            fundingSource={item.details["Funding Source"]} 
+            creatingProfessor={item.details["Created By"]} 
+            faculty={item.details["Faculty Responsible"]}
+            extraResources={item.details["Extra Required Resources"]}
+            associatedProfs={item.professorsId}
+            onClose={()=>{setEdit(false)}} 
+            setRefresh={setRefresh}/>
           </>
         ))}
       </Stack>

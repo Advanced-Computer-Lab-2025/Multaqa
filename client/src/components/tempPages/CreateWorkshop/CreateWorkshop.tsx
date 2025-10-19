@@ -91,9 +91,8 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
     try {
         // TODO: Replace with your API route
         const res = await api.post("/workshops/"+creatingProfessor, payload);
-        console.log("posting data")
         setResponse(res.data);
-        console.log(res.data)
+        setRefresh((prev) => !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {
@@ -128,6 +127,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
     };
     actions.resetForm();
     handleCallApi(payload);
+    onClose();
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({

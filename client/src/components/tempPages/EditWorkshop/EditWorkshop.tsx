@@ -37,6 +37,7 @@ interface EditWorkshopProps {
   fundingSource?: string;
   extraResources?: string[];
   creatingProfessor:string;
+  associatedProfs:string[];
   open:boolean;
   onClose: () => void;
   setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
@@ -57,6 +58,7 @@ const EditWorkshop = ({
     fundingSource = "",
     extraResources = [],
     creatingProfessor,
+    associatedProfs,
     open, 
     setRefresh,
     onClose
@@ -121,6 +123,7 @@ const EditWorkshop = ({
         // TODO: Replace with your API route
         const res = await api.patch("/workshops/" + creatingProfessor + "/"+ workshopId, payload);
         setResponse(res.data);
+        setRefresh((prev)=> !prev)
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {
@@ -150,6 +153,7 @@ const EditWorkshop = ({
     };
     actions.resetForm();
     handleCallApi(payload);
+    onClose();
   };
 
   const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
@@ -160,7 +164,7 @@ const EditWorkshop = ({
 
   return (
     <>
-      <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
+      <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[90vw] xl:w-[90vw]'>
       <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Edit Workshop</Typography>
         <Grid container spacing={2} sx={{mb:3}}>
