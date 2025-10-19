@@ -38,6 +38,8 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
   const [refresh, setRefresh] = useState(false);
   const [creation, setCreation] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
+
   useEffect(() => {
     handleCallAPI()
   }, [refresh]); 
@@ -95,17 +97,16 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
         workshops
           .filter((item) => filter === "none" || item.details["Status"] === filter)
           .map((item, index) => (
-            <>
+            <React.Fragment key={item.id}>
             <WorkshopItemCard
               id={item.id}
-              key={item.id}
               item={item}
               userId={userId}
               rightIcon={
                 (item.details["Status"] === "pending" || item.details["Status"] === "awaiting_review") && (
                   <Tooltip title="Edit">
                     <IconButton
-                      onClick={() => setEdit(true)}
+                      onClick={() => setEditingWorkshopId(item.id)}
                       sx={{
                         color,
                         "&:hover": { color: "primary.main" },
@@ -123,9 +124,8 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
               }
           />
           <EditWorkshop
-            key={index}
             workshopId={item.id}  
-            open={edit} 
+            open={editingWorkshopId === item.id} 
             workshopName={item.name}
             budget={parseInt(item.details["Required Budget"],10)}
             capacity={parseInt(item.details.Capacity,10)}  
@@ -139,9 +139,10 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
             creatingProfessor={item.details["Created By"]} 
             extraResources={item.details["Extra Required Resources"]}
             associatedProfs={rawWorkshops[index].associatedProfs}
-            onClose={()=>{setEdit(false)}} 
-            setRefresh={setRefresh}/>
-          </>
+            onClose={(() => setEditingWorkshopId(null))} 
+            setRefresh={setRefresh}
+          />
+          </React.Fragment>
         ))}
       </Stack>
       <CreateWorkshop professors={[]} creatingProfessor={userId} open={creation} onClose={()=>{setCreation(false)}} setRefresh={setRefresh}/>
