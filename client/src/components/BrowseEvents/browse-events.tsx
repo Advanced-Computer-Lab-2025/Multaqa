@@ -19,7 +19,7 @@ import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { frameData } from "./utils";
-import MenuOptionComponent from "../createButton/MenuOptionComponent";
+
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
@@ -28,6 +28,7 @@ import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
+import CreateParent from "../createButton/createParent";
 
 
 interface BrowseEventsProps {
@@ -266,6 +267,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             details={event.details}
             name={event.name}
             description={event.description}
+            professorsId={event.professorsId}
             professors={event.professors}
             agenda={event.agenda}
             user={user}
@@ -376,7 +378,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
         />
        
       {user === "events-only" && (
-       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters}/>
+       <CreateParent options={Eventoptions} setters={EventOptionsSetters}/>
       )}
       </Box>
 

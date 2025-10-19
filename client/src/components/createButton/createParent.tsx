@@ -23,8 +23,6 @@ interface MenuOption {
 interface CreateParentProps {
   options: MenuOption[];
   setters: Dispatch<SetStateAction<boolean>>[];
-  // setRefresh is still required by MenuOptionComponent's props
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>; 
 }
 
 
@@ -32,7 +30,7 @@ const BUTTON_LABEL_TEXT = "+ Create New";
 const MENU_TITLE_TEXT = "Create New";
 
 // The component now accepts props: options, setters, and setRefresh
-const CreateParent: React.FC<CreateParentProps> = ({ options, setters, setRefresh }) => {
+const CreateParent: React.FC<CreateParentProps> = ({ options, setters}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleButtonClick = () => {
@@ -150,7 +148,6 @@ const CreateParent: React.FC<CreateParentProps> = ({ options, setters, setRefres
                 <MenuOptionComponent
                 options={options}
                 setters={setters}
-                setRefresh={setRefresh} 
                 />
             </Box>
           </Box>
