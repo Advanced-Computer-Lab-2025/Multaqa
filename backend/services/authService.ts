@@ -18,6 +18,7 @@ import { VerificationService } from './verificationService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 import { IAdministration } from '../interfaces/models/administration.interface';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
+import { getNgrokUrl } from '../config/NgrokTunnel';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -76,7 +77,8 @@ export class AuthService {
       );
 
       const token = this.verificationService.generateVerificationToken(createdUser);
-      const link = `http://localhost:${process.env.BACKEND_PORT}/auth/verify?token=${token}`;
+      const appUrl = await getNgrokUrl();
+      const link = `${appUrl}/auth/verify?token=${token}`;
       await sendVerification(createdUser.email, link);
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)

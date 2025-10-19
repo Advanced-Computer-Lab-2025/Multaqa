@@ -459,7 +459,8 @@ export default function EntityNavigation({
   console.log("EntityNavigation section:", section);
 
   // Get role key from backend user
-  const userRoleKey = getUserRoleKey(user);
+  const userRoleKeyUnformated = getUserRoleKey(user);
+  const userRoleKey = userRoleKeyUnformated.toLowerCase();
   const userData = formatUserData(user);
 
   const config: RoleConfig =

@@ -2,7 +2,7 @@ import { gmailTransporter } from "../config/nodemailer";
 
 export async function sendVerification(to: string, link: string) {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `Multaqa Support Team <${process.env.EMAIL_USER}>`,
     to,
     subject: "Verify Your Multaqa Account",
     html: `
