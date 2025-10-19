@@ -39,9 +39,6 @@ const MenuOptionComponent: React.FC<MenuOptionTestPageProps> = ({ options, sette
             width: '100%', 
           }}
         >
-          <Typography variant="h6" color ="tertiary" sx={{fontSize:"14px", fontFamily: "var(--font-poppins), system-ui, sans-serif", mb:2}}>
-             Create New 
-            </Typography>
           <Grid container spacing={2}>
             {options.map((option, index) => (
               <Grid item xs={4} key={option.label} {...{ component: 'div' } as any} >
