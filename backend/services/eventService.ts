@@ -124,10 +124,8 @@ export class EventsService {
     const mappedData = mapEventDataByType(data.type, data);
 
     let createdEvent;
-    // workshop repo required because extra fields missing from eventRepo
-    if (data.type == EVENT_TYPES.WORKSHOP) {
-      createdEvent = await this.workshopRepo.create(mappedData);
-    } else if (data.type == EVENT_TYPES.TRIP) {
+
+    if (data.type == EVENT_TYPES.TRIP) {
       createdEvent = await this.tripRepo.create(mappedData);
     } else if (data.type == EVENT_TYPES.CONFERENCE) {
       createdEvent = await this.conferenceRepo.create(mappedData);
@@ -156,8 +154,6 @@ export class EventsService {
 
     if (event.type === EVENT_TYPES.TRIP) {
       updatedEvent = await this.tripRepo.update(eventId, updateData);
-    } else if (event.type === EVENT_TYPES.WORKSHOP) {
-      updatedEvent = await this.workshopRepo.update(eventId, updateData);
     } else if (event.type === EVENT_TYPES.CONFERENCE) {
       updatedEvent = await this.conferenceRepo.update(eventId, updateData);
     } else {
