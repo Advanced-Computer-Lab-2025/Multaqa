@@ -19,6 +19,8 @@ import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { frameData } from "./utils";
+import { mockEvents, mockUserInfo } from "./mockData";
+import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
@@ -32,20 +34,7 @@ interface BrowseEventsProps {
   user: string;
   userID?: string;
 }
-// Define the event type enum
-export enum EventType {
-  CONFERENCE = "conference",
-  WORKSHOP = "workshop",
-  BAZAAR = "bazaar",
-  BOOTH = "booth",
-  TRIP = "trip",
-}
-
-// Define the base event interface
-interface BaseEvent {
-  id: string;
-  type: EventType;
-}
+// Event types and interfaces are now imported from ./types
 
 // Define specific event interfaces using your existing types
 interface ConferenceEvent extends BaseEvent, ConferenceViewProps {
@@ -76,14 +65,7 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-// Define filter value types
-type FilterValue = string | string[] | number | boolean;
-
-// Define filters type
-interface Filters {
-  eventType?: string[];
-  [key: string]: FilterValue | undefined;
-}
+// Filter types are now imported from ./types
 
 // Filter groups for the filter panel
 const filterGroups: FilterGroup[] = [
@@ -110,6 +92,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
@@ -123,42 +107,73 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [isReady, setReady] = useState(false);
 
   useEffect(() => {
-    handleCallAPI2();
+    if (userID) {
+      handleCallAPI2();
+    } else {
+      // For test mode without userID, use mock data
+      console.log("🧪 Test mode: Using mock data");
+      setUserInfo(mockUserInfo);
+      setEvents(mockEvents);
+      setReady(true);
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    handleCallAPI();
+    // Only call API if we have a userID (not in test mode)
+    if (userID) {
+      handleCallAPI();
+    }
   }, [refresh]);
   // Handle event deletion
   async function handleCallAPI2() {
-    const res = await api.get(`/users/${userID}`);
-    const data = res.data.data;
-    const user = {
-      id: data._id,
-      name: `${data.firstName}  ${data.lastName}`,
-      email: data.email,
-    };
-    setUserInfo(user);
-    setReady(true);
+    if (!userID) return;
+
+    try {
+      const res = await api.get(`/users/${userID}`);
+      const data = res.data.data;
+      const user = {
+        id: data._id,
+        name: `${data.firstName}  ${data.lastName}`,
+        email: data.email,
+      };
+      setUserInfo(user);
+      setReady(true);
+    } catch (err) {
+      console.error("Failed to fetch user data:", err);
+      // Set default user info on error
+      setUserInfo({ id: "test", name: "Test User", email: "test@example.com" });
+      setReady(true);
+    }
   }
 
   async function handleCallAPI() {
+    setLoading(true);
+    setError(null);
+
     try {
       if (!registered) {
+        console.log("🔍 Fetching all events from /events endpoint...");
         const res = await api.get("/events");
         const data = res.data.data;
+        console.log("📊 Raw events data:", data);
         const result = frameData(data);
+        console.log("✨ Transformed events:", result);
         setEvents(result);
-        // console.log(data);
       } else {
+        console.log("🔍 Fetching registered events for user:", userID);
         const res = await api.get(`/users/${userID}`);
         const data2 = res.data.data.registeredEvents;
+        console.log("📊 Raw registered events data:", data2);
         const result = frameData(data2);
+        console.log("✨ Transformed registered events:", result);
         setEvents(result);
-        // console.log(data2);
       }
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error fetching events:", err);
+      setError("Failed to load events. Please check your backend connection.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -387,43 +402,90 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         )}
       </Box>
 
+      {/* Loading State */}
+      {loading && (
+        <Box sx={{ textAlign: "center", py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            Loading events...
+          </Typography>
+        </Box>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <Box sx={{ textAlign: "center", py: 8 }}>
+          <Typography variant="h6" color="error">
+            {error}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Make sure your backend server is running on the correct port
+          </Typography>
+        </Box>
+      )}
+
       {/* Events Grid */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-          },
-          gap: 3,
-        }}
-      >
-        {filteredEvents.map((event) => (
-          <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
-        ))}
+      {!loading && !error && (
+        <>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              },
+              gap: 3,
+            }}
+          >
+            {filteredEvents.map((event) => (
+              <Box key={event.id}>
+                {renderEventComponent(event, registered)}
+              </Box>
+            ))}
 
-        {/* Results count */}
-        {filteredEvents.length > 0 && (
-          <Box sx={{ mt: 3, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              Showing {filteredEvents.length} of {events.length} events
-            </Typography>
-          </Box>
-        )}
+            {/* No results message */}
+            {filteredEvents.length === 0 && events.length === 0 && (
+              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
+                <Typography variant="h6" color="text.secondary">
+                  No events available
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  There are no events in the database yet
+                </Typography>
+              </Box>
+            )}
 
-        {/* No results message */}
-        {filteredEvents.length === 0 && (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography variant="h6" color="text.secondary">
-              No events found matching your criteria
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Try adjusting your search or filters
-            </Typography>
+            {/* No search results message */}
+            {filteredEvents.length === 0 && events.length > 0 && (
+              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
+                <Typography variant="h6" color="text.secondary">
+                  No events found matching your criteria
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  Try adjusting your search or filters
+                </Typography>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
+
+          {/* Results count - Outside the grid for proper centering */}
+          {filteredEvents.length > 0 && (
+            <Box sx={{ mt: 4, textAlign: "center", width: "100%" }}>
+              <Typography variant="body2" color="text.secondary">
+                Showing {filteredEvents.length} of {events.length} events
+              </Typography>
+            </Box>
+          )}
+        </>
+      )}
       <CreateTrip
         open={createTrip}
         onClose={() => setTrip(false)}

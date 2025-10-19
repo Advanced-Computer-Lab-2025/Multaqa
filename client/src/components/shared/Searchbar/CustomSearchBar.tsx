@@ -40,7 +40,7 @@ const CustomSearchBar: React.FC<CustomSearchProps> = ({
           }}
         />
       </NeumorphicBox>
-      {icon && (
+      {!icon && (
         <CustomIcon
           icon="search"
           size="medium"
