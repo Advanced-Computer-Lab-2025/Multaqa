@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BoothViewProps } from "./types";
 import theme from "@/themes/lightTheme";
@@ -67,9 +67,11 @@ const BoothView: React.FC<BoothViewProps> = ({
     <Typography key="location" variant="caption" sx={{ color: "#6b7280" }}>
       {details["Location"] || "TBD"}
     </Typography>,
-    <Typography key="booth-size" variant="caption" sx={{ color: "#6b7280" }}>
-      Size: {details["Booth Size"] || "TBD"}
-    </Typography>,
+ (user === "events-office" || user==="admin") && (
+  <Typography key="booth-size" variant="caption" sx={{ color: "#6b7280" }}>
+    Size: {details["Booth Size"] || "TBD"}
+  </Typography>
+ )
   ];
 
   const detailsContent = (
@@ -94,92 +96,102 @@ const BoothView: React.FC<BoothViewProps> = ({
       )}
 
       {/* People Section */}
-      {people && Object.keys(people).length > 0 && (
-        <Box sx={{ mb: 2 }}>
+      {(user === "events-office" || user === "admin") && people && people.length > 0 && (
+  <Box sx={{ mb: 2 }}>
+    <Typography
+      variant="body2"
+      fontWeight={600}
+      sx={{ color: theme.palette.primary.dark, mb: 1 }}
+    >
+      Representatives
+    </Typography>
+
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+  {people.map((person, index) => (
+    <Box
+      key={index}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        p: 1,
+        backgroundColor: "#f5f5f5",
+        borderRadius: 1,
+      }}
+    >
+      <Avatar
+        sx={{
+          width: 32,
+          height: 32,
+          backgroundColor: getAvatarColor(person.name),
+          fontSize: "12px",
+          fontWeight: 600,
+        }}
+      >
+        {getInitials(person.name)}
+      </Avatar>
+
+      <Box sx={{ flex: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontSize: "12px",
+            color: "text.primary",
+            fontWeight: 500,
+          }}
+        >
+          {person.name}
+        </Typography>
+
+        <Typography
+          variant="caption"
+          sx={{
+            fontSize: "11px",
+            color: "text.secondary",
+            display: "block",
+          }}
+        >
+          {person.email}
+        </Typography>
+      </Box>
+    </Box>
+  ))}
+</Box>
+
+  </Box>
+)}
+
+            {/* Other Details */}
+      {(user === "events-office" || user === "admin") && (
+        <Box>
           <Typography
             variant="body2"
             fontWeight={600}
             sx={{ color: theme.palette.primary.dark, mb: 1 }}
           >
-            Representatives
+            Booth Details
           </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {Object.entries(people).map(([key, person]) => (
+
+          {Object.entries(details)
+            .filter(([key]) => {
+              const baseExcluded = ["Description"];
+              return !baseExcluded.includes(key);
+            })
+            .map(([key, value]) => (
               <Box
-                key={person.id}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  p: 1,
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: 1,
-                }}
+                key={key}
+                sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
               >
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    backgroundColor: getAvatarColor(person.name),
-                    fontSize: "12px",
-                    fontWeight: 600,
-                  }}
-                >
-                  {getInitials(person.name)}
-                </Avatar>
-                <Box sx={{ flex: 1 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontSize: "12px",
-                      color: "text.primary",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {person.name}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontSize: "11px",
-                      color: "text.secondary",
-                      display: "block",
-                    }}
-                  >
-                    {person.email}
-                  </Typography>
-                </Box>
+                <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                  {key}:
+                </Typography>
+                <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                  {value || "TBD"}
+                </Typography>
               </Box>
             ))}
-          </Box>
         </Box>
       )}
-
-      {/* Other Details */}
-      <Box>
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ color: theme.palette.primary.dark, mb: 1 }}
-        >
-          Booth Details
-        </Typography>
-        {Object.entries(details)
-          .filter(([key]) => !["Description", "people"].includes(key))
-          .map(([key, value]) => (
-            <Box
-              key={key}
-              sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
-            >
-              <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                {key}:
-              </Typography>
-              <Typography variant="caption" sx={{ color: "#6b7280" }}>
-                {value}
-              </Typography>
-            </Box>
-          ))}
-      </Box>
     </Box>
   );
 
@@ -210,20 +222,22 @@ const BoothView: React.FC<BoothViewProps> = ({
         }
         registered={registered || !(user == "vendor")}
         rightIcon={
-          user === "events-office" ? (
-            <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
+         (user === "events-office" ||   user === "admin")? (
+          <Tooltip title="Delete">
+          <IconButton
+                  size="medium"
+                  onClick={handleOpenDeleteModal}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 0, 0, 0.1)",
+                      color: "error.main",
+                    },
+                  }}
+                >
+                  <Trash2 size={16} />
+                </IconButton>
+          </Tooltip>
           ) : null
         }
         expanded={expanded}

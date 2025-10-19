@@ -2,13 +2,17 @@
 import React, { useState } from "react";
 import ActionCard from "../shared/cards/ActionCard";
 import { ConferenceViewProps } from "./types";
+import EditIcon from "@mui/icons-material/Edit";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { Copy, Check } from "lucide-react";
 import { CustomModal } from "../shared/modals";
+import Utilities from "../shared/Utilities";
+import Edit from "../shared/CreateConference/Edit";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
+  id,
   details,
   name,
   description,
@@ -16,9 +20,12 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   user,
   registered,
   onDelete,
+  setRefresh
 }) => {
+  console.log(details);
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
+  const [edit, setEdit] = useState(false)
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -155,7 +162,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
       )}
 
       {/* Other Details */}
-      <Box>
+      
+     {user==="events-office"||user==="admin"? <Box>
         <Typography
           variant="body2"
           fontWeight={600}
@@ -165,10 +173,16 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         </Typography>
         {Object.entries(details)
           .filter(
-            ([key]) =>
-              !["Start Date", "End Date", "Start Time", "End Time"].includes(
-                key
-              )
+            ([key]) =>{
+              const baseExcluded = [
+                "Start Date",
+                "End Date",
+                "Start Time",
+                "End Time",
+                "Professors Participating",
+              ];
+            return !baseExcluded.includes(key);
+          }
           )
           .map(([key, value]) => (
             <Box
@@ -183,7 +197,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
               </Typography>
             </Box>
           ))}
-      </Box>
+      </Box>: <></>}
     </Box>
   );
 
@@ -203,21 +217,35 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           },
         ]}
         rightIcon={
-          user === "events-office" ? (
+          user === "admin" ? (
+            <Tooltip title="Delete">
             <IconButton
-              size="small"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  color: "error.main",
-                },
-              }}
-            >
-              <Trash2 size={16} />
-            </IconButton>
-          ) : null
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : (user==="events-office"|| user==="events-only"?
+          <>
+            <Tooltip title="Edit">
+              <IconButton
+                onClick={()=>{setEdit(true)}}
+                sx={{
+                  "&:hover": { color: "primary.main" },
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </>:null) // add edit and delete handlers
         }
         metaNodes={metaNodes}
         registered={true}
@@ -280,17 +308,6 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           <Typography
             sx={{
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: "#666",
-              mb: 3,
-              fontSize: "0.9rem",
-            }}
-          >
-            Budget: {details["Required Budget"] || "TBD"}
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
               color: theme.palette.error.main,
               fontSize: "0.9rem",
               fontWeight: 500,
@@ -301,6 +318,21 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
+      <Edit 
+        conferenceId={id}
+        open={edit} 
+        onClose={() => setEdit(false)} 
+        setRefresh={setRefresh} 
+        eventName= {name}
+        description={description}
+        eventStartDate = {details["Start Date"]} 
+        eventEndDate =  {details["End Date"]}
+        requiredBudget = {details["Required Budget"]}
+        fundingSource = {details["Funding Source"]}
+        websiteLink = {details["Link"]}
+        agenda={agenda}
+        extraRequiredResources={details["Extra Required Resources"]}
+      />
     </>
   );
 };

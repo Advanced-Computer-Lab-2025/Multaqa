@@ -20,26 +20,24 @@ const ExtraResourcesField: React.FC = () => {
     const { values, handleChange, handleBlur, errors, touched, setFieldValue } = formik;
 
     // 💡 Assume 'extraResources' is an array of strings in EventFormData
-    const resources = values.extraResources || [];
+    const resources = values.extraRequiredResources || [];
     
     // --- Handlers ---
     
     // Handler to add a new empty text field
     const handleAddResource = () => {
         const newResources = [...resources, initialResourceValue];
-        setFieldValue('extraResources', newResources);
+        setFieldValue('extraRequiredResources', newResources);
     };
 
     // Handler to remove a text field at a specific index
     const handleRemoveResource = (index: number) => {
         const newResources = resources.filter((_, i) => i !== index);
-        setFieldValue('extraResources', newResources);
+        setFieldValue('extraRequiredResources', newResources);
     };
 
-    // Handler for field changes (Formik handles this easily with array indexing)
-    // The key is to generate the correct Formik path: 'extraResources[index]'
     const handleResourceChange = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        handleChange(`extraResources[${index}]`)(event);
+        handleChange(`extraRequiredResources[${index}]`)(event);
     };
 
     // Use a small spacer for visual separation
@@ -67,7 +65,7 @@ const ExtraResourcesField: React.FC = () => {
             <Box sx={{ px: 2 }}>
                 {resources.map((resourceValue, index) => {
                     // Formik fields require a unique 'name' attribute
-                    const fieldName = `extraResources[${index}]`;
+                    const fieldName = `extraRequiredResources[${index}]`;
                     
                     return (
                         <Box key={index} sx={{ display:'flex',alignItems:"end",justifyContent:"space-between",mb:2,
@@ -79,6 +77,8 @@ const ExtraResourcesField: React.FC = () => {
                                     placeholder="e.g., specific projector model, extra seating, etc."
                                     value={resourceValue}
                                     onChange={handleResourceChange(index)}
+                                    autoCapitalize='off'
+                                    autoCapitalizeName={false}
                                 />
                                  {/* Delete Button */}
                                 {resources.length > 0 && (

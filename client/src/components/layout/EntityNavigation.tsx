@@ -20,6 +20,11 @@ import {
   QrCode,
   Award,
 } from "lucide-react";
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import EventIcon from '@mui/icons-material/Event';
+import PollIcon from '@mui/icons-material/Poll';
 
 interface EntityNavigationProps {
   children?: React.ReactNode;
@@ -183,6 +188,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [
           { id: "all-events", label: "All Events" },
+          { id: "my-creations", label: "Creation Hub" },
         ],
       },
       {
@@ -191,8 +197,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: FileText,
         sections: [
           { id: "all-requests", label: "All Requests" },
-          { id: "pending", label: "Pending Requests" },
           { id: "accepted", label: "Accepted Requests" },
+          { id: "pending", label: "Under Review Requests" },
           { id: "rejected", label: "Rejected Requests" },
         ],
       },
@@ -221,8 +227,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Gym Management",
         icon: Dumbbell,
         sections: [
-          { id: "all-sessions", label: "All Sessions" },
-          { id: "create-session", label: "Create Session" },
+          { id: "sessions-management", label: "Sessions Management" },
           { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
@@ -463,8 +468,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "73vh",
-              maxHeight: "73vh",
+              minHeight: "75vh",
+              maxHeight: "75vh",
             }}
           >
             {children}

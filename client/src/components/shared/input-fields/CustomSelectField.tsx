@@ -20,6 +20,7 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
   label,
   fieldType,
   options,
+  name,
   neumorphicBox = true,
   value,
   onChange,

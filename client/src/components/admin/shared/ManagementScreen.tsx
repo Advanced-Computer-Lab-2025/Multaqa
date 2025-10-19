@@ -99,7 +99,7 @@ export default function ManagementScreen<T>({
                 color="primary"
                 onClick={onOpenCreate}
                 startIcon={createButtonIcon}
-                sx={{ borderRadius: "12px", fontWeight: 700 }}
+                sx={{ fontWeight: 700 }}
               />
             )}
           </Box>

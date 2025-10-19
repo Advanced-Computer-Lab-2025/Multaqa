@@ -1,20 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
-import BrowseEventsContent from "@/components/browse-events";
+import BrowseEventsContent from "@/components/BrowseEvents/browse-events";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
 import { mapEntityToRole } from "@/utils";
 import GymSchedule from "@/components/gym/GymSchedule";
+import GymSessionsManagementContent from "@/components/gym/GymSessionsManagementContent";
 import WorkshopReviewUI from "@/components/EventsOffice/WorkshopRequests";
 import BoothForm from "@/components/shared/BoothForm/BoothForm";
+import WorkshopDetails from "@/components/EventsOffice/WorkshopDetails";
+import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
+
+
 
 export default function EntityCatchAllPage() {
   const params = useParams() as {
@@ -27,6 +32,8 @@ export default function EntityCatchAllPage() {
   const segments = pathname.split("/").filter(Boolean);
   const tab = segments[2] || "";
   const section = segments[3] || "";
+  const [Evaluating, setEvaluating] = useState(false);
+  const [specificWorkshop, setSpecificWorkshop] = useState('');
 
   // Render specific content based on entity, tab, and section
   const renderContent = () => {
@@ -60,15 +67,22 @@ export default function EntityCatchAllPage() {
     }
 
     // Gym sessions for stakeholders
-    if (["student", "staff", "ta", "professor"].includes(entity) && tab === "gym") {
+    if (
+      ["student", "staff", "ta", "professor"].includes(entity) &&
+      tab === "gym"
+    ) {
       if (section === "browse-sessions" || section === "") {
         return <GymSchedule />;
       }
       if (section === "my-sessions") {
         return (
           <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">My Registered Sessions</h2>
-            <p className="text-gray-600">Coming soon: your registered gym sessions.</p>
+            <h2 className="text-xl font-semibold mb-4">
+              My Registered Sessions
+            </h2>
+            <p className="text-gray-600">
+              Coming soon: your registered gym sessions.
+            </p>
           </div>
         );
       }
@@ -108,6 +122,12 @@ export default function EntityCatchAllPage() {
       }
     }
 
+    if (entity === "events-office" && tab === "events") {
+      if (section === "my-creations") {
+        return <BrowseEventsContent registered={false} user="events-only" />;
+      }
+    }
+
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
         return <AllUsersContent />;
@@ -119,17 +139,31 @@ export default function EntityCatchAllPage() {
 
     if (tab === "workshop-requests") {
       if (section === "all-requests") {
-        return <WorkshopReviewUI />;
+        return Evaluating ? (
+          <WorkshopDetails workshopID={specificWorkshop} setEvaluating={setEvaluating} />
+        ) : (
+          <WorkshopRequests
+            setEvaluating={setEvaluating}
+            setSpecificWorkshop={setSpecificWorkshop}
+          />
+        );
+      }
+    }
+
+    // Events Office - Gym Management
+    if (entity === "events-office" && tab === "gym") {
+      if (section === "sessions-management") {
+        return <GymSessionsManagementContent />;
       }
     }
 
     //Shared Content
-    if (tab === "events" || tab === "events-management") {
+    if (tab === "events") {
       if (section === "browse-events") {
-        return <BrowseEventsContent registered={false} user="student" />;
+        return <BrowseEventsContent registered={false} user={entity} />;
       }
       if (section === "all-events") {
-        return <BrowseEventsContent registered={false} user="events-office" />;
+        return <BrowseEventsContent registered={false} user={entity} />;
       }
     }
     if (tab === "events") {
