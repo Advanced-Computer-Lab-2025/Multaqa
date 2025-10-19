@@ -45,7 +45,6 @@ app.use(
 app.use(json());
 app.use(cookieParser());
 
-
 // Dummy route
 app.get("/", (req, res) => {
   res.send("Backend initialized!");
