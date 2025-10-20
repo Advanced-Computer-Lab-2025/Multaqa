@@ -374,7 +374,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
         />
        
       {user === "events-only"&& (
-       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters} setRefresh={setRefresh}/>
+       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters}/>
       )}
       </Box>
 
