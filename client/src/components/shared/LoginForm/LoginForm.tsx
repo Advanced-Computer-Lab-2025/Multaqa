@@ -52,12 +52,12 @@ const LoginForm: React.FC = () => {
       admin: "/admin/users/all-users",
       student: "/student/events/browse-events",
       staff: "/staff/events/browse-events",
-      ta: "/ta/events/browse-events",
+      TA: "/ta/events/browse-events",
       professor: "/professor/workshops/my-workshops",
-      "events-office": "/events-office/events/all-events",
+      eventsOffice: "/events-office/events/all-events",
       vendor: "/vendor/opportunities/available",
     };
-  
+
     return roleRedirects[role] || "/student/events/browse-events";
   };
 
@@ -76,7 +76,15 @@ const LoginForm: React.FC = () => {
           resetForm();
 
           // Get user info from login response
-          const userRole = response?.user?.role;
+          let userRole;
+          if (response?.user?.role === "administration") {
+            userRole = response?.user?.roleType;
+          } else if (response?.user?.role === "staffMember") {
+            userRole = response?.user?.position;
+          } else {
+            userRole = response?.user?.role;
+          }
+          console.log("Logged in user role:", userRole);
 
           toast.success("Login successful! Redirecting...", {
             position: "bottom-right",
