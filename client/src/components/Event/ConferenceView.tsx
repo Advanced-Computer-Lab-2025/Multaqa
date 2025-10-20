@@ -331,6 +331,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         websiteLink = {details["Link"]}
         agenda={agenda}
         extraRequiredResources={details["Extra Required Resources"]}
+        eventStartTime={details["Start Time"]}
+        eventEndTime={details["End Time"]}
       />
     </>
   );

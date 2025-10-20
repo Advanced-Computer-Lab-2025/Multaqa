@@ -230,7 +230,14 @@ const BazarView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditBazaar setRefresh={setRefresh} bazaarId={id} bazaarName={name} location={details["Location"]}  description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} open={edit} onClose={()=> {setEdit(false)}}/>
+      <EditBazaar  
+        setRefresh={setRefresh} bazaarId={id} bazaarName={name} 
+        location={details["Location"]}  description={description} 
+        startDate={new Date(details['Start Date'])} 
+        endDate={new Date (details['End Date'])} 
+        registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
+        onClose={()=> {setEdit(false)}}
+        />
     </>
   );
 };

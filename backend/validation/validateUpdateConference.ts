@@ -6,7 +6,7 @@ export function validateUpdateConference(data: any) {
 
     // Base event fields
     eventName: Joi.string().min(3).max(100).optional(),
-    location: Joi.string().valid("GUC").optional(),
+    location: Joi.string().optional(),
     eventStartDate: Joi.date().optional(),
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).optional(),
     registrationDeadline: Joi.date().optional(),
