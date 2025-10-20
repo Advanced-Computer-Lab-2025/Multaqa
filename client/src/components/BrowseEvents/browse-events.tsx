@@ -18,6 +18,10 @@ import {
 import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
+import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
+import Create from "../shared/CreateConference/CreateConference";
+import CreateParent from "../createButton/createParent";
+
 import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
@@ -277,6 +281,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             name={event.name}
             description={event.description}
+            professorsId={event.professorsId}
             professors={event.professors}
             agenda={event.agenda}
             user={user}
@@ -450,7 +455,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             )}
 
             {/* No results message */}
-            {filteredEvents.length === 0 && (
+            {filteredEvents.length === 0 && events.length > 0 && (
               <EmptyState
                 title="No events found"
                 description="Try adjusting your search or filters"
@@ -458,6 +463,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               />
             )}
           </Box>
+
           {/* Results counter */}
           {events.length > 0 && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
@@ -468,9 +474,21 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           )}
         </>
       )}
+
       <CreateTrip
         open={createTrip}
         onClose={() => setTrip(false)}
+        setRefresh={setRefresh}
+      />
+      <CreateBazaar
+        open={createBazaar}
+        onClose={() => setBazaar(false)}
+        setRefresh={setRefresh}
+      />
+      {/* Create Conference Form */}
+      <Create
+        open={createconference}
+        onClose={() => setConference(false)}
         setRefresh={setRefresh}
       />
     </Container>

@@ -41,6 +41,8 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
                     error={touched.eventName && Boolean(errors.eventName)} // 💡 For validation
                     sx={{ mb: 1 }} 
                     required
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
                 />
                 {/* 💡 RichTextField wired using setFieldValue */}
                 <RichTextField

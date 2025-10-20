@@ -7,6 +7,7 @@ import theme from "@/themes/lightTheme";
 import { Typography, Box } from "@mui/material";
 import { api } from "@/api";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
 interface RegisterEventModalProps {
   userInfo: { id: string; name: string; email: string };
@@ -16,6 +17,17 @@ interface RegisterEventModalProps {
   isReady: boolean;
   eventId: string;
 }
+
+const validationSchema = Yup.object({
+  name: Yup.string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be 50 characters or less")
+    .required("Name is required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+});
 
 const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   userInfo,
@@ -69,6 +81,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
     touched,
   } = useFormik({
     initialValues,
+    validationSchema,
     onSubmit: onSubmit,
   });
 
@@ -109,6 +122,8 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
                 fullWidth
               />
 
+               {errors.name && touched.name ? <p style={{color:"#db3030"}}>{errors.name}</p> : <></>}
+
               <CustomTextField
                 id={`email-${eventId}`}
                 label="Email"
@@ -122,6 +137,8 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
                 neumorphicBox
                 fullWidth
               />
+
+              {errors.email && touched.email ? <p style={{color:"#db3030"}}>{errors.email}</p> : <></>}
 
           </Box>
 

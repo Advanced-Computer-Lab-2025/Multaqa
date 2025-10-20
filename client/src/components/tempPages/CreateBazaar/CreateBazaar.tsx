@@ -13,6 +13,7 @@ import CustomButton from '../../shared/Buttons/CustomButton';
 import { bazaarSchema } from "./schemas/bazaar";
 
 import {api} from "../../../api";
+import { CustomModalLayout } from '@/components/shared/modals';
 
 const initialValues = {
     bazaarName: '',
@@ -24,15 +25,17 @@ const initialValues = {
 };
 
 interface CreateBazaarProps {
-  setOpenCreateBazaar: (open: boolean) => void;
+    open:boolean;
+    onClose: () => void;
+    setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
  }
 
-const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
+const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-    const handleCallApi = async (payload:any) => {
+    const handleCallApi = async (payload:any) => {    
     setLoading(true);
     setError(null);
     setResponse([]);
@@ -40,6 +43,7 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
         // TODO: Replace with your API route
         const res = await api.post("/events", payload);
         setResponse(res.data);
+        setRefresh((prev)=> !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {
@@ -48,6 +52,7 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
     };
 
   const onSubmit = async (values: any, actions: any) => {
+    onClose();
     const startDateObj = values.startDate; // dayjs object
     const endDateObj = values.endDate;
     const registrationDeadlineObj = values.registrationDeadline;
@@ -63,9 +68,7 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
         eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
         registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
-    setOpenCreateBazaar(false);
     handleCallApi(payload);
   };
 
@@ -79,6 +82,7 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
   });
   return (
     <>
+    <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center' sx={{mb:2}}>Create Bazaar</Typography>
             <Grid container spacing={2} sx={{mb:2}}>
@@ -204,6 +208,7 @@ const CreateBazaar = ({setOpenCreateBazaar}: CreateBazaarProps) => {
             <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth  type='submit'/>
         </Box>
         </form>
+        </CustomModalLayout>
     </>
   )
 }

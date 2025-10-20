@@ -8,7 +8,7 @@ export const internalBox = (theme: any) => ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '4px',
+        padding: '0px',
         cursor: 'pointer',
         borderRadius: '12px', // Rounded corners for the item
         textAlign: 'center',
