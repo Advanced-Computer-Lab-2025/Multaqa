@@ -51,7 +51,12 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
     setLoading(true);
     const data = userInfo.myWorkshops;
     const result = frameData(data);
-    const filteredResults = result.filter((item) => filter === "none" || item.details["Status"] === filter)
+    // const filteredResults = result.filter((item) => filter === "none" || item.details["Status"] === filter)
+    const filteredResults = result.filter((item) => {
+      const matchesFilter = filter === "none" || item.details["Status"] === filter;
+      const isNotEmpty = item && item.id && item.name; // Check for essential properties
+      return matchesFilter && isNotEmpty;
+    });
     setWorkshops(filteredResults);
     setRawWorkshops(data);
     setLoading(false);
