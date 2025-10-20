@@ -22,6 +22,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const { signup } = useAuth();
 
   const handleRegistration = async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any
   ): Promise<SignupResponse> => {
     try {
@@ -65,12 +66,14 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   password: values.password,
                   gucId: values.gucId as string,
                   type: "studentOrStaff",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any)
               : ({
                   companyName: values.companyName as string,
                   email: values.email,
                   password: values.password,
                   type: "vendor",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any);
 
           const response = await handleRegistration(signupData);
@@ -79,18 +82,18 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             resetForm();
 
             toast.success(
-             "Registration successful! Please check your email for verification.",
-             {
-                position: "bottom-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-             }
-           );
+              "Registration successful! Please check your email for verification.",
+              {
+                  position: "bottom-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "colored",
+              }
+            );
 
 
           }
@@ -182,6 +185,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     <div className="flex gap-4 w-full flex-row">
                       <div className=" w-full">
                         <CustomTextField
+                          name="firstName"
                           id="firstName"
                           label="First Name"
                           fieldType="text"
@@ -208,6 +212,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
 
                       <div className="w-full">
                         <CustomTextField
+                          name="lastName"
                           id="lastName"
                           label="Last Name"
                           fieldType="text"
@@ -233,6 +238,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     </div>
                     <div className="w-full">
                       <CustomTextField
+                        name="gucId"
                         id="gucId"
                         label="Student/Staff ID"
                         fieldType="text"
@@ -259,6 +265,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                 ) : (
                   <div className="w-full">
                     <CustomTextField
+                      name="companyName"
                       id="companyName"
                       label="Company Name"
                       fieldType="text"
@@ -287,6 +294,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                 {/* Common Fields */}
                 <div className="w-full">
                   <CustomTextField
+                    name="email"
                     id="email"
                     label="Email"
                     fieldType="email"
@@ -313,6 +321,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
 
                 <div className="w-full">
                   <CustomTextField
+                    name="password"
                     id="password"
                     label="Password"
                     fieldType="password"
@@ -338,6 +347,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
 
                 <div className="w-full">
                   <CustomTextField
+                    name="confirmPassword"
                     id="confirmPassword"
                     label="Confirm Password"
                     fieldType="password"
