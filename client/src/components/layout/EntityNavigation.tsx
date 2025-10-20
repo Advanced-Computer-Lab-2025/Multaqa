@@ -120,7 +120,6 @@ const formatUserData = (user: any): CurrentUser => {
 };
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
-  
   student: {
     headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
@@ -354,6 +353,17 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
+      {
+        key: "reports",
+        label: "Vendor Management",
+        icon: Store,
+        sections: [
+          { id: "all-vendors", label: "All Vendors" },
+          { id: "participation-requests", label: "Participation Requests" },
+          { id: "loyalty-partners", label: "Loyalty Program Partners" },
+          { id: "documents", label: "View Documents" },
+        ],
+      },
     ],
   },
   vendor: {
@@ -544,16 +554,20 @@ export default function EntityNavigation({
 
       {/* Sidebar and main content below */}
       <div className="flex flex-1 overflow-hidden min-h-0">
-        <SidebarNavigation
-          activeItem={section}
-          onItemClick={handleSectionClick}
-          sectionItems={tab ? sectionItems : []}
-          onLogout={handleLogout}
-          currentUser={userData}
-          userRole={userRoleKey as UserRoleKey}
-        />
+        {/* Fixed width sidebar - never gets squished */}
+        <div className="flex-shrink-0">
+          <SidebarNavigation
+            activeItem={section}
+            onItemClick={handleSectionClick}
+            sectionItems={tab ? sectionItems : []}
+            onLogout={handleLogout}
+            currentUser={userData}
+            userRole={userRoleKey as UserRoleKey}
+          />
+        </div>
 
-        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
+        {/* Flexible main content area */}
+        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full min-w-0">
           <div
             className="flex-1 bg-white min-h-0 overflow-auto"
             style={{
@@ -561,8 +575,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "75vh",
-              maxHeight: "75vh",
+              minHeight: "83vh",
+              maxHeight: "83vh",
             }}
           >
             {children}

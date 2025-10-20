@@ -28,6 +28,8 @@ import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
 // import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
+import EmptyState from "../shared/states/EmptyState";
+import ErrorState from "../shared/states/ErrorState";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -383,6 +385,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             icon
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            storageKey="browseEventsSearchHistory"
+            autoSaveDelay={2000}
           />
         </Box>
         <FilterPanel
@@ -410,14 +414,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Error State */}
       {error && (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h6" color="error">
-            {error}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Make sure your backend server is running on the correct port
-          </Typography>
-        </Box>
+        <ErrorState
+          title={error}
+          description="Oops! Something has occurred on our end. Please try again"
+          imageAlt="Server error illustration"
+        />
       )}
 
       {/* Events Grid */}
@@ -442,32 +443,30 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
             {/* No results message */}
             {filteredEvents.length === 0 && events.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
-                <Typography variant="h6" color="text.secondary">
-                  No events available
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  There are no events in the database yet
-                </Typography>
-              </Box>
+              <EmptyState
+                title="No events available"
+                description="There are no events in our archives yet. Check back later!"
+                imageAlt="No events illustration"
+              />
             )}
 
             {/* No results message */}
             {filteredEvents.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8 }}>
-                <Typography variant="h6" color="text.secondary">
-                  No events found matching your criteria
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Try adjusting your search or filters
-                </Typography>
-              </Box>
+              <EmptyState
+                title="No events found"
+                description="Try adjusting your search or filters"
+                imageAlt="Empty search results illustration"
+              />
             )}
           </Box>
+          {/* Results counter */}
+          {events.length > 0 && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                Browsing {filteredEvents.length} of {events.length} events
+              </Typography>
+            </Box>
+          )}
         </>
       )}
       <CreateTrip
