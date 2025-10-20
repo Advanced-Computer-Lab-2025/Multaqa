@@ -143,14 +143,17 @@ export class AuthService {
     // -------- Fetch extended info if needed in generating tokens --------
     let extendedUser: IUser = user;
 
-    if (user.role === UserRole.ADMINISTRATION) {
-      const admin = await this.adminRepo.findOne({ _id: user._id });
-      if (admin) extendedUser = Object.assign(user.toObject(), { roleType: admin.roleType });
-    }
-    else if (user.role === UserRole.STAFF_MEMBER) {
-      const staff = await this.staffRepo.findOne({ _id: user._id });
-      if (staff) extendedUser = Object.assign(user.toObject(), { position: staff.position });
-    }
+   if (user.role === UserRole.ADMINISTRATION) {
+  const admin = await this.adminRepo.findOne({ _id: user._id });
+  if (admin)
+    extendedUser = Object.assign(user.toObject({ virtuals: true }), { roleType: admin.roleType });
+}
+else if (user.role === UserRole.STAFF_MEMBER) {
+  const staff = await this.staffRepo.findOne({ _id: user._id });
+  if (staff)
+    extendedUser = Object.assign(user.toObject({ virtuals: true }), { position: staff.position });
+}
+
 
     // Generate JWT tokens
     const accessToken = this.generateAccessToken(extendedUser);

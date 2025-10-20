@@ -22,6 +22,7 @@ export interface LogoutResponse {
   success: boolean;
   message: string;
 }
+
 export interface MeResponse {
   user: UserResponse;
   message: string;

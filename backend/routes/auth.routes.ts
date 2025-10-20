@@ -58,7 +58,6 @@ export const getMe = async (req: Request, res: Response<MeResponse>) => {
   }
 };
 
-
 async function verifyUser(req: Request, res: Response) {
   try {
     const token = req.query.token as string;

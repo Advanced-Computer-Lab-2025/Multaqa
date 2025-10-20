@@ -17,6 +17,10 @@ export const validationSchema = Yup.object({
   boothSize: Yup.string().required("Booth size is required"),
 });
 export const submitBazarForm = async (
+<<<<<<< HEAD
+=======
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+>>>>>>> origin/fix/major-patch-update
   values: any,
   {
     setSubmitting,
@@ -73,4 +77,7 @@ export const submitBazarForm = async (
     setSubmitting(false);
   }
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/fix/major-patch-update
