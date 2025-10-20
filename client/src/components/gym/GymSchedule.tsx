@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import theme from "@/themes/lightTheme";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
@@ -16,7 +17,13 @@ type Props = {
 const demoSessions = (base: Date): GymSession[] => {
   const y = base.getFullYear();
   const m = base.getMonth();
-  const mk = (d: number, sh: number, eh: number, t: GymSessionType, title: string): GymSession => ({
+  const mk = (
+    d: number,
+    sh: number,
+    eh: number,
+    t: GymSessionType,
+    title: string
+  ): GymSession => ({
     id: `${y}-${m + 1}-${d}-${t}-${sh}`,
     title,
     type: t,
@@ -44,7 +51,10 @@ export default function GymSchedule({ month, sessions }: Props) {
   const [current, setCurrent] = useState<Date>(month ?? new Date());
   const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
 
-  const all = useMemo(() => sessions ?? demoSessions(current), [sessions, current]);
+  const all = useMemo(
+    () => sessions ?? demoSessions(current),
+    [sessions, current]
+  );
   const filtered = useMemo(
     () => (filter === "ALL" ? all : all.filter((s) => s.type === filter)),
     [all, filter]
@@ -54,7 +64,11 @@ export default function GymSchedule({ month, sessions }: Props) {
     const groups = new Map<string, GymSession[]>();
     filtered.forEach((s) => {
       const d = new Date(s.start);
-      const key = new Date(d.getFullYear(), d.getMonth(), d.getDate()).toDateString();
+      const key = new Date(
+        d.getFullYear(),
+        d.getMonth(),
+        d.getDate()
+      ).toDateString();
       const arr = groups.get(key) ?? [];
       arr.push(s);
       groups.set(key, arr);
@@ -63,15 +77,23 @@ export default function GymSchedule({ month, sessions }: Props) {
     const entries = Array.from(groups.entries()).sort(
       (a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime()
     );
-    entries.forEach(([, arr]) => arr.sort((x, y) => new Date(x.start).getTime() - new Date(y.start).getTime()));
+    entries.forEach(([, arr]) =>
+      arr.sort(
+        (x, y) => new Date(x.start).getTime() - new Date(y.start).getTime()
+      )
+    );
     return entries;
   }, [filtered]);
 
-  const monthLabel = current.toLocaleString(undefined, { month: "long", year: "numeric" });
+  const monthLabel = current.toLocaleString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
 
-  const goPrev = () => setCurrent((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-  const goNext = () => setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-
+  const goPrev = () =>
+    setCurrent((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  const goNext = () =>
+    setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
 
   type FilterKey = GymSessionType | "ALL";
   const filterChips: Array<{ key: FilterKey; label: string }> = [
@@ -86,36 +108,110 @@ export default function GymSchedule({ month, sessions }: Props) {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+        }}
+      >
         <Box>
-          <Typography variant="h5" sx={{ fontFamily: "var(--font-jost)", fontWeight: 700, color: "#1E1E1E" }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: "var(--font-jost)",
+              fontWeight: 700,
+              color: theme.palette.text.primary,
+            }}
+          >
             Gym Sessions
           </Typography>
-          <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)" }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "#757575", fontFamily: "var(--font-poppins)" }}
+          >
             Browse sessions by month and filter by type.
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <CustomButton variant="outlined" color="primary" onClick={goPrev} width="auto" height="36px">
+          <CustomButton
+            variant="outlined"
+            color="primary"
+            onClick={goPrev}
+            width="auto"
+            height="36px"
+          >
             Prev
           </CustomButton>
-          <CustomButton variant="contained" color="primary" onClick={goNext} width="auto" height="36px">
+          <CustomButton
+            variant="contained"
+            color="primary"
+            onClick={goNext}
+            width="auto"
+            height="36px"
+          >
             Next
           </CustomButton>
         </Stack>
       </Box>
 
-      <Box sx={{ mb: 2, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#1E1E1E" }}>{monthLabel}</Typography>
+      {/* Month and Filters */}
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 1,
+        }}
+      >
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+        >
+          {monthLabel}
+        </Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {filterChips.map(({ key, label }) => (
             <Chip
               key={key}
               label={label}
-              size="small"
-              variant={filter === key ? "filled" : "outlined"}
-              color={filter === key ? "primary" : "default"}
+              size="medium"
               onClick={() => setFilter(key)}
+              sx={{
+                fontFamily: "var(--font-poppins)",
+                fontWeight: 700,
+                letterSpacing: 0.2,
+                borderRadius: "9999px",
+                px: 1.5,
+                height: 36,
+                transition: "all 0.15s ease-in-out",
+                ...(filter === key
+                  ? {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      borderColor: theme.palette.primary.main,
+                      boxShadow: "0 2px 6px rgba(98, 153, 208, 0.35)",
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.dark,
+                        borderColor: theme.palette.primary.dark,
+                      },
+                    }
+                  : {
+                      backgroundColor: "#fff",
+                      borderColor: theme.palette.primary.light,
+                      color: theme.palette.tertiary.dark,
+                      "&:hover": {
+                        backgroundColor: `${theme.palette.primary.light}60`,
+                        borderColor: theme.palette.primary.main,
+                      },
+                    }),
+              }}
+              variant={filter === key ? "filled" : "outlined"}
             />
           ))}
         </Stack>
@@ -123,27 +219,43 @@ export default function GymSchedule({ month, sessions }: Props) {
 
       <Divider sx={{ mb: 2 }} />
 
+      {/* Day groups */}
       <Stack spacing={2}>
         {byDay.length === 0 ? (
-          <Typography variant="body2" sx={{ color: "#6b7280" }}>No sessions for this month.</Typography>
+          <Typography variant="body2" sx={{ color: "#6b7280" }}>
+            No sessions for this month.
+          </Typography>
         ) : (
           byDay.map(([day, list], index) => (
             <React.Fragment key={day}>
-            {index !== 0 && <Divider sx={{ my: 3 }} />} {/* divider between days */}
-            <Box>
-              <Typography
-                variant="subtitle2"
-                sx={{ color: "#6299d0", fontWeight: 700, mb: 1 }}
+              {index !== 0 && <Divider sx={{ my: 3 }} />}{" "}
+              {/* divider between days */}
+              <Box
+                sx={{
+                  p: { xs: 2, md: 3 },
+                  borderRadius: "12px",
+                  border: `1px solid ${theme.palette.primary.light}`,
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+                  backgroundColor: "#fff",
+                }}
               >
-                {day}
-              </Typography>
-              <Stack spacing={1.5}>
-                {list.map((s) => (
-                  <GymSessionCard key={s.id} session={s} showSpots />
-                ))}
-              </Stack>
-            </Box>
-          </React.Fragment>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: theme.palette.primary.main,
+                    fontWeight: 700,
+                    mb: 1,
+                  }}
+                >
+                  {day}
+                </Typography>
+                <Stack spacing={1.5}>
+                  {list.map((s) => (
+                    <GymSessionCard key={s.id} session={s} showSpots />
+                  ))}
+                </Stack>
+              </Box>
+            </React.Fragment>
           ))
         )}
       </Stack>
