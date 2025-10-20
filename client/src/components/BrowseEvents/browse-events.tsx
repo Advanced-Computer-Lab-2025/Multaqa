@@ -30,7 +30,8 @@ import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  userID: string;
+  userInfo: any;
+  userID:string;
 }
 // Define the event type enum
 export enum EventType {
@@ -104,6 +105,7 @@ const filterGroups: FilterGroup[] = [
 const BrowseEvents: React.FC<BrowseEventsProps> = ({
   registered,
   user,
+  userInfo,
   userID,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -122,27 +124,38 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
 
-  // useEffect(() => {
-  //   if(!registered){
-  //   handleCallAPI2();
-  //   }
-  // }, []);
-
   useEffect(() => {
-    handleCallAPI();
-  }, [refresh]);
-  // Handle event deletion
-  async function handleCallAPI2() {
-    const res = await api.get(`/users/${userID}`);
-    const data = res.data.data;
-    const user = {
-      id: data._id,
-      name: `${data.firstName}  ${data.lastName}`,
-      email: data.email,
+    getUserData();
+  }, []);
+
+ 
+  useEffect(() => {
+    if(registered){
+      handleCallAPI();
+    }
+    else{
+      handleRegistered();
+    }
+}, [refresh]);
+
+  const getUserData = () =>{
+      const user = {
+      id: userInfo._id,
+      name: `${userInfo.firstName}  ${userInfo.lastName}`,
+      email: userInfo.email,
     };
     setUserInfo(user);
     setReady(true);
   }
+
+  const handleRegistered = () => {
+     const registeredEvents = userInfo.registeredEvents;
+     const result = frameData(registeredEvents);
+     console.log(registeredEvents);
+     setEvents(result);
+     console.log(registeredEvents);
+  };
+
 
   async function handleCallAPI() {
     try {
@@ -152,13 +165,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const result = frameData(data);
         setEvents(result);
         // console.log(data);
-      } else {
-        const res = await api.get(`/users/${userID}`);
-        const data2 = res.data.data.registeredEvents;
-        const result = frameData(data2);
-        setEvents(result);
-        // console.log(data2);
-      }
+      } 
     } catch (err) {
       console.error(err);
     }
