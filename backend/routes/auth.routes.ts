@@ -27,13 +27,14 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     }
 
     // Create user
-    const result = await authService.signup(value);
+    const { user, verificationtoken } = await authService.signup(value);
 
     // Send HTTP response
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: result
+      user: user,
+      verificationtoken: verificationtoken
     });
   } catch (error: any) {
     console.error('Registration error:', error.message);
@@ -63,9 +64,9 @@ async function verifyUser(req: Request, res: Response) {
     const token = req.query.token as string;
     await verificationService.verifyUser(token);
 
-    return res.redirect(`https://localhost:${process.env.FRONTEND_PORT}/login?verified=true`); // should be frontend URL
+    return res.redirect(`http://localhost:${process.env.FRONTEND_PORT}/login?verified=true`); 
   } catch (err) {
-    return res.redirect(`https://localhost:${process.env.FRONTEND_PORT}/login?verified=false`); // should be frontend URL
+    return res.redirect(`http://localhost:${process.env.FRONTEND_PORT}/login?verified=false`); 
   }
 }
 

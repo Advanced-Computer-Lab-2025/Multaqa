@@ -13,12 +13,10 @@ import { IVendor } from '../interfaces/models/vendor.interface';
 import { Vendor } from '../schemas/stakeholder-schemas/vendorSchema';
 import { StaffPosition } from '../constants/staffMember.constants';
 import createError from 'http-errors';
-import { sendVerification } from './emailService';
 import { VerificationService } from './verificationService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 import { IAdministration } from '../interfaces/models/administration.interface';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
-import { getNgrokUrl } from '../config/NgrokTunnel';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
@@ -34,11 +32,11 @@ export class AuthService {
     this.staffRepo = new GenericRepository<IStaffMember>(StaffMember);
     this.vendorRepo = new GenericRepository<IVendor>(Vendor);
     this.verificationService = new VerificationService();
-    this.adminRepo = new GenericRepository<IAdministration>(Administration); 
+    this.adminRepo = new GenericRepository<IAdministration>(Administration);
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<Omit<IUser, 'password'>> {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -62,6 +60,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(signupData.password, saltRounds);
 
     let createdUser = null;
+    let verificationtoken = "";
 
     // Determine role based on email domain and create user accordingly
     if (signupData.email.includes("@student.guc.edu.eg")) {
@@ -76,10 +75,7 @@ export class AuthService {
         }
       );
 
-      const token = this.verificationService.generateVerificationToken(createdUser);
-      const appUrl = await getNgrokUrl();
-      const link = `${appUrl}/auth/verify?token=${token}`;
-      await sendVerification(createdUser.email, link);
+      verificationtoken = this.verificationService.generateVerificationToken(createdUser);
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
@@ -111,7 +107,7 @@ export class AuthService {
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return userWithoutPassword as Omit<IUser, 'password'>;
+    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
   }
 
   // for all users
@@ -143,16 +139,16 @@ export class AuthService {
     // -------- Fetch extended info if needed in generating tokens --------
     let extendedUser: IUser = user;
 
-   if (user.role === UserRole.ADMINISTRATION) {
-  const admin = await this.adminRepo.findOne({ _id: user._id });
-  if (admin)
-    extendedUser = Object.assign(user.toObject({ virtuals: true }), { roleType: admin.roleType });
-}
-else if (user.role === UserRole.STAFF_MEMBER) {
-  const staff = await this.staffRepo.findOne({ _id: user._id });
-  if (staff)
-    extendedUser = Object.assign(user.toObject({ virtuals: true }), { position: staff.position });
-}
+    if (user.role === UserRole.ADMINISTRATION) {
+      const admin = await this.adminRepo.findOne({ _id: user._id });
+      if (admin)
+        extendedUser = Object.assign(user.toObject({ virtuals: true }), { roleType: admin.roleType });
+    }
+    else if (user.role === UserRole.STAFF_MEMBER) {
+      const staff = await this.staffRepo.findOne({ _id: user._id });
+      if (staff)
+        extendedUser = Object.assign(user.toObject({ virtuals: true }), { position: staff.position });
+    }
 
 
     // Generate JWT tokens

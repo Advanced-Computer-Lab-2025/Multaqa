@@ -9,6 +9,7 @@ import React, {
 import { api } from "@/api";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { MeResponse, UserResponse } from "../../../backend/interfaces/responses/authResponses.interface";
+import { sendVerificationEmail } from "@/utils/emailService";
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -45,8 +46,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!token) {
         setIsLoading(false);
         return;
-      } 
-      
+      }
+
       try {
         const response = await api.post<MeResponse>("/auth/me");
         if (response.data?.user) {
@@ -111,7 +112,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.post("/auth/signup", data);
       if (response.data?.success) {
         console.log("✅ Signed up successfully");
-      } else {
+
+        if (response.data.verificationtoken.length > 0) {
+          // Send verification email
+          const verifyLink = `http://localhost:4000/auth/verify?token=${response.data.verificationtoken}`;
+          await sendVerificationEmail(data.email, verifyLink);
+        }
+      }
+      else {
         throw new Error(response.data?.message || "Signup failed");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

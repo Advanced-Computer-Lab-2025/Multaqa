@@ -462,11 +462,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
                 <Typography variant="h6" color="text.secondary">
                   No events found matching your criteria
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                   Try adjusting your search or filters
                 </Typography>
               </Box>
