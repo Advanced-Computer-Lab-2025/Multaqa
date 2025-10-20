@@ -27,7 +27,7 @@ interface CreateWorkshopProps {
   creatingProfessor:string;
   open:boolean;
   onClose: () => void;
-  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+  setRefresh?:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefresh}: CreateWorkshopProps) => {
@@ -92,7 +92,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
         // TODO: Replace with your API route
         const res = await api.post("/workshops/"+creatingProfessor, payload);
         setResponse(res.data);
-        setRefresh((prev) => !prev);
+        // setRefresh((prev) => !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {

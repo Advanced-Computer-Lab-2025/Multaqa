@@ -14,6 +14,7 @@ import { color } from "storybook/internal/theming";
 import CreateWorkshop from "@/components/tempPages/CreateWorkshop/CreateWorkshop";
 import EditWorkshop from "@/components/tempPages/EditWorkshop/EditWorkshop";
 import { create } from "domain";
+import { V } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 
 const statusChip = (status: string) => {
   if (status === "pending")
@@ -34,7 +35,15 @@ interface WorkshopListProps {
 
 const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo }) => {
   const [workshops, setWorkshops] = useState<WorkshopViewProps[]>([]);
+  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
+  const [creation, setCreation] = useState(false);
   const [loading, setLoading] = useState(true);
+  const WorkshopSetter = [
+    setCreation
+   ];
+   const Workshop = [
+    { label: 'Workshop', icon: EventIcon},
+  ];
   console.log(workshops);
 
   useEffect(() => {
@@ -92,7 +101,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
           Here are all the workshops you have created. Thanks for your continuous effort!
         </Typography>
       </Box>
-
+      <CreateParent options={Workshop} setters={WorkshopSetter}/>
       <Stack spacing={2}>
         {
         workshops && workshops.length>0&&
@@ -137,10 +146,10 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
             location={item.details.Location}
             fundingSource={item.details["Funding Source"]} 
             creatingProfessor={item.details["Created By"]} 
-            extraResources={item.details["Extra Required Resources"]}
-            associatedProfs={rawWorkshops[index].associatedProfs}
-            onClose={(() => setEditingWorkshopId(null))} 
-            setRefresh={setRefresh}
+            // extraResources={item.details["Extra Required Resources"]}
+            // associatedProfs={rawWorkshops[index].associatedProfs}
+            onClose={(() => {setEditingWorkshopId(null); window.location.reload();})} 
+            // setRefresh={setRefresh}
           />
           </React.Fragment>
             ))}
@@ -158,7 +167,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
             </Box>
             }
       </Stack>
-      <CreateWorkshop professors={[]} creatingProfessor={userId} open={creation} onClose={()=>{setCreation(false)}} setRefresh={setRefresh}/>
+      <CreateWorkshop professors={[]} creatingProfessor={userId} open={creation} onClose={()=>{setCreation(false); window.location.reload();}}/>
     </Box>
   );
 };

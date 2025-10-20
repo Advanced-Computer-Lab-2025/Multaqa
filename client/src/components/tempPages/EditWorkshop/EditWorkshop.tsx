@@ -37,10 +37,10 @@ interface EditWorkshopProps {
   fundingSource?: string;
   extraResources?: string[];
   creatingProfessor:string;
-  associatedProfs:string[];
+  associatedProfs?:string[];
   open:boolean;
   onClose: () => void;
-  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+  setRefresh?:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const EditWorkshop = ({
@@ -77,7 +77,7 @@ const EditWorkshop = ({
   }, []);
 
   useEffect(() => {
-    if (availableProfessors.length > 0 && associatedProfs.length > 0) {
+    if (associatedProfs &&availableProfessors.length > 0 && associatedProfs.length > 0) {
       const matchingProfs = availableProfessors.filter(prof =>
         associatedProfs.includes(prof.value)
       );
@@ -131,7 +131,6 @@ const EditWorkshop = ({
         // TODO: Replace with your API route
         const res = await api.patch("/workshops/" + creatingProfessor + "/"+ workshopId, payload);
         setResponse(res.data);
-        setRefresh((prev)=> !prev)
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {

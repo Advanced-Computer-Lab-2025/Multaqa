@@ -42,7 +42,7 @@ const CreateParent: React.FC<CreateParentProps> = ({ options, setters}) => {
   };
 
   return (
-    <Box sx={{ position: 'relative', display: 'inline-block', zIndex: 100 }}>
+    <Box sx={{ position: 'relative', display: 'inline-block', zIndex: 100, mb:4 }}>
         <CustomButton
         onClick={handleButtonClick}
         width="180px"
