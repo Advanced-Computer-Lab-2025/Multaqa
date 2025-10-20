@@ -150,7 +150,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const res = await api.get("/events");
         const data = res.data.data;
         const result = frameData(data);
-        setEvents(result);
+        const newResults = user === "vendor"
+        ? result.filter((event) => event.type === "bazaar")
+        : result;
+        setEvents(newResults);
       }
     } catch (err) {
       console.error(err);

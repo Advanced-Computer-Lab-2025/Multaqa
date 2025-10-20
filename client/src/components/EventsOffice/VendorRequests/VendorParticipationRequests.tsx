@@ -31,10 +31,10 @@ type RawVendorRequest = {
 };
 
 const statusFilters: Array<{ key: StatusFilter; label: string }> = [
+  { key: "ALL", label: "All" },
   { key: "pending", label: "Pending" },
   { key: "approved", label: "Approved" },
   { key: "rejected", label: "Rejected" },
-  { key: "ALL", label: "All" },
 ];
 
 const typeFilters: Array<{ key: TypeFilter; label: string }> = [
@@ -148,6 +148,7 @@ export default function VendorParticipationRequests() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [responding, setResponding] = useState<Record<string, VendorRequestStatus | null>>({});
+  const [refresh, setRefresh] = useState(false);
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -179,7 +180,7 @@ export default function VendorParticipationRequests() {
 
   useEffect(() => {
     fetchRequests();
-  }, [fetchRequests]);
+  }, [fetchRequests, refresh]);
 
   const filteredRequests = useMemo(() => {
     return requests.filter((request) => {
@@ -312,6 +313,7 @@ export default function VendorParticipationRequests() {
                   onRespond={(status) => handleRespond(request, status)}
                   disabled={Boolean(responding[request.id])}
                   loadingStatus={responding[request.id] ?? null}
+                  setRefresh={setRefresh}
                 />
               ))}
             </Stack>

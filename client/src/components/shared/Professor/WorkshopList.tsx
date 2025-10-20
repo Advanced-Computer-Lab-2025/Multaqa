@@ -16,54 +16,54 @@ import EditWorkshop from "@/components/tempPages/EditWorkshop/EditWorkshop";
 import { create } from "domain";
 
 const statusChip = (status: string) => {
-  if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
-  if (status === "awaiting_review") return <Chip size="small" label="Awaiting Review" color="info" variant="outlined" />;
-  if (status === "rejected") return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
+  if (status === "pending")
+    return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
+  if (status === "awaiting_review")
+    return <Chip size="small" label="Awaiting Review" color="info" variant="outlined" />;
+  if (status === "rejected")
+    return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
+  if (status === "approved")
   return <Chip size="small" label="Accepted" color="success" variant="outlined" />;
 };
 
-const Workshop = [
-  { label: 'Workshop', icon: EventIcon},
-];
-
-
 interface WorkshopListProps {
   userId: string;
-  filter:string,
+  filter: string;
+  userInfo: any;
 }
 
-const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
-  const [workshops, setWorkshops] = useState<WorkshopViewProps[]>();
-  const[rawWorkshops, setRawWorkshops] = useState<any []>([]);
-  const [refresh, setRefresh] = useState(false);
-  const [creation, setCreation] = useState(false);
-  const [edit, setEdit] = useState(false);
-  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
+const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo }) => {
+  const [workshops, setWorkshops] = useState<WorkshopViewProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  console.log(workshops);
 
   useEffect(() => {
-    handleCallAPI()
-  }, [refresh]); 
-  // Handle event deletion
+    setLoading(true);
+    const data = userInfo.myWorkshops;
+    const result = frameData(data);
+    const filteredResults = result.filter((item) => filter === "none" || item.details["Status"] === filter)
+    setWorkshops(filteredResults);
+    setLoading(false);
+  }, [userInfo]);
 
-  const WorkshopSetter = [
-   setCreation
-  ];
-  
-  async function handleCallAPI (){
-    try{
-      const res = await api.get(`/users/${userId}`);
-      const data = res.data.data.myWorkshops;
-      const result = frameData(data);
-//       console.log(result);
-      setWorkshops(result);
-      setRawWorkshops(data)
-      }
-    catch(err){
-      console.error(err);
-    }
- 
-  };
+  // ✅ Conditional rendering based on loading state
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          height: "60vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "1.2rem",
+        }}
+      >
+        Loading...
+      </Box>
+    );
+  }
 
+  // ✅ Main content when not loading
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
@@ -73,31 +73,31 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
           gutterBottom
           sx={{
             mb: 2,
-            textAlign: 'left',
+            textAlign: "left",
             fontFamily: "var(--font-jost), system-ui, sans-serif",
-            color: theme.palette.tertiary.dark
+            color: theme.palette.tertiary.dark,
           }}
         >
           Your Workshops
         </Typography>
+
         <Typography
           variant="body2"
           sx={{
             color: "#757575",
             fontFamily: "var(--font-poppins)",
-            mb: 4
+            mb: 4,
           }}
         >
           Here are all the workshops you have created. Thanks for your continuous effort!
         </Typography>
       </Box>
-      <CreateParent options={Workshop} setters={WorkshopSetter}/>
-      <Stack spacing={2} mt={4}>
-      {workshops &&
-        workshops
-          .filter((item) => filter === "none" || item.details["Status"] === filter)
-          .map((item, index) => (
-            <React.Fragment key={item.id}>
+
+      <Stack spacing={2}>
+        {
+        workshops && workshops.length>0&&
+              workshops.map((item) => (
+             <React.Fragment key={item.id}>
             <WorkshopItemCard
               id={item.id}
               item={item}
@@ -143,7 +143,20 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
             setRefresh={setRefresh}
           />
           </React.Fragment>
-        ))}
+            ))}
+            {(!workshops || workshops.length==0)&&
+              <Box
+              sx={{
+                height: "60vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: "1.2rem",
+              }}
+            >
+              No Requests to view here!
+            </Box>
+            }
       </Stack>
       <CreateWorkshop professors={[]} creatingProfessor={userId} open={creation} onClose={()=>{setCreation(false)}} setRefresh={setRefresh}/>
     </Box>
