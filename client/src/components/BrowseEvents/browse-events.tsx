@@ -18,7 +18,7 @@ import {
 import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
-import { frameData } from "./utils";
+import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
@@ -114,14 +114,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
  
   useEffect(() => {
-    if(registered){
+    if(!registered){
       handleCallAPI();
     }
     else{
       handleRegistered();
     }
 }, [refresh]);
-
+//   window.location.reload();
   const getUserData = () =>{
       const user = {
       id: userInfo._id,
@@ -133,11 +133,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }
 
   const handleRegistered = () => {
+     setLoading(true);
+     console.log(userInfo);
      const registeredEvents = userInfo.registeredEvents;
      const result = frameData(registeredEvents);
-     console.log(registeredEvents);
+     console.log("regsiter events:" + registeredEvents[0]);
      setEvents(result);
-     console.log(registeredEvents);
+     setLoading(false);
   };
 
 
@@ -150,7 +152,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const data = res.data.data;
         const result = frameData(data);
         setEvents(result);
-        // console.log(data);
       } 
     } catch (err) {
       console.error(err);
@@ -160,10 +161,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
   }
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents((prevEvents) =>
-      prevEvents.filter((event) => event.id !== eventId)
-    );
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteEvent(eventId);
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== eventId)
+      );
+    } catch (error: any) {
+      window.alert(error.response.data.error);
+    }
   };
 
   // Filter and search logic

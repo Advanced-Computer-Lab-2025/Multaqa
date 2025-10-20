@@ -5,7 +5,6 @@ import { Box, Typography, Stack, Chip } from "@mui/material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import theme from "@/themes/lightTheme";
 import WorkshopItemCard from "./WorkshopItemCard";
-import { EventType } from "../BrowseEvents/browse-events";
 import { api } from "@/api";
 import { frameData } from "../BrowseEvents/utils";
 import { WorkshopViewProps } from "../Event/types";
@@ -68,7 +67,7 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
             key={item.id}
             item={item}
             rightSlot={
-              evaluate ? (
+              evaluate && item.details["Status"]==="pending" ? (
                 <CustomButton
                   size="small"
                   variant="contained"
