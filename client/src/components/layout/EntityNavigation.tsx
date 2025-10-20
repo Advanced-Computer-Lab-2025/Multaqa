@@ -561,8 +561,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "75vh",
-              maxHeight: "75vh",
+              minHeight: "83vh",
+              maxHeight: "83vh",
             }}
           >
             {children}
