@@ -54,7 +54,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
       const res = await api.get(`/users/${userId}`);
       const data = res.data.data.myWorkshops;
       const result = frameData(data);
-      console.log(data)
+//       console.log(result);
       setWorkshops(result);
       setRawWorkshops(data)
       }
@@ -151,4 +151,3 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
 };
 
 export default WorkshopList;
-

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Poppins, Jost } from "next/font/google";
 import "./globals.css";
-
+import { getLocale } from "next-intl/server";
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import theme from "../themes/lightTheme"; 
+import theme from "../themes/lightTheme";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -30,11 +30,13 @@ export const metadata: Metadata = {
   // ... keep the rest of your metadata unchanged
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${poppins.variable} ${jost.variable} antialiased font-sans`}
       >

@@ -5,11 +5,13 @@ import BazarForm from "../../../components/shared/BazarApplicationForm/BazarAppl
 interface BazarFormModalWrapperProps {
   isOpen: boolean;
   onClose: () => void;
+  bazarId: string;
 }
 
 const BazarFormModalWrapper: React.FC<BazarFormModalWrapperProps> = ({
   isOpen,
   onClose,
+  bazarId
 }) => {
   const modalWidthClass = "w-[60vw] md:w-[50vw] lg:w-[45vw] xl:w-[40vw]";
   return (
@@ -19,7 +21,7 @@ const BazarFormModalWrapper: React.FC<BazarFormModalWrapperProps> = ({
       width={modalWidthClass}
       borderColor="theme.palette.primary.main"
     >
-      <BazarForm />
+      <BazarForm eventId={bazarId} />
     </CustomModalLayout>
   );
 };

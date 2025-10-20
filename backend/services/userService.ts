@@ -10,7 +10,6 @@ import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
-import { sendVerification } from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -100,44 +99,6 @@ export class UserService {
     await user.save();
   }
 
-  async assignRoleAndSendVerification(
-    userId: string,
-    position: string
-  ): Promise<Omit<IStaffMember, "password">> {
-    // Find user by ID
-    const user = await this.staffMemberRepo.findById(userId);
-    if (!user) {
-      throw createError(404, "User not found or not a staff member");
-    }
-
-    // Check if user is already verified
-    if (user.isVerified) {
-      throw createError(400, "User is already verified");
-    }
-
-    // Check if position is valid
-    if (position !== "professor" && position !== "TA" && position !== "staff") {
-      throw createError(400, "Invalid position");
-    }
-
-    // Update user position
-    user.position = position as StaffPosition;
-    user.updatedAt = new Date();
-    await user.save();
-
-    // Generate verification token and send email
-    const token = this.verificationService.generateVerificationToken(user);
-    const link = `http://localhost:${process.env.BACKEND_PORT}/auth/verify?token=${token}`; // should be frontend URL
-    await sendVerification(user.email, link);
-
-    // Remove password from response
-    const { password, ...userWithoutPassword } = user.toObject
-      ? user.toObject()
-      : user;
-
-    return userWithoutPassword as Omit<IStaffMember, "password">;
-  }
-
   async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.UNKNOWN,
@@ -163,6 +124,42 @@ export class UserService {
 
     // Convert Mongoose documents to plain objects
     return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async assignRoleAndSendVerification(
+    userId: string,
+    position: string
+  ): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
+    // Find user by ID
+    const user = await this.staffMemberRepo.findById(userId);
+    if (!user) {
+      throw createError(404, "User not found or not a staff member");
+    }
+
+    // Check if user is already verified
+    if (user.isVerified) {
+      throw createError(400, "User is already verified");
+    }
+
+    // Check if position is valid
+    if (position !== "professor" && position !== "TA" && position !== "staff") {
+      throw createError(400, "Invalid position");
+    }
+
+    // Update user position
+    user.position = position as StaffPosition;
+    user.updatedAt = new Date();
+    await user.save();
+
+    // Generate verification token
+    const verificationtoken = this.verificationService.generateVerificationToken(user);
+
+    // Remove password from response
+    const { password, ...userWithoutPassword } = user.toObject
+      ? user.toObject()
+      : user;
+
+    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {

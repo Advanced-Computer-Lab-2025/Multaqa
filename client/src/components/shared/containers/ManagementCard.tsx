@@ -22,6 +22,7 @@ const ManagementCard: React.FC<Omit<ManagementCardProps, "id">> = ({
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        minHeight: "200px",
         "&:hover": {
           borderColor: hoverBorderColor,
           boxShadow: hoverBoxShadow,
@@ -35,9 +36,10 @@ const ManagementCard: React.FC<Omit<ManagementCardProps, "id">> = ({
           alignItems: "flex-start",
           mb: 2,
           flexGrow: 1,
+          gap: 2,
         }}
       >
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
             variant="body1"
             sx={{
@@ -46,6 +48,8 @@ const ManagementCard: React.FC<Omit<ManagementCardProps, "id">> = ({
               color: "#1E1E1E",
               fontSize: "16px",
               mb: 0.5,
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           >
             {name}
@@ -56,19 +60,24 @@ const ManagementCard: React.FC<Omit<ManagementCardProps, "id">> = ({
               color: "#666",
               fontSize: "14px",
               mb: 1,
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           >
             {email}
           </Typography>
-          {details}
+          <Box sx={{ wordBreak: "break-word", overflowWrap: "break-word" }}>
+            {details}
+          </Box>
         </Box>
-        {statusComponent}
+        <Box sx={{ flexShrink: 0 }}>{statusComponent}</Box>
       </Box>
       <Box
         sx={{
           display: "flex",
           alignItems: "flex-end",
           justifyContent: "flex-end",
+          mt: "auto",
         }}
       >
         {actions}

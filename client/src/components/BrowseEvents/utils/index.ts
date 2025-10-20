@@ -1,4 +1,6 @@
-import { EventType } from "../browse-events";
+import { api } from "@/api";
+import { EventType } from "../types";
+
 
 export const frameData = (data: any) => {
   const res: any[] = [];
@@ -11,7 +13,7 @@ export const frameData = (data: any) => {
   return res;
 };
 
-const flattenName = (profs:{ firstName: string; lastName: string }[])=>{
+const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
 const flattenId = (profs:{ id: string }[])=>{
@@ -22,9 +24,9 @@ const flattenId = (profs:{ id: string }[])=>{
 
 function transformEvent(event: any) {
   const id = event._id?.$oid || event._id || "";
-  const registrationDeadline= event.registrationDeadline;
-  const startDate= event.eventStartDate;
-  const endDate =  event.eventEndDate;
+  const registrationDeadline = event.registrationDeadline;
+  const startDate = event.eventStartDate;
+  const endDate = event.eventEndDate;
   // console.log("look here")
   // console.log(event.createdBy)
 
@@ -38,7 +40,7 @@ function transformEvent(event: any) {
         details: {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
-          "End Date":endDate,
+          "End Date": endDate,
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Location: event.location,
@@ -55,49 +57,48 @@ function transformEvent(event: any) {
         name: event.eventName,
         description: event.description,
         agenda: event.fullAgenda,
-        professors:flattenName(event.associatedProfs),
-        professorsId:flattenId(event.associatedProfs),
+        professors: flattenName(event.associatedProfs),
         details: {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
-          "End Date":endDate,
+          "End Date": endDate,
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           "Created By": event.createdBy,
           "Faculty Responsible": event.associatedFaculty,
           "Extra Required Resources": event.extraRequiredResources,
-          "Funding Source":event.fundingSource,
-          "Required Budget":event.requiredBudget,
+          "Funding Source": event.fundingSource,
+          "Required Budget": event.requiredBudget,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": (event.capacity - event.attendees.length),
-          "Status":event.approvalStatus,
+          "Status": event.approvalStatus,
         },
       };
 
     // You can add more cases:
     case "conference":
-      return{
+      return {
         id,
         type: EventType.CONFERENCE,
         name: event.eventName,
         description:
-         event.description,
+          event.description,
         agenda: event.fullAgenda,
         details: {
           "Start Date": startDate,
-          "End Date":endDate,
+          "End Date": endDate,
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           "Extra Required Resources": event.extraRequiredResources,
-          "Funding Source":event.fundingSource,
-          "Required Budget":event.requiredBudget,
-           Location: event.location,
-           "Link": event.websiteLink,
-      }
-    };
+          "Funding Source": event.fundingSource,
+          "Required Budget": event.requiredBudget,
+          Location: event.location,
+          "Link": event.websiteLink,
+        }
+      };
     case "bazaar":
-      return{
+      return {
         id,
         type: EventType.BAZAAR,
         name: event.eventName,
@@ -107,14 +108,14 @@ function transformEvent(event: any) {
         details: {
           "Registration Deadline": registrationDeadline,
           "Start Date": startDate,
-          "End Date":endDate,
+          "End Date": endDate,
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Time: `${event.eventStartTime} - ${event.eventEndTime}`,
           Location: event.location,
           "Vendor Count": event.vendors.length,
-      }
-    };
+        }
+      };
     case "platform_booth":
       return {
         id,
@@ -124,8 +125,8 @@ function transformEvent(event: any) {
         details: {
           "Setup Duration": event.RequestData.boothSetupDuration,
           Location: event.RequestData.boothLocation,
-          "Booth Size":  event.RequestData.boothSize,
-          Description:event.description,
+          "Booth Size": event.RequestData.boothSize,
+          Description: event.description,
         },
       };
 
@@ -139,3 +140,14 @@ function transformEvent(event: any) {
       };
   }
 }
+
+export const deleteEvent = async (eventId: string) => {
+  try {
+    const response = await api.delete(`/events/${eventId}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

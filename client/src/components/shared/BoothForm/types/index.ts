@@ -1,12 +1,11 @@
-
 interface AttendeeInfo {
   name: string;
   email: string;
 }
 
 export interface BoothFormValues {
-  attendees: AttendeeInfo[];
-  boothDuration: string;
+  boothAttendees: AttendeeInfo[];
+  boothSetupDuration: number;
   boothSize: string;
-  selectedBoothId: number | null;
+  boothLocation: string;
 }
