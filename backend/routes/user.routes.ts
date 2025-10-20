@@ -14,7 +14,7 @@ import {
   GetAllUnAssignedStaffMembersResponse,
   GetAllProfessorsResponse,
   GetAllTAsResponse,
-  GetAllStaffResponse
+  GetAllStaffResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
@@ -91,18 +91,18 @@ async function registerForEvent(
 async function blockUser(req: Request, res: Response<BlockUserResponse>) {
   try {
     const userId = req.params.id;
-    console.log('🔒 Blocking user:', userId);
+    console.log("🔒 Blocking user:", userId);
 
     await userService.blockUser(userId);
 
-    console.log('✅ User blocked successfully');
+    console.log("✅ User blocked successfully");
 
     res.json({
       success: true,
       message: "User blocked successfully",
     });
   } catch (err: any) {
-    console.error('❌ Failed to block user:', err.message);
+    console.error("❌ Failed to block user:", err.message);
     throw createError(500, err.message);
   }
 }
@@ -110,11 +110,11 @@ async function blockUser(req: Request, res: Response<BlockUserResponse>) {
 async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
   try {
     const userId = req.params.id;
-    console.log('🔓 Unblocking user:', userId);
+    console.log("🔓 Unblocking user:", userId);
 
     await userService.unBlockUser(userId);
 
-    console.log('✅ User unblocked successfully');
+    console.log("✅ User unblocked successfully");
 
     res.json({
       success: true,
@@ -125,16 +125,18 @@ async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
   }
 }
 
-async function getAllUnAssignedStaffMembers(req: Request, res: Response<GetAllUnAssignedStaffMembersResponse>) {
+async function getAllUnAssignedStaffMembers(
+  req: Request,
+  res: Response<GetAllUnAssignedStaffMembersResponse>
+) {
   try {
     const staffMembers = await userService.getAllUnAssignedStaffMembers();
     return res.json({
       success: true,
       data: staffMembers,
-      message: "Unassigned staff members retrieved successfully"
+      message: "Unassigned staff members retrieved successfully",
     });
-  }
-  catch (err: any) {
+  } catch (err: any) {
     throw createError(500, err.message);
   }
 }
@@ -145,10 +147,9 @@ async function getAllTAs(req: Request, res: Response<GetAllTAsResponse>) {
     return res.json({
       success: true,
       data: staffMembers,
-      message: "TAs retrieved successfully"
+      message: "TAs retrieved successfully",
     });
-  }
-  catch (err: any) {
+  } catch (err: any) {
     throw createError(500, err.message);
   }
 }
@@ -159,14 +160,12 @@ async function getAllStaff(req: Request, res: Response<GetAllStaffResponse>) {
     return res.json({
       success: true,
       data: staffMembers,
-      message: "Staff retrieved successfully"
+      message: "Staff retrieved successfully",
     });
-  }
-  catch (err: any) {
+  } catch (err: any) {
     throw createError(500, err.message);
   }
 }
-
 
 // Assign role to staffMember and send verification email
 async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
@@ -174,16 +173,14 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
     const { userId } = req.params;
     const { position } = req.body;
 
-    const { user, verificationtoken } = await userService.assignRoleAndSendVerification(
-      userId,
-      position
-    );
+    const { user, verificationtoken } =
+      await userService.assignRoleAndSendVerification(userId, position);
 
     res.json({
       success: true,
       message: "Role assigned and verification email sent successfully",
       user: user,
-      verificationToken: verificationtoken
+      verificationToken: verificationtoken,
     });
   } catch (error: any) {
     throw createError(
@@ -193,7 +190,10 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
   }
 }
 
-async function getAllProfessors(req: Request, res: Response<GetAllProfessorsResponse>) {
+async function getAllProfessors(
+  req: Request,
+  res: Response<GetAllProfessorsResponse>
+) {
   try {
     const professors = await userService.getAllProfessors();
     if (!professors || professors.length === 0) {
@@ -212,17 +212,91 @@ async function getAllProfessors(req: Request, res: Response<GetAllProfessorsResp
   }
 }
 
-
 const router = Router();
-router.get("/unassigned-staff", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllUnAssignedStaffMembers);
-router.get("/tas", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllTAs);
-router.get("/professors", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllProfessors);
-router.get("/staff", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllStaff);
-router.get("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getAllUsers);
-router.post("/:id/block", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), blockUser);
-router.post("/:id/unblock", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), unBlockUser);
-router.post("/:id/register/:eventId", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.TA, StaffPosition.STAFF] }), registerForEvent);
-router.post('/:userId/assign-role', authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), assignRole);
-router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }), getUserById);
+router.get(
+  "/unassigned-staff",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllUnAssignedStaffMembers
+);
+router.get(
+  "/tas",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllTAs
+);
+router.get(
+  "/professors",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER],
+    adminRoles: [AdministrationRoleType.ADMIN],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  getAllProfessors
+);
+router.get(
+  "/staff",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllStaff
+);
+router.get(
+  "/",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllUsers
+);
+router.post(
+  "/:id/block",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  blockUser
+);
+router.post(
+  "/:id/unblock",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  unBlockUser
+);
+router.post(
+  "/:id/register/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  registerForEvent
+);
+router.post(
+  "/:userId/assign-role",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  assignRole
+);
+router.get(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getUserById
+);
 
 export default router;
