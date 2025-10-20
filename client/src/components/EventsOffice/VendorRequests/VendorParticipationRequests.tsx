@@ -99,13 +99,65 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const boothSize = requestData?.boothSize as string | undefined;
   const boothLocation = requestData?.boothLocation as string | undefined;
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
-  const attendeesRaw = Array.isArray(requestData?.bazaarAttendees)
-    ? requestData.bazaarAttendees
-    : [];
-  const attendees = attendeesRaw.map((att: any) => ({
-    name: att?.name ?? undefined,
-    email: att?.email ?? undefined,
-  }));
+  // Normalize attendees from multiple possible shapes/fields
+  const collectArrays = (...candidates: unknown[]) =>
+    candidates.filter(Array.isArray) as any[][
+      ];
+
+  const candidateArrays = collectArrays(
+    (requestData as any)?.bazaarAttendees,
+    (requestData as any)?.boothAttendees,
+    (requestData as any)?.attendees,
+    (requestData as any)?.value?.bazaarAttendees,
+    (requestData as any)?.value?.boothAttendees,
+    (requestData as any)?.value?.attendees,
+    (eventRaw as any)?.RequestData?.boothAttendees,
+    (eventRaw as any)?.RequestData?.attendees,
+    (eventRaw as any)?.attendees,
+    (entry as any)?.attendees
+  );
+
+  const flattened = candidateArrays.flat();
+
+  const parseContact = (val: any) => {
+    if (typeof val === "string") {
+      const str = val.trim();
+      // Basic email detection in string
+      if (str.includes("@")) {
+        return { name: undefined, email: str };
+      }
+      return { name: str || undefined, email: undefined };
+    }
+    if (val && typeof val === "object") {
+      const firstName = (val.firstName as string | undefined) ?? undefined;
+      const lastName = (val.lastName as string | undefined) ?? undefined;
+      const composed = [firstName, lastName].filter(Boolean).join(" ");
+      const name = (val.name as string | undefined) ?? (composed || undefined);
+      const email =
+        (val.email as string | undefined) ??
+        (val.mail as string | undefined) ??
+        (val.contactEmail as string | undefined) ??
+        undefined;
+      if (name || email) return { name, email };
+    }
+    return undefined;
+  };
+
+  const deduped: { name?: string; email?: string }[] = [];
+  const seen = new Set<string>();
+  for (const item of flattened) {
+    const contact = parseContact(item);
+    if (!contact) continue;
+    const key = contact.email
+      ? `e:${contact.email.toLowerCase()}`
+      : contact.name
+      ? `n:${contact.name.toLowerCase()}`
+      : null;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(contact);
+  }
+  const attendees = deduped;
   const status = normalizeStatus(requestData?.status);
   const submittedAt = ensureString(requestData?.submittedAt ?? requestData?.createdAt);
   const notes =
