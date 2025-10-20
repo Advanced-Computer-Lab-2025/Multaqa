@@ -372,6 +372,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             icon
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            storageKey="browseEventsSearchHistory"
+            autoSaveDelay={2000}
           />
         </Box>
         <FilterPanel
@@ -399,7 +401,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Error State */}
       {error && (
-        <ErrorState 
+        <ErrorState
           title={error}
           description="Make sure your backend server is running on the correct port"
           imageAlt="Server error illustration"
