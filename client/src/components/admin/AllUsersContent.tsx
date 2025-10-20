@@ -284,6 +284,7 @@ export default function AllUsersContent() {
               />
 
               <CustomSelectField
+                name="userRole"
                 label="User Role"
                 fieldType="single"
                 options={userRoleOptions}
