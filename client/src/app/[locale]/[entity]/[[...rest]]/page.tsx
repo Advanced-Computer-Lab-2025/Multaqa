@@ -246,6 +246,7 @@ export default function EntityCatchAllPage() {
 
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
+     
       if (section === "available") {
         // Interpreting "Available Opportunities" as upcoming accepted participation view for consistency
         return <VendorUpcomingParticipation />;
@@ -258,6 +259,10 @@ export default function EntityCatchAllPage() {
       if (section === "apply-booth") {
         return <BoothForm />;
       }
+
+      if (section === "bazaars") {
+        return <BrowseEventsContent registered={false} user={"vendor"} userInfo={user} userID={userId}/>
+       }
     }
 
     // Courts booking page for stakeholders
@@ -490,19 +495,19 @@ export default function EntityCatchAllPage() {
 
     if (entity === "professor" && tab === "workshops") {
       if (section === "my-workshops") {
-        return <WorkshopList userId={userId} filter={"none"} />;
+        return <WorkshopList userId={userId} filter={"none"}  userInfo={user}  />;
       }
       if (section === "my-accepted-workshops") {
-        return <WorkshopList userId={userId} filter={"approved"} />;
+        return <WorkshopList userId={userId} filter={"approved"}  userInfo={user}  />;
       }
       if (section === "my-rejected-workshops") {
-        return <WorkshopList userId={userId} filter={"rejected"} />;
+        return <WorkshopList userId={userId} filter={"rejected"}  userInfo={user}  />;
       }
       if (section === "my-under-workshops") {
-        return <WorkshopList userId={userId} filter={"awaiting_review"} />;
+        return <WorkshopList userId={userId} filter={"awaiting_review"}  userInfo={user}  />;
       }
       if (section === "my-pending-workshops") {
-        return <WorkshopList userId={userId} filter={"pending"} />;
+        return <WorkshopList userId={userId} filter={"pending"}  userInfo={user}  />;
       }
     }
     // Default placeholder content

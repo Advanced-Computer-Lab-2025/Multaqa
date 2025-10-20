@@ -34,7 +34,7 @@ export interface AssignRoleResponse {
   success: boolean;
   message: string;
   user: Omit<IStaffMember, "password">;
-  verificationtoken: string;
+  verificationToken: string;
 }
 
 export interface GetAllUnAssignedStaffMembersResponse {

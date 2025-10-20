@@ -21,17 +21,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
   const { signup } = useAuth();
 
-  const handleRegistration = async (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any
-  ): Promise<SignupResponse> => {
-    try {
-      const result = await signup(data);
-      return result as unknown as SignupResponse;
-    } catch (error) {
-      throw error;
-    }
-  };
+ const handleRegistration = async (data: any) => {
+  const result = await signup(data);
+  return result as unknown as SignupResponse;
+};
+
 
   const initialValues =
     UserType !== "vendor"
@@ -77,8 +71,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                 } as any);
 
           const response = await handleRegistration(signupData);
-
-          if (response && response.success) {
+          
             resetForm();
 
             toast.success(
@@ -96,26 +89,25 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             );
 
 
-          }
-        } catch (err) {
-          // Show error toast with custom config
-          console.error("Registration error:", err);
-          toast.error(
-            err instanceof Error
-              ? err.message
-              : "Registration failed. Please try again.",
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-            }
-          );
-        } finally {
+          
+        }catch (error: any) {
+          const message =
+            error?.response?.data?.error ||
+            error?.message ||
+            "Something went wrong. Please try again.";
+
+          toast.error(message, {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
+        }
+          finally {
           setSubmitting(false);
         }
       }}
