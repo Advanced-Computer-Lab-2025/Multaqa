@@ -76,33 +76,46 @@ export class WorkshopService {
     }
 
     // Check if workshop is already approved or rejected - these are irreversible
-    console.log(
-      "condition:",
-      workshop.approvalStatus == Event_Request_Status.APPROVED
-    );
-
     if (
-      workshop.approvalStatus == Event_Request_Status.APPROVED ||
-      workshop.approvalStatus == Event_Request_Status.REJECTED
+      workshop.approvalStatus === Event_Request_Status.APPROVED ||
+      workshop.approvalStatus === Event_Request_Status.REJECTED
     ) {
       throw createError(
-        403,
+        409,
         "Cannot update workshop status - already finalized (approved/rejected)"
       );
     }
 
-    const hasComments = Array.isArray(comments) && comments.length > 0;
+    // Determine final status and comments based on the incoming approvalStatus:
+    let finalStatus: Event_Request_Status;
+    let finalComments: any[];
 
-    // Determine final status:
-    // - If there are comments, status becomes AWAITING_REVIEW (requesting edits)
-    // - Otherwise, use the provided status (approved/rejected/pending)
-    const finalStatus = hasComments
-      ? Event_Request_Status.AWAITING_REVIEW
-      : approvalStatus || Event_Request_Status.PENDING;
+    if (
+      approvalStatus === Event_Request_Status.APPROVED ||
+      approvalStatus === Event_Request_Status.REJECTED
+    ) {
+      // APPROVED or REJECTED = final decision
+      // Ignore any comments in payload and clear all previous comments
+      finalStatus = approvalStatus;
+      finalComments = [];
+    } else {
+      // For PENDING or AWAITING_REVIEW or no status:
+      const hasComments = Array.isArray(comments) && comments.length > 0;
+
+      if (hasComments) {
+        // If comments are provided, status becomes AWAITING_REVIEW (requesting edits)
+        finalStatus = Event_Request_Status.AWAITING_REVIEW;
+        finalComments = comments;
+      } else {
+        // No comments = default to PENDING
+        finalStatus = Event_Request_Status.PENDING;
+        finalComments = [];
+      }
+    }
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, {
       approvalStatus: finalStatus,
-      comments: comments || [],
+      comments: finalComments,
     });
 
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
