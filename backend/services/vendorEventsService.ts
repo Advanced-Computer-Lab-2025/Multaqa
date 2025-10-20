@@ -127,13 +127,13 @@ export class VendorEventsService {
       throw createError(400, "Event is not a bazaar");
     }
 
-    const applied = event.vendors?.some(
-    (v: any) => v.vendor.toString() === vendorId
-  );
+    const applied =
+      Array.isArray(event.vendors) &&
+      event.vendors.some((v: any) => v.vendor.toString() === vendorId);
 
-  if (applied) {
-    throw createError(400, "Vendor has already applied for this bazaar");
-  }
+    if (applied) {
+      throw createError(400, "Vendor has already applied for this bazaar");
+    }
 
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
@@ -162,18 +162,20 @@ export class VendorEventsService {
   }
 
   async getVendorsRequest(): Promise<VendorRequest[]> {
-    const events = await this.eventRepo.findAll({}, {
-      populate: [
-        { path: "vendor", select: "companyName logo" },
-        { path: "vendors.vendor", select: "companyName logo" },
-      ] as any[],
-    });
+    const events = await this.eventRepo.findAll(
+      {},
+      {
+        populate: [
+          { path: "vendor", select: "companyName logo" },
+          { path: "vendors.vendor", select: "companyName logo" },
+        ] as any[],
+      }
+    );
 
-   
     let vendors: any[] = [];
-   
-  for (const event of events) {
-    const eventDetails = {
+
+    for (const event of events) {
+      const eventDetails = {
         _id: event._id,
         name: event.eventName,
         type: event.type,
@@ -181,31 +183,27 @@ export class VendorEventsService {
         endDate: event.eventEndDate,
         location: event.location,
       };
-    if (event.type === EVENT_TYPES.BAZAAR) {
-      for (const vendorEntry of event.vendors || []) {
-       
+      if (event.type === EVENT_TYPES.BAZAAR) {
+        for (const vendorEntry of event.vendors || []) {
           vendors.push({
             vendor: vendorEntry.vendor,
             RequestData: vendorEntry.RequestData,
-            event: eventDetails, 
+            event: eventDetails,
           });
-        
-      }
-    } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
-     
+        }
+      } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
         vendors.push({
           vendor: event.vendor,
           RequestData: event.RequestData,
-          event: eventDetails, 
+          event: eventDetails,
         });
-      
+      }
     }
-  }
 
     if (!vendors || vendors.length === 0) {
       throw createError(404, "No pending vendor requests found");
     }
-   
+
     return vendors;
   }
 
