@@ -332,6 +332,7 @@ export default function EntityCatchAllPage() {
             registered={false}
             user="events-only"
             userID={userId}
+            userInfo={user} 
           />
         );
       }
@@ -460,8 +461,7 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={false}
             user={entity}
-            userID={userId}
-          />
+            userID={userId} userInfo={user}  />
         );
       }
       if (section === "all-events") {
@@ -470,6 +470,7 @@ export default function EntityCatchAllPage() {
             registered={false}
             user={entity}
             userID={userId}
+            userInfo={user} 
           />
         );
       }
@@ -481,6 +482,7 @@ export default function EntityCatchAllPage() {
             registered={true}
             user="student"
             userID={userId}
+            userInfo={user} 
           />
         );
       }

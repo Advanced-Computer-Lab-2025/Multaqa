@@ -454,10 +454,10 @@ export default function EntityNavigation({
   const tab = segments[1] || "";
   const section = segments[2] || "";
 
-  console.log("EntityNavigation segments:", segments);
+  // console.log("EntityNavigation segments:", segments);
   // console.log("EntityNavigation entity:", entity);
-  console.log("EntityNavigation tab:", tab);
-  console.log("EntityNavigation section:", section);
+  // console.log("EntityNavigation tab:", tab);
+  // console.log("EntityNavigation section:", section);
 
   // Get role key from backend user
   const userRoleKeyUnformated = getUserRoleKey(user);
@@ -478,20 +478,20 @@ export default function EntityNavigation({
   const currentTab = tabItems.find((t) => t.key === tab);
   const sectionItems = useMemo(() => currentTab?.sections || [], [currentTab]);
 
-  // Debug logging
-  console.log("EntityNavigation state:", {
-    pathname,
-    // entity,
-    tab,
-    section,
-    userRoleKey,
-    currentTab: currentTab?.key,
-    sectionItemsCount: sectionItems.length,
-    sectionIds: sectionItems.map((s) => s.id),
-    tabKeys,
-    activeTabIndex,
-    tabFromIndex: tabKeys[activeTabIndex],
-  });
+  // // Debug logging
+  // console.log("EntityNavigation state:", {
+  //   pathname,
+  //   // entity,
+  //   tab,
+  //   section,
+  //   userRoleKey,
+  //   currentTab: currentTab?.key,
+  //   sectionItemsCount: sectionItems.length,
+  //   sectionIds: sectionItems.map((s) => s.id),
+  //   tabKeys,
+  //   activeTabIndex,
+  //   tabFromIndex: tabKeys[activeTabIndex],
+  // });
 
   // Navigation paths don't need locale either
   const handleTabChange = (index: number) => {
