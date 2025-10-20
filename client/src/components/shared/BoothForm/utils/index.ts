@@ -64,9 +64,7 @@ export const submitBoothForm = async (
   } catch (err) {
     console.error("Booth submission error:", err);
     toast.error(
-      err instanceof Error
-        ? err.message
-        : "Submission failed. Please try again.",
+      err.response?.data?.error || "Submission failed. Please try again.",
       {
         position: "bottom-right",
         autoClose: 5000,

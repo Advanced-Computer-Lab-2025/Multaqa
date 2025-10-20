@@ -23,7 +23,7 @@ export const submitBazarForm = async (
     setSubmitting,
     resetForm,
   }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
-  vendorId: string ,
+  vendorId: string,
   eventId: string
 ) => {
   try {
@@ -36,29 +36,23 @@ export const submitBazarForm = async (
       `/vendorEvents/${vendorId}/${eventId}/bazaar`,
       bazarData
     );
-    const result =  response.data;
-    if (response.status === 200 && result.success) {
-      resetForm();
-      toast.success("Bazar application submitted successfully!", {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-    } else {
-      // Show error toast
-      throw new Error(result.message || "Failed to submit bazar application.");
-    }
+    const result = response.data;
+    resetForm();
+    toast.success("Bazar application submitted successfully!", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
   } catch (err) {
     console.error("Bazar submission error:", err);
     toast.error(
-      err instanceof Error
-        ? err.message
-        : "Submission failed. Please try again.",
+      err.response?.data?.error || "Submission failed. Please try again.",
+
       {
         position: "bottom-right",
         autoClose: 5000,
