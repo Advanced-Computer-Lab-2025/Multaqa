@@ -12,7 +12,7 @@ export default function ClientProviders({
   const pathname = usePathname();
 
   // Define all public (unprotected) routes
-  const publicRoutes = ["/", "/login", "/register"];
+  const publicRoutes = ["/", "/login", "/register", "/test-events"];
 
   // Handle localized paths like /en/login or /ar/register
   const isPublic = publicRoutes.some((route) => {

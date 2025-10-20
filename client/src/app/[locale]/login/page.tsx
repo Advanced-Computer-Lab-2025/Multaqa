@@ -3,6 +3,8 @@
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CustomSearchBar from "@/components/shared/Searchbar/CustomSearchBar";
+
 export default function LoginPage() {
   return (
     <>
@@ -11,8 +13,9 @@ export default function LoginPage() {
         style={{ transform: "scale(0.8)" }}
       >
         <LoginForm />
+        {/* <CustomSearchBar icon /> */}
       </div>
-      <ToastContainer />
+      <ToastContainer aria-label={undefined} />
     </>
   );
 }
