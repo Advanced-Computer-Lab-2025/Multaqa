@@ -28,7 +28,8 @@ import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
 // import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
-import EmptyState from "../shared/EmptyState/EmptyState";
+import EmptyState from "../shared/states/EmptyState";
+import ErrorState from "../shared/states/ErrorState";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -398,14 +399,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Error State */}
       {error && (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h6" color="error">
-            {error}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Make sure your backend server is running on the correct port
-          </Typography>
-        </Box>
+        <ErrorState 
+          title={error}
+          description="Make sure your backend server is running on the correct port"
+          imageAlt="Server error illustration"
+        />
       )}
 
       {/* Events Grid */}
