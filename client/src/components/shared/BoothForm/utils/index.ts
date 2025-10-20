@@ -20,10 +20,7 @@ export const validationSchema = Yup.object({
 });
 
 export const submitBoothForm = async (
-<<<<<<< HEAD
-=======
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
->>>>>>> origin/fix/major-patch-update
   values: any,
   {
     setSubmitting,
@@ -85,8 +82,4 @@ export const submitBoothForm = async (
     setSubmitting(false);
     setSubmitting(false);
   }
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> origin/fix/major-patch-update

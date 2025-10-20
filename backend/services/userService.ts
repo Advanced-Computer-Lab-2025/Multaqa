@@ -10,8 +10,6 @@ import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
-import { sendVerification } from "./emailService";
-import { getNgrokUrl } from "../config/NgrokTunnel";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -131,7 +129,7 @@ export class UserService {
   async assignRoleAndSendVerification(
     userId: string,
     position: string
-  ): Promise<Omit<IStaffMember, "password">> {
+  ): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -153,18 +151,15 @@ export class UserService {
     user.updatedAt = new Date();
     await user.save();
 
-    // Generate verification token and send email
-    const token = this.verificationService.generateVerificationToken(user);
-    const appUrl = await getNgrokUrl();
-    const link = `${appUrl}/auth/verify?token=${token}`;
-    await sendVerification(user.email, link);
+    // Generate verification token
+    const verificationtoken = this.verificationService.generateVerificationToken(user);
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject
       ? user.toObject()
       : user;
 
-    return userWithoutPassword as Omit<IStaffMember, "password">;
+    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
