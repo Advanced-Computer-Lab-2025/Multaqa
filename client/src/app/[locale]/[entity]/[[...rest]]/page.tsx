@@ -253,16 +253,7 @@ export default function EntityCatchAllPage() {
         // Interpreting "My Applications" as pending/rejected requests list
         return <VendorRequestsList />;
       }
-      if (section === "opportunities") {
-        // Interpreting "My Applications" as pending/rejected requests list
-        return (
-          <BrowseEventsContent
-            registered={false}
-            user="vendor"
-            userID={userId}
-          />
-        );
-      }
+
       if (section === "apply-booth") {
         return <BoothForm />;
       }

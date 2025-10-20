@@ -36,7 +36,9 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
 
   const handleCallApi = async (payload: any) => {
     try {
-      console.log("Payload being sent:", payload); // ✅ Debug payload
+      console.log("Payload being sent:", payload); 
+
+      console.log("Payload being sent:", userInfo.id); 
       const res = await api.post(
         `/users/${userInfo.id}/register/${eventId}`,
         payload

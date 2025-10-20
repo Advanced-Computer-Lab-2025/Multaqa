@@ -20,18 +20,17 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { frameData } from "./utils";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
-import EventIcon from '@mui/icons-material/Event';
-import PollIcon from '@mui/icons-material/Poll';
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
+import EventIcon from "@mui/icons-material/Event";
+// import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
-
 
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  userID?:string;
+  userID: string;
 }
 // Define the event type enum
 export enum EventType {
@@ -102,7 +101,11 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
-const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID }) => {
+const BrowseEvents: React.FC<BrowseEventsProps> = ({
+  registered,
+  user,
+  userID,
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
@@ -112,51 +115,54 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
   const [createTrip, setTrip] = useState(false);
   const [createWorkshop, setWorkshop] = useState(false);
   const [createSession, setSession] = useState(false);
-  const [UserInfo, setUserInfo] =  useState<{ id: string; name: string; email:string }>({id:"", name:"", email:""});
+  const [UserInfo, setUserInfo] = useState<{
+    id: string;
+    name: string;
+    email: string;
+  }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
 
-  useEffect(() => {
-    handleCallAPI2()
-  }, []); 
+  // useEffect(() => {
+  //   if(!registered){
+  //   handleCallAPI2();
+  //   }
+  // }, []);
 
   useEffect(() => {
-    handleCallAPI()
-  }, [refresh]); 
+    handleCallAPI();
+  }, [refresh]);
   // Handle event deletion
-  async function handleCallAPI2 (){
+  async function handleCallAPI2() {
     const res = await api.get(`/users/${userID}`);
     const data = res.data.data;
     const user = {
       id: data._id,
       name: `${data.firstName}  ${data.lastName}`,
       email: data.email,
-    }
+    };
     setUserInfo(user);
     setReady(true);
   }
 
-  async function handleCallAPI (){
-    try{
-      if(!registered){
-      const res = await api.get("/events");
-      const data = res.data.data;
-      const result = frameData(data);
-      setEvents(result);
-      // console.log(data);
+  async function handleCallAPI() {
+    try {
+      if (!registered) {
+        const res = await api.get("/events");
+        const data = res.data.data;
+        const result = frameData(data);
+        setEvents(result);
+        // console.log(data);
+      } else {
+        const res = await api.get(`/users/${userID}`);
+        const data2 = res.data.data.registeredEvents;
+        const result = frameData(data2);
+        setEvents(result);
+        // console.log(data2);
       }
-      else{
-      const res = await api.get(`/users/${userID}`);
-      const data2 = res.data.data.registeredEvents;
-      const result = frameData(data2);
-      setEvents(result);
-      // console.log(data2);
-      }
-    }
-    catch(err){
+    } catch (err) {
       console.error(err);
     }
- 
-  };
+  }
 
   const handleDeleteEvent = (eventId: string) => {
     setEvents((prevEvents) =>
@@ -167,10 +173,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-    if(user==="events-only"){
-   filtered=filtered = filtered.filter((event) =>
-    ["bazaar", "trip", "conference"].includes(event.type)
-  );
+    if (user === "events-only") {
+      filtered = filtered = filtered.filter((event) =>
+        ["bazaar", "trip", "conference"].includes(event.type)
+      );
     }
 
     // Apply search filter
@@ -222,18 +228,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
     setSearchQuery("");
   };
   const Eventoptions = [
-    { label: 'Gym', icon: FitnessCenterIcon },
-    { label: 'Bazaars', icon: StorefrontIcon },
-    { label: 'Trips', icon: FlightTakeoffIcon },
-    { label: 'Conference', icon: EventIcon },
-   // { label: 'Polls', icon: PollIcon },
+    { label: "Gym", icon: FitnessCenterIcon },
+    { label: "Bazaars", icon: StorefrontIcon },
+    { label: "Trips", icon: FlightTakeoffIcon },
+    { label: "Conference", icon: EventIcon },
+    // { label: 'Polls', icon: PollIcon },
   ];
-  const EventOptionsSetters = [
-   setSession,
-   setBazaar,
-   setTrip,
-   setConference
-  ];
+  const EventOptionsSetters = [setSession, setBazaar, setTrip, setConference];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -275,7 +276,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
         );
       case EventType.BAZAAR:
         return (
-          <BazarView 
+          <BazarView
             id={event.id}
             setRefresh={setRefresh}
             key={event.id}
@@ -316,7 +317,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
             description={event.description}
             user={user}
             registered={registered}
-            userInfo={UserInfo}   
+            userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
           />
@@ -346,10 +347,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
           variant="body2"
           sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
         >
-          {user!=="events-only"
-            ? (registered ? "Keep track of which events you have registered for"
-            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"): "Keep track of and manage events you have created"
-          }
+          {user !== "events-only"
+            ? registered
+              ? "Keep track of which events you have registered for"
+              : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+            : "Keep track of and manage events you have created"}
         </Typography>
       </Box>
 
@@ -364,7 +366,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
         }}
       >
         <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
-          <CustomSearchBar width="60vw" type="outwards" />
+          <CustomSearchBar
+            width="60vw"
+            type="outwards"
+            icon
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </Box>
         <FilterPanel
           filterGroups={filterGroups}
@@ -372,10 +380,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
           currentFilters={filters}
           onReset={handleResetFilters}
         />
-       
-      {user === "events-only"&& (
-       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters}/>
-      )}
+        {user === "events-only" && (
+          <MenuOptionComponent
+            options={Eventoptions}
+            setters={EventOptionsSetters}
+          />
+        )}
       </Box>
 
       {/* Events Grid */}
@@ -415,7 +425,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
           </Box>
         )}
       </Box>
-      <CreateTrip open={createTrip} onClose={()=> setTrip(false)} setRefresh={setRefresh}/>
+      <CreateTrip
+        open={createTrip}
+        onClose={() => setTrip(false)}
+        setRefresh={setRefresh}
+      />
     </Container>
   );
 };
