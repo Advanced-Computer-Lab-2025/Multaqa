@@ -18,7 +18,7 @@ import {
 import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
-import { frameData } from "./utils";
+import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
@@ -32,7 +32,8 @@ import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  userID: string;
+  userInfo: any;
+  userID:string;
 }
 // Event types and interfaces are now imported from ./types
 
@@ -86,6 +87,7 @@ const filterGroups: FilterGroup[] = [
 const BrowseEvents: React.FC<BrowseEventsProps> = ({
   registered,
   user,
+  userInfo,
   userID,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,27 +108,40 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
 
-  // useEffect(() => {
-  //   if(!registered){
-  //   handleCallAPI2();
-  //   }
-  // }, []);
-
   useEffect(() => {
-    handleCallAPI();
-  }, [refresh]);
-  // Handle event deletion
-  async function handleCallAPI2() {
-    const res = await api.get(`/users/${userID}`);
-    const data = res.data.data;
-    const user = {
-      id: data._id,
-      name: `${data.firstName}  ${data.lastName}`,
-      email: data.email,
+    getUserData();
+  }, []);
+
+ 
+  useEffect(() => {
+    if(!registered){
+      handleCallAPI();
+    }
+    else{
+      handleRegistered();
+    }
+}, [refresh]);
+//   window.location.reload();
+  const getUserData = () =>{
+      const user = {
+      id: userInfo._id,
+      name: `${userInfo.firstName}  ${userInfo.lastName}`,
+      email: userInfo.email,
     };
     setUserInfo(user);
     setReady(true);
   }
+
+  const handleRegistered = () => {
+     setLoading(true);
+     console.log(userInfo);
+     const registeredEvents = userInfo.registeredEvents;
+     const result = frameData(registeredEvents);
+     console.log("regsiter events:" + registeredEvents[0]);
+     setEvents(result);
+     setLoading(false);
+  };
+
 
   async function handleCallAPI() {
     try {
@@ -137,14 +152,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const data = res.data.data;
         const result = frameData(data);
         setEvents(result);
-        // console.log(data);
-      } else {
-        const res = await api.get(`/users/${userID}`);
-        const data2 = res.data.data.registeredEvents;
-        const result = frameData(data2);
-        setEvents(result);
-        // console.log(data2);
-      }
+      } 
     } catch (err) {
       console.error(err);
       setError("Failed to load events. Please try again later.");
@@ -153,10 +161,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
   }
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents((prevEvents) =>
-      prevEvents.filter((event) => event.id !== eventId)
-    );
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteEvent(eventId);
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== eventId)
+      );
+    } catch (error: any) {
+      window.alert(error.response.data.error);
+    }
   };
 
   // Filter and search logic
