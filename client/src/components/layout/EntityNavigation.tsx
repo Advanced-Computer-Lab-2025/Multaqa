@@ -120,7 +120,6 @@ const formatUserData = (user: any): CurrentUser => {
 };
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
-  
   student: {
     headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
@@ -555,16 +554,20 @@ export default function EntityNavigation({
 
       {/* Sidebar and main content below */}
       <div className="flex flex-1 overflow-hidden min-h-0">
-        <SidebarNavigation
-          activeItem={section}
-          onItemClick={handleSectionClick}
-          sectionItems={tab ? sectionItems : []}
-          onLogout={handleLogout}
-          currentUser={userData}
-          userRole={userRoleKey as UserRoleKey}
-        />
+        {/* Fixed width sidebar - never gets squished */}
+        <div className="flex-shrink-0">
+          <SidebarNavigation
+            activeItem={section}
+            onItemClick={handleSectionClick}
+            sectionItems={tab ? sectionItems : []}
+            onLogout={handleLogout}
+            currentUser={userData}
+            userRole={userRoleKey as UserRoleKey}
+          />
+        </div>
 
-        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full">
+        {/* Flexible main content area */}
+        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full min-w-0">
           <div
             className="flex-1 bg-white min-h-0 overflow-auto"
             style={{
