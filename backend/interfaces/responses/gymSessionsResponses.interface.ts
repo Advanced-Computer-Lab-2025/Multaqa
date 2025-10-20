@@ -1,4 +1,4 @@
-import { IGymSessionEvent } from "../gymSessionsEvent.interface";
+import { IGymSessionEvent } from "../models/gymSessionsEvent.interface";
 
 export interface CreateGymSessionResponse {
   success: boolean;

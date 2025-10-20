@@ -3,7 +3,7 @@ import { GymSession } from "../schemas/event-schemas/gymSessionEventSchema";
 import {
   IGymSessionCreationRequest,
   IGymSessionEvent,
-} from "../interfaces/gymSessionsEvent.interface";
+} from "../interfaces/models/gymSessionsEvent.interface";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { UserRole } from "../constants/user.constants";
 

@@ -58,15 +58,14 @@ export const getMe = async (req: Request, res: Response<MeResponse>) => {
   }
 };
 
-
 async function verifyUser(req: Request, res: Response) {
   try {
     const token = req.query.token as string;
     await verificationService.verifyUser(token);
 
-    return res.redirect(`http://localhost:${process.env.FRONTEND_PORT}/login?verified=true`); 
+    return res.redirect(`https://localhost:${process.env.FRONTEND_PORT}/login?verified=true`); // should be frontend URL
   } catch (err) {
-    return res.redirect(`http://localhost:${process.env.FRONTEND_PORT}/login?verified=false`); 
+    return res.redirect(`https://localhost:${process.env.FRONTEND_PORT}/login?verified=false`); // should be frontend URL
   }
 }
 
@@ -85,12 +84,12 @@ async function login(req: Request, res: Response<LoginResponse>) {
     const { accessToken, refreshToken } = tokens;
 
     // Set refresh token in HTTP-only cookie to prevent XSS attacks
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,           // cannot be accessed by JS
+    res.cookie("refreshToken", refreshToken, { 
+      httpOnly: true,                      // cannot be accessed by JS
       secure: false,
       sameSite: "lax",
-      path: "/",                // available for all routes
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      path: "/",                           // available for all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000      // 7 days
     });
 
     // Send HTTP response

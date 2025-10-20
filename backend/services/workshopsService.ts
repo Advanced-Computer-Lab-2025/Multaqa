@@ -7,7 +7,7 @@ import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
 import { Event_Request_Status } from "../constants/user.constants";
-import { IWorkshop } from "../interfaces/workshop.interface";
+import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 
 export class WorkshopService {

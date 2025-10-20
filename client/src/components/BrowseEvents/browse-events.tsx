@@ -46,6 +46,7 @@ export enum EventType {
 interface BaseEvent {
   id: string;
   type: EventType;
+  userID: string;
 }
 
 // Define specific event interfaces using your existing types
@@ -112,45 +113,57 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
   const [createTrip, setTrip] = useState(false);
   const [createWorkshop, setWorkshop] = useState(false);
   const [createSession, setSession] = useState(false);
-  const [UserInfo, setUserInfo] =  useState<{ id: string; name: string; email:string }>({id:"", name:"", email:""});
+  const [UserInfo, setUserInfo] = useState<{
+    id: string;
+    name: string;
+    email: string;
+  }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
 
-  useEffect(() => {
-    handleCallAPI2()
-  }, []); 
+  // useEffect(() => {
+  //   if(!registered){
+  //   handleCallAPI2();
+  //   }
+  // }, []);
 
   useEffect(() => {
-    handleCallAPI()
-  }, [refresh]); 
+    handleCallAPI();
+  }, [refresh]);
   // Handle event deletion
-  async function handleCallAPI2 (){
+  async function handleCallAPI2() {
     const res = await api.get(`/users/${userID}`);
     const data = res.data.data;
     const user = {
       id: data._id,
       name: `${data.firstName}  ${data.lastName}`,
       email: data.email,
-    }
+    };
     setUserInfo(user);
     setReady(true);
   }
 
-  async function handleCallAPI (){
-    try{
-      if(!registered){
-      const res = await api.get("/events");
-      const data = res.data.data;
-      const result = frameData(data);
-      setEvents(result);
-      // console.log(data);
+  async function handleCallAPI() {
+    try {
+      setLoading(true);
+      setError(null);
+      if (!registered) {
+        const res = await api.get("/events");
+        const data = res.data.data;
+        const result = frameData(data);
+        setEvents(result);
+        // console.log(data);
+      } else {
+        const res = await api.get(`/users/${userID}`);
+        const data2 = res.data.data.registeredEvents;
+        const result = frameData(data2);
+        setEvents(result);
+        // console.log(data2);
       }
-      else{
-      const res = await api.get(`/users/${userID}`);
-      const data2 = res.data.data.registeredEvents;
-      const result = frameData(data2);
-      setEvents(result);
-      // console.log(data2);
-      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load events. Please try again later.");
+    } finally {
+      setLoading(false);
     }
     catch(err){
       console.error(err);
@@ -181,10 +194,17 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
         // Handle booth events differently since they don't have name/description
         if (event.type === EventType.BOOTH) {
           return (
-            event.company.toLowerCase().includes(query) ||
-            event.details.Description?.toLowerCase().includes(query) ||
-            Object.values(event.details).some((value) =>
-              value.toString().toLowerCase().includes(query)
+            (event.company?.toLowerCase() || "").includes(query) ||
+            (event.details?.Description?.toLowerCase() || "").includes(query) ||
+            (Array.isArray(event.people)
+              ? event.people.some((p) =>
+                  (p?.toString().toLowerCase() || "").includes(query)
+                )
+              : false) ||
+            Object.values(event.details ?? {}).some((value) =>
+              String(value ?? "")
+                .toLowerCase()
+                .includes(query)
             )
           );
         }
@@ -194,8 +214,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
           ("name" in event && event.name.toLowerCase().includes(query)) ||
           ("description" in event &&
             event.description.toLowerCase().includes(query)) ||
-          Object.values(event.details).some((value) =>
-            value.toString().toLowerCase().includes(query)
+          Object.values(event.details ?? {}).some((value) =>
+            String(value ?? "")
+              .toLowerCase()
+              .includes(query)
           )
         );
       });
@@ -372,10 +394,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
           currentFilters={filters}
           onReset={handleResetFilters}
         />
-       
-      {user === "events-only"&& (
-       <MenuOptionComponent options={Eventoptions} setters={EventOptionsSetters} setRefresh={setRefresh}/>
-      )}
+        {user === "events-only" && (
+          <MenuOptionComponent
+            options={Eventoptions}
+            setters={EventOptionsSetters}
+          />
+        )}
       </Box>
 
       {/* Events Grid */}
@@ -394,28 +418,45 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({ registered, user, userID })
           <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
         ))}
 
-        {/* Results count */}
-        {filteredEvents.length > 0 && (
-          <Box sx={{ mt: 3, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              Showing {filteredEvents.length} of {events.length} events
-            </Typography>
-          </Box>
-        )}
+            {/* No results message */}
+            {filteredEvents.length === 0 && events.length === 0 && (
+              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
+                <Typography variant="h6" color="text.secondary">
+                  No events available
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  There are no events in the database yet
+                </Typography>
+              </Box>
+            )}
 
-        {/* No results message */}
-        {filteredEvents.length === 0 && (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography variant="h6" color="text.secondary">
-              No events found matching your criteria
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Try adjusting your search or filters
-            </Typography>
+            {/* No results message */}
+            {filteredEvents.length === 0 && (
+              <Box sx={{ textAlign: "center", py: 8 }}>
+                <Typography variant="h6" color="text.secondary">
+                  No events found matching your criteria
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  Try adjusting your search or filters
+                </Typography>
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
-      <CreateTrip open={createTrip} onClose={()=> setTrip(false)} setRefresh={setRefresh}/>
+        </>
+      )}
+      <CreateTrip
+        open={createTrip}
+        onClose={() => setTrip(false)}
+        setRefresh={setRefresh}
+      />
     </Container>
   );
 };

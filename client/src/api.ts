@@ -15,6 +15,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Attach token if present
+// api.interceptors.request.use((config) => {
+//   if (process.env.NODE_ENV !== "development") {
+//     const token = localStorage.getItem("token");
+//     if (token) config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// });
+
 // Handle token expiration globally
 api.interceptors.response.use(
   (response) => response,

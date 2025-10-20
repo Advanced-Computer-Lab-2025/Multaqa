@@ -74,6 +74,7 @@ const BoothForm: React.FC = () => {
                         <div className="flex items-start gap-5 w-full px-4 mb-5">
                           <div className="flex-1">
                             <CustomTextField
+                              name={`boothAttendees.${index}.name`}
                               id={`boothAttendees.${index}.name`}
                               label={`Attendee ${index + 1} name`}
                               fieldType="text"
@@ -113,6 +114,7 @@ const BoothForm: React.FC = () => {
                           </div>
                           <div className="flex-1">
                             <CustomTextField
+                              name={`boothAttendees.${index}.email`}
                               id={`boothAttendees.${index}.email`}
                               label={`Attendee ${index + 1} email`}
                               fieldType="email"
@@ -205,6 +207,7 @@ const BoothForm: React.FC = () => {
                   <div className="flex items-center justify-center gap-10 flex-col mt-5 mb-10">
                     <div className="w-full max-w-md">
                       <CustomSelectField
+                        name="boothSize"
                         label="Booth Size"
                         fieldType="single"
                         neumorphicBox
@@ -236,6 +239,7 @@ const BoothForm: React.FC = () => {
                     {/* Duration Select */}
                     <div className="w-full max-w-md">
                       <CustomSelectField
+                        name="boothSetupDuration"
                         label="Booth Duration"
                         fieldType="single"
                         neumorphicBox

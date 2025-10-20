@@ -6,6 +6,7 @@ import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationF
 import { useRouter } from "@/i18n/navigation";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 export default function RegisterPage() {
   const searchParams = useSearchParams();
   const router = useRouter();

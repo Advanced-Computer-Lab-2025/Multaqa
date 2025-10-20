@@ -20,6 +20,7 @@ export const validationSchema = Yup.object({
 });
 
 export const submitBoothForm = async (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   {
     setSubmitting,
