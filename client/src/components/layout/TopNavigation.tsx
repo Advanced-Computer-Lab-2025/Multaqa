@@ -11,24 +11,18 @@ interface HeaderProps {
   activeTabIndex?: number;
   onTabChange?: (index: number) => void;
 }
-// style={{
-//   background: "linear-gradient(135deg, #6299d0 0%, #b2cee2 30%, #e5ed6f 70%, #ffdf6f 100%)",
-//   backgroundSize: "cover",
-//   backgroundRepeat: "no-repeat",
 
-// }}
 interface TopNavigationProps {
   companyName?: string;
   header?: HeaderProps;
 }
 
 export default function TopNavigation({
-  companyName = "Multaqa",
+  companyName = "Acme Corp",
   header,
 }: TopNavigationProps) {
   return (
-    <div 
-  className="bg-white border-b border-gray-300 w-full">
+    <div className="bg-white border-b border-gray-300 w-full">
       {/* Company/App Bar with Back Button */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 bg-gradient-to-r from-[#f9fbfc] to-[#f0f4f8]">
         {/* Left: Back Button (if applicable) */}
@@ -59,7 +53,7 @@ export default function TopNavigation({
 
         {/* Center: Company Name */}
         <div className="flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
-          <span className="text-2xl font-heading font-bold text--gray-200 [#6299d0] tracking-wide">
+          <span className="text-2xl font-heading font-bold text-[#6299d0] tracking-wide">
             {companyName}
           </span>
         </div>

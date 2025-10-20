@@ -170,10 +170,11 @@ const LoginForm: React.FC = () => {
                     stakeholderType={"vendor"} //to always render the normal email field
                     onChange={(e) => {
                       formik.setFieldValue("email", e.target.value);
-                    } }
+                    }}
                     onBlur={() => {
                       formik.setFieldTouched("email", true);
-                    } } name={""}                  />
+                    }}
+                  />
                   {formik.touched.email && formik.errors.email && (
                     <Box display="flex" alignItems="center" mt={1}>
                       <ErrorOutlineIcon
@@ -195,10 +196,11 @@ const LoginForm: React.FC = () => {
                     neumorphicBox
                     onChange={(e) => {
                       formik.setFieldValue("password", e.target.value);
-                    } }
+                    }}
                     onBlur={() => {
                       formik.setFieldTouched("password", true);
-                    } } name={""}                  />
+                    }}
+                  />
                   {formik.touched.password && formik.errors.password && (
                     <Box display="flex" alignItems="center" mt={1}>
                       <ErrorOutlineIcon
