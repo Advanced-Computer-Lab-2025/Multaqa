@@ -27,8 +27,4 @@ export interface LogoutResponse {
 export interface MeResponse {
   user: UserResponse;
   message: string;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main

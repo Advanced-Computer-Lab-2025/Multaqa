@@ -130,6 +130,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   async function handleCallAPI() {
     try {
+      setLoading(true);
+      setError(null);
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
@@ -145,6 +147,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       }
     } catch (err) {
       console.error(err);
+      setError("Failed to load events. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -171,10 +176,17 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         // Handle booth events differently since they don't have name/description
         if (event.type === EventType.BOOTH) {
           return (
-            event.company.toLowerCase().includes(query) ||
-            event.details.Description?.toLowerCase().includes(query) ||
-            Object.values(event.details).some((value) =>
-              value.toString().toLowerCase().includes(query)
+            (event.company?.toLowerCase() || "").includes(query) ||
+            (event.details?.Description?.toLowerCase() || "").includes(query) ||
+            (Array.isArray(event.people)
+              ? event.people.some((p) =>
+                  (p?.toString().toLowerCase() || "").includes(query)
+                )
+              : false) ||
+            Object.values(event.details ?? {}).some((value) =>
+              String(value ?? "")
+                .toLowerCase()
+                .includes(query)
             )
           );
         }
@@ -184,8 +196,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           ("name" in event && event.name.toLowerCase().includes(query)) ||
           ("description" in event &&
             event.description.toLowerCase().includes(query)) ||
-          Object.values(event.details).some((value) =>
-            value.toString().toLowerCase().includes(query)
+          Object.values(event.details ?? {}).some((value) =>
+            String(value ?? "")
+              .toLowerCase()
+              .includes(query)
           )
         );
       });
