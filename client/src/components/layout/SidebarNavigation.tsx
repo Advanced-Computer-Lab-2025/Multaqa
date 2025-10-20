@@ -2,6 +2,7 @@ import React from "react";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
+import { UserRoleKey } from "@/types";
 
 interface SectionItem {
   id: string;
@@ -21,15 +22,7 @@ interface SidebarNavigationProps {
   sectionItems?: SectionItem[];
   onLogout?: () => void;
   currentUser?: CurrentUser;
-  userRole?:
-    | "student"
-    | "staff"
-    | "ta"
-    | "professor"
-    | "events-office"
-    | "admin"
-    | "vendor"
-    | "company";
+  userRole?: UserRoleKey;
 }
 
 // Generic roles that use initials (name-based)

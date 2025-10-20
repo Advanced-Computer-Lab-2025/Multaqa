@@ -94,4 +94,3 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
 };
 
 export default WorkshopList;
-

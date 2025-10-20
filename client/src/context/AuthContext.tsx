@@ -6,9 +6,10 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { api } from "../api";
+import { api } from "@/api";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { MeResponse, UserResponse } from "../../../backend/interfaces/responses/authResponses.interface";
+import { sendVerificationEmail } from "@/utils/emailService";
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -19,6 +20,7 @@ interface AuthContextType {
     email: string;
     password: string;
   }) => Promise<{ user: UserResponse } | undefined>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   signup: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<UserResponse | null>>;
@@ -44,8 +46,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!token) {
         setIsLoading(false);
         return;
-      } 
-      
+      }
+
       try {
         const response = await api.post<MeResponse>("/auth/me");
         if (response.data?.user) {
@@ -54,6 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           throw new Error("Invalid /auth/me response");
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("❌ Failed to fetch user:", error);
         // If we get here, it means the interceptor couldn't refresh the token or there was a different error, so we should logout
@@ -90,6 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           throw new Error(message || "Login failed");
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         const msg = err?.response?.data?.message || err.message;
         setError(msg);
@@ -101,15 +105,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   // Signup
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const signup = useCallback(async (data: any) => {
     setIsLoading(true);
     try {
       const response = await api.post("/auth/signup", data);
       if (response.data?.success) {
         console.log("✅ Signed up successfully");
-      } else {
+
+        if (response.data.verificationtoken.length > 0) {
+          // Send verification email
+          const verifyLink = `http://localhost:4000/auth/verify?token=${response.data.verificationtoken}`;
+          await sendVerificationEmail(data.email, verifyLink);
+        }
+      }
+      else {
         throw new Error(response.data?.message || "Signup failed");
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err?.response?.data?.message || err.message;
       setError(msg);

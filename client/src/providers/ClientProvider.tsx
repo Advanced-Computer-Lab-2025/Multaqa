@@ -1,7 +1,7 @@
 "use client";
 
-import { AuthProvider } from "../../context/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { AuthProvider } from "@/context/AuthContext";
+import ProtectedRoute from "@/context/ProtectedRoute";
 import { usePathname } from "next/navigation";
 
 export default function ClientProviders({

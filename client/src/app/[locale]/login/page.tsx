@@ -3,6 +3,7 @@
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 export default function LoginPage() {
   return (
     <>
@@ -12,7 +13,7 @@ export default function LoginPage() {
       >
         <LoginForm />
       </div>
-      <ToastContainer />
+      <ToastContainer aria-label={undefined} />
     </>
   );
 }

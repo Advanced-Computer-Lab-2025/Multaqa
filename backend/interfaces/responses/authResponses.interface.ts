@@ -5,6 +5,7 @@ export interface SignupResponse {
   success: boolean;
   message: string;
   user: UserResponse;
+  verificationtoken: string;
 }
 
 export interface LoginResponse {
@@ -22,6 +23,7 @@ export interface LogoutResponse {
   success: boolean;
   message: string;
 }
+
 export interface MeResponse {
   user: UserResponse;
   message: string;

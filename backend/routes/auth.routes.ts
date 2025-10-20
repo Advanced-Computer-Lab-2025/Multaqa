@@ -27,13 +27,14 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     }
 
     // Create user
-    const result = await authService.signup(value);
+    const { user, verificationtoken } = await authService.signup(value);
 
     // Send HTTP response
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: result
+      user: user,
+      verificationtoken: verificationtoken
     });
   } catch (error: any) {
     console.error('Registration error:', error.message);
@@ -57,7 +58,6 @@ export const getMe = async (req: Request, res: Response<MeResponse>) => {
     throw createError(400, error.message || 'Get Me failed');
   }
 };
-
 
 async function verifyUser(req: Request, res: Response) {
   try {
@@ -85,12 +85,12 @@ async function login(req: Request, res: Response<LoginResponse>) {
     const { accessToken, refreshToken } = tokens;
 
     // Set refresh token in HTTP-only cookie to prevent XSS attacks
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,           // cannot be accessed by JS
+    res.cookie("refreshToken", refreshToken, { 
+      httpOnly: true,                      // cannot be accessed by JS
       secure: false,
       sameSite: "lax",
-      path: "/",                // available for all routes
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      path: "/",                           // available for all routes
+      maxAge: 7 * 24 * 60 * 60 * 1000      // 7 days
     });
 
     // Send HTTP response

@@ -12,37 +12,53 @@ import * as Yup from "yup";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
 import { useRouter } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
 
 const LoginForm: React.FC = () => {
   const theme = useTheme();
   const { login, user } = useAuth();
   const router = useRouter();
-
   const initialValues = {
     email: "",
     password: "",
   };
 
   // Function to determine where to redirect based on user role
+  // const getRedirectPath = (role: string) => {
+  //   console.log("User role for redirection:", role);
+  //   console.log(typeof role);
+  //   switch (role) {
+  //     case "admin":
+  //       return `/admin`;
+  //     case "student":
+  //       return `/student`;
+  //     case "staff":
+  //       return `/staff`;
+  //     case "ta":
+  //       return `/ta/`;
+  //     case "professor":
+  //       return `/professor`;
+  //     case "events-office":
+  //       return `/events-office`;
+  //     case "vendor":
+  //       return `/vendor`;
+  //   }
+  // };
+
   const getRedirectPath = (role: string) => {
-    console.log("User role for redirection:", role);
-    console.log(typeof role);
-    switch (role) {
-      case "admin":
-        return `/admin/users`;
-      case "student":
-        return `/student`;
-      case "staff":
-        return `/staff`;
-      case "ta":
-        return `/ta/`;
-      case "professor":
-        return `/professor`;
-      case "events-office":
-        return `/events-office`;
-      case "vendor":
-        return `/vendor/opportunities/available`;
-    }
+    // DON'T include locale - i18n router adds it automatically
+    // useRouter() from @/i18n/navigation handles locale prefixing
+    const roleRedirects: Record<string, string> = {
+      admin: "/admin/users/all-users",
+      student: "/student/events/browse-events",
+      staff: "/staff/events/browse-events",
+      TA: "/ta/events/browse-events",
+      professor: "/professor/workshops/my-workshops",
+      eventsOffice: "/events-office/events/all-events",
+      vendor: "/vendor/opportunities/available",
+    };
+
+    return roleRedirects[role] || "/student/events/browse-events";
   };
 
   return (
@@ -60,7 +76,15 @@ const LoginForm: React.FC = () => {
           resetForm();
 
           // Get user info from login response
-          const userRole = response?.user?.role;
+          let userRole;
+          if (response?.user?.role === "administration") {
+            userRole = response?.user?.roleType;
+          } else if (response?.user?.role === "staffMember") {
+            userRole = response?.user?.position;
+          } else {
+            userRole = response?.user?.role;
+          }
+          console.log("Logged in user role:", userRole);
 
           toast.success("Login successful! Redirecting...", {
             position: "bottom-right",
@@ -174,6 +198,7 @@ const LoginForm: React.FC = () => {
                     onBlur={() => {
                       formik.setFieldTouched("email", true);
                     }}
+                    name={""}
                   />
                   {formik.touched.email && formik.errors.email && (
                     <Box display="flex" alignItems="center" mt={1}>
@@ -200,6 +225,7 @@ const LoginForm: React.FC = () => {
                     onBlur={() => {
                       formik.setFieldTouched("password", true);
                     }}
+                    name={""}
                   />
                   {formik.touched.password && formik.errors.password && (
                     <Box display="flex" alignItems="center" mt={1}>
