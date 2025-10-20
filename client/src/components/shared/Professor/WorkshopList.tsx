@@ -38,20 +38,27 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
   const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
   const [creation, setCreation] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [rawWorkshops, setRawWorkshops] = useState<any[]>([]);
   const WorkshopSetter = [
     setCreation
    ];
    const Workshop = [
     { label: 'Workshop', icon: EventIcon},
   ];
-  console.log(workshops);
+  // console.log(workshops);
 
   useEffect(() => {
     setLoading(true);
     const data = userInfo.myWorkshops;
     const result = frameData(data);
-    const filteredResults = result.filter((item) => filter === "none" || item.details["Status"] === filter)
+    // const filteredResults = result.filter((item) => filter === "none" || item.details["Status"] === filter)
+    const filteredResults = result.filter((item) => {
+      const matchesFilter = filter === "none" || item.details["Status"] === filter;
+      const isNotEmpty = item && item.id && item.name; // Check for essential properties
+      return matchesFilter && isNotEmpty;
+    });
     setWorkshops(filteredResults);
+    setRawWorkshops(data);
     setLoading(false);
   }, [userInfo]);
 
@@ -105,8 +112,8 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
       <Stack spacing={2}>
         {
         workshops && workshops.length>0&&
-              workshops.map((item) => (
-             <React.Fragment key={item.id}>
+              workshops.map((item, index) => (
+            <React.Fragment key={item.id}>
             <WorkshopItemCard
               id={item.id}
               item={item}
@@ -145,9 +152,10 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
             agenda={item.agenda}
             location={item.details.Location}
             fundingSource={item.details["Funding Source"]} 
-            creatingProfessor={item.details["Created By"]} 
-            // extraResources={item.details["Extra Required Resources"]}
-            // associatedProfs={rawWorkshops[index].associatedProfs}
+            creatingProfessor={item.details["Created By"]}
+            faculty={item.details["Faculty Responsible"]} 
+            extraResources={item.details["Extra Required Resources"]}
+            associatedProfs={rawWorkshops[index].associatedProfs}
             onClose={(() => {setEditingWorkshopId(null); window.location.reload();})} 
             // setRefresh={setRefresh}
           />
