@@ -255,19 +255,19 @@ REDIS_URL=redis://localhost:6379
 
 ### Environment Variables Reference
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `MONGO_URI` | MongoDB connection string | ✅ | `mongodb://localhost:27017/MultaqaDB` |
-| `PORT` | Backend server port | ✅ | `4000` |
-| `ACCESS_TOKEN_SECRET` | JWT access token secret | ✅ | - |
-| `REFRESH_TOKEN_SECRET` | JWT refresh token secret | ✅ | - |
-| `ACCESS_TOKEN_EXPIRES` | JWT access token expiration | ✅ | `15m` |
-| `REFRESH_TOKEN_EXPIRES` | JWT refresh token expiration | ✅ | `7d` |
-| `REDIS_URL` | Redis connection URL | ✅ | `redis://localhost:6379` |
-| `EMAIL_HOST` | SMTP server host | ❌ | - |
-| `EMAIL_PORT` | SMTP server port | ❌ | - |
-| `EMAIL_USER` | SMTP username | ❌ | - |
-| `EMAIL_PASS` | SMTP password or app-specific password | ❌ | - |
+| Variable                | Description                            | Required | Default                               |
+| ----------------------- | -------------------------------------- | -------- | ------------------------------------- |
+| `MONGO_URI`             | MongoDB connection string              | ✅       | `mongodb://localhost:27017/MultaqaDB` |
+| `PORT`                  | Backend server port                    | ✅       | `4000`                                |
+| `ACCESS_TOKEN_SECRET`   | JWT access token secret                | ✅       | -                                     |
+| `REFRESH_TOKEN_SECRET`  | JWT refresh token secret               | ✅       | -                                     |
+| `ACCESS_TOKEN_EXPIRES`  | JWT access token expiration            | ✅       | `15m`                                 |
+| `REFRESH_TOKEN_EXPIRES` | JWT refresh token expiration           | ✅       | `7d`                                  |
+| `REDIS_URL`             | Redis connection URL                   | ✅       | `redis://localhost:6379`              |
+| `EMAIL_HOST`            | SMTP server host                       | ❌       | -                                     |
+| `EMAIL_PORT`            | SMTP server port                       | ❌       | -                                     |
+| `EMAIL_USER`            | SMTP username                          | ❌       | -                                     |
+| `EMAIL_PASS`            | SMTP password or app-specific password | ❌       | -                                     |
 
 ### MongoDB Setup
 
@@ -636,18 +636,18 @@ npm run build
 
 ### Team Members
 
-| # | Name | Student ID | Role |
-|---|------|------------|------|
-| 1 | Mohammed Sultan | 58-2621 | Backend & Scrum Master |
-| 2 | Esraa Tarek | 58-4701 | Backend |
-| 3 | Yasmeen Tarek | 58-22672 | Backend |
-| 4 | Youssef Yasser | 58-3187 | Backend |
-| 5 | Mahmoud Elkabbany | 58-1567 | Frontend |
-| 6 | Mai Hazem | 58-21524 | Frontend |
-| 7 | Layla Khaled | 58-1959 | Frontend |
-| 8 | Salma Tarek | 58-5727 | Frontend |
-| 9 | Abdelrahman Wael | 58-10142 | Frontend |
-| 10 | Hatem Yasser | 58-6188 | Frontend |
+| #   | Name              | Student ID | Role                   |
+| --- | ----------------- | ---------- | ---------------------- |
+| 1   | Mohammed Sultan   | 58-2621    | Backend & Scrum Master |
+| 2   | Esraa Tarek       | 58-4701    | Backend                |
+| 3   | Yasmeen Tarek     | 58-22672   | Backend                |
+| 4   | Youssef Yasser    | 58-3187    | Backend                |
+| 5   | Mahmoud Elkabbany | 58-1567    | Frontend               |
+| 6   | Mai Hazem         | 58-21524   | Frontend               |
+| 7   | Layla Khaled      | 58-1959    | Frontend               |
+| 8   | Salma Tarek       | 58-5727    | Frontend               |
+| 9   | Abdelrahman Wael  | 58-10142   | Frontend               |
+| 10  | Hatem Yasser      | 58-6188    | Frontend               |
 
 ### Development Workflow for Team Members
 
@@ -716,6 +716,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Made with ❤️ by the CSEN 704 Team at German University in Cairo**
 
-*Bringing the campus community together, one event at a time* 🎓✨
+_Bringing the campus community together, one event at a time_ 🎓✨
 
 </div>
