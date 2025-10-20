@@ -446,6 +446,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               />
             )}
           </Box>
+          {/* Results counter */}
+          {events.length > 0 && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                Browsing {filteredEvents.length} of {events.length} events
+              </Typography>
+            </Box>
+          )}
         </>
       )}
       <CreateTrip
