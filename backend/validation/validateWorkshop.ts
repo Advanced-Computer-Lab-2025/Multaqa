@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { FACULTY } from "../constants/workshops.constants";
 
 export function validateWorkshop(data: any) {
   const schema = Joi.object({
@@ -9,7 +10,9 @@ export function validateWorkshop(data: any) {
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).required(),
     description: Joi.string().max(300).required(),
     fullAgenda: Joi.string().required(),
-    facultyResponsible: Joi.string().required(),
+    associatedFaculty: Joi.string()
+      .valid(...Object.keys(FACULTY))
+      .required(),
     associatedProfs: Joi.array().items(Joi.string()).required(),
     requiredBudget: Joi.number().min(0).required(),
     fundingSource: Joi.string().valid("External", "GUC").required(),

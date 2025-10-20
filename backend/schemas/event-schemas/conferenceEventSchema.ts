@@ -1,8 +1,9 @@
 import { Schema } from "mongoose";
 import { Event } from "./eventSchema";
 import { FUNDING_SOURCES } from "../../constants/events.constants";
+import { IConference } from "../../interfaces/models/conference.interface";
 
-const conferenceSchema = new Schema({
+const conferenceSchema = new Schema<IConference>({
   fullAgenda: { type: String },
   websiteLink: { type: String },
   requiredBudget: { type: Number, min: 0 },
