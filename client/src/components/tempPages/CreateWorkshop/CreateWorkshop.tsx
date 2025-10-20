@@ -114,7 +114,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
       eventEndDate: values.endDate.format("YYYY-MM-DD"), 
       description: values.description,
       fullAgenda:values.agenda,
-      facultyResponsible:values.faculty,
+      associatedFaculty:values.faculty,
       associatedProfs: values.professors.map((p: { label: string; value: string }) => p.value),
       requiredBudget:values.budget,
       extraRequiredResources:values.extraResources,
