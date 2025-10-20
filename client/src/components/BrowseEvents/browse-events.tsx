@@ -32,7 +32,7 @@ import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  userID?: string;
+  userID: string;
 }
 // Event types and interfaces are now imported from ./types
 
@@ -103,77 +103,48 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     id: string;
     name: string;
     email: string;
-  }>({ id: "", name: "", email: "" });
+  }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
 
-  useEffect(() => {
-    if (userID) {
-      handleCallAPI2();
-    } else {
-      // For test mode without userID, use mock data
-      console.log("🧪 Test mode: Using mock data");
-      setUserInfo(mockUserInfo);
-      setEvents(mockEvents);
-      setReady(true);
-      setLoading(false);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if(!registered){
+  //   handleCallAPI2();
+  //   }
+  // }, []);
 
   useEffect(() => {
-    // Only call API if we have a userID (not in test mode)
-    if (userID) {
-      handleCallAPI();
-    }
+    handleCallAPI();
   }, [refresh]);
   // Handle event deletion
   async function handleCallAPI2() {
-    if (!userID) return;
-
-    try {
-      const res = await api.get(`/users/${userID}`);
-      const data = res.data.data;
-      const user = {
-        id: data._id,
-        name: `${data.firstName}  ${data.lastName}`,
-        email: data.email,
-      };
-      setUserInfo(user);
-      setReady(true);
-    } catch (err) {
-      console.error("Failed to fetch user data:", err);
-      // Set default user info on error
-      setUserInfo({ id: "test", name: "Test User", email: "test@example.com" });
-      setReady(true);
-    }
+    const res = await api.get(`/users/${userID}`);
+    const data = res.data.data;
+    const user = {
+      id: data._id,
+      name: `${data.firstName}  ${data.lastName}`,
+      email: data.email,
+    };
+    setUserInfo(user);
+    setReady(true);
   }
 
   async function handleCallAPI() {
-    setLoading(true);
-    setError(null);
-
     try {
       if (!registered) {
-        console.log("🔍 Fetching all events from /events endpoint...");
         const res = await api.get("/events");
         const data = res.data.data;
-        console.log("📊 Raw events data:", data);
         const result = frameData(data);
-        console.log("✨ Transformed events:", result);
         setEvents(result);
+        // console.log(data);
       } else {
-        console.log("🔍 Fetching registered events for user:", userID);
         const res = await api.get(`/users/${userID}`);
         const data2 = res.data.data.registeredEvents;
-        console.log("📊 Raw registered events data:", data2);
         const result = frameData(data2);
-        console.log("✨ Transformed registered events:", result);
         setEvents(result);
+        // console.log(data2);
       }
     } catch (err) {
-      console.error("❌ Error fetching events:", err);
-      setError("Failed to load events. Please check your backend connection.");
-    } finally {
-      setLoading(false);
+      console.error(err);
     }
   }
 
@@ -397,7 +368,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           <MenuOptionComponent
             options={Eventoptions}
             setters={EventOptionsSetters}
-            setRefresh={setRefresh}
           />
         )}
       </Box>
@@ -459,31 +429,18 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               </Box>
             )}
 
-            {/* No search results message */}
-            {filteredEvents.length === 0 && events.length > 0 && (
-              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
+            {/* No results message */}
+            {filteredEvents.length === 0 && (
+              <Box sx={{ textAlign: "center", py: 8 }}>
                 <Typography variant="h6" color="text.secondary">
                   No events found matching your criteria
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                   Try adjusting your search or filters
                 </Typography>
               </Box>
             )}
           </Box>
-
-          {/* Results count - Outside the grid for proper centering */}
-          {filteredEvents.length > 0 && (
-            <Box sx={{ mt: 4, textAlign: "center", width: "100%" }}>
-              <Typography variant="body2" color="text.secondary">
-                Showing {filteredEvents.length} of {events.length} events
-              </Typography>
-            </Box>
-          )}
         </>
       )}
       <CreateTrip
