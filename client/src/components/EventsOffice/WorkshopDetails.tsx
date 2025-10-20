@@ -156,9 +156,9 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
         setStatusFinalized(true); // hide UI for finalized status
       }
       console.log(confirmed);
-      if (confirmed !== "awaiting_review") {
-        setComments([]);
-      }
+      // if (confirmed !== "awaiting_review") {
+      //   setComments([]);
+      // }
       // clear pending after we've captured and used it
       setPendingStatus(null);
     }
@@ -169,7 +169,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     const mapToApiStatus = (val: string | null | undefined) => {
       switch (val) {
         case "awaiting_review":
-          return "pending";
+          return "awaiting_review";
         case "accept_publish":
           return "approved";
         case "reject":
@@ -180,8 +180,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     };
 
     const payload = {
-      approvalStatus: mapToApiStatus(confirmed || status),
-      comments: status=="awaiting_review"?removeId(comments):[],
+      approvalStatus: mapToApiStatus(confirmed),
+      comments: confirmed === "awaiting_review" ? removeId(comments) : [],
     };
 
     handleCallApi(payload);
