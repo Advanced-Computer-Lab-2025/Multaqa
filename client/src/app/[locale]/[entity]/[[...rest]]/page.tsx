@@ -330,6 +330,37 @@ export default function EntityCatchAllPage() {
       }
     }
 
+    // Admin - Vendor Management (labeled as "Vendor Management" under the 'reports' tab in navigation)
+    if (entity === "admin" && tab === "reports") {
+      if (section === "participation-requests") {
+        return <VendorParticipationRequests />;
+      }
+      if (section === "all-vendors") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Vendor Directory</h2>
+            <p className="text-gray-600">Vendor directory management is coming soon.</p>
+          </div>
+        );
+      }
+      if (section === "loyalty-partners") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Loyalty Program Partners</h2>
+            <p className="text-gray-600">Loyalty partnership management will be available soon.</p>
+          </div>
+        );
+      }
+      if (section === "documents") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Vendor Documents</h2>
+            <p className="text-gray-600">Document storage and approvals are under construction.</p>
+          </div>
+        );
+      }
+    }
+
     if (entity === "events-office" && tab === "events") {
       if (section === "my-creations") {
         return (
