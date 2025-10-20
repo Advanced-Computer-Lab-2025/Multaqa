@@ -95,9 +95,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        const msg = err?.response?.data?.message || err.message;
-        setError(msg);
-        throw new Error(msg);
+        setError(err?.response?.data?.error || err?.message);
+        throw err;
       } finally {
         setIsLoading(false);
       }
@@ -124,9 +123,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err.message;
-      setError(msg);
-      throw new Error(msg);
+      setError(err?.response?.data?.error || err?.message);
+      throw err;
     } finally {
       setIsLoading(false);
     }
