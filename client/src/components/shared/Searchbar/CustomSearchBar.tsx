@@ -208,8 +208,8 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
           sx={{
             position: "absolute",
             top: "-35px",
-            right: icon ? "40px" : "0px", // Account for search icon width (32px + 8px margin)
-            fontSize: "11px",
+            right: icon ? "32px" : "0px", // Account for search icon width (32px + 8px margin)
+            fontSize: "12px",
             fontWeight: 600,
             color: "#fff",
             backgroundColor: theme.palette.primary.main,
