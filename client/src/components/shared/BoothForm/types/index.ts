@@ -1,4 +1,3 @@
-
 interface AttendeeInfo {
   name: string;
   email: string;

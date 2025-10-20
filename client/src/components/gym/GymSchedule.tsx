@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
 import theme from "@/themes/lightTheme";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
@@ -107,8 +108,11 @@ export default function GymSchedule({ month, sessions }: Props) {
   ];
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-      {/* Header */}
+    <ContentWrapper
+      title="Gym Sessions"
+      description="Browse sessions by month and filter by type."
+    >
+      {/* Controls */}
       <Box
         sx={{
           mb: 2,
@@ -118,24 +122,7 @@ export default function GymSchedule({ month, sessions }: Props) {
           gap: 2,
         }}
       >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontFamily: "var(--font-jost)",
-              fontWeight: 700,
-              color: theme.palette.text.primary,
-            }}
-          >
-            Gym Sessions
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#757575", fontFamily: "var(--font-poppins)" }}
-          >
-            Browse sessions by month and filter by type.
-          </Typography>
-        </Box>
+        <Box />
         <Stack direction="row" spacing={1}>
           <CustomButton
             variant="outlined"
@@ -259,6 +246,6 @@ export default function GymSchedule({ month, sessions }: Props) {
           ))
         )}
       </Stack>
-    </Box>
+    </ContentWrapper>
   );
 }

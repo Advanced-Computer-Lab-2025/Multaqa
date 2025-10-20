@@ -354,6 +354,17 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
+      {
+        key: "reports",
+        label: "Vendor Management",
+        icon: Store,
+        sections: [
+          { id: "all-vendors", label: "All Vendors" },
+          { id: "participation-requests", label: "Participation Requests" },
+          { id: "loyalty-partners", label: "Loyalty Program Partners" },
+          { id: "documents", label: "View Documents" },
+        ],
+      },
     ],
   },
   vendor: {
