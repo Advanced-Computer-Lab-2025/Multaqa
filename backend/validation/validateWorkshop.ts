@@ -10,7 +10,7 @@ export function validateWorkshop(data: any) {
     eventEndDate: Joi.date().greater(Joi.ref("eventStartDate")).required(),
     description: Joi.string().max(300).required(),
     fullAgenda: Joi.string().required(),
-    facultyResponsible: Joi.string()
+    associatedFaculty: Joi.string()
       .valid(...Object.values(FACULTY))
       .required(),
     associatedProfs: Joi.array().items(Joi.string()).required(),

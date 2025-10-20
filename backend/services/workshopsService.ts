@@ -51,7 +51,6 @@ export class WorkshopService {
       throw createError(403, "You have no workshops to update");
     if (!professor.myWorkshops.some((id) => id.toString() === workshopId))
       throw createError(403, "You are not authorized to update this workshop");
-
     const updatedWorkshop = await this.workshopRepo.update(
       workshopId,
       updateData
