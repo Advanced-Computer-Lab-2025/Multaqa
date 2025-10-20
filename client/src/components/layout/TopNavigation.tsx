@@ -50,11 +50,6 @@ export default function TopNavigation({
               <ArrowLeft size={20} />
             </IconButton>
           )}
-          {/* {header?.leftIcon && (
-            <div className="flex items-center justify-center">
-              {header.leftIcon}
-            </div>
-          )} */}
         </div>
 
         {/* Center: Company Name */}

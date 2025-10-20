@@ -23,6 +23,7 @@ type Props = {
   onRespond?: (status: Extract<VendorRequestStatus, "approved" | "rejected">) => void;
   disabled?: boolean;
   loadingStatus?: VendorRequestStatus | null;
+  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const STATUS_CONFIG: Record<VendorRequestStatus, { label: string; color: "success" | "error" | "warning"; bg: string; fg: string }> = {
@@ -89,6 +90,7 @@ export default function VendorRequestCard({
   onRespond,
   disabled = false,
   loadingStatus = null,
+  setRefresh
 }: Props) {
   const statusConfig = STATUS_CONFIG[request.status] ?? STATUS_CONFIG.pending;
   const eventConfig =
@@ -205,17 +207,17 @@ export default function VendorRequestCard({
                 color="error"
                 size="small"
                 disabled={disabled || loadingStatus === "approved"}
-                onClick={() => onRespond("rejected")}
+                onClick={() => {onRespond("rejected"); setRefresh((prev)=>!prev)} }
                 startIcon={<XCircle size={16} />}
               >
                 Reject
               </CustomButton>
               <CustomButton
                 variant="contained"
-                color="primary"
+                color="success"
                 size="small"
                 disabled={disabled || loadingStatus === "rejected"}
-                onClick={() => onRespond("approved")}
+                onClick={() => {onRespond("approved"); setRefresh((prev)=>!prev)} }
                 startIcon={<CheckCircle size={16} />}
               >
                 Approve

@@ -20,29 +20,17 @@ const statusChip = (status: string) => {
 interface WorkshopListProps {
   userId: string;
   filter:string,
+  userInfo:any;
 }
 
-const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter }) => {
+const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo }) => {
   const [workshops, setWorkshops] = useState<WorkshopViewProps[]>();
   useEffect(() => {
-    handleCallAPI()
-  }, []); 
-  // Handle event deletion
-
-  async function handleCallAPI (){
-    try{
-      const res = await api.get(`/users/${userId}`);
-      const data = res.data.data.myWorkshops;
+      const data = userInfo.myWorkshops;
       const result = frameData(data);
-//       console.log(result);
       setWorkshops(result);
-      }
-    catch(err){
-      console.error(err);
-    }
+  }, []); 
  
-  };
-
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 2 }}>
