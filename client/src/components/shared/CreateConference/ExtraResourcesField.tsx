@@ -77,6 +77,8 @@ const ExtraResourcesField: React.FC = () => {
                                     placeholder="e.g., specific projector model, extra seating, etc."
                                     value={resourceValue}
                                     onChange={handleResourceChange(index)}
+                                    autoCapitalize='off'
+                                    autoCapitalizeName={false}
                                 />
                                  {/* Delete Button */}
                                 {resources.length > 0 && (

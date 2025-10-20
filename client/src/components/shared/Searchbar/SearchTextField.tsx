@@ -1,12 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import { TextFieldProps } from "@mui/material";
 import { StyledSearchField } from "./styles/index";
 
-// Component wrapper
-const SearchTextField: React.FC<TextFieldProps> = (props) => {
-  return <StyledSearchField {...props}> </StyledSearchField>;
-};
+// Component wrapper with ref forwarding
+const SearchTextField = forwardRef<HTMLInputElement, TextFieldProps>(
+  (props, ref) => {
+    return <StyledSearchField {...props} ref={ref} />;
+  }
+);
+
+SearchTextField.displayName = "SearchTextField";
 
 export default SearchTextField;

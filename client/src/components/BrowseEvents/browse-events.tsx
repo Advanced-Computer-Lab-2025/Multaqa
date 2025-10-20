@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Box, Typography, Container } from "@mui/material";
 import FilterPanel from "../shared/FilterCard/FilterPanel";
 import { FilterGroup } from "../shared/FilterCard/types";
@@ -18,6 +18,10 @@ import {
 import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
+import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
+import Create from "../shared/CreateConference/CreateConference";
+import CreateParent from "../createButton/createParent";
+
 import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
@@ -26,18 +30,18 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
-// import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
+import EmptyState from "../shared/states/EmptyState";
+import ErrorState from "../shared/states/ErrorState";
 
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userInfo: any;
-  userID:string;
+  userID: string;
 }
-// Event types and interfaces are now imported from ./types
 
-// Define specific event interfaces using your existing types
 interface ConferenceEvent extends BaseEvent, ConferenceViewProps {
   type: EventType.CONFERENCE;
 }
@@ -58,7 +62,6 @@ interface TripEvent extends BaseEvent, BazarViewProps {
   type: EventType.TRIP;
 }
 
-// Union type for all events
 type Event =
   | ConferenceEvent
   | WorkshopEvent
@@ -66,9 +69,6 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-// Filter types are now imported from ./types
-
-// Filter groups for the filter panel
 const filterGroups: FilterGroup[] = [
   {
     id: "eventType",
@@ -108,40 +108,39 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
 
+  // Separate effect for initial user data
   useEffect(() => {
     getUserData();
   }, []);
 
- 
+  // Separate effect for loading events
   useEffect(() => {
-    if(!registered){
+    if (!registered) {
       handleCallAPI();
-    }
-    else{
+    } else {
       handleRegistered();
     }
-}, [refresh]);
-//   window.location.reload();
-  const getUserData = () =>{
-      const user = {
+  }, [registered, refresh]);
+
+  const getUserData = () => {
+    const user = {
       id: userInfo._id,
-      name: `${userInfo.firstName}  ${userInfo.lastName}`,
+      name: `${userInfo.firstName} ${userInfo.lastName}`,
       email: userInfo.email,
     };
     setUserInfo(user);
     setReady(true);
-  }
-
-  const handleRegistered = () => {
-     setLoading(true);
-     console.log(userInfo);
-     const registeredEvents = userInfo.registeredEvents;
-     const result = frameData(registeredEvents);
-     console.log("regsiter events:" + registeredEvents[0]);
-     setEvents(result);
-     setLoading(false);
   };
 
+  const handleRegistered = () => {
+    setLoading(true);
+    console.log(userInfo);
+    const registeredEvents = userInfo.registeredEvents;
+    const result = frameData(registeredEvents);
+    console.log("register events:" + registeredEvents[0]);
+    setEvents(result);
+    setLoading(false);
+  };
 
   async function handleCallAPI() {
     try {
@@ -152,7 +151,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const data = res.data.data;
         const result = frameData(data);
         setEvents(result);
-      } 
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to load events. Please try again later.");
@@ -167,16 +166,22 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       window.alert(error.response.data.error);
     }
   };
 
+  // Use useCallback to memoize the search handler
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
+
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
     if (user === "events-only") {
-      filtered = filtered = filtered.filter((event) =>
+      filtered = filtered.filter((event) =>
         ["bazaar", "trip", "conference"].includes(event.type)
       );
     }
@@ -227,23 +232,23 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     return filtered;
   }, [searchQuery, filters, events]);
 
-  const handleFilterChange = (groupId: string, value: FilterValue) => {
+  const handleFilterChange = useCallback((groupId: string, value: FilterValue) => {
     setFilters((prev) => ({
       ...prev,
       [groupId]: value,
     }));
-  };
+  }, []);
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     setFilters({});
     setSearchQuery("");
-  };
+  }, []);
+
   const Eventoptions = [
     { label: "Gym", icon: FitnessCenterIcon },
     { label: "Bazaars", icon: StorefrontIcon },
     { label: "Trips", icon: FlightTakeoffIcon },
     { label: "Conference", icon: EventIcon },
-    // { label: 'Polls', icon: PollIcon },
   ];
   const EventOptionsSetters = [setSession, setBazaar, setTrip, setConference];
 
@@ -276,6 +281,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             name={event.name}
             description={event.description}
+            professorsId={event.professorsId}
             professors={event.professors}
             agenda={event.agenda}
             user={user}
@@ -382,7 +388,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             type="outwards"
             icon
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
+            storageKey="browseEventsSearchHistory"
+            autoSaveDelay={2000}
           />
         </Box>
         <FilterPanel
@@ -410,14 +418,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Error State */}
       {error && (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h6" color="error">
-            {error}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Make sure your backend server is running on the correct port
-          </Typography>
-        </Box>
+        <ErrorState
+          title={error}
+          description="Oops! Something has occurred on our end. Please try again"
+          imageAlt="Server error illustration"
+        />
       )}
 
       {/* Events Grid */}
@@ -442,37 +447,48 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
             {/* No results message */}
             {filteredEvents.length === 0 && events.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
-                <Typography variant="h6" color="text.secondary">
-                  No events available
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  There are no events in the database yet
-                </Typography>
-              </Box>
+              <EmptyState
+                title="No events available"
+                description="There are no events in our archives yet. Check back later!"
+                imageAlt="No events illustration"
+              />
             )}
 
             {/* No results message */}
-            {filteredEvents.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8 }}>
-                <Typography variant="h6" color="text.secondary">
-                  No events found matching your criteria
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Try adjusting your search or filters
-                </Typography>
-              </Box>
+            {filteredEvents.length === 0 && events.length > 0 && (
+              <EmptyState
+                title="No events found"
+                description="Try adjusting your search or filters"
+                imageAlt="Empty search results illustration"
+              />
             )}
           </Box>
+
+          {/* Results counter */}
+          {events.length > 0 && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                Browsing {filteredEvents.length} of {events.length} events
+              </Typography>
+            </Box>
+          )}
         </>
       )}
+
       <CreateTrip
         open={createTrip}
         onClose={() => setTrip(false)}
+        setRefresh={setRefresh}
+      />
+      <CreateBazaar
+        open={createBazaar}
+        onClose={() => setBazaar(false)}
+        setRefresh={setRefresh}
+      />
+      {/* Create Conference Form */}
+      <Create
+        open={createconference}
+        onClose={() => setConference(false)}
         setRefresh={setRefresh}
       />
     </Container>

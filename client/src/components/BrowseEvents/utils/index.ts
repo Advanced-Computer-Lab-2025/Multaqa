@@ -16,6 +16,9 @@ export const frameData = (data: any) => {
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
+const flattenId = (profs:{ id: string }[])=>{
+  return profs.map(prof => `${prof.id}`);
+}
 
 
 

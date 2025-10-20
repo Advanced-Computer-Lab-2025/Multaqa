@@ -12,7 +12,7 @@ export function validateWorkshop(data: any) {
     facultyResponsible: Joi.string().required(),
     associatedProfs: Joi.array().items(Joi.string()).required(),
     requiredBudget: Joi.number().min(0).required(),
-    fundingSource: Joi.string().valid("external", "GUC").required(),
+    fundingSource: Joi.string().valid("External", "GUC").required(),
     extraRequiredResources: Joi.array().items(Joi.string()).required(),
     capacity: Joi.number().integer().min(1).required(),
     registrationDeadline: Joi.date().required(),
