@@ -183,7 +183,7 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
       success: true,
       message: "Role assigned and verification email sent successfully",
       user: user,
-      verificationtoken: verificationtoken
+      verificationToken: verificationtoken
     });
   } catch (error: any) {
     throw createError(
