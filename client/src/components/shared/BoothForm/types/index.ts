@@ -5,7 +5,7 @@ interface AttendeeInfo {
 
 export interface BoothFormValues {
   boothAttendees: AttendeeInfo[];
-  boothSetupDuration: number;
+  boothSetupDuration: number | null;
   boothSize: string;
   boothLocation: string;
 }

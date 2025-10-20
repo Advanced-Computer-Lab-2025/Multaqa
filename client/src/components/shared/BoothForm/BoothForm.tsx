@@ -30,7 +30,7 @@ const BoothForm: React.FC = () => {
   const initialValues: BoothFormValues = {
     boothAttendees: [{ name: "", email: "" }],
     boothSize: "",
-    boothSetupDuration: 0,
+    boothSetupDuration: null,
     boothLocation: "",
   };
 
