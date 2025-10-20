@@ -12,7 +12,6 @@ export default function LoginPage() {
         style={{ transform: "scale(0.8)" }}
       >
         <LoginForm />
-        {/* <CustomSearchBar icon /> */}
       </div>
       <ToastContainer aria-label={undefined} />
     </>

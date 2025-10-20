@@ -120,6 +120,7 @@ const formatUserData = (user: any): CurrentUser => {
 };
 
 const roleNavigationConfig: Record<string, RoleConfig> = {
+  
   student: {
     headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
@@ -560,8 +561,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "82vh",
-              maxHeight: "82vh",
+              minHeight: "75vh",
+              maxHeight: "75vh",
             }}
           >
             {children}

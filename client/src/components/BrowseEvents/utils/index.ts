@@ -1,4 +1,4 @@
-import { EventType } from "../browse-events";
+import { EventType } from "../types";
 
 export const frameData = (data: any) => {
   const res: any[] = [];

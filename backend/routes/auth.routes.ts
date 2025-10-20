@@ -16,10 +16,10 @@ async function signup(req: Request, res: Response<SignupResponse>) {
   try {
     // Validate request body based on role
     let schema;
-    if (req.body.role === 'vendor') {
+    if (req.body.type === 'vendor') {
       schema = signupVendorValidationSchema;
     } else {
-      schema = signupStudentAndStaffValidationSchema; 
+      schema = signupStudentAndStaffValidationSchema;
     }
     const { error, value } = schema.validate(req.body);
     if (error) {

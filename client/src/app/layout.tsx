@@ -4,7 +4,7 @@ import "./globals.css";
 import { getLocale } from "next-intl/server";
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import theme from "../themes/lightTheme"; 
+import theme from "../themes/lightTheme";
 
 const poppins = Poppins({
   variable: "--font-poppins",

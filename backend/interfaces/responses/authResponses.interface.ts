@@ -1,15 +1,15 @@
-import {IUser} from "../models/user.interface"
+import { IUser } from "../models/user.interface";
 export type UserResponse = Omit<IUser, "password">;
 
 export interface SignupResponse {
   success: boolean;
-  message: string; 
+  message: string;
   user: UserResponse;
 }
 
 export interface LoginResponse {
   success: boolean;
-  message: string; 
+  message: string;
   user: UserResponse;
   accessToken: string;
 }
