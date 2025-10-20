@@ -20,6 +20,7 @@ import WorkshopRequests from "@/components/EventsOffice/WorkshopRequests";
 import WorkshopList from "@/components/shared/Professor/WorkshopList";
 import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
+import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -343,6 +344,39 @@ export default function EntityCatchAllPage() {
       }
       if (section === "block-users") {
         return <BlockUnblockUsersContent />;
+      }
+    }
+
+    if (entity === "events-office" && tab === "vendors") {
+      if (section === "participation-requests") {
+        return <VendorParticipationRequests />;
+      }
+
+      if (section === "all-vendors") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Vendor Directory</h2>
+            <p className="text-gray-600">Vendor directory management is coming soon.</p>
+          </div>
+        );
+      }
+
+      if (section === "loyalty-partners") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Loyalty Program Partners</h2>
+            <p className="text-gray-600">Loyalty partnership management will be available soon.</p>
+          </div>
+        );
+      }
+
+      if (section === "documents") {
+        return (
+          <div className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Vendor Documents</h2>
+            <p className="text-gray-600">Document storage and approvals are under construction.</p>
+          </div>
+        );
       }
     }
 
