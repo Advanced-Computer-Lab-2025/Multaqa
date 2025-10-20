@@ -40,7 +40,7 @@ const BoothForm: React.FC = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting, resetForm }) => {
-          const vendorId = String(user?._id); 
+          const vendorId = String(user?._id);
           console.log("Submitting booth form for vendor ID:", vendorId);
           console.log("User data:", user);
           submitBoothForm(values, { setSubmitting, resetForm }, vendorId);
@@ -340,42 +340,57 @@ const BoothForm: React.FC = () => {
                     location
                   </Typography>
 
-                  {formik.touched.boothLocation &&
-                    formik.errors.boothLocation && (
-                      <Box display="flex" alignItems="center" mt={3}>
-                        <ErrorOutlineIcon
-                          color="error"
-                          sx={{ fontSize: 16, mr: 0.5 }}
-                        />
-                        <Typography
-                          variant="caption"
-                          color="error"
-                          sx={{ fontSize: 16 }}
-                        >
-                          {formik.errors.boothLocation}
-                        </Typography>
-                      </Box>
-                    )}
                   <Box
-                    {...(formik.touched.boothLocation &&
-                      formik.errors.boothLocation && {
-                        border: `2px solid ${theme.palette.error.main}`,
-                        borderRadius: "30px",
-                        display: "flex",
-                        alignItems: "center",
-                      })}
                     sx={{
                       width: "100%",
                       maxWidth: "500px",
-                      height: { xs: "250px", md: "400px" },
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
                     }}
                   >
-                    <PlatformMap
-                      onBoothSelect={(boothId) =>
-                        handleBoothSelection(boothId, formik.setFieldValue)
-                      }
-                      selectedBooth={selectedBooth}
-                    />
+                    {/* Booth Map with conditional red border + glow */}
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: { xs: "310px", md: "490px" },
+                        border:
+                          formik.touched.boothLocation &&
+                          formik.errors.boothLocation
+                            ? `2px solid ${theme.palette.error.main}`
+                            : `2px solid transparent`,
+                        borderRadius: "30px",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                    >
+                      <PlatformMap
+                        onBoothSelect={(boothId) =>
+                          handleBoothSelection(boothId, formik.setFieldValue)
+                        }
+                        selectedBooth={selectedBooth}
+                      />
+                    </Box>
+
+                    {/* Error Message Below the Map */}
+                    {formik.touched.boothLocation &&
+                      formik.errors.boothLocation && (
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          mt={1.5}
+                          sx={{ textAlign: "center" }}
+                        >
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.boothLocation}
+                          </Typography>
+                        </Box>
+                      )}
                   </Box>
                 </Box>
               </div>
