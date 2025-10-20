@@ -6,6 +6,7 @@ import VendorItemCard from "./VendorItemCard";
 import { VendorRequestItem } from "./types";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
+import { useAuth } from "@/context/AuthContext";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
@@ -78,17 +79,14 @@ const mapRequestedEventToVendorRequest = (item: any, vendorId: string): VendorRe
 };
 
 export default function VendorRequestsList() {
+  const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [requests, setRequests] = useState<VendorRequestItem[]>([]);
 
   useEffect(() => {
     let cancelled = false;
 
-    // const vendorId =
-    //   typeof window !== "undefined"
-    //     ? localStorage.getItem("vendorId") || localStorage.getItem("userId") || ""
-    //     : "";
-    const vendorId = "68f17b38fae011215b7cf682";
+    const vendorId = user?._id;
 
     if (!vendorId) {
       setError("Unable to find vendor information. Please sign in again.");
@@ -99,17 +97,12 @@ export default function VendorRequestsList() {
       setError(null);
 
       try {
-        const response = await api.get(`/users/${vendorId}`);
-        const payloadRoot = response.data?.data ?? response.data;
-        const requestedEventsRaw =
-          (Array.isArray(payloadRoot?.requestedEvents) && payloadRoot.requestedEvents) ||
-          (Array.isArray(payloadRoot?.vendor?.requestedEvents) && payloadRoot.vendor.requestedEvents) ||
-          (Array.isArray(payloadRoot?.user?.requestedEvents) && payloadRoot.user.requestedEvents) ||
-          [];
+        const response = await api.get(`/vendorEvents/${vendorId}`);
+        const requestedEventsRaw = response.data?.data || [];
 
-        const mapped = (requestedEventsRaw as any[]).map((entry) =>
-          mapRequestedEventToVendorRequest(entry, vendorId)
-        );
+        const mapped = (requestedEventsRaw as any[])
+          .map((entry) => mapRequestedEventToVendorRequest(entry, vendorId as string))
+          .filter((item) => item.status === "PENDING" || item.status === "REJECTED");
 
         if (!cancelled) {
           const unique = new Map<string, VendorRequestItem>();
@@ -138,7 +131,7 @@ export default function VendorRequestsList() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   const renderDetails = (item: VendorRequestItem) => (
     <Stack spacing={1}>
