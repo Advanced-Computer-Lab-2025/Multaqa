@@ -12,12 +12,14 @@ export class CourtService {
     this.courtRepo = new GenericRepo<ICourt>(Court);
   }
 
-  async getAvailableTimeSlots(courtId: string, date: string): Promise<IAvailableSlots> {
+  async getDayAvailableTimeSlots(courtId: string, date: string): Promise<IAvailableSlots> {
+    
     // Validate date format
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(date)) {
       throw createHttpError(400, 'Invalid date format. Use YYYY-MM-DD');
     }
+
 
     const court = await this.courtRepo.findById(courtId);
     if (!court) {
@@ -52,4 +54,63 @@ export class CourtService {
 
     return result;
   }
+
+async getAllCourtsAvailability(): Promise<Array<{ court: ICourt; availability: IAvailableSlots; date: string }>> {
+  // Get today's date
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayString = `${year}-${month}-${day}`;
+  
+  // Get all courts
+  const courts = await this.courtRepo.findAll();
+  
+  if (!courts || courts.length === 0) {
+    throw createHttpError(404, 'No courts found');
+  }
+
+  const allTimeSlots = Object.values(TIME_SLOTS);
+
+  // Map each court to include its availability for today
+  const courtsWithAvailability = courts.map(court => {
+    // Get reserved slots for today
+    const reservedSlots = (court.reservations || [])
+      .filter(reservation => {
+        console.log('Reservation date from DB:', reservation.date);
+        
+        const resDate = new Date(reservation.date);
+        const resYear = resDate.getFullYear();
+        const resMonth = String(resDate.getMonth() + 1).padStart(2, '0');
+        const resDay = String(resDate.getDate()).padStart(2, '0');
+        const resDateString = `${resYear}-${resMonth}-${resDay}`;
+        
+        console.log('Formatted reservation date:', resDateString);
+        
+        return resDateString === todayString;
+      })
+      .map(reservation => reservation.slot as TIME_SLOTS);
+
+    // Get available slots by excluding reserved slots
+    const availableSlots = allTimeSlots.filter(
+      (slot: TIME_SLOTS) => !reservedSlots.includes(slot)
+    );
+
+    const availability: IAvailableSlots = {
+      availableSlots,
+      reservedSlots,
+      totalAvailable: availableSlots.length,
+      totalReserved: reservedSlots.length
+    };
+
+    return {
+      court,
+      availability,
+      date: todayString
+    };
+  });
+
+  return courtsWithAvailability;
+}
+
 }
