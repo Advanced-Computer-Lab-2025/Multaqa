@@ -1,5 +1,5 @@
-import { GYM_SESSION_TYPES } from "../constants/events.constants";
-import { IEvent } from "./models/event.interface";
+import { GYM_SESSION_TYPES } from "../../constants/events.constants";
+import { IEvent } from "./event.interface";
 
 export interface IGymSessionCreationRequest {
     time: string;

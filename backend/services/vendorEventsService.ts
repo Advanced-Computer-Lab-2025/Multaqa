@@ -13,7 +13,7 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/boothLocations.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
-import { IPlatformBooth } from "../interfaces/platformBooth.interface";
+import { IPlatformBooth } from "../interfaces/models/platformBooth.interface";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
