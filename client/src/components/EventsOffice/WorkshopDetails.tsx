@@ -21,8 +21,6 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import CustomIcon from "../shared/Icons/CustomIcon";
 import NeumorphicBox from "../shared/containers/NeumorphicBox";
 import { CustomModal } from "../shared/modals";
-import { EventType } from "../BrowseEvents/browse-events";
-import { format } from "date-fns";
 import { api } from "@/api";
 import { WorkshopViewProps } from "../Event/types";
 
@@ -134,6 +132,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     const professorId = workshop.details["Created By"];
     console.log(professorId);
     console.log(workshop.id);
+    console.log(payload.comments);
     try {
       console.log("Payload being sent:", payload);
       const res = await api.patch(
@@ -141,7 +140,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
         payload
       );
     } catch (err: any) {
-      throw err;
+      window.alert(err?.response?.data?.error || "API call failed");
     } finally {
       setLoading(false);
     }
@@ -182,7 +181,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
 
     const payload = {
       approvalStatus: mapToApiStatus(confirmed || status),
-      comments: removeId(comments),
+      comments: status=="awaiting_review"?removeId(comments):[],
     };
 
     handleCallApi(payload);

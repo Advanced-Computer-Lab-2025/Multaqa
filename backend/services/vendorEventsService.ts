@@ -127,6 +127,14 @@ export class VendorEventsService {
       throw createError(400, "Event is not a bazaar");
     }
 
+    const applied = event.vendors?.some(
+    (v: any) => v.vendor.toString() === vendorId
+  );
+
+  if (applied) {
+    throw createError(400, "Vendor has already applied for this bazaar");
+  }
+
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
@@ -153,40 +161,51 @@ export class VendorEventsService {
     };
   }
 
-  async getVendorsRequest(eventId: string): Promise<VendorRequest[]> {
-    const event = await this.eventRepo.findById(eventId, {
+  async getVendorsRequest(): Promise<VendorRequest[]> {
+    const events = await this.eventRepo.findAll({}, {
       populate: [
         { path: "vendor", select: "companyName logo" },
         { path: "vendors.vendor", select: "companyName logo" },
       ] as any[],
     });
 
-    if (!event) {
-      throw createError(404, "Event not found");
-    }
-
+   
     let vendors: any[] = [];
+   
+  for (const event of events) {
+    const eventDetails = {
+        _id: event._id,
+        name: event.eventName,
+        type: event.type,
+        startDate: event.eventStartDate,
+        endDate: event.eventEndDate,
+        location: event.location,
+      };
     if (event.type === EVENT_TYPES.BAZAAR) {
       for (const vendorEntry of event.vendors || []) {
-        if (vendorEntry.RequestData.status === Event_Request_Status.PENDING) {
+       
           vendors.push({
             vendor: vendorEntry.vendor,
             RequestData: vendorEntry.RequestData,
+            event: eventDetails, 
           });
-        }
+        
       }
     } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.vendor) {
-      if (event.RequestData.status === Event_Request_Status.PENDING) {
+     
         vendors.push({
           vendor: event.vendor,
           RequestData: event.RequestData,
+          event: eventDetails, 
         });
-      }
+      
     }
+  }
 
     if (!vendors || vendors.length === 0) {
-      throw createError(404, "No pending vendor requests found for this event");
+      throw createError(404, "No pending vendor requests found");
     }
+   
     return vendors;
   }
 

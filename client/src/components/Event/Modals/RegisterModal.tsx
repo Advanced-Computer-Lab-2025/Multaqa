@@ -44,13 +44,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
         payload
       );
     } catch (err: any) {
-      if (err.response && err.response.status === 409) {
-        // Specific handling for 404
-        window.alert("You already registered for this event");
-      } else {
-        // Generic error message
-        setError(err?.message || "API call failed");
-      }
+        window.alert(err?.response?.data?.error || "API call failed");
     } finally {
       setLoading(false);
     }

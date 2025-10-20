@@ -1,4 +1,6 @@
+import { api } from "@/api";
 import { EventType } from "../types";
+
 
 export const frameData = (data: any) => {
   const res: any[] = [];
@@ -135,3 +137,14 @@ function transformEvent(event: any) {
       };
   }
 }
+
+export const deleteEvent = async (eventId: string) => {
+  try {
+    const response = await api.delete(`/events/${eventId}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -113,8 +113,7 @@ async function getVendorsRequests(
   res: Response<GetVendorsRequestResponse>
 ) {
   try {
-    const eventId = req.params.eventId;
-    const requests = await vendorEventsService.getVendorsRequest(eventId);
+    const requests = await vendorEventsService.getVendorsRequest();
 
     res.json({
       success: true,
@@ -128,6 +127,7 @@ async function getVendorsRequests(
     throw createError(500, err.message);
   }
 }
+
 
 async function getVendorRequestsDetails(
   req: Request,
@@ -219,6 +219,18 @@ async function getAvailableBooths(
 
 const router = Router();
 
+router.get(
+  "/vendor-requests",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+  }),
+  getVendorsRequests
+);
+
 // Single parameter routes
 router.get(
   "/:vendorId",
@@ -232,18 +244,8 @@ router.post(
   applyToBooth
 );
 
-// Two parameter routes
-router.get(
-  "/:eventId/vendor-requests",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [
-      AdministrationRoleType.EVENTS_OFFICE,
-      AdministrationRoleType.ADMIN,
-    ],
-  }),
-  getVendorsRequests
-);
+
+
 
 router.post(
   "/:vendorId/:eventId/bazaar",
