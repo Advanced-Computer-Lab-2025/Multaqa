@@ -238,22 +238,19 @@ Create a `.env` file in the `/backend` directory with the following structure:
 ```env
 # Database Configuration
 MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/MultaqaDB
+FRONTEND_PORT=3000
 PORT=4000
 
 # Authentication
 ACCESS_TOKEN_SECRET=your_super_secure_access_token_secret
 REFRESH_TOKEN_SECRET=your_super_secure_refresh_token_secret
+VERIFICATION_TOKEN_SECRET=your_super_secure_verification_token_secret
 ACCESS_TOKEN_EXPIRES=15m
 REFRESH_TOKEN_EXPIRES=7d
+VERIFICATION_TOKEN_EXPIRES=1d
 
 # Redis Configuration (must match Docker setup)
 REDIS_URL=redis://localhost:6379
-
-# Email Configuration (Optional)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
 ```
 
 ### Environment Variables Reference
