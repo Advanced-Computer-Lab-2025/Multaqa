@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   InputAdornment,
   Box,
@@ -17,8 +17,8 @@ import CustomIcon from "../Icons/CustomIcon";
 import theme from "@/themes/lightTheme";
 
 interface CustomSearchBarProps extends CustomSearchProps {
-  storageKey?: string; // Key for localStorage
-  autoSaveDelay?: number; // Delay in ms before auto-saving (default: 2000)
+  storageKey?: string;
+  autoSaveDelay?: number;
 }
 
 const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
@@ -34,13 +34,11 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
-  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(
-    null
-  );
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load search history from localStorage on mount
+  // Load search history from localStorage on mount (only once)
   useEffect(() => {
     const savedHistory = localStorage.getItem(storageKey);
     if (savedHistory) {
@@ -52,7 +50,6 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
         setSearchHistory([]);
       }
     } else {
-      // Add some demo data for testing
       const demoHistory = [
         "hall b",
         "conference",
@@ -65,39 +62,43 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
   }, [storageKey]);
 
   // Save search history to localStorage
-  const saveSearchHistory = (query: string) => {
+  const saveSearchHistory = useCallback((query: string) => {
     if (!query.trim()) return;
 
-    const normalizedQuery = query.trim().toLowerCase();
-    const updatedHistory = [
-      normalizedQuery,
-      ...searchHistory.filter((item) => item !== normalizedQuery),
-    ].slice(0, 10); // Keep only last 10 searches
+    setSearchHistory((prevHistory) => {
+      const normalizedQuery = query.trim().toLowerCase();
+      const updatedHistory = [
+        normalizedQuery,
+        ...prevHistory.filter((item) => item !== normalizedQuery),
+      ].slice(0, 10);
 
-    setSearchHistory(updatedHistory);
-    localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
-  };
+      localStorage.setItem(storageKey, JSON.stringify(updatedHistory));
+      return updatedHistory;
+    });
+  }, [storageKey]);
 
   // Auto-save search query after delay
   useEffect(() => {
-    if (value && value.trim()) {
-      // Clear existing timeout
-      if (autoSaveTimeout) {
-        clearTimeout(autoSaveTimeout);
-      }
-
-      // Set new timeout
-      const timeout = setTimeout(() => {
-        saveSearchHistory(value);
-      }, autoSaveDelay);
-
-      setAutoSaveTimeout(timeout);
-
-      return () => {
-        if (timeout) clearTimeout(timeout);
-      };
+    if (!value || !value.trim()) {
+      return;
     }
-  }, [value, autoSaveDelay, storageKey, autoSaveTimeout]);
+
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // Set new timeout
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      saveSearchHistory(value);
+    }, autoSaveDelay);
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [value, autoSaveDelay, saveSearchHistory]);
 
   // Filter suggestions based on current input
   useEffect(() => {
@@ -105,43 +106,43 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
       const query = value.toLowerCase();
       const filtered = searchHistory
         .filter((item) => item.includes(query) && item !== query)
-        .slice(0, 5); // Show max 5 suggestions
+        .slice(0, 5);
 
       setFilteredSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
     } else {
-      setShowSuggestions(false);
       setFilteredSuggestions([]);
     }
   }, [value, searchHistory]);
 
   // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(e);
-    }
-    // Show suggestions when typing
-    if (e.target.value.trim()) {
-      setShowSuggestions(true);
-    }
-  };
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        onChange(e);
+      }
+    },
+    [onChange]
+  );
 
   // Handle suggestion click
-  const handleSuggestionClick = (suggestion: string) => {
-    const syntheticEvent = {
-      target: { value: suggestion },
-    } as React.ChangeEvent<HTMLInputElement>;
+  const handleSuggestionClick = useCallback(
+    (suggestion: string) => {
+      const syntheticEvent = {
+        target: { value: suggestion },
+      } as React.ChangeEvent<HTMLInputElement>;
 
-    if (onChange) {
-      onChange(syntheticEvent);
-    }
-    setShowSuggestions(false);
+      if (onChange) {
+        onChange(syntheticEvent);
+      }
+      setShowSuggestions(false);
 
-    // Focus back to input
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    },
+    [onChange]
+  );
 
   // Handle click outside to close suggestions
   useEffect(() => {
@@ -161,6 +162,17 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Handle focus to show suggestions
+  const handleFocus = useCallback(() => {
+    if (!value || !value.trim()) {
+      // Show full history when input is empty
+      setFilteredSuggestions(searchHistory.slice(0, 5));
+      setShowSuggestions(searchHistory.length > 0);
+    } else if (filteredSuggestions.length > 0) {
+      setShowSuggestions(true);
+    }
+  }, [value, searchHistory, filteredSuggestions.length]);
 
   return (
     <div
@@ -186,11 +198,7 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
           color="primary"
           value={value}
           onChange={handleInputChange}
-          onFocus={() => {
-            if (filteredSuggestions.length > 0) {
-              setShowSuggestions(true);
-            }
-          }}
+          onFocus={handleFocus}
           sx={{ width: width }}
           InputProps={{
             endAdornment: icon ? (
@@ -208,7 +216,7 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
           sx={{
             position: "absolute",
             top: "-35px",
-            right: icon ? "32px" : "0px", // Account for search icon width (32px + 8px margin)
+            right: icon ? "32px" : "0px",
             fontSize: "12px",
             fontWeight: 600,
             color: "#fff",
@@ -328,7 +336,7 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
             color: theme.palette.primary.main,
             borderColor: " rgba(0, 0, 0, 0.3);",
             "&:hover": {
-              borderColor: theme.palette.primary.main, // New border color on hover
+              borderColor: theme.palette.primary.main,
             },
           }}
         />
