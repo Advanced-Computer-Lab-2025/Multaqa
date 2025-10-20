@@ -28,6 +28,7 @@ import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
 // import PollIcon from '@mui/icons-material/Poll';
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
+import EmptyState from "../shared/EmptyState/EmptyState";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -429,34 +430,20 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
             {/* No results message */}
             {filteredEvents.length === 0 && events.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>
-                <Typography variant="h6" color="text.secondary">
-                  No events available
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  There are no events in the database yet
-                </Typography>
-              </Box>
+              <EmptyState
+                title="No events available"
+                description="There are no events in our archives yet. Check back later!"
+                imageAlt="No events illustration"
+              />
             )}
 
             {/* No results message */}
             {filteredEvents.length === 0 && (
-              <Box sx={{ textAlign: "center", py: 8 }}>
-                <Typography variant="h6" color="text.secondary">
-                  No events found matching your criteria
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  Try adjusting your search or filters
-                </Typography>
-              </Box>
+              <EmptyState
+                title="No events found"
+                description="Try adjusting your search or filters"
+                imageAlt="Empty search results illustration"
+              />
             )}
           </Box>
         </>
