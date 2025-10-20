@@ -8,4 +8,5 @@ export enum BOOTH_LOCATIONS {
   BOOTH_7 = "Booth 7",
   BOOTH_8 = "Booth 8",
   BOOTH_9 = "Booth 9",
+  BOOTH_10 = "Booth 10",
 }
