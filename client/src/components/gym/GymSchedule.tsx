@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
 import theme from "@/themes/lightTheme";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
+import { fetchGymSessions } from "./utils";
 
 // colors handled by `GymSessionCard`
 
@@ -15,50 +16,51 @@ type Props = {
   sessions?: GymSession[]; // optional external data, else use demo
 };
 
-const demoSessions = (base: Date): GymSession[] => {
-  const y = base.getFullYear();
-  const m = base.getMonth();
-  const mk = (
-    d: number,
-    sh: number,
-    eh: number,
-    t: GymSessionType,
-    title: string
-  ): GymSession => ({
-    id: `${y}-${m + 1}-${d}-${t}-${sh}`,
-    title,
-    type: t,
-    start: new Date(y, m, d, sh, 0, 0).toISOString(),
-    end: new Date(y, m, d, eh, 0, 0).toISOString(),
-    instructor: ["Sara", "Omar", "Nora", "Hossam"][d % 4],
-    location: ["Studio A", "Studio B", "Main Hall"][d % 3],
-    spotsTotal: 20,
-    spotsTaken: (d * 3 + sh) % 20,
-  });
-  return [
-    mk(2, 9, 10, "YOGA", "Morning Flow"),
-    mk(3, 18, 19, "ZUMBA", "Evening Zumba"),
-    mk(5, 8, 9, "PILATES", "Core Strength"),
-    mk(8, 17, 18, "AEROBICS", "High Energy"),
-    mk(12, 10, 11, "CROSS_CIRCUIT", "Circuit Blast"),
-    mk(15, 19, 20, "KICK_BOXING", "Kick-boxing Basics"),
-    mk(16, 7, 8, "YOGA", "Sunrise Yoga"),
-    mk(22, 18, 19, "PILATES", "Pilates Reformer"),
-    mk(25, 12, 13, "ZUMBA", "Zumba Party"),
-  ];
-};
-
 export default function GymSchedule({ month, sessions }: Props) {
   const [current, setCurrent] = useState<Date>(month ?? new Date());
   const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
+  const [fetched, setFetched] = useState<GymSession[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const all = useMemo(
-    () => sessions ?? demoSessions(current),
-    [sessions, current]
-  );
+  // Fetch sessions from API (students like Browse Events)
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchGymSessions();
+        if (mounted) setFetched(data);
+      } catch (e) {
+        if (mounted) setError("Failed to load gym sessions. Please try again later.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [current]);
+
+  // Prefer prop sessions when provided (tests/SSR), else use fetched
+  const all = useMemo(() => sessions ?? fetched, [sessions, fetched]);
+
+  // Filter by selected calendar month
+  const inMonth = useMemo(() => {
+    const y = current.getFullYear();
+    const m = current.getMonth();
+    return all.filter((s) => {
+      const d = new Date(s.start);
+      return d.getFullYear() === y && d.getMonth() === m;
+    });
+  }, [all, current]);
+
+  // Filter by type
   const filtered = useMemo(
-    () => (filter === "ALL" ? all : all.filter((s) => s.type === filter)),
-    [all, filter]
+    () => (filter === "ALL" ? inMonth : inMonth.filter((s) => s.type === filter)),
+    [inMonth, filter]
   );
 
   const byDay = useMemo(() => {
@@ -112,6 +114,17 @@ export default function GymSchedule({ month, sessions }: Props) {
       title="Gym Sessions"
       description="Browse sessions by month and filter by type."
     >
+      {/* Loading / Error States */}
+      {loading && (
+        <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
+          Loading sessions...
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="body2" sx={{ color: theme.palette.error.main, mb: 2 }}>
+          {error}
+        </Typography>
+      )}
       {/* Controls */}
       <Box
         sx={{
