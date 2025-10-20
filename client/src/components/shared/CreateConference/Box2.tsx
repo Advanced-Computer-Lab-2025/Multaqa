@@ -4,14 +4,14 @@ import { Box, Typography} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useFormikContext } from 'formik'; // 💡 Import Formik hook
 import CustomTextField from '@/components/shared/input-fields/CustomTextField';
-import CustomButton from '../Buttons/CustomButton';
-import { step2BoxStyles, modalFormStyles, modalFooterStyles,modalHeaderStyles, detailTitleStyles } from './styles';
+import { step2BoxStyles, modalFormStyles,modalHeaderStyles, detailTitleStyles } from './styles';
 import { EventFormData } from './types';
 import ExtraResourcesField from './ExtraResourcesField';
 import { CustomCheckboxGroup, CustomRadio} from '../input-fields';
 import { Step2Props } from './types';
 
 const CustomDatePicker = (props: any) => <CustomTextField {...props} fieldType="text" placeholder="YYYY-MM-DD" />;
+const CustomTimePicker = (props: any) => <CustomTextField {...props} fieldType="text" placeholder="HH:MM" />;
 const EventCreationStep2Details: React.FC<Step2Props> = ({ 
     onClose, 
 }) => {
@@ -59,6 +59,30 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                         required
                     />
                     </Box>
+                        <Box sx={{display:"flex", gap:1, mt:0}}>
+                        {/* Start Time */}
+                    <CustomTimePicker
+                        label="Event Start Time"
+                        value={values.eventStartTime}
+                        onChange={handleChange('eventStartTime')}
+                        onBlur={handleBlur('eventStartTime')}
+                        error={touched.eventStartTime && Boolean(errors.eventStartTime)}
+                        helperText={touched.eventStartTime && errors.eventStartTime}
+                        sx={{ mb: 1 }} 
+                        required
+                    />
+                     {/* End Time */}
+                    <CustomTimePicker
+                        label="Event End Time"
+                        value={values.eventEndTime}
+                        onChange={handleChange('eventEndTime')}
+                        onBlur={handleBlur('eventEndTime')}
+                        error={touched.eventEndTime && Boolean(errors.eventEndTime)}
+                        helperText={touched.eventEndTime && errors.eventEndTime}
+                        sx={{ mb: 1 }} 
+                        required
+                    />
+                    </Box>
 
                 {/* 2. Full Agenda */}
                 <CustomTextField 
@@ -72,6 +96,8 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     error={touched.fullAgenda && Boolean(errors.fullAgenda)} // 💡 For validation
                     sx={{ mb: 1 }} 
                     required
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
                  />
                  {/* 3. Conference Website Link */}
                 <CustomTextField
@@ -84,6 +110,8 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     onBlur={handleBlur('websiteLink')}
                     error={touched.websiteLink && Boolean(errors.websiteLink)}
                     sx={{ mb: 1 }} 
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
                 />
                 {/* 4. Required Budget */}
                 <CustomTextField
@@ -107,7 +135,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     size='small'
                     options={[
                         { label: 'GUC Internal Funds', value: 'GUC' },
-                        { label: 'External Sponsor', value: 'External' },
+                        { label: 'External Sponsor', value: 'external' },
                         { label: 'Hybrid', value: 'Hybrid' },
                     ]}
                     onChange={handleSelectChange} 

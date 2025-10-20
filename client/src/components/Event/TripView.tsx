@@ -242,7 +242,7 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={0} open={edit} onClose={()=> {setEdit(false)}}/>
+      <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
       eventType={"Trip"} userInfo={userInfo} eventId={id}/>
     </>

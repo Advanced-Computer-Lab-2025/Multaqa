@@ -77,7 +77,6 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
         registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
         capacity: values.capacity,
     };
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
     actions.resetForm();
     handleCallApi(payload);
   };
@@ -90,7 +89,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
 
   return (
     <>
-     <CustomModalLayout open={open} onClose={onClose}>
+     <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
         <form onSubmit={handleSubmit}>
         <Typography variant='h4' color='primary' className='text-center mb-3'>Create trip</Typography>
         <Grid container spacing={2}>
@@ -144,6 +143,19 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         onChange={handleChange}
                     />
                     {errors.price && touched.price ? <p style={{color:"#db3030"}}>{errors.price}</p> : <></>}
+                </Grid>
+                <Grid size={6}>
+                    <TextField
+                        name="capacity"
+                        label="Capacity"
+                        type="number"
+                        fullWidth
+                        variant='standard'
+                        placeholder="Enter Capacity"
+                        value={values.capacity}
+                        onChange={handleChange}
+                    />
+                    {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
                 </Grid>
                 <Grid size={6}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -210,19 +222,6 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <TextField
-                        name="capacity"
-                        label="Capacity"
-                        type="number"
-                        fullWidth
-                        variant='standard'
-                        placeholder="Enter Capacity"
-                        value={values.capacity}
-                        onChange={handleChange}
-                    />
-                    {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
                 </Grid>
                 <Grid size={12}>
                     <CustomTextField 
