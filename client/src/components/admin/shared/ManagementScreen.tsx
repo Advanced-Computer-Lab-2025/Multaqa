@@ -109,9 +109,22 @@ export default function ManagementScreen<T>({
               display: "grid",
               gap: 3,
               gridTemplateColumns: gridColumns,
+              justifyItems: "center",
+              alignItems: "start",
             }}
           >
-            {items.map((item, index) => renderItem(item))}
+            {items.map((item, index) => (
+              <Box
+                key={index}
+                sx={{
+                  width: "100%",
+                  maxWidth: "400px",
+                  minWidth: "280px",
+                }}
+              >
+                {renderItem(item)}
+              </Box>
+            ))}
           </Box>
 
           {items.length === 0 && (

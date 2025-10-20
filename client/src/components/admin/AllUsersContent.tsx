@@ -79,6 +79,10 @@ export default function AllUsersContent() {
         padding: "16px",
         backgroundColor: "#fff",
         transition: "all 0.2s ease",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        minHeight: "200px",
         "&:hover": {
           borderColor: theme.palette.tertiary.main,
           boxShadow: "0 2px 8px rgba(58, 79, 153, 0.1)",
@@ -91,9 +95,11 @@ export default function AllUsersContent() {
           justifyContent: "space-between",
           alignItems: "flex-start",
           mb: 2,
+          flexGrow: 1,
+          gap: 2,
         }}
       >
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
             variant="body1"
             sx={{
@@ -102,6 +108,8 @@ export default function AllUsersContent() {
               color: "text.primary",
               fontSize: "16px",
               mb: 0.5,
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           >
             {user.name}
@@ -112,6 +120,8 @@ export default function AllUsersContent() {
               color: "#666",
               fontSize: "14px",
               mb: 1,
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           >
             {user.email}
@@ -121,6 +131,8 @@ export default function AllUsersContent() {
             sx={{
               color: "#9e9e9e",
               fontSize: "12px",
+              wordBreak: "break-word",
+              overflowWrap: "break-word",
             }}
           >
             Created: {user.createdDate}
@@ -135,13 +147,17 @@ export default function AllUsersContent() {
             fontSize: "12px",
             fontWeight: 600,
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
+            flexShrink: 0,
+            whiteSpace: "nowrap",
           }}
         >
           {user.role}
         </Box>
       </Box>
 
-      <StatusChip status={user.status} />
+      <Box sx={{ mt: "auto" }}>
+        <StatusChip status={user.status} />
+      </Box>
     </Box>
   );
 
@@ -268,6 +284,7 @@ export default function AllUsersContent() {
               />
 
               <CustomSelectField
+                name="userRole"
                 label="User Role"
                 fieldType="single"
                 options={userRoleOptions}
