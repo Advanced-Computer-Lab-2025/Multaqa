@@ -246,6 +246,7 @@ export default function EntityCatchAllPage() {
 
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
+     
       if (section === "available") {
         // Interpreting "Available Opportunities" as upcoming accepted participation view for consistency
         return <VendorUpcomingParticipation />;
@@ -258,6 +259,10 @@ export default function EntityCatchAllPage() {
       if (section === "apply-booth") {
         return <BoothForm />;
       }
+
+      if (section === "bazaars") {
+        return <BrowseEventsContent registered={false} user={"vendor"} userInfo={user} userID={userId}/>
+       }
     }
 
     // Courts booking page for stakeholders
