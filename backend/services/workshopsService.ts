@@ -25,7 +25,7 @@ export class WorkshopService {
     data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
-    const createdEvent = await this.eventRepo.create(mappedData);
+    const createdEvent = await this.workshopRepo.create(mappedData);
     const professor = await this.staffRepo.findById(professorid);
     if (professor && professor.myWorkshops) {
       const createdEventId = createdEvent._id;
@@ -52,7 +52,10 @@ export class WorkshopService {
     if (!professor.myWorkshops.some((id) => id.toString() === workshopId))
       throw createError(403, "You are not authorized to update this workshop");
 
-    const updatedWorkshop = await this.eventRepo.update(workshopId, updateData);
+    const updatedWorkshop = await this.workshopRepo.update(
+      workshopId,
+      updateData
+    );
 
     if (!updatedWorkshop) {
       throw createError(404, "Workshop not found");

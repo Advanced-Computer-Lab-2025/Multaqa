@@ -244,6 +244,21 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
+             <Tooltip title="Delete">
+                  <IconButton
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
           </>:null) // add edit and delete handlers
         }
         metaNodes={metaNodes}
@@ -331,6 +346,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         websiteLink = {details["Link"]}
         agenda={agenda}
         extraRequiredResources={details["Extra Required Resources"]}
+        eventStartTime={details["Start Time"]}
+        eventEndTime={details["End Time"]}
       />
     </>
   );

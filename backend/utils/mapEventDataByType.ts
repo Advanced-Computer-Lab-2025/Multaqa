@@ -18,7 +18,7 @@ export function mapEventDataByType(type: string, data: any) {
       return {
         ...baseFields,
         fullAgenda: data.fullAgenda,
-        facultyResponsible: data.facultyResponsible,
+        associatedFaculty: data.associatedFaculty,
         associatedProfs: data.associatedProfs,
         requiredBudget: data.requiredBudget,
         fundingSource: data.fundingSource,

@@ -21,6 +21,8 @@ import "./schemas/event-schemas/eventSchema";
 import "./schemas/event-schemas/workshopEventSchema";
 import "./schemas/event-schemas/bazaarEventSchema";
 import "./schemas/event-schemas/platformBoothEventSchema";
+import "./schemas/event-schemas/tripSchema";
+import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
@@ -32,7 +34,7 @@ import courtRouter from "./routes/court.routes";
 dotenv.config();
 
 const app = express();
-app.use(cors({origin: "http://localhost:3000", credentials: true}));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(json());
 app.use(cookieParser());
 

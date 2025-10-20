@@ -33,6 +33,8 @@ interface EditConferenceProps {
     description:string;
     eventStartDate: string;
     eventEndDate:string;
+    eventStartTime:string;
+    eventEndTime:string;
     requiredBudget:string;
     fundingSource:string;
     websiteLink:string;
@@ -54,6 +56,8 @@ const Edit: React.FC<EditConferenceProps> = ({
     websiteLink,
     agenda = "",
     extraRequiredResources = [],
+    eventStartTime,
+    eventEndTime,
     }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
@@ -65,8 +69,8 @@ const Edit: React.FC<EditConferenceProps> = ({
         eventStartDate: eventStartDate,
         location: eventStartDate,
         eventEndDate: eventEndDate,
-        eventStartTime:'',
-        eventEndTime:'',
+        eventStartTime,
+        eventEndTime,
         description: description,
         fullAgenda: agenda,
         websiteLink: websiteLink, 

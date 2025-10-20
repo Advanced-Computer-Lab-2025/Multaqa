@@ -285,11 +285,11 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
                 { label: 'MET', value: 'MET' },
                 { label: 'IET', value: 'IET' },
                 { label: 'EMS', value: 'EMS' },
-                { label: 'Pharmacy', value: 'pharmacy' },
-                { label: 'Management', value: 'management' },
-                { label: 'Applied Arts', value: 'applied arts' },
-                { label: 'Law', value: 'Law' },
-                { label: 'Dentistry', value: 'dentistry' },
+                { label: 'Management', value: 'MNGT' },
+                { label: 'Applied Arts', value: 'AA' },
+                { label: 'Architecture', value: 'ARCH' },
+                { label: 'Law', value: 'LAW' },
+                { label: 'DMET', value: 'DMET' }
               ]}
               value={values.faculty}
               onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)} name={''}                  />
