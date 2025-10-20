@@ -1,12 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Stack, Chip } from "@mui/material";
+import { Box, Typography, Stack, Chip, IconButton, Tooltip } from "@mui/material";
 import theme from "@/themes/lightTheme";
 import WorkshopItemCard from "@/components/EventsOffice/WorkshopItemCard";
 import { api } from "@/api";
 import { frameData } from "@/components/BrowseEvents/utils";
 import { WorkshopViewProps } from "@/components/Event/types";
+import EventIcon from '@mui/icons-material/Event';
+import CreateParent from "@/components/createButton/createParent";
+import { EditIcon } from "lucide-react";
+import { color } from "storybook/internal/theming";
+import CreateWorkshop from "@/components/tempPages/CreateWorkshop/CreateWorkshop";
+import EditWorkshop from "@/components/tempPages/EditWorkshop/EditWorkshop";
+import { create } from "domain";
 
 const statusChip = (status: string) => {
   if (status === "pending")
@@ -87,21 +94,55 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
       </Box>
 
       <Stack spacing={2}>
-     
         {
         workshops && workshops.length>0&&
               workshops.map((item) => (
-              <WorkshopItemCard
-                id={item.id}
-                key={item.id}
-                item={item}
-                userId={userId}
-                rightIcon={
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    {statusChip(item.details["Status"])}
-                  </Stack>
-                }
-              />
+             <React.Fragment key={item.id}>
+            <WorkshopItemCard
+              id={item.id}
+              item={item}
+              userId={userId}
+              rightIcon={
+                (item.details["Status"] === "pending" || item.details["Status"] === "awaiting_review") && (
+                  <Tooltip title="Edit">
+                    <IconButton
+                      onClick={() => setEditingWorkshopId(item.id)}
+                      sx={{
+                        color,
+                        "&:hover": { color: "primary.main" },
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )
+              }
+              rightSlot={
+                <Stack direction="row" spacing={1} alignItems="center">
+                  {statusChip(item.details["Status"])}
+                </Stack>
+              }
+          />
+          <EditWorkshop
+            workshopId={item.id}  
+            open={editingWorkshopId === item.id} 
+            workshopName={item.name}
+            budget={parseInt(item.details["Required Budget"],10)}
+            capacity={parseInt(item.details.Capacity,10)}  
+            startDate={new Date(item.details["Start Date"])} 
+            endDate={new Date(item.details["End Date"])} 
+            registrationDeadline={new Date(item.details["Registration Deadline"])}
+            description={item.description}
+            agenda={item.agenda}
+            location={item.details.Location}
+            fundingSource={item.details["Funding Source"]} 
+            creatingProfessor={item.details["Created By"]} 
+            extraResources={item.details["Extra Required Resources"]}
+            associatedProfs={rawWorkshops[index].associatedProfs}
+            onClose={(() => setEditingWorkshopId(null))} 
+            setRefresh={setRefresh}
+          />
+          </React.Fragment>
             ))}
             {(!workshops || workshops.length==0)&&
               <Box
@@ -117,6 +158,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
             </Box>
             }
       </Stack>
+      <CreateWorkshop professors={[]} creatingProfessor={userId} open={creation} onClose={()=>{setCreation(false)}} setRefresh={setRefresh}/>
     </Box>
   );
 };

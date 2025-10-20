@@ -10,23 +10,7 @@ import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalF
 import { EventFormData} from './types/'; 
 import {api} from "../../../api";
 import CustomButton from '../Buttons/CustomButton';
-
-
-const initialFormData: EventFormData = {
-    eventName: '',
-    eventStartDate: '',
-    location:'',
-    eventEndDate: '',
-    eventStartTime:'',
-    eventEndTime:'',
-    description: '',
-    fullAgenda: '',
-    websiteLink: '', 
-    requiredBudget: '',
-    fundingSource: '',
-    extraRequiredResources: [],
-    registrationDeadline:''
-}
+import { CustomModalLayout } from '../modals';
 
 //Define the validation schema 
 const validationSchema = yup.object({
@@ -39,11 +23,58 @@ const validationSchema = yup.object({
     websiteLink: yup.string().required('Link is required'),
 
 });
-const Create: React.FC = () => {
+
+interface EditConferenceProps {
+    conferenceId:string;
+    open:boolean;
+    onClose: () => void;
+    setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+    eventName: string;
+    description:string;
+    eventStartDate: string;
+    eventEndDate:string;
+    requiredBudget:string;
+    fundingSource:string;
+    websiteLink:string;
+    agenda:string;
+    extraRequiredResources: any;
+ }
+
+const Edit: React.FC<EditConferenceProps> = ({
+    conferenceId,
+    open, 
+    onClose, 
+    setRefresh, 
+    eventName, 
+    description, 
+    eventStartDate, 
+    eventEndDate, 
+    requiredBudget,
+    fundingSource,
+    websiteLink,
+    agenda = "",
+    extraRequiredResources = [],
+    }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
+
+    const initialFormData: EventFormData = {
+        eventName: eventName,
+        eventStartDate: eventStartDate,
+        location: eventStartDate,
+        eventEndDate: eventEndDate,
+        eventStartTime:'',
+        eventEndTime:'',
+        description: description,
+        fullAgenda: agenda,
+        websiteLink: websiteLink, 
+        requiredBudget: requiredBudget,
+        fundingSource: fundingSource,
+        extraRequiredResources: extraRequiredResources,
+        registrationDeadline:'',
+    }
 
     const handleCallApi = async (payload:any) => {
     setLoading(true);
@@ -51,10 +82,10 @@ const Create: React.FC = () => {
     setResponse([]);
     try {
         // TODO: Replace with your API route
-        const res = await api.patch("/events", payload);
+        const res = await api.patch("/events/" + conferenceId, payload);
         setResponse(res.data);
         console.log("Success! Response:", res.data);
-        alert('Conference created successfully!');
+        setRefresh((prev)=> !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
     } finally {
@@ -63,12 +94,13 @@ const Create: React.FC = () => {
     };
 
     const onSubmit = async (values: any, actions: any) => {
+        onClose();
         const payload = {
         type:"conference",
         eventName: values.eventName,
         eventStartDate: values.eventStartDate,
         eventEndDate: values.eventEndDate,
-        location:"GUC",
+        location:"GUC Cairo",
         eventStartTime: "06:00",
         eventEndTime:"07:00",
         description: values.description,
@@ -80,9 +112,7 @@ const Create: React.FC = () => {
         registrationDeadline:"2025-1-1"
         }
         console.log(formik.errors)
-        console.log(payload)
         handleCallApi(payload); 
-        alert('Conference created successfully!');
     }
 
     const formik = useFormik<EventFormData>({
@@ -91,11 +121,11 @@ const Create: React.FC = () => {
         onSubmit:onSubmit,
     });
     const handleClose = () => { console.log("Modal flow closed/canceled."); };
-
     return (
+        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]" borderColor="#5A67D8">
         <Box sx={wrapperContainerStyles}>    
             <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start'}}>
-                Create Conference
+                Edit Conference
             </Typography>        
         <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>
@@ -118,7 +148,8 @@ const Create: React.FC = () => {
             </form>
         </FormikProvider>
         </Box>
+        </CustomModalLayout>
     );
 };
 
-export default Create;
+export default Edit;

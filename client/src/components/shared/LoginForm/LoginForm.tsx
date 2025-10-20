@@ -23,28 +23,6 @@ const LoginForm: React.FC = () => {
     password: "",
   };
 
-  // Function to determine where to redirect based on user role
-  // const getRedirectPath = (role: string) => {
-  //   console.log("User role for redirection:", role);
-  //   console.log(typeof role);
-  //   switch (role) {
-  //     case "admin":
-  //       return `/admin`;
-  //     case "student":
-  //       return `/student`;
-  //     case "staff":
-  //       return `/staff`;
-  //     case "ta":
-  //       return `/ta/`;
-  //     case "professor":
-  //       return `/professor`;
-  //     case "events-office":
-  //       return `/events-office`;
-  //     case "vendor":
-  //       return `/vendor`;
-  //   }
-  // };
-
   const getRedirectPath = (role: string) => {
     // DON'T include locale - i18n router adds it automatically
     // useRouter() from @/i18n/navigation handles locale prefixing
@@ -104,11 +82,10 @@ const LoginForm: React.FC = () => {
             router.push(redirectPath!);
           }, 1500);
         } catch (err) {
-          console.error("Login error:", err);
+          console.log("Login error:", err);
+          
           toast.error(
-            err instanceof Error
-              ? err.message
-              : "Login failed. Please check your credentials.",
+              err.response?.data?.error,
             {
               position: "bottom-right",
               autoClose: 5000,
