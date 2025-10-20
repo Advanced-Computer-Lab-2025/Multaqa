@@ -403,7 +403,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       {error && (
         <ErrorState
           title={error}
-          description="Make sure your backend server is running on the correct port"
+          description="Oops! Something has occurred on our end. Please try again"
           imageAlt="Server error illustration"
         />
       )}
