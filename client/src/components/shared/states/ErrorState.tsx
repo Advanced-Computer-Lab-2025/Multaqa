@@ -5,6 +5,7 @@ import { Box, Typography, Button } from "@mui/material";
 import Image from "next/image";
 import theme from "@/themes/lightTheme";
 import ServerErrImg from "../../../../public/assets/images/undraw_co-server_err.svg";
+import CustomButton from "../Buttons/CustomButton";
 
 interface ErrorStateProps {
   title?: string;
@@ -50,13 +51,12 @@ const ErrorState: React.FC<ErrorStateProps> = ({
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         {description}
       </Typography>
-      <Button
-        variant="contained"
+      <CustomButton
+        label={ctaLabel}
         color="primary"
+        variant="contained"
         onClick={onCtaClick ?? handleDefaultClick}
-      >
-        {ctaLabel}
-      </Button>
+      />
     </Box>
   );
 };
