@@ -60,6 +60,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.message || "API call failed");
+      window.alert(err.response.data.error);
     } finally {
       setLoading(false);
     }

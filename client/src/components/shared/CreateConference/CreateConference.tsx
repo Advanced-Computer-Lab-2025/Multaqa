@@ -65,6 +65,7 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             return res.data
         } catch (err: any) {
             setError(err?.message || "API call failed");
+            window.alert(err.response.data.error);
         } finally {
             setLoading(false);
         }

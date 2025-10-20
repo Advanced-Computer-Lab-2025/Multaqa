@@ -46,6 +46,7 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
         setRefresh((prev)=> !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
+        window.alert(err.response.data.error);
     } finally {
         setLoading(false);
     }

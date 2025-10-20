@@ -95,6 +95,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
         // setRefresh((prev) => !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
+        window.alert(err.response.data.error);
     } finally {
         setLoading(false);
     }
