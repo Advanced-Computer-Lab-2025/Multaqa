@@ -39,9 +39,9 @@ export default function RoleAssignmentContent() {
 
   const roleKeys = ["staff", "ta", "professor"] as const;
   const roleLabels: Record<(typeof roleKeys)[number], string> = {
-    staff: "Staff",
+    staff: "staff",
     ta: "TA",
-    professor: "Professor",
+    professor: "professor",
   };
 
   const [assigned, setAssigned] = useState<Record<string, Applicant[]>>({
@@ -110,7 +110,7 @@ export default function RoleAssignmentContent() {
       // Call the API to assign the role
       await handleAssignRole(
         pendingAssignment.applicant.id,
-        pendingAssignment.role,
+        roleLabels[pendingAssignment.role as keyof typeof roleLabels],
         pendingAssignment.applicant,
         setAssigned,
         setApplicants
