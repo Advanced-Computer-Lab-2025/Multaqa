@@ -2,7 +2,6 @@ import { Schema } from "mongoose";
 import { IStaffMember } from "../../interfaces/models/staffMember.interface";
 import { User } from "./userSchema";
 import { StaffPosition } from "../../constants/staffMember.constants";
-import { PROFESSOR_PERMISSIONS } from "../../constants/staffMember.constants";
 
 const staffMemberSchema = new Schema<IStaffMember>({
   firstName: { type: String, required: true },
@@ -16,13 +15,7 @@ const staffMemberSchema = new Schema<IStaffMember>({
   walletBalance: { type: Number, default: 0 },
   favorites: [{ type: Schema.Types.ObjectId, ref: "Event", default: [] }],
   registeredEvents: [{ type: Schema.Types.ObjectId, ref: "Event", default: [] }],
-  myWorkshops: [{ type: Schema.Types.ObjectId, ref: "Workshop", default: [] }],
-  permissions: {
-    type: [String],
-    default: function (this: IStaffMember) {
-      return this.position === "professor" ? PROFESSOR_PERMISSIONS : [];
-    },
-  },
+  myWorkshops: [{ type: Schema.Types.ObjectId, ref: "Workshop", default: [] }]
 });
 
 export const StaffMember = User.discriminator<IStaffMember>(
