@@ -26,7 +26,7 @@ import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
 import cookieParser from "cookie-parser";
 import verifyJWT from "./middleware/verifyJWT.middleware";
-import { errorHandler, notFoundHandler } from "./auth/errorHandler";
+import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
