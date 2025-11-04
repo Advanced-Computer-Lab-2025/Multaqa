@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { BoothSizeEnum } from "../constants/boothSize.constants";
+import { BoothSizeEnum } from "../constants/booth.constants";
 
 const attendeeSchema = Joi.object({
   name: Joi.string().required(),

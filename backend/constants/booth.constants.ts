@@ -10,3 +10,6 @@ export enum BOOTH_LOCATIONS {
   BOOTH_9 = "Booth 9",
   BOOTH_10 = "Booth 10",
 }
+
+export const BoothSizeEnum = ["2x2", "4x4"] as const;
+export type BoothSize = (typeof BoothSizeEnum)[number];

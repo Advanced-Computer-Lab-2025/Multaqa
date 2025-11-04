@@ -11,7 +11,7 @@ import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { Event_Request_Status } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
-import { BOOTH_LOCATIONS } from "../constants/boothLocations.constants";
+import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
 import { IPlatformBooth } from "../interfaces/models/platformBooth.interface";
 
