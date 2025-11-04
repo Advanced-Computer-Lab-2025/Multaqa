@@ -11,12 +11,3 @@ export enum FUNDING_SOURCES {
   GUC = "GUC",
   EXTERNAL = "External",
 }
-
-export enum GYM_SESSION_TYPES {
-  YOGA = "Yoga",
-  PILATES = "Pilates",
-  ZUMBA = "Zumba",
-  AEROBICS = "Aerobics",
-  CROSS_CIRCUIT = "Cross-circuit",
-  KICK_BOXING = "Kick-boxing",
-}

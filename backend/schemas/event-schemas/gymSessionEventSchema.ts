@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { Event } from "./eventSchema";
-import { GYM_SESSION_TYPES } from "../../constants/events.constants";
+import { GYM_SESSION_TYPES } from "../../constants/gymSessions.constants";
 
 const gymSessionSchema = new Schema({
   trainer: { type: String },

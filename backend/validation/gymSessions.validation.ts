@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { GYM_SESSION_TYPES } from "../constants/events.constants";
+import { GYM_SESSION_TYPES } from "../constants/gymSessions.constants";
 
 export const createGymSessionValidationSchema = Joi.object({
   trainer: Joi.string().min(2).max(100).messages({

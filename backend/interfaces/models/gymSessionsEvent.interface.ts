@@ -1,4 +1,4 @@
-import { GYM_SESSION_TYPES } from "../../constants/events.constants";
+import { GYM_SESSION_TYPES } from "../../constants/gymSessions.constants";
 import { IEvent } from "./event.interface";
 
 export interface IGymSessionCreationRequest {
