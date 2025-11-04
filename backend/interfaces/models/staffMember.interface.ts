@@ -12,5 +12,4 @@ export interface IStaffMember extends IUser {
   registeredEvents?: Schema.Types.ObjectId[];
   // TODO: Filter registeredEvents by (date < today) to get attended ones
   myWorkshops?: Schema.Types.ObjectId[];
-  permissions?: string[]; // only filled if professor
 }

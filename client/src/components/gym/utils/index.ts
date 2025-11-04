@@ -5,7 +5,7 @@ import {
   CreateGymSessionResponse,
   GetAllGymSessionsResponse,
 } from "../../../../../backend/interfaces/responses/gymSessionsResponses.interface";
-import { GYM_SESSION_TYPES } from "../../../../../backend/constants/events.constants";
+import { GYM_SESSION_TYPES } from "../../../../../backend/constants/gymSessions.constants";
 
 // Map frontend session type to backend session type
 const mapSessionTypeToBackend = (type: GymSessionType): string => {
