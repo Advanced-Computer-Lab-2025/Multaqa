@@ -1,7 +1,7 @@
 import React from "react";
 import { Formik } from "formik";
 import { RegistrationFormProps } from "./types";
-import { getValidationSchema } from "./utils";
+import { getValidationSchema, handleRegistrationSubmit } from "./utils";
 import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
@@ -14,20 +14,34 @@ import { useTheme } from "@mui/material/styles";
 // import BusinessIcon from "@mui/icons-material/Business";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
-import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface"; 
+import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
   const { signup } = useAuth();
 
- const handleRegistration = async (data: any) => {
-  const result = await signup(data);
-  return result as unknown as SignupResponse;
-};
+  const handleRegistration = async (data: {
+    firstName?: string;
+    lastName?: string;
+    email: string;
+    password: string;
+    gucId?: string;
+    companyName?: string;
+    type: string;
+  }) => {
+    const result = await signup(data);
+    return result as unknown as SignupResponse;
+  };
 
-
-  const initialValues =
+  const initialValues: {
+    firstName?: string;
+    lastName?: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    gucId?: string;
+    companyName?: string;
+  } =
     UserType !== "vendor"
       ? {
           firstName: "",
@@ -48,69 +62,14 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
     <Formik
       initialValues={initialValues}
       validationSchema={getValidationSchema(UserType)}
-      onSubmit={async (values, { setSubmitting, resetForm }) => {
-        try {
-          // Prepare data for signup based on user type
-          const signupData =
-            UserType !== "vendor"
-              ? ({
-                  firstName: values.firstName as string,
-                  lastName: values.lastName as string,
-                  email: values.email,
-                  password: values.password,
-                  gucId: values.gucId as string,
-                  type: "studentOrStaff",
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any)
-              : ({
-                  companyName: values.companyName as string,
-                  email: values.email,
-                  password: values.password,
-                  type: "vendor",
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any);
-
-          const response = await handleRegistration(signupData);
-          
-            resetForm();
-
-            toast.success(
-              "Registration successful! Please check your email for verification.",
-              {
-                  position: "bottom-right",
-                  autoClose: 5000,
-                  hideProgressBar: false,
-                  closeOnClick: true,
-                  pauseOnHover: true,
-                  draggable: true,
-                  progress: undefined,
-                  theme: "colored",
-              }
-            );
-
-
-          
-        }catch (error: any) {
-          const message =
-            error?.response?.data?.error ||
-            error?.message ||
-            "Something went wrong. Please try again.";
-
-          toast.error(message, {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
-        }
-          finally {
-          setSubmitting(false);
-        }
-      }}
+      onSubmit={(values, formikBag) =>
+        handleRegistrationSubmit(
+          values,
+          formikBag,
+          UserType,
+          handleRegistration
+        )
+      }
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>

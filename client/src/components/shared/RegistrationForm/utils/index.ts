@@ -1,5 +1,98 @@
 import * as Yup from "yup";
 import { UserType } from "../types";
+import { toast } from "react-toastify";
+import { FormikHelpers } from "formik";
+
+interface RegistrationValues {
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  gucId?: string;
+  companyName?: string;
+}
+
+interface SignupData {
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  password: string;
+  gucId?: string;
+  companyName?: string;
+  type: string;
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      error?: string;
+    };
+  };
+  message?: string;
+}
+
+export const handleRegistrationSubmit = async (
+  values: RegistrationValues,
+  { setSubmitting }: FormikHelpers<RegistrationValues>,
+  userType: UserType,
+  handleRegistration: (data: SignupData) => Promise<unknown>
+) => {
+  try {
+    // Prepare data for signup based on user type
+    const signupData: SignupData =
+      userType !== "vendor"
+        ? {
+            firstName: values.firstName as string,
+            lastName: values.lastName as string,
+            email: values.email,
+            password: values.password,
+            gucId: values.gucId as string,
+            type: "studentOrStaff",
+          }
+        : {
+            companyName: values.companyName as string,
+            email: values.email,
+            password: values.password,
+            type: "vendor",
+          };
+
+    await handleRegistration(signupData);
+
+    toast.success(
+      "Registration successful! Please check your email for verification.",
+      {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      }
+    );
+  } catch (error: unknown) {
+    const apiError = error as ApiError;
+    const message =
+      apiError?.response?.data?.error ||
+      apiError?.message ||
+      "Something went wrong. Please try again.";
+
+    toast.error(message, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
 
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
