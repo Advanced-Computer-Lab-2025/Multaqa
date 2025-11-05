@@ -35,6 +35,5 @@ const userSchema = new Schema<IUser>(
   },
   { discriminatorKey: "role", collection: "users" }
 );
-userSchema.set("toObject", { virtuals: true });
 
 export const User = model<IUser>("User", userSchema);
