@@ -17,6 +17,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   name,
   description,
   agenda,
+  icon:IconComponent, 
+  background,
   user,
   registered,
   onDelete,
@@ -89,10 +91,10 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
             <Typography
               variant="caption"
               sx={{
-                color: theme.palette.primary.main,
+                color: background,
                 textDecoration: "underline",
                 "&:hover": {
-                  color: theme.palette.primary.dark,
+                  color: background,
                 },
               }}
               onClick={() => window.open(details["Link"], "_blank")}
@@ -128,7 +130,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           <Typography
             variant="body2"
             fontWeight={600}
-            sx={{ color: theme.palette.warning.dark, mb: 1 }}
+            sx={{ color: background, mb: 1 }}
           >
             Description
           </Typography>
@@ -147,7 +149,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           <Typography
             variant="body2"
             fontWeight={600}
-            sx={{ color: theme.palette.warning.dark, mb: 1 }}
+            sx={{ color: background, mb: 1 }}
           >
             Full Agenda
           </Typography>
@@ -166,7 +168,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         <Typography
           variant="body2"
           fontWeight={600}
-          sx={{ color: theme.palette.warning.dark, mb: 1 }}
+          sx={{ color: background, mb: 1 }}
         >
           Additional Details
         </Typography>
@@ -204,14 +206,25 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
     <>
       <ActionCard
         title={name}
+        background={background}
+        leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
+                        mb: 1,
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        padding:"4px",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}30`,
+                        },}} />}
         tags={[
           {
             label: "Conference",
-            sx: {
-              bgcolor: theme.palette.warning.light,
-              color: theme.palette.warning.contrastText,
-              fontWeight: 600,
-            },
+           sx: { bgcolor: `${background}20`,
+              color:background, fontWeight: 600 },
             size: "small",
           },
         ]}

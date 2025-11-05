@@ -19,6 +19,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   user,
   registered,
   onDelete,
+  icon: IconComponent,
+  background,
   setRefresh,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -64,14 +66,15 @@ const BazarView: React.FC<BazarViewProps> = ({
   ];
 
   const detailsContent = (
-    <Box>
+    <Box> 
+      {/* sx={{backgroundColor: `${background}10`}} */}
       {/* Description */}
       {description && (
         <Box sx={{ mb: 2 }}>
           <Typography
             variant="body2"
             fontWeight={600}
-            sx={{ color: theme.palette.secondary.dark, mb: 1 }}
+            sx={{ color: background, mb: 1 }}
           >
             Description
           </Typography>
@@ -89,7 +92,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         <Typography
           variant="body2"
           fontWeight={600}
-          sx={{ color: theme.palette.secondary.dark, mb: 1 }}
+          sx={{ color: background, mb: 1 }}
         >
           Event Details
         </Typography>
@@ -114,12 +117,26 @@ const BazarView: React.FC<BazarViewProps> = ({
     <>
       <ActionCard
         title={name}
+        background={background}
+        leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
+                        mb: 1,
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        padding:"4px",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}30`,
+                        },}} />}
         tags={[
           {
             label: "Bazaar",
             sx: {
-              bgcolor: theme.palette.secondary.light,
-              color: theme.palette.secondary.contrastText,
+              bgcolor: `${background}20`,
+              color:background,
               fontWeight: 600,
             },
             size: "small",
@@ -132,8 +149,9 @@ const BazarView: React.FC<BazarViewProps> = ({
             <CustomButton
               size="small"
               variant="contained"
-              color="secondary"
-              sx={{ borderRadius: 999 }}
+             // color="secondary"
+              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+              color:background, borderColor:background}}
               onClick={handleOpenModal}
             >
               Apply
@@ -168,7 +186,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         expanded={expanded}
         onExpandChange={setExpanded}
         details={detailsContent}
-        borderColor={theme.palette.secondary.main}
+        borderColor={background}
         elevation="soft"
       />
 

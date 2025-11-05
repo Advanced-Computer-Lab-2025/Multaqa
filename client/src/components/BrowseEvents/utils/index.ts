@@ -20,6 +20,12 @@ const flattenId = (profs:{ id: string }[])=>{
   return profs.map(prof => `${prof.id}`);
 }
 
+// Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
+const cleanDateString = (isoDate: string | undefined): string => {
+  if (!isoDate) return '';
+  // Splits the string at 'T' and returns the first element (the date part)
+  return isoDate.split('T')[0]; 
+};
 
 
 function transformEvent(event: any) {
@@ -38,9 +44,9 @@ function transformEvent(event: any) {
         name: event.eventName,
         description: event.description,
         details: {
-          "Registration Deadline": registrationDeadline,
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Registration Deadline": cleanDateString(registrationDeadline),
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Location: event.location,
@@ -59,9 +65,9 @@ function transformEvent(event: any) {
         agenda: event.fullAgenda,
         professors: flattenName(event.associatedProfs),
         details: {
-          "Registration Deadline": registrationDeadline,
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Registration Deadline": cleanDateString(registrationDeadline),
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           "Created By": event.createdBy,
@@ -86,8 +92,8 @@ function transformEvent(event: any) {
           event.description,
         agenda: event.fullAgenda,
         details: {
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           "Extra Required Resources": event.extraRequiredResources,
@@ -106,9 +112,9 @@ function transformEvent(event: any) {
           event.description,
         // vendors: event.vendors,
         details: {
-          "Registration Deadline": registrationDeadline,
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Registration Deadline": cleanDateString(registrationDeadline),
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Time: `${event.eventStartTime} - ${event.eventEndTime}`,

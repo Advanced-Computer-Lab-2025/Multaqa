@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Box, Stack, Typography, Chip, Collapse, IconButton } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import type { ChipProps, SxProps, Theme } from "@mui/material";
+import type { ChipProps} from "@mui/material";
 import { ActionCardProps } from "./types";
 
 /**
@@ -55,21 +55,19 @@ export default function ActionCard({
 // These are the styles you want to apply ONLY if type is "events"
     const eventStyles = {
         height: isExpanded ? "100%" : "auto",
-        minHeight: 305,
-        maxHeight: isExpanded ? 400 : 280,
+        minHeight: 300,
+        maxHeight: isExpanded ? 500 : 350,
         width: "100%",
-        transition: "max-height 0.3s ease",
-        maxWidth: 300,
-        minWidth: 300,
+        transition: "all 0.6s ease-in-out",
     };
 
     // These are the styles you want to apply ONLY if type is "events"
     const vendorStyles = {
       height: isExpanded ? "100%" : "auto",
       minHeight: isExpanded ? 280 : 150,
-      maxHeight: isExpanded ? 400 : 260,
+      maxHeight: isExpanded ? 400 : 280,
       width: "100%",
-      transition: "all 0.5s ease",
+      transition: "all 0.6s ease-in-out",
   };
 
     // Return the eventStyles object if the condition is met, otherwise return an empty object {}
@@ -94,11 +92,17 @@ export default function ActionCard({
         display: "flex",
         flexDirection: "column",
         borderRadius: 2,
-        background,
-        border: borderColor ? `1px solid ${borderColor}` : "1px solid rgba(0,0,0,0.06)",
-        boxShadow,
+        backgroundColor: `${background}10`,
+        border: "2px solid transparent",
+        borderColor: `${background}40`,
+        boxShadow: `0 4px 12px ${background}30`,
         overflow: "hidden",
+        transition: "all 0.3s ease",
         padding:"12px 12px 4px 4px",
+        "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow
+                      },
         ...currentType,
         ...sx,
       }}
@@ -153,7 +157,7 @@ export default function ActionCard({
           ...headerSx,
         }}
       >
-        <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
+        <Stack spacing={1} sx={{ minWidth: 0, flex: 1 }}>
           <Stack direction={type === "events" ? "column" : "row"} spacing={1} alignItems={type === "events" ? "start" : "center"} sx={{ minWidth: 0, flexWrap: "wrap"}}>
             {leftIcon ? <Box sx={{ display: "flex", alignItems: "center" }}>{leftIcon}</Box> : null}
             <Typography
@@ -196,7 +200,7 @@ export default function ActionCard({
               mt: 2,
               p: 2,
               borderRadius: 1.5,
-              background: "rgba(98,153,208,0.06)",
+              background: "rgba(255,255,255,0.8)",
               border: borderColor ? `1px dashed ${borderColor}` : "1px dashed rgba(0,0,0,0.08)",
               ...detailsSx,
             }}
@@ -211,13 +215,16 @@ export default function ActionCard({
         sx={{
           borderTop: "1px solid rgba(0,0,0,0.06)",
           display: "flex",
-          justifyContent: registered ? "center" : "space-between",
+          justifyContent: !registered? "space-between": "center",
           alignItems: "center",
           py: 1,
           px: 2,
           background: "rgba(255,255,255,0.8)",
         }}
       >
+        <Box sx={{ visibility: "hidden", minWidth: "1px" }}>
+        {type === "events" && !registered && rightSlot ? <Box>{rightSlot}</Box> : null}
+      </Box>
         {/* Expand/Collapse Icon Button */}
         <IconButton
           onClick={handleExpandClick}
@@ -225,9 +232,9 @@ export default function ActionCard({
           sx={{
             transition: "all 0.3s ease",
             transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-            color: borderColor || "rgba(0,0,0,0.5)",
+            color: background || "rgba(0,0,0,0.5)",
             "&:hover": {
-              background: borderColor ? `${borderColor}15` : "rgba(0,0,0,0.04)",
+              background: background ? `${background}15` : "rgba(0,0,0,0.04)",
             },
           }}
         >

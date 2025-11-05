@@ -19,6 +19,8 @@ const TripView: React.FC<BazarViewProps> = ({
   description,
   user,
   registered,
+  icon: IconComponent, 
+  background,
   onDelete,
   setRefresh,
   userInfo,
@@ -116,15 +118,26 @@ const TripView: React.FC<BazarViewProps> = ({
     <>
       <ActionCard
         title={name}
+        background={background}
+        leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
+                        mb: 1,
+                         width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        padding:"4px",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}30`,
+                        },}} />}
         type="events"
         tags={[
           {
             label: "Trip",
-            sx: {
-              bgcolor: theme.palette.info.light,
-              color: theme.palette.info.contrastText,
-              fontWeight: 600,
-            },
+            sx: { bgcolor: `${background}20`,
+              color:background, fontWeight: 600 },
             size: "small",
           },
         ]}
@@ -138,8 +151,9 @@ const TripView: React.FC<BazarViewProps> = ({
             <CustomButton
               size="small"
               variant="contained"
-              color="info"
-              sx={{ borderRadius: 999 }}
+              // color="info"
+              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+              color:background, borderColor:background}}
               onClick={()=> {setRegister(true)}}
             >
               Register

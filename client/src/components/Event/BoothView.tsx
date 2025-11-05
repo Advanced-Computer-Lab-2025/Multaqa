@@ -13,6 +13,8 @@ const BoothView: React.FC<BoothViewProps> = ({
   people,
   details,
   user,
+  icon: IconComponent, 
+  background,
   registered,
   onDelete,
   id
@@ -83,7 +85,7 @@ const BoothView: React.FC<BoothViewProps> = ({
           <Typography
             variant="body2"
             fontWeight={600}
-            sx={{ color: theme.palette.primary.dark, mb: 1 }}
+            sx={{ color: background, mb: 1 }}
           >
             Description
           </Typography>
@@ -102,7 +104,7 @@ const BoothView: React.FC<BoothViewProps> = ({
     <Typography
       variant="body2"
       fontWeight={600}
-      sx={{ color: theme.palette.primary.dark, mb: 1 }}
+      sx={{ color: background, mb: 1 }}
     >
       Representatives
     </Typography>
@@ -168,7 +170,7 @@ const BoothView: React.FC<BoothViewProps> = ({
           <Typography
             variant="body2"
             fontWeight={600}
-            sx={{ color: theme.palette.primary.dark, mb: 1 }}
+            sx={{ color: background, mb: 1 }}
           >
             Booth Details
           </Typography>
@@ -200,10 +202,25 @@ const BoothView: React.FC<BoothViewProps> = ({
     <>
       <ActionCard
         title={company}
+        background={background}
+        leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
+                        mb: 1,
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        padding:"4px",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}30`,
+                        },}} />}
         tags={[
           {
             label: "Booth",
-            sx: { bgcolor: "#b2cee2", color: "#1E1E1E", fontWeight: 600 },
+            sx: { bgcolor: `${background}20`,
+              color:background, fontWeight: 600 },
             size: "small",
           },
         ]}
@@ -214,8 +231,9 @@ const BoothView: React.FC<BoothViewProps> = ({
             <CustomButton
               size="small"
               variant="contained"
-              color="primary"
-              sx={{ borderRadius: 999 }}
+              // color="primary"
+              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+              color:background, borderColor:background}}
             >
               Apply
             </CustomButton>
@@ -244,7 +262,7 @@ const BoothView: React.FC<BoothViewProps> = ({
         expanded={expanded}
         onExpandChange={setExpanded}
         details={detailsContent}
-        borderColor={theme.palette.primary.main}
+        borderColor={background}
         elevation="soft"
       />
 

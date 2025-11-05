@@ -1,14 +1,92 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton, Tooltip } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip, Divider, Grid } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
-import { Trash2 } from "lucide-react";
+import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
+
+interface DetailChipProps {
+  label: string;
+  value: string | number;
+  color?: string; // Color is now optional if determined by 'urgent'
+  icon: React.ReactNode; // For the custom icon components (AlertCircle, etc.)
+  urgent?: boolean;
+  chipSize?: 'small' | 'default'; // New prop to control size
+}
+// ------------------------------------
+
+interface SectionTitleProps {
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+}
+
+interface ProfessorGridItemProps {
+    professor: string;
+    getAvatarColor: (name: string) => string;
+    getInitials: (name: string) => string;
+}
+
+interface InfoRowProps {
+  label: string;
+  value: string | number;
+  highlight?: boolean;
+}
+
+// ------------------------------------------
+
+const ProfessorGridItem: React.FC<ProfessorGridItemProps> = ({ 
+    professor, 
+    getAvatarColor, 
+    getInitials 
+}) => (
+    <Grid size={{ xs: 12, md: 4, sm:6 }} >
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 2,
+                borderRadius: 3,
+                backgroundColor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'all 0.3s ease',
+                "&:hover": {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                    borderColor: 'primary.main',
+                }
+            }}
+        >
+            <Avatar
+              sx={{
+                width: 48,
+                height: 48,
+                backgroundColor: getAvatarColor(professor),
+                fontSize: "16px",
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              }}
+            >
+              {getInitials(professor)}
+            </Avatar>
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              sx={{ color: "text.primary", flex: 1 }}
+            >
+              {professor}
+            </Typography>
+        </Box>
+    </Grid>
+);
+
+// --------------------------------------------------------------------------------
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -16,11 +94,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   name,
   description,
   professors,
+  icon: IconComponent,
+  background,
   agenda,
   user,
   registered,
   onDelete,
-  isReady, 
+  isReady,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -37,20 +117,16 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   };
 
   const deleteEventHandler = () => {
-    // Call the onDelete callback to remove from parent state
     onDelete?.();
     handleCloseDeleteModal();
   };
-  // Helper function to extract initials from professor name
+
   const getInitials = (name: string) => {
     let cleanName = name.trim();
-
-    // Remove title (Dr., Eng., Prof., etc.) if present
     if (cleanName.includes(".")) {
       const dotIndex = cleanName.indexOf(".");
       cleanName = cleanName.substring(dotIndex + 1).trim();
     }
-
     const parts = cleanName.split(" ");
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
@@ -58,17 +134,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     return cleanName[0].toUpperCase();
   };
 
-  // Helper function to get a color based on name
   const getAvatarColor = (name: string) => {
     const colors = [
-      "#FF6B6B",
-      "#4ECDC4",
-      "#45B7D1",
-      "#FFA07A",
-      "#98D8C8",
-      "#F7DC6F",
-      "#BB8FCE",
-      "#85C1E2",
+      "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2",
     ];
     const hash = name
       .split("")
@@ -76,18 +144,18 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     return colors[hash % colors.length];
   };
 
-
-
-  // Format key details for display
   const formatDateRange = () => {
-    const startDate = details["Start Date"];
-    const endDate = details["End Date"];
+    const rawStartDate = details["Start Date"];
+    const rawEndDate = details["End Date"];
+    
+    const startDate = rawStartDate ? rawStartDate.split('T')[0] : '';
+    const endDate = rawEndDate ? rawEndDate.split('T')[0] : '';
+    
     const startTime = details["Start Time"];
     const endTime = details["End Time"];
 
     if (startDate && endDate) {
-      const dateRange =
-        startDate === endDate ? startDate : `${startDate} - ${endDate}`;
+      const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
       const timeRange = startTime && endTime ? `${startTime} - ${endTime}` : "";
       return timeRange ? `${dateRange}, ${timeRange}` : dateRange;
     }
@@ -95,155 +163,250 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   };
 
   const metaNodes = [
-    <Typography key="date" variant="body2" sx={{ color: "#6b7280" }}>
+    <Typography key="date" variant="body2" sx={{ color: "text.primary", fontWeight: 500, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Calendar size={16} />
       {formatDateRange()}
     </Typography>,
-    <Typography key="location" variant="caption" sx={{ color: "#6b7280" }}>
+    <Typography key="location" variant="caption" sx={{ color: "text.primary", display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <MapPin size={14} />
       {details["Location"] || "TBD"}
     </Typography>,
-    <Typography key="capacity" variant="caption" sx={{ color: "#6b7280" }}>
-      Capacity: {details["Capacity"] || "TBD"}
+    <Typography key="capacity" variant="caption" sx={{ color: "text.primary", display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Users size={14} />
+      {details["Capacity"] || "TBD"} attendees
     </Typography>,
   ];
 
-  const detailsContent = (
-    <Box>
-      {/* Description */}
+  const SectionTitle: React.FC<SectionTitleProps> = ({ children, icon }) => (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, mt: 4 }}>
+      {icon && <Box sx={{ color: background }}>{icon}</Box>}
+      <Typography
+        variant="h6"
+        fontWeight={700}
+        sx={{ color: 'text.primary', letterSpacing: '-0.02em' }}
+      >
+        {children}
+      </Typography>
+      <Box sx={{ flex: 1, height: '2px', background: `linear-gradient(to right, ${background}40, transparent)`, ml: 2 }} />
+    </Box>
+  );
+
+  // 🚀 NEW DetailChip Component 🚀
+const DetailChip: React.FC<DetailChipProps> = ({ 
+  label, 
+  value, 
+  icon, 
+  urgent, 
+  color, 
+  chipSize = 'default' 
+}) => {
+  
+  // Determine primary color and background based on props
+  const primaryColor = urgent ? theme.palette.error.main : color || background;
+  
+  // Adjusted Padding based on chipSize
+  const paddingValue = chipSize === 'small' ? 1.2 : 2; 
+
+  return (
+    <Box
+      sx={{
+        p: paddingValue, // Reduced padding for smaller boxes
+        borderRadius: 2,
+        border: `1px solid ${primaryColor}50`,
+        backgroundColor: `${primaryColor}10`,
+        textAlign: 'left', // Aligned left for a cleaner look
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        minWidth: 100,
+        flexGrow: 1,
+        height: '100%', // Ensure all chips in a row are the same height
+      }}
+    >
+      {/* Icon */}
+      <Box sx={{ color: primaryColor, display: 'flex', alignItems: 'center' }}>
+        {icon}
+      </Box>
+
+      {/* Label and Value */}
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography 
+          variant="caption" 
+          sx={{ color: primaryColor, fontWeight: 700, display: 'block', lineHeight: 1.2 }}
+        >
+          {label}
+        </Typography>
+        <Typography 
+          variant={chipSize === 'small' ? "body2" : "body1"} // Use body2 for smaller font
+          fontWeight={600} 
+          sx={{ mt: 0.2, color: 'text.primary', lineHeight: 1.2 }}
+        >
+          {value}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
+const detailsContent = (
+    <Box sx={{ px: 0.5 }}> 
+      {/* Description section remains the same */}
       {description && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
-          >
-            Description
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ fontSize: "14px", lineHeight: 1.5 }}
+        <Box sx={{ mb: 4 }}>
+          <SectionTitle>About This Workshop</SectionTitle>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              fontSize: "15px", 
+              lineHeight: 1.8, 
+              color: 'text.primary',
+              pl: 2
+            }}
           >
             {description}
           </Typography>
         </Box>
       )}
 
+      {/* Quick Stats - Highlighted Metrics */}
+      <Box sx={{ mb: 4 }}>
+        <Grid container spacing={2}>
+          {/* Note: I'm leaving the 'size' prop as you requested, but remember 
+             the correct MUI syntax is 'item xs={6} sm={3}'.
+             We assume your custom components/setup handles 'size'. */}
+          
+          {details["Registration Deadline"] && (
+            <Grid size={{ xs: 6, sm:3 }}>
+              <DetailChip 
+                label="Deadline" 
+                value={details["Registration Deadline"].split('T')[0]}
+                icon={<AlertCircle size={16} />} // Reduced icon size
+                urgent={true}
+                chipSize="small" // <-- PASS A PROP TO CONTROL INTERNAL SIZE
+              />
+            </Grid>
+          )}
+          {/* ... Apply similar changes to the other Grid items ... */}
+          {details["Spots Left"] && (
+            <Grid size={{ xs: 6, sm:3 }}>
+              <DetailChip 
+                label="Available Spots" 
+                value={details["Spots Left"]}
+                icon={<Users size={16} />} // Reduced icon size
+                chipSize="small" 
+              />
+            </Grid>
+          )}
+          
+          {details["Capacity"] && (
+         <Grid size={{ xs: 6, sm:3 }}>
+              <DetailChip 
+                label="Total Capacity" 
+                value={details["Capacity"]}
+                icon={<Users size={16} />} // Reduced icon size
+                chipSize="small"
+              />
+            </Grid>
+          )}
+          
+          {details["Location"] && (
+             <Grid size={{ xs: 6, sm:3 }}>
+              <DetailChip 
+                label="Venue" 
+                value={details["Location"]}
+                icon={<MapPin size={16} />} // Reduced icon size
+                chipSize="small"
+              />
+            </Grid>
+          )}
+        </Grid>
+      </Box>
+
       {/* Agenda */}
       {agenda && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+        <Box sx={{ mb: 4 }}>
+          <SectionTitle icon={<Clock size={22} />}>Schedule & Agenda</SectionTitle>
+          <Box
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              backgroundColor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
           >
-            Full Agenda
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ fontSize: "14px", lineHeight: 1.5, whiteSpace: "pre-line" }}
-          >
-            {agenda}
-          </Typography>
+            <Typography
+              variant="body1"
+              sx={{ 
+                fontSize: "15px", 
+                lineHeight: 1.8, 
+                whiteSpace: "pre-line", 
+                color: 'text.primary'
+              }}
+            >
+              {agenda}
+            </Typography>
+          </Box>
         </Box>
       )}
 
       {/* Professors */}
       {professors.length > 0 && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
-          >
-            Professors Participating
-          </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ mb: 4 }}>
+          <SectionTitle>Meet Your Instructors</SectionTitle>
+          <Grid container spacing={2}>
             {professors.map((professor, index) => (
-              <Box
+              <ProfessorGridItem
                 key={index}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  p: 1,
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: 1,
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    backgroundColor: getAvatarColor(professor),
-                    fontSize: "12px",
-                    fontWeight: 600,
-                  }}
-                >
-                  {getInitials(professor)}
-                </Avatar>
-                <Typography
-                  variant="caption"
-                  sx={{ fontSize: "12px", color: "text.primary" }}
-                >
-                  {professor}
-                </Typography>
-              </Box>
+                professor={professor}
+                getAvatarColor={getAvatarColor}
+                getInitials={getInitials}
+              />
             ))}
-          </Box>
+          </Grid>
         </Box>
       )}
 
-      {/* Other Details */}
+      {/* Additional Details */}
       <Box>
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ color: theme.palette.tertiary.dark, mb: 1 }}
+        <SectionTitle>Additional Information</SectionTitle>
+        <Box
+          sx={{
+            borderRadius: 3,
+            backgroundColor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden',
+            p:2
+          }}
         >
-          Additional Details
-        </Typography>
-        {Object.entries(details)
-          .filter(
-            ([key]) =>{ 
-                        // Base fields to always exclude
-            const baseExcluded = [
-              "Start Date",
-              "End Date",
-              "Start Time",
-              "End Time",
-              "Created By",
-            ];
-
-          // Additional fields to exclude for non-admin/non-events users
-          const extraExcluded = [
-            "Required Budget",
-            "Source of Funding",
-            "Extra Required Resources",
-            'Funding Source',
-            "Status"
-          ];
-
-          // Combine exclusion lists depending on the user
-          const excludedKeys =
-            user !== "events-office" && user !== "admin"
-              ? [...baseExcluded, ...extraExcluded]
-              : baseExcluded;
-
-          return !excludedKeys.includes(key);
-        }
-          )
-          .map(([key, value]) => (
-            <Box
-              key={key}
-              sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
-            >
-              <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                {key}:
-              </Typography>
-              <Typography variant="caption" sx={{ color: "#6b7280" }}>
-                {value}
-              </Typography>
+          {Object.entries(details)
+            .filter(([key]) => {
+              const excludedKeys = [
+              //   "Start Date", "End Date", "Start Time", "End Time", "Created By",
+              //   "Registration Deadline", "Capacity", "Location", "Spots Left",
+              ];
+              
+              if (user !== "events-office" && user !== "admin") {
+                excludedKeys.push("Required Budget", "Source of Funding", "Extra Required Resources", 'Funding Source', "Status");
+              }
+              
+              return !excludedKeys.includes(key);
+            })
+            .map(([key, value], index, array) => (
+              <Box
+                  key={key}
+                  sx={{ display: "flex", justifyContent: "space-between", mb: 1.5, p: 0.5, borderBottom: '1px solid #eee' }}
+              >
+                  <Typography variant="body2" sx={{ fontWeight: 600, color:background, width: '50%' }}>
+                      {key}:
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.primary', fontWeight: 500, width: '50%', textAlign: 'right' }}>
+                      {value?value:'N/A'}
+                  </Typography>
             </Box>
-          ))}
+            ))}
+        </Box>
       </Box>
     </Box>
   );
@@ -252,13 +415,36 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     <>
       <ActionCard
         title={name}
+        background={background}
+        leftIcon={
+            <Box
+                sx={{ 
+                    backgroundColor: `${background}20`,
+                    color: background,
+                    width: 48, 
+                    height: 48,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 3,
+                    transition: "all 0.3s ease",
+                    "&:hover": { 
+                      backgroundColor: `${background}30`,
+                      transform: 'rotate(5deg) scale(1.05)'
+                    }
+                }}
+            >
+                <IconComponent sx={{ fontSize: 26 }} />
+            </Box>
+        }
         tags={[
           {
             label: "Workshop",
-            sx: {
-              bgcolor: theme.palette.tertiary.main,
-              color: theme.palette.tertiary.contrastText,
+            sx: { 
+              bgcolor: `${background}15`, 
+              color: background, 
               fontWeight: 600,
+              border:`1px solid ${background}`,
             },
             size: "small",
           },
@@ -266,37 +452,50 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         metaNodes={metaNodes}
         rightSlot={
           !registered &&
-          (user == "staff" ||
-            user == "student" ||
-            user == "ta" ||
-            user == "professor") && (
+          (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
             <CustomButton
               size="small"
               variant="contained"
-              color="tertiary"
-              sx={{ borderRadius: 999 }}
-              onClick={()=> {setRegister(true)}}
+              sx={{ 
+               borderRadius: 999 , backgroundColor: `${background}20`,
+                color:background, borderColor:background,
+                fontWeight: 600,
+                px: 3,
+                textTransform: 'none',
+                boxShadow: `0 4px 14px ${background}40`,
+                transition: 'all 0.3s ease',
+                "&:hover": {
+                 backgroundColor: `${background}30`,
+                  transform: 'translateY(-2px)',
+                  boxShadow: `0 6px 20px ${background}50`,
+                }
+              }}
+              onClick={() => { setRegister(true) }}
             >
               Register
             </CustomButton>
           )
         }
         rightIcon={
-         (user === "events-office"|| user === "admin" )? (
-          <Tooltip title="Delete">
-          <IconButton
-                  size="medium"
-                  onClick={handleOpenDeleteModal}
-                  sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 0, 0, 0.1)",
-                      color: "error.main",
-                    },
-                  }}
-                >
-                  <Trash2 size={16} />
-                </IconButton>
+         (user === "events-office"|| user === "admin" ) ? (
+          <Tooltip title="Delete Workshop">
+            <IconButton
+              size="medium"
+              onClick={handleOpenDeleteModal}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: "rgba(255, 0, 0, 0.1)",
+                  borderColor: "error.main",
+                  color: "error.main",
+                },
+              }}
+            >
+              <Trash2 size={18} />
+            </IconButton>
           </Tooltip>
           ) : (registered && user==="professor"? <Utilities/>: null)
         }
@@ -312,7 +511,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         expanded={expanded}
         onExpandChange={setExpanded}
         details={detailsContent}
-        borderColor={theme.palette.tertiary.main}
+        borderColor={background}
         elevation="soft"
       />
 
@@ -320,7 +519,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
       <CustomModal
         open={eventToDelete}
         onClose={handleCloseDeleteModal}
-        title="Delete Workshop"
+        title="Confirm Deletion"
         description={`Are you sure you want to delete the workshop "${name}"? This action cannot be undone.`}
         modalType="delete"
         borderColor={theme.palette.error.main}
@@ -360,11 +559,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           >
             {details["Start Date"] === details["End Date"]
               ? details["Start Date"] || "TBD"
-              : `${details["Start Date"] || "TBD"} - ${
-                  details["End Date"] || "TBD"
-                }`}
+              : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"}`}
           </Typography>
-
 
           <Typography
             sx={{
@@ -374,13 +570,18 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               fontWeight: 500,
             }}
           >
-            Are you sure you want to delete this workshop? This action cannot be
-            undone.
+            This action cannot be undone.
           </Typography>
         </Box>
       </CustomModal>
-        <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
-      eventType={"Trip"} userInfo={userInfo} eventId={id}/>
+      <RegisterEventModal 
+        isReady={isReady} 
+        open={register} 
+        onClose={() => { setRegister(false); } }
+        eventType={"Workshop"} 
+        userInfo={userInfo} 
+        eventId={id}
+      />
     </>
   );
 };

@@ -20,7 +20,6 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
-import CreateParent from "../createButton/createParent";
 
 import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
@@ -33,6 +32,10 @@ import EventIcon from "@mui/icons-material/Event";
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
+import SellIcon from '@mui/icons-material/Sell';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
+
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -83,6 +86,30 @@ const filterGroups: FilterGroup[] = [
     ],
   },
 ];
+
+const EventColor = [
+   {
+    color: "#4caf50", // Trips
+    icon: FlightTakeoffIcon , //Green.
+  },
+  {
+    icon:StorefrontIcon, //Bazaar
+    color: "#2196f3", // Blue
+  },
+  {
+    icon: EventIcon, //Conference
+    color: "#ff9800", // Orange
+  },
+  {
+    icon: SellIcon, //Booth
+    color: "#e91e63", // Pink
+  },
+  {
+    icon: Diversity3Icon, //workshop
+    color: "#9c27b0", // Purple
+  },
+];
+
 
 const BrowseEvents: React.FC<BrowseEventsProps> = ({
   registered,
@@ -263,6 +290,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           <ConferenceView
             id={event.id}
             setRefresh={setRefresh}
+            background={EventColor[2].color}
+            icon={EventColor[2].icon}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -279,6 +308,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <WorkshopView
             id={event.id}
+            background={EventColor[4].color}
+            icon={EventColor[4].icon}
             setRefresh={setRefresh}
             key={event.id}
             details={event.details}
@@ -298,6 +329,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BazarView
             id={event.id}
+            background={EventColor[1].color}
+            icon={EventColor[1].icon}
             setRefresh={setRefresh}
             key={event.id}
             details={event.details}
@@ -314,6 +347,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BoothView
             id={event.id}
+            background={EventColor[3].color}
+            icon={EventColor[3].icon}
             setRefresh={setRefresh}
             key={event.id}
             company={event.company}
@@ -329,6 +364,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       case EventType.TRIP:
         return (
           <TripView
+            background={EventColor[0].color}
+            icon={EventColor[0].icon}
             id={event.id}
             setRefresh={setRefresh}
             key={event.id}
@@ -412,11 +449,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Loading State */}
       {loading && (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Loading events...
-          </Typography>
-        </Box>
+       <EventCardsListSkeleton />
       )}
 
       {/* Error State */}
@@ -433,12 +466,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         <>
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(3, 1fr)",
-              },
+              display: "flex",
+              flexDirection: "column",
               gap: 3,
             }}
           >
