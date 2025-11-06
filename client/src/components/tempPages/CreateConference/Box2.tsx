@@ -4,10 +4,10 @@ import { Box, Typography} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useFormikContext } from 'formik'; // 💡 Import Formik hook
 import CustomTextField from '@/components/shared/input-fields/CustomTextField';
-import { step2BoxStyles, modalFormStyles,modalHeaderStyles, detailTitleStyles } from './styles';
+import { step2BoxStyles, modalFormStyles,modalHeaderStyles, detailTitleStyles } from '../../shared/styles';
 import { EventFormData } from './types';
-import ExtraResourcesField from './ExtraResourcesField';
-import { CustomCheckboxGroup, CustomRadio} from '../input-fields';
+import ExtraResourcesField from '../../shared/ExtraResourcesField/ExtraResourcesField';
+import { CustomCheckboxGroup, CustomRadio} from '../../shared/input-fields';
 import { Step2Props } from './types';
 
 const CustomDatePicker = (props: any) => <CustomTextField {...props} fieldType="text" placeholder="YYYY-MM-DD" />;
@@ -99,20 +99,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     autoCapitalize='off'
                     autoCapitalizeName={false}
                  />
-                 {/* 3. Conference Website Link */}
-                <CustomTextField
-                    name='websiteLink'
-                    label="Website URL"
-                    fieldType="text"
-                    placeholder="https://example.guc.edu.eg"
-                    value={values.websiteLink}
-                    onChange={handleChange('websiteLink')}
-                    onBlur={handleBlur('websiteLink')}
-                    error={touched.websiteLink && Boolean(errors.websiteLink)}
-                    sx={{ mb: 1 }} 
-                    autoCapitalize='off'
-                    autoCapitalizeName={false}
-                />
+                 
                 {/* 4. Required Budget */}
                 <CustomTextField
                     name='requiredBudget'

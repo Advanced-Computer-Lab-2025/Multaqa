@@ -18,6 +18,8 @@ import {tripSchema} from "./schemas/trip";
 
 import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
+import RichTextField from '@/components/shared/TextField/TextField';
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
 
 
 interface CreateTripProps {
@@ -87,29 +89,62 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
     validationSchema: tripSchema,
     onSubmit: onSubmit,
   });
+  
+  const handleDescriptionChange = (htmlContent: string) => {
+    setFieldValue('description', htmlContent);
+    };
 
   return (
     <>
-     <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
-        <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center mb-3'>Create trip</Typography>
-        <Grid container spacing={2}>
-                <Grid size={4}>
-                    <CustomTextField 
-                        name='tripName'
-                        id='tripName'
-                        label="Trip Name"    
-                        fieldType='text'
-                        placeholder='Enter Trip Name'
-                        value={values.tripName}
-                        onChange={handleChange}
-                        fullWidth
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                    {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
-                </Grid>    
-                <Grid size={4}>
+     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
+        <Box sx={{
+            ...wrapperContainerStyles,    
+        }}>
+        <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+        Create Trip
+        </Typography>   
+                <form onSubmit={handleSubmit}>
+                <Box 
+                sx={horizontalLayoutStyles(theme)}
+                >
+                <Box sx={step1BoxStyles(theme)}>
+                    <Box sx={modalHeaderStyles}>
+                        <Typography sx={detailTitleStyles(theme)}>
+                            Create New Trip
+                        </Typography>      
+                    </Box>
+                    <Box sx={modalFormStyles}>
+                        <CustomTextField 
+                            name='tripName'
+                            id='tripName'
+                            label="Trip Name"    
+                            fieldType='text'
+                            placeholder='Enter Trip Name'
+                            value={values.tripName}
+                            onChange={handleChange}
+                            fullWidth
+                            autoCapitalize='off'
+                            autoCapitalizeName={false}
+                        />   
+                        {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
+
+                        <Box sx={{ mt: 3 }}>
+                            <RichTextField
+                                label="Description" 
+                                placeholder="Provide a short description of the trip"
+                                onContentChange={handleDescriptionChange} 
+                            />
+                            { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                        </Box>
+                    </Box>
+                </Box>
+                <Box sx={step2BoxStyles(theme)}>
+                    <Box sx={modalHeaderStyles}>
+                        <Typography sx={detailTitleStyles(theme)}>
+                            Trip Details
+                        </Typography>      
+                    </Box>
+                    <Box sx={modalFormStyles}>
                     <CustomTextField
                         name='location'
                         id='location' 
@@ -123,8 +158,6 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         fullWidth
                     />
                     {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
                     <TextField
                         name="price"
                         label="Price"
@@ -144,8 +177,6 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         onChange={handleChange}
                     />
                     {errors.price && touched.price ? <p style={{color:"#db3030"}}>{errors.price}</p> : <></>}
-                </Grid>
-                <Grid size={6}>
                     <TextField
                         name="capacity"
                         label="Capacity"
@@ -157,8 +188,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         onChange={handleChange}
                     />
                     {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                </Grid>
-                <Grid size={6}>
+                <Box sx={{display:"flex", gap:1, mt:0}}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                                 name='startDate'
@@ -179,8 +209,6 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             />
                             {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker 
                                 label="End Date and Time"
@@ -201,8 +229,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             />
                             {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
+                </Box>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                                 name='registrationDeadline'
@@ -223,29 +250,14 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-                <Grid size={12}>
-                    <CustomTextField 
-                        name='description'
-                        id='description'
-                        label="Short Description" 
-                        fullWidth   
-                        fieldType='text' 
-                        multiline 
-                        minRows={3} 
-                        neumorphicBox={true}
-                        value={values.description}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                </Grid>
-                { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-        </Grid>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
-            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Create Trip"} variant='contained' fullWidth type='submit'/>
+                    </Box>
+                </Box>
+            </Box>
+        <Box sx={modalFooterStyles}> 
+            <CustomButton color='tertiary' disabled={isSubmitting} label={isSubmitting ? "submitting":"Create"} variant='contained' fullWidth type='submit' sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>
+        </Box>
         </CustomModalLayout>
     </>
   )

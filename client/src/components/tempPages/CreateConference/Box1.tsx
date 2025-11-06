@@ -5,9 +5,9 @@ import { Box, Typography, TextField, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { useFormikContext } from 'formik'; 
-import RichTextField from '../TextField/TextField'; 
+import RichTextField from '../../shared/TextField/TextField'; 
 import CustomTextField from '@/components/shared/input-fields/CustomTextField'; 
-import { step1BoxStyles, modalFormStyles,modalHeaderStyles,detailTitleStyles } from './styles';
+import { step1BoxStyles, modalFormStyles,modalHeaderStyles,detailTitleStyles } from '../../shared/styles';
 import { EventFormData } from './types'; 
 import { Step1Props } from './types';
 
@@ -31,20 +31,32 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
                 </Typography>      
             </Box>
             <Box sx={modalFormStyles}>
-                <CustomTextField 
-                    fieldType="text"
-                    label="Conference Name"
-                    placeholder="Enter conference name"
-                    value={values.eventName} // 💡 From Formik context
-                    onChange={handleChange('eventName')} // 💡 From Formik context
-                    onBlur={handleBlur('eventName')} // 💡 For validation
-                    error={touched.eventName && Boolean(errors.eventName)} // 💡 For validation
-                    sx={{ mb: 1 }} 
-                    required
+                <CustomTextField 
+                    name='Conference Name'
+                    id='Conference Name'
+                    label="Conference Name"    
+                    fieldType='text'
+                    placeholder='Enter Conference Name'
+                    value={values.eventName}
+                    onChange={handleChange('eventName')}
+                    onBlur={handleBlur('eventName')}
+                    fullWidth
                     autoCapitalize='off'
                     autoCapitalizeName={false}
-                />
-                {/* 💡 RichTextField wired using setFieldValue */}
+                />  
+                <CustomTextField
+                    name='websiteLink'
+                    label="Website URL"
+                    fieldType="text"
+                    placeholder="https://example.guc.edu.eg"
+                    value={values.websiteLink}
+                    onChange={handleChange('websiteLink')}
+                    onBlur={handleBlur('websiteLink')}
+                    error={touched.websiteLink && Boolean(errors.websiteLink)}
+                    sx={{ mb: 1 }} 
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
+                />
                 <RichTextField
                     label="Description" 
                     placeholder="Provide a short description of the conference"

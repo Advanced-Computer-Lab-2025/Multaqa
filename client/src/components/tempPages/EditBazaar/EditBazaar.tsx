@@ -14,6 +14,9 @@ import { bazaarSchema } from "../CreateBazaar/schemas/bazaar";
 import dayjs from 'dayjs';
 import { api } from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
+import RichTextField from '@/components/shared/TextField/TextField';
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
+import theme from '@/themes/lightTheme';
 
 interface EditBazaarProps {
   bazaarId: string;
@@ -98,135 +101,159 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     validationSchema: bazaarSchema,
     onSubmit: onSubmit,
   });
+  const handleDescriptionChange = (htmlContent: string) => {
+    setFieldValue('description', htmlContent);
+    };
   return (
     <>
-      <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]'>
+     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[70vw] lg:w-[70vw] xl:w-[60vw]">
+        <Box sx={{
+            ...wrapperContainerStyles,    
+        }}>
+        <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+        Edit Bazaar
+        </Typography>  
         <form onSubmit={handleSubmit}>
-          <Typography variant='h4' color='primary' className='text-center mb-3'>Edit Bazaar</Typography>
-          <Grid container spacing={2}>
-            <Grid size={6}>
-              <CustomTextField
-                name='bazaarName'
-                id='bazaarName'
-                label="Bazaar Name" fullWidth margin="normal" fieldType='text'
-                value={values.bazaarName}
-                onChange={handleChange}
-                autoCapitalize='off'
-                autoCapitalizeName={false}
-              />
-              {errors.bazaarName && touched.bazaarName ? <p style={{ color: "#db3030" }}>{errors.bazaarName}</p> : <></>}
+            <Box 
+                sx={horizontalLayoutStyles(theme)}
+                >
+                    <Box sx={step1BoxStyles(theme)}>
+                        <Box sx={modalHeaderStyles}>
+                            <Typography sx={detailTitleStyles(theme)}>
+                                Edit Bazaar
+                            </Typography>      
+                        </Box>
+                        <Box sx={modalFormStyles}>
+                    <CustomTextField 
+                        name='bazaarName'
+                        id='bazaarName'
+                        label="Bazaar Name" 
+                        fullWidth 
+                        margin="normal" 
+                        placeholder='Enter Bazaar Name' 
+                        fieldType="text"
+                        value={values.bazaarName}
+                        onChange={handleChange}
+                        autoCapitalize='off'
+                        autoCapitalizeName={false}
+                    />
+                    { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
+                        <Box sx={{ mt: 3 }}>
+                            <RichTextField
+                                label="Description" 
+                                placeholder="Provide a short description of the trip"
+                                onContentChange={handleDescriptionChange} 
+                            />
+                        </Box>
+                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                
+              </Box>
+            </Box>
+
+            <Box sx={step2BoxStyles(theme)}>
+                <Box sx={modalHeaderStyles}>
+                    <Typography sx={detailTitleStyles(theme)}>
+                        Bazaar Details
+                    </Typography>      
+                </Box>
+                <Box sx={modalFormStyles}>
+            <Grid container spacing={2}>
+                <Grid size={6}>
+                    <CustomTextField
+                    name='location'
+                    id='location' 
+                    label="Location"
+                    placeholder='e.g., GUC Cairo' 
+                    fullWidth 
+                    margin="normal"  
+                    fieldType="text"
+                    value={values.location}
+                    onChange={handleChange}
+                    autoCapitalize='off'
+                    autoCapitalizeName={false}
+                    />
+                    { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
             </Grid>
-            <Grid size={6}>
-              <CustomTextField
-                name='location'
-                id='location'
-                label="Location" fullWidth margin="normal" fieldType='text'
-                value={values.location}
-                onChange={handleChange}
-                autoCapitalize='off'
-                autoCapitalizeName={false}
-              />
-              {errors.location && touched.location ? <p style={{ color: "#db3030" }}>{errors.location}</p> : <></>}
             </Grid>
-          </Grid>
-          <Grid container spacing={2}>
-            <Grid size={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  name='startDate'
-                  label="Start Date and Time"
-                  slotProps={{
-                    textField: {
-                      variant: "standard", // <-- this makes it look like standard TextField
-                      fullWidth: true,
-                    },
-                    popper: {
-                      disablePortal: true, // <-- Add this line
-                      placement: 'right',
-                      sx: { zIndex: 1500 },
-                    }
-                  }}
-                  value={values.startDate}
-                  onChange={(value) => setFieldValue('startDate', value)}
-                />
-                {errors.startDate && touched.startDate ? <p style={{ color: "#db3030" }}>{errors.startDate}</p> : <></>}
-              </LocalizationProvider>
+            <Grid container spacing={2}>
+                <Grid size={6}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                                name='startDate'
+                                label="Start Date and Time"
+                                slotProps={{
+                                    textField: {
+                                        variant: "standard", // <-- this makes it look like standard TextField
+                                        fullWidth: true,                              
+                                    },
+                                    popper: {
+                                        disablePortal: true, // <-- Add this line
+                                        placement: 'right',
+                                        sx: { zIndex: 1500 },
+                                    }
+                                }}
+                                value={values.startDate}
+                                onChange={(value) => setFieldValue('startDate', value)}
+                            />
+                            {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
+                    </LocalizationProvider>
+                </Grid>
+                <Grid size={6}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker 
+                                label="End Date and Time"
+                                name='endDate'
+                                slotProps={{
+                                    textField: {
+                                        variant: "standard", // <-- this makes it look like standard TextField
+                                        fullWidth: true,
+                                    },
+                                    popper: {
+                                        disablePortal: true, // <-- Add this line
+                                        placement: 'left',
+                                        sx: { zIndex: 1500 },
+                                    }
+                                }}
+                                value={values.endDate}
+                                onChange={(value) => setFieldValue('endDate', value)}
+                            />
+                            {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
+                    </LocalizationProvider>
+                </Grid>
+                <Grid size={6}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                                name='registrationDeadline'
+                                label="Deadline to Register"
+                                slotProps={{
+                                    textField: {
+                                        variant: "standard", // <-- this makes it look like standard TextField
+                                        fullWidth: true,
+                                    },
+                                    popper: {
+                                        disablePortal: true, // <-- Add this line
+                                        placement: 'right',
+                                        sx: { zIndex: 1500 },
+                                    }                       
+                                }}
+                                value={values.registrationDeadline}
+                                onChange={(value) => setFieldValue('registrationDeadline', value)}
+                            />
+                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
+                    </LocalizationProvider>
+                </Grid>
             </Grid>
-            <Grid size={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  label="End Date and Time"
-                  name='endDate'
-                  slotProps={{
-                    textField: {
-                      variant: "standard", // <-- this makes it look like standard TextField
-                      fullWidth: true,
-                    },
-                    popper: {
-                      disablePortal: true, // <-- Add this line
-                      placement: 'left',
-                      sx: { zIndex: 1500 },
-                    }
-                  }}
-                  value={values.endDate}
-                  onChange={(value) => setFieldValue('endDate', value)}
-                />
-                {errors.endDate && touched.endDate ? <p style={{ color: "#db3030" }}>{errors.endDate}</p> : <></>}
-              </LocalizationProvider>
-            </Grid>
-            <Grid size={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
-                  name='registrationDeadline'
-                  label="Deadline to Register"
-                  slotProps={{
-                    textField: {
-                      variant: "standard", // <-- this makes it look like standard TextField
-                      fullWidth: true,
-                    },
-                    popper: {
-                      disablePortal: true, // <-- Add this line
-                      placement: 'right',
-                      sx: { zIndex: 1500 },
-                    }
-                  }}
-                  value={values.registrationDeadline}
-                  onChange={(value) => setFieldValue('registrationDeadline', value)}
-                />
-                {errors.registrationDeadline && touched.registrationDeadline ? <p style={{ color: "#db3030" }}>{errors.registrationDeadline}</p> : <></>}
-              </LocalizationProvider>
-            </Grid>
-            <Grid size={12}>
-              <CustomTextField
-                name='description'
-                id='description'
-                label="Short Description"
-                fieldType='text'
-                multiline
-                minRows={3}
-                neumorphicBox={true}
-                fullWidth
-                value={values.description}
-                onChange={handleChange}
-                autoCapitalize='off'
-                autoCapitalizeName={false}
-              />
-              {errors.description && touched.description ? <p style={{ color: "#db3030" }}>{errors.description}</p> : <></>}
-            </Grid>
-          </Grid>
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', mt: 2 }}>
-            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting" : 'Confirm Edits'} variant='contained' color='primary' fullWidth sx={{ mt: 2 }} type='submit' />
-          </Box>
+            </Box>
+            </Box>
+            </Box>
+        <Box sx={modalFooterStyles}> 
+            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Edit'} variant='contained' color='tertiary' fullWidth  type='submit' sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
+        </Box>
         </form>
-      </CustomModalLayout>
+        </Box>
+        </CustomModalLayout>
     </>
   )
 }
 
-export default EditBazaar;
-
-
-
-
-
-
+export default EditBazaar

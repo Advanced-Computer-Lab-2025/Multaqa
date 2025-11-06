@@ -6,9 +6,11 @@ import { CustomTextField } from '../../shared/input-fields';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import CustomButton from '../../shared/Buttons/CustomButton';
+import RichTextField from '../../shared/TextField/TextField';
+import theme from '@/themes/lightTheme';
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
+
 
 import { bazaarSchema } from "./schemas/bazaar";
 
@@ -81,13 +83,30 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
     validationSchema: bazaarSchema,
     onSubmit: onSubmit,
   });
+
+const handleDescriptionChange = (htmlContent: string) => {
+    setFieldValue('description', htmlContent);
+    };
   return (
     <>
-    <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
+     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
+        <Box sx={{
+            ...wrapperContainerStyles,    
+        }}>
+        <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+        Create Bazaar
+        </Typography>  
         <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center' sx={{mb:2}}>Create Bazaar</Typography>
-            <Grid container spacing={2} sx={{mb:2}}>
-                <Grid size={6}>
+            <Box 
+                sx={horizontalLayoutStyles(theme)}
+                >
+                    <Box sx={step1BoxStyles(theme)}>
+                        <Box sx={modalHeaderStyles}>
+                            <Typography sx={detailTitleStyles(theme)}>
+                                Create New Bazaar
+                            </Typography>      
+                        </Box>
+                        <Box sx={modalFormStyles}>
                     <CustomTextField 
                         name='bazaarName'
                         id='bazaarName'
@@ -102,7 +121,26 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
                         autoCapitalizeName={false}
                     />
                     { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
-                </Grid>    
+                        <Box sx={{ mt: 3 }}>
+                            <RichTextField
+                                label="Description" 
+                                placeholder="Provide a short description of the trip"
+                                onContentChange={handleDescriptionChange} 
+                            />
+                        </Box>
+                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                
+              </Box>
+            </Box>
+
+            <Box sx={step2BoxStyles(theme)}>
+                <Box sx={modalHeaderStyles}>
+                    <Typography sx={detailTitleStyles(theme)}>
+                        Bazaar Details
+                    </Typography>      
+                </Box>
+                <Box sx={modalFormStyles}>
+            <Grid container spacing={2}>
                 <Grid size={6}>
                     <CustomTextField
                     name='location'
@@ -118,7 +156,7 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
                     autoCapitalizeName={false}
                     />
                     { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
-                </Grid>
+            </Grid>
             </Grid>
             <Grid container spacing={2}>
                 <Grid size={6}>
@@ -187,28 +225,15 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
                 </Grid>
-                <Grid size={12}>
-                    <CustomTextField 
-                    name='description'
-                    id='description'
-                    label="Short Description" 
-                    fullWidth  
-                    fieldType="text" 
-                    multiline 
-                    minRows={3} 
-                    neumorphicBox={true}
-                    value={values.description}
-                    onChange={handleChange}
-                    autoCapitalize='off'
-                    autoCapitalizeName={false}
-                    />
-                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-                </Grid>
             </Grid>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create Bazaar'} variant='contained' color='primary' fullWidth  type='submit'/>
+            </Box>
+            </Box>
+            </Box>
+        <Box sx={modalFooterStyles}> 
+            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create'} variant='contained' color='tertiary' fullWidth  type='submit' sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>
+        </Box>
         </CustomModalLayout>
     </>
   )

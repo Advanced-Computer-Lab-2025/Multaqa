@@ -88,11 +88,10 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
             fontSize: fontSize 
         }}
       />
+{/*
 
-      {/* Toolbar */}
       <Box sx={toolbarStyles(theme)}>
         
-        {/* Font Family Select */}
         <Select
           value={fontFamily}
           onChange={handleFontFamilyChange}
@@ -115,7 +114,7 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
           ))}
         </Select>
 
-        {/* Font Size Select */}
+  
         <Select
           value={fontSize}
           onChange={handleFontSizeChange}
@@ -138,7 +137,6 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
           ))}
         </Select>
 
-        {/* Formatting Buttons */}
         <IconButton size="small" onClick={() => handleFormat('bold')} color="inherit">
           <FormatBold fontSize="small" />
         </IconButton>
@@ -149,7 +147,7 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
           <FormatUnderlined fontSize="small" />
         </IconButton>
         
-      </Box>
+      </Box>*/}
     </Box>
   );
 };

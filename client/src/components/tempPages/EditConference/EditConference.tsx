@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { useFormik, FormikProvider, FormikContextType} from 'formik';
 import * as yup from 'yup';
-import EventCreationStep1Modal from './Box1';
-import EventCreationStep2Details from './Box2';
-import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from './styles';
-import { EventFormData} from './types/'; 
+import EventCreationStep1Modal from '../CreateConference/Box1';
+import EventCreationStep2Details from '../CreateConference/Box2';
+import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from '../../shared/styles';
+import { EventFormData} from '../CreateConference/types'; 
 import {api} from "../../../api";
-import CustomButton from '../Buttons/CustomButton';
-import { CustomModalLayout } from '../modals';
+import CustomButton from '../../shared/Buttons/CustomButton';
+import { CustomModalLayout } from '../../shared/modals';
 
 //Define the validation schema 
 const validationSchema = yup.object({
@@ -127,9 +127,11 @@ const Edit: React.FC<EditConferenceProps> = ({
     });
     const handleClose = () => { console.log("Modal flow closed/canceled."); };
     return (
-        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]" borderColor="#5A67D8">
-        <Box sx={wrapperContainerStyles}>    
-            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start'}}>
+        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]" borderColor="#5A67D8">
+        <Box sx={{
+    ...wrapperContainerStyles,    
+}}>
+            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
                 Edit Conference
             </Typography>        
         <FormikProvider value={formik}>
@@ -146,14 +148,14 @@ const Edit: React.FC<EditConferenceProps> = ({
                     />
                 </Box>
                 <Box sx={modalFooterStyles}>
-                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
+                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
                     Edit 
                 </CustomButton>
                 </Box>
             </form>
         </FormikProvider>
         </Box>
-        </CustomModalLayout>
+      </CustomModalLayout>  
     );
 };
 

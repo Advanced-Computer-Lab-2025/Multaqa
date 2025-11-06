@@ -9,7 +9,7 @@ import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { Copy, Check } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
-import Edit from "../shared/CreateConference/Edit";
+import Edit from "../tempPages/EditConference/EditConference";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,

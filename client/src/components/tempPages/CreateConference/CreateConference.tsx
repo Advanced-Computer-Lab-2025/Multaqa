@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { useFormik, FormikProvider, FormikContextType} from 'formik';
-import * as yup from 'yup';
 import EventCreationStep1Modal from './Box1';
 import EventCreationStep2Details from './Box2';
-import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from './styles';
+import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from '../../shared/styles';
 import { EventFormData} from './types'; 
 import {api} from "../../../api";
-import CustomButton from '../Buttons/CustomButton';
-import { CustomModalLayout } from '../modals';
+import CustomButton from '../../shared/Buttons/CustomButton';
+import { CustomModalLayout } from '../../shared/modals';
+import { validationSchema } from './schemas/conference';
 
 
 const initialFormData: EventFormData = {
@@ -28,18 +28,6 @@ const initialFormData: EventFormData = {
     extraRequiredResources: [],
     registrationDeadline:''
 }
-
-//Define the validation schema 
-const validationSchema = yup.object({
-    eventName: yup.string().required('Conference Name is required').min(3, 'Name must be at least 3 characters'),
-    description: yup.string().required('Description is required'),
-    eventStartDate: yup.string().required('Start Date is required'),
-    eventEndDate: yup.string().required('End Date is required'),
-    requiredBudget: yup.number().typeError('Budget must be a number').positive('Budget must be positive').required('Budget is required'),
-    fundingSource: yup.string().required('Funding Source is required'),
-    websiteLink: yup.string().required('Link is required'),
-
-});
 
 interface CreateConferenceProps {
     open:boolean;
@@ -101,9 +89,11 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
     const handleClose = () => { console.log("Modal flow closed/canceled."); 
     };
     return (
-        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]" borderColor="#5A67D8">
-        <Box sx={wrapperContainerStyles}>    
-            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start'}}>
+        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]" borderColor="#5A67D8">
+        <Box sx={{
+    ...wrapperContainerStyles,    
+}}>
+            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
                 Create Conference
             </Typography>        
         <FormikProvider value={formik}>
@@ -120,7 +110,7 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
                     />
                 </Box>
                 <Box sx={modalFooterStyles}>
-                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
+                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
                     Create 
                 </CustomButton>
                 </Box>

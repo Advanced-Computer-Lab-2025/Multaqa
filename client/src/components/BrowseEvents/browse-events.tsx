@@ -19,7 +19,7 @@ import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
-import Create from "../shared/CreateConference/CreateConference";
+import Create from "../tempPages/CreateConference/CreateConference";
 import CreateParent from "../createButton/createParent";
 
 import { deleteEvent, frameData } from "./utils";
