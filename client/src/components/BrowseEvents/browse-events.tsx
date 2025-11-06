@@ -154,7 +154,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             ? result.filter((event) => event.type === "bazaar")
             : result;
         setEvents(newResults);
-        console.log(data);
       }
     } catch (err) {
       console.error(err);
