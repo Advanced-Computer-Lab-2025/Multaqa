@@ -7,10 +7,13 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
-import { CustomModal } from "../shared/modals";
+import { CustomModal, CustomModalLayout } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EditTrip from "../tempPages/EditTrip/EditTrip";
+import EventCard from "../shared/cards/EventCard";
+import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
+import EventDetails from "./Modals/EventDetails";
 
 const TripView: React.FC<BazarViewProps> = ({
   id,
@@ -30,6 +33,7 @@ const TripView: React.FC<BazarViewProps> = ({
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const finalPrice = parseInt(details["Cost"], 10); // base 10
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -116,7 +120,54 @@ const TripView: React.FC<BazarViewProps> = ({
 
   return (
     <>
-      <ActionCard
+     <EventCard 
+        title={name} 
+        startDate={details["Start Date"]} 
+        endDate={details["End Date"]} 
+        startTime={details["Start Time"]} 
+        endTime={details["End Time"]} 
+        color={background} 
+        leftIcon={<IconComponent />} 
+        eventType={"Trip"}
+        onOpenDetails={() => setDetailsModalOpen(true)}
+        utilities={
+          user === "admin" ? (
+            <Tooltip title="Delete">
+            <IconButton
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background}/>:null)
+        }
+          registerButton={
+          !registered &&
+          (user == "staff" ||
+            user == "student" ||
+            user == "ta" ||
+            user == "professor") && (
+            <CustomButton
+              size="small"
+              variant="contained"
+              // color="info"
+              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+              color:background, borderColor:background}}
+              onClick={()=> {setRegister(true)}}
+            >
+              Register
+            </CustomButton>
+          )
+        } expanded={expanded} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+      {/* <ActionCard
         title={name}
         background={background}
         leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
@@ -177,8 +228,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <Trash2 size={16} />
                   </IconButton>
             </Tooltip>
-          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={()=> setEdit(true)} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
-        }
+          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"}/>:null)}
         registered={
           registered ||
           !(
@@ -193,7 +243,7 @@ const TripView: React.FC<BazarViewProps> = ({
         details={detailsContent}
         borderColor={theme.palette.info.main}
         elevation="soft"
-      />
+      /> */}
 
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
@@ -259,6 +309,23 @@ const TripView: React.FC<BazarViewProps> = ({
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
       eventType={"Trip"} userInfo={userInfo} eventId={id}/>
+
+
+       <CustomModalLayout
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+        borderColor={background}
+      >
+        <EventDetails
+          title={name}
+          description={description}
+          eventType="Trip"
+          details={details}
+          color={background}
+          onRegister={!registered && (user === "staff" || user === "student" || user === "ta" || user === "professor") ? () => setRegister(true) : undefined}
+        />
+      </CustomModalLayout>
     </>
   );
 };

@@ -93,7 +93,7 @@ const EventColor = [
     icon: FlightTakeoffIcon , //Green.
   },
   {
-    icon:StorefrontIcon, //Bazaar
+    icon:StorefrontIcon, //Booth
     color: "#2196f3", // Blue
   },
   {
@@ -101,7 +101,7 @@ const EventColor = [
     color: "#ff9800", // Orange
   },
   {
-    icon: SellIcon, //Booth
+    icon: SellIcon, //Bazaar
     color: "#e91e63", // Pink
   },
   {
@@ -329,8 +329,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BazarView
             id={event.id}
-            background={EventColor[1].color}
-            icon={EventColor[1].icon}
+            background={EventColor[3].color}
+            icon={EventColor[3].icon}
             setRefresh={setRefresh}
             key={event.id}
             details={event.details}
@@ -347,8 +347,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BoothView
             id={event.id}
-            background={EventColor[3].color}
-            icon={EventColor[3].icon}
+            background={EventColor[1].color}
+            icon={EventColor[1].icon}
             setRefresh={setRefresh}
             key={event.id}
             company={event.company}
@@ -398,7 +398,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             color: `${theme.palette.tertiary.dark}`,
           }}
         >
-          {registered ? " My Registered Events" : "Browse Events"}
+          {user !== "events-only"? registered ? " My Registered Events" : "Browse Events":"Manage Events"}
         </Typography>
         <Typography
           variant="body2"
@@ -424,7 +424,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       >
         <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
           <CustomSearchBar
-            width="60vw"
+            width="64vw"
             type="outwards"
             icon
             value={searchQuery}
@@ -466,9 +466,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         <>
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
+              display: "grid",
+              gridTemplateColumns: "repeat(1, 1fr)",
               gap: 3,
+              padding:"0px 40px"
             }}
           >
             {filteredEvents.map((event) => (
@@ -500,7 +501,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           {events.length > 0 && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="caption" color="text.secondary">
-                Browsing {filteredEvents.length} of {events.length} events
+                {registered?`Viewing ${filteredEvents.length} of ${events.length} events`:`Browsing ${filteredEvents.length} of ${events.length} events`}
               </Typography>
             </Box>
           )}

@@ -6,10 +6,12 @@ import ActionCard from "../shared/cards/ActionCard";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
-import { CustomModal } from "../shared/modals";
+import { CustomModal, CustomModalLayout } from "../shared/modals";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import Utilities from "../shared/Utilities";
 import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
+import EventCard from "../shared/cards/EventCard";
+import EventDetails from "./Modals/EventDetails";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -26,7 +28,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [edit, setEdit] = useState(false)
+  const [edit, setEdit] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -115,7 +118,53 @@ const BazarView: React.FC<BazarViewProps> = ({
 
   return (
     <>
-      <ActionCard
+     <EventCard 
+        title={name} 
+        startDate={details["Start Date"]} 
+        endDate={details["End Date"]} 
+        startTime={details["Start Time"]} 
+        endTime={details["End Time"]} 
+        color={background} 
+        leftIcon={<IconComponent />} 
+        eventType={"Bazaar"} 
+        onOpenDetails={() => setDetailsModalOpen(true)}
+        utilities={user === "admin" ? (
+        <Tooltip title="Delete Bazaar">
+          <IconButton
+            size="medium"
+            onClick={handleOpenDeleteModal}
+            sx={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+                color: "error.main",
+              },
+            }}
+          >
+            <Trash2 size={16} />
+          </IconButton>
+        </Tooltip>
+      ) : (user === "events-office" || user === "events-only" ? <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+      registerButton={!registered &&
+        user == "vendor" && (
+          <CustomButton
+            size="small"
+            variant="contained"
+            // color="secondary"
+            sx={{
+              borderRadius: 999, backgroundColor: `${background}20`,
+              color: background, borderColor: background
+            }}
+            onClick={handleOpenModal}
+          >
+            Apply
+            <BazarFormModalWrapper
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              bazarId={id} />
+          </CustomButton>
+        )} expanded={expanded} location={details["Location"]}         />
+      {/* <ActionCard
         title={name}
         background={background}
         leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
@@ -188,7 +237,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         details={detailsContent}
         borderColor={background}
         elevation="soft"
-      />
+      /> */}
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -255,7 +304,22 @@ const BazarView: React.FC<BazarViewProps> = ({
         endDate={new Date (details['End Date'])} 
         registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
         onClose={()=> {setEdit(false)}}
+      />
+      <CustomModalLayout
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+        borderColor={background}
+      >
+        <EventDetails
+          title={name}
+          description={description}
+          eventType="Bazaar"
+          details={details}
+          color={background}
+          onRegister={!registered && user === "vendor" ? handleOpenModal : undefined}
         />
+      </CustomModalLayout>
     </>
   );
 };

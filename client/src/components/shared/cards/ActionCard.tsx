@@ -92,10 +92,10 @@ export default function ActionCard({
         display: "flex",
         flexDirection: "column",
         borderRadius: 2,
-        backgroundColor: `${background}10`,
+        backgroundColor: `${borderColor}10`,
         border: "2px solid transparent",
-        borderColor: `${background}40`,
-        boxShadow: `0 4px 12px ${background}30`,
+        borderColor: `${borderColor}40`,
+        boxShadow: `0 4px 12px ${borderColor}30`,
         overflow: "hidden",
         transition: "all 0.3s ease",
         padding:"12px 12px 4px 4px",
@@ -232,9 +232,9 @@ export default function ActionCard({
           sx={{
             transition: "all 0.3s ease",
             transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-            color: background || "rgba(0,0,0,0.5)",
+            color: borderColor || "rgba(0,0,0,0.5)",
             "&:hover": {
-              background: background ? `${background}15` : "rgba(0,0,0,0.04)",
+              background: borderColor ? `${borderColor}15` : "rgba(0,0,0,0.04)",
             },
           }}
         >

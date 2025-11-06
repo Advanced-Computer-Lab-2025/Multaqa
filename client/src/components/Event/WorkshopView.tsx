@@ -9,6 +9,9 @@ import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle } from "lucide-reac
 import { CustomModal } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
+import EventCard from "../shared/cards/EventCard";
+import { CustomModalLayout } from "../shared/modals";
+import EventDetails from "./Modals/EventDetails";
 
 interface DetailChipProps {
   label: string;
@@ -106,6 +109,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -413,25 +417,69 @@ const detailsContent = (
 
   return (
     <>
-      <ActionCard
+    <EventCard title={name} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
+        <Tooltip title="Delete Workshop">
+          <IconButton
+            size="medium"
+            onClick={handleOpenDeleteModal}
+            sx={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 2,
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+                borderColor: "error.main",
+                color: "error.main",
+              },
+            }}
+          >
+            <Trash2 size={18} />
+          </IconButton>
+        </Tooltip>
+      ) : null}
+      registerButton={!registered &&
+        (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
+          <CustomButton
+            size="small"
+            variant="contained"
+            sx={{
+              borderRadius: 999, backgroundColor: `${background}20`,
+              color: background, borderColor: background,
+              fontWeight: 600,
+              px: 3,
+              textTransform: 'none',
+              boxShadow: `0 4px 14px ${background}40`,
+              transition: 'all 0.3s ease',
+              "&:hover": {
+                backgroundColor: `${background}30`,
+                transform: 'translateY(-2px)',
+                boxShadow: `0 6px 20px ${background}50`,
+              }
+            }}
+            onClick={() => { setRegister(true); } }
+          >
+            Register
+          </CustomButton>
+        )} expanded={expanded} location={details["Location"]} />
+      {/* <ActionCard
         title={name}
         background={background}
         leftIcon={
             <Box
-                sx={{ 
-                    backgroundColor: `${background}20`,
-                    color: background,
-                    width: 48, 
-                    height: 48,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 3,
-                    transition: "all 0.3s ease",
-                    "&:hover": { 
-                      backgroundColor: `${background}30`,
-                      transform: 'rotate(5deg) scale(1.05)'
-                    }
+                sx={{ backgroundColor: `${background}20`,   color: background,
+                         mb: 1,
+                        width: 32,
+                        height: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        padding:"4px",
+                        transition: "background-color 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}30`,
+                        },
                 }}
             >
                 <IconComponent sx={{ fontSize: 26 }} />
@@ -497,7 +545,7 @@ const detailsContent = (
               <Trash2 size={18} />
             </IconButton>
           </Tooltip>
-          ) : (registered && user==="professor"? <Utilities/>: null)
+          ) : null
         }
         registered={
           registered ||
@@ -513,7 +561,7 @@ const detailsContent = (
         details={detailsContent}
         borderColor={background}
         elevation="soft"
-      />
+      /> */}
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -582,6 +630,21 @@ const detailsContent = (
         userInfo={userInfo} 
         eventId={id}
       />
+      <CustomModalLayout
+              open={detailsModalOpen}
+              onClose={() => setDetailsModalOpen(false)}
+              width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+              borderColor={background}
+            >
+              <EventDetails
+                title={name}
+                description={description}
+                eventType="Workshop"
+                details={details}
+                color={background}
+                onRegister={!registered && user === "vendor" ? () => setRegister(true) : undefined}
+              />
+            </CustomModalLayout>
     </>
   );
 };

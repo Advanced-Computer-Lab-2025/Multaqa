@@ -7,9 +7,11 @@ import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
 import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { Copy, Check } from "lucide-react";
-import { CustomModal } from "../shared/modals";
+import { CustomModal, CustomModalLayout } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 import Edit from "../shared/CreateConference/Edit";
+import EventCard from "../shared/cards/EventCard";
+import EventDetails from "./Modals/EventDetails";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,
@@ -27,6 +29,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [edit, setEdit] = useState(false)
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -204,7 +207,27 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
 
   return (
     <>
-      <ActionCard
+     <EventCard title={name} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]}  link={details["Link"]} color={background} leftIcon={<IconComponent />} eventType={"Conference"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={ user === "admin" ? (
+            <Tooltip title="Delete Conference">
+            <IconButton
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+            </Tooltip>
+          ) : ( user==="events-office"|| user==="events-only"?
+           <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
+        expanded={expanded} location={details["Location"]} />
+
+      {/* <ActionCard
         title={name}
         background={background}
         leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
@@ -281,7 +304,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         details={detailsContent}
         borderColor={theme.palette.warning.main}
         elevation="soft"
-      />
+      /> */}
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -362,6 +385,21 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventStartTime={details["Start Time"]}
         eventEndTime={details["End Time"]}
       />
+
+       <CustomModalLayout
+                    open={detailsModalOpen}
+                    onClose={() => setDetailsModalOpen(false)}
+                    width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+                    borderColor={background}
+                  >
+                    <EventDetails
+                      title={name}
+                      description={description}
+                      eventType="Conference"
+                      details={details}
+                      color={background}
+                    />
+                  </CustomModalLayout>
     </>
   );
 };
