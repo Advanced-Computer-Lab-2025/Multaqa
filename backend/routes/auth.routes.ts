@@ -27,14 +27,13 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     }
 
     // Create user
-    const { user, verificationtoken } = await authService.signup(value);
+    const user = await authService.signup(value);
 
     // Send HTTP response
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       user: user,
-      verificationtoken: verificationtoken
     });
   } catch (error: any) {
     console.error('Registration error:', error.message);

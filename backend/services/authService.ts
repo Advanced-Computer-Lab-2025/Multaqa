@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<Omit<IUser, "password">> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -60,7 +60,6 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(signupData.password, saltRounds);
 
     let createdUser = null;
-    let verificationtoken = "";
 
     // Determine role based on email domain and create user accordingly
     if (signupData.email.includes("@student.guc.edu.eg")) {
@@ -75,7 +74,8 @@ export class AuthService {
         }
       );
 
-      verificationtoken = this.verificationService.generateVerificationToken(createdUser);
+      const verificationtoken = this.verificationService.generateVerificationToken(createdUser);
+      // send verification email
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
@@ -107,7 +107,7 @@ export class AuthService {
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
+    return userWithoutPassword as Omit<IUser, "password">;
   }
 
   // for all users

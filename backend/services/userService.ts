@@ -129,7 +129,7 @@ export class UserService {
   async assignRoleAndSendVerification(
     userId: string,
     position: string
-  ): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
+  ): Promise<Omit<IStaffMember, "password">> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -153,13 +153,14 @@ export class UserService {
 
     // Generate verification token
     const verificationtoken = this.verificationService.generateVerificationToken(user);
-
+    // Send verification email
+    
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject
       ? user.toObject()
       : user;
 
-    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
+    return userWithoutPassword as Omit<IStaffMember, "password">;
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
