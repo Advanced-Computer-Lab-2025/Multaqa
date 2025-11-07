@@ -141,7 +141,6 @@ export const sendApplicationStatusEmail = async (
   status: 'accepted' | 'rejected',
   rejectionReason: string | undefined,
   nextSteps: string | undefined,
-  applicationDate: Date
 ) => {
   const html = getApplicationStatusTemplate(
     username,
@@ -150,7 +149,6 @@ export const sendApplicationStatusEmail = async (
     status,
     rejectionReason,
     nextSteps,
-    applicationDate
   );
 
   const typeLabel = applicationType === 'bazaar' ? 'Bazaar' : 'Booth';

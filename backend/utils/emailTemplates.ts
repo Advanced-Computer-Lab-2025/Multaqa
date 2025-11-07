@@ -349,7 +349,6 @@ export const getApplicationStatusTemplate = (
   status: 'accepted' | 'rejected',
   rejectionReason: string | undefined,
   nextSteps: string | undefined,
-  applicationDate: Date
 ): string => {
   const isAccepted = status === 'accepted';
   const headerStyle = isAccepted ? baseStyles.headerSuccess : baseStyles.headerDanger;
@@ -378,10 +377,6 @@ export const getApplicationStatusTemplate = (
               <tr>
                 <td style="padding: 8px 0; color: #555; font-weight: bold;">Name:</td>
                 <td style="padding: 8px 0; color: #333;">${applicationName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #555; font-weight: bold;">Submitted:</td>
-                <td style="padding: 8px 0; color: #333;">${applicationDate.toLocaleDateString()}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; color: #555; font-weight: bold;">Status:</td>
