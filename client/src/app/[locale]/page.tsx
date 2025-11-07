@@ -1,46 +1,62 @@
 "use client";
 
+import { useState } from "react";
 import {
+  alpha,
   Box,
-  Button,
   Container,
+  Divider,
+  IconButton,
   Paper,
+  Stack,
   Typography,
   useTheme,
-  Stack,
-  Card,
-  CardContent,
-  IconButton,
-  alpha,
 } from "@mui/material";
-import { Link } from "@/i18n/navigation";
-
-// Icons
-import SchoolIcon from "@mui/icons-material/School";
-import StorefrontIcon from "@mui/icons-material/Storefront";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import PlaceIcon from "@mui/icons-material/Place";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import PaletteIcon from "@mui/icons-material/Palette";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import { Link } from "@/i18n/navigation";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+
+const signUpOptions = [
+  {
+    label: "Join as University Member",
+    href: "/register?userType=university-member",
+    description: "Access exclusive campus events and resources.",
+  },
+  {
+    label: "Join as Vendor",
+    href: "/register?userType=vendor",
+    description: "Collaborate with GUC events and bazaars.",
+  },
+];
+
+const featureHighlights = [
+  {
+    icon: <PaletteIcon fontSize="large" />,
+    title: "Curated Experiences",
+    copy: "Discover artful events tailored for every member of the GUC community.",
+  },
+  {
+    icon: <ScheduleIcon fontSize="large" />,
+    title: "Effortless Booking",
+    copy: "Reserve spots, courts, and workshops in just a few clicks.",
+  },
+  {
+    icon: <PlaceIcon fontSize="large" />,
+    title: "Campus Connected",
+    copy: "Stay in sync with what's happening across every faculty and venue.",
+  },
+];
 
 export default function HomePage() {
   const theme = useTheme();
-
-  const userTypes = [
-    {
-      type: "university member",
-      path: `/register?userType=university-member`,
-      icon: <SchoolIcon sx={{ fontSize: 40 }} />,
-      color: theme.palette.primary.main,
-      description:
-        "Register as a university member to access courses, events, and academic resources",
-    },
-    {
-      type: "vendor",
-      path: `/register?userType=vendor`,
-      icon: <StorefrontIcon sx={{ fontSize: 40 }} />,
-      color: theme.palette.secondary.dark,
-      description:
-        "Register as a vendor to provide services for university events",
-    },
-  ];
+  const [showSignUpOptions, setShowSignUpOptions] = useState(false);
 
   return (
     <Box
@@ -48,331 +64,426 @@ export default function HomePage() {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: `${theme.palette.primary.main}`,
-        position: "relative",
-        overflow: "hidden",
+        bgcolor: theme.palette.background.default,
       }}
     >
-      {/* Background Pattern */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
-          background: `${theme.palette.primary.main}`,
-          zIndex: 0,
-        }}
-      />
+      <Box component="section" sx={{ position: "relative", overflow: "hidden" }}>
+        <Container
+          maxWidth="lg"
+          sx={{
+            py: { xs: 10, md: 14 },
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "flex-start", md: "center" },
+            gap: { xs: 6, md: 10 },
+          }}
+        >
+          <Box sx={{ flex: { md: 1 }, position: "relative", zIndex: 1 }}>
+            <Typography
+              variant="overline"
+              sx={{
+                letterSpacing: "0.3em",
+                textTransform: "uppercase",
+                color: theme.palette.secondary.dark,
+                fontWeight: 600,
+              }}
+            >
+              Multaqa • GUC
+            </Typography>
+            <Typography
+              component="h1"
+              variant="h1"
+              sx={{
+                fontSize: { xs: "2.75rem", md: "3.75rem" },
+                fontWeight: 600,
+                letterSpacing: { xs: "0.4px", md: "1px" },
+                lineHeight: 1.1,
+                color: theme.palette.text.primary,
+                mt: 2,
+              }}
+            >
+              Artful events for every voice on campus.
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                mt: 3,
+                maxWidth: 520,
+                color: alpha(theme.palette.text.primary, 0.75),
+                fontSize: { xs: "1rem", md: "1.1rem" },
+              }}
+            >
+              Multaqa reimagines campus life with a vibrant hub for showcasing
+              events, workshops, and cultural experiences inspired by the GUC
+              community.
+            </Typography>
 
-      {/* Hero Section */}
-      <Box
-        sx={{
-          py: { xs: 8, md: 12 },
-          textAlign: "center",
-          color: theme.palette.common.white,
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5} sx={{ mt: 5 }}>
+              <CustomButton
+                variant="contained"
+                color="secondary"
+                component={Link}
+                href="/login"
+                label="Login"
+                sx={{
+                  width: { xs: "100%", sm: "160px" },
+                  fontWeight: 700,
+                  color: theme.palette.text.primary,
+                }}
+                endIcon={<ArrowForwardIcon />}
+              />
+
+              <Box
+                onMouseEnter={() => setShowSignUpOptions(true)}
+                onMouseLeave={() => setShowSignUpOptions(false)}
+                sx={{ position: "relative", width: { xs: "100%", sm: "200px" } }}
+              >
+                <CustomButton
+                  variant="outlined"
+                  color="primary"
+                  label="Sign Up"
+                  endIcon={<ArrowOutwardIcon />}
+                  sx={{
+                    width: "100%",
+                    fontWeight: 700,
+                    backdropFilter: "blur(4px)",
+                  }}
+                />
+
+                <Paper
+                  elevation={8}
+                  sx={{
+                    position: "absolute",
+                    top: { xs: "64px", sm: "54px" },
+                    left: 0,
+                    width: { xs: "100%", sm: 260 },
+                    borderRadius: 3,
+                    p: 2,
+                    background: theme.palette.common.white,
+                    boxShadow: `0 18px 40px ${alpha(theme.palette.primary.main, 0.18)}`,
+                    opacity: showSignUpOptions ? 1 : 0,
+                    transform: showSignUpOptions
+                      ? "translateY(0)"
+                      : "translateY(-10px)",
+                    pointerEvents: showSignUpOptions ? "auto" : "none",
+                    transition: "all 0.28s ease",
+                    zIndex: 3,
+                  }}
+                >
+                  <Stack spacing={1.5}>
+                    {signUpOptions.map((option) => (
+                      <Box
+                        key={option.label}
+                        component={Link}
+                        href={option.href}
+                        sx={{
+                          borderRadius: 2,
+                          p: 1.5,
+                          display: "block",
+                          color: theme.palette.text.primary,
+                          textDecoration: "none",
+                          transition: "background 0.2s ease",
+                          "&:hover": {
+                            background: alpha(theme.palette.secondary.main, 0.35),
+                          },
+                        }}
+                      >
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                          {option.label}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: alpha(theme.palette.text.primary, 0.7),
+                            mt: 0.5,
+                          }}
+                        >
+                          {option.description}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                </Paper>
+              </Box>
+            </Stack>
+          </Box>
+
+          <Box
+            sx={{
+              flex: { md: 1 },
+              position: "relative",
+              minHeight: { xs: 360, sm: 420 },
+              width: "100%",
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: 6,
+                background: `linear-gradient(135deg, ${alpha(
+                  theme.palette.primary.main,
+                  0.12
+                )}, ${alpha(theme.palette.secondary.main, 0.25)})`,
+                filter: "blur(60px)",
+                zIndex: 0,
+              }}
+            />
+
+            <Box
+              sx={{
+                position: "relative",
+                height: "100%",
+                display: "grid",
+                gridTemplateColumns: "repeat(6, 1fr)",
+                gridTemplateRows: "repeat(6, 1fr)",
+                gap: 14,
+              }}
+            >
+              <Box
+                sx={{
+                  gridColumn: "1 / span 2",
+                  gridRow: "1 / span 3",
+                  borderRadius: "999px",
+                  bgcolor: theme.palette.primary.main,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "3 / span 3",
+                  gridRow: "1 / span 2",
+                  borderRadius: 2,
+                  bgcolor: theme.palette.secondary.main,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "6 / span 1",
+                  gridRow: "1 / span 2",
+                  borderRadius: "20px",
+                  bgcolor: theme.palette.tertiary.main,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "1 / span 2",
+                  gridRow: "4 / span 2",
+                  borderRadius: 2,
+                  bgcolor: theme.palette.tertiary.dark,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "4 / span 2",
+                  gridRow: "3 / span 3",
+                  borderRadius: "50%",
+                  bgcolor: theme.palette.primary.light,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "3 / span 1",
+                  gridRow: "4 / span 3",
+                  bgcolor: theme.palette.secondary.dark,
+                  borderRadius: 1,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "5 / span 2",
+                  gridRow: "5 / span 2",
+                  borderRadius: "999px",
+                  bgcolor: theme.palette.primary.dark,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "2 / span 2",
+                  gridRow: "3 / span 2",
+                  bgcolor: "transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "80%",
+                    height: 6,
+                    bgcolor: theme.palette.common.black,
+                    borderRadius: 3,
+                  }}
+                />
+              </Box>
+              <Box
+                sx={{
+                  gridColumn: "2 / span 1",
+                  gridRow: "6 / span 1",
+                  width: "70%",
+                  justifySelf: "center",
+                  borderRadius: 1,
+                  bgcolor: theme.palette.secondary.main,
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "6 / span 1",
+                  gridRow: "3 / span 3",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 12,
+                    height: "100%",
+                    bgcolor: theme.palette.text.primary,
+                    borderRadius: 999,
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.common.white }}>
         <Container maxWidth="lg">
           <Typography
-            variant="h1"
-            component="h1"
-            gutterBottom
+            component="h2"
+            variant="h3"
             sx={{
-              fontSize: { xs: "2.5rem", md: "3.5rem" },
-              letterSpacing: "0.02em",
-              textShadow: "0 2px 10px rgba(0,0,0,0.2)",
+              textAlign: "center",
               fontWeight: 600,
+              fontSize: { xs: "2.1rem", md: "2.6rem" },
             }}
           >
-            Multaqa
+            A curated space for collaboration and celebration.
           </Typography>
           <Typography
-            variant="h5"
-            component="p"
-            gutterBottom
+            variant="body1"
             sx={{
-              mb: 4,
-              maxWidth: "700px",
+              maxWidth: 640,
               mx: "auto",
-              opacity: 0.9,
-              fontSize: { xs: "1.1rem", md: "1.3rem" },
+              textAlign: "center",
+              mt: 2.5,
+              color: alpha(theme.palette.text.primary, 0.7),
             }}
           >
-            Your University Event Management Platform
+            Multaqa streamlines event planning, registration, and discovery, so
+            every voice on campus can connect through meaningful experiences.
           </Typography>
 
           <Stack
-            direction="row"
+            direction={{ xs: "column", md: "row" }}
             spacing={3}
-            justifyContent="center"
-            sx={{ mb: 6 }}
+            sx={{ mt: { xs: 6, md: 8 } }}
           >
-            <Button
-              variant="contained"
-              color="secondary"
-              size="large"
-              component={Link}
-              href={`/login`}
-              sx={{
-                fontWeight: "bold",
-                color: theme.palette.text.primary,
-                py: 1.5,
-                px: 4,
-                borderRadius: "50px",
-                boxShadow: "0 4px 14px rgba(0, 0, 0, 0.15)",
-                "&:hover": {
-                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
-                },
-              }}
-              endIcon={<ArrowForwardIcon />}
-            >
-              Login
-            </Button>
+            {featureHighlights.map((feature) => (
+              <Paper
+                key={feature.title}
+                elevation={0}
+                sx={{
+                  flex: 1,
+                  p: { xs: 3.5, md: 4 },
+                  borderRadius: 4,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                  background: alpha(theme.palette.primary.light, 0.04),
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: alpha(theme.palette.secondary.main, 0.4),
+                    color: theme.palette.tertiary.dark,
+                    mb: 2.5,
+                  }}
+                >
+                  {feature.icon}
+                </Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
+                  {feature.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: alpha(theme.palette.text.primary, 0.75) }}>
+                  {feature.copy}
+                </Typography>
+              </Paper>
+            ))}
           </Stack>
         </Container>
       </Box>
 
-      {/* Registration Section */}
-      <Container
-        maxWidth="lg"
-        sx={{ py: 6, flexGrow: 1, position: "relative", zIndex: 1 }}
-      >
-        <Paper
-          elevation={6}
-          sx={{
-            p: { xs: 3, md: 5 },
-            borderRadius: 4,
-            backgroundColor: theme.palette.background.default,
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
-            overflow: "hidden",
-            position: "relative",
-          }}
+      <Box component="footer" sx={{ bgcolor: theme.palette.primary.dark, color: theme.palette.common.white }}>
+        <Container
+          maxWidth="lg"
+          sx={{ py: { xs: 6, md: 8 }, display: "flex", flexDirection: "column", gap: 4 }}
         >
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "4px",
-              background: `${theme.palette.secondary.main}`,
-            }}
-          />
-
-          <Typography
-            variant="h4"
-            component="h2"
-            gutterBottom
-            align="center"
-            color="primary"
-            sx={{
-              mb: 5,
-              fontWeight: 600,
-              position: "relative",
-              "&:after": {
-                content: '""',
-                display: "block",
-                width: "80px",
-                height: "4px",
-                backgroundColor: theme.palette.secondary.main,
-                position: "absolute",
-                bottom: "-12px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                borderRadius: "2px",
-              },
-            }}
-          >
-            Register as
-          </Typography>
-
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={4}
-            justifyContent="center"
-            alignItems="stretch"
-            flexWrap="wrap"
-          >
-            {userTypes.map((user) => (
-              <Box
-                key={user.type}
-                sx={{
-                  flexBasis: { xs: "100%", sm: "45%" },
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Card
-                  elevation={2}
-                  sx={{
-                    width: "100%",
-                    maxWidth: "400px",
-                    display: "flex",
-                    flexDirection: "column",
-                    borderRadius: 3,
-                    transition: "all 0.3s ease-in-out",
-                    overflow: "hidden",
-                    border: `1px solid ${alpha(user.color, 0.2)}`,
-                    "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: `0 12px 28px ${alpha(user.color, 0.2)}`,
-                      "& .icon-container": {
-                        backgroundColor: user.color,
-                        "& svg": {
-                          color: "#fff",
-                          transform: "scale(1.1)",
-                        },
-                      },
-                      "& .arrow-icon": {
-                        opacity: 1,
-                        transform: "translateX(0)",
-                      },
-                    },
-                  }}
-                  component={Link}
-                  href={user.path}
-                >
-                  <CardContent
-                    sx={{
-                      p: 0,
-                      display: "flex",
-                      flexDirection: "column",
-                      height: "100%",
-                    }}
-                  >
-                    <Box
-                      className="icon-container"
-                      sx={{
-                        backgroundColor: alpha(user.color, 0.1),
-                        p: 3,
-                        display: "flex",
-                        justifyContent: "center",
-                        transition: "all 0.3s ease",
-                        "& svg": {
-                          color: user.color,
-                          transition: "all 0.3s ease",
-                        },
-                      }}
-                    >
-                      {user.icon}
-                    </Box>
-
-                    <Box sx={{ p: 3, flexGrow: 1 }}>
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        gutterBottom
-                        sx={{
-                          textTransform: "capitalize",
-                          fontWeight: 600,
-                          color: user.color,
-                        }}
-                      >
-                        {user.type}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 2 }}
-                      >
-                        {user.description}
-                      </Typography>
-
-                      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                        <IconButton
-                          className="arrow-icon"
-                          size="small"
-                          sx={{
-                            color: user.color,
-                            opacity: 0.5,
-                            transform: "translateX(-8px)",
-                            transition: "all 0.3s ease",
-                          }}
-                        >
-                          <ArrowForwardIcon />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
-          </Stack>
-        </Paper>
-      </Container>
-
-      {/* Footer */}
-      <Box
-        component="footer"
-        sx={{
-          py: 4,
-          px: 2,
-          mt: "auto",
-          backgroundColor: theme.palette.primary.dark,
-          color: theme.palette.common.white,
-          position: "relative",
-          zIndex: 1,
-          borderTop: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
-        }}
-      >
-        <Container maxWidth="lg">
           <Stack
             direction={{ xs: "column", md: "row" }}
-            spacing={3}
-            alignItems="center"
+            spacing={4}
             justifyContent="space-between"
+            alignItems={{ xs: "flex-start", md: "center" }}
           >
-            <Box textAlign={{ xs: "center", md: "left" }}>
-              <Typography variant="h6" gutterBottom>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 600 }}>
                 Multaqa
               </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.7 }}>
-                Connecting university events and communities
+              <Typography variant="body2" sx={{ opacity: 0.75, mt: 1, maxWidth: 320 }}>
+                Bringing the GUC community together through dynamic events and collaborative storytelling.
               </Typography>
             </Box>
 
-            <Stack direction="row" spacing={2} justifyContent="center">
-              <Button
-                variant="text"
-                color="inherit"
-                component={Link}
-                href="/about"
-              >
-                About
-              </Button>
-              <Button
-                variant="text"
-                color="inherit"
-                component={Link}
-                href="/contact"
-              >
-                Contact
-              </Button>
-              <Button
-                variant="text"
-                color="inherit"
-                component={Link}
-                href="/help"
-              >
-                Help
-              </Button>
+            <Stack direction="row" spacing={2}>
+              {[{
+                icon: <FacebookIcon />, href: "https://facebook.com"
+              }, {
+                icon: <InstagramIcon />, href: "https://instagram.com"
+              }, {
+                icon: <LinkedInIcon />, href: "https://linkedin.com"
+              }].map((social) => (
+                <IconButton
+                  key={social.href}
+                  component="a"
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    backgroundColor: alpha(theme.palette.common.white, 0.12),
+                    color: theme.palette.common.white,
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.common.white, 0.25),
+                    },
+                  }}
+                >
+                  {social.icon}
+                </IconButton>
+              ))}
             </Stack>
 
-            <Typography
-              variant="body2"
-              sx={{
-                opacity: 0.7,
-                textAlign: { xs: "center", md: "right" },
-              }}
-            >
-              © {new Date().getFullYear()} Multaqa - University Event Management
-              Platform
-            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1.5, sm: 3 }}>
+              <Typography component={Link} href="/privacy" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: theme.palette.secondary.main } }}>
+                Privacy Policy
+              </Typography>
+              <Typography component={Link} href="/terms" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: theme.palette.secondary.main } }}>
+                Terms of Service
+              </Typography>
+              <Typography component={Link} href="/support" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: theme.palette.secondary.main } }}>
+                Support
+              </Typography>
+            </Stack>
           </Stack>
+
+          <Divider sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }} />
+
+          <Typography variant="body2" sx={{ opacity: 0.7 }}>
+            © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC community.
+          </Typography>
         </Container>
       </Box>
     </Box>
