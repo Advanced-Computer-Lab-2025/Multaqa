@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 dotenv.config();
@@ -23,40 +22,43 @@ export interface EmailOptions {
   html: string;
 }
 
+// Helper function to encode subject line
+const encodeSubject = (subject: string): string => {
+  return `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
+};
+
 export const sendEmail = async ({ to, subject, html }: EmailOptions) => {
   try {
-    // Get a new access token using the refresh token
-    const accessTokenResponse = await oAuth2Client.getAccessToken();
-    const accessToken = accessTokenResponse?.token;
+    const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
 
-    if (!accessToken) {
-      throw new Error("Failed to obtain access token");
-    }
+    // Create email message in RFC 2822 format with proper encoding
+    const message = [
+      `From: Multaqa <${GMAIL_USER}>`,
+      `To: ${to}`,
+      `Subject: ${encodeSubject(subject)}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=utf-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      Buffer.from(html).toString("base64"),
+    ].join("\r\n");
 
-    // Create a Nodemailer transporter with Gmail OAuth2
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: GMAIL_USER,
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken,
+    // Encode the message in base64url format
+    const encodedMessage = Buffer.from(message)
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    // Send the email using Gmail API
+    const result = await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: encodedMessage,
       },
     });
 
-    // Define the email options
-    const mailOptions = {
-      from: `Multaqa <${GMAIL_USER}>`,
-      to,
-      subject,
-      html,
-    };
-
-    // Send the email
-    const result = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully:", result.messageId);
+    console.log("✅ Email sent successfully:", result.data.id);
     return result;
   } catch (error) {
     console.error("❌ Error sending email:", error);

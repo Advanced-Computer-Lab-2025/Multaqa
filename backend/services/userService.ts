@@ -10,7 +10,7 @@ import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
-import { sendBlockUnblockEmail, sendVerificationEmail } from "./emailService";
+import { sendBlockUnblockEmail, sendStaffRoleAssignmentEmail, sendVerificationEmail } from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -158,7 +158,7 @@ export class UserService {
     const verificationToken = this.verificationService.generateVerificationToken(user);
     // Send verification email
     const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
-    await sendVerificationEmail(user.email, user.firstName, link);
+    await sendStaffRoleAssignmentEmail(user.email, user.firstName, position, link);
     console.log("Verification email sent to:", user.email);
 
     // Remove password from response

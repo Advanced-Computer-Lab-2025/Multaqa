@@ -2,6 +2,7 @@ import { sendEmail } from "../config/emailClient";
 import {
   getVerificationEmailTemplate,
   getBlockUnblockEmailTemplate,
+  getStaffRoleAssignmentTemplate,
   getCommentDeletionWarningTemplate,
   getPaymentReceiptTemplate,
   getCertificateOfAttendanceTemplate,
@@ -32,6 +33,22 @@ export const sendBlockUnblockEmail = async (
   await sendEmail({
     to: userEmail,
     subject,
+    html,
+  });
+};
+
+
+// Send staff role assignment email
+export const sendStaffRoleAssignmentEmail = async (
+  userEmail: string,
+  username: string,
+  role: string,
+  verificationLink: string,
+) => {
+  const html = getStaffRoleAssignmentTemplate(username, role, verificationLink);
+  await sendEmail({
+    to: userEmail,
+    subject: "🎉 New Staff Role Assigned - Multaqa",
     html,
   });
 };

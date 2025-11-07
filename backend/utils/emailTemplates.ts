@@ -88,6 +88,59 @@ export const getBlockUnblockEmailTemplate = (isBlocked: boolean, reason?: string
   `;
 };
 
+// Staff Role Assignment Email Template
+export const getStaffRoleAssignmentTemplate = (username: string, role: string, verificationLink: string): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerSuccess}">
+          <h2 style="margin: 0; font-size: 22px;">🎉 New Staff Role Assigned</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username},<br><br>
+            Congratulations! You have been assigned a new staff role on the Multaqa platform.
+          </p>
+          <div style="${baseStyles.successBox}">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Role:</td>
+                <td style="padding: 8px 0; color: #333;">${role}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Assigned By:</td>
+                <td style="padding: 8px 0; color: #333;">Admin</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Date:</td>
+                <td style="padding: 8px 0; color: #333;">${new Date().toLocaleDateString()}</td>
+              </tr>
+            </table>
+          </div>
+          <div style="${baseStyles.warningBox}">
+            <p style="margin: 0; color: #333;">
+              <strong style="color: #ea580c;">⚠️ Action Required:</strong><br><br>
+              To activate your new staff role and access the staff dashboard, please verify and accept this assignment by clicking the button below.
+            </p>
+          </div>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationLink}" target="_blank" style="${baseStyles.buttonSuccess}">
+              Accept Staff Role
+            </a>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            This verification link will expire in 48 hours. If you did not expect this role assignment or believe it was sent in error, please contact our support team immediately.<br><br>
+            Once verified, you'll be able to log in to your account and access your new staff dashboard and responsibilities.
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 // Comment Deletion Warning Email Template
 export const getCommentDeletionWarningTemplate = (
   username: string,
