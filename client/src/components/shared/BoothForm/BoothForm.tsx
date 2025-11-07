@@ -116,7 +116,6 @@ const BoothForm: React.FC = () => {
         >
           {(formik) => (
             <form onSubmit={formik.handleSubmit}>
-              {/* Fixed Grid container - removed problematic props */}
               <Box
                 sx={{
                   display: "grid",
@@ -869,7 +868,7 @@ const BoothForm: React.FC = () => {
                               minHeight: "400px",
                             }}
                           >
-                            {/* Map container and legend - same as previous version */}
+                            {/* Map container and legend*/}
                             <Card
                               elevation={0}
                               sx={{
@@ -906,7 +905,7 @@ const BoothForm: React.FC = () => {
                               </Box>
                             </Card>
 
-                            {/* Selection status and legend - same as previous version */}
+                            {/* Selection status and legend */}
                             <Box sx={{ mt: 2 }}>
                               {selectedBooth ? (
                                 <Box
