@@ -177,6 +177,7 @@ export default function HomePage() {
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
+  const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
 
@@ -353,7 +354,7 @@ export default function HomePage() {
             <Stack
               direction="row"
               alignItems="center"
-              spacing={1.25}
+              spacing={3}
               sx={{ display: { xs: "none", md: "flex" } }}
             >
               <IconButton
@@ -409,8 +410,8 @@ export default function HomePage() {
                 variant="contained"
                 color="secondary"
                 component={Link}
-                href="/register"
-                label="Register"
+                href="/login"
+                label="Login"
                 size="small"
                 sx={{
                   px: 2.4,
@@ -993,7 +994,13 @@ export default function HomePage() {
 
               <Box
                 ref={signUpHoverRef}
-                onMouseEnter={() => setShowSignUpOptions(true)}
+                onMouseEnter={() => {
+                  if (signUpHoverTimeout.current) {
+                    clearTimeout(signUpHoverTimeout.current);
+                    signUpHoverTimeout.current = null;
+                  }
+                  setShowSignUpOptions(true);
+                }}
                 onMouseLeave={(event) => {
                   const nextTarget = event.relatedTarget as Node | null;
                   if (
@@ -1002,7 +1009,13 @@ export default function HomePage() {
                   ) {
                     return;
                   }
-                  setShowSignUpOptions(false);
+                  if (signUpHoverTimeout.current) {
+                    clearTimeout(signUpHoverTimeout.current);
+                  }
+                  signUpHoverTimeout.current = setTimeout(() => {
+                    setShowSignUpOptions(false);
+                    signUpHoverTimeout.current = null;
+                  }, 150);
                 }}
                 sx={{
                   position: "relative",
@@ -1023,7 +1036,13 @@ export default function HomePage() {
 
                 <Paper
                   elevation={8}
-                  onMouseEnter={() => setShowSignUpOptions(true)}
+                  onMouseEnter={() => {
+                    if (signUpHoverTimeout.current) {
+                      clearTimeout(signUpHoverTimeout.current);
+                      signUpHoverTimeout.current = null;
+                    }
+                    setShowSignUpOptions(true);
+                  }}
                   onMouseLeave={(event) => {
                     const nextTarget = event.relatedTarget as Node | null;
                     if (
@@ -1032,7 +1051,13 @@ export default function HomePage() {
                     ) {
                       return;
                     }
-                    setShowSignUpOptions(false);
+                    if (signUpHoverTimeout.current) {
+                      clearTimeout(signUpHoverTimeout.current);
+                    }
+                    signUpHoverTimeout.current = setTimeout(() => {
+                      setShowSignUpOptions(false);
+                      signUpHoverTimeout.current = null;
+                    }, 150);
                   }}
                   sx={{
                     position: "absolute",
