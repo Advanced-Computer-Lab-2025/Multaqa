@@ -1,46 +1,148 @@
-// src/services/emailService.ts
 import { sendEmail } from "../config/emailClient";
+import {
+  getVerificationEmailTemplate,
+  getBlockUnblockEmailTemplate,
+  getCommentDeletionWarningTemplate,
+  getPaymentReceiptTemplate,
+  getCertificateOfAttendanceTemplate,
+  getApplicationStatusTemplate
+} from "../utils/emailTemplates";
 
-export const sendVerificationEmail = async (userEmail: string, username: string, link: string) => {
-    const html = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fb; padding: 40px 0;">
-        <div style="max-width: 600px; background-color: #ffffff; margin: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); overflow: hidden;">
-          
-          <div style="background-color: #2563eb; color: #ffffff; padding: 20px 30px; text-align: center;">
-            <h2 style="margin: 0; font-size: 22px;">Welcome to Multaqa!</h2>
-          </div>
-          <div style="padding: 30px;">
-            <p style="font-size: 16px; color: #333;">
-              Hi there 👋,<br><br>
-              Thanks for joining <strong>Multaqa</strong>! To complete your registration, please verify your email address by clicking the button below.
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${link}" target="_blank" style="
-                background-color: #2563eb;
-                color: #ffffff;
-                text-decoration: none;
-                padding: 12px 24px;
-                border-radius: 6px;
-                font-weight: bold;
-                font-size: 16px;
-                display: inline-block;
-              ">
-                Verify My Email
-              </a>
-            </div>
-            <p style="font-size: 14px; color: #555;">
-              If you did not create an account on Multaqa, please ignore this email. <br>
-              This verification link will expire soon for security reasons.
-            </p>
-          </div>
-          <div style="background-color: #f1f5f9; color: #555; font-size: 12px; text-align: center; padding: 15px;">
-            © ${new Date().getFullYear()} Multaqa. All rights reserved.
-          </div>
-        </div>
-      </div>
-    `
-    await sendEmail({
-        to: userEmail,
-        subject: "🎉 Welcome to Multaqa!",
-        html,
-    });
+// Send verification email to new users
+export const sendVerificationEmail = async (userEmail: string, username: string, verificationLink: string) => {
+  const html = getVerificationEmailTemplate(username, verificationLink);
+  await sendEmail({
+    to: userEmail,
+    subject: "🎉 Welcome to Multaqa!",
+    html,
+  });
+};
+
+// Send block/unblock notification email
+export const sendBlockUnblockEmail = async (
+  userEmail: string,
+  isBlocked: boolean,
+  reason?: string
+) => {
+  const html = getBlockUnblockEmailTemplate(isBlocked, reason);
+  const subject = isBlocked
+    ? "⚠️ Your Multaqa Account Has Been Suspended"
+    : "✅ Your Multaqa Account Has Been Restored";
+
+  await sendEmail({
+    to: userEmail,
+    subject,
+    html,
+  });
+};
+
+// Send comment deletion warning email
+export const sendCommentDeletionWarningEmail = async (
+  userEmail: string,
+  username: string,
+  commentText: string,
+  deletionReason: string,
+  eventName: string | undefined,
+  warningCount: number
+) => {
+  const html = getCommentDeletionWarningTemplate(
+    username,
+    commentText,
+    deletionReason,
+    eventName,
+    warningCount
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: "⚠️ Content Moderation Warning - Multaqa",
+    html,
+  });
+};
+
+// Send payment receipt email
+export const sendPaymentReceiptEmail = async (
+  userEmail: string,
+  username: string,
+  transactionId: string,
+  amount: number,
+  currency: string,
+  itemName: string,
+  itemType: string,
+  paymentDate: Date,
+  paymentMethod: string
+) => {
+  const html = getPaymentReceiptTemplate(
+    username,
+    transactionId,
+    amount,
+    currency,
+    itemName,
+    itemType,
+    paymentDate,
+    paymentMethod
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: "✅ Payment Receipt - Multaqa",
+    html,
+  });
+};
+
+// Send certificate of attendance email
+export const sendCertificateOfAttendanceEmail = async (
+  userEmail: string,
+  username: string,
+  workshopName: string,
+  workshopDate: Date,
+  duration: string,
+  instructor: string | undefined,
+  certificateId: string,
+  downloadLink?: string
+) => {
+  const html = getCertificateOfAttendanceTemplate(
+    username,
+    workshopName,
+    workshopDate,
+    duration,
+    instructor,
+    certificateId,
+    downloadLink
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: "🎓 Your Certificate of Attendance - Multaqa",
+    html,
+  });
+};
+
+// Send application status email (bazaar/booth)
+export const sendApplicationStatusEmail = async (
+  userEmail: string,
+  username: string,
+  applicationType: 'bazaar' | 'booth',
+  applicationName: string,
+  status: 'accepted' | 'rejected',
+  rejectionReason: string | undefined,
+  nextSteps: string | undefined,
+  applicationDate: Date
+) => {
+  const html = getApplicationStatusTemplate(
+    username,
+    applicationType,
+    applicationName,
+    status,
+    rejectionReason,
+    nextSteps,
+    applicationDate
+  );
+
+  const typeLabel = applicationType === 'bazaar' ? 'Bazaar' : 'Booth';
+  const statusEmoji = status === 'accepted' ? '✅' : '❌';
+  const subject = `${statusEmoji} ${typeLabel} Application ${status === 'accepted' ? 'Accepted' : 'Update'} - Multaqa`;
+
+  await sendEmail({
+    to: userEmail,
+    subject,
+    html,
+  });
 };

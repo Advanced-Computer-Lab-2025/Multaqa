@@ -63,25 +63,26 @@ export class AuthService {
     let createdUser = null;
 
     // Determine role based on email domain and create user accordingly
-    if (signupData.email.includes("@student.guc.edu.eg")) {
-      createdUser = await this.studentRepo.create(
-        {
-          ...signupData,
-          password: hashedPassword,
-          registeredAt: new Date(),
-          updatedAt: new Date(),
-          isVerified: false,
-          role: UserRole.STUDENT,
-        }
-      );
+    // if (signupData.email.includes("@student.guc.edu.eg")) {
+    //   createdUser = await this.studentRepo.create(
+    //     {
+    //       ...signupData,
+    //       password: hashedPassword,
+    //       registeredAt: new Date(),
+    //       updatedAt: new Date(),
+    //       isVerified: false,
+    //       role: UserRole.STUDENT,
+    //     }
+    //   );
 
-      const verificationToken = this.verificationService.generateVerificationToken(createdUser);
-      // send verification email
-      const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
-      await sendVerificationEmail(createdUser.email, createdUser.firstName, link);
-      console.log("Verification email sent to:", createdUser.email);
-    }
-    else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
+    //   const verificationToken = this.verificationService.generateVerificationToken(createdUser);
+    //   // send verification email
+    //   const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
+    //   await sendVerificationEmail(createdUser.email, createdUser.firstName, link);
+    //   console.log("Verification email sent to:", createdUser.email);
+    // }
+    // else 
+    if (signupData.email.includes("guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
         {
           ...signupData,
