@@ -120,6 +120,15 @@ async function updateWorkshopStatus(
 
 const router = Router();
 
+router.patch(
+  "/:professorId/:workshopId/status",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  updateWorkshopStatus
+);
+
 router.post(
   "/",
   authorizeRoles({
@@ -137,15 +146,5 @@ router.patch(
   }),
   updateWorkshop
 );
-
-router.patch(
-  "/:professorId/:workshopId/status",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
-  }),
-  updateWorkshopStatus
-);
-
 
 export default router;

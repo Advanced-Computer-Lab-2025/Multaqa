@@ -85,7 +85,7 @@ async function applyToBazaar(
   req: AuthenticatedRequest,
   res: Response<ApplyToBazaarOrBoothResponse>
 ) {
-  const {eventId } = req.params;
+  const { eventId } = req.params;
   const vendorId = req.user?.id;
   if (!vendorId) {
     throw createError(401, "Unauthorized: Vendor ID missing in token");
@@ -248,17 +248,11 @@ router.get(
   getVendorsRequests
 );
 
-
-
-
 router.post(
   "/booth",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBooth
 );
-
-
-
 
 router.post(
   "/:eventId/bazaar",
