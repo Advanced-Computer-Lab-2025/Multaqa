@@ -1162,6 +1162,12 @@ export default function HomePage() {
                   gridRow: "1 / span 3",
                   borderRadius: "999px",
                   bgcolor: theme.palette.primary.main,
+                  animation: "floatSlow 9s ease-in-out infinite",
+                  animationDelay: "0s",
+                  "@keyframes floatSlow": {
+                    "0%, 100%": { transform: "translateY(0px)" },
+                    "50%": { transform: "translateY(-8px)" },
+                  },
                 }}
               />
               <Box
@@ -1170,6 +1176,12 @@ export default function HomePage() {
                   gridRow: "1 / span 2",
                   borderRadius: 2,
                   bgcolor: theme.palette.secondary.main,
+                  animation: "floatMed 11s ease-in-out infinite",
+                  animationDelay: "0.8s",
+                  "@keyframes floatMed": {
+                    "0%, 100%": { transform: "translateY(0px)" },
+                    "50%": { transform: "translateY(12px)" },
+                  },
                 }}
               />
               <Box
@@ -1178,6 +1190,12 @@ export default function HomePage() {
                   gridRow: "1 / span 2",
                   borderRadius: "20px",
                   bgcolor: theme.palette.tertiary.main,
+                  animation: "floatFast 7.5s ease-in-out infinite",
+                  animationDelay: "0.4s",
+                  "@keyframes floatFast": {
+                    "0%, 100%": { transform: "translateY(0px)" },
+                    "50%": { transform: "translateY(-5px)" },
+                  },
                 }}
               />
               <Box
@@ -1186,6 +1204,8 @@ export default function HomePage() {
                   gridRow: "4 / span 2",
                   borderRadius: 2,
                   bgcolor: theme.palette.tertiary.dark,
+                  animation: "floatSlow 10s ease-in-out infinite",
+                  animationDelay: "1.1s",
                 }}
               />
               <Box
@@ -1194,6 +1214,8 @@ export default function HomePage() {
                   gridRow: "3 / span 3",
                   borderRadius: "50%",
                   bgcolor: theme.palette.primary.light,
+                  animation: "floatMed 12s ease-in-out infinite",
+                  animationDelay: "0.2s",
                 }}
               />
               <Box
@@ -1202,6 +1224,8 @@ export default function HomePage() {
                   gridRow: "4 / span 3",
                   bgcolor: theme.palette.secondary.dark,
                   borderRadius: 1,
+                  animation: "floatFast 8.5s ease-in-out infinite",
+                  animationDelay: "1.6s",
                 }}
               />
               <Box
@@ -1210,6 +1234,8 @@ export default function HomePage() {
                   gridRow: "5 / span 2",
                   borderRadius: "999px",
                   bgcolor: theme.palette.primary.dark,
+                  animation: "floatSlow 13s ease-in-out infinite",
+                  animationDelay: "0.6s",
                 }}
               />
               <Box
@@ -1228,6 +1254,8 @@ export default function HomePage() {
                     height: 6,
                     bgcolor: theme.palette.common.black,
                     borderRadius: 3,
+                    animation: "floatFast 9.5s ease-in-out infinite",
+                    animationDelay: "1.3s",
                   }}
                 />
               </Box>
@@ -1239,6 +1267,8 @@ export default function HomePage() {
                   justifySelf: "center",
                   borderRadius: 1,
                   bgcolor: theme.palette.secondary.main,
+                  animation: "floatMed 11.5s ease-in-out infinite",
+                  animationDelay: "0.9s",
                 }}
               />
               <Box
@@ -1256,6 +1286,8 @@ export default function HomePage() {
                     height: "100%",
                     bgcolor: theme.palette.text.primary,
                     borderRadius: 999,
+                    animation: "floatFast 10.5s ease-in-out infinite",
+                    animationDelay: "0.5s",
                   }}
                 />
               </Box>
