@@ -20,6 +20,7 @@ import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { StaffPosition } from "../constants/staffMember.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const userService = new UserService();
 const eventsService = new EventsService();
@@ -61,10 +62,13 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
 
 // this will come back in sprint 2 guys (Stripe API)
 async function registerForEvent(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<RegisterUserResponse>
 ) {
-  const { eventId, id } = req.params;
+  const { eventId} = req.params;
+    const userId = req.user?.id;   
+  if (!userId) 
+    throw createError(401, "Unauthorized: User ID missing in token");
 
   const validatedData = validateEventRegistration(req.body);
   if (validatedData.error) {
@@ -74,10 +78,10 @@ async function registerForEvent(
     );
   }
 
-  const updatedEvent = await eventsService.registerUserForEvent(eventId, id);
+  const updatedEvent = await eventsService.registerUserForEvent(eventId, userId);
 
   await userService.addEventToUser(
-    id,
+    userId,
     updatedEvent._id as Schema.Types.ObjectId
   );
 
@@ -271,7 +275,7 @@ router.post(
   unBlockUser
 );
 router.post(
-  "/:id/register/:eventId",
+  "/register/:eventId",
   authorizeRoles({
     userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
     staffPositions: [

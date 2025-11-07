@@ -97,7 +97,7 @@ export default function VendorRequestsList() {
       setError(null);
 
       try {
-        const response = await api.get(`/vendorEvents/${vendorId}`);
+        const response = await api.get(`/vendorEvents`);
         const requestedEventsRaw = response.data?.data || [];
 
         const mapped = (requestedEventsRaw as any[])

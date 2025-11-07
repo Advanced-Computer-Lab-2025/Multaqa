@@ -52,7 +52,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
 
       console.log("Payload being sent:", userInfo.id); 
       const res = await api.post(
-        `/users/${userInfo.id}/register/${eventId}`,
+        `/users/register/${eventId}`,
         payload
       );
     } catch (err: any) {

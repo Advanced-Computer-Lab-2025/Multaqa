@@ -11,15 +11,19 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const workshopService = new WorkshopService();
 
 async function createWorkshop(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<CreateWorkshopResponse>
 ) {
   try {
-    const professorid = req.params.professorId;
+    const professorid = req.user?.id;
+    if (!professorid) {
+      throw createError(401, "Unauthorized: Professor ID missing in token");
+    }
 
     // To be used when authentication is automatically handled by the frontend
     // const professorid = (req as any).user.id;
@@ -48,12 +52,15 @@ async function createWorkshop(
 
 // Update Workshop
 async function updateWorkshop(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<UpdateWorkshopResponse>
 ) {
   try {
     // const professorid = (req as any).user.id;
-    const professorid = req.params.professorId;
+    const professorid = req.user?.id;
+    if (!professorid) {
+      throw createError(401, "Unauthorized: Professor ID missing in token");
+    }
     const workshopId = req.params.workshopId;
     const validationResult = validateUpdateWorkshop(req.body);
 
@@ -112,6 +119,25 @@ async function updateWorkshopStatus(
 }
 
 const router = Router();
+
+router.post(
+  "/",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  createWorkshop
+);
+
+router.patch(
+  "/:workshopId",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  updateWorkshop
+);
+
 router.patch(
   "/:professorId/:workshopId/status",
   authorizeRoles({
@@ -120,21 +146,6 @@ router.patch(
   }),
   updateWorkshopStatus
 );
-router.patch(
-  "/:professorId/:workshopId",
-  authorizeRoles({
-    userRoles: [UserRole.STAFF_MEMBER],
-    staffPositions: [StaffPosition.PROFESSOR],
-  }),
-  updateWorkshop
-);
-router.post(
-  "/:professorId",
-  authorizeRoles({
-    userRoles: [UserRole.STAFF_MEMBER],
-    staffPositions: [StaffPosition.PROFESSOR],
-  }),
-  createWorkshop
-);
+
 
 export default router;
