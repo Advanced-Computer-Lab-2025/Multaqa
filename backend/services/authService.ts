@@ -77,7 +77,7 @@ export class AuthService {
 
       const verificationToken = this.verificationService.generateVerificationToken(createdUser);
       // send verification email
-      const link = `http://localhost:3000/auth/verify?token=${verificationToken}`;
+      const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
       await sendVerificationEmail(createdUser.email, createdUser.firstName, link);
       console.log("Verification email sent to:", createdUser.email);
     }
