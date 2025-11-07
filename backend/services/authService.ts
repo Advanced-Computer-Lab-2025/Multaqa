@@ -17,14 +17,15 @@ import { VerificationService } from './verificationService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 import { IAdministration } from '../interfaces/models/administration.interface';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
+import { sendVerificationEmail } from './emailService';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
   private studentRepo: GenericRepository<IStudent>;
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
-  private verificationService: VerificationService;
   private adminRepo: GenericRepository<IAdministration>;
+  private verificationService: VerificationService;
 
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
@@ -74,8 +75,11 @@ export class AuthService {
         }
       );
 
-      const verificationtoken = this.verificationService.generateVerificationToken(createdUser);
+      const verificationToken = this.verificationService.generateVerificationToken(createdUser);
       // send verification email
+      const link = `http://localhost:3000/auth/verify?token=${verificationToken}`;
+      await sendVerificationEmail(createdUser.email, createdUser.firstName, link);
+      console.log("Verification email sent to:", createdUser.email);
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
