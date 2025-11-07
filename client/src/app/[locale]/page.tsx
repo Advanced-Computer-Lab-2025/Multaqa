@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   alpha,
   Box,
@@ -12,16 +12,23 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import type { Theme } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CloseIcon from "@mui/icons-material/Close";
+import LanguageIcon from "@mui/icons-material/Language";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import XIcon from "@mui/icons-material/X";
 import PlaceIcon from "@mui/icons-material/Place";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import PaletteIcon from "@mui/icons-material/Palette";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import Flag from "react-world-flags";
 import { Link } from "@/i18n/navigation";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
+import CustomAccordion from "@/components/shared/Accordions/CustomAccordion";
+import CustomModalLayout from "@/components/shared/modals/CustomModalLayout";
 
 const signUpOptions = [
   {
@@ -54,9 +61,232 @@ const featureHighlights = [
   },
 ];
 
+const faqItems = [
+  {
+    title: "How do I register for an event on Multaqa?",
+    content:
+      "Log in with your university account, browse any event, and tap the register button. We’ll confirm your spot instantly and send reminders as the event approaches.",
+  },
+  {
+    title: "Can external vendors participate in campus events?",
+    content:
+      "Yes. Vendors can create a Multaqa profile, submit booth or activity details, and coordinate with the Events Office for approval and logistics directly through the platform.",
+  },
+  {
+    title: "What information is required during sign up?",
+    content:
+      "Students and staff sign up with their GUC credentials, while vendors provide business details, contact information, and any required documentation so we can verify them quickly.",
+  },
+  {
+    title: "Does Multaqa support mobile access?",
+    content:
+      "Multaqa is fully responsive, so you can explore events, manage bookings, and receive updates from any device—desktop, tablet, or mobile.",
+  },
+];
+
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://instagram.com",
+    icon: <InstagramIcon fontSize="small" />,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://linkedin.com",
+    icon: <LinkedInIcon fontSize="small" />,
+  },
+  {
+    label: "Facebook",
+    href: "https://facebook.com",
+    icon: <FacebookIcon fontSize="small" />,
+  },
+  {
+    label: "X",
+    href: "https://twitter.com",
+    icon: <XIcon fontSize="small" />,
+  },
+];
+
+const MenuToggleButton = ({
+  open,
+  onClick,
+}: {
+  open: boolean;
+  onClick: () => void;
+}) => (
+  <IconButton
+    onClick={onClick}
+    aria-label={open ? "Close menu" : "Open menu"}
+    sx={(theme) => ({
+      borderRadius: 12,
+      backgroundColor: alpha(theme.palette.common.white, 0.65),
+      boxShadow: `0 8px 20px ${alpha(theme.palette.common.black, 0.12)}`,
+      width: 44,
+      height: 44,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "background-color 0.2s ease, box-shadow 0.2s ease",
+      "&:hover": {
+        backgroundColor: alpha(theme.palette.common.white, 0.82),
+      },
+    })}
+  >
+    <Box
+      sx={{
+        position: "relative",
+        width: 20,
+        height: 14,
+      }}
+    >
+      {[0, 1, 2].map((index) => (
+        <Box
+          key={index}
+          component="span"
+          sx={(theme) => ({
+            position: "absolute",
+            left: 0,
+            width: "100%",
+            height: 2,
+            borderRadius: 1,
+            backgroundColor: theme.palette.text.primary,
+            transition: "transform 0.35s ease, opacity 0.35s ease",
+            transformOrigin: "center",
+            top: index === 0 ? 0 : index === 1 ? "50%" : "100%",
+            transform: open
+              ? index === 0
+                ? "translateY(6px) rotate(45deg)"
+                : index === 1
+                ? "scaleX(0)"
+                : "translateY(-6px) rotate(-45deg)"
+              : "translateY(0) rotate(0)",
+            opacity: open && index === 1 ? 0 : 1,
+          })}
+        />
+      ))}
+    </Box>
+  </IconButton>
+);
+
 export default function HomePage() {
   const theme = useTheme();
   const [showSignUpOptions, setShowSignUpOptions] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
+  const lastScrollY = useRef(0);
+  const signUpHoverRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const previousFocusRef = useRef<Element | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      setIsScrolled(currentY > 24);
+
+      if (currentY > lastScrollY.current && currentY > 120) {
+        setShowNavbar(false);
+      } else {
+        setShowNavbar(true);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      const element = previousFocusRef.current as HTMLElement | null;
+      element?.focus?.();
+      return;
+    }
+
+    previousFocusRef.current = document.activeElement;
+
+    const dialog = dialogRef.current;
+    const focusableSelectors =
+      'a[href], button:not([disabled]), [tabindex="0"], [role="menuitem"]';
+
+    const setInitialFocus = () => {
+      const initial = dialog?.querySelector<HTMLElement>(focusableSelectors);
+      initial?.focus();
+    };
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialog) {
+        return;
+      }
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(focusableSelectors)
+      ).filter((el) => !el.hasAttribute("data-disabled"));
+
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement;
+
+      if (event.shiftKey) {
+        if (active === first || !dialog.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    setTimeout(setInitialFocus, 10);
+    document.addEventListener("keydown", handleKeydown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeydown);
+    };
+  }, [isMenuOpen]);
+
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+  const openLocaleModal = () => setIsLocaleModalOpen(true);
+  const closeLocaleModal = () => {
+    setIsLocaleModalOpen(false);
+  };
+
+  const locales = [
+    {
+      code: "en",
+      label: "English",
+      localePath: "/en",
+      flagCode: "GB",
+      abbreviation: "EN",
+    },
+    {
+      code: "ar",
+      label: "العربية",
+      localePath: "/ar",
+      flagCode: "EG",
+      abbreviation: "AR",
+    },
+    {
+      code: "de",
+      label: "Deutsch",
+      localePath: "/de",
+      flagCode: "DE",
+      abbreviation: "DE",
+    },
+  ];
 
   return (
     <Box
@@ -67,11 +297,635 @@ export default function HomePage() {
         bgcolor: theme.palette.background.default,
       }}
     >
-      <Box component="section" sx={{ position: "relative", overflow: "hidden" }}>
+      <Box
+        component="header"
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 40,
+          transform:
+            showNavbar || isMenuOpen ? "translateY(0)" : "translateY(-120%)",
+          transition:
+            "transform 0.4s ease, background-color 0.3s ease, box-shadow 0.3s ease",
+          backgroundColor:
+            isScrolled || isMenuOpen
+              ? alpha(theme.palette.background.default, 0.92)
+              : "transparent",
+          backdropFilter: isScrolled || isMenuOpen ? "blur(12px)" : "none",
+          boxShadow:
+            isScrolled || isMenuOpen
+              ? `0 12px 32px ${alpha(theme.palette.common.black, 0.08)}`
+              : "none",
+        }}
+      >
         <Container
           maxWidth="lg"
           sx={{
-            py: { xs: 10, md: 14 },
+            py: { xs: 1.75, md: 2.25 },
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
+          <Typography
+            component={Link}
+            href="/"
+            variant="h6"
+            sx={{
+              textDecoration: "none",
+              color: theme.palette.text.primary,
+              fontFamily: "var(--font-jost), system-ui, sans-serif",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+            }}
+          >
+            MULTAQA
+          </Typography>
+
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={{ xs: 1.5, md: 2.5 }}
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1.25}
+              sx={{ display: { xs: "none", md: "flex" } }}
+            >
+              <IconButton
+                onClick={openLocaleModal}
+                aria-label="Change locale"
+                sx={{
+                  height: 40,
+                  borderRadius: 14,
+                  px: 2,
+                  border: `1px solid ${alpha(
+                    theme.palette.text.primary,
+                    0.12
+                  )}`,
+                  backgroundColor: alpha(theme.palette.common.white, 0.75),
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.9,
+                }}
+              >
+                <LanguageIcon
+                  sx={{
+                    fontSize: 18,
+                    color: alpha(theme.palette.text.primary, 0.7),
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  EN
+                </Typography>
+              </IconButton>
+
+              <Typography
+                component={Link}
+                href="/support"
+                sx={{
+                  fontSize: "0.9rem",
+                  color: alpha(theme.palette.text.primary, 0.65),
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  px: 0.5,
+                  "&:hover": { color: theme.palette.text.primary },
+                }}
+              >
+                Support
+              </Typography>
+
+              <CustomButton
+                variant="contained"
+                color="secondary"
+                component={Link}
+                href="/register"
+                label="Register"
+                size="small"
+                sx={{
+                  px: 2.4,
+                  height: 40,
+                  width: "auto",
+                  fontWeight: 700,
+                  boxShadow: `0 10px 24px ${alpha(
+                    theme.palette.secondary.main,
+                    0.3
+                  )}`,
+                }}
+              />
+            </Stack>
+
+            <IconButton
+              onClick={openLocaleModal}
+              aria-label="Change locale"
+              sx={{
+                display: { xs: "inline-flex", md: "none" },
+                borderRadius: 12,
+                width: 44,
+                height: 44,
+                backgroundColor: alpha(theme.palette.common.white, 0.65),
+                boxShadow: `0 6px 16px ${alpha(
+                  theme.palette.common.black,
+                  0.12
+                )}`,
+              }}
+            >
+              <LanguageIcon />
+            </IconButton>
+
+            <MenuToggleButton open={isMenuOpen} onClick={toggleMenu} />
+          </Stack>
+        </Container>
+      </Box>
+
+      <CustomModalLayout
+        open={isLocaleModalOpen}
+        onClose={closeLocaleModal}
+        width="w-[90vw] sm:w-[420px]"
+      >
+        <Stack spacing={3}>
+          <Stack spacing={0.5} textAlign="center">
+            <Typography component="h2" variant="h5" sx={{ fontWeight: 600 }}>
+              Choose Language
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: alpha(theme.palette.text.primary, 0.6) }}
+            >
+              Select the language you’d like to use across Multaqa.
+            </Typography>
+          </Stack>
+
+          <Stack spacing={1.5}>
+            {locales.map((locale) => (
+              <Box
+                key={locale.code}
+                component={Link}
+                href={locale.localePath}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 2,
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: 2,
+                  textDecoration: "none",
+                  backgroundColor: alpha(theme.palette.primary.light, 0.05),
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  "&:hover": {
+                    backgroundColor: alpha(theme.palette.secondary.main, 0.25),
+                  },
+                }}
+                onClick={closeLocaleModal}
+              >
+                <Stack direction="row" spacing={1.25} alignItems="center">
+                  <Flag
+                    code={locale.flagCode}
+                    style={{ width: 30, height: 20, borderRadius: 6 }}
+                  />
+                  <Typography
+                    sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+                  >
+                    {locale.label}
+                  </Typography>
+                </Stack>
+                <Typography
+                  sx={{
+                    fontWeight: 600,
+                    color: alpha(theme.palette.text.primary, 0.6),
+                  }}
+                >
+                  {locale.abbreviation}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Stack>
+      </CustomModalLayout>
+
+      <Box
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!isMenuOpen}
+        sx={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 50,
+          background: alpha(theme.palette.background.default, 0.96),
+          backdropFilter: "blur(18px)",
+          opacity: isMenuOpen ? 1 : 0,
+          pointerEvents: isMenuOpen ? "auto" : "none",
+          transition: "opacity 0.25s ease",
+        }}
+        onClick={() => setIsMenuOpen(false)}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            position: "relative",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            py: { xs: 6, md: 10 },
+            gap: 6,
+          }}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              Explore Multaqa
+            </Typography>
+            <IconButton
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Close menu"
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                backgroundColor: alpha(theme.palette.common.black, 0.06),
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={{ xs: 4, md: 6 }}
+            sx={{ flexGrow: 1 }}
+          >
+            <Stack spacing={3} sx={{ flex: 2 }}>
+              <Typography
+                variant="overline"
+                sx={{ letterSpacing: "0.3em", fontWeight: 600 }}
+              >
+                Events
+              </Typography>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={4}>
+                <Stack spacing={1.5} sx={{ flex: 1 }}>
+                  <Typography
+                    component={Link}
+                    href="/events"
+                    variant="h6"
+                    sx={menuLinkStyles(theme)}
+                  >
+                    Discover Events
+                  </Typography>
+                  <Typography
+                    component={Link}
+                    href="/events/workshops"
+                    sx={menuSubLinkStyles(theme)}
+                  >
+                    Workshops & Seminars
+                  </Typography>
+                  <Typography
+                    component={Link}
+                    href="/events/competitions"
+                    sx={menuSubLinkStyles(theme)}
+                  >
+                    Competitions & Hackathons
+                  </Typography>
+                  <Typography
+                    component={Link}
+                    href="/events/festivals"
+                    sx={menuSubLinkStyles(theme)}
+                  >
+                    Cultural Festivals
+                  </Typography>
+                </Stack>
+                <Stack spacing={1.5} sx={{ flex: 1 }}>
+                  <Typography
+                    component={Link}
+                    href="/events/trips"
+                    variant="h6"
+                    sx={menuLinkStyles(theme)}
+                  >
+                    Trips & Exchanges
+                  </Typography>
+                  <Typography
+                    component={Link}
+                    href="/events/camps"
+                    sx={menuSubLinkStyles(theme)}
+                  >
+                    Student Retreats
+                  </Typography>
+                  <Typography
+                    component={Link}
+                    href="/events/sports"
+                    sx={menuSubLinkStyles(theme)}
+                  >
+                    Sports & Recreation
+                  </Typography>
+                  <Typography
+                    component={Link}
+                    href="/events/archives"
+                    sx={menuSubLinkStyles(theme)}
+                  >
+                    Event Archive
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Stack>
+
+            <Stack spacing={3} sx={{ flex: 1.3 }}>
+              <Typography
+                variant="overline"
+                sx={{ letterSpacing: "0.3em", fontWeight: 600 }}
+              >
+                Partners & Vendors
+              </Typography>
+              <Stack spacing={1.5}>
+                <Typography
+                  component={Link}
+                  href="/vendor"
+                  variant="h6"
+                  sx={menuLinkStyles(theme)}
+                >
+                  Become a Vendor
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/vendor/resources"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  Resources & Guidelines
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/vendor/success"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  Success Stories
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/vendor/support"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  Vendor Support
+                </Typography>
+              </Stack>
+            </Stack>
+
+            <Paper
+              elevation={0}
+              sx={{
+                flex: 1,
+                p: { xs: 3, md: 4 },
+                borderRadius: 4,
+                background: alpha(theme.palette.primary.light, 0.12),
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2.5,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, lineHeight: 1.2 }}
+              >
+                Ready to craft the next Multaqa story?
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+              >
+                Choose the pathway that fits you best—organize, collaborate, or
+                discover unforgettable campus events.
+              </Typography>
+              <Stack spacing={4}>
+                <Stack spacing={1}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      letterSpacing: "0.25em",
+                      fontWeight: 600,
+                      color: alpha(theme.palette.text.primary, 0.6),
+                    }}
+                  >
+                    Sign up as
+                  </Typography>
+                  <CustomButton
+                    component={Link}
+                    href="/register?userType=university-member"
+                    color="secondary"
+                    variant="contained"
+                    sx={{
+                      width: "100%",
+                      height: 58,
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    University Member
+                  </CustomButton>
+                </Stack>
+                <Stack spacing={1}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      letterSpacing: "0.25em",
+                      fontWeight: 600,
+                      color: alpha(theme.palette.text.primary, 0.6),
+                    }}
+                  >
+                    Sign up as
+                  </Typography>
+                  <CustomButton
+                    component={Link}
+                    href="/register?userType=vendor"
+                    color="primary"
+                    variant="outlined"
+                    sx={{
+                      width: "100%",
+                      height: 58,
+                      fontSize: "1.05rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    Vendor
+                  </CustomButton>
+                </Stack>
+                <Typography
+                  sx={{
+                    ...menuSubLinkStyles(theme),
+                    mt: 3,
+                    color: theme.palette.text.primary,
+                    fontWeight: 400,
+                    display: "flex",
+                    gap: 0.5,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  Already have an account?
+                  <Typography
+                    component={Link}
+                    href="/login"
+                    sx={{
+                      color: theme.palette.primary.main,
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Login
+                  </Typography>
+                </Typography>
+              </Stack>
+
+              <Divider
+                sx={{
+                  borderColor: alpha(theme.palette.text.primary, 0.1),
+                  my: 1,
+                }}
+              />
+
+              <Stack spacing={1}>
+                <Typography
+                  component={Link}
+                  href="/about"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  About Multaqa
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/contact"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  Contact Team
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/privacy"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  Privacy & Terms
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/gdpr"
+                  sx={menuSubLinkStyles(theme)}
+                >
+                  GDPR Compliance
+                </Typography>
+              </Stack>
+            </Paper>
+          </Stack>
+
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={{ xs: 2, md: 4 }}
+            justifyContent="space-between"
+            alignItems={{ xs: "flex-start", md: "center" }}
+          >
+            <Stack direction="row" spacing={2.5}>
+              {socialLinks.map((item) => (
+                <Stack
+                  key={item.label}
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  component={Link}
+                  href={item.href}
+                  sx={{
+                    textDecoration: "none",
+                    color: alpha(theme.palette.text.primary, 0.75),
+                    "&:hover": { color: theme.palette.text.primary },
+                  }}
+                >
+                  <IconButton
+                    size="small"
+                    sx={(theme) => ({
+                      borderRadius: "999px",
+                      backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                      color: theme.palette.primary.dark,
+                      "&:hover": {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                      },
+                      width: 36,
+                      height: 36,
+                    })}
+                  >
+                    {item.icon}
+                  </IconButton>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 500, letterSpacing: "0.02em" }}
+                  >
+                    {item.label}
+                  </Typography>
+                </Stack>
+              ))}
+            </Stack>
+
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1.5, sm: 3 }}
+            >
+              <Typography
+                component={Link}
+                href="/terms"
+                sx={menuSubLinkStyles(theme)}
+              >
+                Terms of Service
+              </Typography>
+              <Typography
+                component={Link}
+                href="/privacy"
+                sx={menuSubLinkStyles(theme)}
+              >
+                Privacy Policy
+              </Typography>
+              <Typography
+                component={Link}
+                href="/cookies"
+                sx={menuSubLinkStyles(theme)}
+              >
+                Cookies
+              </Typography>
+              <Typography
+                component={Link}
+                href="/gdpr"
+                sx={menuSubLinkStyles(theme)}
+              >
+                GDPR
+              </Typography>
+            </Stack>
+          </Stack>
+        </Container>
+      </Box>
+
+      <Box
+        component="section"
+        sx={{ position: "relative", overflow: "visible" }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            pt: { xs: 16, md: 18 },
+            pb: { xs: 10, md: 14 },
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             alignItems: { xs: "flex-start", md: "center" },
@@ -118,7 +972,11 @@ export default function HomePage() {
               community.
             </Typography>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5} sx={{ mt: 5 }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2.5}
+              sx={{ mt: 5 }}
+            >
               <CustomButton
                 variant="contained"
                 color="secondary"
@@ -134,9 +992,22 @@ export default function HomePage() {
               />
 
               <Box
+                ref={signUpHoverRef}
                 onMouseEnter={() => setShowSignUpOptions(true)}
-                onMouseLeave={() => setShowSignUpOptions(false)}
-                sx={{ position: "relative", width: { xs: "100%", sm: "200px" } }}
+                onMouseLeave={(event) => {
+                  const nextTarget = event.relatedTarget as Node | null;
+                  if (
+                    nextTarget &&
+                    signUpHoverRef.current?.contains(nextTarget)
+                  ) {
+                    return;
+                  }
+                  setShowSignUpOptions(false);
+                }}
+                sx={{
+                  position: "relative",
+                  width: { xs: "100%", sm: "200px" },
+                }}
               >
                 <CustomButton
                   variant="outlined"
@@ -152,6 +1023,17 @@ export default function HomePage() {
 
                 <Paper
                   elevation={8}
+                  onMouseEnter={() => setShowSignUpOptions(true)}
+                  onMouseLeave={(event) => {
+                    const nextTarget = event.relatedTarget as Node | null;
+                    if (
+                      nextTarget &&
+                      signUpHoverRef.current?.contains(nextTarget)
+                    ) {
+                      return;
+                    }
+                    setShowSignUpOptions(false);
+                  }}
                   sx={{
                     position: "absolute",
                     top: { xs: "64px", sm: "54px" },
@@ -160,14 +1042,17 @@ export default function HomePage() {
                     borderRadius: 3,
                     p: 2,
                     background: theme.palette.common.white,
-                    boxShadow: `0 18px 40px ${alpha(theme.palette.primary.main, 0.18)}`,
+                    boxShadow: `0 18px 40px ${alpha(
+                      theme.palette.primary.main,
+                      0.18
+                    )}`,
                     opacity: showSignUpOptions ? 1 : 0,
                     transform: showSignUpOptions
                       ? "translateY(0)"
                       : "translateY(-10px)",
                     pointerEvents: showSignUpOptions ? "auto" : "none",
                     transition: "all 0.28s ease",
-                    zIndex: 3,
+                    zIndex: 60,
                   }}
                 >
                   <Stack spacing={1.5}>
@@ -184,11 +1069,17 @@ export default function HomePage() {
                           textDecoration: "none",
                           transition: "background 0.2s ease",
                           "&:hover": {
-                            background: alpha(theme.palette.secondary.main, 0.35),
+                            background: alpha(
+                              theme.palette.secondary.main,
+                              0.35
+                            ),
                           },
                         }}
                       >
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 600 }}
+                        >
                           {option.label}
                         </Typography>
                         <Typography
@@ -348,7 +1239,10 @@ export default function HomePage() {
         </Container>
       </Box>
 
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.common.white }}>
+      <Box
+        component="section"
+        sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.common.white }}
+      >
         <Container maxWidth="lg">
           <Typography
             component="h2"
@@ -388,7 +1282,10 @@ export default function HomePage() {
                   flex: 1,
                   p: { xs: 3.5, md: 4 },
                   borderRadius: 4,
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                  border: `1px solid ${alpha(
+                    theme.palette.primary.main,
+                    0.15
+                  )}`,
                   background: alpha(theme.palette.primary.light, 0.04),
                 }}
               >
@@ -410,7 +1307,10 @@ export default function HomePage() {
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
                   {feature.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: alpha(theme.palette.text.primary, 0.75) }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                >
                   {feature.copy}
                 </Typography>
               </Paper>
@@ -419,10 +1319,78 @@ export default function HomePage() {
         </Container>
       </Box>
 
-      <Box component="footer" sx={{ bgcolor: theme.palette.primary.dark, color: theme.palette.common.white }}>
+      <Box
+        component="section"
+        sx={{
+          py: { xs: 8, md: 12 },
+          backgroundColor: alpha(theme.palette.primary.light, 0.05),
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography
+            component="h2"
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontWeight: 600,
+              fontSize: { xs: "2rem", md: "2.4rem" },
+            }}
+          >
+            Frequently Asked Questions
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              maxWidth: 600,
+              mx: "auto",
+              textAlign: "center",
+              mt: 2,
+              color: alpha(theme.palette.text.primary, 0.7),
+            }}
+          >
+            Quick answers to help students, staff, and partners get the most out
+            of Multaqa.
+          </Typography>
+
+          <Box
+            sx={{
+              mt: { xs: 5, md: 6 },
+              maxWidth: 900,
+              mx: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2.5,
+            }}
+          >
+            {faqItems.map((faq) => (
+              <CustomAccordion key={faq.title} title={faq.title}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                >
+                  {faq.content}
+                </Typography>
+              </CustomAccordion>
+            ))}
+          </Box>
+        </Container>
+      </Box>
+
+      <Box
+        component="footer"
+        sx={{
+          bgcolor: theme.palette.primary.dark,
+          color: theme.palette.common.white,
+        }}
+      >
         <Container
           maxWidth="lg"
-          sx={{ py: { xs: 6, md: 8 }, display: "flex", flexDirection: "column", gap: 4 }}
+          sx={{
+            py: { xs: 6, md: 8 },
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+          }}
         >
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -434,19 +1402,30 @@ export default function HomePage() {
               <Typography variant="h5" sx={{ fontWeight: 600 }}>
                 Multaqa
               </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.75, mt: 1, maxWidth: 320 }}>
-                Bringing the GUC community together through dynamic events and collaborative storytelling.
+              <Typography
+                variant="body2"
+                sx={{ opacity: 0.75, mt: 1, maxWidth: 320 }}
+              >
+                Bringing the GUC community together through dynamic events and
+                collaborative storytelling.
               </Typography>
             </Box>
 
             <Stack direction="row" spacing={2}>
-              {[{
-                icon: <FacebookIcon />, href: "https://facebook.com"
-              }, {
-                icon: <InstagramIcon />, href: "https://instagram.com"
-              }, {
-                icon: <LinkedInIcon />, href: "https://linkedin.com"
-              }].map((social) => (
+              {[
+                {
+                  icon: <InstagramIcon />,
+                  href: "https://instagram.com",
+                },
+                {
+                  icon: <LinkedInIcon />,
+                  href: "https://linkedin.com",
+                },
+                {
+                  icon: <XIcon />,
+                  href: "https://twitter.com",
+                },
+              ].map((social) => (
                 <IconButton
                   key={social.href}
                   component="a"
@@ -466,26 +1445,77 @@ export default function HomePage() {
               ))}
             </Stack>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1.5, sm: 3 }}>
-              <Typography component={Link} href="/privacy" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: theme.palette.secondary.main } }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1.5, sm: 3 }}
+            >
+              <Typography
+                component={Link}
+                href="/privacy"
+                sx={{
+                  color: "inherit",
+                  textDecoration: "none",
+                  "&:hover": { color: theme.palette.secondary.main },
+                }}
+              >
                 Privacy Policy
               </Typography>
-              <Typography component={Link} href="/terms" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: theme.palette.secondary.main } }}>
+              <Typography
+                component={Link}
+                href="/terms"
+                sx={{
+                  color: "inherit",
+                  textDecoration: "none",
+                  "&:hover": { color: theme.palette.secondary.main },
+                }}
+              >
                 Terms of Service
               </Typography>
-              <Typography component={Link} href="/support" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: theme.palette.secondary.main } }}>
+              <Typography
+                component={Link}
+                href="/support"
+                sx={{
+                  color: "inherit",
+                  textDecoration: "none",
+                  "&:hover": { color: theme.palette.secondary.main },
+                }}
+              >
                 Support
               </Typography>
             </Stack>
           </Stack>
 
-          <Divider sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }} />
+          <Divider
+            sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }}
+          />
 
           <Typography variant="body2" sx={{ opacity: 0.7 }}>
-            © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC community.
+            © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC
+            community.
           </Typography>
         </Container>
       </Box>
     </Box>
   );
 }
+
+const menuLinkStyles = (theme: Theme) => ({
+  textDecoration: "none",
+  color: theme.palette.text.primary,
+  fontWeight: 600,
+  transition: "color 0.2s ease",
+  "&:hover": {
+    color: theme.palette.secondary.dark,
+  },
+});
+
+const menuSubLinkStyles = (theme: Theme) => ({
+  display: "inline-block",
+  textDecoration: "none",
+  color: alpha(theme.palette.text.primary, 0.7),
+  fontSize: "0.95rem",
+  transition: "color 0.2s ease",
+  "&:hover": {
+    color: theme.palette.text.primary,
+  },
+});
