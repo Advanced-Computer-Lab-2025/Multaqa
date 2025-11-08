@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { api } from "../../../../api";
 import { FormikProps } from "formik";
 import { BoothFormValues } from "../types";
-import ErrorResponse from "../../../../interfaces/errors/errorResponse.interface";
+import {ErrorResponse} from "../../../../../../backend/interfaces/errors/errorResponse.interface";
 
 export const validationSchema = Yup.object({
   boothAttendees: Yup.array()
@@ -64,9 +64,10 @@ export const submitBoothForm = async (
       // Show error toast
       throw new Error(result.message || "Failed to submit booth application.");
     }
-  } catch (err: ErrorResponse) {
+  } catch (err) {
+    const error = err as { response?: { data?: ErrorResponse } };
     toast.error(
-      err.response?.data?.error || "Submission failed. Please try again.",
+      error.response?.data?.error || "Submission failed. Please try again.",
       {
         position: "bottom-right",
         autoClose: 5000,
