@@ -333,15 +333,6 @@ router.get(
 );
 
 router.get(
-  "/:id",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  getUserById
-);
-
-router.get(
   "/unassigned-staff",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
@@ -373,23 +364,6 @@ router.get(
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
   getAllStaff
-);
-
-router.post(
-  "/:id/block",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  blockUser
-);
-router.post(
-  "/:id/unblock",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  unBlockUser
 );
 router.post(
   "/register/:eventId",
@@ -438,5 +412,28 @@ router.delete(
   }),
   removeFromFavorites
 );
-
+router.get(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getUserById
+);
+router.post(
+  "/:id/block",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  blockUser
+);
+router.post(
+  "/:id/unblock",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  unBlockUser
+);
 export default router;
