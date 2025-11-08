@@ -1,6 +1,8 @@
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { api } from "../../../../api";
+import { FormikProps } from "formik";
+import { BoothFormValues } from "../types";
 
 export const validationSchema = Yup.object({
   boothAttendees: Yup.array()
@@ -26,7 +28,7 @@ export const submitBoothForm = async (
     setSubmitting,
     resetForm,
   }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
-  vendorId: string 
+  vendorId: string
 ) => {
   try {
     const boothData = {
@@ -42,7 +44,7 @@ export const submitBoothForm = async (
       boothData
     );
 
-    const result =  response.data;
+    const result = response.data;
 
     if (response.status === 200 && result.success) {
       // Reset the form and show success toast
@@ -79,5 +81,182 @@ export const submitBoothForm = async (
   } finally {
     setSubmitting(false);
     setSubmitting(false);
+  }
+};
+
+// Helper function to check if a section is complete
+export const checkSectionCompletion = (
+  formik: FormikProps<BoothFormValues>,
+  section: "attendees" | "configuration" | "location"
+) => {
+  switch (section) {
+    case "attendees":
+      return (
+        !formik.errors.boothAttendees &&
+        formik.touched.boothAttendees &&
+        formik.values.boothAttendees.length > 0 &&
+        formik.values.boothAttendees.every((att) => att.name && att.email)
+      );
+    case "configuration":
+      return (
+        !formik.errors.boothSize &&
+        !formik.errors.boothSetupDuration &&
+        formik.touched.boothSize &&
+        formik.touched.boothSetupDuration &&
+        formik.values.boothSize &&
+        formik.values.boothSetupDuration
+      );
+    case "location":
+      return (
+        !formik.errors.boothLocation &&
+        formik.touched.boothLocation &&
+        formik.values.boothLocation
+      );
+    default:
+      return false;
+  }
+};
+
+// Helper function to check which sections have errors
+export const checkSectionErrors = (
+  formik: FormikProps<BoothFormValues>
+): {
+  hasAttendeesError: boolean;
+  hasConfigError: boolean;
+  hasLocationError: boolean;
+} => {
+  return {
+    hasAttendeesError:
+      !!(formik.errors.boothAttendees && formik.touched.boothAttendees),
+    hasConfigError:
+      !!(
+        (formik.errors.boothSize && formik.touched.boothSize) ||
+        (formik.errors.boothSetupDuration &&
+          formik.touched.boothSetupDuration)
+      ),
+    hasLocationError:
+      !!(formik.errors.boothLocation && formik.touched.boothLocation),
+  };
+};
+
+export const handleBoothSelection = (
+  boothId: number,
+  setSelectedBooth: (id: number) => void,
+  setFieldValue: (field: string, value: unknown) => void
+) => {
+  setSelectedBooth(boothId);
+  setFieldValue("boothLocation", `Booth ${boothId}`);
+};
+
+export const autoCloseCompletedAccordions = (
+  formik: FormikProps<BoothFormValues>,
+  currentlyOpenedPanel: string,
+  setExpandedAccordions: React.Dispatch<React.SetStateAction<Set<string>>>
+) => {
+  // Check if sections are complete using helper function
+  const isAttendeesComplete = checkSectionCompletion(formik, "attendees");
+  const isConfigComplete = checkSectionCompletion(formik, "configuration");
+  const isLocationComplete = checkSectionCompletion(formik, "location");
+
+  // Close completed accordions when user opens a different one
+  setExpandedAccordions((prev) => {
+    const newSet = new Set(prev);
+
+    // Only close completed accordions that are not the currently opened one
+    if (
+      isAttendeesComplete &&
+      currentlyOpenedPanel !== "attendees" &&
+      prev.has("attendees")
+    ) {
+      newSet.delete("attendees");
+    }
+
+    if (
+      isConfigComplete &&
+      currentlyOpenedPanel !== "configuration" &&
+      prev.has("configuration")
+    ) {
+      newSet.delete("configuration");
+    }
+
+    if (
+      isLocationComplete &&
+      currentlyOpenedPanel !== "location" &&
+      prev.has("location")
+    ) {
+      newSet.delete("location");
+    }
+
+    return newSet;
+  });
+};
+
+export const handleAccordionChange =
+  (
+    setExpandedAccordions: React.Dispatch<React.SetStateAction<Set<string>>>,
+    lastErrorStateRef: React.MutableRefObject<string>,
+    panel: string,
+    formik?: FormikProps<BoothFormValues>
+  ) =>
+  (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedAccordions((prev) => {
+      const newSet = new Set(prev);
+      if (isExpanded) {
+        newSet.add(panel);
+        // When user opens a new accordion, close completed ones
+        if (formik) {
+          setTimeout(
+            () =>
+              autoCloseCompletedAccordions(
+                formik,
+                panel,
+                setExpandedAccordions
+              ),
+            0
+          );
+        }
+      } else {
+        newSet.delete(panel);
+      }
+      return newSet;
+    });
+    // Reset the error state tracking when user manually changes accordion
+    lastErrorStateRef.current = "";
+  };
+
+export const checkAndExpandAccordionWithErrors = (
+  formik: FormikProps<BoothFormValues>,
+  lastErrorStateRef: React.MutableRefObject<string>,
+  setExpandedAccordions: React.Dispatch<React.SetStateAction<Set<string>>>
+) => {
+  if (Object.keys(formik.touched).length === 0) return;
+
+  // Check sections for errors using helper function
+  const { hasAttendeesError, hasConfigError, hasLocationError } =
+    checkSectionErrors(formik);
+
+  // Create a unique key for current error state
+  const currentErrorState = `${hasAttendeesError}-${hasConfigError}-${hasLocationError}`;
+
+  // Only update if error state has changed
+  if (currentErrorState !== lastErrorStateRef.current) {
+    lastErrorStateRef.current = currentErrorState;
+
+    // Expand all accordions with errors
+    setExpandedAccordions((prev) => {
+      const newSet = new Set(prev);
+
+      if (hasAttendeesError) {
+        newSet.add("attendees");
+      }
+      if (hasConfigError) {
+        newSet.add("configuration");
+      }
+      if (hasLocationError) {
+        newSet.add("location");
+      }
+
+      return newSet;
+    });
   }
 };

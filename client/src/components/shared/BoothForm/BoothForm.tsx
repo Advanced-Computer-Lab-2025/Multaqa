@@ -27,7 +27,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
 import { useTheme } from "@mui/material/styles";
 import { BoothFormValues } from "./types";
-import { validationSchema } from "./utils";
+import {
+  validationSchema,
+  checkAndExpandAccordionWithErrors,
+  handleBoothSelection,
+  handleAccordionChange,
+} from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,73 +49,6 @@ const BoothForm: React.FC = () => {
   );
   const { user } = useAuth();
   const lastErrorStateRef = useRef<string>("");
-
-  const handleBoothSelection = (
-    boothId: number,
-    setFieldValue: (field: string, value: unknown) => void
-  ) => {
-    setSelectedBooth(boothId);
-    setFieldValue("boothLocation", `Booth ${boothId}`);
-  };
-
-  const handleAccordionChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpandedAccordions((prev) => {
-        const newSet = new Set(prev);
-        if (isExpanded) {
-          newSet.add(panel);
-        } else {
-          newSet.delete(panel);
-        }
-        return newSet;
-      });
-      // Reset the error state tracking when user manually changes accordion
-      lastErrorStateRef.current = "";
-    };
-
-  const checkAndExpandAccordionWithErrors = (
-    formik: FormikProps<BoothFormValues>
-  ) => {
-    if (Object.keys(formik.touched).length === 0) return;
-
-    // Check attendees section for errors
-    const hasAttendeesError =
-      formik.errors.boothAttendees && formik.touched.boothAttendees;
-
-    // Check configuration section for errors
-    const hasConfigError =
-      (formik.errors.boothSize && formik.touched.boothSize) ||
-      (formik.errors.boothSetupDuration && formik.touched.boothSetupDuration);
-
-    // Check location section for errors
-    const hasLocationError =
-      formik.errors.boothLocation && formik.touched.boothLocation;
-
-    // Create a unique key for current error state
-    const currentErrorState = `${hasAttendeesError}-${hasConfigError}-${hasLocationError}`;
-
-    // Only update if error state has changed
-    if (currentErrorState !== lastErrorStateRef.current) {
-      lastErrorStateRef.current = currentErrorState;
-
-      // Expand all accordions with errors
-      setExpandedAccordions((prev) => {
-        const newSet = new Set(prev);
-
-        if (hasAttendeesError) {
-          newSet.add("attendees");
-        }
-        if (hasConfigError) {
-          newSet.add("configuration");
-        }
-        if (hasLocationError) {
-          newSet.add("location");
-        }
-
-        return newSet;
-      });
-    }
-  };
 
   const initialValues: BoothFormValues = {
     boothAttendees: [{ name: "", email: "" }],
@@ -173,7 +111,11 @@ const BoothForm: React.FC = () => {
         >
           {(formik) => {
             // Check and expand accordion with errors
-            checkAndExpandAccordionWithErrors(formik);
+            checkAndExpandAccordionWithErrors(
+              formik,
+              lastErrorStateRef,
+              setExpandedAccordions
+            );
 
             return (
               <form onSubmit={formik.handleSubmit}>
@@ -199,7 +141,12 @@ const BoothForm: React.FC = () => {
                       {/* Attendee Information Accordion */}
                       <StyledAccordion
                         expanded={expandedAccordions.has("attendees")}
-                        onChange={handleAccordionChange("attendees")}
+                        onChange={handleAccordionChange(
+                          setExpandedAccordions,
+                          lastErrorStateRef,
+                          "attendees",
+                          formik
+                        )}
                       >
                         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
                           <Box
@@ -583,7 +530,12 @@ const BoothForm: React.FC = () => {
                       {/* Booth Configuration Accordion */}
                       <StyledAccordion
                         expanded={expandedAccordions.has("configuration")}
-                        onChange={handleAccordionChange("configuration")}
+                        onChange={handleAccordionChange(
+                          setExpandedAccordions,
+                          lastErrorStateRef,
+                          "configuration",
+                          formik
+                        )}
                       >
                         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
                           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -843,7 +795,12 @@ const BoothForm: React.FC = () => {
                       {/* Location Accordion */}
                       <StyledAccordion
                         expanded={expandedAccordions.has("location")}
-                        onChange={handleAccordionChange("location")}
+                        onChange={handleAccordionChange(
+                          setExpandedAccordions,
+                          lastErrorStateRef,
+                          "location",
+                          formik
+                        )}
                       >
                         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
                           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -925,6 +882,7 @@ const BoothForm: React.FC = () => {
                                     onBoothSelect={(boothId) =>
                                       handleBoothSelection(
                                         boothId,
+                                        setSelectedBooth,
                                         formik.setFieldValue
                                       )
                                     }
