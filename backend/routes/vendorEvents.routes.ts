@@ -13,16 +13,20 @@ import {
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const vendorEventsService = new VendorEventsService();
 
 async function getVendorUpcomingEvents(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<GetVendorEventsResponse>
 ) {
   try {
-    const vendorId = req.params.vendorId;
-    // const vendorId = (req as any).user.id;
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
 
     const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
     if (!events || events.length === 0) {
@@ -39,10 +43,13 @@ async function getVendorUpcomingEvents(
 }
 
 async function applyToBooth(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<ApplyToBazaarOrBoothResponse>
 ) {
-  const { vendorId, eventId } = req.params;
+  const vendorId = req.user?.id;
+  if (!vendorId) {
+    throw createError(401, "Unauthorized: Vendor ID missing in token");
+  }
   const validatedData = validateCreateApplicationData(req.body);
 
   // Handle validation errors
@@ -75,10 +82,14 @@ async function applyToBooth(
 }
 
 async function applyToBazaar(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<ApplyToBazaarOrBoothResponse>
 ) {
-  const { vendorId, eventId } = req.params;
+  const { eventId } = req.params;
+  const vendorId = req.user?.id;
+  if (!vendorId) {
+    throw createError(401, "Unauthorized: Vendor ID missing in token");
+  }
   const validatedData = validateCreateApplicationData(req.body);
 
   // Handle validation errors
@@ -220,6 +231,12 @@ async function getAvailableBooths(
 const router = Router();
 
 router.get(
+  "/",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  getVendorUpcomingEvents
+);
+
+router.get(
   "/vendor-requests",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
@@ -231,24 +248,14 @@ router.get(
   getVendorsRequests
 );
 
-// Single parameter routes
-router.get(
-  "/:vendorId",
-  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
-  getVendorUpcomingEvents
-);
-
 router.post(
-  "/:vendorId/booth",
+  "/booth",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBooth
 );
 
-
-
-
 router.post(
-  "/:vendorId/:eventId/bazaar",
+  "/:eventId/bazaar",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBazaar
 );

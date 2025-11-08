@@ -129,7 +129,7 @@ const EditWorkshop = ({
     setResponse([]);
     try {
         // TODO: Replace with your API route
-        const res = await api.patch("/workshops/" + creatingProfessor + "/"+ workshopId, payload);
+        const res = await api.patch("/workshops/" + workshopId, payload);
         setResponse(res.data);
     } catch (err: any) {
         setError(err?.message || "API call failed");
