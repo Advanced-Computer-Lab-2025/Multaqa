@@ -1,4 +1,5 @@
 import { IUser } from "../interfaces/models/user.interface";
+import mongoose from "mongoose";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
@@ -75,6 +76,87 @@ export class UserService {
     return user;
   }
 
+  // Add an event to user's favorites (idempotent)
+  async addToFavorites(
+    id: string,
+    eventId: string | mongoose.Types.ObjectId
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    // Normalize eventId to a mongoose ObjectId if needed
+    const objectId =
+      typeof eventId === "string"
+        ? new mongoose.Types.ObjectId(eventId)
+        : eventId;
+
+    // Ensure favorites array exists locally
+    const finalFavorites: any[] =
+      user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
+
+    // Add only if not already present
+    const exists = finalFavorites.some(
+      (fav: any) => fav.toString() === objectId.toString()
+    );
+    if (!exists) {
+      finalFavorites.push(objectId as any);
+      user.favorites = finalFavorites as any;
+      await user.save();
+    }
+
+    return user;
+  }
+
+  // Remove an event from user's favorites (idempotent)
+  async removeFromFavorites(
+    id: string,
+    eventId: string | mongoose.Types.ObjectId
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Normalize eventId to a mongoose ObjectId if needed
+    const objectId =
+      typeof eventId === "string"
+        ? new mongoose.Types.ObjectId(eventId)
+        : eventId;
+
+    // If favorites is not an array, ensure it's an empty array
+    const finalFavorites: any[] =
+      user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
+
+    // Remove any matching entries
+    const filtered = finalFavorites.filter(
+      (fav: any) => fav.toString() !== objectId.toString()
+    );
+
+    // Only save if something changed
+    if (filtered.length !== finalFavorites.length) {
+      user.favorites = filtered as any;
+      await user.save();
+    }
+
+    return user;
+  }
+
+  // Get user's favorites (populated when possible)
+  async getFavorites(id: string): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Try to fetch with populated favorites if repo supports populate
+    const populated = await this.userRepo.findById(id, {
+      populate: ["favorites"],
+    });
+
+    return (populated || user) as IUser;
+  }
+
   async blockUser(id: string): Promise<void> {
     const user = await this.userRepo.findById(id);
     if (!user) {
@@ -129,7 +211,10 @@ export class UserService {
   async assignRoleAndSendVerification(
     userId: string,
     position: string
-  ): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
+  ): Promise<{
+    user: Omit<IStaffMember, "password">;
+    verificationtoken: string;
+  }> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -152,14 +237,18 @@ export class UserService {
     await user.save();
 
     // Generate verification token
-    const verificationtoken = this.verificationService.generateVerificationToken(user);
+    const verificationtoken =
+      this.verificationService.generateVerificationToken(user);
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject
       ? user.toObject()
       : user;
 
-    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
+    return {
+      user: userWithoutPassword as Omit<IStaffMember, "password">,
+      verificationtoken,
+    };
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
