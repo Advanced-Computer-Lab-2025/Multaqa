@@ -15,6 +15,7 @@ import {
   GetAllProfessorsResponse,
   GetAllTAsResponse,
   GetAllStaffResponse,
+  AddToFavoritesResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
@@ -65,10 +66,9 @@ async function registerForEvent(
   req: AuthenticatedRequest,
   res: Response<RegisterUserResponse>
 ) {
-  const { eventId} = req.params;
-    const userId = req.user?.id;   
-  if (!userId) 
-    throw createError(401, "Unauthorized: User ID missing in token");
+  const { eventId } = req.params;
+  const userId = req.user?.id;
+  if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
 
   const validatedData = validateEventRegistration(req.body);
   if (validatedData.error) {
@@ -78,7 +78,10 @@ async function registerForEvent(
     );
   }
 
-  const updatedEvent = await eventsService.registerUserForEvent(eventId, userId);
+  const updatedEvent = await eventsService.registerUserForEvent(
+    eventId,
+    userId
+  );
 
   await userService.addEventToUser(
     userId,
@@ -90,6 +93,68 @@ async function registerForEvent(
     message: "User registered for event successfully",
     data: updatedEvent,
   });
+}
+
+// Add event to user's favorites
+async function addToFavorites(
+  req: AuthenticatedRequest,
+  res: Response<AddToFavoritesResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+
+    // get user id from authenticated token
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    const updatedUser = await userService.addToFavorites(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Event added to favorites",
+      data: updatedUser,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+// Remove event from user's favorites
+async function removeFromFavorites(
+  req: AuthenticatedRequest,
+  res: Response<AddToFavoritesResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+
+    // get user id from authenticated token
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    const updatedUser = await userService.removeFromFavorites(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Event removed from favorites",
+      data: updatedUser,
+    });
+  } catch (err: any) {
+    next(err);
+  }
 }
 
 async function blockUser(req: Request, res: Response<BlockUserResponse>) {
@@ -285,6 +350,32 @@ router.post(
     ],
   }),
   registerForEvent
+);
+
+router.post(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  addToFavorites
+);
+
+router.delete(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  removeFromFavorites
 );
 router.post(
   "/:userId/assign-role",
