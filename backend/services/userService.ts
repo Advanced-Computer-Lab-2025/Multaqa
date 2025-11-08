@@ -130,16 +130,21 @@ export class UserService {
     const finalFavorites: any[] =
       user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
 
-    // Remove any matching entries
+    // Check if event exists in favorites
+    const exists = finalFavorites.some(
+      (fav: any) => fav.toString() === objectId.toString()
+    );
+    if (!exists) {
+      throw createError(404, "Event not found in favorites");
+    }
+
+    // Remove the matching entry
     const filtered = finalFavorites.filter(
       (fav: any) => fav.toString() !== objectId.toString()
     );
 
-    // Only save if something changed
-    if (filtered.length !== finalFavorites.length) {
-      user.favorites = filtered as any;
-      await user.save();
-    }
+    user.favorites = filtered as any;
+    await user.save();
 
     return user;
   }
