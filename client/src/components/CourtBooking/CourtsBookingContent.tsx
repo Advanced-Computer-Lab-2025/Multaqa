@@ -121,9 +121,18 @@ export default function CourtsBookingContent() {
 
       setCourts(transformedCourts);
       setSlots(allSlots);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching courts:", err);
-      setError(err.response?.data?.message || "Failed to fetch courts");
+
+      let message = "Failed to fetch courts";
+      if (typeof err === "object" && err !== null) {
+        const maybeResponse = (err as { response?: { data?: { message?: string } } }).response;
+        if (maybeResponse?.data?.message) {
+          message = maybeResponse.data.message;
+        }
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }

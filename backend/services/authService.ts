@@ -17,14 +17,15 @@ import { VerificationService } from './verificationService';
 import { StudentAndStaffSignupRequest, VendorSignupRequest, LoginRequest } from '../interfaces/authRequests.interface';
 import { IAdministration } from '../interfaces/models/administration.interface';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
+import { sendVerificationEmail } from './emailService';
 
 export class AuthService {
   private userRepo: GenericRepository<IUser>;
   private studentRepo: GenericRepository<IStudent>;
   private staffRepo: GenericRepository<IStaffMember>;
   private vendorRepo: GenericRepository<IVendor>;
-  private verificationService: VerificationService;
   private adminRepo: GenericRepository<IAdministration>;
+  private verificationService: VerificationService;
 
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
@@ -36,7 +37,7 @@ export class AuthService {
   }
 
   // signup for Students, TAs, Staff, Professors, Vendors
-  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
+  async signup(signupData: StudentAndStaffSignupRequest | VendorSignupRequest): Promise<Omit<IUser, "password">> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: signupData.email });
     if (existingUser) {
@@ -60,7 +61,6 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(signupData.password, saltRounds);
 
     let createdUser = null;
-    let verificationtoken = "";
 
     // Determine role based on email domain and create user accordingly
     if (signupData.email.includes("@student.guc.edu.eg")) {
@@ -75,7 +75,11 @@ export class AuthService {
         }
       );
 
-      verificationtoken = this.verificationService.generateVerificationToken(createdUser);
+      const verificationToken = this.verificationService.generateVerificationToken(createdUser);
+      // send verification email
+      const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
+      await sendVerificationEmail(createdUser.email, createdUser.firstName, link);
+      console.log("Verification email sent to:", createdUser.email);
     }
     else if (signupData.email.includes("@guc.edu.eg")) { // staff member (staff/TA/Professor)
       createdUser = await this.staffRepo.create(
@@ -107,7 +111,7 @@ export class AuthService {
     // Remove password from response and convert to plain object
     const { password, ...userWithoutPassword } = createdUser.toObject ? createdUser.toObject() : createdUser;
 
-    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
+    return userWithoutPassword as Omit<IUser, "password">;
   }
 
   // for all users

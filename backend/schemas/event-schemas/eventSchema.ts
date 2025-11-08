@@ -28,7 +28,7 @@ const EventSchema = new Schema<IEvent>(
     location: { type: String, required: true, default: "" },
     description: { type: String, required: true },
   },
-  { discriminatorKey: "type", collection: "events" }
+  { discriminatorKey: "type", collection: "events", timestamps: true }
 );
 
 EventSchema.virtual("isPassed").get(function (this: IEvent) {
@@ -42,6 +42,12 @@ EventSchema.set("toJSON", {
     if (doc.attendees !== undefined) {
       ret.attendees = doc.attendees;
     }
+    const record = ret as unknown as Record<string, unknown>;
+    Object.keys(record).forEach((key) => {
+      if (record[key] == null) {
+        delete record[key];
+      }
+    });
     return ret;
   },
 });

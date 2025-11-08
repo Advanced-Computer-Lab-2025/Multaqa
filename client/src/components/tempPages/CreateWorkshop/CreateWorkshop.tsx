@@ -90,7 +90,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
     setResponse([]);
     try {
         // TODO: Replace with your API route
-        const res = await api.post("/workshops/"+creatingProfessor, payload);
+        const res = await api.post("/workshops/", payload);
         setResponse(res.data);
         // setRefresh((prev) => !prev);
     } catch (err: any) {

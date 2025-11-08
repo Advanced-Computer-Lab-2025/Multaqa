@@ -6,10 +6,12 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { api } from "@/api";
+import { api, registerSetUser } from "@/api";
 import { useRouter, usePathname } from "@/i18n/navigation";
-import { MeResponse, UserResponse } from "../../../backend/interfaces/responses/authResponses.interface";
-import { sendVerificationEmail } from "@/utils/emailService";
+import {
+  MeResponse,
+  UserResponse,
+} from "../../../backend/interfaces/responses/authResponses.interface";
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -35,6 +37,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  // register setUser for global API usage
+  useEffect(() => {
+    registerSetUser(setUser);
+  }, [setUser]);
 
   // Avoid calling /auth/me on public routes
   const publicRoutes = ["/login", "/register", "/signup", "/en"];
@@ -63,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem("token");
         await api
           .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => { });
+          .catch(() => {});
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -100,7 +107,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } finally {
         setIsLoading(false);
       }
-    }, []
+    },
+    []
   );
 
   // Signup
@@ -111,14 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.post("/auth/signup", data);
       if (response.data?.success) {
         console.log("✅ Signed up successfully");
-
-        if (response.data.verificationtoken.length > 0) {
-          // Send verification email
-          const verifyLink = `http://localhost:4000/auth/verify?token=${response.data.verificationtoken}`;
-          await sendVerificationEmail(data.email, verifyLink);
-        }
-      }
-      else {
+      } else {
         throw new Error(response.data?.message || "Signup failed");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,7 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // clear refreshToken from cookies by making a logout request
       await api.post("/auth/logout", {}, { withCredentials: true });
-    } catch { }
+    } catch {}
     localStorage.removeItem("token");
     setUser(null);
     router.replace("/login");
