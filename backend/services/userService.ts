@@ -95,11 +95,13 @@ export class UserService {
         ? new mongoose.Types.ObjectId(eventId)
         : eventId;
 
-    // Ensure favorites array exists locally
+    // Ensure favorites array exists
     const finalFavorites: any[] =
       user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
 
-    // Check if event already exists in favorites
+    // debug logs removed
+
+    // If already present, return a 400 error
     const exists = finalFavorites.some(
       (fav: any) => fav.toString() === objectId.toString()
     );
@@ -131,11 +133,13 @@ export class UserService {
         ? new mongoose.Types.ObjectId(eventId)
         : eventId;
 
-    // If favorites is not an array, ensure it's an empty array
+    // Ensure favorites array exists
     const finalFavorites: any[] =
       user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
 
-    // Check if event exists in favorites
+    // debug logs removed
+
+    // If not present, return 404
     const exists = finalFavorites.some(
       (fav: any) => fav.toString() === objectId.toString()
     );
@@ -143,16 +147,12 @@ export class UserService {
       throw createError(404, "Event not found in favorites");
     }
 
-    // Remove the matching entry
+    // Remove and persist
     const filtered = finalFavorites.filter(
       (fav: any) => fav.toString() !== objectId.toString()
     );
-
-    // Only save if something changed
-    if (filtered.length !== finalFavorites.length) {
-      user.favorites = filtered as any;
-      await user.save();
-    }
+    user.favorites = filtered as any;
+    await user.save();
 
     return user;
   }
