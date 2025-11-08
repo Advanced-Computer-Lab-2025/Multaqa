@@ -24,6 +24,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   icon: IconComponent,
   background,
   setRefresh,
+  attended
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -52,69 +53,6 @@ const BazarView: React.FC<BazarViewProps> = ({
     onDelete?.();
     handleCloseDeleteModal();
   };
-
-  const metaNodes = [
-    <Typography key="datetime" variant="body2" sx={{ color: "#6b7280" }}>
-      Deadline: {details["Registration Deadline"] || "TBD"}
-    </Typography>,
-    <Typography key="datetime" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Start Date"] || "TBD"} - {details["End Date"] || "TBD"}
-    </Typography>,
-    <Typography key="location" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Location"] || "TBD"}
-    </Typography>,
-    <Typography key="vendors" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Vendor Count"] ? `${details["Vendor Count"]} vendors` : ""}
-    </Typography>,
-  ];
-
-  const detailsContent = (
-    <Box> 
-      {/* sx={{backgroundColor: `${background}10`}} */}
-      {/* Description */}
-      {description && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ color: background, mb: 1 }}
-          >
-            Description
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ fontSize: "14px", lineHeight: 1.5 }}
-          >
-            {description}
-          </Typography>
-        </Box>
-      )}
-
-      {/* Event Details */}
-      <Box>
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ color: background, mb: 1 }}
-        >
-          Event Details
-        </Typography>
-        {Object.entries(details).map(([key, value]) => (
-          <Box
-            key={key}
-            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 500 }}>
-              {key}:
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#6b7280" }}>
-              {value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-    </Box>
-  );
 
   return (
     <>
@@ -163,81 +101,8 @@ const BazarView: React.FC<BazarViewProps> = ({
               onClose={handleCloseModal}
               bazarId={id} />
           </CustomButton>
-        )} expanded={expanded} location={details["Location"]}         />
-      {/* <ActionCard
-        title={name}
-        background={background}
-        leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
-                        mb: 1,
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "50%",
-                        padding:"4px",
-                        transition: "background-color 0.2s ease",
-                        "&:hover": {
-                          backgroundColor: `${background}30`,
-                        },}} />}
-        tags={[
-          {
-            label: "Bazaar",
-            sx: {
-              bgcolor: `${background}20`,
-              color:background,
-              fontWeight: 600,
-            },
-            size: "small",
-          },
-        ]}
-        metaNodes={metaNodes}
-        rightSlot={
-          !registered &&
-          user == "vendor" && (
-            <CustomButton
-              size="small"
-              variant="contained"
-             // color="secondary"
-              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
-              color:background, borderColor:background}}
-              onClick={handleOpenModal}
-            >
-              Apply
-              <BazarFormModalWrapper
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                bazarId={id}
-              />
-            </CustomButton>
-          )
-        }
-        rightIcon={
-          user === "admin" ? (
-            <Tooltip title="Delete">
-            <IconButton
-                    size="medium"
-                    onClick={handleOpenDeleteModal}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                        color: "error.main",
-                      },
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
-            </Tooltip>
-          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={()=>{setEdit(true)}} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
-        }
-        registered={registered || !(user == "vendor")}
-        expanded={expanded}
-        onExpandChange={setExpanded}
-        details={detailsContent}
-        borderColor={background}
-        elevation="soft"
-      /> */}
+        )} expanded={expanded} location={details["Location"]}  
+        />
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -340,6 +205,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         sections={user=="vendor"?['general', 'details']:['general','details',
           'reviews']}
         user={user?user:""}
+        attended ={attended}
         />
       </CustomModalLayout>
     </>

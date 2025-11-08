@@ -284,6 +284,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
+    //here you can check if attended should be set to true by cheking if it exists in the attended list of the current user 
     switch (event.type) {
       case EventType.CONFERENCE:
         return (
@@ -353,6 +354,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             key={event.id}
             company={event.company}
             people={event.people}
+            description={event.description}
             details={event.details}
             user={user}
             registered={registered}

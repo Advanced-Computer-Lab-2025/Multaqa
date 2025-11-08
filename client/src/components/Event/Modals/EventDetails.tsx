@@ -10,6 +10,7 @@ import EventTypeDetails from './EventTypeDetails';
 import { Trash2 } from 'lucide-react';
 import { CustomModal } from '../../shared/modals';
 import theme from '@/themes/lightTheme';
+import { truncateSync } from 'fs';
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -81,7 +82,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   button:RegisterButton,
   onSubmitReview,
   sections = ['general', 'details', 'reviews'],
-  user
+  user,
+  attended=false
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
   const [newRating, setNewRating] = useState(0);
@@ -164,12 +166,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         >
           {description}
         </Typography>
-      </Box>
+      </Box> 
     </Box>
   );  const renderReviews = () => (
     <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
        {/* New Review Form */}
-       {(user=="student"||user=="professor"||user=="staff"||user=="ta")?
+       {(user=="student"||user=="professor"||user=="staff"||user=="ta")&&attended?
       <Box sx={{ flex: 1 , display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'center', flexDirection: 'column' }}>
          <Typography variant="h5" sx={{ color: 'text.primary', display: 'block' , fontWeight:600}}>
              Add Your Review
@@ -285,7 +287,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       case 'general':
         return renderGeneral();
       case 'details':
-        return <EventTypeDetails type={eventType} details={details} color={color} />;
+        return <EventTypeDetails type={eventType} details={details} color={color}/>;
       case 'reviews':
         return renderReviews();
       default:

@@ -10,6 +10,7 @@ type BasicProps = {
   background:string,
   icon: SvgIconComponent;
   isReady:boolean;
+  attended?:boolean;
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
@@ -22,6 +23,7 @@ export type BazarViewProps = BasicProps & {
 export type BoothViewProps = BasicProps & {
   company: string,
   people?: { name: string; email: string }[];
+  description:string,
   details: Record<string, string>,
 }
 

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, IconButton, Chip, Tooltip } from '@mui/material';
 import { ChevronDown, ChevronUp, Calendar, Clock, MapPin, Check, Copy, Wallet, ExternalLink} from 'lucide-react';
-import PaymentIcon from '@mui/icons-material/Payment';
 import theme from '@/themes/lightTheme';
-import CustomModalLayout from '../modals/CustomModalLayout';
-import EventTypeDetails from '../../Event/Modals/EventTypeDetails';
+
 
 interface EventCardProps {
   title: string;

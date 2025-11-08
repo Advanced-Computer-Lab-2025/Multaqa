@@ -41,9 +41,10 @@ export const mapDetailsToType = (type: string, details: Record<string, any>, col
 
     case 'booth':
       return {
-        location: details.location,
-        representatives: details.representatives,
-        schedule: details.schedule,
+        location: details["Location"],
+        boothSize : details['Booth Size'],
+        setupDuration: details['Setup Duration'],
+        people:details.people,
         color
       } as BoothDetails;
 

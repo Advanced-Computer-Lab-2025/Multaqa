@@ -128,11 +128,11 @@ function transformEvent(event: any) {
         type: EventType.BOOTH,
         company: event.eventName,
         people: event.RequestData.boothAttendees,
+        description:event.description,
         details: {
-          "Setup Duration": event.RequestData.boothSetupDuration,
-          Location: event.RequestData.boothLocation,
+          "Setup Duration": `${event.RequestData.boothSetupDuration} weeks` ,
+          "Location": event.RequestData.boothLocation,
           "Booth Size": event.RequestData.boothSize,
-          Description: event.description,
         },
       };
 

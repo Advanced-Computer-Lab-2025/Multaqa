@@ -27,7 +27,8 @@ const TripView: React.FC<BazarViewProps> = ({
   onDelete,
   setRefresh,
   userInfo,
-  isReady
+  isReady,
+  attended
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -50,72 +51,6 @@ const TripView: React.FC<BazarViewProps> = ({
     onDelete?.();
     handleCloseDeleteModal();
   };
-
-  const metaNodes = [
-    <Typography key="datetime" variant="body2" sx={{ color: "#6b7280" }}>
-      Deadline: {details["Registration Deadline"] || "TBD"}
-    </Typography>,
-    <Typography key="date-range" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Start Date"] === details["End Date"]
-        ? details["Start Date"] || "TBD"
-        : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"}`}
-    </Typography>,
-    <Typography
-      key="transportation"
-      variant="caption"
-      sx={{ color: "#6b7280" }}
-    >
-      {details["Location"] || "TBD"}
-    </Typography>,
-    <Typography key="cost" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Cost"] || "TBD"}
-    </Typography>,
-  ];
-
-  const detailsContent = (
-    <Box>
-      {description && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ color: theme.palette.info.dark, mb: 1 }}
-          >
-            Description
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ fontSize: "14px", lineHeight: 1.5 }}
-          >
-            {description}
-          </Typography>
-        </Box>
-      )}
-
-      <Box>
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ color: theme.palette.info.dark, mb: 1 }}
-        >
-          Trip Details
-        </Typography>
-        {Object.entries(details).map(([key, value]) => (
-          <Box
-            key={key}
-            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 500 }}>
-              {key}:
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#6b7280" }}>
-              {value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-    </Box>
-  );
 
 
   return (
@@ -167,84 +102,7 @@ const TripView: React.FC<BazarViewProps> = ({
             </CustomButton>
           )
         } expanded={expanded} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
-      {/* <ActionCard
-        title={name}
-        background={background}
-        leftIcon={<IconComponent sx={{ backgroundColor: `${background}20`,   color: background,
-                        mb: 1,
-                         width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "50%",
-                        padding:"4px",
-                        transition: "background-color 0.2s ease",
-                        "&:hover": {
-                          backgroundColor: `${background}30`,
-                        },}} />}
-        type="events"
-        tags={[
-          {
-            label: "Trip",
-            sx: { bgcolor: `${background}20`,
-              color:background, fontWeight: 600 },
-            size: "small",
-          },
-        ]}
-        metaNodes={metaNodes}
-        rightSlot={
-          !registered &&
-          (user == "staff" ||
-            user == "student" ||
-            user == "ta" ||
-            user == "professor") && (
-            <CustomButton
-              size="small"
-              variant="contained"
-              // color="info"
-              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
-              color:background, borderColor:background}}
-              onClick={()=> {setRegister(true)}}
-            >
-              Register
-            </CustomButton>
-          )
-        }
-        rightIcon={
-          user === "admin" ? (
-            <Tooltip title="Delete">
-            <IconButton
-                    size="medium"
-                    onClick={handleOpenDeleteModal}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                        color: "error.main",
-                      },
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
-            </Tooltip>
-          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"}/>:null)}
-        registered={
-          registered ||
-          !(
-            user == "staff" ||
-            user == "student" ||
-            user == "ta" ||
-            user == "professor"
-          )
-        }
-        expanded={expanded}
-        onExpandChange={setExpanded}
-        details={detailsContent}
-        borderColor={theme.palette.info.main}
-        elevation="soft"
-      /> */}
-
+    
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
         open={tripToDelete}
@@ -344,6 +202,7 @@ const TripView: React.FC<BazarViewProps> = ({
         sections={user=="vendor"?['general', 'details']:['general','details',
           'reviews']}
         user={user?user:""}
+        attended ={attended}
         />
       </CustomModalLayout>
     </>

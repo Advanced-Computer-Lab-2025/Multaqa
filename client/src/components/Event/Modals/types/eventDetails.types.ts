@@ -38,12 +38,10 @@ export interface BazaarDetails extends BaseEventDetails {
 }
 
 export interface BoothDetails extends BaseEventDetails {
+  setupDuration: string;
+  boothSize: string;
   location: string;
-  representatives?: string[];
-  schedule?: Array<{
-    time: string;
-    activity: string;
-  }>;
+  people: { name: string; email: string }[] 
 }
 
 export interface TripDetails extends BaseEventDetails {

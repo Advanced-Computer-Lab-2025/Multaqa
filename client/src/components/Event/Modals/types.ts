@@ -21,6 +21,7 @@ export interface EventDetailsProps {
   onSubmitReview?: (rating: number, comment: string) => void;
   sections?: EventSection[];
   user:string;
+  attended?:boolean;
 }
 
 // Mock data for reviews

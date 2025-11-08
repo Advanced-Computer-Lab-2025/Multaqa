@@ -94,7 +94,7 @@ const TripDetails: React.FC<TripDetailsType> = ({
       <CardContent sx={{ p: 3 }}>
         <Grid container spacing={3}>
           {detailItems.map((item, index) => (
-            <Grid size={{xs: 12, md: 6}} key={index}>
+            <Grid size={{xs: 12, md: 4}} key={index}>
               <Box 
                 sx={{ 
                   display: 'flex', 
