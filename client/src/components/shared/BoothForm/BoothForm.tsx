@@ -10,8 +10,6 @@ import {
   Card,
   CardContent,
   Paper,
-  Accordion,
-  AccordionSummary,
   AccordionDetails,
   Chip,
   Avatar,
@@ -35,6 +33,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { submitBoothForm } from "./utils";
 import { useAuth } from "../../../context/AuthContext";
+import StyledAccordion from "../Accordion/StyledAccordion";
+import StyledAccordionSummary from "../Accordion/StyledAccordionSummary";
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
@@ -60,7 +60,7 @@ const BoothForm: React.FC = () => {
   const initialValues: BoothFormValues = {
     boothAttendees: [{ name: "", email: "" }],
     boothSize: "",
-    boothSetupDuration: null,
+    boothSetupDuration: "",
     boothLocation: "",
   };
 
@@ -136,28 +136,12 @@ const BoothForm: React.FC = () => {
                     }}
                   >
                     {/* Attendee Information Accordion */}
-                    <Accordion
+                    <StyledAccordion
                       expanded={expandedAccordion === "attendees"}
                       onChange={handleAccordionChange("attendees")}
-                      sx={{
-                        mb: 3,
-                        borderRadius: "12px !important",
-                        border: `1px solid ${theme.palette.divider}`,
-                        "&:before": { display: "none" },
-                        boxShadow: "none",
-                      }}
                     >
-                      <AccordionSummary
+                      <StyledAccordionSummary
                         expandIcon={<ExpandMoreIcon />}
-                        sx={{
-                          backgroundColor: theme.palette.background.default,
-                          borderRadius: "12px",
-                          minHeight: "68px",
-                          "&.Mui-expanded": {
-                            minHeight: "68px",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          },
-                        }}
                       >
                         <Box
                           sx={{
@@ -190,21 +174,11 @@ const BoothForm: React.FC = () => {
                                 size="small"
                                 color="primary"
                                 variant="outlined"
-                              />
-                              {formik.values.boothAttendees.some(
-                                (attendee) => attendee.name && attendee.email
-                              ) && (
-                                <Chip
-                                  label="Complete"
-                                  size="small"
-                                  color="success"
-                                  variant="filled"
-                                />
-                              )}
+                              />  
                             </Box>
                           </Box>
                         </Box>
-                      </AccordionSummary>
+                      </StyledAccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <CardContent sx={{ p: 3 }}>
                           {/* Quick Stats */}
@@ -531,31 +505,16 @@ const BoothForm: React.FC = () => {
                           )}
                         </CardContent>
                       </AccordionDetails>
-                    </Accordion>
+                    </StyledAccordion>
 
                     {/* Booth Configuration Accordion */}
-                    <Accordion
+                    <StyledAccordion
                       expanded={expandedAccordion === "configuration"}
                       onChange={handleAccordionChange("configuration")}
-                      sx={{
-                        mb: 3,
-                        borderRadius: "12px !important",
-                        border: `1px solid ${theme.palette.divider}`,
-                        "&:before": { display: "none" },
-                        boxShadow: "none",
-                      }}
                     >
-                      <AccordionSummary
+                      <StyledAccordionSummary
                         expandIcon={<ExpandMoreIcon />}
-                        sx={{
-                          backgroundColor: theme.palette.background.default,
-                          borderRadius: "12px",
-                          minHeight: "68px",
-                          "&.Mui-expanded": {
-                            minHeight: "68px",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          },
-                        }}
+
                       >
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <AspectRatioIcon
@@ -578,7 +537,7 @@ const BoothForm: React.FC = () => {
                             </Typography>
                           </Box>
                         </Box>
-                      </AccordionSummary>
+                      </StyledAccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <CardContent sx={{ p: 3 }}>
                           <Box
@@ -721,7 +680,7 @@ const BoothForm: React.FC = () => {
                           </Box>
                         </CardContent>
                       </AccordionDetails>
-                    </Accordion>
+                    </StyledAccordion>
 
                     {/* Submit Button - Always visible */}
                     <Box sx={{ mt: 4, textAlign: "center" }}>
@@ -800,28 +759,12 @@ const BoothForm: React.FC = () => {
                     }}
                   >
                     {/* Location Accordion */}
-                    <Accordion
+                    <StyledAccordion
                       expanded={expandedAccordion === "location"}
                       onChange={handleAccordionChange("location")}
-                      sx={{
-                        mb: 3,
-                        borderRadius: "12px !important",
-                        border: `1px solid ${theme.palette.divider}`,
-                        "&:before": { display: "none" },
-                        boxShadow: "none",
-                      }}
                     >
-                      <AccordionSummary
+                      <StyledAccordionSummary
                         expandIcon={<ExpandMoreIcon />}
-                        sx={{
-                          backgroundColor: theme.palette.background.default,
-                          borderRadius: "12px",
-                          minHeight: "68px",
-                          "&.Mui-expanded": {
-                            minHeight: "68px",
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                          },
-                        }}
                       >
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <LocationOnIcon
@@ -842,7 +785,7 @@ const BoothForm: React.FC = () => {
                             </Typography>
                           </Box>
                         </Box>
-                      </AccordionSummary>
+                      </StyledAccordionSummary>
                       <AccordionDetails
                         sx={{
                           p: 0,
@@ -1048,7 +991,7 @@ const BoothForm: React.FC = () => {
                           </Box>
                         </Box>
                       </AccordionDetails>
-                    </Accordion>
+                    </StyledAccordion>
                   </Paper>
                 </Box>
               </Box>
