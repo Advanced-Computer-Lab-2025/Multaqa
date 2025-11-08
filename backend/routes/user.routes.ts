@@ -418,6 +418,32 @@ router.get(
   }),
   getUserById
 );
+
+router.post(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  addToFavorites
+);
+
+router.delete(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  removeFromFavorites
+);
 router.post(
   "/:id/block",
   authorizeRoles({
