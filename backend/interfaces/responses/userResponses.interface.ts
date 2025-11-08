@@ -34,7 +34,6 @@ export interface AssignRoleResponse {
   success: boolean;
   message: string;
   user: Omit<IStaffMember, "password">;
-  verificationToken: string;
 }
 
 export interface GetAllUnAssignedStaffMembersResponse {
@@ -64,5 +63,17 @@ export interface GetAllStaffResponse {
 export interface AddToFavoritesResponse {
   success: boolean;
   data?: Omit<IStaffMember, "password"> | any;
+  message: string;
+}
+
+export interface RemoveFromFavoritesResponse {
+  success: boolean;
+  data?: Omit<IStaffMember, "password"> | any;
+  message: string;
+}
+
+export interface GetFavoritesResponse {
+  success: boolean;
+  data: Omit<IStaffMember, "password">[];
   message: string;
 }

@@ -1,4 +1,5 @@
 import { IUser } from "../interfaces/models/user.interface";
+import mongoose from "mongoose";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
@@ -10,6 +11,7 @@ import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
+import { sendBlockUnblockEmail, sendStaffRoleAssignmentEmail, sendVerificationEmail } from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -143,10 +145,28 @@ export class UserService {
       (fav: any) => fav.toString() !== objectId.toString()
     );
 
-    user.favorites = filtered as any;
-    await user.save();
+    // Only save if something changed
+    if (filtered.length !== finalFavorites.length) {
+      user.favorites = filtered as any;
+      await user.save();
+    }
 
     return user;
+  }
+
+  // Get user's favorites (populated when possible)
+  async getFavorites(id: string): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Try to fetch with populated favorites if repo supports populate
+    const populated = await this.userRepo.findById(id, {
+      populate: ["favorites"],
+    });
+
+    return (populated || user) as IUser;
   }
 
   async blockUser(id: string): Promise<void> {
@@ -158,6 +178,7 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    await sendBlockUnblockEmail(user.email, true, "admin decision");
     await user.save();
   }
 
@@ -170,6 +191,7 @@ export class UserService {
       throw createError(400, "User is already Active");
     }
     user.status = UserStatus.ACTIVE;
+    await sendBlockUnblockEmail(user.email, false, "admin decision");
     await user.save();
   }
 
@@ -203,10 +225,7 @@ export class UserService {
   async assignRoleAndSendVerification(
     userId: string,
     position: string
-  ): Promise<{
-    user: Omit<IStaffMember, "password">;
-    verificationtoken: string;
-  }> {
+  ): Promise<Omit<IStaffMember, "password">> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -229,18 +248,18 @@ export class UserService {
     await user.save();
 
     // Generate verification token
-    const verificationtoken =
-      this.verificationService.generateVerificationToken(user);
+    const verificationToken = this.verificationService.generateVerificationToken(user);
+    // Send verification email
+    const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
+    await sendStaffRoleAssignmentEmail(user.email, user.firstName, position, link);
+    console.log("Verification email sent to:", user.email);
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject
       ? user.toObject()
       : user;
 
-    return {
-      user: userWithoutPassword as Omit<IStaffMember, "password">,
-      verificationtoken,
-    };
+    return userWithoutPassword as Omit<IStaffMember, "password">;
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {

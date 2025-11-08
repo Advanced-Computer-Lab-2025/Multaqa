@@ -16,6 +16,8 @@ import {
   GetAllTAsResponse,
   GetAllStaffResponse,
   AddToFavoritesResponse,
+  RemoveFromFavoritesResponse,
+  GetFavoritesResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
@@ -129,7 +131,7 @@ async function addToFavorites(
 // Remove event from user's favorites
 async function removeFromFavorites(
   req: AuthenticatedRequest,
-  res: Response<AddToFavoritesResponse>,
+  res: Response<RemoveFromFavoritesResponse>,
   next: any
 ) {
   try {
@@ -151,6 +153,31 @@ async function removeFromFavorites(
       success: true,
       message: "Event removed from favorites",
       data: updatedUser,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+// Get all favorites for the authenticated user
+async function getAllFavorites(
+  req: AuthenticatedRequest,
+  res: Response<GetFavoritesResponse>,
+  next: any
+) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    const userWithFavorites = await userService.getFavorites(userId);
+    const favorites = (userWithFavorites as any).favorites || [];
+
+    res.json({
+      success: true,
+      message: "Favorites retrieved successfully",
+      data: favorites,
     });
   } catch (err: any) {
     next(err);
@@ -242,14 +269,12 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
     const { userId } = req.params;
     const { position } = req.body;
 
-    const { user, verificationtoken } =
-      await userService.assignRoleAndSendVerification(userId, position);
+    const user = await userService.assignRoleAndSendVerification(userId, position);
 
     res.json({
       success: true,
       message: "Role assigned and verification email sent successfully",
       user: user,
-      verificationToken: verificationtoken,
     });
   } catch (error: any) {
     throw createError(
@@ -282,6 +307,29 @@ async function getAllProfessors(
 }
 
 const router = Router();
+
+router.get(
+  "/",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllUsers
+);
+
+router.get(
+  "/favorites",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  getAllFavorites
+);
+
 router.get(
   "/unassigned-staff",
   authorizeRoles({
@@ -315,30 +363,6 @@ router.get(
   }),
   getAllStaff
 );
-router.get(
-  "/",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  getAllUsers
-);
-router.post(
-  "/:id/block",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  blockUser
-);
-router.post(
-  "/:id/unblock",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  unBlockUser
-);
 router.post(
   "/register/:eventId",
   authorizeRoles({
@@ -350,6 +374,49 @@ router.post(
     ],
   }),
   registerForEvent
+);
+
+router.post(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  addToFavorites
+);
+
+router.post(
+  "/:userId/assign-role",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  assignRole
+);
+
+router.delete(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  removeFromFavorites
+);
+router.get(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getUserById
 );
 
 router.post(
@@ -378,20 +445,19 @@ router.delete(
   removeFromFavorites
 );
 router.post(
-  "/:userId/assign-role",
+  "/:id/block",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
-  assignRole
+  blockUser
 );
-router.get(
-  "/:id",
+router.post(
+  "/:id/unblock",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
-  getUserById
+  unBlockUser
 );
-
 export default router;
