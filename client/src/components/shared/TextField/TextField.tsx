@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Box, Typography, IconButton, Select, MenuItem, useTheme } from '@mui/material';
 import { FormatBold, FormatItalic, FormatUnderlined, ExpandMore } from '@mui/icons-material';
+import { useField, FieldHookConfig } from "formik";
 
 // Import from local files
 import { RichTextFieldProps, FontOption, FontSizeOption } from './types';
@@ -21,17 +22,52 @@ const FONT_SIZE_OPTIONS: FontSizeOption[] = [
   { label: '16px', value: '16px' },
 ];
 
-const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, placeholder="Enter your description here..." }) => {
+const RichTextField: React.FC<RichTextFieldProps> = (props) => {
   const theme = useTheme();
+const isFormik = "name" in props && (props as any).name !== undefined && "value" in props === false;
+
+// ────── Formik branch ──────
+let field: any = { value: "" };
+let helpers: any = { setValue: () => {}, setTouched: () => {} };
+
+if (isFormik) {
+  const [f, , h] = useField<string>(props as FieldHookConfig<string>);
+  field = f;
+  helpers = h;
+} else {
+  field = { value: (props as any).value ?? "" };
+  helpers = {
+    setValue: (props as any).onChange,
+    setTouched: () => {},
+  };
+}
+
+const value = field.value ?? "";
+const setValue = helpers.setValue;
+const setTouched = helpers.setTouched;
+
+  // ────── UI state ──────
   const contentRef = React.useRef<HTMLDivElement>(null);
   const [fontFamily, setFontFamily] = React.useState(FONT_OPTIONS[0].value);
   const [fontSize, setFontSize] = React.useState(FONT_SIZE_OPTIONS[1].value);
   // Handle content changes (input)
-  const handleInput = () => {
+const handleInput = () => {
+    if (contentRef.current) setValue(contentRef.current.innerHTML);
+  };
+
+  const applyFontStyles = () => {
     if (contentRef.current) {
-      onContentChange(contentRef.current.innerHTML);
+      contentRef.current.style.fontFamily = fontFamily;
+      contentRef.current.style.fontSize = fontSize;
     }
   };
+
+React.useEffect(() => {
+    applyFontStyles();
+    if (contentRef.current && contentRef.current.innerHTML !== value) {
+      contentRef.current.innerHTML = value;
+    }
+  }, [value, fontFamily, fontSize]);
 
   // Handler for font family change
   const handleFontFamilyChange = (event: any) => {
@@ -57,38 +93,48 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
     handleInput();
   };
   
-  // Handler for bold/italic/underline
-  const handleFormat = (command: string) => {
-    // Focus the content area before executing the command to ensure the selection is correct
-    if (contentRef.current) {
-        contentRef.current.focus();
-    }
-    executeCommand(command);
+const handleFormat = (command: string) => {
+    contentRef.current?.focus();
+    document.execCommand(command, false);
+    handleInput();
+  };
+
+  const handleFocus = () => setTouched(true);
+  const handleBlur = () => {
+    setTouched(true);
+    handleInput();
   };
 
   return (
-    <Box sx={containerStyles(theme)}>
+<Box sx={containerStyles(theme)}>
+      {props.label && (
+        <Box sx={headerTitleContainerStyles(theme)}>
+          <Typography sx={headerLabelStyles(theme)}>{props.label}</Typography>
+        </Box>
+      )}
 
-      {/* 1. Header/Title Area (Single Tab) */}
-      <Box sx={headerTitleContainerStyles(theme)}>
-        <Typography sx={headerLabelStyles(theme)}>
-          {label}
-        </Typography>
-      </Box>
-
-
-        <Box
+<Box
         ref={contentRef}
         contentEditable
-        data-placeholder={placeholder}
+        suppressContentEditableWarning
+        data-placeholder={props.placeholder ?? "Enter text..."}
         onInput={handleInput}
-        sx={{ 
-            ...contentAreaStyles(theme), 
-            fontFamily: fontFamily, 
-            fontSize: fontSize 
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        dangerouslySetInnerHTML={{ __html: value }}
+        sx={{
+          ...contentAreaStyles(theme),
+          minHeight: "120px",
+          outline: "none",
+          "&:empty:before": {
+            content: "attr(data-placeholder)",
+            color: theme.palette.text.disabled,
+            pointerEvents: "none",
+          },
         }}
       />
-{/*
+    </Box>
+/*{
 
       <Box sx={toolbarStyles(theme)}>
         
@@ -147,8 +193,7 @@ const RichTextField: React.FC<RichTextFieldProps> = ({ label, onContentChange, p
           <FormatUnderlined fontSize="small" />
         </IconButton>
         
-      </Box>*/}
-    </Box>
+      </Box>*/
   );
 };
 

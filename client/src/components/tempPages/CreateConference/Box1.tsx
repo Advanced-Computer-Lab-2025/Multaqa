@@ -18,11 +18,6 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
     const { values, handleChange, handleBlur, errors, touched, setFieldValue } = formik;
     const theme = useTheme();
 
-    // Updates the content of the RichTextField ('description')
-    const handleDescriptionChange = (htmlContent: string) => {
-        setFieldValue('description', htmlContent);
-    };
-
     return (
         <Box sx={step1BoxStyles(theme)}>
             <Box sx={modalHeaderStyles}>
@@ -44,23 +39,19 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
                     autoCapitalize='off'
                     autoCapitalizeName={false}
                 />  
-                <CustomTextField
-                    name='websiteLink'
-                    label="Website URL"
-                    fieldType="text"
-                    placeholder="https://example.guc.edu.eg"
-                    value={values.websiteLink}
-                    onChange={handleChange('websiteLink')}
-                    error={touched.websiteLink && Boolean(errors.websiteLink)}
-                    autoCapitalize='off'
-                    autoCapitalizeName={false}
-                    sx={{ marginTop: "8px" }}
-                />
                 <RichTextField
+                    name="description"
                     label="Description" 
                     placeholder="Provide a short description of the conference"
-                    onContentChange={handleDescriptionChange} // 💡 Uses the setFieldValue handler
                 />
+                <Box sx={{ mt: 3 }}>
+                    <RichTextField
+                        name="fullAgenda"
+                        label="Full Agenda" 
+                        placeholder="Provide the full agenda of the workshop"
+                    />
+                    { errors.fullAgenda && touched.fullAgenda ? <p style={{color:"#db3030"}}>{errors.fullAgenda}</p> : <></>}
+                </Box>
                 
             </Box>
         </Box>

@@ -15,11 +15,9 @@ import { validationSchema } from './schemas/conference';
 
 const initialFormData: EventFormData = {
     eventName: '',
-    eventStartDate: '',
+    eventStartDate:null,
     location:'',
-    eventEndDate: '',
-    eventStartTime:'',
-    eventEndTime:'',
+    eventEndDate:null,
     description: '',
     fullAgenda: '',
     websiteLink: '', 
@@ -60,14 +58,17 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
     };
 
     const onSubmit = async (values: any, actions: any) => {
+    onClose();
+    const startDateObj = values.eventStartDate; // dayjs object
+    const endDateObj = values.eventEndDate;
         const payload = {
             type:"conference",
             eventName: values.eventName,
-            eventStartDate: values.eventStartDate,
-            eventEndDate: values.eventEndDate,
+            eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+            eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+            eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+            eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
             location:"GUC",
-            eventStartTime: values.eventStartTime,
-            eventEndTime:values.eventEndTime,
             description: values.description,
             fullAgenda: values.fullAgenda,
             websiteLink: values.websiteLink, 
@@ -78,7 +79,7 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
         }
         const res = await handleCallApi(payload);
         console.log(res.data) ;
-        onClose();
+        
     }
 
     const formik = useFormik<EventFormData>({

@@ -149,8 +149,9 @@ return (
                         <Box sx={{ mt: 3 }}>
                             <RichTextField
                                 label="Description" 
+                                value={values.description}
                                 placeholder="Provide a short description of the trip"
-                                onContentChange={handleDescriptionChange} 
+                                onChange={handleDescriptionChange}
                             />
                             { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
                         </Box>

@@ -11,6 +11,7 @@ import { EventFormData} from '../CreateConference/types';
 import {api} from "../../../api";
 import CustomButton from '../../shared/Buttons/CustomButton';
 import { CustomModalLayout } from '../../shared/modals';
+import dayjs from 'dayjs';
 
 //Define the validation schema 
 const validationSchema = yup.object({
@@ -56,8 +57,6 @@ const Edit: React.FC<EditConferenceProps> = ({
     websiteLink,
     agenda = "",
     extraRequiredResources = [],
-    eventStartTime,
-    eventEndTime,
     }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
@@ -66,11 +65,9 @@ const Edit: React.FC<EditConferenceProps> = ({
 
     const initialFormData: EventFormData = {
         eventName: eventName,
-        eventStartDate: eventStartDate,
-        location: eventStartDate,
-        eventEndDate: eventEndDate,
-        eventStartTime,
-        eventEndTime,
+        eventStartDate: eventStartDate ? dayjs(eventStartDate) : null,
+        eventEndDate: eventEndDate ? dayjs(eventEndDate) : null,
+        location:"GUC Cairo",
         description: description,
         fullAgenda: agenda,
         websiteLink: websiteLink, 
@@ -100,14 +97,16 @@ const Edit: React.FC<EditConferenceProps> = ({
 
     const onSubmit = async (values: any, actions: any) => {
         onClose();
+        const startDateObj = values.eventStartDate; // dayjs object
+        const endDateObj = values.eventEndDate;
         const payload = {
         type:"conference",
         eventName: values.eventName,
-        eventStartDate: values.eventStartDate,
-        eventEndDate: values.eventEndDate,
+        eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+        eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+        eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+        eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
         location:"GUC Cairo",
-        eventStartTime: "06:00",
-        eventEndTime:"07:00",
         description: values.description,
         fullAgenda: values.fullAgenda,
         websiteLink: values.websiteLink, 

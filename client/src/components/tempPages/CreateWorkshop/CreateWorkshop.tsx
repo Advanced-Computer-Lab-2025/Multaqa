@@ -186,16 +186,18 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
                   <Box sx={{ mt: 3 }}>
                     <RichTextField
                         label="Description" 
+                        value={values.description}
                         placeholder="Provide a short description of the trip"
-                        onContentChange={handleDescriptionChange} 
+                        onChange={handleDescriptionChange}
                     />
                     { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
                   </Box>
                   <Box sx={{ mt: 3 }}>
                       <RichTextField
                           label="Full Agenda" 
+                          value={values.agenda}
                           placeholder="Provide the full agenda of the workshop"
-                          onContentChange={(htmlContent: string) => setFieldValue('agenda', htmlContent)}
+                          onChange={(htmlContent: string) => setFieldValue('agenda', htmlContent)}
                       />
                       { errors.agenda && touched.agenda ? <p style={{color:"#db3030"}}>{errors.agenda}</p> : <></>}
                   </Box>
