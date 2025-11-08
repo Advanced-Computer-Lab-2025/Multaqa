@@ -89,8 +89,8 @@ const filterGroups: FilterGroup[] = [
 
 const EventColor = [
    {
-    color: "#4caf50", // Trips
-    icon: FlightTakeoffIcon , //Green.
+    color:"#6e8ae6", // Trips
+    icon: FlightTakeoffIcon , //indigo
   },
   {
     icon:StorefrontIcon, //Booth

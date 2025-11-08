@@ -42,6 +42,33 @@ const TabButton = styled('button')<{ active?: boolean; color?: string }>(({ them
 const ContentContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   flex: 1,
+  position: 'relative',
+  maxHeight: '100%',
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '40px',
+    background: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9))',
+    pointerEvents: 'none',
+    opacity: 0,
+    transition: 'opacity 0.2s ease',
+  },
+  '&::-webkit-scrollbar': {
+    width: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: theme.palette.divider,
+    borderRadius: '3px',
+  },
+  '&.can-scroll::after': {
+    opacity: 1,
+  },
 }));
 
 const EventDetails: React.FC<EventDetailsProps> = ({
@@ -60,6 +87,14 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [commentToDelete, setCommentToDelete] = useState<{ id: string; name: string } | null>(null);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  
+  const checkScroll = React.useCallback(() => {
+    if (contentRef.current) {
+      const { scrollHeight, clientHeight } = contentRef.current;
+      contentRef.current.classList.toggle('can-scroll', scrollHeight > clientHeight);
+    }
+  }, []);
 
   const handleSubmitReview = () => {
     if (onSubmitReview && newRating > 0) {
@@ -182,7 +217,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       </Box>
       :null}
       {/* Reviews List */}
-      <Box sx={{ flex: 1 , maxHeight: '350px', overflowY: 'auto' }}>
+      <Box sx={{ flex: 1 , maxHeight: '450px', overflowY: 'auto' }}>
         {reviews.map((review) => (
           <Box
             key={review.id}
@@ -264,8 +299,18 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     reviews: 'Reviews & Comments'
   };
 
+  React.useEffect(() => {
+    checkScroll();
+    // Add resize observer to check when content size changes
+    const observer = new ResizeObserver(checkScroll);
+    if (contentRef.current) {
+      observer.observe(contentRef.current);
+    }
+    return () => observer.disconnect();
+  }, [activeTab, checkScroll]);
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '420px', maxHeight: '420px' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '500px', maxHeight: '500px' }}>
       {/* Tabs */}
       <TabsContainer>
         {sections.map((section) => (
@@ -281,7 +326,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       </TabsContainer>
 
       {/* Content */}
-      <ContentContainer sx={{ overflow:activeTab==="reviews"?"hidden":"hidden" }}>
+      <ContentContainer ref={contentRef}>
         {renderContent()}
       </ContentContainer>
       {RegisterButton && (activeTab === 'general' || activeTab === 'details') && (
