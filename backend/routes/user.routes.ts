@@ -162,7 +162,7 @@ async function removeFromFavorites(
 // Get all favorites for the authenticated user
 async function getAllFavorites(
   req: AuthenticatedRequest,
-  res: Response<AddToFavoritesResponse>,
+  res: Response<GetFavoritesResponse>,
   next: any
 ) {
   try {
@@ -320,6 +320,19 @@ router.get(
 );
 
 router.get(
+  "/favorites",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  getAllFavorites
+);
+
+router.get(
   "/:id",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
@@ -391,19 +404,6 @@ router.post(
   registerForEvent
 );
 
-router.get(
-  "/favorites",
-  authorizeRoles({
-    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
-    staffPositions: [
-      StaffPosition.PROFESSOR,
-      StaffPosition.TA,
-      StaffPosition.STAFF,
-    ],
-  }),
-  getAllFavorites
-);
-
 router.post(
   "/favorites/:eventId",
   authorizeRoles({
@@ -417,6 +417,15 @@ router.post(
   addToFavorites
 );
 
+router.post(
+  "/:userId/assign-role",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  assignRole
+);
+
 router.delete(
   "/favorites/:eventId",
   authorizeRoles({
@@ -428,15 +437,6 @@ router.delete(
     ],
   }),
   removeFromFavorites
-);
-
-router.post(
-  "/:userId/assign-role",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  assignRole
 );
 
 export default router;
