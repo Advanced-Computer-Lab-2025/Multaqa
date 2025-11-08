@@ -38,7 +38,7 @@ export const submitBoothForm = async (
     };
 
     const response = await api.post(
-      `/vendorEvents/${vendorId}/booth`,
+      `/vendorEvents/booth`,
       boothData
     );
 

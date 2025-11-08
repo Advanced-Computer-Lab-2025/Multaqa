@@ -107,7 +107,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     email: string;
   }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
-
   // Separate effect for initial user data
   useEffect(() => {
     getUserData();
@@ -150,9 +149,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const res = await api.get("/events");
         const data = res.data.data;
         const result = frameData(data);
-        const newResults = user === "vendor"
-        ? result.filter((event) => event.type === "bazaar")
-        : result;
+        const newResults =
+          user === "vendor"
+            ? result.filter((event) => event.type === "bazaar")
+            : result;
         setEvents(newResults);
       }
     } catch (err) {
@@ -176,9 +176,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   };
 
   // Use useCallback to memoize the search handler
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  }, []);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    []
+  );
 
   // Filter and search logic
   const filteredEvents = useMemo(() => {
@@ -235,12 +238,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     return filtered;
   }, [searchQuery, filters, events]);
 
-  const handleFilterChange = useCallback((groupId: string, value: FilterValue) => {
-    setFilters((prev) => ({
-      ...prev,
-      [groupId]: value,
-    }));
-  }, []);
+  const handleFilterChange = useCallback(
+    (groupId: string, value: FilterValue) => {
+      setFilters((prev) => ({
+        ...prev,
+        [groupId]: value,
+      }));
+    },
+    []
+  );
 
   const handleResetFilters = useCallback(() => {
     setFilters({});

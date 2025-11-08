@@ -33,7 +33,7 @@ export const submitBazarForm = async (
       boothSize: values.boothSize,
     };
     const response = await api.post(
-      `/vendorEvents/${vendorId}/${eventId}/bazaar`,
+      `/vendorEvents/${eventId}/bazaar`,
       bazarData
     );
     const result = response.data;

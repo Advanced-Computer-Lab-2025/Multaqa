@@ -15,11 +15,15 @@ import {
   GetAllProfessorsResponse,
   GetAllTAsResponse,
   GetAllStaffResponse,
+  AddToFavoritesResponse,
+  RemoveFromFavoritesResponse,
+  GetFavoritesResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { StaffPosition } from "../constants/staffMember.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const userService = new UserService();
 const eventsService = new EventsService();
@@ -61,10 +65,12 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
 
 // this will come back in sprint 2 guys (Stripe API)
 async function registerForEvent(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<RegisterUserResponse>
 ) {
-  const { eventId, id } = req.params;
+  const { eventId } = req.params;
+  const userId = req.user?.id;
+  if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
 
   const validatedData = validateEventRegistration(req.body);
   if (validatedData.error) {
@@ -74,10 +80,13 @@ async function registerForEvent(
     );
   }
 
-  const updatedEvent = await eventsService.registerUserForEvent(eventId, id);
+  const updatedEvent = await eventsService.registerUserForEvent(
+    eventId,
+    userId
+  );
 
   await userService.addEventToUser(
-    id,
+    userId,
     updatedEvent._id as Schema.Types.ObjectId
   );
 
@@ -86,6 +95,93 @@ async function registerForEvent(
     message: "User registered for event successfully",
     data: updatedEvent,
   });
+}
+
+// Add event to user's favorites
+async function addToFavorites(
+  req: AuthenticatedRequest,
+  res: Response<AddToFavoritesResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+
+    // get user id from authenticated token
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    const updatedUser = await userService.addToFavorites(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Event added to favorites",
+      data: updatedUser,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+// Remove event from user's favorites
+async function removeFromFavorites(
+  req: AuthenticatedRequest,
+  res: Response<RemoveFromFavoritesResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+
+    // get user id from authenticated token
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    const updatedUser = await userService.removeFromFavorites(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Event removed from favorites",
+      data: updatedUser,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+// Get all favorites for the authenticated user
+async function getAllFavorites(
+  req: AuthenticatedRequest,
+  res: Response<GetFavoritesResponse>,
+  next: any
+) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    const userWithFavorites = await userService.getFavorites(userId);
+    const favorites = (userWithFavorites as any).favorites || [];
+
+    res.json({
+      success: true,
+      message: "Favorites retrieved successfully",
+      data: favorites,
+    });
+  } catch (err: any) {
+    next(err);
+  }
 }
 
 async function blockUser(req: Request, res: Response<BlockUserResponse>) {
@@ -211,6 +307,29 @@ async function getAllProfessors(
 }
 
 const router = Router();
+
+router.get(
+  "/",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getAllUsers
+);
+
+router.get(
+  "/favorites",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  getAllFavorites
+);
+
 router.get(
   "/unassigned-staff",
   authorizeRoles({
@@ -244,13 +363,60 @@ router.get(
   }),
   getAllStaff
 );
-router.get(
-  "/",
+router.post(
+  "/register/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  registerForEvent
+);
+
+router.post(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  addToFavorites
+);
+
+router.post(
+  "/:userId/assign-role",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
-  getAllUsers
+  assignRole
+);
+
+router.delete(
+  "/favorites/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  removeFromFavorites
+);
+router.get(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  getUserById
 );
 router.post(
   "/:id/block",
@@ -268,33 +434,4 @@ router.post(
   }),
   unBlockUser
 );
-router.post(
-  "/:id/register/:eventId",
-  authorizeRoles({
-    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
-    staffPositions: [
-      StaffPosition.PROFESSOR,
-      StaffPosition.TA,
-      StaffPosition.STAFF,
-    ],
-  }),
-  registerForEvent
-);
-router.post(
-  "/:userId/assign-role",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  assignRole
-);
-router.get(
-  "/:id",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  getUserById
-);
-
 export default router;

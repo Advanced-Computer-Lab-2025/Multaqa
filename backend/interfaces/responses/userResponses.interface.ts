@@ -4,13 +4,13 @@ import { IUser } from "../models/user.interface";
 
 export interface GetAllUsersResponse {
   success: boolean;
-  data: Omit<IUser, 'password'>[];
+  data: Omit<IUser, "password">[];
   message?: string;
 }
 
 export interface GetUserByIdResponse {
   success: boolean;
-  data: Omit<IUser, 'password'>;
+  data: Omit<IUser, "password">;
   message?: string;
 }
 
@@ -55,6 +55,24 @@ export interface GetAllProfessorsResponse {
 }
 
 export interface GetAllStaffResponse {
+  success: boolean;
+  data: Omit<IStaffMember, "password">[];
+  message: string;
+}
+
+export interface AddToFavoritesResponse {
+  success: boolean;
+  data?: Omit<IStaffMember, "password"> | any;
+  message: string;
+}
+
+export interface RemoveFromFavoritesResponse {
+  success: boolean;
+  data?: Omit<IStaffMember, "password"> | any;
+  message: string;
+}
+
+export interface GetFavoritesResponse {
   success: boolean;
   data: Omit<IStaffMember, "password">[];
   message: string;
