@@ -162,7 +162,7 @@ async function removeFromFavorites(
 // Get all favorites for the authenticated user
 async function getAllFavorites(
   req: AuthenticatedRequest,
-  res: Response<GetFavoritesResponse>,
+  res: Response<AddToFavoritesResponse>,
   next: any
 ) {
   try {
