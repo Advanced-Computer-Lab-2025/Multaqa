@@ -32,7 +32,7 @@ interface CreateCheckoutSessionBody {
 }
 
 async function createCheckoutSessionForEvent(
-  expectedType: EVENT_TYPES,
+  expectedTypes: EVENT_TYPES[],
   req: AuthenticatedRequest,
   res: Response<CreateCheckoutSessionResponse>,
   next: NextFunction
@@ -58,8 +58,12 @@ async function createCheckoutSessionForEvent(
       throw createError(404, "Event not found");
     }
 
-    if (event.type !== expectedType) {
-      throw createError(400, `Event is not a ${expectedType}`);
+    const eventType = event.type as EVENT_TYPES;
+    if (!expectedTypes.includes(eventType)) {
+      throw createError(
+        400,
+        `Event is not one of: ${expectedTypes.join(", ")}`
+      );
     }
 
     const price = typeof event.price === "number" ? event.price : undefined;
@@ -84,7 +88,7 @@ async function createCheckoutSessionForEvent(
 
     const sanitizedMetadata: Record<string, string> = {
       eventId,
-      eventType: expectedType,
+      eventType: eventType,
     };
 
     if (req.user?.id) {
@@ -154,7 +158,13 @@ router.post(
     req: AuthenticatedRequest,
     res: Response<CreateCheckoutSessionResponse>,
     next: NextFunction
-  ) => createCheckoutSessionForEvent(EVENT_TYPES.TRIP, req, res, next)
+  ) =>
+    createCheckoutSessionForEvent(
+      [EVENT_TYPES.TRIP, EVENT_TYPES.WORKSHOP],
+      req,
+      res,
+      next
+    )
 );
 
 export default router;
