@@ -126,16 +126,16 @@ export const checkSectionErrors = (
   hasLocationError: boolean;
 } => {
   return {
-    hasAttendeesError:
-      !!(formik.errors.boothAttendees && formik.touched.boothAttendees),
-    hasConfigError:
-      !!(
-        (formik.errors.boothSize && formik.touched.boothSize) ||
-        (formik.errors.boothSetupDuration &&
-          formik.touched.boothSetupDuration)
-      ),
-    hasLocationError:
-      !!(formik.errors.boothLocation && formik.touched.boothLocation),
+    hasAttendeesError: !!(
+      formik.errors.boothAttendees && formik.touched.boothAttendees
+    ),
+    hasConfigError: !!(
+      (formik.errors.boothSize && formik.touched.boothSize) ||
+      (formik.errors.boothSetupDuration && formik.touched.boothSetupDuration)
+    ),
+    hasLocationError: !!(
+      formik.errors.boothLocation && formik.touched.boothLocation
+    ),
   };
 };
 
@@ -242,21 +242,24 @@ export const checkAndExpandAccordionWithErrors = (
   if (currentErrorState !== lastErrorStateRef.current) {
     lastErrorStateRef.current = currentErrorState;
 
-    // Expand all accordions with errors
-    setExpandedAccordions((prev) => {
-      const newSet = new Set(prev);
+    // Defer state update to avoid updating during render
+    setTimeout(() => {
+      // Expand all accordions with errors
+      setExpandedAccordions((prev) => {
+        const newSet = new Set(prev);
 
-      if (hasAttendeesError) {
-        newSet.add("attendees");
-      }
-      if (hasConfigError) {
-        newSet.add("configuration");
-      }
-      if (hasLocationError) {
-        newSet.add("location");
-      }
+        if (hasAttendeesError) {
+          newSet.add("attendees");
+        }
+        if (hasConfigError) {
+          newSet.add("configuration");
+        }
+        if (hasLocationError) {
+          newSet.add("location");
+        }
 
-      return newSet;
-    });
+        return newSet;
+      });
+    }, 0);
   }
 };

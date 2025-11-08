@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Formik, FormikProps } from "formik";
+import { Formik } from "formik";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import PlatformMap from "../PlatformMap/PlatformMap";
@@ -764,16 +764,6 @@ const BoothForm: React.FC = () => {
                             />
                           )}
                         </Box>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: "block",
-                            mt: 2,
-                            color: theme.palette.text.secondary,
-                          }}
-                        >
-                          By submitting, you agree to our terms and conditions
-                        </Typography>
                       </Box>
                     </Paper>
                   </Box>
