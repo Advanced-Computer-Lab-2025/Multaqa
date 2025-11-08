@@ -32,6 +32,7 @@ import {
   checkAndExpandAccordionWithErrors,
   handleBoothSelection,
   handleAccordionChange,
+  checkSectionErrors,
 } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { ToastContainer } from "react-toastify";
@@ -117,6 +118,10 @@ const BoothForm: React.FC = () => {
               setExpandedAccordions
             );
 
+            // Get error states for accordion indicators
+            const { hasAttendeesError, hasConfigError, hasLocationError } =
+              checkSectionErrors(formik);
+
             return (
               <form onSubmit={formik.handleSubmit}>
                 <Box
@@ -187,6 +192,16 @@ const BoothForm: React.FC = () => {
                                   color="primary"
                                   variant="outlined"
                                 />
+                                {hasAttendeesError &&
+                                  !expandedAccordions.has("attendees") && (
+                                    <Chip
+                                      icon={<ErrorOutlineIcon />}
+                                      label="Missing Fields"
+                                      size="small"
+                                      color="error"
+                                      variant="outlined"
+                                    />
+                                  )}
                               </Box>
                             </Box>
                           </Box>
@@ -538,7 +553,13 @@ const BoothForm: React.FC = () => {
                         )}
                       >
                         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              width: "100%",
+                            }}
+                          >
                             <AspectRatioIcon
                               sx={{
                                 color: theme.palette.primary.main,
@@ -546,21 +567,40 @@ const BoothForm: React.FC = () => {
                                 fontSize: 28,
                               }}
                             />
-                            <Box>
+                            <Box sx={{ flex: 1 }}>
                               <Typography variant="h6" fontWeight="600">
                                 Booth Configuration
                               </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  mt: 0.5,
+                                }}
                               >
-                                Size:{" "}
-                                {formik.values.boothSize || "Not selected"} |
-                                Duration:{" "}
-                                {formik.values.boothSetupDuration
-                                  ? `${formik.values.boothSetupDuration} week(s)`
-                                  : "Not selected"}
-                              </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Size:{" "}
+                                  {formik.values.boothSize || "Not selected"} |
+                                  Duration:{" "}
+                                  {formik.values.boothSetupDuration
+                                    ? `${formik.values.boothSetupDuration} week(s)`
+                                    : "Not selected"}
+                                </Typography>
+                                {hasConfigError &&
+                                  !expandedAccordions.has("configuration") && (
+                                    <Chip
+                                      icon={<ErrorOutlineIcon />}
+                                      label="Missing Fields"
+                                      size="small"
+                                      color="error"
+                                      variant="outlined"
+                                    />
+                                  )}
+                              </Box>
                             </Box>
                           </Box>
                         </StyledAccordionSummary>
@@ -793,7 +833,13 @@ const BoothForm: React.FC = () => {
                         )}
                       >
                         <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              width: "100%",
+                            }}
+                          >
                             <LocationOnIcon
                               sx={{
                                 color: theme.palette.primary.main,
@@ -801,18 +847,37 @@ const BoothForm: React.FC = () => {
                                 fontSize: 28,
                               }}
                             />
-                            <Box>
+                            <Box sx={{ flex: 1 }}>
                               <Typography variant="h6" fontWeight="600">
                                 Select Booth Location
                               </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  mt: 0.5,
+                                }}
                               >
-                                {selectedBooth
-                                  ? `Booth ${selectedBooth} selected`
-                                  : "Choose your preferred spot"}
-                              </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  {selectedBooth
+                                    ? `Booth ${selectedBooth} selected`
+                                    : "Choose your preferred spot"}
+                                </Typography>
+                                {hasLocationError &&
+                                  !expandedAccordions.has("location") && (
+                                    <Chip
+                                      icon={<ErrorOutlineIcon />}
+                                      label="Missing Fields"
+                                      size="small"
+                                      color="error"
+                                      variant="outlined"
+                                    />
+                                  )}
+                              </Box>
                             </Box>
                           </Box>
                         </StyledAccordionSummary>

@@ -125,14 +125,17 @@ export const checkSectionErrors = (
   hasConfigError: boolean;
   hasLocationError: boolean;
 } => {
+  // For configuration, show error if any field is touched and section is incomplete
+  const configTouched =
+    formik.touched.boothSize || formik.touched.boothSetupDuration;
+  const configHasError =
+    formik.errors.boothSize || formik.errors.boothSetupDuration;
+
   return {
     hasAttendeesError: !!(
       formik.errors.boothAttendees && formik.touched.boothAttendees
     ),
-    hasConfigError: !!(
-      (formik.errors.boothSize && formik.touched.boothSize) ||
-      (formik.errors.boothSetupDuration && formik.touched.boothSetupDuration)
-    ),
+    hasConfigError: !!(configTouched && configHasError),
     hasLocationError: !!(
       formik.errors.boothLocation && formik.touched.boothLocation
     ),
@@ -220,8 +223,8 @@ export const handleAccordionChange =
       }
       return newSet;
     });
-    // Reset the error state tracking when user manually changes accordion
-    lastErrorStateRef.current = "";
+    // Mark that user has manually interacted - disable auto-expansion
+    lastErrorStateRef.current = "USER_CONTROLLED";
   };
 
 export const checkAndExpandAccordionWithErrors = (
@@ -238,13 +241,17 @@ export const checkAndExpandAccordionWithErrors = (
   // Create a unique key for current error state
   const currentErrorState = `${hasAttendeesError}-${hasConfigError}-${hasLocationError}`;
 
-  // Only update if error state has changed
-  if (currentErrorState !== lastErrorStateRef.current) {
+  // Only auto-expand on initial errors (when lastErrorStateRef is not set yet)
+  // Once user manually interacts with accordions, respect their choices
+  if (
+    lastErrorStateRef.current === "INIT" &&
+    currentErrorState !== "false-false-false"
+  ) {
     lastErrorStateRef.current = currentErrorState;
 
     // Defer state update to avoid updating during render
     setTimeout(() => {
-      // Expand all accordions with errors
+      // Expand all accordions with errors on initial load only
       setExpandedAccordions((prev) => {
         const newSet = new Set(prev);
 
@@ -261,5 +268,8 @@ export const checkAndExpandAccordionWithErrors = (
         return newSet;
       });
     }, 0);
+  } else if (lastErrorStateRef.current === "") {
+    // Initialize as "INIT" to mark that we haven't auto-expanded yet
+    lastErrorStateRef.current = "INIT";
   }
 };
