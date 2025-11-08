@@ -1,5 +1,4 @@
 import { IUser } from "../interfaces/models/user.interface";
-import mongoose from "mongoose";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
@@ -11,7 +10,11 @@ import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
-import { sendBlockUnblockEmail, sendStaffRoleAssignmentEmail, sendVerificationEmail } from "./emailService";
+import {
+  sendBlockUnblockEmail,
+  sendStaffRoleAssignmentEmail,
+  sendVerificationEmail,
+} from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -248,10 +251,16 @@ export class UserService {
     await user.save();
 
     // Generate verification token
-    const verificationToken = this.verificationService.generateVerificationToken(user);
+    const verificationToken =
+      this.verificationService.generateVerificationToken(user);
     // Send verification email
     const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
-    await sendStaffRoleAssignmentEmail(user.email, user.firstName, position, link);
+    await sendStaffRoleAssignmentEmail(
+      user.email,
+      user.firstName,
+      position,
+      link
+    );
     console.log("Verification email sent to:", user.email);
 
     // Remove password from response
