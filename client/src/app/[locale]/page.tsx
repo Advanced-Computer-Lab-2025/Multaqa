@@ -12,9 +12,8 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import type { Theme } from "@mui/material/styles";
+import type { Theme, SxProps } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import CloseIcon from "@mui/icons-material/Close";
 import LanguageIcon from "@mui/icons-material/Language";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -110,27 +109,32 @@ const socialLinks = [
 const MenuToggleButton = ({
   open,
   onClick,
+  sx,
 }: {
   open: boolean;
   onClick: () => void;
+  sx?: SxProps<Theme>;
 }) => (
   <IconButton
     onClick={onClick}
     aria-label={open ? "Close menu" : "Open menu"}
-    sx={(theme) => ({
-      borderRadius: 12,
-      backgroundColor: alpha(theme.palette.common.white, 0.65),
-      boxShadow: `0 8px 20px ${alpha(theme.palette.common.black, 0.12)}`,
-      width: 44,
-      height: 44,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      transition: "background-color 0.2s ease, box-shadow 0.2s ease",
-      "&:hover": {
-        backgroundColor: alpha(theme.palette.common.white, 0.82),
-      },
-    })}
+    sx={[
+      (theme) => ({
+        borderRadius: 12,
+        backgroundColor: alpha(theme.palette.common.white, 0.65),
+        boxShadow: `0 8px 20px ${alpha(theme.palette.common.black, 0.12)}`,
+        width: 44,
+        height: 44,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "background-color 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          backgroundColor: alpha(theme.palette.common.white, 0.82),
+        },
+      }),
+      ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+    ]}
   >
     <Box
       sx={{
@@ -175,6 +179,7 @@ export default function HomePage() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
+  const [isPageExiting, setIsPageExiting] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -544,27 +549,32 @@ export default function HomePage() {
           }}
           onClick={(event) => event.stopPropagation()}
         >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
+          <Box
+            sx={{
+              position: "relative",
+              minHeight: 48,
+              display: "flex",
+              alignItems: "center",
+            }}
           >
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               Explore Multaqa
             </Typography>
-            <IconButton
+            <MenuToggleButton
+              open
               onClick={() => setIsMenuOpen(false)}
-              aria-label="Close menu"
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 12,
-                backgroundColor: alpha(theme.palette.common.black, 0.06),
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
+              sx={(theme) => ({
+                position: "absolute",
+                top: { xs: -4, md: -8 },
+                right: 0,
+                backgroundColor: alpha(theme.palette.common.white, 0.9),
+                boxShadow: `0 8px 20px ${alpha(
+                  theme.palette.common.black,
+                  0.1
+                )}`,
+              })}
+            />
+          </Box>
 
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -1130,6 +1140,8 @@ export default function HomePage() {
               position: "relative",
               minHeight: { xs: 360, sm: 420 },
               width: "100%",
+              opacity: isPageExiting ? 0 : 1,
+              transition: "opacity 0.5s ease-out",
             }}
           >
             <Box
@@ -1154,6 +1166,16 @@ export default function HomePage() {
                 gridTemplateColumns: "repeat(6, 1fr)",
                 gridTemplateRows: "repeat(6, 1fr)",
                 gap: 14,
+                animation: isPageExiting
+                  ? "exitToLoading 0.8s ease-in-out forwards"
+                  : "none",
+                "@keyframes exitToLoading": {
+                  "0%": { transform: "translateX(0) scale(1)", opacity: 1 },
+                  "100%": {
+                    transform: "translateX(-50%) scale(0.6)",
+                    opacity: 0,
+                  },
+                },
               }}
             >
               <Box
