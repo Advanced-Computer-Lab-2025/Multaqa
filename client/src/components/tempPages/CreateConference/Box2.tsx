@@ -35,7 +35,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
             </Box>
            <Box sx={modalFormStyles}>  
                 {/* 1. Start and End Dates/Times */}
-                <Box sx={{display:"flex", gap:1, mt:0}}>
+                <Box sx={{display:"flex", gap:1, marginTop: "8px" }}>
                     {/* Start Date/Time */}
                     <CustomDatePicker
                         label="Event Start Date"
@@ -123,7 +123,6 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     options={[
                         { label: 'GUC Internal Funds', value: 'GUC' },
                         { label: 'External Sponsor', value: 'external' },
-                        { label: 'Hybrid', value: 'Hybrid' },
                     ]}
                     onChange={handleSelectChange} 
                     onRadioChange={handleSelectChange}

@@ -110,7 +110,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                 <Box sx={step1BoxStyles(theme)}>
                     <Box sx={modalHeaderStyles}>
                         <Typography sx={detailTitleStyles(theme)}>
-                            Create New Trip
+                            General Information
                         </Typography>      
                     </Box>
                     <Box sx={modalFormStyles}>
@@ -125,6 +125,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             fullWidth
                             autoCapitalize='off'
                             autoCapitalizeName={false}
+                            sx={{marginTop: "6px"}}
                         />   
                         {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
 
@@ -156,6 +157,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         autoCapitalize='off'
                         autoCapitalizeName={false}
                         fullWidth
+                        sx={{marginTop: "6px"}}
                     />
                     {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
                     <TextField
@@ -172,7 +174,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                                 )
                             }
                         }}
-                        sx={{marginTop: "6px"}}
+                        sx={{marginTop: "8px"}}
                         value={values.price}
                         onChange={handleChange}
                     />
@@ -186,9 +188,10 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         placeholder="Enter Capacity"
                         value={values.capacity}
                         onChange={handleChange}
+                        sx={{marginTop: "8px"}}
                     />
                     {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                <Box sx={{display:"flex", gap:1, mt:0}}>
+                <Box sx={{display:"flex", gap:1,marginTop: "8px"}}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                                 name='startDate'
@@ -247,6 +250,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                                 }}
                                  value={values.registrationDeadline}
                                 onChange={(value) => setFieldValue('registrationDeadline', value)}
+                                sx={{marginTop: "8px"}}
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>

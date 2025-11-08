@@ -132,7 +132,7 @@ const Edit: React.FC<EditConferenceProps> = ({
     ...wrapperContainerStyles,    
 }}>
             <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
-                Edit Conference
+               Edit Conference 
             </Typography>        
         <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>

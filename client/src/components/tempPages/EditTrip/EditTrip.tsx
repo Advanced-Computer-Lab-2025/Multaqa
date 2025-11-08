@@ -127,7 +127,7 @@ return (
                 <Box sx={step1BoxStyles(theme)}>
                     <Box sx={modalHeaderStyles}>
                         <Typography sx={detailTitleStyles(theme)}>
-                            Edit Trip
+                            General Information
                         </Typography>      
                     </Box>
                     <Box sx={modalFormStyles}>
@@ -142,6 +142,7 @@ return (
                             fullWidth
                             autoCapitalize='off'
                             autoCapitalizeName={false}
+                            sx={{marginTop: "6px"}}
                         />   
                         {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
 
@@ -173,6 +174,7 @@ return (
                         autoCapitalize='off'
                         autoCapitalizeName={false}
                         fullWidth
+                        sx={{marginTop: "6px"}}
                     />
                     {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
                     <TextField
@@ -189,7 +191,7 @@ return (
                                 )
                             }
                         }}
-                        sx={{marginTop: "6px"}}
+                        sx={{marginTop: "8px"}}
                         value={values.price}
                         onChange={handleChange}
                     />
@@ -203,9 +205,10 @@ return (
                         placeholder="Enter Capacity"
                         value={values.capacity}
                         onChange={handleChange}
+                        sx={{marginTop: "8px"}}
                     />
                     {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                <Box sx={{display:"flex", gap:1, mt:0}}>
+                <Box sx={{display:"flex", gap:1,marginTop: "8px"}}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                                 name='startDate'
@@ -264,6 +267,7 @@ return (
                                 }}
                                  value={values.registrationDeadline}
                                 onChange={(value) => setFieldValue('registrationDeadline', value)}
+                                sx={{marginTop: "8px"}}
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>

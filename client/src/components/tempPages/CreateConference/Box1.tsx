@@ -6,7 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useTheme } from '@mui/material/styles';
 import { useFormikContext } from 'formik'; 
 import RichTextField from '../../shared/TextField/TextField'; 
-import CustomTextField from '@/components/shared/input-fields/CustomTextField'; 
+import { CustomTextField } from '@/components/shared/input-fields';
 import { step1BoxStyles, modalFormStyles,modalHeaderStyles,detailTitleStyles } from '../../shared/styles';
 import { EventFormData } from './types'; 
 import { Step1Props } from './types';
@@ -27,7 +27,7 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
         <Box sx={step1BoxStyles(theme)}>
             <Box sx={modalHeaderStyles}>
                 <Typography sx={detailTitleStyles(theme)}>
-                    Create New Conference
+                    General Information
                 </Typography>      
             </Box>
             <Box sx={modalFormStyles}>
@@ -51,11 +51,10 @@ const EventCreationStep1Modal: React.FC<Step1Props> = ({
                     placeholder="https://example.guc.edu.eg"
                     value={values.websiteLink}
                     onChange={handleChange('websiteLink')}
-                    onBlur={handleBlur('websiteLink')}
                     error={touched.websiteLink && Boolean(errors.websiteLink)}
-                    sx={{ mb: 1 }} 
                     autoCapitalize='off'
                     autoCapitalizeName={false}
+                    sx={{ marginTop: "8px" }}
                 />
                 <RichTextField
                     label="Description" 

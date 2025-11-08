@@ -2,7 +2,7 @@
 import { SxProps, Theme } from '@mui/material/styles';
 const STEP1_WIDTH = '370px'; 
 const STEP2_WIDTH = '530px';
-const STEP2_HEIGHT = '500px';
+const STEP2_HEIGHT = '550px';
 const minHeight = '370px';
 const GAP_WIDTH = 24;    
 const TOTAL_WIDTH = `${parseInt(STEP1_WIDTH) + parseInt(STEP2_WIDTH) + GAP_WIDTH}px`; 
@@ -31,6 +31,8 @@ export const horizontalLayoutStyles = (theme: Theme): SxProps<Theme> => ({
 // Style for the fixed width of Box 1 (Smaller)
 export const step1BoxStyles = (theme: Theme): SxProps<Theme> => ({
     width: STEP1_WIDTH, 
+    maxHeight: STEP2_HEIGHT,
+    minHeight: minHeight,
     justifyContent: 'flex-start',
     flexShrink: 0,
     flexDirection: 'column',
@@ -72,8 +74,8 @@ export const detailTitleStyles = (theme: Theme): SxProps<Theme> => ({
 
 // Styles for the main form content area
 export const modalFormStyles: SxProps<Theme> = {
-    padding: '20px 16px 0px 16px',
-    marginTop: 0,
+    padding: '0px 12px 0px 12px',
+    marginTop:0,
     flexGrow: 1,
     minHeight:'0px',
     overflowY: 'auto',

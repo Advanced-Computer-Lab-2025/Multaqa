@@ -120,7 +120,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                     <Box sx={step1BoxStyles(theme)}>
                         <Box sx={modalHeaderStyles}>
                             <Typography sx={detailTitleStyles(theme)}>
-                                Edit Bazaar
+                                General Information
                             </Typography>      
                         </Box>
                         <Box sx={modalFormStyles}>
@@ -157,8 +157,6 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                     </Typography>      
                 </Box>
                 <Box sx={modalFormStyles}>
-            <Grid container spacing={2}>
-                <Grid size={6}>
                     <CustomTextField
                     name='location'
                     id='location' 
@@ -173,54 +171,48 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                     autoCapitalizeName={false}
                     />
                     { errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}          
-            </Grid>
-            </Grid>
-            <Grid container spacing={2}>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                                name='startDate'
-                                label="Start Date and Time"
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,                              
-                                    },
-                                    popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'right',
-                                        sx: { zIndex: 1500 },
-                                    }
-                                }}
-                                value={values.startDate}
-                                onChange={(value) => setFieldValue('startDate', value)}
-                            />
-                            {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
-                    </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker 
-                                label="End Date and Time"
-                                name='endDate'
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,
-                                    },
-                                    popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'left',
-                                        sx: { zIndex: 1500 },
-                                    }
-                                }}
-                                value={values.endDate}
-                                onChange={(value) => setFieldValue('endDate', value)}
-                            />
-                            {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
-                    </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
+                   <Box sx={{display:"flex", gap:1,marginTop: "8px"}}>
+                       <LocalizationProvider dateAdapter={AdapterDayjs}>
+                               <DateTimePicker
+                                   name='startDate'
+                                   label="Start Date and Time"
+                                   slotProps={{
+                                       textField: {
+                                           variant: "standard", // <-- this makes it look like standard TextField
+                                           fullWidth: true,                              
+                                       },
+                                       popper: {
+                                           disablePortal: true, // <-- Add this line
+                                           placement: 'right',
+                                           sx: { zIndex: 1500 },
+                                       }
+                                   }}
+                                   value={values.startDate}
+                                   onChange={(value) => setFieldValue('startDate', value)}
+                               />
+                               {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
+                       </LocalizationProvider>
+                       <LocalizationProvider dateAdapter={AdapterDayjs}>
+                           <DateTimePicker 
+                                   label="End Date and Time"
+                                   name='endDate'
+                                   slotProps={{
+                                       textField: {
+                                           variant: "standard", // <-- this makes it look like standard TextField
+                                           fullWidth: true,
+                                       },
+                                       popper: {
+                                           disablePortal: true, // <-- Add this line
+                                           placement: 'left',
+                                           sx: { zIndex: 1500 },
+                                       }
+                                   }}
+                                    value={values.endDate}
+                                   onChange={(value) => setFieldValue('endDate', value)}
+                               />
+                               {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
+                       </LocalizationProvider>
+                   </Box>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                                 name='registrationDeadline'
@@ -238,11 +230,10 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                                 }}
                                 value={values.registrationDeadline}
                                 onChange={(value) => setFieldValue('registrationDeadline', value)}
+                                sx={{marginTop: "10px"}}
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-            </Grid>
             </Box>
             </Box>
             </Box>
@@ -257,3 +248,9 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
 }
 
 export default EditBazaar
+
+
+
+
+
+
