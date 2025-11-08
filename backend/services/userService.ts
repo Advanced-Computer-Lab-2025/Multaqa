@@ -94,15 +94,18 @@ export class UserService {
     const finalFavorites: any[] =
       user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
 
-    // Add only if not already present
+    // Check if event already exists in favorites
     const exists = finalFavorites.some(
       (fav: any) => fav.toString() === objectId.toString()
     );
-    if (!exists) {
-      finalFavorites.push(objectId as any);
-      user.favorites = finalFavorites as any;
-      await user.save();
+    if (exists) {
+      throw createError(400, "This event is already in your favorites list");
     }
+
+    // Add to favorites
+    finalFavorites.push(objectId as any);
+    user.favorites = finalFavorites as any;
+    await user.save();
 
     return user;
   }
