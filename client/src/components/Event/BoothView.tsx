@@ -397,7 +397,11 @@ const BoothView: React.FC<BoothViewProps> = ({
                           Apply
                         </CustomButton>
                       )
-                    } />
+                    }
+                      sections={user=="vendor"?['general', 'details']:['general','details',
+                      'reviews']}
+                    user={user?user:""}
+                    />
                   </CustomModalLayout>
     </>
   );

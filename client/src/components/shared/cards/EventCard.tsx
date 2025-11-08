@@ -159,7 +159,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 fontWeight: 600,
                 fontSize: '0.7rem',
                 height: 20,
-                border: `1px solid ${color}40`,
+                border: `1px solid ${color}`,
                 '&:hover': {
                   backgroundColor: `${color}15`,
                 },

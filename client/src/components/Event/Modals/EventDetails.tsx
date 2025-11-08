@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Typography, Avatar, TextField, Chip } from '@mui/material';
+import { Box, Typography, Avatar, TextField, Chip, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import Rating from '../../shared/mui-core/Rating';
 import { EventDetailsProps, mockReviews, EventSection } from './types';
 import EventTypeDetails from './EventTypeDetails';
+import { Trash2 } from 'lucide-react';
+import { CustomModal } from '../../shared/modals';
+import theme from '@/themes/lightTheme';
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -50,11 +53,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   reviews = mockReviews,
   button:RegisterButton,
   onSubmitReview,
-  sections = ['general', 'details', 'reviews']
+  sections = ['general', 'details', 'reviews'],
+  user
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
+  const [commentToDelete, setCommentToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const handleSubmitReview = () => {
     if (onSubmitReview && newRating > 0) {
@@ -80,7 +85,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                 fontSize: '0.9rem',
                 height: "30px",
                 minWidth:"70px",
-                border: `1px solid ${color}40`,
+                border: `1px solid ${color}`,
                 '&:hover': {
                   backgroundColor: `${color}15`,
                 },
@@ -129,6 +134,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   );  const renderReviews = () => (
     <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
        {/* New Review Form */}
+       {(user=="student"||user=="professor"||user=="staff"||user=="ta")?
       <Box sx={{ flex: 1 , display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'center', flexDirection: 'column' }}>
          <Typography variant="h5" sx={{ color: 'text.primary', display: 'block' , fontWeight:600}}>
              Add Your Review
@@ -147,7 +153,17 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           placeholder="Share your thoughts..."
           value={newComment}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
-          sx={{ mb: 2 }}
+          sx={{ 
+            mb: 2,
+            '& .MuiOutlinedInput-root': {
+              '&.Mui-focused fieldset': {
+                borderColor: color,
+              },
+              '&:hover fieldset': {
+                borderColor: `${color}90`,
+              },
+            },
+          }}
         />
         <CustomButton
           onClick={handleSubmitReview}
@@ -164,6 +180,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           Submit Review
         </CustomButton>
       </Box>
+      :null}
       {/* Reviews List */}
       <Box sx={{ flex: 1 , maxHeight: '350px', overflowY: 'auto' }}>
         {reviews.map((review) => (
@@ -181,7 +198,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
               <Avatar sx={{ bgcolor: color }}>
                 {review.firstName[0]}{review.lastName[0]}
               </Avatar>
-              <Box>
+              <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2">
                   {review.firstName} {review.lastName}
                 </Typography>
@@ -194,6 +211,30 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   {new Date(review.createdAt).toLocaleDateString()}
                 </Typography>
               </Box>
+              {user === "admin" && (
+                <Tooltip title="Delete Comment">
+                  <IconButton
+                    size="small"
+                    onClick={() => setCommentToDelete({ 
+                      id: review.id, 
+                      name: `${review.firstName} ${review.lastName}` 
+                    })}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        borderColor: "error.main",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
             <Typography variant="body2" sx={{ ml: 7, color: 'text.primary' }}>
               {review.comment}
@@ -224,7 +265,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '420px', maxHeight: '420px', overflow:activeTab==="reviews"?"hidden":"hidden" }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '420px', maxHeight: '420px' }}>
       {/* Tabs */}
       <TabsContainer>
         {sections.map((section) => (
@@ -240,7 +281,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       </TabsContainer>
 
       {/* Content */}
-      <ContentContainer sx={{ overflowY: 'auto' }}>
+      <ContentContainer sx={{ overflow:activeTab==="reviews"?"hidden":"hidden" }}>
         {renderContent()}
       </ContentContainer>
       {RegisterButton && (activeTab === 'general' || activeTab === 'details') && (
@@ -257,6 +298,57 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           {RegisterButton}
         </Box>
       )}
+
+      {/* Delete Comment Modal */}
+      <CustomModal
+        open={!!commentToDelete}
+        onClose={() => setCommentToDelete(null)}
+        title="Delete Comment"
+        modalType="delete"
+        borderColor={theme.palette.error.main}
+        buttonOption1={{
+          label: "Delete",
+          variant: "contained",
+          color: "error",
+          onClick: () => {
+            // TODO: Add delete functionality here
+            console.log('Deleting comment:', commentToDelete?.id);
+            setCommentToDelete(null);
+          },
+        }}
+        buttonOption2={{
+          label: "Cancel",
+          variant: "outlined",
+          color: "error",
+          onClick: () => setCommentToDelete(null),
+        }}
+      >
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Typography
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              color: "text.primary",
+              mb: 2,
+              fontSize: "1.1rem",
+              fontWeight: 600,
+            }}
+          >
+            {commentToDelete?.name}{"'s Comment"}
+          </Typography>
+
+          <Typography
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              color: theme.palette.error.main,
+              fontSize: "0.9rem",
+              fontWeight: 500,
+            }}
+          >
+            Are you sure you want to delete this comment? This action cannot be
+            undone.
+          </Typography>
+        </Box>
+      </CustomModal>
     </Box>
   );
 };

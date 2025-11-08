@@ -398,6 +398,9 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                       eventType="Conference"
                       details={details}
                       color={background}
+                      sections={user=="vendor"?['general', 'details']:['general','details',
+                        'reviews']}
+                      user={user?user:""}
                     />
                   </CustomModalLayout>
     </>

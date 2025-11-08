@@ -341,6 +341,9 @@ const TripView: React.FC<BazarViewProps> = ({
             </CustomButton>
           )
         }
+        sections={user=="vendor"?['general', 'details']:['general','details',
+          'reviews']}
+        user={user?user:""}
         />
       </CustomModalLayout>
     </>

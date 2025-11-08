@@ -20,6 +20,7 @@ export interface EventDetailsProps {
   button?:React.ReactNode;
   onSubmitReview?: (rating: number, comment: string) => void;
   sections?: EventSection[];
+  user:string;
 }
 
 // Mock data for reviews
