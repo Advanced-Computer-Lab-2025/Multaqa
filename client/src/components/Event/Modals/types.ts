@@ -17,7 +17,7 @@ export interface EventDetailsProps {
   description: string;
   details: Record<string, any>;
   reviews?: Review[];
-  onRegister?: () => void;
+  button?:React.ReactNode;
   onSubmitReview?: (rating: number, comment: string) => void;
   sections?: EventSection[];
 }

@@ -48,7 +48,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   description,
   details,
   reviews = mockReviews,
-  onRegister,
+  button:RegisterButton,
   onSubmitReview,
   sections = ['general', 'details', 'reviews']
 }) => {
@@ -176,7 +176,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '420px', maxHeight: '420px', overflow:activeTab==="reviews"?"hidden":"auto" }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '420px' }}>
       {/* Tabs */}
       <TabsContainer>
         {sections.map((section) => (
@@ -191,40 +191,38 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         ))}
       </TabsContainer>
 
-      {/* Content */}
-      <ContentContainer>
-        {renderContent()}
-      </ContentContainer>
+      {/* Content and Button Container */}
+      <Box sx={{ 
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: activeTab === 'reviews' ? 'hidden' : 'auto',
+        position: 'relative'
+      }}>
+        {/* Scrollable Content */}
+        <ContentContainer sx={{ flex: 1, overflow: 'auto' }}>
+          {renderContent()}
+        </ContentContainer>
 
-      {/* Fixed Register Button */}
-      {onRegister && (
-        <Box
-          sx={{
+        {/* Fixed Button */}
+        {RegisterButton && (activeTab === 'general' || activeTab === 'details') && (
+          <Box sx={{
             position: 'sticky',
             bottom: 0,
-            p: 2,
+            left: 0,
+            right: 0,
             borderTop: 1,
             borderColor: 'divider',
+            p: 2,
             backgroundColor: 'background.paper',
-            textAlign: 'center',
-          }}
-        >
-          <CustomButton
-            onClick={onRegister}
-            sx={{
-              backgroundColor: color,
-              color: '#fff',
-              border:`2px solid ${color}`,
-              '&:hover': {
-                backgroundColor: `${color}CC`,
-              },
-            }}
-          >
-            Register Now 
-         </CustomButton>
-          {/*  fix to register or apply  */}
-        </Box>
-      )}
+            display: 'flex',
+            justifyContent: 'flex-end',
+            zIndex: 1
+          }}>
+            {RegisterButton}
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };

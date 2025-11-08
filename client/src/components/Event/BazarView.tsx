@@ -317,7 +317,26 @@ const BazarView: React.FC<BazarViewProps> = ({
           eventType="Bazaar"
           details={details}
           color={background}
-          onRegister={!registered && user === "vendor" ? handleOpenModal : undefined}
+          button={
+          !registered &&
+          user == "vendor" && (
+            <CustomButton
+              size="small"
+              variant="contained"
+             // color="secondary"
+              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+              color:background, borderColor:background}}
+              onClick={handleOpenModal}
+            >
+              Apply
+              <BazarFormModalWrapper
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                bazarId={id}
+              />
+            </CustomButton>
+          )
+        }
         />
       </CustomModalLayout>
     </>

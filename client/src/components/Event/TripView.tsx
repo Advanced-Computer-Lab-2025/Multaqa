@@ -323,7 +323,24 @@ const TripView: React.FC<BazarViewProps> = ({
           eventType="Trip"
           details={details}
           color={background}
-          onRegister={!registered && (user === "staff" || user === "student" || user === "ta" || user === "professor") ? () => setRegister(true) : undefined}
+          button = {
+          !registered &&
+          (user == "staff" ||
+            user == "student" ||
+            user == "ta" ||
+            user == "professor") && (
+            <CustomButton
+              size="small"
+              variant="contained"
+              // color="info"
+              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+              color:background, borderColor:background}}
+              onClick={()=> {setRegister(true)}}
+            >
+              Register
+            </CustomButton>
+          )
+        }
         />
       </CustomModalLayout>
     </>

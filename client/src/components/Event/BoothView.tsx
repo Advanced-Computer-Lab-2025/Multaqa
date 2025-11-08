@@ -383,7 +383,21 @@ const BoothView: React.FC<BoothViewProps> = ({
                     eventType="Booth"
                     details={details}
                     color={background}
-                    description={""} />
+                    description={""}
+                    button={
+                      !registered &&
+                      user == "vendor" && (
+                        <CustomButton
+                          size="small"
+                          variant="contained"
+                          // color="primary"
+                          sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
+                          color:background, borderColor:background}}
+                        >
+                          Apply
+                        </CustomButton>
+                      )
+                    } />
                   </CustomModalLayout>
     </>
   );
