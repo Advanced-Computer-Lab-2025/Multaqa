@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Typography, Avatar, TextField } from '@mui/material';
+import { Box, Typography, Avatar, TextField, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import Rating from '../../shared/mui-core/Rating';
@@ -69,16 +69,64 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       <Typography variant="h5" sx={{ mb: 2, color: 'text.primary', fontWeight: 600 }}>
         {title}
       </Typography>
-      <Typography variant="subtitle1" sx={{ mb: 2, color }}>
-        {eventType}
-      </Typography>
-      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-        {description}
-      </Typography>
+     <Chip
+              label={eventType}
+              size="medium"
+              sx={{
+                mb:4,
+                backgroundColor: `${color}08`,
+                color: color,
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                height: "30px",
+                minWidth:"70px",
+                border: `1px solid ${color}40`,
+                '&:hover': {
+                  backgroundColor: `${color}15`,
+                },
+              }}
+            />
+      <Box 
+        sx={{ 
+          position: 'relative',
+          p: 3,
+          mt: 2,
+          '&::before, &::after': {
+            position: 'absolute',
+            fontSize: '6rem',
+            fontFamily: 'Georgia, serif',
+            opacity: 0.15,
+            color: color,
+            lineHeight: 1,
+            height: 'auto'
+          },
+          '&::before': {
+            content: 'open-quote',
+            top: -30,
+            left: -15,
+          },
+          '&::after': {
+            content: 'close-quote',
+            bottom: -70,
+            right: -15,
+          }
+        }}
+      >
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: 'text.primary',
+            fontSize: '1.1rem',
+            lineHeight: 1.6,
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          {description}
+        </Typography>
+      </Box>
     </Box>
-  );
-
-  const renderReviews = () => (
+  );  const renderReviews = () => (
     <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
        {/* New Review Form */}
       <Box sx={{ flex: 1 , display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'center', flexDirection: 'column' }}>
@@ -142,12 +190,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   readOnly
                   size="small"
                 />
-                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                <Typography variant="caption" sx={{ color: 'text.primary', display: 'block' }}>
                   {new Date(review.createdAt).toLocaleDateString()}
                 </Typography>
               </Box>
             </Box>
-            <Typography variant="body2" sx={{ ml: 7, color: 'text.secondary' }}>
+            <Typography variant="body2" sx={{ ml: 7, color: 'text.primary' }}>
               {review.comment}
             </Typography>
           </Box>
@@ -176,7 +224,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '420px' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '420px', maxHeight: '420px', overflow:activeTab==="reviews"?"hidden":"hidden" }}>
       {/* Tabs */}
       <TabsContainer>
         {sections.map((section) => (
@@ -191,38 +239,24 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         ))}
       </TabsContainer>
 
-      {/* Content and Button Container */}
-      <Box sx={{ 
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: activeTab === 'reviews' ? 'hidden' : 'auto',
-        position: 'relative'
-      }}>
-        {/* Scrollable Content */}
-        <ContentContainer sx={{ flex: 1, overflow: 'auto' }}>
-          {renderContent()}
-        </ContentContainer>
-
-        {/* Fixed Button */}
-        {RegisterButton && (activeTab === 'general' || activeTab === 'details') && (
-          <Box sx={{
-            position: 'sticky',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            borderTop: 1,
-            borderColor: 'divider',
-            p: 2,
-            backgroundColor: 'background.paper',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            zIndex: 1
-          }}>
-            {RegisterButton}
-          </Box>
-        )}
-      </Box>
+      {/* Content */}
+      <ContentContainer sx={{ overflowY: 'auto' }}>
+        {renderContent()}
+      </ContentContainer>
+      {RegisterButton && (activeTab === 'general' || activeTab === 'details') && (
+        <Box sx={{
+          position: 'sticky',
+          bottom: 0,
+          borderTop: 1,
+          borderColor: 'divider',
+          p: 2,
+          backgroundColor: 'background.paper',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
+          {RegisterButton}
+        </Box>
+      )}
     </Box>
   );
 };
