@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {useFormik, Formik} from 'formik';
 
 
-import { CustomTextField } from '@/components/shared/input-fields';
+import { CustomSelectField, CustomTextField } from '@/components/shared/input-fields';
 import { Box, Grid, TextField, Typography } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -147,123 +147,124 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         </Typography>      
                     </Box>
                     <Box sx={modalFormStyles}>
-                    <CustomTextField
-                        name='location'
-                        id='location' 
-                        label="Location"   
-                        fieldType='text'
-                        placeholder='e.g. Berlin, Germany'
-                        value={values.location}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                        fullWidth
-                        sx={{marginTop: "6px"}}
-                    />
-                    {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
-                    <TextField
-                        name="price"
-                        label="Price"
-                        type="number"
-                        fullWidth
-                        variant='standard'
-                        placeholder="Enter price"
-                        slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start">EGP</InputAdornment>
-                                )
-                            }
-                        }}
-                        sx={{marginTop: "8px"}}
-                        value={values.price}
-                        onChange={handleChange}
-                    />
-                    {errors.price && touched.price ? <p style={{color:"#db3030"}}>{errors.price}</p> : <></>}
-                    <TextField
-                        name="capacity"
-                        label="Capacity"
-                        type="number"
-                        fullWidth
-                        variant='standard'
-                        placeholder="Enter Capacity"
-                        value={values.capacity}
-                        onChange={handleChange}
-                        sx={{marginTop: "8px"}}
-                    />
-                    {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-<Box sx={{ display: "flex", gap: 1, marginTop: "12px",marginBottom:"12px" }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <Box sx={{ display: "flex", gap: 1, marginTop: "12px",marginBottom:"12px" }}>
+                            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateTimePicker
+                                    name="startDate"
+                                    label="Start Date and Time"
+                                    slotProps={{
+                                    textField: {
+                                        variant: "standard",
+                                        fullWidth: true,
+                                    },
+                                    popper: {
+                                        disablePortal: true,
+                                        placement: "right",
+                                        sx: { zIndex: 1500 },
+                                    },
+                                    }}
+                                    value={values.startDate}
+                                    onChange={(value) => setFieldValue("startDate", value)}
+                                />
+                                </LocalizationProvider>
+                                {errors.startDate && touched.startDate && (
+                                <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
+                                )}
+                            </Box>
+    
+                            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateTimePicker
+                                    label="End Date and Time"
+                                    name="endDate"
+                                    slotProps={{
+                                    textField: {
+                                        variant: "standard",
+                                        fullWidth: true,
+                                    },
+                                    popper: {
+                                        disablePortal: true,
+                                        placement: "left",
+                                        sx: { zIndex: 1500 },
+                                    },
+                                    }}
+                                    value={values.endDate}
+                                    onChange={(value) => setFieldValue("endDate", value)}
+                                />
+                                </LocalizationProvider>
+                                {errors.endDate && touched.endDate && (
+                                <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
+                                )}
+                            </Box>
+                            </Box>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
-                              name="startDate"
-                              label="Start Date and Time"
-                              slotProps={{
-                                textField: {
-                                  variant: "standard",
-                                  fullWidth: true,
-                                },
-                                popper: {
-                                  disablePortal: true,
-                                  placement: "right",
-                                  sx: { zIndex: 1500 },
-                                },
-                              }}
-                              value={values.startDate}
-                              onChange={(value) => setFieldValue("startDate", value)}
+                                name='registrationDeadline'
+                                label="Deadline to Register"
+                                slotProps={{
+                                    textField: {
+                                        fullWidth:true,
+                                        variant:"standard", 
+                                    },
+                                    popper: {
+                                        disablePortal: true, // <-- Add this line
+                                        placement: 'left',
+                                        sx: { zIndex: 1500 },
+                                    }                       
+                                }}
+                                sx={{marginTop: "6px"}}
+                                value={values.registrationDeadline}
+                                onChange={(value) => setFieldValue('registrationDeadline', value)}
                             />
-                          </LocalizationProvider>
-                          {errors.startDate && touched.startDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
-                          )}
+                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
+                    </LocalizationProvider>
+                        <Box sx={{ display: "flex", gap: 1, marginTop: "18px", marginBottom:"24px" }}>
+                            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                <TextField
+                                name="price"
+                                id="price"
+                                label="Price"
+                                type="number"
+                                fullWidth
+                                variant="standard"
+                                placeholder="Enter Price"
+                                value={values.price}
+                                onChange={handleChange}
+                                />
+                                {errors.price && touched.price ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.price}</p> : <></>}
                         </Box>
 
                         <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                              label="End Date and Time"
-                              name="endDate"
-                              slotProps={{
-                                textField: {
-                                  variant: "standard",
-                                  fullWidth: true,
-                                },
-                                popper: {
-                                  disablePortal: true,
-                                  placement: "left",
-                                  sx: { zIndex: 1500 },
-                                },
-                              }}
-                              value={values.endDate}
-                              onChange={(value) => setFieldValue("endDate", value)}
+                            <TextField
+                            name="capacity"
+                            id="capacity"
+                            label="Capacity"
+                            type="number"
+                            fullWidth
+                            variant="standard"
+                            placeholder="Enter Capacity"
+                            value={values.capacity}
+                            onChange={handleChange}
                             />
-                          </LocalizationProvider>
-                          {errors.endDate && touched.endDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
-                          )}
+                            {errors.capacity && touched.capacity ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.capacity}</p> : <></>}
                         </Box>
-                      </Box>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                          name='registrationDeadline'
-                          label="Deadline to Register"
-                          slotProps={{
-                              textField: {
-                                  fullWidth:true,
-                                  variant:"standard", 
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'left',
-                                  sx: { zIndex: 1500 },
-                              }                       
-                          }}
-                          sx={{marginTop: "6px"}}
-                          value={values.registrationDeadline}
-                          onChange={(value) => setFieldValue('registrationDeadline', value)}
-                      />
-                      {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-              </LocalizationProvider>
+                        </Box>
+                          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                            <CustomSelectField
+                              label="Location"
+                              fieldType="single"
+                              options={[
+                                { label: "GUC Cairo", value: "GUC Cairo" },
+                                { label: "GUC Berlin", value: "GUC Berlin" },
+                              ]}
+                              value={values.location}
+                              onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} name={""}
+                            />
+                            {errors.location && touched.location && (
+                              <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.location}</p>
+                            )}
+                          </Box>
                     </Box>
                 </Box>
             </Box>

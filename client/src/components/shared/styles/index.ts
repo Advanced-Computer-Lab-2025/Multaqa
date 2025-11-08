@@ -3,7 +3,7 @@ import { SxProps, Theme } from '@mui/material/styles';
 const STEP1_WIDTH = '370px'; 
 const STEP2_WIDTH = '530px';
 const STEP2_HEIGHT = '550px';
-const minHeight = '370px';
+const minHeight = '380px';
 const GAP_WIDTH = 24;    
 const TOTAL_WIDTH = `${parseInt(STEP1_WIDTH) + parseInt(STEP2_WIDTH) + GAP_WIDTH}px`; 
 
