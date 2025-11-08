@@ -8,6 +8,8 @@ import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import SlotCard from "./SlotCard";
 import { CourtSlot, CourtType } from "./types";
 import { groupSlotsByDay, formatDayLabel } from "./utils";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 interface Props {
   court: CourtType;
@@ -15,6 +17,8 @@ interface Props {
   currentUser?: string;
   onReserve?: (slot: CourtSlot) => void;
   onCancel?: (slot: CourtSlot) => void;
+  onSelectDate?: (courtId: string) => void;
+  selectedDate?: string | null;
 }
 
 const CourtColumn: React.FC<Props> = ({
@@ -23,8 +27,19 @@ const CourtColumn: React.FC<Props> = ({
   currentUser,
   onReserve,
   onCancel,
+  onSelectDate,
+  selectedDate,
 }) => {
   const grouped = groupSlotsByDay(slots);
+  const uniqueDays = React.useMemo(
+    () => Array.from(grouped.keys()).sort(),
+    [grouped]
+  );
+  const activeDay = selectedDate ?? null;
+  const filteredSlots = React.useMemo(() => {
+    if (!activeDay) return [];
+    return grouped.get(activeDay) ?? [];
+  }, [grouped, activeDay]);
 
   // Get sport icon based on court name
   const getSportIcon = () => {
@@ -48,36 +63,61 @@ const CourtColumn: React.FC<Props> = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        p: 2.5,
+        gap: 1.5,
+        p: 2,
         borderRadius: 3,
-        background: "#ffffffaa",
+        background: "#ffffffcc",
         border: (t) => `2px solid ${t.palette[court.colorKey].light}`,
         boxShadow:
           "-8px -8px 16px 0 #FAFBFF, 8px 8px 16px 0 rgba(22, 27, 29, 0.15)",
+        maxHeight: { xs: 520, sm: 560, md: 600 },
+        minHeight: { xs: 520, sm: 560, md: 600 },
+        overflow: "hidden",
       }}
     >
-      <Stack direction="row" alignItems="center" spacing={1.5}>
-        <Box
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        spacing={1.5}
+      >
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Box
+            sx={{
+              bgcolor: (t) => t.palette[court.colorKey].main,
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+            }}
+          >
+            {getSportIcon()}
+          </Box>
+          <Typography
+            fontWeight={700}
+            sx={{ color: (t) => t.palette[court.colorKey].dark }}
+          >
+            {court.name}
+          </Typography>
+        </Stack>
+
+        <CustomButton
+          onClick={() => onSelectDate?.(court.id)}
+          color="primary"
+          variant="outlined"
           sx={{
-            bgcolor: (t) => t.palette[court.colorKey].main,
-            width: 32,
-            height: 32,
+            minWidth: "auto",
+            width: 40,
+            height: 40,
+            padding: 0,
             borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
           }}
         >
-          {getSportIcon()}
-        </Box>
-        <Typography
-          fontWeight={700}
-          sx={{ color: (t) => t.palette[court.colorKey].dark }}
-        >
-          {court.name}
-        </Typography>
+          <CalendarMonthIcon fontSize="small" />
+        </CustomButton>
       </Stack>
 
       <Divider
@@ -86,29 +126,61 @@ const CourtColumn: React.FC<Props> = ({
           opacity: 0.6,
         }}
       />
-
-      {[...grouped.entries()].map(([day, daySlots]) => (
-        <Box key={day}>
-          <Typography
-            variant="body2"
-            sx={{ color: "text.secondary", mb: 1, fontWeight: 600 }}
-          >
-            {formatDayLabel(day)}
-          </Typography>
-          <Stack gap={1.25}>
-            {daySlots.map((slot) => (
-              <SlotCard
-                key={slot.id}
-                slot={slot}
-                color={court.colorKey}
-                currentUser={currentUser}
-                onReserve={onReserve}
-                onCancel={onCancel}
-              />
-            ))}
-          </Stack>
-        </Box>
-      ))}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          pr: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.25,
+          scrollbarWidth: "thin",
+          "&::-webkit-scrollbar": { width: 6 },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: (t) => t.palette[court.colorKey].light,
+            borderRadius: 8,
+          },
+        }}
+      >
+        {activeDay ? (
+          <Box display="flex" flexDirection="column" gap={1.25}>
+            <Typography
+              variant="body2"
+              sx={{ color: "text.secondary", fontWeight: 600 }}
+            >
+              {formatDayLabel(activeDay)}
+            </Typography>
+            {filteredSlots.length > 0 ? (
+              filteredSlots.map((slot) => (
+                <SlotCard
+                  key={slot.id}
+                  slot={slot}
+                  color={court.colorKey}
+                  currentUser={currentUser}
+                  onReserve={onReserve}
+                  onCancel={onCancel}
+                />
+              ))
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No time slots available for this date yet.
+              </Typography>
+            )}
+          </Box>
+        ) : (
+          <Box>
+            <Typography variant="body2" color="text.secondary">
+              Select a date to view available slots.
+            </Typography>
+            {uniqueDays.length > 0 && (
+              <Typography variant="caption" color="text.disabled">
+                Next available: {formatDayLabel(uniqueDays[0])}
+              </Typography>
+            )}
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };
