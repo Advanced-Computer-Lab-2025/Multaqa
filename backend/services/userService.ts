@@ -11,6 +11,7 @@ import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
+import { sendBlockUnblockEmail, sendStaffRoleAssignmentEmail, sendVerificationEmail } from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -166,6 +167,7 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    await sendBlockUnblockEmail(user.email, true, "admin decision");
     await user.save();
   }
 
@@ -178,6 +180,7 @@ export class UserService {
       throw createError(400, "User is already Active");
     }
     user.status = UserStatus.ACTIVE;
+    await sendBlockUnblockEmail(user.email, false, "admin decision");
     await user.save();
   }
 
@@ -211,10 +214,7 @@ export class UserService {
   async assignRoleAndSendVerification(
     userId: string,
     position: string
-  ): Promise<{
-    user: Omit<IStaffMember, "password">;
-    verificationtoken: string;
-  }> {
+  ): Promise<Omit<IStaffMember, "password">> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -237,18 +237,18 @@ export class UserService {
     await user.save();
 
     // Generate verification token
-    const verificationtoken =
-      this.verificationService.generateVerificationToken(user);
+    const verificationToken = this.verificationService.generateVerificationToken(user);
+    // Send verification email
+    const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
+    await sendStaffRoleAssignmentEmail(user.email, user.firstName, position, link);
+    console.log("Verification email sent to:", user.email);
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject
       ? user.toObject()
       : user;
 
-    return {
-      user: userWithoutPassword as Omit<IStaffMember, "password">,
-      verificationtoken,
-    };
+    return userWithoutPassword as Omit<IStaffMember, "password">;
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {

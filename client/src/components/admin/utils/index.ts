@@ -13,7 +13,6 @@ import { api } from "@/api";
 import { CreateAdminResponse, GetAllAdminsResponse } from "../../../../../backend/interfaces/responses/administrationResponses.interface";
 import { AxiosError } from "axios";
 import { GetAllUnAssignedStaffMembersResponse, GetAllUsersResponse, GetAllProfessorsResponse, GetAllStaffResponse, GetAllTAsResponse } from "../../../../../backend/interfaces/responses/userResponses.interface";
-import { sendRoleAssignmentEmail } from "@/utils/emailService";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -199,35 +198,14 @@ export const handleToggleBlock = async (
   userId: string,
   currentStatus: "Active" | "Blocked",
   setUsers: React.Dispatch<React.SetStateAction<User[]>>,
-  userEmail?: string,
-  userName?: string,
-  blockReason?: string
 ) => {
   try {
     const action = currentStatus === "Active" ? "block" : "unblock";
     console.log(`🔒 ${action === "block" ? "Blocking" : "Unblocking"} user:`, userId);
 
-    const response = await api.post(`/users/${userId}/${action}`, {
-      reason: blockReason || undefined
-    });
+    const response = await api.post(`/users/${userId}/${action}`);
 
     console.log('✅ Action successful:', response.data.message);
-
-    // // Send email notification if user email is provided
-    // if (userEmail && userName) {
-    //   try {
-    //     await sendAccountStatusChangeEmail(
-    //       userEmail,
-    //       userName,
-    //       action === "block" ? "blocked" : "unblocked",
-    //       blockReason
-    //     );
-    //     console.log(`✅ ${action} notification email sent to:`, userEmail);
-    //   } catch (emailError) {
-    //     // Don't fail the block/unblock action if email fails, just log it
-    //     console.error(`⚠️ ${action} action successful but email notification failed:`, emailError);
-    //   }
-    // }
 
     // Update local state
     setUsers((prevUsers) =>
@@ -252,22 +230,6 @@ export const handleToggleBlock = async (
     }
     throw new Error("Failed to toggle block status");
   }
-};
-
-// Enhanced block/unblock function with user details lookup
-export const handleToggleBlockWithEmail = async (
-  user: User,
-  setUsers: React.Dispatch<React.SetStateAction<User[]>>,
-  blockReason?: string
-) => {
-  return await handleToggleBlock(
-    user.id,
-    user.status,
-    setUsers,
-    user.email,
-    user.name,
-    blockReason
-  );
 };
 
 // Fetch all users
@@ -468,26 +430,9 @@ export const handleAssignRole = async (
 
     console.log('✅ Role assigned successfully:', response.data.message);
 
-    // Send role assignment notification email
-    if (response.data.verificationToken.length > 0) {
-      try {
-        const roleDisplayName = position === 'TA' ? 'Teaching Assistant' :
-          position === 'professor' ? 'Professor' :
-            'Staff Member';
-
-        await sendRoleAssignmentEmail(
-          applicant.email,
-          applicant.name,
-          roleDisplayName,
-          response.data.verificationToken 
-        );
-
-        console.log('✅ Role assignment notification email sent to:', applicant.email);
-      } catch (emailError) {
-        console.error('⚠️ Role assignment successful but email notification failed:', emailError);
-      }
-    }
-
+    // Keep the optimistic update that was already done
+    // The assignment was already moved visually, we just confirm it worked
+    
     return response.data;
   } catch (error: unknown) {
     // If it fails, revert the optimistic update

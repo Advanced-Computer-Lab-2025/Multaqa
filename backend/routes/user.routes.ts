@@ -269,14 +269,12 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
     const { userId } = req.params;
     const { position } = req.body;
 
-    const { user, verificationtoken } =
-      await userService.assignRoleAndSendVerification(userId, position);
+    const user = await userService.assignRoleAndSendVerification(userId, position);
 
     res.json({
       success: true,
       message: "Role assigned and verification email sent successfully",
       user: user,
-      verificationToken: verificationtoken,
     });
   } catch (error: any) {
     throw createError(
