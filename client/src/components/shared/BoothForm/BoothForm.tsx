@@ -143,7 +143,7 @@ const BoothForm: React.FC = () => {
             gutterBottom
             sx={{
               fontSize: { xs: "1.75rem", md: "2.125rem" },
-              color: theme.palette.primary.main,
+              color: "text.primary",
               mb: 1,
             }}
           >
@@ -229,7 +229,13 @@ const BoothForm: React.FC = () => {
                                 }}
                               >
                                 <Chip
-                                  label={`${formik.values.boothAttendees.length} attendee(s)`}
+                                  label={`${
+                                    formik.values.boothAttendees.length
+                                  } attendee${
+                                    formik.values.boothAttendees.length !== 1
+                                      ? "s"
+                                      : ""
+                                  }`}
                                   size="small"
                                   color="primary"
                                   variant="outlined"
@@ -257,12 +263,18 @@ const BoothForm: React.FC = () => {
                               <Box>
                                 <Typography
                                   variant="subtitle2"
-                                  color="text.secondary"
+                                  color="text.primary"
                                 >
                                   Attendees Added
                                 </Typography>
                                 <Typography variant="h6" color="primary.main">
-                                  {formik.values.boothAttendees.length}/5
+                                  {`${
+                                    formik.values.boothAttendees.length
+                                  } attendee${
+                                    formik.values.boothAttendees.length !== 1
+                                      ? "s"
+                                      : ""
+                                  } added (up to 5 allowed)`}{" "}
                                 </Typography>
                               </Box>
                               <Tooltip
@@ -779,10 +791,6 @@ const BoothForm: React.FC = () => {
                             disabled={formik.isSubmitting || !formik.isValid}
                             sx={{
                               py: 1.5,
-                              fontSize: "1.1rem",
-                              fontWeight: "600",
-                              borderRadius: 3,
-                              background: `linear(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                               "&:hover": {
                                 transform: "translateY(-1px)",
                                 boxShadow: 4,
@@ -1058,21 +1066,7 @@ const BoothForm: React.FC = () => {
                                       display: "flex",
                                       alignItems: "center",
                                     }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        width: 16,
-                                        height: 16,
-                                        backgroundColor:
-                                          theme.palette.grey[400],
-                                        borderRadius: 1,
-                                        mr: 1,
-                                      }}
-                                    />
-                                    <Typography variant="caption">
-                                      Occupied
-                                    </Typography>
-                                  </Box>
+                                  ></Box>
                                 </Box>
                               </Box>
                             </Box>
