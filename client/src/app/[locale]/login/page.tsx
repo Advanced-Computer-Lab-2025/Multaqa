@@ -13,7 +13,7 @@ export default function LoginPage() {
         style={{ transform: "scale(0.8)" }}
       >
         <LoginForm />
-        <FileUpload label="Upload your files" />
+        <FileUpload label="Upload your files" width={300} />
       </div>
       <ToastContainer aria-label={undefined} />
     </>

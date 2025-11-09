@@ -1,7 +1,13 @@
 import { styled } from "@mui/system";
 
-export const StyledWrapper = styled("div")`
-  width: 100%;
+export const StyledWrapper = styled("div")<{
+  containerWidth?: number | string;
+}>(
+  ({ containerWidth = 300 }) => `
+  width: ${
+    typeof containerWidth === "number" ? `${containerWidth}px` : containerWidth
+  };
+  max-width: 100%;
   cursor: pointer;
 
   .container {
@@ -16,7 +22,11 @@ export const StyledWrapper = styled("div")`
     background: #ffffff;
     border-radius: 15px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-    height: calc(var(--folder-H) * 1.7);
+    height:  ${
+      typeof containerWidth === "number"
+        ? `${containerWidth * 0.5}px`
+        :  0.5 * Number(containerWidth.replace("px", "")) + "px"
+    };
     position: relative;
     transition: transform var(--transition);
   }
@@ -111,4 +121,5 @@ export const StyledWrapper = styled("div")`
   .custom-file-upload input[type="file"] {
     display: none;
   }
-`;
+`
+);

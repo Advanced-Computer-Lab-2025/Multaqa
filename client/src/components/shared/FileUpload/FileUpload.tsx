@@ -20,6 +20,7 @@ const FileUpload: React.FC<UploadFieldProps> = ({
   accept,
   className = "",
   disabled = false,
+  width = 300,
   showPreviewAs = "file",
 }) => {
   const theme = useTheme();
@@ -47,7 +48,11 @@ const FileUpload: React.FC<UploadFieldProps> = ({
       }}
     >
       {/* Folder-style upload UI */}
-      <StyledWrapper onClick={handleClick} sx={{ opacity: disabled ? 0.6 : 1 }}>
+      <StyledWrapper
+        onClick={handleClick}
+        containerWidth={width}
+        sx={{ opacity: disabled ? 0.6 : 1 }}
+      >
         <div className="container">
           <div className="folder">
             <div className="front-side">
@@ -64,14 +69,21 @@ const FileUpload: React.FC<UploadFieldProps> = ({
               disabled={disabled}
               onChange={handleChange}
             />
-           {label}
+            {label}
           </label>
         </div>
       </StyledWrapper>
 
       {/* Preview section */}
       {files.length > 0 && (
-        <Box mt={1} width="100%" display="flex" flexDirection="column" gap={1}>
+        <Box
+          mt={1}
+          width={typeof width === "number" ? `${width}px` : width}
+          maxWidth="100%"
+          display="flex"
+          flexDirection="column"
+          gap={1}
+        >
           {files.map((file, index) => {
             const isImage = file.type.startsWith("image/");
             const fileURL = URL.createObjectURL(file);
