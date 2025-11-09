@@ -150,7 +150,7 @@ router.patch(
 );
 
 // Used ONLY during testing for manual triggering of certificate sending
-router.post(
+router.patch(
   "/:eventId/sendcertificates",
   authorizeRoles({
     userRoles: [UserRole.STAFF_MEMBER],
