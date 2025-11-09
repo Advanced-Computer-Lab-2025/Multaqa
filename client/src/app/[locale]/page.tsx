@@ -624,7 +624,13 @@ export default function HomePage() {
             </Typography>
           </Stack>
 
-          <Stack spacing={1}>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            flexWrap="wrap"
+            justifyContent="center"
+            rowGap={1}
+          >
             {[
               { href: "/privacy", label: "Privacy Policy" },
               { href: "/terms", label: "Terms of Service" },
@@ -640,6 +646,7 @@ export default function HomePage() {
                   textDecoration: "none",
                   fontWeight: 600,
                   color: theme.palette.primary.main,
+                  fontSize: { xs: "0.9rem", sm: "0.95rem" },
                   "&:hover": {
                     textDecoration: "underline",
                   },
