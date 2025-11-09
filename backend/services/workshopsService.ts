@@ -185,6 +185,10 @@ export class WorkshopService {
       throw new Error('Workshop not found');
     }
 
+    if(workshop.certificatesSent) {
+      throw new Error('Certificates have already been sent for this workshop');
+    }
+    
     const now = new Date();
     const endTime = this.calculateWorkshopEndTime(workshop);
     if (now < endTime) {

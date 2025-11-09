@@ -132,9 +132,9 @@ export async function sendCertificatesManually(
       success: true,
       message: 'Certificates sent successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending certificates:', error);
-    throw createError(500, 'Failed to send certificates');
+    throw createError(500, error.message);
   }
 }
 
