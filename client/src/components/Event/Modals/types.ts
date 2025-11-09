@@ -8,13 +8,14 @@ export interface Review {
   createdAt: string;
 }
 
-export type EventSection = 'general' | 'details' | 'reviews';
+export type EventSection = 'general' | 'details' | 'reviews'|'agenda';
 
 export interface EventDetailsProps {
   color: string;
   title: string;
   eventType: string;
   description: string;
+  agenda:string;
   details: Record<string, any>;
   reviews?: Review[];
   button?:React.ReactNode;

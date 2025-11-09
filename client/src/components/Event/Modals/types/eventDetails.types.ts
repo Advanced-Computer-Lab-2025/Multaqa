@@ -17,14 +17,29 @@ export interface ConferenceDetails extends BaseEventDetails {
 }
 
 export interface WorkshopDetails extends BaseEventDetails {
+  registrationDeadline: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  cost: string;
   capacity: number;
-  duration: string;
-  prerequisites?: string;
-  skills?: string[];
-  instructors?: Array<{
-    name: string;
-    expertise: string;
-  }>;
+  spotsLeft: number;
+  faculty:string,
+  resources:string,
+  funding:string,
+  budget:string,
+  professors:string[];
+}
+
+interface Vendor {
+  companyName: string;
+  email: string;
+  id?: string;
+  _id?: string;
+  role?: string;
+  logo?: string;
 }
 
 export interface BazaarDetails extends BaseEventDetails {
@@ -34,6 +49,7 @@ export interface BazaarDetails extends BaseEventDetails {
   startTime: string;
   endTime: string;
   location: string;
+  vendors: Vendor[];
   vendorCount: string;
 }
 

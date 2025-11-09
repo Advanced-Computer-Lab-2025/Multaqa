@@ -10,7 +10,6 @@ import EventTypeDetails from './EventTypeDetails';
 import { Trash2 } from 'lucide-react';
 import { CustomModal } from '../../shared/modals';
 import theme from '@/themes/lightTheme';
-import { truncateSync } from 'fs';
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -78,6 +77,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   eventType,
   description,
   details,
+  agenda,
   reviews = mockReviews,
   button:RegisterButton,
   onSubmitReview,
@@ -168,7 +168,55 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         </Typography>
       </Box> 
     </Box>
-  );  const renderReviews = () => (
+  );  
+  const renderAgenda=()=>(
+     <Box>
+     <Typography variant="h5" sx={{ mb: 6, color: 'text.primary', fontWeight: 600 }}>
+        Full Agenda
+      </Typography>
+     <Box 
+        sx={{ 
+          position: 'relative',
+          p: 3,
+          mt: 2,
+          '&::before, &::after': {
+            position: 'absolute',
+            fontSize: '6rem',
+            fontFamily: 'Georgia, serif',
+            opacity: 0.15,
+            color: color,
+            lineHeight: 1,
+            height: 'auto'
+          },
+          '&::before': {
+            content: 'open-quote',
+            top: -30,
+            left: -15,
+          },
+          '&::after': {
+            content: 'close-quote',
+            bottom: -70,
+            right: -15,
+          }
+        }}
+      >
+        <Typography 
+          variant="body1" 
+          sx={{ 
+            color: 'text.primary',
+            fontSize: '1.1rem',
+            lineHeight: 1.6,
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          {agenda}
+        </Typography>
+      </Box> 
+      </Box>
+  );
+
+  const renderReviews = () => (
     <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
        {/* New Review Form */}
        {(user=="student"||user=="professor"||user=="staff"||user=="ta")&&attended?
@@ -290,6 +338,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         return <EventTypeDetails type={eventType} details={details} color={color}/>;
       case 'reviews':
         return renderReviews();
+      case 'agenda':
+        return renderAgenda();
       default:
         return null;
     }
@@ -298,7 +348,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   const tabLabels: Record<EventSection, string> = {
     general: 'General Info',
     details: 'Event Details',
-    reviews: 'Reviews & Comments'
+    reviews: 'Reviews & Comments',
+    agenda: 'Full Agenda'
   };
 
   React.useEffect(() => {

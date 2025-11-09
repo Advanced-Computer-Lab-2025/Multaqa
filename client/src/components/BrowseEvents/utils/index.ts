@@ -19,7 +19,9 @@ const flattenName = (profs: { firstName: string; lastName: string }[]) => {
 const flattenId = (profs:{ id: string }[])=>{
   return profs.map(prof => `${prof.id}`);
 }
-
+const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
+  return vendors.map(vendor =>vendor.vendor);
+}
 // Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
 const cleanDateString = (isoDate: string | undefined): string => {
   if (!isoDate) return '';
@@ -79,6 +81,7 @@ function transformEvent(event: any) {
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": (event.capacity - event.attendees.length),
           "Status": event.approvalStatus,
+          "Cost":`${event.price?.$numberInt || event.price} EGP `,
         },
       };
 
@@ -89,7 +92,7 @@ function transformEvent(event: any) {
         type: EventType.CONFERENCE,
         name: event.eventName,
         description:
-          event.description,
+        event.description,
         agenda: event.fullAgenda,
         details: {
           "Start Date": cleanDateString(startDate),
@@ -108,9 +111,8 @@ function transformEvent(event: any) {
         id,
         type: EventType.BAZAAR,
         name: event.eventName,
-        description:
-          event.description,
-        // vendors: event.vendors,
+        description: event.description,
+        vendors: flattenVendors(event.vendors),
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
           "Start Date": cleanDateString(startDate),

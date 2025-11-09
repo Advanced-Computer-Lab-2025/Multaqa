@@ -312,6 +312,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         );
       case EventType.WORKSHOP:
+        console.log(event)
         return (
           <WorkshopView
             id={event.id}
@@ -336,6 +337,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BazarView
             id={event.id}
+            vendors={event.vendors}
             background={EventColor[3].color}
             icon={EventColor[3].icon}
             setRefresh={setRefresh}

@@ -19,6 +19,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   name,
   description,
   user,
+  vendors,
   registered,
   onDelete,
   icon: IconComponent,
@@ -31,6 +32,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const updatedDetails = {...details, vendors};
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -180,7 +182,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           title={name}
           description={description}
           eventType="Bazaar"
-          details={details}
+          details={updatedDetails}
           color={background}
           button={
           !registered &&

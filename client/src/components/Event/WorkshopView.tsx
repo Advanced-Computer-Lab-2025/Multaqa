@@ -32,6 +32,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const updatedDetails = {...details,professors}
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -186,8 +187,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 title={name}
                 description={description}
                 eventType="Workshop"
-                details={details}
+                details={updatedDetails}
                 color={background}
+                agenda={agenda}
                 button={
                   !registered &&
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
@@ -214,7 +216,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                     </CustomButton>
                   )
                 }
-                sections={user=="vendor"?['general', 'details']:['general','details',
+                sections={user=="vendor"?['general','agenda', 'details']:['general','agenda','details',
                   'reviews']}
                 user={user?user:""}
                 attended ={attended}
