@@ -1,19 +1,18 @@
 export interface BaseEventDetails {
   color: string;
 }
-
+  
 export interface ConferenceDetails extends BaseEventDetails {
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
   location: string;
-  virtualLink?: string;
-  agenda?: Array<{
-    time: string;
-    activity: string;
-  }>;
-  speakers?: Array<{
-    name: string;
-    role: string;
-    topic?: string;
-  }>;
+  link?: string;
+  resources:string,
+  funding:string,
+  budget:string,
+  
 }
 
 export interface WorkshopDetails extends BaseEventDetails {

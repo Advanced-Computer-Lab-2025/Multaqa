@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Grid as MuiGrid, Chip, CardContent, Avatar } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Mail, Building2, FileText, PiggyBank } from 'lucide-react';
+import { FileText, PiggyBank } from 'lucide-react';
 import { WorkshopDetails as WorkshopDetailsType } from '../types/eventDetails.types';
 import { SectionTitle } from './shared/StyledComponents';
 import { 
@@ -108,6 +108,38 @@ const WorkshopDetails: React.FC<WorkshopDetailsType> = ({
   };
 
   return (
+    <>
+    {/* Quick Stats */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+            <Box>
+              <Typography variant="h6" fontWeight="bold" color={color}>
+                {capacity}
+              </Typography>
+              <Typography variant="caption" color="text.primary">
+                Total Capacity
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight="bold" color="primary">
+                {capacity - spotsLeft}
+              </Typography>
+              <Typography variant="caption" color="text.primary">
+                Registered
+              </Typography>
+            </Box>
+            <Box>
+              <Typography 
+                variant="h6" 
+                fontWeight="bold" 
+                color={spotsLeft === 0 ? 'error' : 'success'}
+              >
+                {spotsLeft}
+              </Typography>
+              <Typography variant="caption" color="text.primary">
+                Spots Left
+              </Typography>
+            </Box>
+          </Box>
     <CardContent sx={{ p: 3 }}>
       <Grid container spacing={3}>
         {/* Event Details Grid */}
@@ -253,6 +285,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsType> = ({
         </Grid>
       </Grid>
     </CardContent>
+    </>
   );
 };
 

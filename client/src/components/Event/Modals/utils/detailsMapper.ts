@@ -10,11 +10,15 @@ export const mapDetailsToType = (type: string, details: Record<string, any>, col
   switch (type.toLowerCase()) {
     case 'conference':
       return {
-        location: details.location,
-        virtualLink: details.virtualLink,
-        agenda: details.agenda,
-        speakers: details.speakers,
-        color
+        startDate:details['Start Date'],
+        endDate: details['End Date'],
+        startTime: details['Start Time'],
+        endTime: details['End Time'],
+        location: details['Location'],
+        link: details["Link"],
+        resources: details["Extra Required Resources"],
+        funding: details["Funding Source"],
+        budget: details["Required Budget"],
       } as ConferenceDetails;
 
     case 'workshop':    

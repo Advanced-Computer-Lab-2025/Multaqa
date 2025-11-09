@@ -382,7 +382,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       <ContentContainer ref={contentRef}>
         {renderContent()}
       </ContentContainer>
-      {RegisterButton && (activeTab === 'general' || activeTab === 'details') && (
+      {RegisterButton && (activeTab === 'general' || activeTab === 'details' || activeTab ==="agenda") && (
         <Box sx={{
           position: 'sticky',
           bottom: 0,
@@ -391,7 +391,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           p: 2,
           backgroundColor: 'background.paper',
           display: 'flex',
-          justifyContent: 'flex-end'
+          justifyContent: 'flex-end',
         }}>
           {RegisterButton}
         </Box>

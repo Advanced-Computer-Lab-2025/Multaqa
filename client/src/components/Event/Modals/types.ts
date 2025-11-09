@@ -15,7 +15,7 @@ export interface EventDetailsProps {
   title: string;
   eventType: string;
   description: string;
-  agenda:string;
+  agenda?:string;
   details: Record<string, any>;
   reviews?: Review[];
   button?:React.ReactNode;

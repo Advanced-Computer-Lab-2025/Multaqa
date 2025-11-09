@@ -93,9 +93,20 @@ const TripView: React.FC<BazarViewProps> = ({
             <CustomButton
               size="small"
               variant="contained"
-              // color="info"
-              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
-              color:background, borderColor:background}}
+              sx={{ 
+                        borderRadius: 999 , backgroundColor: `${background}40`,
+                        color:background, borderColor:background,
+                        fontWeight: 600,
+                        px: 3,
+                        textTransform: 'none',
+                        boxShadow: `0 4px 14px ${background}40`,
+                        transition: 'all 0.3s ease',
+                        "&:hover": {
+                          backgroundColor: `${background}50`,
+                          transform: 'translateY(-2px)',
+                          boxShadow: `0 6px 20px ${background}50`,
+                        }
+                      }}
               onClick={()=> {setRegister(true)}}
             >
               Register
@@ -166,7 +177,7 @@ const TripView: React.FC<BazarViewProps> = ({
       </CustomModal>
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
-      eventType={"Trip"} userInfo={userInfo} eventId={id}/>
+      eventType={"Trip"} userInfo={userInfo} eventId={id} color={background}/>
 
 
        <CustomModalLayout
@@ -181,29 +192,37 @@ const TripView: React.FC<BazarViewProps> = ({
           eventType="Trip"
           details={details}
           color={background}
-          button = {
-          !registered &&
-          (user == "staff" ||
-            user == "student" ||
-            user == "ta" ||
-            user == "professor") && (
-            <CustomButton
-              size="small"
-              variant="contained"
-              // color="info"
-              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
-              color:background, borderColor:background}}
-              onClick={()=> {setRegister(true)}}
-            >
-              Register
-            </CustomButton>
-          )
-        }
-        sections={user=="vendor"?['general', 'details']:['general','details',
-          'reviews']}
-        user={user?user:""}
-        attended ={attended}
-        />
+          button={!registered &&
+            (user == "staff" ||
+              user == "student" ||
+              user == "ta" ||
+              user == "professor") && (
+              <CustomButton
+                size="small"
+                variant="contained"
+                   sx={{ 
+                        borderRadius: 999 , backgroundColor: `${background}40`,
+                        color:background, borderColor:background,
+                        fontWeight: 600,
+                        px: 3,
+                        textTransform: 'none',
+                        boxShadow: `0 4px 14px ${background}40`,
+                        transition: 'all 0.3s ease',
+                        "&:hover": {
+                          backgroundColor: `${background}50`,
+                          transform: 'translateY(-2px)',
+                          boxShadow: `0 6px 20px ${background}50`,
+                        }
+                      }}
+                onClick={() => { setRegister(true); } }
+              >
+                Register
+              </CustomButton>
+            )}
+          sections={user == "vendor" ? ['general', 'details'] : ['general', 'details',
+            'reviews']}
+          user={user ? user : ""}
+          attended={attended}  />
       </CustomModalLayout>
     </>
   );

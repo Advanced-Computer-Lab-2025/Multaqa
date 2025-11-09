@@ -52,7 +52,6 @@ const EventCard: React.FC<EventCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = spotsLeft&&parseInt(spotsLeft)||0;
   const [copySuccess, setCopySuccess] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
 
   const handleOpenModal = () => {
     if (onOpenDetails) {

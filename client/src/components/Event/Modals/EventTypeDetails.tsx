@@ -45,7 +45,7 @@ const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, colo
   };
 
   return (
-    <Box sx={{ overflowY: 'auto', maxHeight: '450px', p: 2 }}>
+    <Box sx={{ overflowY: 'auto', maxHeight: '400px', p: 2 }}>
       {renderContent()}
     </Box>
   );
