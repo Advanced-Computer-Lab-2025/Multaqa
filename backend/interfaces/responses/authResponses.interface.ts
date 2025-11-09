@@ -5,7 +5,6 @@ export interface SignupResponse {
   success: boolean;
   message: string;
   user: UserResponse;
-  verificationtoken: string;
 }
 
 export interface LoginResponse {
