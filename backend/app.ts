@@ -3,10 +3,17 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
+// Import routers
 import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
+import userRouter from "./routes/user.routes";
+import gymSessionsRouter from "./routes/gymSessions.routes";
+import adminRouter from "./routes/admin.routes";
+import courtRouter from "./routes/court.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -24,13 +31,10 @@ import "./schemas/event-schemas/platformBoothEventSchema";
 import "./schemas/event-schemas/tripSchema";
 import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
-import cookieParser from "cookie-parser";
+
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
-import userRouter from "./routes/user.routes";
-import gymSessionsRouter from "./routes/gymSessions.routes";
-import adminRouter from "./routes/admin.routes";
-import courtRouter from "./routes/court.routes";
+import { WorkshopScheduler } from "./services/workshopSchedulerService";
 dotenv.config();
 
 const app = express();
@@ -38,12 +42,7 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(json());
 app.use(cookieParser());
 
-// Dummy route
-app.get("/", (req, res) => {
-  res.send("Backend initialized!");
-});
 app.use("/auth", authRouter);
-
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);
@@ -76,3 +75,7 @@ app.use(errorHandler);
 app.use(notFoundHandler);
 
 startServer();
+
+// Start the workshop scheduler to send certificates periodically
+const scheduler = new WorkshopScheduler();
+scheduler.start();

@@ -18,3 +18,8 @@ export interface UpdateWorkshopStatusResponse {
   data: IWorkshop;
   message: string;
 }
+
+export interface SendCertificatesResponse {
+  success: boolean;
+  message: string;
+}
