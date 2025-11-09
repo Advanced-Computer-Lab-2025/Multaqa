@@ -1064,6 +1064,7 @@ export default function HomePage() {
               spacing={{ xs: 1.5, sm: 3 }}
               justifyContent={{ xs: "center", sm: "flex-start" }}
               alignItems={{ xs: "center", sm: "flex-start" }}
+              sx={{ width: { xs: "100%", sm: "auto" } }}
             >
               <Typography
                 component={Link}
@@ -1688,15 +1689,22 @@ export default function HomePage() {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={4}
-            justifyContent="space-between"
-            alignItems={{ xs: "flex-start", md: "center" }}
+            justifyContent={{ xs: "center", md: "space-between" }}
+            alignItems={{ xs: "center", md: "center" }}
             sx={{
               textAlign: { xs: "center", md: "left" },
               gap: { xs: 3, md: 4 },
               width: "100%",
             }}
           >
-            <Box>
+            <Box
+              sx={{
+                width: { xs: "100%", md: "auto" },
+                display: "flex",
+                flexDirection: "column",
+                alignItems: { xs: "center", md: "flex-start" },
+              }}
+            >
               <Typography variant="h5" sx={{ fontWeight: 600 }}>
                 Multaqa
               </Typography>
@@ -1707,6 +1715,7 @@ export default function HomePage() {
                   mt: 1,
                   maxWidth: 320,
                   mx: { xs: "auto", md: 0 },
+                  textAlign: { xs: "center", md: "left" },
                 }}
               >
                 Bringing the GUC community together through dynamic events and
@@ -1718,6 +1727,7 @@ export default function HomePage() {
               direction="row"
               spacing={2}
               justifyContent={{ xs: "center", md: "flex-start" }}
+              sx={{ width: { xs: "100%", md: "auto" } }}
             >
               {[
                 {
