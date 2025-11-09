@@ -1,4 +1,4 @@
-import { Router, Response, NextFunction } from "express";
+import { Router, Response, NextFunction, Request } from "express";
 import Stripe from "stripe";
 import createError from "http-errors";
 import { EventsService } from "../services/eventService";
@@ -7,6 +7,8 @@ import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { UserRole } from "../constants/user.constants";
 import { CreateCheckoutSessionResponse } from "../interfaces/responses/paymentResponses.interface";
+import { sendPaymentReceiptEmail } from "../services/emailService";
+import { UserService } from "../services/userService";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 if (!stripeSecretKey) {
@@ -14,6 +16,7 @@ if (!stripeSecretKey) {
 }
 
 const stripe = new Stripe(stripeSecretKey);
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const DEFAULT_SUCCESS_URL =
@@ -23,6 +26,7 @@ const DEFAULT_CANCEL_URL =
   process.env.STRIPE_CANCEL_URL || "https://example.com/payments/cancel";
 
 const eventsService = new EventsService();
+const userService = new UserService();
 const router = Router();
 
 interface CreateCheckoutSessionBody {

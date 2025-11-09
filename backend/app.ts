@@ -7,6 +7,8 @@ import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
+import paymentRouter from "./routes/payment.routes";
+import webhooksRouter from "./routes/webhooks.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -31,10 +33,14 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
-import paymentRouter from "./routes/payment.routes";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
+// IMPORTANT: Mount webhook routes BEFORE json() middleware
+// Stripe webhooks need raw body for signature verification
+app.use("/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
+
 app.use(json());
 app.use(cookieParser());
 

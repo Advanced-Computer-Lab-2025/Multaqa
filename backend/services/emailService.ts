@@ -6,11 +6,15 @@ import {
   getCommentDeletionWarningTemplate,
   getPaymentReceiptTemplate,
   getCertificateOfAttendanceTemplate,
-  getApplicationStatusTemplate
+  getApplicationStatusTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
-export const sendVerificationEmail = async (userEmail: string, username: string, verificationLink: string) => {
+export const sendVerificationEmail = async (
+  userEmail: string,
+  username: string,
+  verificationLink: string
+) => {
   const html = getVerificationEmailTemplate(username, verificationLink);
   await sendEmail({
     to: userEmail,
@@ -37,13 +41,12 @@ export const sendBlockUnblockEmail = async (
   });
 };
 
-
 // Send staff role assignment email
 export const sendStaffRoleAssignmentEmail = async (
   userEmail: string,
   username: string,
   role: string,
-  verificationLink: string,
+  verificationLink: string
 ) => {
   const html = getStaffRoleAssignmentTemplate(username, role, verificationLink);
   await sendEmail({
@@ -77,29 +80,29 @@ export const sendCommentDeletionWarningEmail = async (
 };
 
 // Send payment receipt email
-export const sendPaymentReceiptEmail = async (
-  userEmail: string,
-  username: string,
-  transactionId: string,
-  amount: number,
-  currency: string,
-  itemName: string,
-  itemType: string,
-  paymentDate: Date,
-  paymentMethod: string
-) => {
+export const sendPaymentReceiptEmail = async (params: {
+  userEmail: string;
+  username: string;
+  transactionId: string;
+  amount: number;
+  currency: string;
+  itemName: string;
+  itemType: string;
+  paymentDate: Date;
+  paymentMethod: string;
+}) => {
   const html = getPaymentReceiptTemplate(
-    username,
-    transactionId,
-    amount,
-    currency,
-    itemName,
-    itemType,
-    paymentDate,
-    paymentMethod
+    params.username,
+    params.transactionId,
+    params.amount,
+    params.currency,
+    params.itemName,
+    params.itemType,
+    params.paymentDate,
+    params.paymentMethod
   );
   await sendEmail({
-    to: userEmail,
+    to: params.userEmail,
     subject: "✅ Payment Receipt - Multaqa",
     html,
   });
@@ -136,11 +139,11 @@ export const sendCertificateOfAttendanceEmail = async (
 export const sendApplicationStatusEmail = async (
   userEmail: string,
   username: string,
-  applicationType: 'bazaar' | 'booth',
+  applicationType: "bazaar" | "booth",
   applicationName: string,
-  status: 'accepted' | 'rejected',
+  status: "accepted" | "rejected",
   rejectionReason: string | undefined,
-  nextSteps: string | undefined,
+  nextSteps: string | undefined
 ) => {
   const html = getApplicationStatusTemplate(
     username,
@@ -148,12 +151,14 @@ export const sendApplicationStatusEmail = async (
     applicationName,
     status,
     rejectionReason,
-    nextSteps,
+    nextSteps
   );
 
-  const typeLabel = applicationType === 'bazaar' ? 'Bazaar' : 'Booth';
-  const statusEmoji = status === 'accepted' ? '✅' : '❌';
-  const subject = `${statusEmoji} ${typeLabel} Application ${status === 'accepted' ? 'Accepted' : 'Update'} - Multaqa`;
+  const typeLabel = applicationType === "bazaar" ? "Bazaar" : "Booth";
+  const statusEmoji = status === "accepted" ? "✅" : "❌";
+  const subject = `${statusEmoji} ${typeLabel} Application ${
+    status === "accepted" ? "Accepted" : "Update"
+  } - Multaqa`;
 
   await sendEmail({
     to: userEmail,
