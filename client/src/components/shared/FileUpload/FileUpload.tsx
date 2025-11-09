@@ -4,7 +4,6 @@ import {
   Typography,
   Box,
   IconButton,
-  useTheme,
   Card,
   CardMedia,
   CardContent,
@@ -23,7 +22,6 @@ const FileUpload: React.FC<UploadFieldProps> = ({
   width = 300,
   showPreviewAs = "file",
 }) => {
-  const theme = useTheme();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -61,16 +59,17 @@ const FileUpload: React.FC<UploadFieldProps> = ({
             </div>
             <div className="back-side cover" />
           </div>
-          <label className="custom-file-upload">
+          <div className="custom-file-upload">
             <input
               type="file"
               ref={inputRef}
               accept={accept}
               disabled={disabled}
               onChange={handleChange}
+              style={{ display: "none" }}
             />
             {label}
-          </label>
+          </div>
         </div>
       </StyledWrapper>
 
@@ -115,9 +114,7 @@ const FileUpload: React.FC<UploadFieldProps> = ({
                       }}
                     />
                   ) : (
-                    <InsertDriveFileIcon
-                      sx={{ color: theme.palette.primary.main }}
-                    />
+                    <InsertDriveFileIcon sx={{ color: "#ff9a56" }} />
                   )}
                   <CardContent sx={{ p: "0 !important" }}>
                     <Typography
@@ -129,7 +126,7 @@ const FileUpload: React.FC<UploadFieldProps> = ({
                     </Typography>
                     <Typography
                       variant="caption"
-                      color="text.secondary"
+                      color="#ff9a56"
                       sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
                     >
                       {formatFileSize(file.size)}

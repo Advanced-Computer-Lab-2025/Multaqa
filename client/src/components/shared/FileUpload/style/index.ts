@@ -12,8 +12,8 @@ export const StyledWrapper = styled("div")<{
 
   .container {
     --transition: 350ms;
-    --folder-W: 120px;
-    --folder-H: 80px;
+    --folder-W: 150px;
+    --folder-H: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,21 +24,23 @@ export const StyledWrapper = styled("div")<{
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     height:  ${
       typeof containerWidth === "number"
-        ? `${containerWidth * 0.5}px`
-        :  0.5 * Number(containerWidth.replace("px", "")) + "px"
+        ? `${containerWidth * 0.6}px`
+        : 0.6 * Number(containerWidth.replace("px", "")) + "px"
     };
     position: relative;
-    transition: transform var(--transition);
+    transition: transform var(--transition), border var(--transition);
+    border: 2px dashed transparent;
   }
 
   .container:hover {
     transform: scale(1.05);
+    border-color: #ff9a56;
   }
 
   .folder {
     position: absolute;
     top: -20px;
-    left: calc(50% - 60px);
+    left: calc(50% - 75px);
     transition: transform var(--transition) ease;
   }
 

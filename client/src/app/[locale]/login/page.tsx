@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <>
       <div
-        className="flex flex-col items-center justify-center gap-10"
+        className="flex flex-col items-center justify-center gap-20"
         style={{ transform: "scale(0.8)" }}
       >
         <LoginForm />
