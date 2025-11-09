@@ -47,7 +47,10 @@ async function createWorkshop(
     });
   } catch (err: any) {
     console.error("Error creating workshop:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error creating workshop'
+    );
   }
 }
 
@@ -85,7 +88,10 @@ async function updateWorkshop(
     });
   } catch (err: any) {
     console.error("Error updating workshop:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating workshop'
+    );
   }
 }
 
@@ -115,7 +121,10 @@ async function updateWorkshopStatus(
     });
   } catch (err: any) {
     console.error("Error updating workshop status:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating workshop status'
+    );
   }
 }
 
@@ -134,7 +143,10 @@ export async function sendCertificatesManually(
     });
   } catch (error: any) {
     console.error('Error sending certificates:', error);
-    throw createError(500, error.message);
+    throw createError(
+      error.status || 500,
+      error.message || 'Error sending certificates'
+    );
   }
 }
 

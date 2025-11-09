@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import e, { Router, Request, Response } from "express";
 import { UserService } from "../services/userService";
 import createError from "http-errors";
 import { EventsService } from "../services/eventService";
@@ -40,10 +40,10 @@ async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
       message: "Users retrieved successfully",
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving users'
+    );
   }
 }
 
@@ -59,7 +59,10 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
       message: "User retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving user'
+    );
   }
 }
 
@@ -68,40 +71,46 @@ async function registerForEvent(
   req: AuthenticatedRequest,
   res: Response<RegisterUserResponse>
 ) {
-  const { eventId } = req.params;
-  const userId = req.user?.id;
-  if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
+  try {
+    const { eventId } = req.params;
+    const userId = req.user?.id;
+    if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
 
-  const validatedData = validateEventRegistration(req.body);
-  if (validatedData.error) {
+    const validatedData = validateEventRegistration(req.body);
+    if (validatedData.error) {
+      throw createError(
+        400,
+        validatedData.error.details.map((d) => d.message).join(", ")
+      );
+    }
+
+    const updatedEvent = await eventsService.registerUserForEvent(
+      eventId,
+      userId
+    );
+
+    await userService.addEventToUser(
+      userId,
+      updatedEvent._id as Schema.Types.ObjectId
+    );
+
+    res.json({
+      success: true,
+      message: "User registered for event successfully",
+      data: updatedEvent,
+    });
+  } catch (err: any) {
     throw createError(
-      400,
-      validatedData.error.details.map((d) => d.message).join(", ")
+      err.status || 500,
+      err.message || 'Error registering for event'
     );
   }
-
-  const updatedEvent = await eventsService.registerUserForEvent(
-    eventId,
-    userId
-  );
-
-  await userService.addEventToUser(
-    userId,
-    updatedEvent._id as Schema.Types.ObjectId
-  );
-
-  res.json({
-    success: true,
-    message: "User registered for event successfully",
-    data: updatedEvent,
-  });
 }
 
 // Add event to user's favorites
 async function addToFavorites(
   req: AuthenticatedRequest,
   res: Response<AddToFavoritesResponse>,
-  next: any
 ) {
   try {
     const eventId = req.params.eventId;
@@ -124,7 +133,10 @@ async function addToFavorites(
       data: updatedUser,
     });
   } catch (err: any) {
-    next(err);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error adding to favorites'
+    );
   }
 }
 
@@ -132,7 +144,6 @@ async function addToFavorites(
 async function removeFromFavorites(
   req: AuthenticatedRequest,
   res: Response<RemoveFromFavoritesResponse>,
-  next: any
 ) {
   try {
     const eventId = req.params.eventId;
@@ -155,7 +166,10 @@ async function removeFromFavorites(
       data: updatedUser,
     });
   } catch (err: any) {
-    next(err);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error removing from favorites'
+    );
   }
 }
 
@@ -163,7 +177,6 @@ async function removeFromFavorites(
 async function getAllFavorites(
   req: AuthenticatedRequest,
   res: Response<GetFavoritesResponse>,
-  next: any
 ) {
   try {
     const userId = req.user?.id;
@@ -180,7 +193,10 @@ async function getAllFavorites(
       data: favorites,
     });
   } catch (err: any) {
-    next(err);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving favorites'
+    );
   }
 }
 
@@ -199,7 +215,10 @@ async function blockUser(req: Request, res: Response<BlockUserResponse>) {
     });
   } catch (err: any) {
     console.error("❌ Failed to block user:", err.message);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error blocking user'
+    );
   }
 }
 
@@ -217,7 +236,10 @@ async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
       message: "User unblocked successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error unblocking user'
+    );
   }
 }
 
@@ -233,7 +255,10 @@ async function getAllUnAssignedStaffMembers(
       message: "Unassigned staff members retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving unassigned staff members'
+    );
   }
 }
 
@@ -246,7 +271,10 @@ async function getAllTAs(req: Request, res: Response<GetAllTAsResponse>) {
       message: "TAs retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving TAs'
+    );
   }
 }
 
@@ -259,7 +287,10 @@ async function getAllStaff(req: Request, res: Response<GetAllStaffResponse>) {
       message: "Staff retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving staff members'
+    );
   }
 }
 
@@ -302,7 +333,10 @@ async function getAllProfessors(
     if (err.status || err.statusCode) {
       throw err;
     }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving professors'
+    );
   }
 }
 

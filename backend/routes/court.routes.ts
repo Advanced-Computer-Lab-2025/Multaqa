@@ -22,21 +22,16 @@ export async function getDayAvailableTimeSlots(req: Request, res: Response<getAv
       data: result,
       message: "Available slots retrieved successfully"
     });
-  } catch (error) {
-    if ((error as any).status || (error as any).statusCode) {
-      throw error;
-    }
-    throw createError(500, "Error retrieving available slots: " + (error as Error).message);
+  } catch (error: any) {
+    throw createError(
+      error.status || 500, 
+      error.message || 'Error retrieving available slots'
+    );
   }
 }
 
-
-
-
 async function getCourtDayAvailableTimeSlots(req: Request, res: Response<any>) {
   try {
-    
-
     const result = await courtService.getAllCourtsAvailability();
 
     res.json({
@@ -44,11 +39,11 @@ async function getCourtDayAvailableTimeSlots(req: Request, res: Response<any>) {
       data: result,
       message: "Available slots retrieved successfully"
     });
-  } catch (error) {
-    if ((error as any).status || (error as any).statusCode) {
-      throw error;
-    }
-    throw createError(500, "Error retrieving available slots: " + (error as Error).message);
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || 'Error retrieving available slots'
+    );
   }
 }
 
