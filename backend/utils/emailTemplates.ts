@@ -270,11 +270,7 @@ export const getPaymentReceiptTemplate = (
 export const getCertificateOfAttendanceTemplate = (
   username: string,
   workshopName: string,
-  workshopDate: Date,
-  duration: string,
-  instructor: string | undefined,
-  certificateId: string,
-  downloadLink?: string
+  certificateBuffer: Buffer
 ): string => {
   return `
     <div style="${baseStyles.container}">
@@ -293,42 +289,6 @@ export const getCertificateOfAttendanceTemplate = (
             <p style="margin: 15px 0 5px 0; font-size: 14px; opacity: 0.9;">Awarded to</p>
             <p style="margin: 0; font-size: 22px; font-weight: bold;">${username}</p>
           </div>
-          <div style="${baseStyles.infoBox}">
-            <h3 style="margin: 0 0 15px 0; color: #2563eb;">Workshop Details</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px 0; color: #555; font-weight: bold;">Workshop:</td>
-                <td style="padding: 8px 0; color: #333;">${workshopName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #555; font-weight: bold;">Date:</td>
-                <td style="padding: 8px 0; color: #333;">${workshopDate.toLocaleDateString()}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 0; color: #555; font-weight: bold;">Duration:</td>
-                <td style="padding: 8px 0; color: #333;">${duration}</td>
-              </tr>
-              ${instructor
-      ? `<tr>
-                    <td style="padding: 8px 0; color: #555; font-weight: bold;">Instructor:</td>
-                    <td style="padding: 8px 0; color: #333;">${instructor}</td>
-                  </tr>`
-      : ''
-    }
-              <tr>
-                <td style="padding: 8px 0; color: #555; font-weight: bold;">Certificate ID:</td>
-                <td style="padding: 8px 0; color: #333; font-family: monospace;">${certificateId}</td>
-              </tr>
-            </table>
-          </div>
-          ${downloadLink
-      ? `<div style="text-align: center; margin: 30px 0;">
-                <a href="${downloadLink}" target="_blank" style="${baseStyles.buttonSuccess}">
-                  📥 Download Certificate
-                </a>
-              </div>`
-      : ''
-    }
           <p style="font-size: 14px; color: #555;">
             We hope you found the workshop valuable and informative. Thank you for being part of the Multaqa community!
           </p>

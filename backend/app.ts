@@ -3,12 +3,20 @@ import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
+// Import routers
 import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
 import authRouter from "./routes/auth.routes";
 import workshopsRouter from "./routes/workshops.routes";
 import paymentRouter from "./routes/payment.routes";
 import webhooksRouter from "./routes/webhooks.routes";
+import userRouter from "./routes/user.routes";
+import gymSessionsRouter from "./routes/gymSessions.routes";
+import adminRouter from "./routes/admin.routes";
+import courtRouter from "./routes/court.routes";
+import paymentRouter from "./routes/payment.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -26,13 +34,10 @@ import "./schemas/event-schemas/platformBoothEventSchema";
 import "./schemas/event-schemas/tripSchema";
 import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
-import cookieParser from "cookie-parser";
+
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
-import userRouter from "./routes/user.routes";
-import gymSessionsRouter from "./routes/gymSessions.routes";
-import adminRouter from "./routes/admin.routes";
-import courtRouter from "./routes/court.routes";
+import { WorkshopScheduler } from "./services/workshopSchedulerService";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -44,12 +49,7 @@ app.use("/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
 app.use(json());
 app.use(cookieParser());
 
-// Dummy route
-app.get("/", (req, res) => {
-  res.send("Backend initialized!");
-});
 app.use("/auth", authRouter);
-
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);
@@ -83,3 +83,7 @@ app.use(errorHandler);
 app.use(notFoundHandler);
 
 startServer();
+
+// Start the workshop scheduler to send certificates periodically
+const scheduler = new WorkshopScheduler();
+scheduler.start();
