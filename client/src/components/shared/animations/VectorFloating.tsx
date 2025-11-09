@@ -36,6 +36,13 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
     )}, ${alpha(theme.palette.secondary.main, 0.25)})`,
     filter: "blur(60px)",
     zIndex: 0,
+    opacity: 0.6,
+    animation: "pulseGradient 5.8s ease-in-out infinite",
+    "@keyframes pulseGradient": {
+      "0%": { opacity: 0.35, transform: "scale(0.94)" },
+      "45%": { opacity: 0.7, transform: "scale(1)" },
+      "100%": { opacity: 0.35, transform: "scale(0.94)" },
+    },
   },
   shapes: [
     {
@@ -44,7 +51,7 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridRow: "1 / span 3",
         borderRadius: "999px",
         bgcolor: theme.palette.primary.main,
-        animation: "floatSlow 9s ease-in-out infinite",
+        animation: "floatSlow 6.5s ease-in-out infinite",
         animationDelay: "0s",
       },
     },
@@ -54,8 +61,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridRow: "1 / span 2",
         borderRadius: 2,
         bgcolor: theme.palette.secondary.main,
-        animation: "floatMed 11s ease-in-out infinite",
-        animationDelay: "0.8s",
+        animation: "floatMed 7.5s ease-in-out infinite",
+        animationDelay: "0.6s",
       },
     },
     {
@@ -64,8 +71,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridRow: "1 / span 2",
         borderRadius: "20px",
         bgcolor: theme.palette.tertiary.main,
-        animation: "floatFast 7.5s ease-in-out infinite",
-        animationDelay: "0.4s",
+        animation: "floatFast 5.5s ease-in-out infinite",
+        animationDelay: "0.3s",
       },
     },
     {
@@ -74,18 +81,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridRow: "4 / span 2",
         borderRadius: 2,
         bgcolor: theme.palette.tertiary.dark,
-        animation: "floatSlow 10s ease-in-out infinite",
-        animationDelay: "1.1s",
-      },
-    },
-    {
-      sx: {
-        gridColumn: "4 / span 2",
-        gridRow: "3 / span 3",
-        borderRadius: "50%",
-        bgcolor: theme.palette.primary.light,
-        animation: "floatMed 12s ease-in-out infinite",
-        animationDelay: "0.2s",
+        animation: "floatSlow 7.2s ease-in-out infinite",
+        animationDelay: "0.9s",
       },
     },
     {
@@ -94,8 +91,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridRow: "4 / span 3",
         bgcolor: theme.palette.secondary.dark,
         borderRadius: 1,
-        animation: "floatFast 8.5s ease-in-out infinite",
-        animationDelay: "1.6s",
+        animation: "floatFast 6.2s ease-in-out infinite",
+        animationDelay: "1.2s",
       },
     },
     {
@@ -104,8 +101,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridRow: "5 / span 2",
         borderRadius: "999px",
         bgcolor: theme.palette.primary.dark,
-        animation: "floatSlow 13s ease-in-out infinite",
-        animationDelay: "0.6s",
+        animation: "floatSlow 8.5s ease-in-out infinite",
+        animationDelay: "0.5s",
       },
     },
     {
@@ -116,8 +113,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        animation: "floatFast 9.5s ease-in-out infinite",
-        animationDelay: "1.3s",
+        animation: "floatFast 6.8s ease-in-out infinite",
+        animationDelay: "1s",
         "& > div": {
           width: "80%",
           height: 6,
@@ -134,8 +131,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         justifySelf: "center",
         borderRadius: 1,
         bgcolor: theme.palette.secondary.main,
-        animation: "floatMed 11.5s ease-in-out infinite",
-        animationDelay: "0.9s",
+        animation: "floatMed 7.8s ease-in-out infinite",
+        animationDelay: "0.7s",
       },
     },
     {
@@ -145,8 +142,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        animation: "floatFast 10.5s ease-in-out infinite",
-        animationDelay: "0.5s",
+        animation: "floatFast 7s ease-in-out infinite",
+        animationDelay: "0.4s",
         "& > div": {
           width: 12,
           height: "100%",
@@ -187,16 +184,33 @@ export default function VectorFloating({
         maxWidth: "600px",
         maxHeight: "600px",
         "@keyframes floatSlow": {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-8px)" },
+          "0%": { transform: "translate3d(0, 0, 0) scale(1)" },
+          "45%": { transform: "translate3d(14px, -18px, 0) scale(1.06)" },
+          "80%": { transform: "translate3d(-10px, -6px, 0) scale(0.97)" },
+          "100%": { transform: "translate3d(0, 0, 0) scale(1)" },
         },
         "@keyframes floatMed": {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(12px)" },
+          "0%": { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)" },
+          "35%": {
+            transform: "translate3d(-18px, 22px, 0) scale(0.95) rotate(-3deg)",
+          },
+          "70%": {
+            transform: "translate3d(12px, -16px, 0) scale(1.04) rotate(2deg)",
+          },
+          "100%": { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)" },
         },
         "@keyframes floatFast": {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-6px)" },
+          "0%": { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)" },
+          "25%": {
+            transform: "translate3d(14px, -16px, 0) scale(1.05) rotate(3deg)",
+          },
+          "55%": {
+            transform: "translate3d(-12px, 10px, 0) scale(0.95) rotate(-2deg)",
+          },
+          "85%": {
+            transform: "translate3d(8px, -12px, 0) scale(1.03) rotate(1deg)",
+          },
+          "100%": { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)" },
         },
       }}
     >

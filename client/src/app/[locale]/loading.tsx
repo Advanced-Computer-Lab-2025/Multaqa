@@ -1,8 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, alpha, CircularProgress, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { flushSync } from "react-dom";
+
+type FloatingShapeProps = {
+  delay: number;
+  duration: number;
+  size: number;
+  color: string;
+  borderRadius: string | number;
+  initialPosition: { x: number; y: number };
+  index: number;
+};
 
 const FloatingShape = ({
   delay,
@@ -12,8 +23,7 @@ const FloatingShape = ({
   borderRadius,
   initialPosition,
   index,
-  // disable eslint-disable-next-line @typescript-eslint/no-explicit-any
-}: any) => {
+}: FloatingShapeProps) => {
   const [position, setPosition] = useState(initialPosition);
 
   useEffect(() => {
@@ -49,22 +59,57 @@ const FloatingShape = ({
 
 export default function Loading() {
   const theme = useTheme();
-  const [isVisible, setIsVisible] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const progressTimerRef = useRef<number | null>(null);
+  const progressRef = useRef(0);
+  const isFinishingRef = useRef(false);
 
   useEffect(() => {
-    const progressInterval = setInterval(() => {
+    progressTimerRef.current = window.setInterval(() => {
       setLoadingProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => setIsVisible(false), 500);
-          return 100;
+        if (isFinishingRef.current || prev >= 95) {
+          return prev;
         }
-        return prev + Math.random() * 12;
-      });
-    }, 180);
 
-    return () => clearInterval(progressInterval);
+        const velocityBoost =
+          prev < 40 ? 16 : prev < 70 ? 9 : prev < 90 ? 5 : 2.5;
+        const jitter =
+          prev < 40 ? Math.random() * 6 : Math.random() * (prev < 70 ? 4 : 2);
+        return Math.min(prev + velocityBoost + jitter, 95);
+      });
+    }, 210);
+
+    return () => {
+      if (progressTimerRef.current) {
+        clearInterval(progressTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    progressRef.current = loadingProgress;
+
+    if (loadingProgress >= 99.5) {
+      isFinishingRef.current = true;
+      if (progressTimerRef.current) {
+        clearInterval(progressTimerRef.current);
+        progressTimerRef.current = null;
+      }
+    }
+  }, [loadingProgress]);
+
+  useEffect(() => {
+    return () => {
+      if (progressTimerRef.current) {
+        clearInterval(progressTimerRef.current);
+      }
+      if (progressRef.current < 100) {
+        flushSync(() => {
+          isFinishingRef.current = true;
+          setLoadingProgress(100);
+        });
+      }
+    };
   }, []);
 
   const shapes = [
@@ -116,17 +161,7 @@ export default function Loading() {
       duration: 4600,
       initialPosition: { x: 60, y: 35 },
     },
-    {
-      size: 75,
-      color: alpha(theme.palette.secondary.main, 0.7),
-      borderRadius: "12px",
-      delay: 500,
-      duration: 5000,
-      initialPosition: { x: 35, y: 55 },
-    },
   ];
-
-  if (!isVisible) return null;
 
   return (
     <Box
@@ -147,7 +182,7 @@ export default function Loading() {
         backgroundColor: theme.palette.background.default,
         zIndex: 9999,
         opacity: loadingProgress >= 100 ? 0 : 1,
-        transition: "opacity 0.5s ease-out",
+        transition: "opacity 0.4s ease-out",
         overflow: "hidden",
         "@keyframes float-0": {
           "0%, 100%": {
