@@ -5,12 +5,20 @@ import { validateConference } from "../validation/validateConference";
 import { validateCreateEvent } from "../validation/validateCreateEvent";
 import { validateUpdateConference } from "../validation/validateUpdateConference";
 import { validateUpdateEvent } from "../validation/validateUpdateEvent";
-import { GetEventsResponse, GetEventByIdResponse, CreateEventResponse, UpdateEventResponse, DeleteEventResponse } from "../interfaces/responses/eventResponses.interface";
+import {
+  GetEventsResponse,
+  GetEventByIdResponse,
+  CreateEventResponse,
+  UpdateEventResponse,
+  DeleteEventResponse,
+  DeleteReviewResponse,
+} from "../interfaces/responses/eventResponses.interface";
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
-import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware"
+import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware";
+import { UserService } from "../services/userService";
 
 const eventsService = new EventsService();
 
@@ -29,17 +37,20 @@ async function findAll(req: Request, res: Response<GetEventsResponse>) {
     res.json({
       success: true,
       data: events,
-      message: "Events retrieved successfully"
+      message: "Events retrieved successfully",
     });
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving events'
+      err.message || "Error retrieving events"
     );
   }
 }
 
-async function findAllWorkshops(req: Request, res: Response<GetEventsResponse>) {
+async function findAllWorkshops(
+  req: Request,
+  res: Response<GetEventsResponse>
+) {
   try {
     const events = await eventsService.getAllWorkshops();
     if (!events || events.length === 0) {
@@ -48,12 +59,12 @@ async function findAllWorkshops(req: Request, res: Response<GetEventsResponse>) 
     res.json({
       success: true,
       data: events,
-      message: "Workshops retrieved successfully"
+      message: "Workshops retrieved successfully",
     });
   } catch (err: any) {
     throw createError(
-      err.status || 500, 
-      err.message || 'Error retrieving workshops'
+      err.status || 500,
+      err.message || "Error retrieving workshops"
     );
   }
 }
@@ -68,12 +79,12 @@ async function findOne(req: Request, res: Response<GetEventByIdResponse>) {
     res.json({
       success: true,
       data: event,
-      message: "Event retrieved successfully"
+      message: "Event retrieved successfully",
     });
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving event'
+      err.message || "Error retrieving event"
     );
   }
 }
@@ -109,13 +120,10 @@ async function createEvent(req: Request, res: Response<CreateEventResponse>) {
     res.status(201).json({
       success: true,
       data: event,
-      message: "Event created successfully"
+      message: "Event created successfully",
     });
   } catch (err: any) {
-    throw createError(
-      err.status || 500,
-      err.message || 'Error creating event'
-    );
+    throw createError(err.status || 500, err.message || "Error creating event");
   }
 }
 
@@ -153,14 +161,11 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
     res.status(200).json({
       success: true,
       data: updatedEvent,
-      message: "Event updated successfully"
+      message: "Event updated successfully",
     });
   } catch (err: any) {
     console.error("Error updating Event:", err);
-    throw createError(
-      err.status || 500,
-      err.message || 'Error updating event'
-    );
+    throw createError(err.status || 500, err.message || "Error updating event");
   }
 }
 
@@ -171,23 +176,118 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
     res.json({
       success: true,
       data: deletedEvent,
-      message: "Event deleted successfully"
+      message: "Event deleted successfully",
+    });
+  } catch (err: any) {
+    throw createError(err.status || 500, err.message || "Error deleting event");
+  }
+}
+
+async function deleteReview(req: Request, res: Response<DeleteReviewResponse>) {
+  try {
+    const eventId = req.params.eventId;
+    const reviewId = req.params.reviewId;
+
+    await eventsService.deleteReview(eventId, reviewId);
+
+    res.json({
+      success: true,
+      message: "Review deleted successfully",
     });
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error deleting event'
+      err.message || "Error deleting review"
     );
   }
 }
 
 const router = Router();
-router.get("/", applyRoleBasedFilters, authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.VENDOR] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findAll);
-router.post("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), createEvent);
-router.get("/workshops", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR] }), findAllWorkshops);
-router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT] , adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findOne);
-router.delete("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), deleteEvent);
-router.patch("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateEvent);
+router.get(
+  "/",
+  applyRoleBasedFilters,
+  authorizeRoles({
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+      UserRole.VENDOR,
+    ],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  findAll
+);
+router.post(
+  "/",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  createEvent
+);
+router.get(
+  "/workshops",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  findAllWorkshops
+);
+router.get(
+  "/:id",
+  authorizeRoles({
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+    ],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  findOne
+);
+router.delete(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  deleteEvent
+);
+router.patch(
+  "/:id",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  updateEvent
+);
+router.delete(
+  "/:eventId/reviews/:reviewId",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  deleteReview
+);
 
 export default router;
-

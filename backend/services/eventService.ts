@@ -11,6 +11,8 @@ import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import Stripe from "stripe";
+import { sendCommentDeletionWarningEmail } from "./emailService";
+import { UserService } from "./userService";
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
@@ -21,12 +23,15 @@ export class EventsService {
   private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
   private stripe?: Stripe;
+  private userService: UserService;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
     this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
+    this.userService = new UserService();
+
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -346,5 +351,42 @@ export class EventsService {
     event.attendees?.push(userId);
     await event.save();
     return event;
+  }
+
+  async deleteReview(eventId: string, reviewId: string): Promise<void> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [{ path: "reviews" }] as any,
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if (!event.reviews || event.reviews.length === 0) {
+      throw createError(404, "No reviews found for this event");
+    }
+
+    const reviewIndex = event.reviews.findIndex(
+      (review: any) => review._id?.toString() === reviewId
+    );
+
+    if (reviewIndex === -1) {
+      throw createError(404, "Review not found in this event");
+    }
+    const review = event.reviews[reviewIndex] as any;
+    const reviewer = await this.userService.getUserById(review.reviewerId);
+    const reviewerName = (reviewer as any).firstName
+      ? `${(reviewer as any).firstName} ${(reviewer as any).lastName}`
+      : reviewer.email;
+
+    await sendCommentDeletionWarningEmail(
+      reviewer.email,
+      reviewerName,
+      review.comment || "No comment text",
+      "Admin action",
+      event.eventName,
+      0
+    );
+    event.reviews.splice(reviewIndex, 1);
+    await event.save();
   }
 }
