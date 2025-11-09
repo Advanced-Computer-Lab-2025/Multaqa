@@ -10,6 +10,7 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import type { Theme, SxProps } from "@mui/material/styles";
@@ -28,6 +29,8 @@ import { Link } from "@/i18n/navigation";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomAccordion from "@/components/shared/Accordions/CustomAccordion";
 import CustomModalLayout from "@/components/shared/modals/CustomModalLayout";
+
+const consentStorageKey = "multaqa-consent-v1";
 
 const signUpOptions = [
   {
@@ -174,12 +177,14 @@ const MenuToggleButton = ({
 
 export default function HomePage() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [showSignUpOptions, setShowSignUpOptions] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isPageExiting, setIsPageExiting] = useState(false);
+  const [isConsentOpen, setIsConsentOpen] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -202,6 +207,38 @@ export default function HomePage() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    const originalPadding = document.body.style.paddingRight;
+
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = "0px";
+    } else {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPadding;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPadding;
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const storedConsent = window.localStorage.getItem(consentStorageKey);
+    if (!storedConsent) {
+      setIsConsentOpen(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -263,6 +300,53 @@ export default function HomePage() {
       document.removeEventListener("keydown", handleKeydown);
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!isMobile || !showSignUpOptions) {
+      return;
+    }
+
+    const handleOutsideInteraction = (event: MouseEvent | TouchEvent) => {
+      if (!signUpHoverRef.current) {
+        return;
+      }
+      const target = event.target as Node | null;
+      if (target && signUpHoverRef.current.contains(target)) {
+        return;
+      }
+      setShowSignUpOptions(false);
+    };
+
+    document.addEventListener("click", handleOutsideInteraction);
+    document.addEventListener("touchstart", handleOutsideInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideInteraction);
+      document.removeEventListener("touchstart", handleOutsideInteraction);
+    };
+  }, [isMobile, showSignUpOptions]);
+
+  const persistConsent = (status: "accepted" | "dismissed") => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        consentStorageKey,
+        JSON.stringify({
+          status,
+          updatedAt: new Date().toISOString(),
+        })
+      );
+    }
+  };
+
+  const handleAcceptConsent = () => {
+    persistConsent("accepted");
+    setIsConsentOpen(false);
+  };
+
+  const handleDismissConsent = () => {
+    persistConsent("dismissed");
+    setIsConsentOpen(false);
+  };
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   const openLocaleModal = () => setIsLocaleModalOpen(true);
@@ -520,6 +604,85 @@ export default function HomePage() {
         </Stack>
       </CustomModalLayout>
 
+      <CustomModalLayout
+        open={isConsentOpen}
+        onClose={handleDismissConsent}
+        width="w-[90vw] sm:w-[480px]"
+      >
+        <Stack spacing={3}>
+          <Stack spacing={1}>
+            <Typography component="h2" variant="h5" sx={{ fontWeight: 600 }}>
+              Your Privacy Choices
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: alpha(theme.palette.text.primary, 0.65) }}
+            >
+              We use essential cookies to keep Multaqa running and optional
+              analytics to improve your experience. Review the policies below to
+              learn how we process data.
+            </Typography>
+          </Stack>
+
+          <Stack spacing={1}>
+            {[
+              { href: "/privacy", label: "Privacy Policy" },
+              { href: "/terms", label: "Terms of Service" },
+              { href: "/cookies", label: "Cookies Policy" },
+              { href: "/gdpr", label: "GDPR Compliance" },
+              { href: "/support", label: "Support" },
+            ].map((item) => (
+              <Typography
+                key={item.href}
+                component={Link}
+                href={item.href}
+                sx={{
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  color: theme.palette.primary.main,
+                  "&:hover": {
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                {item.label}
+              </Typography>
+            ))}
+          </Stack>
+
+          <Typography
+            variant="caption"
+            sx={{ color: alpha(theme.palette.text.primary, 0.6) }}
+          >
+            You can revisit these settings anytime from the footer links. We
+            respect your choices and only store this preference in your browser.
+          </Typography>
+
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            justifyContent="flex-end"
+          >
+            <CustomButton
+              variant="outlined"
+              color="primary"
+              onClick={handleDismissConsent}
+              sx={{ width: { xs: "100%", sm: "auto" } }}
+            >
+              Continue without optional cookies
+            </CustomButton>
+            <CustomButton
+              variant="contained"
+              color="secondary"
+              onClick={handleAcceptConsent}
+              sx={{ width: { xs: "100%", sm: "auto" }, fontWeight: 700 }}
+            >
+              Accept all
+            </CustomButton>
+          </Stack>
+        </Stack>
+      </CustomModalLayout>
+
       <Box
         ref={dialogRef}
         role="dialog"
@@ -534,6 +697,9 @@ export default function HomePage() {
           opacity: isMenuOpen ? 1 : 0,
           pointerEvents: isMenuOpen ? "auto" : "none",
           transition: "opacity 0.25s ease",
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorY: "contain",
         }}
         onClick={() => setIsMenuOpen(false)}
       >
@@ -541,11 +707,13 @@ export default function HomePage() {
           maxWidth="lg"
           sx={{
             position: "relative",
-            height: "100%",
+            minHeight: "100%",
             display: "flex",
             flexDirection: "column",
             py: { xs: 6, md: 10 },
             gap: 6,
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
           }}
           onClick={(event) => event.stopPropagation()}
         >
@@ -894,6 +1062,8 @@ export default function HomePage() {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={{ xs: 1.5, sm: 3 }}
+              justifyContent={{ xs: "center", sm: "flex-start" }}
+              alignItems={{ xs: "center", sm: "flex-start" }}
             >
               <Typography
                 component={Link}
@@ -939,11 +1109,20 @@ export default function HomePage() {
             pb: { xs: 10, md: 14 },
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            gap: { xs: 6, md: 10 },
+          alignItems: { xs: "center", md: "center" },
+          gap: { xs: 7, md: 10 },
+          textAlign: { xs: "center", md: "left" },
           }}
         >
-          <Box sx={{ flex: { md: 1 }, position: "relative", zIndex: 1 }}>
+        <Box
+          sx={{
+            flex: { md: 1 },
+            position: "relative",
+            zIndex: 1,
+            width: "100%",
+            maxWidth: { xs: 560, md: "100%" },
+          }}
+        >
             <Typography
               variant="overline"
               sx={{
@@ -965,6 +1144,7 @@ export default function HomePage() {
                 lineHeight: 1.1,
                 color: theme.palette.text.primary,
                 mt: 2,
+                textAlign: { xs: "center", md: "left" },
               }}
             >
               Artful events for every voice on campus.
@@ -973,9 +1153,10 @@ export default function HomePage() {
               variant="body1"
               sx={{
                 mt: 3,
-                maxWidth: 520,
+                maxWidth: { xs: 560, md: 520 },
                 color: alpha(theme.palette.text.primary, 0.75),
                 fontSize: { xs: "1rem", md: "1.1rem" },
+                mx: { xs: "auto", md: 0 },
               }}
             >
               Multaqa reimagines campus life with a vibrant hub for showcasing
@@ -986,7 +1167,12 @@ export default function HomePage() {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={2.5}
-              sx={{ mt: 5 }}
+              sx={{
+                mt: 5,
+                width: "100%",
+                alignItems: { xs: "stretch", sm: "center", md: "flex-start" },
+                justifyContent: { xs: "center", md: "flex-start" },
+              }}
             >
               <CustomButton
                 variant="contained"
@@ -1005,6 +1191,9 @@ export default function HomePage() {
               <Box
                 ref={signUpHoverRef}
                 onMouseEnter={() => {
+                  if (isMobile) {
+                    return;
+                  }
                   if (signUpHoverTimeout.current) {
                     clearTimeout(signUpHoverTimeout.current);
                     signUpHoverTimeout.current = null;
@@ -1012,6 +1201,9 @@ export default function HomePage() {
                   setShowSignUpOptions(true);
                 }}
                 onMouseLeave={(event) => {
+                  if (isMobile) {
+                    return;
+                  }
                   const nextTarget = event.relatedTarget as Node | null;
                   if (
                     nextTarget &&
@@ -1030,6 +1222,7 @@ export default function HomePage() {
                 sx={{
                   position: "relative",
                   width: { xs: "100%", sm: "200px" },
+                  maxWidth: "100%",
                 }}
               >
                 <CustomButton
@@ -1037,6 +1230,13 @@ export default function HomePage() {
                   color="primary"
                   label="Sign Up"
                   endIcon={<ArrowOutwardIcon />}
+                  onClick={() => {
+                    if (isMobile) {
+                      setShowSignUpOptions((prev) => !prev);
+                    }
+                  }}
+                  aria-haspopup="true"
+                  aria-expanded={showSignUpOptions}
                   sx={{
                     width: "100%",
                     fontWeight: 700,
@@ -1047,6 +1247,9 @@ export default function HomePage() {
                 <Paper
                   elevation={8}
                   onMouseEnter={() => {
+                    if (isMobile) {
+                      return;
+                    }
                     if (signUpHoverTimeout.current) {
                       clearTimeout(signUpHoverTimeout.current);
                       signUpHoverTimeout.current = null;
@@ -1054,6 +1257,9 @@ export default function HomePage() {
                     setShowSignUpOptions(true);
                   }}
                   onMouseLeave={(event) => {
+                    if (isMobile) {
+                      return;
+                    }
                     const nextTarget = event.relatedTarget as Node | null;
                     if (
                       nextTarget &&
@@ -1071,7 +1277,7 @@ export default function HomePage() {
                   }}
                   sx={{
                     position: "absolute",
-                    top: { xs: "64px", sm: "54px" },
+                    top: { xs: "72px", sm: "54px" },
                     left: 0,
                     width: { xs: "100%", sm: 260 },
                     borderRadius: 3,
@@ -1138,8 +1344,10 @@ export default function HomePage() {
             sx={{
               flex: { md: 1 },
               position: "relative",
-              minHeight: { xs: 360, sm: 420 },
+              minHeight: { xs: 300, sm: 380, md: 420 },
               width: "100%",
+              maxWidth: { xs: 520, md: "100%" },
+              mx: { xs: "auto", md: 0 },
               opacity: isPageExiting ? 0 : 1,
               transition: "opacity 0.5s ease-out",
             }}
@@ -1165,7 +1373,7 @@ export default function HomePage() {
                 display: "grid",
                 gridTemplateColumns: "repeat(6, 1fr)",
                 gridTemplateRows: "repeat(6, 1fr)",
-                gap: 14,
+                gap: { xs: 9, sm: 12, md: 14 },
                 animation: isPageExiting
                   ? "exitToLoading 0.8s ease-in-out forwards"
                   : "none",
@@ -1351,7 +1559,10 @@ export default function HomePage() {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={3}
-            sx={{ mt: { xs: 6, md: 8 } }}
+            sx={{
+              mt: { xs: 6, md: 8 },
+              alignItems: "stretch",
+            }}
           >
             {featureHighlights.map((feature) => (
               <Paper
@@ -1366,6 +1577,7 @@ export default function HomePage() {
                     0.15
                   )}`,
                   background: alpha(theme.palette.primary.light, 0.04),
+                  height: "100%",
                 }}
               >
                 <Box
@@ -1439,6 +1651,7 @@ export default function HomePage() {
               display: "flex",
               flexDirection: "column",
               gap: 2.5,
+              px: { xs: 1, md: 0 },
             }}
           >
             {faqItems.map((faq) => (
@@ -1469,6 +1682,7 @@ export default function HomePage() {
             display: "flex",
             flexDirection: "column",
             gap: 4,
+            alignItems: { xs: "center", md: "stretch" },
           }}
         >
           <Stack
@@ -1476,6 +1690,11 @@ export default function HomePage() {
             spacing={4}
             justifyContent="space-between"
             alignItems={{ xs: "flex-start", md: "center" }}
+            sx={{
+              textAlign: { xs: "center", md: "left" },
+              gap: { xs: 3, md: 4 },
+              width: "100%",
+            }}
           >
             <Box>
               <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -1483,14 +1702,23 @@ export default function HomePage() {
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ opacity: 0.75, mt: 1, maxWidth: 320 }}
+                sx={{
+                  opacity: 0.75,
+                  mt: 1,
+                  maxWidth: 320,
+                  mx: { xs: "auto", md: 0 },
+                }}
               >
                 Bringing the GUC community together through dynamic events and
                 collaborative storytelling.
               </Typography>
             </Box>
 
-            <Stack direction="row" spacing={2}>
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent={{ xs: "center", md: "flex-start" }}
+            >
               {[
                 {
                   icon: <InstagramIcon />,
@@ -1535,6 +1763,7 @@ export default function HomePage() {
                   color: "inherit",
                   textDecoration: "none",
                   "&:hover": { color: theme.palette.secondary.main },
+                  textAlign: "center",
                 }}
               >
                 Privacy Policy
@@ -1546,6 +1775,7 @@ export default function HomePage() {
                   color: "inherit",
                   textDecoration: "none",
                   "&:hover": { color: theme.palette.secondary.main },
+                  textAlign: "center",
                 }}
               >
                 Terms of Service
@@ -1557,6 +1787,7 @@ export default function HomePage() {
                   color: "inherit",
                   textDecoration: "none",
                   "&:hover": { color: theme.palette.secondary.main },
+                  textAlign: "center",
                 }}
               >
                 Support
@@ -1568,7 +1799,10 @@ export default function HomePage() {
             sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }}
           />
 
-          <Typography variant="body2" sx={{ opacity: 0.7 }}>
+          <Typography
+            variant="body2"
+            sx={{ opacity: 0.7, textAlign: { xs: "center", md: "left" } }}
+          >
             © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC
             community.
           </Typography>
