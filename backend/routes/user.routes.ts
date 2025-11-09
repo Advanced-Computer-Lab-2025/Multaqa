@@ -18,6 +18,7 @@ import {
   AddToFavoritesResponse,
   RemoveFromFavoritesResponse,
   GetFavoritesResponse,
+  PayWithWalletResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
@@ -184,6 +185,50 @@ async function getAllFavorites(
   }
 }
 
+// Pay for event using wallet balance
+async function payWithWallet(
+  req: AuthenticatedRequest,
+  res: Response<PayWithWalletResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    // Get event price before payment
+    const { Event } = await import("../schemas/event-schemas/eventSchema");
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const amountPaid = event.price || 0;
+
+    // Process payment
+    const updatedUser = await userService.payWithWallet(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Payment successful",
+      data: {
+        walletBalance: (updatedUser as any).walletBalance || 0,
+        amountPaid: amountPaid,
+      },
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
 async function blockUser(req: Request, res: Response<BlockUserResponse>) {
   try {
     const userId = req.params.id;
@@ -269,7 +314,10 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
     const { userId } = req.params;
     const { position } = req.body;
 
-    const user = await userService.assignRoleAndSendVerification(userId, position);
+    const user = await userService.assignRoleAndSendVerification(
+      userId,
+      position
+    );
 
     res.json({
       success: true,
@@ -430,6 +478,19 @@ router.post(
     ],
   }),
   addToFavorites
+);
+
+router.patch(
+  "/payments/:eventId/wallet",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  payWithWallet
 );
 
 router.delete(
