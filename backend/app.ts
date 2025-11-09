@@ -1,7 +1,7 @@
+import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
-import dotenv from "dotenv";
 import cors from "cors";
 import eventRouter from "./routes/event.routes";
 import vendorEventsRouter from "./routes/vendorEvents.routes";
@@ -31,7 +31,7 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
-dotenv.config();
+import paymentRouter from "./routes/payment.routes";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -53,6 +53,7 @@ app.use("/vendorEvents", vendorEventsRouter);
 app.use("/eventsOffice", workshopsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
+app.use("/payments", paymentRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
