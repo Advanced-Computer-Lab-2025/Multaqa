@@ -1,17 +1,20 @@
 import { IUser } from "../interfaces/models/user.interface";
-import mongoose from "mongoose";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
 import { populateMap } from "../utils/userPopulationMap";
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
-import { sendBlockUnblockEmail, sendStaffRoleAssignmentEmail, sendVerificationEmail } from "./emailService";
+import {
+  sendBlockUnblockEmail,
+  sendStaffRoleAssignmentEmail,
+  sendVerificationEmail,
+} from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -92,19 +95,24 @@ export class UserService {
         ? new mongoose.Types.ObjectId(eventId)
         : eventId;
 
-    // Ensure favorites array exists locally
+    // Ensure favorites array exists
     const finalFavorites: any[] =
       user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
 
-    // Add only if not already present
+    // debug logs removed
+
+    // If already present, return a 400 error
     const exists = finalFavorites.some(
       (fav: any) => fav.toString() === objectId.toString()
     );
-    if (!exists) {
-      finalFavorites.push(objectId as any);
-      user.favorites = finalFavorites as any;
-      await user.save();
+    if (exists) {
+      throw createError(400, "This event is already in your favorites list");
     }
+
+    // Add to favorites
+    finalFavorites.push(objectId as any);
+    user.favorites = finalFavorites as any;
+    await user.save();
 
     return user;
   }
@@ -125,20 +133,26 @@ export class UserService {
         ? new mongoose.Types.ObjectId(eventId)
         : eventId;
 
-    // If favorites is not an array, ensure it's an empty array
+    // Ensure favorites array exists
     const finalFavorites: any[] =
       user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
 
-    // Remove any matching entries
+    // debug logs removed
+
+    // If not present, return 404
+    const exists = finalFavorites.some(
+      (fav: any) => fav.toString() === objectId.toString()
+    );
+    if (!exists) {
+      throw createError(404, "Event not found in favorites");
+    }
+
+    // Remove and persist
     const filtered = finalFavorites.filter(
       (fav: any) => fav.toString() !== objectId.toString()
     );
-
-    // Only save if something changed
-    if (filtered.length !== finalFavorites.length) {
-      user.favorites = filtered as any;
-      await user.save();
-    }
+    user.favorites = filtered as any;
+    await user.save();
 
     return user;
   }
@@ -156,6 +170,40 @@ export class UserService {
     });
 
     return (populated || user) as IUser;
+  }
+
+  // Pay for event using wallet balance
+  async payWithWallet(userId: string, eventId: string): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Fetch event to get the price
+    const { Event } = await import("../schemas/event-schemas/eventSchema");
+    const event = await Event.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    // Check if user has sufficient wallet balance
+    const walletBalance = user.walletBalance || 0;
+    if (walletBalance < event.price) {
+      throw createError(400, "Insufficient wallet balance");
+    }
+
+    // Deduct price from wallet
+    user.walletBalance = walletBalance - event.price;
+    await user.save();
+
+    return user;
   }
 
   async blockUser(id: string): Promise<void> {
@@ -237,10 +285,16 @@ export class UserService {
     await user.save();
 
     // Generate verification token
-    const verificationToken = this.verificationService.generateVerificationToken(user);
+    const verificationToken =
+      this.verificationService.generateVerificationToken(user);
     // Send verification email
     const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
-    await sendStaffRoleAssignmentEmail(user.email, user.firstName, position, link);
+    await sendStaffRoleAssignmentEmail(
+      user.email,
+      user.firstName,
+      position,
+      link
+    );
     console.log("Verification email sent to:", user.email);
 
     // Remove password from response

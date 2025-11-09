@@ -1,7 +1,7 @@
+import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import { json } from "body-parser";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -14,6 +14,7 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
+import paymentRouter from "./routes/payment.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -35,7 +36,6 @@ import "./config/redisClient";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import { WorkshopScheduler } from "./services/workshopSchedulerService";
-dotenv.config();
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -52,6 +52,7 @@ app.use("/vendorEvents", vendorEventsRouter);
 app.use("/eventsOffice", workshopsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
+app.use("/payments", paymentRouter);
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
