@@ -110,20 +110,12 @@ export const sendCertificateOfAttendanceEmail = async (
   userEmail: string,
   username: string,
   workshopName: string,
-  workshopDate: Date,
-  duration: string,
-  instructor: string | undefined,
-  certificateId: string,
-  downloadLink?: string
+  certificateBuffer: Buffer
 ) => {
   const html = getCertificateOfAttendanceTemplate(
     username,
     workshopName,
-    workshopDate,
-    duration,
-    instructor,
-    certificateId,
-    downloadLink
+    certificateBuffer
   );
   await sendEmail({
     to: userEmail,

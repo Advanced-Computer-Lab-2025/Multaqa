@@ -27,6 +27,8 @@ const EventSchema = new Schema<IEvent>(
     registrationDeadline: { type: Date, required: true },
     location: { type: String, required: true, default: "" },
     description: { type: String, required: true },
+    stripeProductId: { type: String },
+    stripePriceId: { type: String },
   },
   { discriminatorKey: "type", collection: "events", timestamps: true }
 );

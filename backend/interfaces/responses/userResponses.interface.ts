@@ -77,3 +77,12 @@ export interface GetFavoritesResponse {
   data: Omit<IStaffMember, "password">[];
   message: string;
 }
+
+export interface PayWithWalletResponse {
+  success: boolean;
+  data: {
+    walletBalance: number;
+    amountPaid: number;
+  };
+  message: string;
+}

@@ -5,6 +5,7 @@ import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
 import { WorkshopService } from "../services/workshopsService";
 import {
   CreateWorkshopResponse,
+  SendCertificatesResponse,
   UpdateWorkshopResponse,
 } from "../interfaces/responses/workshopsResponses.interface";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
@@ -46,7 +47,10 @@ async function createWorkshop(
     });
   } catch (err: any) {
     console.error("Error creating workshop:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error creating workshop'
+    );
   }
 }
 
@@ -84,7 +88,10 @@ async function updateWorkshop(
     });
   } catch (err: any) {
     console.error("Error updating workshop:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating workshop'
+    );
   }
 }
 
@@ -114,7 +121,32 @@ async function updateWorkshopStatus(
     });
   } catch (err: any) {
     console.error("Error updating workshop status:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating workshop status'
+    );
+  }
+}
+
+export async function sendCertificatesManually(
+  req: Request,
+  res: Response<SendCertificatesResponse>
+): Promise<void> {
+  try {
+    const { eventId } = req.params;
+
+    await workshopService.sendCertificatesForWorkshop(eventId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Certificates sent successfully'
+    });
+  } catch (error: any) {
+    console.error('Error sending certificates:', error);
+    throw createError(
+      error.status || 500,
+      error.message || 'Error sending certificates'
+    );
   }
 }
 
@@ -127,6 +159,16 @@ router.patch(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   updateWorkshopStatus
+);
+
+// Used ONLY during testing for manual triggering of certificate sending
+router.patch(
+  "/:eventId/sendcertificates",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  sendCertificatesManually
 );
 
 router.post(

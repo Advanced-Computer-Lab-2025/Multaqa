@@ -36,4 +36,6 @@ export interface IEvent extends Document {
   createdBy: IUser | string;
   createdAt: Date;
   updatedAt: Date;
+  stripeProductId?: string;
+  stripePriceId?: string;
 }
