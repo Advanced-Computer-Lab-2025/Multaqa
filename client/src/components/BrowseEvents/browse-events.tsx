@@ -33,6 +33,7 @@ import EventIcon from "@mui/icons-material/Event";
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
+import SortByDate from '@/components/shared/SortBy/sortByDate';
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -96,6 +97,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string>(""); // Default: no sorting
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
@@ -134,10 +136,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   const handleRegistered = () => {
     setLoading(true);
-    console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
     const result = frameData(registeredEvents);
-    console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
   };
@@ -150,9 +150,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const res = await api.get("/events");
         const data = res.data.data;
         const result = frameData(data);
-        const newResults = user === "vendor"
-        ? result.filter((event) => event.type === "bazaar")
-        : result;
+        const newResults =
+          user === "vendor"
+            ? result.filter((event) => event.type === "bazaar")
+            : result;
         setEvents(newResults);
       }
     } catch (err) {
@@ -169,32 +170,31 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       window.alert(error.response.data.error);
     }
   };
 
-  // Use useCallback to memoize the search handler
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    []
+  );
+
+  const handleSortChange = useCallback((value: string) => {
+    setSortBy(value);
   }, []);
 
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-    if (user === "events-only") {
-      filtered = filtered.filter((event) =>
-        ["bazaar", "trip", "conference"].includes(event.type)
-      );
-    }
 
     // Apply search filter
     if (searchQuery.trim()) {
       filtered = filtered.filter((event) => {
         const query = searchQuery.toLowerCase();
 
-        // Handle booth events differently since they don't have name/description
         if (event.type === EventType.BOOTH) {
           return (
             (event.company?.toLowerCase() || "").includes(query) ||
@@ -212,7 +212,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           );
         }
 
-        // Handle other event types
         return (
           ("name" in event && event.name.toLowerCase().includes(query)) ||
           ("description" in event &&
@@ -225,22 +224,54 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         );
       });
     }
-
     // Apply type filter
     if (filters.eventType && filters.eventType.length > 0) {
       const eventTypes = filters.eventType;
       filtered = filtered.filter((event) => eventTypes.includes(event.type));
     }
 
-    return filtered;
-  }, [searchQuery, filters, events]);
+    // Apply sorting logic
+    const parseDate = (dateStr: string | undefined) => {
+      if (!dateStr) return 0; // Default to earliest possible date
+      const parsedDate = Date.parse(dateStr); // Handles ISO 8601 format
+      return isNaN(parsedDate) ? 0 : parsedDate; // Fallback to 0 if parsing fails
+    };
 
-  const handleFilterChange = useCallback((groupId: string, value: FilterValue) => {
-    setFilters((prev) => ({
-      ...prev,
-      [groupId]: value,
-    }));
-  }, []);
+    switch (sortBy) {
+      case "start_asc":
+        console.log("Sorting by start date (ascending)");
+        filtered.sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateA - dateB;
+        });
+        break;
+
+      case "start_desc":
+        console.log("Sorting by start date (descending)");
+        filtered.sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateB - dateA;
+        });
+        break;
+      default:
+        break;
+    }
+    return filtered;
+  }, [searchQuery, filters, events, sortBy]);
+
+  const handleFilterChange = useCallback(
+    (groupId: string, value: FilterValue) => {
+      setFilters((prev) => ({
+        ...prev,
+        [groupId]: value,
+      }));
+    },
+    []
+  );
 
   const handleResetFilters = useCallback(() => {
     setFilters({});
@@ -375,7 +406,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         </Typography>
       </Box>
 
-      {/* Search and Filter Row */}
+      {/* Search, Filter, and Sort Row */}
       <Box
         sx={{
           display: "flex",
@@ -402,12 +433,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           currentFilters={filters}
           onReset={handleResetFilters}
         />
-        {user === "events-only" && (
-          <MenuOptionComponent
-            options={Eventoptions}
-            setters={EventOptionsSetters}
-          />
-        )}
+        <SortByDate value={sortBy} onChange={handleSortChange} />
       </Box>
 
       {/* Loading State */}
@@ -430,52 +456,39 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Events Grid */}
       {!loading && !error && (
-        <>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(3, 1fr)",
-              },
-              gap: 3,
-            }}
-          >
-            {filteredEvents.map((event) => (
-              <Box key={event.id}>
-                {renderEventComponent(event, registered)}
-              </Box>
-            ))}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: "repeat(2, 1fr)",
+              lg: "repeat(3, 1fr)",
+            },
+            gap: 3,
+          }}
+        >
+          {filteredEvents.map((event) => (
+            <Box key={event.id}>{renderEventComponent(event, registered)}</Box>
+          ))}
 
-            {/* No results message */}
-            {filteredEvents.length === 0 && events.length === 0 && (
-              <EmptyState
-                title="No events available"
-                description="There are no events in our archives yet. Check back later!"
-                imageAlt="No events illustration"
-              />
-            )}
-
-            {/* No results message */}
-            {filteredEvents.length === 0 && events.length > 0 && (
-              <EmptyState
-                title="No events found"
-                description="Try adjusting your search or filters"
-                imageAlt="Empty search results illustration"
-              />
-            )}
-          </Box>
-
-          {/* Results counter */}
-          {events.length > 0 && (
-            <Box sx={{ mt: 2, textAlign: "center" }}>
-              <Typography variant="caption" color="text.secondary">
-                Browsing {filteredEvents.length} of {events.length} events
-              </Typography>
-            </Box>
+          {/* No results message */}
+          {filteredEvents.length === 0 && events.length === 0 && (
+            <EmptyState
+              title="No events available"
+              description="There are no events in our archives yet. Check back later!"
+              imageAlt="No events illustration"
+            />
           )}
-        </>
+
+          {/* No results message */}
+          {filteredEvents.length === 0 && events.length > 0 && (
+            <EmptyState
+              title="No events found"
+              description="Try adjusting your search or filters"
+              imageAlt="Empty search results illustration"
+            />
+          )}
+        </Box>
       )}
 
       <CreateTrip
