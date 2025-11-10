@@ -12,6 +12,7 @@ import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
 import {
   sendBlockUnblockEmail,
+  sendPaymentReceiptEmail,
   sendStaffRoleAssignmentEmail,
   sendVerificationEmail,
 } from "./emailService";
@@ -202,6 +203,24 @@ export class UserService {
     // Deduct price from wallet
     user.walletBalance = walletBalance - event.price;
     await user.save();
+
+    // Send payment receipt email
+    const username =
+      user.firstName && user.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user.email;
+
+    await sendPaymentReceiptEmail({
+      userEmail: user.email,
+      username,
+      transactionId: `wallet_${userId}_${eventId}_${Date.now()}`,
+      amount: event.price,
+      currency: "USD",
+      itemName: event.eventName,
+      itemType: event.type === "trip" ? "Trip" : "Workshop",
+      paymentDate: new Date(),
+      paymentMethod: "Wallet",
+    });
 
     return user;
   }
