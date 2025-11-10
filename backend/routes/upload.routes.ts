@@ -3,29 +3,31 @@ import createError from 'http-errors';
 import { Router } from 'express';
 import { uploadFiles } from '../middleware/upload';
 import { deleteCloudinaryFile } from '../utils/cloudinaryCleanup';
+import {FileDeleteResponse, FileUploadResponse} from '../interfaces/responses/fileUploadResponse.interface';
 
 export const router = Router();
 
-async function uploadTaxCard(req: Request, res: Response) {
+async function uploadTaxCard(req: Request, res: Response<FileUploadResponse>) {
 
     const taxCard: Express.Multer.File | undefined = req.file;
   try {
     if (!taxCard) {
       throw createError(400, 'Tax card is required for vendor signup');
     }
-   
     res.status(200).json({
       success: true,
       data: {
-        taxCard: {
-          url: taxCard.path,
-          publicId: taxCard.filename,
-          originalName: taxCard.originalname,
-          uploadedAt: new Date()
-        }
-      }
+              url: taxCard.path,
+              publicId: taxCard.filename,
+              originalName: taxCard.originalname,
+              uploadedAt: new Date()
+            
+        },
+        message: 'Tax card uploaded successfully'
     });
-  } catch (error: any) {
+  }
+  
+   catch (error: any) {
     if(taxCard && taxCard.filename){
       await deleteCloudinaryFile(taxCard.filename);
     }
@@ -36,7 +38,7 @@ async function uploadTaxCard(req: Request, res: Response) {
   }
 }
 
-async function uploadLogo(req: Request, res: Response) {
+async function uploadLogo(req: Request, res:  Response<FileUploadResponse>) {
     const logo: Express.Multer.File | undefined = req.file;
  try {
     if (!logo) {
@@ -46,13 +48,12 @@ async function uploadLogo(req: Request, res: Response) {
     res.status(200).json({
       success: true,
       data: {
-            logo: {
               url: logo.path,
               publicId: logo.filename,
               originalName: logo.originalname,
               uploadedAt: new Date()
-            }
-        }
+            },
+        message: 'Logo uploaded successfully'   
     });
 
   } catch (error: any) {
@@ -69,7 +70,7 @@ async function uploadLogo(req: Request, res: Response) {
 
 
 
-async function deleteFile(req: Request, res: Response) {
+async function deleteFile(req: Request, res: Response<FileDeleteResponse>) {
     const { publicId } = req.body;
     try {
         if (!publicId) {

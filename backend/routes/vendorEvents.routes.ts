@@ -16,6 +16,7 @@ import { AdministrationRoleType } from "../constants/administration.constants";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
+import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -246,7 +247,7 @@ async function getAvailableBooths(
     );
   }
 }
-async function uploadNationalId(req: Request, res: Response) {
+async function uploadNationalId(req: Request, res: Response<FileUploadResponse>) {
   
     const nationalId: Express.Multer.File | undefined = req.file;
 try {
@@ -256,15 +257,15 @@ try {
     res.status(200).json({
       success: true,
       data: {
-        nationalId: {
           url: nationalId.path,
           publicId: nationalId.filename,
           originalName: nationalId.originalname,
           uploadedAt: new Date()
-        }
-      }
+      },
+        message: 'National ID uploaded successfully'
     });
-  } catch (error: any) {
+} 
+  catch (error: any) {
     if(nationalId && nationalId.filename){
       await deleteCloudinaryFile(nationalId.filename);
     }

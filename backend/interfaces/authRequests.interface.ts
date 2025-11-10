@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { IFileInfo } from './fileData';
+import { IFileInfo } from './fileData.interface';
 
 // Base signup request (common fields)
 export interface BaseSignupRequest {

@@ -1,6 +1,6 @@
 import { IUser } from "./user.interface";
 import { Event_Request_Status } from "../../constants/user.constants";
-import { IFileInfo } from "../fileData";
+import { IFileInfo } from "../fileData.interface";
 
 export interface IRequestedEvent {
   event: string;
