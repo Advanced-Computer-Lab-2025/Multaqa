@@ -5,7 +5,7 @@ import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree"
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { DndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
 import { SortableTicket } from "@/components/admin/shared/RegistredComponent/SortableTicket";
 import { Applicant } from "./types";
@@ -34,8 +34,10 @@ function DroppableZone({
 }
 
 export default function RoleAssignmentContent() {
+  const theme = useTheme();
   const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const roleKeys = ["staff", "ta", "professor"] as const;
   const roleLabels: Record<(typeof roleKeys)[number], string> = {
@@ -218,7 +220,7 @@ export default function RoleAssignmentContent() {
                 sx={{
                   fontFamily: "var(--font-jost), system-ui, sans-serif",
                   fontWeight: 600,
-                  color: "#3a4f99",
+                  color: theme.palette.tertiary.main,
                   fontSize: "18px",
                 }}
               >
@@ -226,7 +228,7 @@ export default function RoleAssignmentContent() {
               </Typography>
               <Box
                 sx={{
-                  backgroundColor: "#3a4f99",
+                  backgroundColor: theme.palette.tertiary.main,
                   color: "white",
                   borderRadius: "50%",
                   width: "32px",
@@ -349,7 +351,7 @@ export default function RoleAssignmentContent() {
                 sx={{
                   fontFamily: "var(--font-jost), system-ui, sans-serif",
                   fontWeight: 600,
-                  color: "#3a4f99",
+                  color: theme.palette.tertiary.main,
                   fontSize: "18px",
                   whiteSpace: "nowrap",
                 }}

@@ -506,15 +506,15 @@ export default function HomePage() {
                   height: 40,
                   width: "auto",
                   fontWeight: 700,
-                  backgroundColor: theme.palette.warning.main,
-                  color: theme.palette.warning.contrastText,
-                  border: `2px solid ${theme.palette.primary.dark}`,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.primary.dark,
-                    borderColor: theme.palette.primary.dark,
+                    backgroundColor: theme.palette.tertiary.dark,
+                    borderColor: theme.palette.tertiary.dark,
                   },
                   boxShadow: `0 10px 24px ${alpha(
-                    theme.palette.primary.main,
+                    theme.palette.tertiary.main,
                     0.3
                   )}`,
                 }}
@@ -1213,7 +1213,7 @@ export default function HomePage() {
                   fontWeight: 700,
                   backgroundColor: theme.palette.tertiary.main,
                   color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.primary.dark}`,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
                   "&:hover": {
                     backgroundColor: theme.palette.tertiary.dark,
                     borderColor: theme.palette.tertiary.dark,
@@ -1439,7 +1439,7 @@ export default function HomePage() {
                   gridColumn: "3 / span 3",
                   gridRow: "1 / span 2",
                   borderRadius: 2,
-                  bgcolor: theme.palette.warning.main,
+                  bgcolor: theme.palette.tertiary.main,
                   animation: "floatMed 11s ease-in-out infinite",
                   animationDelay: "0.8s",
                   "@keyframes floatMed": {
@@ -1486,7 +1486,7 @@ export default function HomePage() {
                 sx={{
                   gridColumn: "3 / span 1",
                   gridRow: "4 / span 3",
-                  bgcolor: theme.palette.warning.dark,
+                  bgcolor: theme.palette.tertiary.dark,
                   borderRadius: 1,
                   animation: "floatFast 8.5s ease-in-out infinite",
                   animationDelay: "1.6s",
@@ -1530,7 +1530,7 @@ export default function HomePage() {
                   width: "70%",
                   justifySelf: "center",
                   borderRadius: 1,
-                  bgcolor: theme.palette.warning.main,
+                  bgcolor: theme.palette.tertiary.main,
                   animation: "floatMed 11.5s ease-in-out infinite",
                   animationDelay: "0.9s",
                 }}
@@ -1705,8 +1705,26 @@ export default function HomePage() {
       <Box
         component="footer"
         sx={{
-          bgcolor: theme.palette.primary.dark,
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(
+            theme.palette.tertiary.main,
+            0.7
+          )} 100%)`,
           color: theme.palette.common.white,
+          position: "relative",
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `radial-gradient(circle at 30% 40%, ${alpha(
+              theme.palette.primary.light,
+              0.15
+            )}, transparent 60%)`,
+            pointerEvents: "none",
+          },
         }}
       >
         <Container
@@ -1717,6 +1735,8 @@ export default function HomePage() {
             flexDirection: "column",
             gap: 4,
             alignItems: { xs: "center", md: "stretch" },
+            position: "relative",
+            zIndex: 1,
           }}
         >
           <Stack

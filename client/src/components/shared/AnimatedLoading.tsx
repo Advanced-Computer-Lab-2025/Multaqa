@@ -60,10 +60,12 @@ const FloatingShape = ({
 
 interface AnimatedLoadingProps {
   showProgress?: boolean;
+  inline?: boolean;
 }
 
 export default function AnimatedLoading({
   showProgress = false,
+  inline = false,
 }: AnimatedLoadingProps) {
   const theme = useTheme();
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -128,7 +130,7 @@ export default function AnimatedLoading({
   const shapes = [
     {
       size: 70,
-      color: theme.palette.tertiary.main,
+      color: theme.palette.primary.main,
       borderRadius: "50%",
       delay: 0,
       duration: 4000,
@@ -136,7 +138,7 @@ export default function AnimatedLoading({
     },
     {
       size: 100,
-      color: theme.palette.primary.main,
+      color: theme.palette.tertiary.main,
       borderRadius: "16px",
       delay: 200,
       duration: 4800,
@@ -144,7 +146,7 @@ export default function AnimatedLoading({
     },
     {
       size: 55,
-      color: theme.palette.tertiary?.main || theme.palette.primary.light,
+      color: theme.palette.tertiary.main,
       borderRadius: "20px",
       delay: 400,
       duration: 4300,
@@ -168,7 +170,7 @@ export default function AnimatedLoading({
     },
     {
       size: 45,
-      color: theme.palette.primary.dark,
+      color: theme.palette.tertiary.dark,
       borderRadius: "999px",
       delay: 300,
       duration: 4600,
@@ -179,21 +181,25 @@ export default function AnimatedLoading({
   return (
     <Box
       sx={{
-        position: "fixed",
-        inset: 0,
+        position: inline ? "relative" : "fixed",
+        inset: inline ? "auto" : 0,
+        width: inline ? "100%" : "auto",
+        height: inline ? "100%" : "auto",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: `radial-gradient(circle at top left, ${alpha(
-          theme.palette.primary.main,
-          0.15
-        )}, transparent 50%), radial-gradient(circle at bottom right, ${alpha(
-          theme.palette.tertiary.main,
-          0.12
-        )}, transparent 55%)`,
-        backgroundColor: theme.palette.background.default,
-        zIndex: 9999,
+        background: inline
+          ? "transparent"
+          : `radial-gradient(circle at top left, ${alpha(
+              theme.palette.primary.main,
+              0.15
+            )}, transparent 50%), radial-gradient(circle at bottom right, ${alpha(
+              theme.palette.tertiary.main,
+              0.12
+            )}, transparent 55%)`,
+        backgroundColor: inline ? "transparent" : theme.palette.background.default,
+        zIndex: inline ? 1 : 9999,
         opacity: showProgress && loadingProgress >= 100 ? 0 : 1,
         transition: "opacity 0.4s ease-out",
         overflow: "hidden",

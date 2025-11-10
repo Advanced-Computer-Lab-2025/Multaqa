@@ -43,9 +43,9 @@ const theme = createTheme({
       contrastText: "#13233d",
     },
     tertiary: {
-      light: "#6e8ae6",
-      main: "#3a4f99",  // The main shade
-      dark: "#25346b",
+      light: "#e1bee7",
+      main: "#9c27b0",  // Purple main shade
+      dark: "#7b1fa2",
       contrastText: '#fff', // Important for text readability
     },
     error: {
@@ -53,8 +53,8 @@ const theme = createTheme({
       dark: "#c72c2c",
     },
     warning: {
-      main: "#ff9800",
-      dark: "#ff8a00",
+      main: "#9c27b0",
+      dark: "#7b1fa2",
       contrastText: "#fff",
     },
     success: {
