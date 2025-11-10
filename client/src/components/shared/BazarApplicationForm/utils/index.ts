@@ -26,7 +26,6 @@ export const submitBazarForm = async (
     setSubmitting,
     resetForm,
   }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
-  vendorId: string, // vendorId is not used here but kept for signature consistency
   eventId: string,
   attendeeIdStatuses: UploadStatus[] // Add attendeeIdStatuses
 ) => {
