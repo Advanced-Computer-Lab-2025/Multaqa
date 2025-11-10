@@ -1,4 +1,4 @@
-export type UploadStatus = "idle" | "uploading" | "success" | "error";
+import type { UploadStatus } from "../../FileUpload/types";
 
 interface AttendeeInfo {
   name: string;
