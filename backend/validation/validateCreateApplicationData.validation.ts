@@ -1,9 +1,11 @@
 import Joi from "joi";
 import { BoothSizeEnum } from "../constants/booth.constants";
+import { fileformatValidationSchema } from "./auth.validation";
 
 const attendeeSchema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
+  nationalId: fileformatValidationSchema
 });
 
 const bazaarSchema = Joi.object({

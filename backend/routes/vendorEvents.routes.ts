@@ -14,6 +14,8 @@ import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
+import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
+import { uploadFiles } from "../middleware/upload";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -227,6 +229,34 @@ async function getAvailableBooths(
     throw createError(500, err.message);
   }
 }
+async function uploadNationalId(req: Request, res: Response) {
+  
+    const nationalId: Express.Multer.File | undefined = req.file;
+try {
+    if (!nationalId) {
+      throw createError(400, 'National ID is required for vendor signup');
+    }
+    res.status(200).json({
+      success: true,
+      data: {
+        nationalId: {
+          url: nationalId.path,
+          publicId: nationalId.filename,
+          originalName: nationalId.originalname,
+          uploadedAt: new Date()
+        }
+      }
+    });
+  } catch (error: any) {
+    if(nationalId && nationalId.filename){
+      await deleteCloudinaryFile(nationalId.filename);
+    }
+    throw createError(
+      error.status || 500,
+      error.message || 'National ID upload failed'
+    );
+  }
+}
 
 const router = Router();
 
@@ -258,6 +288,13 @@ router.post(
   "/:eventId/bazaar",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBazaar
+);
+
+router.post(
+  "/uploadNationalId",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  uploadFiles.single("nationalId"),
+  uploadNationalId
 );
 
 // Two parameters with complex paths
