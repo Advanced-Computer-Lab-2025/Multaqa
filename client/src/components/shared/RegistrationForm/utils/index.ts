@@ -1,7 +1,6 @@
 import * as Yup from "yup";
 import { UserType } from "../types";
 
-
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
     .min(8, "Password must be at least 8 characters long.")
