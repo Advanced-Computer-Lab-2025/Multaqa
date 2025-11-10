@@ -11,6 +11,7 @@ import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import Stripe from "stripe";
+const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
@@ -344,6 +345,47 @@ export class EventsService {
     // Add user to attendees
     console.log(userId);
     event.attendees?.push(userId);
+    await event.save();
+    return event;
+  }
+
+  async removeAttendeeFromEvent(
+    eventId: string,
+    userId: string
+  ): Promise<IEvent> {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if (
+      event.type !== EVENT_TYPES.TRIP &&
+      event.type !== EVENT_TYPES.WORKSHOP
+    ) {
+      throw createError(
+        400,
+        "Operation is only allowed for trips and workshops"
+      );
+    }
+
+    // Check if user is registered
+    const isRegistered = event.attendees?.some(
+      (attendeeId: { toString: () => string }) =>
+        attendeeId.toString() === userId.toString()
+    );
+    if (!isRegistered) {
+      throw createError(404, "User is not registered for this event");
+    }
+
+    // Remove user from attendees
+    const userOid = new Types.ObjectId(userId);
+
+    event.attendees = (event.attendees ?? [])
+      .map((attendee: any) => {
+        const id = attendee && attendee._id ? attendee._id : attendee;
+        return Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
+      })
+      .filter((oid: any) => oid && oid.toString() !== userOid.toString());
     await event.save();
     return event;
   }
