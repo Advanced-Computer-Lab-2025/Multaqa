@@ -186,6 +186,8 @@ export class PaymentService {
       paymentMethod: "Wallet",
     });
 
+    await this.eventsService.registerUserForEvent(eventId, userId);
+
     return user;
   }
 
@@ -214,6 +216,8 @@ export class PaymentService {
         "Refunds can only be processed at least 14 days before the event start date"
       );
     }
+    //remove user from event attendees
+    await this.eventsService.removeAttendeeFromEvent(eventId, userId);
 
     // Refund amount to user's wallet
     await this.userService.addToWallet(userId, event.price);
