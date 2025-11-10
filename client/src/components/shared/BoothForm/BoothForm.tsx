@@ -34,7 +34,7 @@ import {
   handleAccordionChange,
   checkSectionErrors,
 } from "./utils";
-import { UploadStatus } from "./types";
+import type { UploadStatus } from "../FileUpload/types";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
