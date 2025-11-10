@@ -12,6 +12,7 @@ import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware"
 import { CreateReviewResponse, GetAllReviewsByEventResponse, UpdateReviewResponse } from "../interfaces/responses/reviewResponses.interface";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const eventsService = new EventsService();
 
@@ -182,11 +183,11 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
   }
 }
 
-async function createReview(req: Request, res: Response<CreateReviewResponse>) {
+async function createReview(req: AuthenticatedRequest, res: Response<CreateReviewResponse>) {
   try {
     const eventId = req.params.eventId;
-    const { userId, comment, rating } = req.body;
-    if (!eventId || !userId) {
+    const { comment, rating } = req.body;
+    if (!eventId || !req.user?.id) {
       throw createError(400, "eventId and userId are required");
     }
 
@@ -194,7 +195,7 @@ async function createReview(req: Request, res: Response<CreateReviewResponse>) {
       throw createError(400, "At least one of comment or rating must be provided");
     }
 
-    const newReview = await eventsService.createReview(eventId, userId, comment, rating);
+    const newReview = await eventsService.createReview(eventId, req.user.id, comment, rating);
     res.status(201).json({
       success: true,
       data: newReview,
@@ -208,11 +209,11 @@ async function createReview(req: Request, res: Response<CreateReviewResponse>) {
   }
 }
 
-async function updateReview(req: Request, res: Response<UpdateReviewResponse>) {
+async function updateReview(req: AuthenticatedRequest, res: Response<UpdateReviewResponse>) {
   try {
     const eventId = req.params.eventId;
-    const { userId, comment, rating } = req.body;
-    if (!eventId || !userId) {
+    const { comment, rating } = req.body;
+    if (!eventId || !req.user?.id) {
       throw createError(400, "eventId and userId are required");
     }
 
@@ -220,7 +221,7 @@ async function updateReview(req: Request, res: Response<UpdateReviewResponse>) {
       throw createError(400, "At least one of comment or rating must be provided");
     }
 
-    const updatedReview = await eventsService.updateReview(eventId, userId, comment, rating);
+    const updatedReview = await eventsService.updateReview(eventId, req.user.id, comment, rating);
     res.status(200).json({
       success: true,
       data: updatedReview,
@@ -234,16 +235,15 @@ async function updateReview(req: Request, res: Response<UpdateReviewResponse>) {
   }
 }
 
+const router = Router();
+router.get("/", applyRoleBasedFilters, authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.VENDOR], adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findAll);
+router.post("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), createEvent);
+router.get("/workshops", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER], adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR] }), findAllWorkshops);
+router.post("/:eventId/reviews", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), createReview);
+router.patch("/:eventId/reviews", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), updateReview);
+router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT], adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findOne);
+router.delete("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), deleteEvent);
+router.patch("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateEvent);
 
-  const router = Router();
-  router.get("/", applyRoleBasedFilters, authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.VENDOR], adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findAll);
-  router.post("/", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), createEvent);
-  router.get("/workshops", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER], adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR] }), findAllWorkshops);
-  router.post("/:eventId/reviews", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), createReview);
-  router.patch("/:eventId/reviews", authorizeRoles({ userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), updateReview);
-  router.get("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER, UserRole.STUDENT], adminRoles: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN], staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] }), findOne);
-  router.delete("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), deleteEvent);
-  router.patch("/:id", authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.EVENTS_OFFICE] }), updateEvent);
-
-  export default router;
+export default router;
 

@@ -405,9 +405,12 @@ export class EventsService {
     }
 
     const reviewIndex = event.reviews?.findIndex(
-      (review) => review.reviewer.toString() === userId.toString()
+      (review) => {
+        console.log("Comparing review by:", review.reviewer._id, "with userId:", userId);
+        return (review.reviewer._id as any).toString() === userId.toString();
+      }
     );
-    if( reviewIndex === undefined || reviewIndex < 0) {
+    if(reviewIndex === undefined || reviewIndex < 0) {
       throw createError(404, "Review by this user not found for the event");
     }
 
