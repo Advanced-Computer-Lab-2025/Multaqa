@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import { UserType } from "../types";
 
+
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
     .min(8, "Password must be at least 8 characters long.")
@@ -50,6 +51,10 @@ export const getValidationSchema = (userType: UserType) => {
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
+        taxCardPath: Yup.string().required(
+          "Please upload your tax card document."
+        ),
+        logoPath: Yup.string().required("Please upload your company logo."),
       });
 
     default:
@@ -59,4 +64,75 @@ export const getValidationSchema = (userType: UserType) => {
         confirmPassword: confirmPasswordSchema,
       });
   }
+};
+// Create a handler factory that returns a proper callback function
+export const createDocumentHandler = (
+  setCurrentFile: (file: File | null) => void,
+  setDocumentStatus: (
+    status: "idle" | "uploading" | "success" | "error"
+  ) => void,
+  setFormikField: (field: string, value: string) => void,
+  fieldName: string
+) => {
+  return async (file: File | null) => {
+    if (file) {
+      // User selected a new file to upload
+      setCurrentFile(file);
+      setDocumentStatus("uploading");
+
+      try {
+        // Upload to server
+        const formData = new FormData();
+        formData.append("document", file);
+
+        // Replace with your actual API endpoint
+        // const response = await fetch("/api/upload-document", {
+        //   method: "POST",
+        //   body: formData,
+        // });
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        const response = true;
+        if (response) {
+          // const data = await response.json();
+          // const filePath = data.filePath || data.path || data.url; // Adjust based on your API response
+          const filePath = "lalalla";
+          setDocumentStatus("success");
+          // Update Formik field with the file path
+          setFormikField(fieldName, filePath);
+          console.log(`✅ Document uploaded successfully: ${filePath}`);
+        } else {
+          setDocumentStatus("error");
+          console.error("❌ Upload failed");
+        }
+      } catch (error) {
+        setDocumentStatus("error");
+        console.error("❌ Upload error:", error);
+      }
+    } else {
+      // User clicked the delete button (X) - file is null
+      console.log("🗑️ Document removed by user - resetting to idle");
+      setCurrentFile(null);
+      setDocumentStatus("idle");
+      // Clear the Formik field
+      setFormikField(fieldName, "");
+
+      // Optional: Delete from server if needed
+      // await fetch('/api/delete-document', {
+      //   method: 'DELETE',
+      //   body: JSON.stringify({ filePath })
+      // });
+    }
+  };
+};
+
+// Create a retry handler factory
+export const createRetryHandler = (
+  currentFile: File | null,
+  documentHandler: (file: File | null) => Promise<void>
+) => {
+  return () => {
+    if (currentFile) {
+      documentHandler(currentFile);
+    }
+  };
 };
