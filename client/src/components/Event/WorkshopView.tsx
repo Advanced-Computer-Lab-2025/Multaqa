@@ -85,30 +85,65 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </IconButton>
         </Tooltip>
       ) : null}
-      registerButton={!registered &&
-        (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-          <CustomButton
-            size="small"
-            variant="contained"
-            sx={{ 
-                        borderRadius: 999 , backgroundColor: `${background}40`,
-                        color:background, borderColor:background,
-                        fontWeight: 600,
-                        px: 3,
-                        textTransform: 'none',
-                        boxShadow: `0 4px 14px ${background}40`,
-                        transition: 'all 0.3s ease',
-                        "&:hover": {
-                          backgroundColor: `${background}50`,
-                          transform: 'translateY(-2px)',
-                          boxShadow: `0 6px 20px ${background}50`,
-                        }
-                      }}
-            onClick={() => { setRegister(true); } }
-          >
-            Register
-          </CustomButton>
-        )} expanded={expanded} location={details["Location"]} />
+      registerButton={
+            (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
+              <>
+                {!registered ? (
+                  <CustomButton
+                    size="small"
+                    variant="contained"
+                    sx={{ 
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                    }}
+                    onClick={() => setRegister(true)}
+                  >
+                    Register
+                  </CustomButton>
+                ) : (
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{ 
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                      width: 'fit-content'
+                    }}
+                    onClick={() => {
+                      // Add cancel registration logic here
+                      console.log("Cancel registration clicked");
+                    }}
+                  >
+                    Cancel Registration
+                  </CustomButton>
+                )}
+              </>
+            )
+          } expanded={expanded} location={details["Location"]} />
 
       {/* Delete Confirmation Modal */}
       <CustomModal

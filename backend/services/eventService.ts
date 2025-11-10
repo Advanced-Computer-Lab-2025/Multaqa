@@ -16,6 +16,7 @@ import { IReview } from "../interfaces/models/review.interface";
 import { IUser } from "../interfaces/models/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import path from "path";
+const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
@@ -355,6 +356,42 @@ export class EventsService {
     return event;
   }
 
+  async removeAttendeeFromEvent(
+    eventId: string,
+    userId: string
+  ): Promise<IEvent> {
+    if (
+      event.type !== EVENT_TYPES.TRIP &&
+      event.type !== EVENT_TYPES.WORKSHOP
+    ) {
+      throw createError(
+        400,
+        "Operation is only allowed for trips and workshops"
+      );
+    }
+
+    // Check if user is registered
+    const isRegistered = event.attendees?.some(
+      (attendeeId: { toString: () => string }) =>
+        attendeeId.toString() === userId.toString()
+    );
+    if (!isRegistered) {
+      throw createError(404, "User is not registered for this event");
+    }
+
+    // Remove user from attendees
+    const userOid = new Types.ObjectId(userId);
+
+    event.attendees = (event.attendees ?? [])
+      .map((attendee: any) => {
+        const id = attendee && attendee._id ? attendee._id : attendee;
+        return Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
+      })
+      .filter((oid: any) => oid && oid.toString() !== userOid.toString());
+    await event.save();
+    return event;
+  }
+  
   async createReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {

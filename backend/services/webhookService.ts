@@ -74,6 +74,12 @@ export class WebhookService {
         ? `${(user as any).firstName} ${(user as any).lastName}`
         : (user as any).email || "User";
 
+    // Register user for the event
+    await this.eventsService.registerUserForEvent(eventId, userId);
+    console.log(
+      `✅ User ${userId} registered for event ${eventId} after payment`
+    );
+
     // Send payment receipt email
     await sendPaymentReceiptEmail({
       userEmail: customerEmail,
