@@ -12,7 +12,8 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { UploadFieldProps } from "./types";
 import { formatFileSize } from "./utils";
-import { StyledWrapper } from "./style"; // import your styled wrapper
+import { StyledWrapper } from "./style";
+import theme from "@/themes/lightTheme";
 
 const FileUpload: React.FC<UploadFieldProps> = ({
   label,
@@ -21,6 +22,7 @@ const FileUpload: React.FC<UploadFieldProps> = ({
   disabled = false,
   width = 300,
   showPreviewAs = "file",
+  variant = "folder",
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -34,6 +36,56 @@ const FileUpload: React.FC<UploadFieldProps> = ({
     setFiles(fileList);
   };
 
+  const renderVariant = () => {
+    switch (variant) {
+      case "folder":
+        return (
+          <div className="folder">
+            <div className="front-side">
+              <div className="tip" />
+              <div className="cover" />
+            </div>
+            <div className="back-side cover" />
+          </div>
+        );
+      case "tax-card":
+        return (
+          <div className="tax-card">
+            <Typography
+              sx={{
+                position: "absolute",
+                top: "50px",
+                left: "12px",
+                fontSize: "10px",
+                fontWeight: "bold",
+                color: "rgba(255, 255, 255, 0.9)",
+                letterSpacing: "0.5px",
+              }}
+            >
+              TAX ID
+            </Typography>
+          </div>
+        );
+      case "logo":
+        return (
+          <div className="logo">
+            <div className="logo-icon">L</div>
+            <div className="logo-text">LOGO</div>
+          </div>
+        );
+      default:
+        return (
+          <div className="folder">
+            <div className="front-side">
+              <div className="tip" />
+              <div className="cover" />
+            </div>
+            <div className="back-side cover" />
+          </div>
+        );
+    }
+  };
+
   return (
     <Box
       className={className}
@@ -45,20 +97,14 @@ const FileUpload: React.FC<UploadFieldProps> = ({
         width: "100%",
       }}
     >
-      {/* Folder-style upload UI */}
+      {/* Upload UI with variants */}
       <StyledWrapper
         onClick={handleClick}
         containerWidth={width}
         sx={{ opacity: disabled ? 0.6 : 1 }}
       >
         <div className="container">
-          <div className="folder">
-            <div className="front-side">
-              <div className="tip" />
-              <div className="cover" />
-            </div>
-            <div className="back-side cover" />
-          </div>
+          {renderVariant()}
           <div className="custom-file-upload">
             <input
               type="file"
@@ -114,19 +160,23 @@ const FileUpload: React.FC<UploadFieldProps> = ({
                       }}
                     />
                   ) : (
-                    <InsertDriveFileIcon sx={{ color: "#ff9a56" }} />
+                    <InsertDriveFileIcon
+                      sx={{ color: theme.palette.primary.main }}
+                    />
                   )}
                   <CardContent sx={{ p: "0 !important" }}>
                     <Typography
                       variant="body2"
-                      noWrap
-                      sx={{ fontSize: { xs: "0.8rem", sm: "0.9rem" } }}
+                      sx={{
+                        fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                        wordBreak: "break-all",
+                      }}
                     >
                       {file.name}
                     </Typography>
                     <Typography
                       variant="caption"
-                      color="#ff9a56"
+                      color={theme.palette.primary.main}
                       sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
                     >
                       {formatFileSize(file.size)}
@@ -141,7 +191,10 @@ const FileUpload: React.FC<UploadFieldProps> = ({
                     setFiles(files.filter((_, i) => i !== index));
                   }}
                 >
-                  <CloseIcon fontSize="small" />
+                  <CloseIcon
+                    fontSize="small"
+                    sx={{ color: theme.palette.error.main }}
+                  />
                 </IconButton>
               </Card>
             );

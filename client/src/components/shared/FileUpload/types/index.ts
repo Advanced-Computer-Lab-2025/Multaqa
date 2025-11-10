@@ -6,4 +6,5 @@ export interface UploadFieldProps {
   width?: string | number; // Width of the container - can be px (number) or any CSS unit (string)
   icon?: React.ReactNode;
   showPreviewAs?: "image" | "file"; // control how preview is shown
+  variant?: "folder" | "tax-card" | "logo"; // Different document type variants
 }

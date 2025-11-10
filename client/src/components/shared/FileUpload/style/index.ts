@@ -1,4 +1,5 @@
 import { styled } from "@mui/system";
+import theme from "@/themes/lightTheme";
 
 export const StyledWrapper = styled("div")<{
   containerWidth?: number | string;
@@ -34,7 +35,7 @@ export const StyledWrapper = styled("div")<{
 
   .container:hover {
     transform: scale(1.05);
-    border-color: #ff9a56;
+    border-color: ${theme.palette.primary.main};
   }
 
   .folder {
@@ -123,5 +124,96 @@ export const StyledWrapper = styled("div")<{
   .custom-file-upload input[type="file"] {
     display: none;
   }
-`
+
+  /* Tax Card Variant */
+  .tax-card {
+    position: absolute;
+    top: -20px;
+    left: calc(50% - 75px);
+    width: var(--folder-W);
+    height: var(--folder-H);
+    background: linear-gradient(135deg, ${
+      theme.palette.primary.main
+    }, #0a265fff);
+    border-radius: 10px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    transition: transform var(--transition) ease;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  /* Chip */
+  .tax-card::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 35px;
+    height: 28px;
+    background: linear-gradient(135deg, #ffd89b, #f9ca24);
+    border-radius: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Card number lines */
+  .tax-card::after {
+    content: "";
+    position: absolute;
+    bottom: 25px;
+    left: 12px;
+    width: 70%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 2px;
+    box-shadow: 0 8px 0 rgba(255, 255, 255, 0.4), 0 16px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .container:hover .tax-card {
+    transform: rotateY(10deg) rotateX(5deg);
+  }
+
+  /* Logo Variant - Clear Circle with Shadow */
+  .logo {
+  position: absolute;
+  top: -20px;
+  left: calc(50% - 75px);
+  width: 150px;
+  height: 100px;
+  background: #ffffff;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid #2c529eff;
+  border-radius: 5%;
+  transition: all var(--transition) ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+    background: linear-gradient(135deg, ${
+      theme.palette.primary.main
+    }, #0a265fff);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.logo-text {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0a265fff;
+  letter-spacing: 2px;
+}`
 );

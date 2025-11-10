@@ -3,8 +3,7 @@
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import FileUpload from "@/components/shared/FileUpload/FileUpload";
-
+import { FileUpload, UploadID } from "@/components/shared/FileUpload";
 export default function LoginPage() {
   return (
     <>
@@ -13,7 +12,14 @@ export default function LoginPage() {
         style={{ transform: "scale(0.8)" }}
       >
         <LoginForm />
-        <FileUpload label="Upload your files" width={300} />
+        <FileUpload label="Upload Document" variant="folder" />
+        <FileUpload
+          label="Upload Tax Card"
+          variant="tax-card"
+          accept=".pdf,.jpg"
+        />
+        <FileUpload label="Upload Logo" variant="logo" accept="image/*" />
+        <UploadID label="Upload ID"  accept=".jpg,.png" />
       </div>
       <ToastContainer aria-label={undefined} />
     </>
