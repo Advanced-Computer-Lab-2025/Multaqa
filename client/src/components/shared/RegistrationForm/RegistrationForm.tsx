@@ -19,7 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface";
 import { useState } from "react";
-import { UploadStatus } from "./types";
+import type { UploadStatus } from "../FileUpload/types";
 import { Button } from "@mui/material";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
