@@ -1,6 +1,8 @@
+
 interface AttendeeInfo {
   name: string;
   email: string;
+  idPath: string;
 }
 
 export interface BoothFormValues {
