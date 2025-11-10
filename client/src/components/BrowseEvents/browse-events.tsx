@@ -34,6 +34,9 @@ import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
 import SortByDate from '@/components/shared/SortBy/sortByDate';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from "dayjs";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -72,6 +75,16 @@ type Event =
 
 const filterGroups: FilterGroup[] = [
   {
+    id: "eventName",
+    title: "Event Name",
+    type: "text"
+  }
+  ,{
+    id: "professorName",
+    title: "Professor Name",
+    type: "text"
+  },
+    {
     id: "eventType",
     title: "Event Type",
     type: "chip",
@@ -83,7 +96,22 @@ const filterGroups: FilterGroup[] = [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
+    {
+    id:"location",
+    title: "Location",
+    type: "chip",
+    options: [
+      { label: "GUC Cairo", value: "guc cairo" },
+      { label: "GUC Berlin", value: "guc berlin" },
+    ]
+  },
+  {
+    id: "date",
+    title: "Date",
+    type: "date", // <--- NEW TYPE
+  }
 ];
+
 
 const BrowseEvents: React.FC<BrowseEventsProps> = ({
   registered,
@@ -92,7 +120,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   userID,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<Filters>({});
+  const [filters, setFilters] = useState<Filters>({
+    eventType: [], // Multi-select for event types
+    location: [], // Multi-select for locations
+    professorName: [], // Filter by professor name
+    eventName: [], // Filter by event name
+  });
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -229,6 +262,77 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       const eventTypes = filters.eventType;
       filtered = filtered.filter((event) => eventTypes.includes(event.type));
     }
+    const locationFilterValue = filters.location;
+      if (Array.isArray(locationFilterValue) && locationFilterValue.length > 0) {
+          const selectedLocations = locationFilterValue as string[]; 
+          filtered = filtered.filter((event) => {
+              const eventLocationDetail = event.details.Location;
+              if (typeof eventLocationDetail === 'string') {
+                  const normalizedLocation = eventLocationDetail.toLowerCase();
+                  return selectedLocations.includes(normalizedLocation);
+              } 
+              return false; 
+          });
+      }
+
+const professorNameFilterValue = filters.professorName;
+if (Array.isArray(professorNameFilterValue) && professorNameFilterValue.length > 0) {
+    const selectedProfessors = professorNameFilterValue as string[]; 
+    
+    filtered = filtered.filter((event) => {
+        if (event.type === EventType.CONFERENCE || event.type === EventType.WORKSHOP) {
+            const professors = (event as any).professors as string[] | undefined; 
+
+            // Check if ALL selectedProfessors are included in the event's professor list
+            return selectedProfessors.every(query => 
+                professors?.some((prof) => 
+                    typeof prof === 'string' && prof.toLowerCase().includes(query.toLowerCase())
+                ) ?? false
+            );
+        }
+        return false; 
+    });
+}
+
+
+// 2. Correct Event Name Filter (Multi-select/Additive Text)
+const eventNameFilterValue = filters.eventName;
+if (Array.isArray(eventNameFilterValue) && eventNameFilterValue.length > 0) {
+    const selectedNames = eventNameFilterValue as string[]; 
+    
+    filtered = filtered.filter((event) => {
+        let targetName = '';
+
+        if (event.type === EventType.BOOTH) {
+            targetName = (event as BoothEvent).company || '';
+        } else if ("name" in event) {
+            targetName = (event as any).name || '';
+        }
+        
+        // Check if ALL selectedNames are included in the event's name
+        return selectedNames.every(query => 
+            targetName.toLowerCase().includes(query.toLowerCase())
+        );
+    });
+}
+// Apply Date Filter
+const dateFilterValue = filters.date;
+if (typeof dateFilterValue === 'string' && dateFilterValue) {
+    const selectedDate = dayjs(dateFilterValue).format('YYYY-MM-DD');
+
+    filtered = filtered.filter((event) => {
+        const eventStartDateString = event.details["Start Date"];
+        
+        if (eventStartDateString) {
+            // Normalize event date to the same YYYY-MM-DD format
+            const eventDate = dayjs(eventStartDateString).format('YYYY-MM-DD');
+            
+            // Check for exact date match
+            return eventDate === selectedDate;
+        }
+        return false;
+    });
+}
 
     // Apply sorting logic
     const parseDate = (dateStr: string | undefined) => {
@@ -261,19 +365,45 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     return filtered;
   }, [searchQuery, filters, events, sortBy]);
 
-  const handleFilterChange = useCallback(
-    (groupId: string, value: FilterValue) => {
-      setFilters((prev) => ({
-        ...prev,
-        [groupId]: value,
-      }));
-    },
-    []
-  );
+const handleFilterChange = useCallback(
+    (groupId: string, value: any) => { // Use 'any' or your specific FilterValue type
+      setFilters((prev) => {
+        const currentVal = prev[groupId as keyof Filters];
+
+        // 1. Handle Multi-Select Filters (eventType and location)
+        if (
+          (groupId === 'eventType' || groupId === 'location') &&
+          Array.isArray(currentVal)
+        ) {
+          if (currentVal.includes(value)) {
+            return { 
+              ...prev, 
+              [groupId]: currentVal.filter((v) => v !== value) 
+            };
+          } else {
+            return { 
+              ...prev, 
+              [groupId]: [...currentVal, value] 
+            };
+          }
+        }
+        return { 
+          ...prev, 
+          [groupId]: value 
+        };
+      });
+    },
+    []
+  );
 
   const handleResetFilters = useCallback(() => {
-    setFilters({});
-    setSearchQuery("");
+    setFilters({
+      eventType: [],
+      location: [],
+      professorName: [],
+      eventName: [],
+    });
+    setSearchQuery('');
   }, []);
 
   const Eventoptions = [
@@ -425,12 +555,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             autoSaveDelay={2000}
           />
         </Box>
-        <FilterPanel
-          filterGroups={filterGroups}
-          onFilterChange={handleFilterChange}
-          currentFilters={filters}
-          onReset={handleResetFilters}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <FilterPanel
+              filterGroups={filterGroups}
+              onFilterChange={handleFilterChange}
+              currentFilters={filters}
+              onReset={handleResetFilters}
+            />
+          </LocalizationProvider>
         <SortByDate value={sortBy} onChange={handleSortChange} />
       </Box>
 
