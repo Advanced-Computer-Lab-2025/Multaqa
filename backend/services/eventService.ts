@@ -11,6 +11,11 @@ import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import Stripe from "stripe";
+import mongoose from "mongoose";
+import { IReview } from "../interfaces/models/review.interface";
+import { IUser } from "../interfaces/models/user.interface";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
+import path from "path";
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
@@ -20,6 +25,7 @@ export class EventsService {
   private tripRepo: GenericRepository<ITrip>;
   private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
+  private userRepo: GenericRepository<IUser>;
   private stripe?: Stripe;
 
   constructor() {
@@ -27,6 +33,7 @@ export class EventsService {
     this.tripRepo = new GenericRepository(Trip);
     this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
+    this.userRepo = new GenericRepository(User);
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -346,5 +353,72 @@ export class EventsService {
     event.attendees?.push(userId);
     await event.save();
     return event;
+  }
+
+  async createReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw createError(404, 'User not found');
+    }
+
+    if (event.reviews?.some((review) => review.reviewer.toString() === userId.toString())) {
+      throw createError(409, "User has already submitted a review for this event");
+    }
+
+    const newReview: IReview = {
+      reviewer: new mongoose.Types.ObjectId(userId),
+      comment: comment,
+      rating: rating,
+      createdAt: new Date(),
+    };
+
+    event.reviews?.push(newReview);
+    await event.save();
+
+    // Get the last added review
+    const populatedEvent = await this.eventRepo.findById(eventId, {
+      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+    });
+    if (!populatedEvent) {
+      throw createError(404, "Event not found after saving review");
+    }
+    const createdReview = populatedEvent.reviews?.slice(-1)[0];
+    return createdReview;
+  }
+
+  async updateReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw createError(404, 'User not found');
+    }
+
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const reviewIndex = event.reviews?.findIndex(
+      (review) => review.reviewer.toString() === userId.toString()
+    );
+    if( reviewIndex === undefined || reviewIndex < 0) {
+      throw createError(404, "Review by this user not found for the event");
+    }
+
+    if (comment !== undefined) {
+      event.reviews[reviewIndex].comment = comment;
+    }
+    if (rating !== undefined) {
+      event.reviews[reviewIndex].rating = rating;
+    }
+
+    await event.save();
+    return event.reviews[reviewIndex];
   }
 }
