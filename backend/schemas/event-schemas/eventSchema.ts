@@ -39,12 +39,14 @@ const EventSchema = new Schema<IEvent>(
   },
   { discriminatorKey: "type", collection: "events", timestamps: true }
 );
+EventSchema.set("toObject", { virtuals: true });
 
 EventSchema.virtual("isPassed").get(function (this: IEvent) {
   return new Date() > this.eventEndDate;
 });
 
 EventSchema.set("toJSON", {
+  virtuals: true,
   transform: function (doc, ret) {
     // Explicitly ensure attendees is included
     if (doc.attendees !== undefined) {

@@ -448,7 +448,6 @@ export class EventsService {
 
     const reviewIndex = event.reviews?.findIndex(
       (review) => {
-        console.log("Comparing review by:", review.reviewer._id, "with userId:", userId);
         return (review.reviewer._id as any).toString() === userId.toString();
       }
     );
