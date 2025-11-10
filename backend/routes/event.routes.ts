@@ -32,12 +32,13 @@ async function findAll(req: Request, res: Response<GetEventsResponse>) {
       message: "Events retrieved successfully"
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving events'
+    );
   }
 }
+
 async function findAllWorkshops(req: Request, res: Response<GetEventsResponse>) {
   try {
     const events = await eventsService.getAllWorkshops();
@@ -50,10 +51,10 @@ async function findAllWorkshops(req: Request, res: Response<GetEventsResponse>) 
       message: "Workshops retrieved successfully"
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error retrieving workshops'
+    );
   }
 }
 
@@ -70,7 +71,10 @@ async function findOne(req: Request, res: Response<GetEventByIdResponse>) {
       message: "Event retrieved successfully"
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving event'
+    );
   }
 }
 
@@ -108,7 +112,10 @@ async function createEvent(req: Request, res: Response<CreateEventResponse>) {
       message: "Event created successfully"
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error creating event'
+    );
   }
 }
 
@@ -150,7 +157,10 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
     });
   } catch (err: any) {
     console.error("Error updating Event:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating event'
+    );
   }
 }
 
@@ -164,10 +174,10 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
       message: "Event deleted successfully"
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw createError(err.status, err.message);
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error deleting event'
+    );
   }
 }
 

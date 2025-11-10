@@ -12,7 +12,6 @@ import {
   MeResponse,
   UserResponse,
 } from "../../../backend/interfaces/responses/authResponses.interface";
-import { sendVerificationEmail } from "@/utils/emailService";
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -120,12 +119,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.post("/auth/signup", data);
       if (response.data?.success) {
         console.log("✅ Signed up successfully");
-
-        if (response.data.verificationtoken.length > 0) {
-          // Send verification email
-          const verifyLink = `http://localhost:4000/auth/verify?token=${response.data.verificationtoken}`;
-          await sendVerificationEmail(data.email, verifyLink);
-        }
       } else {
         throw new Error(response.data?.message || "Signup failed");
       }

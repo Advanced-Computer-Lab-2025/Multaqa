@@ -30,4 +30,9 @@ export interface CourtBoardProps {
    * without forcing full-screen background and minHeight.
    */
   embedded?: boolean;
+  /**
+   * Optional handler fired when the user picks a date for a specific court column.
+   * The callback receives the court id and the selected date (or null when cleared).
+   */
+  onChangeCourtDate?: (courtId: string, nextDate: string | null) => void;
 }

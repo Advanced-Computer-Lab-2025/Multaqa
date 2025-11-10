@@ -4,25 +4,92 @@ import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType";
-import { Schema } from "mongoose";
 import { Trip } from "../schemas/event-schemas/tripSchema";
 import { ITrip } from "../interfaces/models/trip.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
+import Stripe from "stripe";
+
+const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
+const STRIPE_MIN_AMOUNT_CENTS = 50;
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
   private tripRepo: GenericRepository<ITrip>;
   private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
+  private stripe?: Stripe;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
     this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
+    // Defer Stripe initialization until first priced event creation, to ensure env is loaded
+  }
+
+  private getStripe(): Stripe {
+    if (!this.stripe) {
+      const key = process.env.STRIPE_SECRET_KEY;
+      if (!key) {
+        throw createError(500, "Stripe secret key missing in environment");
+      }
+      this.stripe = new Stripe(key);
+    }
+    return this.stripe;
+  }
+
+  private async ensureStripeProductForPricedEvent(
+    eventDoc: IEvent
+  ): Promise<void> {
+    const price =
+      typeof eventDoc.price === "number" && Number.isFinite(eventDoc.price)
+        ? eventDoc.price
+        : undefined;
+
+    if (!price || price <= 0) {
+      return;
+    }
+
+    if (eventDoc.stripeProductId || eventDoc.stripePriceId) {
+      return;
+    }
+
+    const stripe = this.getStripe();
+
+    if (price < STRIPE_MIN_AMOUNT_CENTS / 100) {
+      throw createError(400, "Event price must be at least $0.50");
+    }
+
+    const unitAmount = Math.round(price * 100);
+    if (!Number.isInteger(unitAmount) || unitAmount < STRIPE_MIN_AMOUNT_CENTS) {
+      throw createError(400, "Event price must be at least $0.50");
+    }
+
+    const metadata: Record<string, string> = {
+      eventId: eventDoc._id?.toString() || "",
+      eventType: eventDoc.type,
+    };
+
+    const product = await stripe.products.create({
+      name: eventDoc.eventName,
+      metadata,
+    });
+
+    const priceRecord = await stripe.prices.create({
+      currency: STRIPE_DEFAULT_CURRENCY,
+      unit_amount: unitAmount,
+      product: product.id,
+    });
+
+    eventDoc.set({
+      stripeProductId: product.id,
+      stripePriceId: priceRecord.id,
+    });
+
+    await eventDoc.save();
   }
 
   async getEvents(
@@ -123,16 +190,26 @@ export class EventsService {
   async createEvent(user: any, data: any) {
     const mappedData = mapEventDataByType(data.type, data);
 
-    let createdEvent;
+    let createdEvent: IEvent | null = null;
 
-    if (data.type == EVENT_TYPES.TRIP) {
-      createdEvent = await this.tripRepo.create(mappedData);
-    } else if (data.type == EVENT_TYPES.CONFERENCE) {
-      createdEvent = await this.conferenceRepo.create(mappedData);
-    } else {
-      createdEvent = await this.eventRepo.create(mappedData);
+    try {
+      if (data.type == EVENT_TYPES.TRIP) {
+        createdEvent = await this.tripRepo.create(mappedData);
+      } else if (data.type == EVENT_TYPES.CONFERENCE) {
+        createdEvent = await this.conferenceRepo.create(mappedData);
+      } else {
+        createdEvent = await this.eventRepo.create(mappedData);
+      }
+
+      await this.ensureStripeProductForPricedEvent(createdEvent);
+
+      return createdEvent;
+    } catch (err) {
+      if (createdEvent && createdEvent._id) {
+        await createdEvent.deleteOne().catch(() => undefined);
+      }
+      throw err;
     }
-    return createdEvent;
   }
 
   async updateEvent(eventId: string, updateData: any) {
@@ -150,6 +227,70 @@ export class EventsService {
         );
       }
     }
+    // If event has a price and its being changed, reflect that in Stripe before saving to DB
+    if (
+      Object.prototype.hasOwnProperty.call(updateData, "price") &&
+      updateData.price !== event.price
+    ) {
+      const newPrice: number = updateData.price;
+      if (newPrice > 0) {
+        if (newPrice < STRIPE_MIN_AMOUNT_CENTS / 100) {
+          throw createError(400, "Event price must be at least $0.50");
+        }
+        const unitAmount = Math.round(newPrice * 100);
+        if (
+          !Number.isInteger(unitAmount) ||
+          unitAmount < STRIPE_MIN_AMOUNT_CENTS
+        ) {
+          throw createError(400, "Event price must be at least $0.50");
+        }
+
+        const stripe = this.getStripe();
+
+        // Ensure we have a product; create one if missing
+        let productId = event.stripeProductId;
+        const desiredName = updateData.eventName
+          ? updateData.eventName
+          : event.eventName;
+
+        if (!productId) {
+          const product = await stripe.products.create({
+            name: desiredName,
+            metadata: {
+              eventId: event._id?.toString() || "",
+              eventType: event.type,
+            },
+          });
+          productId = product.id;
+          updateData.stripeProductId = productId;
+        } else if (desiredName && desiredName !== event.eventName) {
+          // Best-effort: keep Stripe product name in sync
+          await stripe.products
+            .update(productId, { name: desiredName })
+            .catch(() => undefined);
+        }
+
+        // Create a fresh price for the new amount
+        const newPriceRecord = await stripe.prices.create({
+          currency: STRIPE_DEFAULT_CURRENCY,
+          unit_amount: unitAmount,
+          product: productId,
+        });
+
+        // Optionally deactivate previous price to prevent misuse
+        if (event.stripePriceId) {
+          await stripe.prices
+            .update(event.stripePriceId, { active: false })
+            .catch(() => undefined);
+        }
+
+        updateData.stripePriceId = newPriceRecord.id;
+      } else {
+        // If price is set to 0 or negative, we keep existing Stripe IDs as-is.
+        // Optionally we could deactivate the existing price here if needed.
+      }
+    }
+
     let updatedEvent;
 
     if (event.type === EVENT_TYPES.TRIP) {

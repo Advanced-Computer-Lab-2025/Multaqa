@@ -4,12 +4,18 @@ import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
 import { populateMap } from "../utils/userPopulationMap";
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
+import {
+  sendBlockUnblockEmail,
+  sendPaymentReceiptEmail,
+  sendStaffRoleAssignmentEmail,
+  sendVerificationEmail,
+} from "./emailService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
@@ -75,6 +81,150 @@ export class UserService {
     return user;
   }
 
+  // Add an event to user's favorites (idempotent)
+  async addToFavorites(
+    id: string,
+    eventId: string | mongoose.Types.ObjectId
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    // Normalize eventId to a mongoose ObjectId if needed
+    const objectId =
+      typeof eventId === "string"
+        ? new mongoose.Types.ObjectId(eventId)
+        : eventId;
+
+    // Ensure favorites array exists
+    const finalFavorites: any[] =
+      user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
+
+    // debug logs removed
+
+    // If already present, return a 400 error
+    const exists = finalFavorites.some(
+      (fav: any) => fav.toString() === objectId.toString()
+    );
+    if (exists) {
+      throw createError(400, "This event is already in your favorites list");
+    }
+
+    // Add to favorites
+    finalFavorites.push(objectId as any);
+    user.favorites = finalFavorites as any;
+    await user.save();
+
+    return user;
+  }
+
+  // Remove an event from user's favorites (idempotent)
+  async removeFromFavorites(
+    id: string,
+    eventId: string | mongoose.Types.ObjectId
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Normalize eventId to a mongoose ObjectId if needed
+    const objectId =
+      typeof eventId === "string"
+        ? new mongoose.Types.ObjectId(eventId)
+        : eventId;
+
+    // Ensure favorites array exists
+    const finalFavorites: any[] =
+      user.favorites && Array.isArray(user.favorites) ? user.favorites : [];
+
+    // debug logs removed
+
+    // If not present, return 404
+    const exists = finalFavorites.some(
+      (fav: any) => fav.toString() === objectId.toString()
+    );
+    if (!exists) {
+      throw createError(404, "Event not found in favorites");
+    }
+
+    // Remove and persist
+    const filtered = finalFavorites.filter(
+      (fav: any) => fav.toString() !== objectId.toString()
+    );
+    user.favorites = filtered as any;
+    await user.save();
+
+    return user;
+  }
+
+  // Get user's favorites (populated when possible)
+  async getFavorites(id: string): Promise<IUser> {
+    const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Try to fetch with populated favorites if repo supports populate
+    const populated = await this.userRepo.findById(id, {
+      populate: ["favorites"],
+    });
+
+    return (populated || user) as IUser;
+  }
+
+  // Pay for event using wallet balance
+  async payWithWallet(userId: string, eventId: string): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Fetch event to get the price
+    const { Event } = await import("../schemas/event-schemas/eventSchema");
+    const event = await Event.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    // Check if user has sufficient wallet balance
+    const walletBalance = user.walletBalance || 0;
+    if (walletBalance < event.price) {
+      throw createError(400, "Insufficient wallet balance");
+    }
+
+    // Deduct price from wallet
+    user.walletBalance = walletBalance - event.price;
+    await user.save();
+
+    // Send payment receipt email
+    const username =
+      user.firstName && user.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user.email;
+
+    await sendPaymentReceiptEmail({
+      userEmail: user.email,
+      username,
+      transactionId: `wallet_${userId}_${eventId}_${Date.now()}`,
+      amount: event.price,
+      currency: "USD",
+      itemName: event.eventName,
+      itemType: event.type === "trip" ? "Trip" : "Workshop",
+      paymentDate: new Date(),
+      paymentMethod: "Wallet",
+    });
+
+    return user;
+  }
+
   async blockUser(id: string): Promise<void> {
     const user = await this.userRepo.findById(id);
     if (!user) {
@@ -84,6 +234,7 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    await sendBlockUnblockEmail(user.email, true, "admin decision");
     await user.save();
   }
 
@@ -96,6 +247,7 @@ export class UserService {
       throw createError(400, "User is already Active");
     }
     user.status = UserStatus.ACTIVE;
+    await sendBlockUnblockEmail(user.email, false, "admin decision");
     await user.save();
   }
 
@@ -129,7 +281,7 @@ export class UserService {
   async assignRoleAndSendVerification(
     userId: string,
     position: string
-  ): Promise<{ user: Omit<IStaffMember, "password">, verificationtoken: string }> {
+  ): Promise<Omit<IStaffMember, "password">> {
     // Find user by ID
     const user = await this.staffMemberRepo.findById(userId);
     if (!user) {
@@ -152,14 +304,24 @@ export class UserService {
     await user.save();
 
     // Generate verification token
-    const verificationtoken = this.verificationService.generateVerificationToken(user);
+    const verificationToken =
+      this.verificationService.generateVerificationToken(user);
+    // Send verification email
+    const link = `http://localhost:4000/auth/verify?token=${verificationToken}`;
+    await sendStaffRoleAssignmentEmail(
+      user.email,
+      user.firstName,
+      position,
+      link
+    );
+    console.log("Verification email sent to:", user.email);
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user.toObject
       ? user.toObject()
       : user;
 
-    return { user: userWithoutPassword as Omit<IStaffMember, "password">, verificationtoken };
+    return userWithoutPassword as Omit<IStaffMember, "password">;
   }
 
   async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {

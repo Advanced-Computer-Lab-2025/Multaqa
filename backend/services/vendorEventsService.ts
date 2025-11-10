@@ -14,6 +14,7 @@ import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
 import { IPlatformBooth } from "../interfaces/models/platformBooth.interface";
+import { sendApplicationStatusEmail } from "./emailService";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -290,8 +291,7 @@ export class VendorEventsService {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    vendor.requestedEvents[requestIndex].status =
-      status as Event_Request_Status;
+    vendor.requestedEvents[requestIndex].status = status as Event_Request_Status;
     vendor.markModified("requestedEvents");
     await vendor.save();
 
@@ -330,6 +330,16 @@ export class VendorEventsService {
       throw createError(400, "Invalid event type");
     }
 
+    // Send application status email to vendor
+    await sendApplicationStatusEmail(
+      vendor.email,
+      vendor.companyName,
+      event.type === EVENT_TYPES.BAZAAR ? 'bazaar' : 'booth',
+      event.eventName,
+      status === 'approved' ? 'accepted' : 'rejected',
+      status === 'rejected' ? event.RequestData?.rejectionReason : undefined,
+      status === 'approved' ? event.RequestData?.nextSteps : undefined
+    );
     await event.save();
   }
   async getAvailableBooths(startDate: any, endDate: any): Promise<string[]> {

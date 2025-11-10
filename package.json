@@ -1,10 +1,7 @@
 {
   "dependencies": {
     "mongoose": "^8.19.0",
-    "react-toastify": "^11.0.5"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.5",
-    "@types/multer": "^2.0.0"
+    "react-toastify": "^11.0.5",
+    "stripe": "^19.3.0"
   }
 }
