@@ -1,3 +1,5 @@
+export type UploadStatus = "idle" | "uploading" | "success" | "error";
+
 export interface UploadFieldProps {
   label: string;
   accept?: string;
@@ -7,4 +9,6 @@ export interface UploadFieldProps {
   icon?: React.ReactNode;
   showPreviewAs?: "image" | "file"; // control how preview is shown
   variant?: "folder" | "tax-card" | "logo"; // Different document type variants
+  uploadStatus?: UploadStatus; // Upload state: idle, uploading, success, or error
+  onFileSelected?: (file: File | null) => void;
 }

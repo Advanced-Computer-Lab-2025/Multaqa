@@ -3,6 +3,7 @@ import theme from "@/themes/lightTheme";
 
 export const StyledWrapper = styled("div")<{
   containerWidth?: number | string;
+  uploadStatus?: "idle" | "uploading" | "success" | "error";
 }>(
   ({ containerWidth = 300 }) => `
   width: ${
@@ -10,6 +11,15 @@ export const StyledWrapper = styled("div")<{
   };
   max-width: 100%;
   cursor: pointer;
+
+  @keyframes borderDraw {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
 
   .container {
     --transition: 350ms;
@@ -31,6 +41,52 @@ export const StyledWrapper = styled("div")<{
     position: relative;
     transition: transform var(--transition), border var(--transition);
     border: 2px dashed transparent;
+  }
+
+  .container.uploading {
+    border: 2px solid transparent;
+    position: relative;
+  }
+
+  .container.uploading::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 15px;
+    border: 2px solid ${theme.palette.primary.main};
+    animation: borderDraw 2s linear infinite;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      transparent 50%, 
+      ${theme.palette.primary.main} 50%, 
+      ${theme.palette.primary.main} 100%
+    );
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 2px;
+    animation: borderProgress 2s linear infinite;
+  }
+
+  @keyframes borderProgress {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .container.success {
+    border: 2px solid #24ad51ff;
+  }
+
+  .container.error {
+    border: 2px solid ${theme.palette.error.main};
   }
 
   .container:hover {

@@ -3,12 +3,17 @@ import React, { useRef, useState } from "react";
 import { Box, Typography, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BadgeIcon from "@mui/icons-material/Badge";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 import theme from "@/themes/lightTheme";
+
+type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 interface UploadIDProps {
   label?: string;
   accept?: string;
   disabled?: boolean;
+  uploadStatus?: UploadStatus;
   onFileSelected?: (file: File | null) => void;
 }
 
@@ -16,13 +21,14 @@ const UploadID: React.FC<UploadIDProps> = ({
   label = "ID",
   accept = "image/*,.pdf",
   disabled = false,
+  uploadStatus = "idle",
   onFileSelected,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
 
   const handleClick = () => {
-    if (!disabled) inputRef.current?.click();
+    if (!disabled && uploadStatus !== "uploading") inputRef.current?.click();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,13 +71,49 @@ const UploadID: React.FC<UploadIDProps> = ({
           transition: "all 0.35s ease",
           opacity: disabled ? 0.6 : 1,
           position: "relative",
-          border: file ? "2px solid transparent" : "2px solid transparent",
+          border:
+            uploadStatus === "success"
+              ? "2px solid #24ad51ff"
+              : uploadStatus === "error"
+              ? `2px solid ${theme.palette.error.main}`
+              : "2px solid transparent",
           boxShadow: "0 15px 30px rgba(0, 0, 0, 0.2)",
+          ...(uploadStatus === "uploading" && {
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: "-4px",
+              left: "-4px",
+              right: "-4px",
+              bottom: "-4px",
+              borderRadius: "32px",
+              background: `linear-gradient(90deg, transparent 0%, transparent 50%, ${theme.palette.primary.main} 50%, ${theme.palette.primary.main} 100%)`,
+              backgroundSize: "200% 100%",
+              animation: "borderProgress 2s linear infinite",
+              zIndex: -1,
+              padding: "3px",
+              WebkitMask:
+                "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+            },
+            "@keyframes borderProgress": {
+              "0%": {
+                backgroundPosition: "200% 0",
+              },
+              "100%": {
+                backgroundPosition: "-200% 0",
+              },
+            },
+          }),
           "&:hover": {
             transform: disabled ? "none" : "scale(1.05)",
-            border: file
-              ? "2px solid #24ad51ff"
-              : `2px dashed ${theme.palette.primary.main}`,
+            border:
+              uploadStatus === "success"
+                ? "2px solid #24ad51ff"
+                : uploadStatus === "error"
+                ? `2px solid ${theme.palette.error.main}`
+                : `2px dashed ${theme.palette.primary.main}`,
           },
         }}
       >
@@ -79,12 +121,12 @@ const UploadID: React.FC<UploadIDProps> = ({
           type="file"
           ref={inputRef}
           accept={accept}
-          disabled={disabled}
+          disabled={disabled || uploadStatus === "uploading"}
           onChange={handleChange}
           style={{ display: "none" }}
         />
 
-        {file && (
+        {(file || uploadStatus === "success") && (
           <IconButton
             size="small"
             onClick={handleRemove}
@@ -105,23 +147,51 @@ const UploadID: React.FC<UploadIDProps> = ({
           </IconButton>
         )}
 
-        <BadgeIcon
-          sx={{
-            fontSize: 56,
-            color: file ? "#24ad51ff" : theme.palette.primary.main,
-          }}
-        />
+        {uploadStatus === "success" ? (
+          <CheckCircleIcon sx={{ fontSize: 56, color: "#24ad51ff" }} />
+        ) : uploadStatus === "error" ? (
+          <ErrorIcon sx={{ fontSize: 56, color: theme.palette.error.main }} />
+        ) : (
+          <BadgeIcon
+            sx={{
+              fontSize: 56,
+              color:
+                uploadStatus === "uploading"
+                  ? theme.palette.primary.main
+                  : file
+                  ? "#24ad51ff"
+                  : theme.palette.primary.main,
+            }}
+          />
+        )}
 
         <Typography
           sx={{
             fontSize: "11px",
             fontWeight: "bold",
-            color: file ? "#24ad51ff" : theme.palette.primary.main,
+            color:
+              uploadStatus === "uploading"
+                ? theme.palette.primary.main
+                : uploadStatus === "success"
+                ? "#24ad51ff"
+                : uploadStatus === "error"
+                ? theme.palette.error.main
+                : file
+                ? "#24ad51ff"
+                : theme.palette.primary.main,
             textTransform: "uppercase",
             letterSpacing: "0.5px",
           }}
         >
-          {file ? "Uploaded" : label}
+          {uploadStatus === "uploading"
+            ? "Uploading..."
+            : uploadStatus === "success"
+            ? "Uploaded"
+            : uploadStatus === "error"
+            ? "Failed"
+            : file
+            ? "Uploaded"
+            : label}
         </Typography>
       </Box>
 

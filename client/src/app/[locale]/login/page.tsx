@@ -19,7 +19,17 @@ export default function LoginPage() {
           accept=".pdf,.jpg"
         />
         <FileUpload label="Upload Logo" variant="logo" accept="image/*" />
-        <UploadID label="Upload ID"  accept=".jpg,.png" />
+        <UploadID label="Upload ID" accept=".jpg,.png" />
+        <FileUpload
+          label="Upload Document"
+          uploadStatus="uploading"
+          onFileSelected={(file) => console.log("File selected:", file)}
+        />
+        <UploadID
+          label="ID"
+          uploadStatus="success"
+          onFileSelected={(file) => console.log("ID uploaded:", file)}
+        />
       </div>
       <ToastContainer aria-label={undefined} />
     </>
