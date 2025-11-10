@@ -1,8 +1,11 @@
 import Stripe from "stripe";
 import createError from "http-errors";
 import { EventsService } from "./eventService";
+import { UserService } from "./userService";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IEvent } from "../interfaces/models/event.interface";
+import { sendPaymentReceiptEmail } from "./emailService";
+import { IUser } from "../interfaces/models/user.interface";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 if (!stripeSecretKey) {
@@ -33,9 +36,11 @@ export interface CreateCheckoutSessionResponse {
 
 export class PaymentService {
   private eventsService: EventsService;
+  private userService: UserService;
 
   constructor() {
     this.eventsService = new EventsService();
+    this.userService = new UserService();
   }
 
   /**
@@ -143,5 +148,74 @@ export class PaymentService {
       sessionId: session.id,
       url: session.url,
     };
+  }
+
+  // Pay for event using wallet balance
+  async payWithWallet(userId: string, eventId: string): Promise<IUser> {
+    // Fetch event to get the price
+    const event = await this.eventsService.getEventById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    // Deduct from wallet and get updated user
+    const user = await this.userService.deductFromWallet(userId, event.price);
+
+    // Get user details for email
+    const userDetails = await this.userService.getUserById(userId);
+    const username =
+      (userDetails as any).firstName && (userDetails as any).lastName
+        ? `${(userDetails as any).firstName} ${(userDetails as any).lastName}`
+        : userDetails.email;
+
+    // Send payment receipt email
+    await sendPaymentReceiptEmail({
+      userEmail: userDetails.email,
+      username,
+      transactionId: `wallet_${userId}_${eventId}_${Date.now()}`,
+      amount: event.price,
+      currency: "USD",
+      itemName: event.eventName,
+      itemType: event.type === "trip" ? "Trip" : "Workshop",
+      paymentDate: new Date(),
+      paymentMethod: "Wallet",
+    });
+
+    return user;
+  }
+
+  async refundPayment(userId: string, eventId: string): Promise<void> {
+    // Fetch event to get the price
+    const event = await this.eventsService.getEventById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    const currentDate = new Date();
+    const eventDate = event.eventStartDate;
+    // Get number of days between current date and event date
+    const timeDiff = eventDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    // Only allow refund if requested at least 14 days before event start date
+    if (daysDiff < 14) {
+      throw createError(
+        400,
+        "Refunds can only be processed at least 14 days before the event start date"
+      );
+    }
+
+    // Refund amount to user's wallet
+    await this.userService.addToWallet(userId, event.price);
   }
 }
