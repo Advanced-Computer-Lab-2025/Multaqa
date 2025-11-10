@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import e, { Router, Request, Response } from "express";
 import { UserService } from "../services/userService";
 import createError from "http-errors";
 import { EventsService } from "../services/eventService";
@@ -18,6 +18,7 @@ import {
   AddToFavoritesResponse,
   RemoveFromFavoritesResponse,
   GetFavoritesResponse,
+  PayWithWalletResponse,
 } from "../interfaces/responses/userResponses.interface";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { UserRole } from "../constants/user.constants";
@@ -40,10 +41,10 @@ async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
       message: "Users retrieved successfully",
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving users'
+    );
   }
 }
 
@@ -59,7 +60,10 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
       message: "User retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving user'
+    );
   }
 }
 
@@ -68,40 +72,46 @@ async function registerForEvent(
   req: AuthenticatedRequest,
   res: Response<RegisterUserResponse>
 ) {
-  const { eventId } = req.params;
-  const userId = req.user?.id;
-  if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
+  try {
+    const { eventId } = req.params;
+    const userId = req.user?.id;
+    if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
 
-  const validatedData = validateEventRegistration(req.body);
-  if (validatedData.error) {
+    const validatedData = validateEventRegistration(req.body);
+    if (validatedData.error) {
+      throw createError(
+        400,
+        validatedData.error.details.map((d) => d.message).join(", ")
+      );
+    }
+
+    const updatedEvent = await eventsService.registerUserForEvent(
+      eventId,
+      userId
+    );
+
+    await userService.addEventToUser(
+      userId,
+      updatedEvent._id as Schema.Types.ObjectId
+    );
+
+    res.json({
+      success: true,
+      message: "User registered for event successfully",
+      data: updatedEvent,
+    });
+  } catch (err: any) {
     throw createError(
-      400,
-      validatedData.error.details.map((d) => d.message).join(", ")
+      err.status || 500,
+      err.message || 'Error registering for event'
     );
   }
-
-  const updatedEvent = await eventsService.registerUserForEvent(
-    eventId,
-    userId
-  );
-
-  await userService.addEventToUser(
-    userId,
-    updatedEvent._id as Schema.Types.ObjectId
-  );
-
-  res.json({
-    success: true,
-    message: "User registered for event successfully",
-    data: updatedEvent,
-  });
 }
 
 // Add event to user's favorites
 async function addToFavorites(
   req: AuthenticatedRequest,
   res: Response<AddToFavoritesResponse>,
-  next: any
 ) {
   try {
     const eventId = req.params.eventId;
@@ -124,7 +134,10 @@ async function addToFavorites(
       data: updatedUser,
     });
   } catch (err: any) {
-    next(err);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error adding to favorites'
+    );
   }
 }
 
@@ -132,7 +145,6 @@ async function addToFavorites(
 async function removeFromFavorites(
   req: AuthenticatedRequest,
   res: Response<RemoveFromFavoritesResponse>,
-  next: any
 ) {
   try {
     const eventId = req.params.eventId;
@@ -155,7 +167,10 @@ async function removeFromFavorites(
       data: updatedUser,
     });
   } catch (err: any) {
-    next(err);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error removing from favorites'
+    );
   }
 }
 
@@ -163,7 +178,6 @@ async function removeFromFavorites(
 async function getAllFavorites(
   req: AuthenticatedRequest,
   res: Response<GetFavoritesResponse>,
-  next: any
 ) {
   try {
     const userId = req.user?.id;
@@ -178,6 +192,53 @@ async function getAllFavorites(
       success: true,
       message: "Favorites retrieved successfully",
       data: favorites,
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving favorites'
+    );
+  }
+}
+
+// Pay for event using wallet balance
+async function payWithWallet(
+  req: AuthenticatedRequest,
+  res: Response<PayWithWalletResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    // Get event price before payment
+    const { Event } = await import("../schemas/event-schemas/eventSchema");
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const amountPaid = event.price || 0;
+
+    // Process payment
+    const updatedUser = await userService.payWithWallet(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Payment successful",
+      data: {
+        walletBalance: (updatedUser as any).walletBalance || 0,
+        amountPaid: amountPaid,
+      },
     });
   } catch (err: any) {
     next(err);
@@ -199,7 +260,10 @@ async function blockUser(req: Request, res: Response<BlockUserResponse>) {
     });
   } catch (err: any) {
     console.error("❌ Failed to block user:", err.message);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error blocking user'
+    );
   }
 }
 
@@ -217,7 +281,10 @@ async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
       message: "User unblocked successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error unblocking user'
+    );
   }
 }
 
@@ -233,7 +300,10 @@ async function getAllUnAssignedStaffMembers(
       message: "Unassigned staff members retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving unassigned staff members'
+    );
   }
 }
 
@@ -246,7 +316,10 @@ async function getAllTAs(req: Request, res: Response<GetAllTAsResponse>) {
       message: "TAs retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving TAs'
+    );
   }
 }
 
@@ -259,7 +332,10 @@ async function getAllStaff(req: Request, res: Response<GetAllStaffResponse>) {
       message: "Staff retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving staff members'
+    );
   }
 }
 
@@ -269,7 +345,10 @@ async function assignRole(req: Request, res: Response<AssignRoleResponse>) {
     const { userId } = req.params;
     const { position } = req.body;
 
-    const user = await userService.assignRoleAndSendVerification(userId, position);
+    const user = await userService.assignRoleAndSendVerification(
+      userId,
+      position
+    );
 
     res.json({
       success: true,
@@ -302,7 +381,10 @@ async function getAllProfessors(
     if (err.status || err.statusCode) {
       throw err;
     }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving professors'
+    );
   }
 }
 
@@ -430,6 +512,19 @@ router.post(
     ],
   }),
   addToFavorites
+);
+
+router.patch(
+  "/payments/:eventId/wallet",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  payWithWallet
 );
 
 router.delete(

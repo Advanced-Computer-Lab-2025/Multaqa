@@ -12,6 +12,7 @@ import { StaffPosition } from "../constants/staffMember.constants";
 import { VerificationService } from "./verificationService";
 import {
   sendBlockUnblockEmail,
+  sendPaymentReceiptEmail,
   sendStaffRoleAssignmentEmail,
   sendVerificationEmail,
 } from "./emailService";
@@ -170,6 +171,58 @@ export class UserService {
     });
 
     return (populated || user) as IUser;
+  }
+
+  // Pay for event using wallet balance
+  async payWithWallet(userId: string, eventId: string): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Fetch event to get the price
+    const { Event } = await import("../schemas/event-schemas/eventSchema");
+    const event = await Event.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    // Check if user has sufficient wallet balance
+    const walletBalance = user.walletBalance || 0;
+    if (walletBalance < event.price) {
+      throw createError(400, "Insufficient wallet balance");
+    }
+
+    // Deduct price from wallet
+    user.walletBalance = walletBalance - event.price;
+    await user.save();
+
+    // Send payment receipt email
+    const username =
+      user.firstName && user.lastName
+        ? `${user.firstName} ${user.lastName}`
+        : user.email;
+
+    await sendPaymentReceiptEmail({
+      userEmail: user.email,
+      username,
+      transactionId: `wallet_${userId}_${eventId}_${Date.now()}`,
+      amount: event.price,
+      currency: "USD",
+      itemName: event.eventName,
+      itemType: event.type === "trip" ? "Trip" : "Workshop",
+      paymentDate: new Date(),
+      paymentMethod: "Wallet",
+    });
+
+    return user;
   }
 
   async blockUser(id: string): Promise<void> {
