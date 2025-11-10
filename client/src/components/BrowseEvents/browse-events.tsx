@@ -91,13 +91,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   userInfo,
   userID,
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>(""); // Default: no sorting
+  const [sortBy, setSortBy] = useState<string>('none'); // Default: no sorting
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
@@ -239,7 +239,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
     switch (sortBy) {
       case "start_asc":
-        console.log("Sorting by start date (ascending)");
         filtered.sort((a, b) => {
           const dateA = parseDate(a.details["Start Date"]);
           const dateB = parseDate(b.details["Start Date"]);
@@ -249,7 +248,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         break;
 
       case "start_desc":
-        console.log("Sorting by start date (descending)");
         filtered.sort((a, b) => {
           const dateA = parseDate(a.details["Start Date"]);
           const dateB = parseDate(b.details["Start Date"]);
