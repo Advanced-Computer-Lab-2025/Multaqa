@@ -19,7 +19,15 @@ const flattenName = (profs: { firstName: string; lastName: string }[]) => {
 const flattenId = (profs:{ id: string }[])=>{
   return profs.map(prof => `${prof.id}`);
 }
-
+const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
+  return vendors.map(vendor =>vendor.vendor);
+}
+// Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
+const cleanDateString = (isoDate: string | undefined): string => {
+  if (!isoDate) return '';
+  // Splits the string at 'T' and returns the first element (the date part)
+  return isoDate.split('T')[0]; 
+};
 
 
 function transformEvent(event: any) {
@@ -38,9 +46,9 @@ function transformEvent(event: any) {
         name: event.eventName,
         description: event.description,
         details: {
-          "Registration Deadline": registrationDeadline,
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Registration Deadline": cleanDateString(registrationDeadline),
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Location: event.location,
@@ -59,9 +67,9 @@ function transformEvent(event: any) {
         agenda: event.fullAgenda,
         professors: flattenName(event.associatedProfs),
         details: {
-          "Registration Deadline": registrationDeadline,
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Registration Deadline": cleanDateString(registrationDeadline),
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           "Created By": event.createdBy,
@@ -73,6 +81,7 @@ function transformEvent(event: any) {
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": (event.capacity - event.attendees.length),
           "Status": event.approvalStatus,
+          "Cost":`${event.price?.$numberInt || event.price} EGP `,
         },
       };
 
@@ -83,11 +92,11 @@ function transformEvent(event: any) {
         type: EventType.CONFERENCE,
         name: event.eventName,
         description:
-          event.description,
+        event.description,
         agenda: event.fullAgenda,
         details: {
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           "Extra Required Resources": event.extraRequiredResources,
@@ -102,13 +111,12 @@ function transformEvent(event: any) {
         id,
         type: EventType.BAZAAR,
         name: event.eventName,
-        description:
-          event.description,
-        // vendors: event.vendors,
+        description: event.description,
+        vendors: flattenVendors(event.vendors),
         details: {
-          "Registration Deadline": registrationDeadline,
-          "Start Date": startDate,
-          "End Date": endDate,
+          "Registration Deadline": cleanDateString(registrationDeadline),
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
           "Start Time": event.eventStartTime,
           "End Time": event.eventEndTime,
           Time: `${event.eventStartTime} - ${event.eventEndTime}`,
@@ -122,11 +130,11 @@ function transformEvent(event: any) {
         type: EventType.BOOTH,
         company: event.eventName,
         people: event.RequestData.boothAttendees,
+        description:event.description,
         details: {
-          "Setup Duration": event.RequestData.boothSetupDuration,
-          Location: event.RequestData.boothLocation,
+          "Setup Duration": `${event.RequestData.boothSetupDuration} weeks` ,
+          "Location": event.RequestData.boothLocation,
           "Booth Size": event.RequestData.boothSize,
-          Description: event.description,
         },
       };
 
