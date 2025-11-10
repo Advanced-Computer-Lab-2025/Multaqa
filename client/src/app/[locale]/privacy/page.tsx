@@ -33,7 +33,7 @@ export default function PrivacyPolicyPage() {
     <Box
       component="main"
       sx={{
-        backgroundColor: alpha(theme.palette.primary.light, 0.04),
+        backgroundColor: alpha(theme.palette.tertiary.light, 0.04),
         py: { xs: 8, md: 12 },
         minHeight: "100vh",
       }}

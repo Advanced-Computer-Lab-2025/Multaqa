@@ -33,7 +33,7 @@ export default function GdprCompliancePage() {
     <Box
       component="main"
       sx={{
-        backgroundColor: alpha(theme.palette.primary.main, 0.05),
+        backgroundColor: alpha(theme.palette.tertiary.main, 0.05),
         py: { xs: 8, md: 12 },
         minHeight: "100vh",
       }}

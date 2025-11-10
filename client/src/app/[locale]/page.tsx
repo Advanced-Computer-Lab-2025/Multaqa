@@ -508,13 +508,13 @@ export default function HomePage() {
                   fontWeight: 700,
                   backgroundColor: theme.palette.warning.main,
                   color: theme.palette.warning.contrastText,
-                  border: `2px solid ${theme.palette.warning.dark}`,
+                  border: `2px solid ${theme.palette.primary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.warning.dark,
-                    borderColor: theme.palette.warning.dark,
+                    backgroundColor: theme.palette.primary.dark,
+                    borderColor: theme.palette.primary.dark,
                   },
                   boxShadow: `0 10px 24px ${alpha(
-                    theme.palette.warning.main,
+                    theme.palette.primary.main,
                     0.3
                   )}`,
                 }}
@@ -580,7 +580,7 @@ export default function HomePage() {
                   backgroundColor: alpha(theme.palette.primary.light, 0.05),
                   border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   "&:hover": {
-                    backgroundColor: alpha(theme.palette.warning.main, 0.25),
+                    backgroundColor: alpha(theme.palette.tertiary.main, 0.25),
                   },
                 }}
                 onClick={closeLocaleModal}
@@ -684,21 +684,21 @@ export default function HomePage() {
             >
               Continue without optional cookies
             </CustomButton>
-            <CustomButton
-              variant="contained"
-              onClick={handleAcceptConsent}
-              sx={{
-                width: { xs: "100%", sm: "auto" },
-                fontWeight: 700,
-                backgroundColor: theme.palette.warning.main,
-                color: theme.palette.warning.contrastText,
-                border: `2px solid ${theme.palette.warning.dark}`,
-                "&:hover": {
-                  backgroundColor: theme.palette.warning.dark,
-                  borderColor: theme.palette.warning.dark,
-                },
-              }}
-            >
+              <CustomButton
+                variant="contained"
+                onClick={handleAcceptConsent}
+                sx={{
+                  width: { xs: "100%", sm: "auto" },
+                  fontWeight: 700,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
+                  "&:hover": {
+                    backgroundColor: theme.palette.tertiary.dark,
+                    borderColor: theme.palette.tertiary.dark,
+                  },
+                }}
+              >
               Accept all
             </CustomButton>
           </Stack>
@@ -932,12 +932,12 @@ export default function HomePage() {
                       fontSize: "1.05rem",
                       fontWeight: 700,
                       letterSpacing: "0.04em",
-                      backgroundColor: theme.palette.warning.main,
-                      color: theme.palette.warning.contrastText,
-                      border: `2px solid ${theme.palette.warning.dark}`,
+                      backgroundColor: theme.palette.tertiary.main,
+                      color: theme.palette.tertiary.contrastText,
+                      border: `2px solid ${theme.palette.tertiary.dark}`,
                       "&:hover": {
-                        backgroundColor: theme.palette.warning.dark,
-                        borderColor: theme.palette.warning.dark,
+                        backgroundColor: theme.palette.tertiary.dark,
+                        borderColor: theme.palette.tertiary.dark,
                       },
                     }}
                   >
@@ -1157,7 +1157,7 @@ export default function HomePage() {
               sx={{
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
-                color: theme.palette.warning.dark,
+                color: theme.palette.tertiary.dark,
                 fontWeight: 600,
               }}
             >
@@ -1211,12 +1211,12 @@ export default function HomePage() {
                 sx={{
                   width: { xs: "100%", sm: "160px" },
                   fontWeight: 700,
-                  backgroundColor: theme.palette.warning.main,
-                  color: theme.palette.warning.contrastText,
-                  border: `2px solid ${theme.palette.warning.dark}`,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.primary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.warning.dark,
-                    borderColor: theme.palette.warning.dark,
+                    backgroundColor: theme.palette.tertiary.dark,
+                    borderColor: theme.palette.tertiary.dark,
                   },
                 }}
                 endIcon={<ArrowForwardIcon />}
@@ -1343,9 +1343,9 @@ export default function HomePage() {
                           color: theme.palette.text.primary,
                           textDecoration: "none",
                           transition: "background 0.2s ease",
-                          "&:hover": {
+                  "&:hover": {
                             background: alpha(
-                              theme.palette.warning.main,
+                              theme.palette.primary.main,
                               0.35
                             ),
                           },
@@ -1394,7 +1394,7 @@ export default function HomePage() {
                 background: `linear-gradient(135deg, ${alpha(
                   theme.palette.primary.main,
                   0.12
-                )}, ${alpha(theme.palette.warning.main, 0.25)})`,
+                )}, ${alpha(theme.palette.tertiary.main, 0.25)})`,
                 filter: "blur(60px)",
                 zIndex: 0,
               }}
@@ -1622,7 +1622,7 @@ export default function HomePage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    bgcolor: alpha(theme.palette.warning.main, 0.4),
+                    bgcolor: alpha(theme.palette.primary.main, 0.4),
                     color: theme.palette.tertiary.dark,
                     mb: 2.5,
                   }}
@@ -1805,7 +1805,7 @@ export default function HomePage() {
                 sx={{
                   color: "inherit",
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.warning.main },
+                  "&:hover": { color: theme.palette.primary.main },
                   textAlign: "center",
                 }}
               >
@@ -1817,7 +1817,7 @@ export default function HomePage() {
                 sx={{
                   color: "inherit",
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.warning.main },
+                  "&:hover": { color: theme.palette.primary.main },
                   textAlign: "center",
                 }}
               >
@@ -1829,7 +1829,7 @@ export default function HomePage() {
                 sx={{
                   color: "inherit",
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.warning.main },
+                  "&:hover": { color: theme.palette.primary.main },
                   textAlign: "center",
                 }}
               >
@@ -1861,7 +1861,7 @@ const menuLinkStyles = (theme: Theme) => ({
   fontWeight: 600,
   transition: "color 0.2s ease",
   "&:hover": {
-    color: theme.palette.warning.dark,
+    color: theme.palette.primary.dark,
   },
 });
 
