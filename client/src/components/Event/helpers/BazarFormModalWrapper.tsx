@@ -13,7 +13,7 @@ const BazarFormModalWrapper: React.FC<BazarFormModalWrapperProps> = ({
   onClose,
   bazarId
 }) => {
-  const modalWidthClass = "w-[60vw] md:w-[50vw] lg:w-[45vw] xl:w-[40vw]";
+  const modalWidthClass = "w-[65vw] md:w-[55vw] lg:w-[45vw] xl:w-[45vw]";
   return (
     <CustomModalLayout
       open={isOpen}
