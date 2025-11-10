@@ -2,7 +2,8 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { api } from "../../../../api";
 import { FormikProps } from "formik";
-import { BoothFormValues, UploadStatus } from "../types";
+import { BoothFormValues } from "../types";
+import type { UploadStatus } from "../../FileUpload/types";
 import { ErrorResponse } from "../../../../../../backend/interfaces/errors/errorResponse.interface";
 
 export const validationSchema = Yup.object({

@@ -1,7 +1,7 @@
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { api } from "../../../../api";
-import { UploadStatus } from "../types"; // Import UploadStatus
+import type { UploadStatus } from "../../FileUpload/types";
 import { BazarFormValues } from "../types"; // Import BazarFormValues
 
 export const validationSchema = Yup.object({

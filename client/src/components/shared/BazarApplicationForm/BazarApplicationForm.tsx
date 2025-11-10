@@ -22,7 +22,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AspectRatioIcon from "@mui/icons-material/AspectRatio"; // Icon for Booth Size
 import { useTheme } from "@mui/material/styles";
-import { BazarFormValues, UploadStatus } from "./types";
+import { BazarFormValues} from "./types";
 import { validationSchema, submitBazarForm } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { BazarApplicationFormProps } from "./types";
@@ -33,6 +33,7 @@ import { UploadID } from "../FileUpload";
 import { createDocumentHandler } from "../RegistrationForm/utils";
 import StyledAccordion from "../Accordion/StyledAccordion";
 import StyledAccordionSummary from "../Accordion/StyledAccordionSummary";
+import type { UploadStatus } from "../FileUpload/types";
 
 const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
   const theme = useTheme();
@@ -99,7 +100,6 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
           submitBazarForm(
             values,
             { setSubmitting, resetForm },
-            vendorId,
             eventId,
             attendeeIdStatuses
           );
