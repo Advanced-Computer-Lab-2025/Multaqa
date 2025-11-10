@@ -7,10 +7,13 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import { Trash2 } from "lucide-react";
-import { CustomModal } from "../shared/modals";
+import { CustomModal, CustomModalLayout } from "../shared/modals";
 import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EditTrip from "../tempPages/EditTrip/EditTrip";
+import EventCard from "../shared/cards/EventCard";
+import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
+import EventDetails from "./Modals/EventDetails";
 
 const TripView: React.FC<BazarViewProps> = ({
   id,
@@ -19,15 +22,19 @@ const TripView: React.FC<BazarViewProps> = ({
   description,
   user,
   registered,
+  icon: IconComponent, 
+  background,
   onDelete,
   setRefresh,
   userInfo,
-  isReady
+  isReady,
+  attended
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const finalPrice = parseInt(details["Cost"], 10); // base 10
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -45,108 +52,20 @@ const TripView: React.FC<BazarViewProps> = ({
     handleCloseDeleteModal();
   };
 
-  const metaNodes = [
-    <Typography key="datetime" variant="body2" sx={{ color: "#6b7280" }}>
-      Deadline: {details["Registration Deadline"] || "TBD"}
-    </Typography>,
-    <Typography key="date-range" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Start Date"] === details["End Date"]
-        ? details["Start Date"] || "TBD"
-        : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"}`}
-    </Typography>,
-    <Typography
-      key="transportation"
-      variant="caption"
-      sx={{ color: "#6b7280" }}
-    >
-      {details["Location"] || "TBD"}
-    </Typography>,
-    <Typography key="cost" variant="caption" sx={{ color: "#6b7280" }}>
-      {details["Cost"] || "TBD"}
-    </Typography>,
-  ];
-
-  const detailsContent = (
-    <Box>
-      {description && (
-        <Box sx={{ mb: 2 }}>
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            sx={{ color: theme.palette.info.dark, mb: 1 }}
-          >
-            Description
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ fontSize: "14px", lineHeight: 1.5 }}
-          >
-            {description}
-          </Typography>
-        </Box>
-      )}
-
-      <Box>
-        <Typography
-          variant="body2"
-          fontWeight={600}
-          sx={{ color: theme.palette.info.dark, mb: 1 }}
-        >
-          Trip Details
-        </Typography>
-        {Object.entries(details).map(([key, value]) => (
-          <Box
-            key={key}
-            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 500 }}>
-              {key}:
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#6b7280" }}>
-              {value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-    </Box>
-  );
-
 
   return (
     <>
-      <ActionCard
-        title={name}
-        type="events"
-        tags={[
-          {
-            label: "Trip",
-            sx: {
-              bgcolor: theme.palette.info.light,
-              color: theme.palette.info.contrastText,
-              fontWeight: 600,
-            },
-            size: "small",
-          },
-        ]}
-        metaNodes={metaNodes}
-        rightSlot={
-          !registered &&
-          (user == "staff" ||
-            user == "student" ||
-            user == "ta" ||
-            user == "professor") && (
-            <CustomButton
-              size="small"
-              variant="contained"
-              color="info"
-              sx={{ borderRadius: 999 }}
-              onClick={()=> {setRegister(true)}}
-            >
-              Register
-            </CustomButton>
-          )
-        }
-        rightIcon={
+     <EventCard 
+        title={name} 
+        startDate={details["Start Date"]} 
+        endDate={details["End Date"]} 
+        startTime={details["Start Time"]} 
+        endTime={details["End Time"]} 
+        color={background} 
+        leftIcon={<IconComponent />} 
+        eventType={"Trip"}
+        onOpenDetails={() => setDetailsModalOpen(true)}
+        utilities={
           user === "admin" ? (
             <Tooltip title="Delete">
             <IconButton
@@ -163,24 +82,69 @@ const TripView: React.FC<BazarViewProps> = ({
                     <Trash2 size={16} />
                   </IconButton>
             </Tooltip>
-          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={()=> setEdit(true)} onDelete={handleOpenDeleteModal}/>:null) // add edit and delete handlers
+          ) : (user==="events-office" || user==="events-only"?<Utilities onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background}/>:null)
         }
-        registered={
-          registered ||
-          !(
-            user == "staff" ||
-            user == "student" ||
-            user == "ta" ||
-            user == "professor"
-          )
-        }
-        expanded={expanded}
-        onExpandChange={setExpanded}
-        details={detailsContent}
-        borderColor={theme.palette.info.main}
-        elevation="soft"
-      />
-
+          registerButton={
+            (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
+              <>
+                {!registered ? (
+                  <CustomButton
+                    size="small"
+                    variant="contained"
+                    sx={{ 
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                    }}
+                    onClick={() => setRegister(true)}
+                  >
+                    Register
+                  </CustomButton>
+                ) : (
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{ 
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                      width: 'fit-content'
+                    }}
+                    onClick={() => {
+                      // Add cancel registration logic here
+                      console.log("Cancel registration clicked");
+                    }}
+                  >
+                    Cancel Registration
+                  </CustomButton>
+                )}
+              </>
+            )
+          }
+        expanded={expanded} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+    
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
         open={tripToDelete}
@@ -244,7 +208,53 @@ const TripView: React.FC<BazarViewProps> = ({
       </CustomModal>
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
-      eventType={"Trip"} userInfo={userInfo} eventId={id}/>
+      eventType={"Trip"} userInfo={userInfo} eventId={id} color={background}/>
+
+
+       <CustomModalLayout
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+        borderColor={background}
+      >
+        <EventDetails
+          title={name}
+          description={description}
+          eventType="Trip"
+          details={details}
+          color={background}
+          button={!registered &&
+            (user == "staff" ||
+              user == "student" ||
+              user == "ta" ||
+              user == "professor") && (
+              <CustomButton
+                size="small"
+                variant="contained"
+                   sx={{ 
+                        borderRadius: 999 , backgroundColor: `${background}40`,
+                        color:background, borderColor:background,
+                        fontWeight: 600,
+                        px: 3,
+                        textTransform: 'none',
+                        boxShadow: `0 4px 14px ${background}40`,
+                        transition: 'all 0.3s ease',
+                        "&:hover": {
+                          backgroundColor: `${background}50`,
+                          transform: 'translateY(-2px)',
+                          boxShadow: `0 6px 20px ${background}50`,
+                        }
+                      }}
+                onClick={() => { setRegister(true); } }
+              >
+                Register
+              </CustomButton>
+            )}
+          sections={user == "vendor" ? ['general', 'details'] : ['general', 'details',
+            'reviews']}
+          user={user ? user : ""}
+          attended={attended}  />
+      </CustomModalLayout>
     </>
   );
 };
