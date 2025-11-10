@@ -28,7 +28,7 @@ export default function CookiesPage() {
     <Box
       component="main"
       sx={{
-        backgroundColor: alpha(theme.palette.secondary.main, 0.08),
+        backgroundColor: alpha(theme.palette.primary.light, 0.04),
         py: { xs: 8, md: 12 },
         minHeight: "100vh",
       }}
