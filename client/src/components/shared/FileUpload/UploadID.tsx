@@ -58,9 +58,9 @@ const UploadID: React.FC<UploadIDProps> = ({
       <Box
         onClick={handleClick}
         sx={{
-          width: "100px",
-          height: "100px",
-          borderRadius: "30px",
+          width: "90px",
+          height: "90px",
+          borderRadius: "10px",
           background: "#ffffff",
           display: "flex",
           flexDirection: "column",
@@ -76,6 +76,8 @@ const UploadID: React.FC<UploadIDProps> = ({
               ? "2px solid #24ad51ff"
               : uploadStatus === "error"
               ? `2px solid ${theme.palette.error.main}`
+              : uploadStatus === "uploading"
+              ? "2px solid transparent"
               : "2px solid transparent",
           boxShadow: "0 15px 30px rgba(0, 0, 0, 0.2)",
           ...(uploadStatus === "uploading" && {
@@ -86,11 +88,11 @@ const UploadID: React.FC<UploadIDProps> = ({
               left: "-4px",
               right: "-4px",
               bottom: "-4px",
-              borderRadius: "32px",
+              borderRadius: "14px",
               background: `linear-gradient(90deg, transparent 0%, transparent 50%, ${theme.palette.primary.main} 50%, ${theme.palette.primary.main} 100%)`,
               backgroundSize: "200% 100%",
               animation: "borderProgress 2s linear infinite",
-              zIndex: -1,
+              zIndex: 2,
               padding: "3px",
               WebkitMask:
                 "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
@@ -113,6 +115,8 @@ const UploadID: React.FC<UploadIDProps> = ({
                 ? "2px solid #24ad51ff"
                 : uploadStatus === "error"
                 ? `2px solid ${theme.palette.error.main}`
+                : uploadStatus === "uploading"
+                ? "2px solid transparent"
                 : `2px dashed ${theme.palette.primary.main}`,
           },
         }}
@@ -138,6 +142,7 @@ const UploadID: React.FC<UploadIDProps> = ({
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
               width: 28,
               height: 28,
+              zIndex: 3,
               "&:hover": {
                 bgcolor: "#dc2626",
               },
@@ -154,7 +159,7 @@ const UploadID: React.FC<UploadIDProps> = ({
         ) : (
           <BadgeIcon
             sx={{
-              fontSize: 56,
+              fontSize: 40,
               color:
                 uploadStatus === "uploading"
                   ? theme.palette.primary.main
@@ -167,7 +172,7 @@ const UploadID: React.FC<UploadIDProps> = ({
 
         <Typography
           sx={{
-            fontSize: "11px",
+            fontSize: "10px",
             fontWeight: "bold",
             color:
               uploadStatus === "uploading"
@@ -195,7 +200,7 @@ const UploadID: React.FC<UploadIDProps> = ({
         </Typography>
       </Box>
 
-      {file && (
+      {uploadStatus === "success" && file && (
         <Typography
           variant="caption"
           sx={{

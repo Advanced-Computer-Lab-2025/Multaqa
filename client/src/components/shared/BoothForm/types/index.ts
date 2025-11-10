@@ -1,6 +1,9 @@
+export type UploadStatus = "idle" | "uploading" | "success" | "error";
+
 interface AttendeeInfo {
   name: string;
   email: string;
+  idPath: string;
 }
 
 export interface BoothFormValues {

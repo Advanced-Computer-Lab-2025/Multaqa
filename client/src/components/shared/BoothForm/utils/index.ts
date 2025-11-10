@@ -2,8 +2,8 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { api } from "../../../../api";
 import { FormikProps } from "formik";
-import { BoothFormValues } from "../types";
-import {ErrorResponse} from "../../../../../../backend/interfaces/errors/errorResponse.interface";
+import { BoothFormValues, UploadStatus } from "../types";
+import { ErrorResponse } from "../../../../../../backend/interfaces/errors/errorResponse.interface";
 
 export const validationSchema = Yup.object({
   boothAttendees: Yup.array()
@@ -13,6 +13,7 @@ export const validationSchema = Yup.object({
         email: Yup.string()
           .email("Please enter a valid email address")
           .required("Email is required"),
+        idPath: Yup.string().required("ID document is required"),
       })
     )
     .min(1, "At least one attendee is required")
@@ -29,21 +30,30 @@ export const submitBoothForm = async (
     setSubmitting,
     resetForm,
   }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
-  vendorId: string
+  vendorId: string,
+  attendeeIdStatuses: UploadStatus[]
 ) => {
   try {
+    // Loop through attendeeIdStatuses and clear idPath if status is not success
+    const processedAttendees = values.boothAttendees.map(
+      (
+        attendee: { name: string; email: string; idPath: string },
+        index: number
+      ) => ({
+        ...attendee,
+        idPath: attendeeIdStatuses[index] === "success" ? attendee.idPath : "",
+      })
+    );
+
     const boothData = {
       eventType: "platform_booth",
       boothSetupDuration: values.boothSetupDuration,
       boothLocation: values.boothLocation,
-      boothAttendees: values.boothAttendees,
+      boothAttendees: processedAttendees,
       boothSize: values.boothSize,
     };
 
-    const response = await api.post(
-      `/vendorEvents/booth`,
-      boothData
-    );
+    const response = await api.post(`/vendorEvents/booth`, boothData);
 
     const result = response.data;
 
