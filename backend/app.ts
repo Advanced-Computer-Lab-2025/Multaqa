@@ -16,7 +16,7 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
-import paymentRouter from "./routes/payment.routes";
+// import paymentRouter from "./routes/payment.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
