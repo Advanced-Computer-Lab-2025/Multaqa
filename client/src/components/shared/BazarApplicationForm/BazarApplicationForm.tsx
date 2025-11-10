@@ -27,7 +27,7 @@ import { validationSchema, submitBazarForm } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { BazarApplicationFormProps } from "./types";
 import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "@/context/AuthContext";
 import { UploadID } from "../FileUpload";
 import { createDocumentHandler } from "../RegistrationForm/utils";
