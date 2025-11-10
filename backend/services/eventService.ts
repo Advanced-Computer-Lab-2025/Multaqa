@@ -360,6 +360,11 @@ export class EventsService {
     eventId: string,
     userId: string
   ): Promise<IEvent> {
+    const event = await this.eventRepo.findById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
     if (
       event.type !== EVENT_TYPES.TRIP &&
       event.type !== EVENT_TYPES.WORKSHOP
@@ -391,7 +396,7 @@ export class EventsService {
     await event.save();
     return event;
   }
-  
+
   async createReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
@@ -447,7 +452,7 @@ export class EventsService {
         return (review.reviewer._id as any).toString() === userId.toString();
       }
     );
-    if(reviewIndex === undefined || reviewIndex < 0) {
+    if (reviewIndex === undefined || reviewIndex < 0) {
       throw createError(404, "Review by this user not found for the event");
     }
 
