@@ -53,8 +53,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
           email: "",
           password: "",
           confirmPassword: "",
-          taxCardPath: "",
-          logoPath: "",
+          taxCard: null,
+          logo: null,
         };
 
   return (
@@ -79,8 +79,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   companyName: values.companyName as string,
                   email: values.email,
                   password: values.password,
-                  taxCardPath: taxCardStatus === "success" ? values.taxCardPath as string : "",
-                  logoPath: logoStatus === "success" ? values.logoPath as string : "",
+                  taxCard: taxCardStatus === "success" ? values.taxCard : null,
+                  logo: logoStatus === "success" ? values.logo : null,
                   type: "vendor",
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any);
@@ -393,19 +393,19 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                           setCurrentTaxCardFile,
                           setTaxCardStatus,
                           formik.setFieldValue,
-                          "taxCardPath"
+                          "taxCard"
                         )}
                         width={300}
                       />
-                      {formik.touched.taxCardPath &&
-                        formik.errors.taxCardPath && (
+                      {formik.touched.taxCard &&
+                        formik.errors.taxCard && (
                           <Box display="flex" alignItems="center" mt={1}>
                             <ErrorOutlineIcon
                               color="error"
                               sx={{ fontSize: 16, mr: 0.5 }}
                             />
                             <Typography variant="caption" color="error">
-                              {formik.errors.taxCardPath}
+                              {formik.errors.taxCard}
                             </Typography>
                           </Box>
                         )}
@@ -417,7 +417,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                               setCurrentTaxCardFile,
                               setTaxCardStatus,
                               formik.setFieldValue,
-                              "taxCardPath"
+                              "taxCard"
                             )
                           )}
                           variant="outlined"
@@ -439,18 +439,18 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                           setCurrentLogoFile,
                           setLogoStatus,
                           formik.setFieldValue,
-                          "logoPath"
+                          "logo"
                         )}
                         width={300}
                       />
-                      {formik.touched.logoPath && formik.errors.logoPath && (
+                      {formik.touched.logo && formik.errors.logo && (
                         <Box display="flex" alignItems="center" mt={1}>
                           <ErrorOutlineIcon
                             color="error"
                             sx={{ fontSize: 16, mr: 0.5 }}
                           />
                           <Typography variant="caption" color="error">
-                            {formik.errors.logoPath}
+                            {formik.errors.logo}
                           </Typography>
                         </Box>
                       )}
@@ -462,7 +462,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                               setCurrentLogoFile,
                               setLogoStatus,
                               formik.setFieldValue,
-                              "logoPath"
+                              "logo"
                             )
                           )}
                           variant="outlined"

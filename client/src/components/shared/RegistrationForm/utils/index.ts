@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import { UserType } from "../types";
+import { api } from "../../../../api";
 
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
@@ -50,10 +51,8 @@ export const getValidationSchema = (userType: UserType) => {
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
-        taxCardPath: Yup.string().required(
-          "Please upload your tax card document."
-        ),
-        logoPath: Yup.string().required("Please upload your company logo."),
+        taxCard: Yup.string().required("Please upload your tax card document."),
+        logo: Yup.string().required("Please upload your company logo."),
       });
 
     default:
@@ -82,37 +81,39 @@ export const createDocumentHandler = (
       try {
         // Upload to server
         const formData = new FormData();
-        formData.append("document", file);
 
         // Replace with your actual API endpoint
-        // const response = await fetch("/api/upload-document", {
-        //   method: "POST",
-        //   body: formData,
-        // });
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        const response = true;
+        let response;
+        if (fieldName === "taxCard") {
+          formData.append("taxCard", file);
+          response = await api.post("/uploads/taxCard", formData);
+        } else {
+          formData.append("logo", file);
+          response = await api.post("/uploads/logo", formData);
+        }
+        
         if (response) {
-          // const data = await response.json();
-          // const filePath = data.filePath || data.path || data.url; // Adjust based on your API response
-          const filePath = "lalalla";
-          setDocumentStatus("success");
-          // Update Formik field with the file path
-          setFormikField(fieldName, filePath);
-          console.log(`✅ Document uploaded successfully: ${filePath}`);
+          const responseData = await response.json();
+
+          const fileObject = responseData.data[fieldName];
+
+          if (fileObject) {
+            setDocumentStatus("success");
+            setFormikField(fieldName, fileObject);
+          } else {
+            setDocumentStatus("error");
+          }
         } else {
           setDocumentStatus("error");
-          console.error("❌ Upload failed");
         }
-      } catch (error) {
+      } 
+      catch (error) {
         setDocumentStatus("error");
-        console.error("❌ Upload error:", error);
       }
     } else {
       // User clicked the delete button (X) - file is null
-      console.log("🗑️ Document removed by user - resetting to idle");
       setCurrentFile(null);
       setDocumentStatus("idle");
-      // Clear the Formik field
       setFormikField(fieldName, "");
 
       // Optional: Delete from server if needed
