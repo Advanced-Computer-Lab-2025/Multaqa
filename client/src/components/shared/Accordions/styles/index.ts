@@ -26,7 +26,7 @@ export const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
   padding: theme.spacing(2.5, 3),
   "& .MuiAccordionSummary-expandIconWrapper": {
     color: theme.palette.primary.main,
-    transition: "transform 0.6s ease",
+    transition: "transform 0.32s ease",
     "&.Mui-expanded": {
       transform: "rotate(180deg)",
     },

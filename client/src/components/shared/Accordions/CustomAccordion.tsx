@@ -22,7 +22,7 @@ const CustomAccordion: React.FC<CustomAccordionProps> = ({
       disableGutters
       square
       elevation={0}
-      TransitionProps={{ timeout: 650 }}
+      TransitionProps={{ timeout: 420 }}
       {...props}
     >
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
