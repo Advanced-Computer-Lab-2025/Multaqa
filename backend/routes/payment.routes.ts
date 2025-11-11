@@ -117,6 +117,7 @@ async function refundPayment(
     next(err);
   }
 }
+
 router.patch(
   "/:eventId/wallet",
   authorizeRoles({

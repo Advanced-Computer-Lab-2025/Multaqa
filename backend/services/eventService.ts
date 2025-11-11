@@ -15,7 +15,6 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IUser } from "../interfaces/models/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
-import path from "path";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
