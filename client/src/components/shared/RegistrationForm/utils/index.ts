@@ -52,10 +52,8 @@ export const getValidationSchema = (userType: UserType) => {
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
-        taxCard: Yup.object()
-          .required("Please upload your tax card document."),
-        logo: Yup.object()
-          .required("Please upload your company logo."),
+        taxCard: Yup.object().required("Please upload your tax card document."),
+        logo: Yup.object().required("Please upload your company logo."),
       });
 
     default:
@@ -144,7 +142,6 @@ export const createDocumentHandler = (
 
       // Check if a publicId actually exists before trying to delete
       if (publicId) {
-        
         await api.delete("/uploads/deletefile", {
           data: { publicId: publicId },
         });
