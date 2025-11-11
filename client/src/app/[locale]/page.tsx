@@ -157,7 +157,7 @@ const MenuToggleButton = ({
             height: 2,
             borderRadius: 1,
             backgroundColor: theme.palette.text.primary,
-            transition: "transform 0.35s ease, opacity 0.35s ease",
+            transition: "transform 0.52s ease, opacity 0.52s ease",
             transformOrigin: "center",
             top: index === 0 ? 0 : index === 1 ? "50%" : "100%",
             transform: open
