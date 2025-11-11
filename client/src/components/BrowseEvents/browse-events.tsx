@@ -22,7 +22,6 @@ import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
 
 import { deleteEvent, frameData } from "./utils";
-import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
@@ -117,6 +116,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   userInfo,
   userID,
 }) => {
+  console.log(userInfo);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
@@ -126,18 +126,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
-  const [createWorkshop, setWorkshop] = useState(false);
-  const [createSession, setSession] = useState(false);
-  const [UserInfo, setUserInfo] = useState<{
-    id: string;
-    name: string;
-    email: string;
-  }>({ id: userID, name: "", email: "" });
-  const [isReady, setReady] = useState(false);
-  // Separate effect for initial user data
-  useEffect(() => {
-    getUserData();
-  }, []);
+  const registeredEvents = userInfo.registeredEvents;
+
+ 
 
   // Separate effect for loading events
   useEffect(() => {
@@ -148,20 +139,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
   }, [registered, refresh]);
 
-  const getUserData = () => {
-    const user = {
-      id: userInfo._id,
-      name: `${userInfo.firstName} ${userInfo.lastName}`,
-      email: userInfo.email,
-    };
-    setUserInfo(user);
-    setReady(true);
-  };
+
 
   const handleRegistered = () => {
     setLoading(true);
-    console.log(userInfo);
-    const registeredEvents = userInfo.registeredEvents;
     const result = frameData(registeredEvents);
     console.log("register events:" + registeredEvents[0]);
     setEvents(result);
@@ -281,12 +262,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }, []);
 
   const Eventoptions = [
-    { label: "Gym", icon: FitnessCenterIcon },
     { label: "Bazaars", icon: StorefrontIcon },
     { label: "Trips", icon: FlightTakeoffIcon },
     { label: "Conference", icon: EventIcon },
   ];
-  const EventOptionsSetters = [setSession, setBazaar, setTrip, setConference];
+  const EventOptionsSetters = [setBazaar, setTrip, setConference];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -306,13 +286,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
           />
         );
       case EventType.WORKSHOP:
-        console.log(event)
         return (
           <WorkshopView
             id={event.id}
@@ -328,9 +306,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
           />
         );
       case EventType.BAZAAR:
@@ -347,9 +324,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
           />
         );
       case EventType.BOOTH:
@@ -366,9 +342,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
           />
         );
       case EventType.TRIP:
@@ -384,9 +359,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
           />
         );
       default:

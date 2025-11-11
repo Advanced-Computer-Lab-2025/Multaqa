@@ -28,7 +28,6 @@ const TripView: React.FC<BazarViewProps> = ({
   onDelete,
   setRefresh,
   userInfo,
-  isReady,
   attended
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -219,7 +218,7 @@ const TripView: React.FC<BazarViewProps> = ({
         </Box>
       </CustomModal>
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
-      <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
+      <RegisterEventModal open={register} onClose={() => { setRegister(false); } }
       eventType={"Trip"} userInfo={userInfo} eventId={id} color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
 
 
@@ -272,8 +271,10 @@ const TripView: React.FC<BazarViewProps> = ({
         open={paymentDrawerOpen}
         onClose={() => setPaymentDrawerOpen(false)}
         totalAmount={parseInt(details["Cost"])}
-        walletBalance={100} //user.wallet or whatever 
+        walletBalance={userInfo.walletBalance||0} 
         onPaymentSuccess={handlePaymentSuccess}
+        eventId={id}
+        email={userInfo.email}
       />
     </>
   );

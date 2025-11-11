@@ -25,10 +25,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   user,
   registered,
   onDelete,
-  isReady,
   userInfo,
   attended
 }) => {
+  console.log(userInfo);
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
@@ -215,7 +215,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         </Box>
       </CustomModal>
       <RegisterEventModal 
-        isReady={isReady}
         open={register}
         onClose={() => { setRegister(false); } }
         eventType={"Workshop"}
@@ -271,8 +270,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               open={paymentDrawerOpen}
               onClose={() => setPaymentDrawerOpen(false)}
               totalAmount={parseInt(details["Cost"])}
-              walletBalance={10} //user.wallet or whatever 
+              walletBalance={userInfo.walletBalance||0} 
               onPaymentSuccess={handlePaymentSuccess}
+              eventId={id}
+              email={userInfo.email}
             />
     </>
   );

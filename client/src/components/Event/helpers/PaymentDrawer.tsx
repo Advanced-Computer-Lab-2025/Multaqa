@@ -23,6 +23,7 @@ import {
   ArrowForward
 } from '@mui/icons-material';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
+import { api } from '@/api';
 
 // Type definitions
 interface PaymentSuccessDetails {
@@ -39,6 +40,8 @@ interface PaymentDrawerProps {
   totalAmount: number;
   walletBalance: number;
   onPaymentSuccess: (paymentDetails: PaymentSuccessDetails) => void;
+  eventId:string,
+  email:string,
 }
 
 interface MockPaymentResponse {
@@ -52,7 +55,9 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
   onClose, 
   totalAmount, 
   walletBalance, 
-  onPaymentSuccess 
+  onPaymentSuccess,
+  eventId, 
+  email
 }) => {
   const theme = useTheme();
   const [useWallet, setUseWallet] = useState<boolean>(false);
@@ -116,19 +121,16 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
   const handleStripePayment = async (): Promise<void> => {
     setIsProcessing(true);
     setPaymentError('');
+    const payload = {
+      customerEmail:email,
+      quantity:1,
+      metadata:''
+    }
     
     try {
-      const stripeResponse = await mockStripePayment(totalAmount);
-      
-      if (stripeResponse.success) {
-        onPaymentSuccess({
-          method: 'stripe',
-          amount: totalAmount,
-          transactionId: stripeResponse.transactionId
-        });
-      } else {
-        setPaymentError(stripeResponse.error || 'Stripe payment failed');
-      }
+      const stripeResponse = await api.post(`/payments/${eventId}`, payload); 
+      console.log(stripeResponse);
+      window.location.href = stripeResponse.data.data.url;
     } catch (error) {
       setPaymentError('Payment processing failed');
     } finally {
@@ -253,7 +255,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
       <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Header with primary color gradient */}
         <Box sx={{ 
-          background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.primary.dark} 100%)`,
+          background: `linear-gradient(135deg, ${colors.tertiary.main} 0%, ${colors.primary.dark} 100%)`,
           p: 3,
           pb: 4,
           position: 'relative',
@@ -269,10 +271,10 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
             <Box>
-              <Typography variant="h5" fontWeight="700" sx={{ color: colors.primary.contrastText, mb: 0.5 }}>
+              <Typography variant="h5" fontWeight="700" sx={{ color: "#fff", mb: 0.5 }}>
                 Complete Payment
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: colors.primary.contrastText, opacity: 0.9 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: "#fff", opacity: 0.9 }}>
                 <LockOutlined sx={{ fontSize: 16 }} />
                 <Typography variant="caption" fontWeight="500">
                   Secured & Encrypted
@@ -325,7 +327,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
                   : 'white',
                 border: useWallet ? 'none' : `2px solid ${alpha(theme.palette.divider, 0.5)}`,
                 cursor: 'pointer',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
                 transform: useWallet ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
                 boxShadow: useWallet 
                   ? `0 12px 40px ${alpha(colors.primary.main, 0.35)}` 
@@ -443,12 +445,18 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
               mt: 2,
               p: 2.5,
               borderRadius: 3,
-              background: 'white',
-              border: `2px solid ${alpha(theme.palette.divider, 0.5)}`,
-              opacity: (useWallet && !needsStripePayment) ? 0.5 : 1,
-              pointerEvents: (useWallet && !needsStripePayment) ? 'none' : 'auto',
-              transition: 'all 0.3s ease',
-              boxShadow: `0 2px 12px ${alpha(theme.palette.common.black, 0.06)}`,
+              background: (useWallet && !needsStripePayment) 
+                ? theme.palette.action.disabledBackground 
+                : 'white',
+              border: `2px solid ${(useWallet && !needsStripePayment) 
+                ? theme.palette.action.disabledBackground :alpha(theme.palette.divider, 0.5)}`,
+              transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform:'translateY(0) scale(1)',
+              boxShadow:  `0 2px 12px ${alpha(theme.palette.common.black, 0.06)}`,
+              '&:hover': {
+                  transform:(useWallet && !needsStripePayment) ?"":'translateY(-2px) scale(1)',
+                  boxShadow: (useWallet && !needsStripePayment) ?"": `0 4px 20px ${alpha(theme.palette.common.black, 0.1)}`,
+                },
             }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -458,13 +466,13 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
                     bgcolor: alpha(colors.tertiary.main, 0.1),
                     display: 'flex',
                   }}>
-                    <CreditCard sx={{ color: colors.tertiary.main, fontSize: 26 }} />
+                    <CreditCard sx={{ color:`${(useWallet && !needsStripePayment)?theme.palette.action.disabledBackground :colors.tertiary.main}`, fontSize: 26 }} />
                   </Box>
                   <Box>
-                    <Typography variant="h6" fontWeight="700" sx={{ fontSize: '1.1rem', mb: 0.3 }}>
+                    <Typography variant="h6" fontWeight="700" sx={{ fontSize: '1.1rem', mb: 0.3, color:`${(useWallet && !needsStripePayment)?theme.palette.grey[500]:"text.primary"}}` }}>
                       Credit / Debit Card
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" fontWeight="500">
+                    <Typography variant="body2" color={(useWallet && !needsStripePayment)?theme.palette.grey[500]:"text.secondary"} fontWeight="500">
                       {(useWallet && !needsStripePayment) 
                         ? "Wallet covers full amount"
                         : "Powered by Stripe"
