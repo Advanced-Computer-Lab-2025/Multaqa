@@ -28,10 +28,10 @@ async function createGymSession(req: Request, res: Response<CreateGymSessionResp
     });
 
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error creating gym session'
+    );
   }
 }
 
@@ -49,7 +49,10 @@ async function getAllGymSessions(req: Request, res: Response<GetAllGymSessionsRe
       message: "Gym sessions retrieved successfully"
     });
   } catch (err: any) {
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error retrieving gym sessions'
+    );
   }
 }
 

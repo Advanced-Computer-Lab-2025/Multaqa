@@ -1,6 +1,8 @@
 import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { api } from "../../../../api";
+import type { UploadStatus } from "../../FileUpload/types";
+import { BazarFormValues } from "../types"; // Import BazarFormValues
 
 export const validationSchema = Yup.object({
   bazaarAttendees: Yup.array()
@@ -10,33 +12,44 @@ export const validationSchema = Yup.object({
         email: Yup.string()
           .email("Please enter a valid email address")
           .required("Email is required"),
+        idPath: Yup.string().required("ID document is required"), // Add idPath validation
       })
     )
     .min(1, "At least one attendee is required")
     .max(5, "You can add up to 5 attendees"),
   boothSize: Yup.string().required("Booth size is required"),
 });
+
 export const submitBazarForm = async (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  values: any,
+  values: BazarFormValues, // Use specific type
   {
     setSubmitting,
     resetForm,
   }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
-  vendorId: string,
-  eventId: string
+  eventId: string,
+  attendeeIdStatuses: UploadStatus[] // Add attendeeIdStatuses
 ) => {
   try {
+    // Process attendees to clear idPath if upload was not successful
+    const processedAttendees = values.bazaarAttendees.map(
+      (attendee, index) => ({
+        ...attendee,
+        idPath: attendeeIdStatuses[index] === "success" ? attendee.idPath : "",
+      })
+    );
+
     const bazarData = {
       eventType: "bazaar",
-      bazaarAttendees: values.bazaarAttendees,
+      bazaarAttendees: processedAttendees, // Use processed attendees
       boothSize: values.boothSize,
     };
+
     const response = await api.post(
       `/vendorEvents/${eventId}/bazaar`,
       bazarData
     );
-    const result = response.data;
+    console.log("Bazar submission response:", response);
+    // const result = response.data; // Not used, but good to have
     resetForm();
     toast.success("Bazar application submitted successfully!", {
       position: "bottom-right",
@@ -50,9 +63,10 @@ export const submitBazarForm = async (
     });
   } catch (err) {
     console.error("Bazar submission error:", err);
+    // Provide more specific error type if available
+    const error = err as { response?: { data?: { error?: string } } };
     toast.error(
-      err.response?.data?.error || "Submission failed. Please try again.",
-
+      error.response?.data?.error || "Submission failed. Please try again.",
       {
         position: "bottom-right",
         autoClose: 5000,

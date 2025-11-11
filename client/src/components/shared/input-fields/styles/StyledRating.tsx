@@ -10,7 +10,7 @@ export const StyledRating = styled(Rating)<{ multaqaFill?: boolean }>(({
     transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
   '& .MuiRating-iconHover': {
-    color: multaqaFill ? theme.palette.primary.dark: '#ff9800',
+    color: multaqaFill ? theme.palette.tertiary.main: theme.palette.warning.main,
     transition: 'color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   },
   '& .MuiRating-iconEmpty': {

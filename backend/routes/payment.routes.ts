@@ -1,38 +1,19 @@
-import { Router, Response, NextFunction } from "express";
-import Stripe from "stripe";
+import { Router, Response, NextFunction, Request } from "express";
 import createError from "http-errors";
-import { EventsService } from "../services/eventService";
-import { EVENT_TYPES } from "../constants/events.constants";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { UserRole } from "../constants/user.constants";
 import { CreateCheckoutSessionResponse } from "../interfaces/responses/paymentResponses.interface";
+import { EVENT_TYPES } from "../constants/events.constants";
+import { PaymentService } from "../services/paymentService";
+import { UserService } from "../services/userService";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { PayWithWalletResponse } from "../interfaces/responses/userResponses.interface";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecretKey) {
-  throw new Error("Missing STRIPE_SECRET_KEY environment variable");
-}
-
-const stripe = new Stripe(stripeSecretKey);
-
-const DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
-const DEFAULT_SUCCESS_URL =
-  process.env.STRIPE_SUCCESS_URL ||
-  "https://example.com/payments/success?session_id={CHECKOUT_SESSION_ID}";
-const DEFAULT_CANCEL_URL =
-  process.env.STRIPE_CANCEL_URL || "https://example.com/payments/cancel";
-
-const eventsService = new EventsService();
+const paymentService = new PaymentService();
 const router = Router();
 
-interface CreateCheckoutSessionBody {
-  quantity?: number;
-  customerEmail?: string;
-  metadata?: Record<string, unknown>;
-}
-
-async function createCheckoutSessionForEvent(
-  expectedTypes: EVENT_TYPES[],
+async function createCheckoutSession(
   req: AuthenticatedRequest,
   res: Response<CreateCheckoutSessionResponse>,
   next: NextFunction
@@ -43,107 +24,119 @@ async function createCheckoutSessionForEvent(
       throw createError(400, "Missing eventId parameter");
     }
 
-    const {
-      quantity = 1,
-      customerEmail,
-      metadata,
-    } = (req.body as CreateCheckoutSessionBody) || {};
+    const { quantity, customerEmail, metadata } = req.body || {};
 
-    if (!Number.isInteger(quantity) || quantity <= 0) {
-      throw createError(400, "Quantity must be a positive integer");
-    }
-
-    const event = await eventsService.getEventById(eventId);
-    if (!event) {
-      throw createError(404, "Event not found");
-    }
-
-    const eventType = event.type as EVENT_TYPES;
-    if (!expectedTypes.includes(eventType)) {
-      throw createError(
-        400,
-        `Event is not one of: ${expectedTypes.join(", ")}`
-      );
-    }
-
-    const price = typeof event.price === "number" ? event.price : undefined;
-    if (!price || !Number.isFinite(price) || price <= 0) {
-      throw createError(400, "Event price must be greater than zero");
-    }
-
-    const capacity =
-      typeof (event as any).capacity === "number"
-        ? ((event as any).capacity as number)
-        : undefined;
-    const attendeesCount = Array.isArray(event.attendees)
-      ? event.attendees.length
-      : 0;
-
-    if (
-      capacity !== undefined &&
-      quantity > Math.max(0, capacity - attendeesCount)
-    ) {
-      throw createError(400, "Not enough spots available for this event");
-    }
-
-    const sanitizedMetadata: Record<string, string> = {
-      eventId,
-      eventType: eventType,
-    };
-
-    if (req.user?.id) {
-      sanitizedMetadata.userId = req.user.id;
-    }
-
-    if (metadata && typeof metadata === "object") {
-      for (const [key, value] of Object.entries(metadata)) {
-        if (value === undefined || value === null) continue;
-        sanitizedMetadata[key] = String(value);
-      }
-    }
-
-    const unitAmount = Math.round(price * 100);
-    if (!Number.isInteger(unitAmount) || unitAmount <= 0) {
-      throw createError(500, "Invalid event pricing configuration");
-    }
-
-    const lineItem = event.stripePriceId
-      ? { price: event.stripePriceId, quantity }
-      : {
-          price_data: {
-            currency: DEFAULT_CURRENCY,
-            unit_amount: unitAmount,
-            product_data: {
-              name: event.eventName,
-              description: event.description?.slice(0, 250),
-            },
-          },
-          quantity,
-        };
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      currency: DEFAULT_CURRENCY,
-      customer_email: customerEmail,
-      line_items: [lineItem],
-      success_url: DEFAULT_SUCCESS_URL,
-      cancel_url: DEFAULT_CANCEL_URL,
-      metadata: sanitizedMetadata,
-    });
+    const sessionData = await paymentService.createCheckoutSessionForEvent(
+      {
+        eventId,
+        userId: req.user?.id || "",
+        quantity,
+        customerEmail,
+        metadata,
+      },
+      [EVENT_TYPES.TRIP, EVENT_TYPES.WORKSHOP]
+    );
 
     res.status(201).json({
       success: true,
       message: "Checkout session created",
       data: {
-        sessionId: session.id,
-        url: session.url,
+        sessionId: sessionData.sessionId,
+        url: sessionData.url,
       },
     });
   } catch (err) {
     next(err);
   }
 }
+
+// Pay for event using wallet balance
+async function payWithWallet(
+  req: AuthenticatedRequest,
+  res: Response<PayWithWalletResponse>,
+  next: any
+) {
+  try {
+    const eventId = req.params.eventId;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in params");
+    }
+
+    // Get event price before payment
+    const { Event } = await import("../schemas/event-schemas/eventSchema");
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const amountPaid = event.price || 0;
+
+    // Process payment
+    const updatedUser = await paymentService.payWithWallet(userId, eventId);
+
+    res.json({
+      success: true,
+      message: "Payment successful",
+      data: {
+        walletBalance: (updatedUser as any).walletBalance || 0,
+        amountPaid: amountPaid,
+      },
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+async function refundPayment(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { eventId } = req.params || {};
+    const userId = req.user?.id;
+
+    if (!eventId) {
+      throw createError(400, "Missing eventId in request params");
+    }
+
+    await paymentService.refundPayment(userId || "", eventId);
+
+    res.status(200).json({
+      success: true,
+      message: "Payment refunded successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+router.patch(
+  "/:eventId/wallet",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  payWithWallet
+);
+
+router.post(
+  "/:eventId/refund",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER, UserRole.STUDENT],
+  }),
+  refundPayment
+);
 
 router.post(
   "/:eventId",
@@ -154,17 +147,7 @@ router.post(
       UserRole.ADMINISTRATION,
     ],
   }),
-  (
-    req: AuthenticatedRequest,
-    res: Response<CreateCheckoutSessionResponse>,
-    next: NextFunction
-  ) =>
-    createCheckoutSessionForEvent(
-      [EVENT_TYPES.TRIP, EVENT_TYPES.WORKSHOP],
-      req,
-      res,
-      next
-    )
+  createCheckoutSession
 );
 
 export default router;

@@ -47,7 +47,10 @@ async function createAdmin(req: Request, res: Response<CreateAdminResponse>) {
     });
   } catch (error: any) {
     console.error('❌ Failed to create admin:', error.message);
-    throw createError(error.status || 500, error.message || 'Failed to create admin account');
+    throw createError(
+      error.status || 500,
+      error.message || 'Failed to create admin account'
+    );
   }
 }
 
@@ -70,7 +73,10 @@ async function deleteAdmin(req: Request, res: Response<DeleteAdminResponse>) {
     });
   } catch (error: any) {
     console.error('❌ Failed to delete admin:', error.message);
-    throw createError(error.status || 500, error.message || 'Failed to delete admin account');
+    throw createError(
+      error.status || 500,
+      error.message || 'Failed to delete admin account'
+    );
   }
 }
 
@@ -88,7 +94,10 @@ async function getAllAdmins(req: Request, res: Response<GetAllAdminsResponse>) {
     });
   } catch (error: any) {
     console.error('❌ Failed to fetch admins:', error.message);
-    throw createError(error.status || 500, error.message || 'Failed to fetch admin accounts');
+    throw createError(
+      error.status || 500,
+      error.message || 'Failed to fetch admin accounts'
+    );
   }
 }
 

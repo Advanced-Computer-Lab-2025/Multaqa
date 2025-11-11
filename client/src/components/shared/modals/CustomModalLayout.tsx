@@ -84,6 +84,7 @@ export default function CustomModalLayout({ children, open, onClose, width, bord
           timeout: 500,
         },
       }}
+      disableAutoFocus
     >
       <Fade in={open}>
   <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
