@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Stack, Chip, IconButton, Tooltip } from "@mui/material";
 import theme from "@/themes/lightTheme";
+import AnimatedLoading from "@/components/shared/AnimatedLoading";
 import WorkshopItemCard from "@/components/EventsOffice/WorkshopItemCard";
 import { api } from "@/api";
 import { frameData } from "@/components/BrowseEvents/utils";
@@ -64,19 +65,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
 
   // ✅ Conditional rendering based on loading state
   if (loading) {
-    return (
-      <Box
-        sx={{
-          height: "60vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: "1.2rem",
-        }}
-      >
-        Loading...
-      </Box>
-    );
+    return <AnimatedLoading />;
   }
 
   // ✅ Main content when not loading

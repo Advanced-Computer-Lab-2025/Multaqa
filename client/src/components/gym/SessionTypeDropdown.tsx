@@ -41,7 +41,7 @@ const sessionTypeConfig = [
   {
     type: "AEROBICS" as GymSessionType,
     icon: AerobicsIcon,
-    color: "#ff9800", // Orange
+    color: "#e91e63", // Pink
     label: "Aerobics",
   },
   {

@@ -34,11 +34,14 @@ import {
   handleAccordionChange,
   checkSectionErrors,
 } from "./utils";
+import type { UploadStatus } from "../FileUpload/types";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { submitBoothForm } from "./utils";
+import { createDocumentHandler } from "../RegistrationForm/utils";
 import { useAuth } from "../../../context/AuthContext";
 import StyledAccordion from "../Accordion/StyledAccordion";
 import StyledAccordionSummary from "../Accordion/StyledAccordionSummary";
+import { UploadID } from "../FileUpload";
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
@@ -49,12 +52,37 @@ const BoothForm: React.FC = () => {
   const { user } = useAuth();
   const lastErrorStateRef = useRef<string>("");
 
+  // State for attendee ID uploads
+  const [attendeeIdStatuses, setAttendeeIdStatuses] = useState<UploadStatus[]>([
+    "idle",
+  ]);
+  const [attendeeIdFiles, setAttendeeIdFiles] = useState<(File | null)[]>([
+    null,
+  ]);
+  const [attendeeCount, setAttendeeCount] = useState(1);
+
   const initialValues: BoothFormValues = {
-    boothAttendees: [{ name: "", email: "" }],
+    boothAttendees: [{ name: "", email: "", idPath: "" }],
     boothSize: "",
     boothSetupDuration: "",
     boothLocation: "",
   };
+
+  // Ensure arrays match attendees length
+  React.useEffect(() => {
+    const ensureArrayLength = <T,>(arr: T[], defaultValue: T): T[] => {
+      if (arr.length < attendeeCount) {
+        return [
+          ...arr,
+          ...Array(attendeeCount - arr.length).fill(defaultValue),
+        ];
+      }
+      return arr.slice(0, attendeeCount);
+    };
+
+    setAttendeeIdStatuses((prev) => ensureArrayLength(prev, "idle"));
+    setAttendeeIdFiles((prev) => ensureArrayLength(prev, null));
+  }, [attendeeCount]);
 
   return (
     <Box
@@ -105,7 +133,12 @@ const BoothForm: React.FC = () => {
           validateOnBlur={true}
           onSubmit={(values, { setSubmitting, resetForm }) => {
             const vendorId = String(user?._id);
-            submitBoothForm(values, { setSubmitting, resetForm }, vendorId);
+            submitBoothForm(
+              values,
+              { setSubmitting, resetForm },
+              vendorId,
+              attendeeIdStatuses
+            );
           }}
         >
           {(formik) => {
@@ -119,6 +152,28 @@ const BoothForm: React.FC = () => {
             // Get error states for accordion indicators
             const { hasAttendeesError, hasConfigError, hasLocationError } =
               checkSectionErrors(formik);
+
+            // Update attendee count when it changes
+            if (attendeeCount !== formik.values.boothAttendees.length) {
+              setAttendeeCount(formik.values.boothAttendees.length);
+            }
+
+            // Create ID upload handler for a specific attendee
+            const createAttendeeIdHandler = (index: number) =>
+              createDocumentHandler(
+                (file) => {
+                  const newFiles = [...attendeeIdFiles];
+                  newFiles[index] = file;
+                  setAttendeeIdFiles(newFiles);
+                },
+                (status) => {
+                  const newStatuses = [...attendeeIdStatuses];
+                  newStatuses[index] = status;
+                  setAttendeeIdStatuses(newStatuses);
+                },
+                formik.setFieldValue,
+                `boothAttendees.${index}.idPath`
+              );
 
             return (
               <form onSubmit={formik.handleSubmit}>
@@ -253,7 +308,7 @@ const BoothForm: React.FC = () => {
                                         return;
                                       formik.setFieldValue("boothAttendees", [
                                         ...formik.values.boothAttendees,
-                                        { name: "", email: "" },
+                                        { name: "", email: "", idPath: "" },
                                       ]);
                                     }}
                                     disabled={
@@ -372,114 +427,192 @@ const BoothForm: React.FC = () => {
                                       )}
                                     </Box>
 
-                                    {/* Form Fields */}
+                                    {/* Form Fields - Name, Email, and ID Upload in one row */}
                                     <Box
                                       sx={{
-                                        display: "grid",
-                                        gridTemplateColumns: "1fr 1fr",
+                                        display: "flex",
                                         gap: 2,
+                                        alignItems: "flex-start",
                                       }}
                                     >
-                                      <Box>
-                                        <CustomTextField
-                                          name={`boothAttendees.${index}.name`}
-                                          id={`boothAttendees.${index}.name`}
-                                          label="Full Name"
-                                          fieldType="text"
-                                          width="100%"
-                                          value={attendee.name}
-                                          onChange={(e) => {
-                                            formik.setFieldValue(
-                                              `boothAttendees.${index}.name`,
-                                              e.target.value
-                                            );
-                                          }}
-                                          onBlur={() =>
-                                            formik.setFieldTouched(
-                                              `boothAttendees.${index}.name`,
-                                              true
-                                            )
-                                          }
-                                        />
-                                        {formik.touched.boothAttendees?.[index]
-                                          ?.name &&
-                                          typeof formik.errors.boothAttendees?.[
+                                      {/* Left side: Name and Email stacked */}
+                                      <Box
+                                        sx={{
+                                          flex: 1,
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          gap: 2,
+                                        }}
+                                      >
+                                        <Box>
+                                          <CustomTextField
+                                            name={`boothAttendees.${index}.name`}
+                                            id={`boothAttendees.${index}.name`}
+                                            label="Full Name"
+                                            fieldType="text"
+                                            width="100%"
+                                            value={attendee.name}
+                                            onChange={(e) => {
+                                              formik.setFieldValue(
+                                                `boothAttendees.${index}.name`,
+                                                e.target.value
+                                              );
+                                            }}
+                                            onBlur={() =>
+                                              formik.setFieldTouched(
+                                                `boothAttendees.${index}.name`,
+                                                true
+                                              )
+                                            }
+                                          />
+                                          {formik.touched.boothAttendees?.[
                                             index
-                                          ] !== "string" &&
-                                          formik.errors.boothAttendees?.[index]
-                                            ?.name && (
-                                            <Box
-                                              display="flex"
-                                              alignItems="center"
-                                              mt={1}
-                                            >
-                                              <ErrorOutlineIcon
-                                                color="error"
-                                                sx={{ fontSize: 16, mr: 0.5 }}
-                                              />
-                                              <Typography
-                                                variant="caption"
-                                                color="error"
+                                          ]?.name &&
+                                            typeof formik.errors
+                                              .boothAttendees?.[index] !==
+                                              "string" &&
+                                            formik.errors.boothAttendees?.[
+                                              index
+                                            ]?.name && (
+                                              <Box
+                                                display="flex"
+                                                alignItems="center"
+                                                mt={1}
                                               >
-                                                {typeof formik.errors
-                                                  .boothAttendees?.[index] !==
-                                                "string"
-                                                  ? formik.errors
-                                                      .boothAttendees?.[index]
-                                                      ?.name
-                                                  : formik.errors
-                                                      .boothAttendees?.[index]}
-                                              </Typography>
-                                            </Box>
-                                          )}
+                                                <ErrorOutlineIcon
+                                                  color="error"
+                                                  sx={{ fontSize: 16, mr: 0.5 }}
+                                                />
+                                                <Typography
+                                                  variant="caption"
+                                                  color="error"
+                                                >
+                                                  {typeof formik.errors
+                                                    .boothAttendees?.[index] !==
+                                                  "string"
+                                                    ? formik.errors
+                                                        .boothAttendees?.[index]
+                                                        ?.name
+                                                    : formik.errors
+                                                        .boothAttendees?.[
+                                                        index
+                                                      ]}
+                                                </Typography>
+                                              </Box>
+                                            )}
+                                        </Box>
+                                        <Box>
+                                          <CustomTextField
+                                            name={`boothAttendees.${index}.email`}
+                                            id={`boothAttendees.${index}.email`}
+                                            label="Email Address"
+                                            fieldType="email"
+                                            width="100%"
+                                            stakeholderType="vendor"
+                                            onChange={(e) => {
+                                              formik.setFieldValue(
+                                                `boothAttendees.${index}.email`,
+                                                e.target.value
+                                              );
+                                            }}
+                                            onBlur={() =>
+                                              formik.setFieldTouched(
+                                                `boothAttendees.${index}.email`,
+                                                true
+                                              )
+                                            }
+                                          />
+                                          {formik.touched.boothAttendees?.[
+                                            index
+                                          ]?.email &&
+                                            typeof formik.errors
+                                              .boothAttendees?.[index] !==
+                                              "string" &&
+                                            formik.errors.boothAttendees?.[
+                                              index
+                                            ]?.email && (
+                                              <Box
+                                                display="flex"
+                                                alignItems="center"
+                                                mt={1}
+                                              >
+                                                <ErrorOutlineIcon
+                                                  color="error"
+                                                  sx={{ fontSize: 16, mr: 0.5 }}
+                                                />
+                                                <Typography
+                                                  variant="caption"
+                                                  color="error"
+                                                >
+                                                  {typeof formik.errors
+                                                    .boothAttendees?.[index] !==
+                                                  "string"
+                                                    ? formik.errors
+                                                        .boothAttendees?.[index]
+                                                        ?.email
+                                                    : formik.errors
+                                                        .boothAttendees?.[
+                                                        index
+                                                      ]}
+                                                </Typography>
+                                              </Box>
+                                            )}
+                                        </Box>
                                       </Box>
-                                      <Box>
-                                        <CustomTextField
-                                          name={`boothAttendees.${index}.email`}
-                                          id={`boothAttendees.${index}.email`}
-                                          label="Email Address"
-                                          fieldType="email"
-                                          width="100%"
-                                          stakeholderType="vendor"
-                                          onChange={(e) => {
-                                            formik.setFieldValue(
-                                              `boothAttendees.${index}.email`,
-                                              e.target.value
-                                            );
-                                          }}
-                                          onBlur={() =>
-                                            formik.setFieldTouched(
-                                              `boothAttendees.${index}.email`,
-                                              true
-                                            )
+
+                                      {/* Right side: ID Upload */}
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          minWidth: "120px",
+                                        }}
+                                      >
+                                        <Typography
+                                          variant="caption"
+                                          color="text.secondary"
+                                          sx={{ mb: 1, textAlign: "center" }}
+                                        >
+                                          ID Document
+                                        </Typography>
+                                        <UploadID
+                                          label="Upload ID"
+                                          onFileSelected={createAttendeeIdHandler(
+                                            index
+                                          )}
+                                          uploadStatus={
+                                            attendeeIdStatuses[index] || "idle"
                                           }
                                         />
                                         {formik.touched.boothAttendees?.[index]
-                                          ?.email &&
+                                          ?.idPath &&
                                           typeof formik.errors.boothAttendees?.[
                                             index
                                           ] !== "string" &&
                                           formik.errors.boothAttendees?.[index]
-                                            ?.email && (
+                                            ?.idPath && (
                                             <Box
                                               display="flex"
                                               alignItems="center"
-                                              mt={1}
+                                              mt={0.5}
                                             >
                                               <ErrorOutlineIcon
                                                 color="error"
-                                                sx={{ fontSize: 16, mr: 0.5 }}
+                                                sx={{ fontSize: 12, mr: 0.5 }}
                                               />
                                               <Typography
                                                 variant="caption"
                                                 color="error"
+                                                sx={{ fontSize: "0.65rem" }}
                                               >
                                                 {typeof formik.errors
                                                   .boothAttendees?.[index] !==
                                                 "string"
                                                   ? formik.errors
                                                       .boothAttendees?.[index]
-                                                      ?.email
+                                                      ?.idPath
                                                   : formik.errors
                                                       .boothAttendees?.[index]}
                                               </Typography>
@@ -528,7 +661,7 @@ const BoothForm: React.FC = () => {
                                   startIcon={<AddIcon />}
                                   onClick={() => {
                                     formik.setFieldValue("boothAttendees", [
-                                      { name: "", email: "" },
+                                      { name: "", email: "", idPath: "" },
                                     ]);
                                   }}
                                 >
