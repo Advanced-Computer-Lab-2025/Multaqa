@@ -342,6 +342,7 @@ export class VendorEventsService {
     );
     await event.save();
   }
+
   async getAvailableBooths(startDate: any, endDate: any): Promise<string[]> {
     // Input validation
     if (!startDate || !endDate) {
