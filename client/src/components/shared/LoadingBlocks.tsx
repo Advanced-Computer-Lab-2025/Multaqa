@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import VectorFloating from "@/components/shared/VectorFloating";
 
 export default function LoadingBlocks() {
   const theme = useTheme();
@@ -106,8 +107,20 @@ export default function LoadingBlocks() {
         justifyContent: "center",
         backgroundColor: theme.palette.background.default,
         zIndex: 9999,
+        overflow: "hidden",
       }}
     >
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          opacity: 0.22,
+          pointerEvents: "none",
+        }}
+      >
+        <VectorFloating />
+      </Box>
       <Box
         sx={{
           position: "relative",
@@ -115,6 +128,7 @@ export default function LoadingBlocks() {
           alignItems: "center",
           height: 120,
           width: blockWidth * blockCount + gap * (blockCount - 1),
+          zIndex: 1,
         }}
       >
         {blocks.map((color, index) => {
