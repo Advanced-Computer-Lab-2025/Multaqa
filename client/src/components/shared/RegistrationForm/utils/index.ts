@@ -3,6 +3,7 @@ import { UserType } from "../types";
 import { api } from "../../../../api";
 import { FileUploadResponse } from "../../../../../../backend/interfaces/responses/fileUploadResponse.interface";
 import { IFileInfo } from "../../../../../../backend/interfaces/fileData.interface";
+import { toast } from "react-toastify";
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
     .min(8, "Password must be at least 8 characters long.")
@@ -64,13 +65,24 @@ export const getValidationSchema = (userType: UserType) => {
       });
   }
 };
-// Create a handler factory that returns a proper callback function
+
+// Helper function to get nested value from object by string path
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getNestedValue = (obj: any, path: string) => {
+  try {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  } catch (e) {
+    console.error("Error getting nested value:", e);
+    return undefined;
+  }
+};
+
 export const createDocumentHandler = (
   setCurrentFile: (file: File | null) => void,
   setDocumentStatus: (
     status: "idle" | "uploading" | "success" | "error"
   ) => void,
-  setFormikField: (field: string, value: IFileInfo | string) => void,
+  setFormikField: (field: string, value: IFileInfo | null) => void,
   fieldName: string,
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   formik: any
@@ -86,22 +98,21 @@ export const createDocumentHandler = (
         const formData = new FormData();
 
         let response;
-        // Replace with your actual API endpoint
         if (fieldName === "taxCard") {
           formData.append("taxCard", file);
-           response = await api.post<FileUploadResponse>(
+          response = await api.post<FileUploadResponse>(
             "/uploads/taxCard",
             formData
           );
         } else if (fieldName === "logo") {
           formData.append("logo", file);
-           response = await api.post<FileUploadResponse>(
+          response = await api.post<FileUploadResponse>(
             "/uploads/logo",
             formData
           );
         } else {
           formData.append("nationalId", file);
-           response = await api.post<FileUploadResponse>(
+          response = await api.post<FileUploadResponse>(
             `/vendorEvents/uploadNationalId`,
             formData
           );
@@ -125,28 +136,50 @@ export const createDocumentHandler = (
       }
     } else {
       // User clicked the delete button (X) - file is null
-      setCurrentFile(null);
-      setDocumentStatus("idle");
-      setFormikField(fieldName, "");
 
-      // Delete from server
-      const fileObject = formik.values[fieldName];
+      
+      // Get the file object from Formik using the helper
+      const fileObject = getNestedValue(formik.values, fieldName);
       console.log("fileObject to delete:", fileObject);
+
+      // Get the publicId
       const publicId = fileObject?.publicId;
       console.log("publicId to delete:", publicId);
-      // Check if a publicId actually exists before trying to delete
-      if (publicId) {
-        await api.delete("/uploads/deletefile", {
-          data: { publicId: publicId },
-        });
 
-        // clear the field in Formik
-        formik.setFieldValue(fieldName, null);
-        setDocumentStatus("idle");
+      // Update local state
+      setCurrentFile(null);
+      setDocumentStatus("idle");
+
+      // Clear Formik field
+      setFormikField(fieldName, null);
+
+      // Delete it from the server
+      if (publicId) {
+        try {
+          await api.delete("/uploads/deletefile", {
+            data: { publicId: publicId },
+          });
+        } catch (err) {
+          const error = err as { response?: { data?: { error?: string } } };
+          toast.error(
+            error.response?.data?.error || "Failed to delete file from server.",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+        }
       }
     }
   };
 };
+
 
 // Create a retry handler factory
 export const createRetryHandler = (
