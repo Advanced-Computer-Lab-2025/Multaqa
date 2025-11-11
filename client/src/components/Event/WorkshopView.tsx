@@ -11,6 +11,7 @@ import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
 import { CustomModalLayout } from "../shared/modals";
 import EventDetails from "./Modals/EventDetails";
+import CancelRegistration from "./Modals/CancelRegistration";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -31,8 +32,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
+  const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
+
+  const startDate = new Date(details["Start Date"]);
+  const now = new Date();
+  const isRefundable = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -134,8 +140,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       width: 'fit-content'
                     }}
                     onClick={() => {
-                      // Add cancel registration logic here
-                      console.log("Cancel registration clicked");
+                      setCancelRegisteration(true);
                     }}
                   >
                     Cancel Registration
@@ -213,6 +218,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         eventId={id}
         color={background}
       />
+      <CancelRegistration eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
       <CustomModalLayout
               open={detailsModalOpen}
               onClose={() => setDetailsModalOpen(false)}

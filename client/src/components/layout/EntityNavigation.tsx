@@ -19,6 +19,7 @@ import {
   // CreditCard,
   QrCode,
   Award,
+  Wallet
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserRoleKey } from "@/types";
@@ -154,6 +155,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
+      {
+        key: "wallet",
+        label: "Wallet",
+        icon: Wallet, 
+        sections: [{id: "overview", label: "Overview"}],
+      },
     ],
   },
   staff: {
@@ -187,6 +194,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
       },
+      {
+        key: "wallet",
+        label: "Wallet",
+        icon: Wallet, 
+        sections: [{id: "overview", label: "Overview"}],
+      },
     ],
   },
   ta: {
@@ -210,6 +223,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Courts Booking",
         icon: Trophy,
         sections: [{ id: "reserve", label: "Reserve Courts" }],
+      },
+      {
+        key: "wallet",
+        label: "Wallet",
+        icon: Wallet, 
+        sections: [{id: "overview", label: "Overview"}],
       },
     ],
   },
@@ -246,6 +265,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Courts Booking",
         icon: Trophy,
         sections: [{ id: "reserve", label: "Reserve Courts" }],
+      },
+      {
+        key: "wallet",
+        label: "Wallet",
+        icon: Wallet, 
+        sections: [{id: "overview", label: "Overview"}],
       },
     ],
   },
