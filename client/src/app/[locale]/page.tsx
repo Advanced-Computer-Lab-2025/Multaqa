@@ -506,15 +506,15 @@ export default function HomePage() {
                   height: 40,
                   width: "auto",
                   fontWeight: 700,
-                  backgroundColor: theme.palette.secondary.main,
-                  color: theme.palette.secondary.contrastText,
-                  border: `2px solid ${theme.palette.secondary.dark}`,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.secondary.dark,
-                    borderColor: theme.palette.secondary.dark,
+                    backgroundColor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.dark,
                   },
                   boxShadow: `0 10px 24px ${alpha(
-                    theme.palette.secondary.main,
+                    theme.palette.tertiary.main,
                     0.3
                   )}`,
                 }}
@@ -1263,12 +1263,12 @@ export default function HomePage() {
                 sx={{
                   width: { xs: "100%", sm: "160px" },
                   fontWeight: 700,
-                  backgroundColor: theme.palette.secondary.main,
-                  color: theme.palette.secondary.contrastText,
-                  border: `2px solid ${theme.palette.secondary.dark}`,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.secondary.dark,
-                    borderColor: theme.palette.secondary.dark,
+                    backgroundColor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.dark,
                   },
                 }}
                 endIcon={<ArrowForwardIcon />}
@@ -1875,7 +1875,7 @@ export default function HomePage() {
                 component={Link}
                 href="/privacy"
                 sx={{
-                  color: "inherit",
+                      border: `2px solid ${theme.palette.tertiary.dark}`,
                   textDecoration: "none",
                   "&:hover": { color: theme.palette.primary.main },
                   textAlign: "center",
