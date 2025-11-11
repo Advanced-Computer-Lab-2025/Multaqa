@@ -10,8 +10,6 @@ import CustomSelectField from "../input-fields/CustomSelectField";
 import CustomIcon from "../Icons/CustomIcon";
 import { submitBazarForm } from "./utils";
 import {BazarApplicationFormProps} from "./types"
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "@/context/AuthContext";
 
 const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
@@ -269,7 +267,6 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
         </form>
       )}
     </Formik>
-    <ToastContainer/>
     </>
   );
 };

@@ -35,8 +35,6 @@ import {
   checkSectionErrors,
 } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { submitBoothForm } from "./utils";
 import { useAuth } from "../../../context/AuthContext";
 import StyledAccordion from "../Accordion/StyledAccordion";
@@ -1094,7 +1092,6 @@ const BoothForm: React.FC = () => {
           }}
         </Formik>
       </Box>
-      <ToastContainer />
     </Box>
   );
 };
