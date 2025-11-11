@@ -217,21 +217,16 @@ export class WorkshopService {
 
     // Send certificates to all attendees
     const promises = workshop.attendees.map(async (attendee: any) => {
-      const user = typeof attendee === 'string'
-        ? await this.userRepo.findById(attendee)
-        : attendee;
-
-      if (user) {
-
+      if (attendee) {
         // const certificateBuffer = await this.certificateService.generateCertificate(
-        //   user,
+        //   attendee.email,
         //   workshop.eventName,
         //   workshop.id.toString()
         // );
 
         await sendCertificateOfAttendanceEmail(
-          user.email,
-          `${user.firstName} ${user.lastName}`,
+          attendee.email,
+          `${attendee.firstName} ${attendee.lastName}`,
           workshop.eventName,
           // certificateBuffer,
           Buffer.from('')

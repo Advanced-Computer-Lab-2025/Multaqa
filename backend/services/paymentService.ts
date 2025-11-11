@@ -1,0 +1,225 @@
+import Stripe from "stripe";
+import createError from "http-errors";
+import { EventsService } from "./eventService";
+import { UserService } from "./userService";
+import { EVENT_TYPES } from "../constants/events.constants";
+import { IEvent } from "../interfaces/models/event.interface";
+import { sendPaymentReceiptEmail } from "./emailService";
+import { IUser } from "../interfaces/models/user.interface";
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  throw new Error("Missing STRIPE_SECRET_KEY environment variable");
+}
+
+const stripe = new Stripe(stripeSecretKey);
+
+const DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
+const DEFAULT_SUCCESS_URL =
+  process.env.STRIPE_SUCCESS_URL ||
+  "https://example.com/payments/success?session_id={CHECKOUT_SESSION_ID}";
+const DEFAULT_CANCEL_URL =
+  process.env.STRIPE_CANCEL_URL || "https://example.com/payments/cancel";
+
+export interface CreateCheckoutSessionParams {
+  eventId: string;
+  userId: string;
+  quantity?: number;
+  customerEmail?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface CreateCheckoutSessionResponse {
+  sessionId: string;
+  url: string | null;
+}
+
+export class PaymentService {
+  private eventsService: EventsService;
+  private userService: UserService;
+
+  constructor() {
+    this.eventsService = new EventsService();
+    this.userService = new UserService();
+  }
+
+  /**
+   * Create a Stripe checkout session for an event
+   * @param params - Checkout session parameters
+   * @param expectedTypes - Array of allowed event types
+   * @returns Checkout session details
+   */
+  async createCheckoutSessionForEvent(
+    params: CreateCheckoutSessionParams,
+    expectedTypes: EVENT_TYPES[]
+  ): Promise<CreateCheckoutSessionResponse> {
+    const { eventId, userId, quantity = 1, customerEmail, metadata } = params;
+
+    // Validate quantity
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      throw createError(400, "Quantity must be a positive integer");
+    }
+
+    // Fetch event
+    const event = await this.eventsService.getEventById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Validate event type
+    const eventType = event.type as EVENT_TYPES;
+    if (!expectedTypes.includes(eventType)) {
+      throw createError(
+        400,
+        `Event is not one of: ${expectedTypes.join(", ")}`
+      );
+    }
+
+    // Validate event price
+    const price = typeof event.price === "number" ? event.price : undefined;
+    if (!price || !Number.isFinite(price) || price <= 0) {
+      throw createError(400, "Event price must be greater than zero");
+    }
+
+    // Check event capacity
+    const capacity =
+      typeof (event as any).capacity === "number"
+        ? ((event as any).capacity as number)
+        : undefined;
+    const attendeesCount = Array.isArray(event.attendees)
+      ? event.attendees.length
+      : 0;
+
+    if (
+      capacity !== undefined &&
+      quantity > Math.max(0, capacity - attendeesCount)
+    ) {
+      throw createError(400, "Not enough spots available for this event");
+    }
+
+    // Build metadata
+    const sanitizedMetadata: Record<string, string> = {
+      eventId,
+      eventType: eventType,
+      userId,
+    };
+
+    if (metadata && typeof metadata === "object") {
+      for (const [key, value] of Object.entries(metadata)) {
+        if (value === undefined || value === null) continue;
+        sanitizedMetadata[key] = String(value);
+      }
+    }
+
+    // Calculate amount
+    const unitAmount = Math.round(price * 100);
+    if (!Number.isInteger(unitAmount) || unitAmount <= 0) {
+      throw createError(500, "Invalid event pricing configuration");
+    }
+
+    // Build line item
+    const lineItem = event.stripePriceId
+      ? { price: event.stripePriceId, quantity }
+      : {
+          price_data: {
+            currency: DEFAULT_CURRENCY,
+            unit_amount: unitAmount,
+            product_data: {
+              name: event.eventName,
+              description: event.description?.slice(0, 250),
+            },
+          },
+          quantity,
+        };
+
+    // Create Stripe session
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      currency: DEFAULT_CURRENCY,
+      customer_email: customerEmail,
+      line_items: [lineItem],
+      success_url: DEFAULT_SUCCESS_URL,
+      cancel_url: DEFAULT_CANCEL_URL,
+      metadata: sanitizedMetadata,
+    });
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
+  }
+
+  // Pay for event using wallet balance
+  async payWithWallet(userId: string, eventId: string): Promise<IUser> {
+    // Fetch event to get the price
+    const event = await this.eventsService.getEventById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    // Deduct from wallet and get updated user
+    const user = await this.userService.deductFromWallet(userId, event.price);
+
+    // Get user details for email
+    const userDetails = await this.userService.getUserById(userId);
+    const username =
+      (userDetails as any).firstName && (userDetails as any).lastName
+        ? `${(userDetails as any).firstName} ${(userDetails as any).lastName}`
+        : userDetails.email;
+
+    // Send payment receipt email
+    await sendPaymentReceiptEmail({
+      userEmail: userDetails.email,
+      username,
+      transactionId: `wallet_${userId}_${eventId}_${Date.now()}`,
+      amount: event.price,
+      currency: "USD",
+      itemName: event.eventName,
+      itemType: event.type === "trip" ? "Trip" : "Workshop",
+      paymentDate: new Date(),
+      paymentMethod: "Wallet",
+    });
+
+    await this.eventsService.registerUserForEvent(eventId, userId);
+
+    return user;
+  }
+
+  async refundPayment(userId: string, eventId: string): Promise<void> {
+    // Fetch event to get the price
+    const event = await this.eventsService.getEventById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Check if event has a price
+    if (event.price === undefined || event.price === null) {
+      throw createError(400, "Event does not have a price");
+    }
+
+    const currentDate = new Date();
+    const eventDate = event.eventStartDate;
+    // Get number of days between current date and event date
+    const timeDiff = eventDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    // Only allow refund if requested at least 14 days before event start date
+    if (daysDiff < 14) {
+      throw createError(
+        400,
+        "Refunds can only be processed at least 14 days before the event start date"
+      );
+    }
+    //remove user from event attendees
+    await this.eventsService.removeAttendeeFromEvent(eventId, userId);
+
+    // Refund amount to user's wallet
+    await this.userService.addToWallet(userId, event.price);
+  }
+}

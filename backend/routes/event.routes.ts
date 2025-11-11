@@ -17,8 +17,10 @@ import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
-import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware";
 import { UserService } from "../services/userService";
+import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware"
+import { CreateReviewResponse, GetAllReviewsByEventResponse, UpdateReviewResponse } from "../interfaces/responses/reviewResponses.interface";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const eventsService = new EventsService();
 
@@ -202,7 +204,60 @@ async function deleteReview(req: Request, res: Response<DeleteReviewResponse>) {
   }
 }
 
+async function createReview(req: AuthenticatedRequest, res: Response<CreateReviewResponse>) {
+  try {
+    const eventId = req.params.eventId;
+    const { comment, rating } = req.body;
+    if (!eventId || !req.user?.id) {
+      throw createError(400, "eventId and userId are required");
+    }
+
+    if (!comment && !rating) {
+      throw createError(400, "At least one of comment or rating must be provided");
+    }
+
+    const newReview = await eventsService.createReview(eventId, req.user.id, comment, rating);
+    res.status(201).json({
+      success: true,
+      data: newReview,
+      message: "Review created successfully"
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || 'Error creating review'
+    );
+  }
+}
+
+async function updateReview(req: AuthenticatedRequest, res: Response<UpdateReviewResponse>) {
+  try {
+    const eventId = req.params.eventId;
+    const { comment, rating } = req.body;
+    if (!eventId || !req.user?.id) {
+      throw createError(400, "eventId and userId are required");
+    }
+
+    if (!comment && !rating) {
+      throw createError(400, "At least one of comment or rating must be provided");
+    }
+
+    const updatedReview = await eventsService.updateReview(eventId, req.user.id, comment, rating);
+    res.status(200).json({
+      success: true,
+      data: updatedReview,
+      message: "Review updated successfully"
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating review'
+    );
+  }
+}
+
 const router = Router();
+
 router.get(
   "/",
   applyRoleBasedFilters,
@@ -225,6 +280,7 @@ router.get(
   }),
   findAll
 );
+
 router.post(
   "/",
   authorizeRoles({
@@ -245,6 +301,34 @@ router.get(
   }),
   findAllWorkshops
 );
+
+router.delete(
+  "/:eventId/reviews/:reviewId",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  deleteReview
+);
+
+router.post(
+  "/:eventId/reviews",
+  authorizeRoles({ 
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] 
+  }), 
+  createReview
+);
+
+router.patch(
+  "/:eventId/reviews", 
+  authorizeRoles({ 
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], 
+    staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] 
+  }), 
+  updateReview
+);
+
 router.get(
   "/:id",
   authorizeRoles({
@@ -265,6 +349,7 @@ router.get(
   }),
   findOne
 );
+
 router.delete(
   "/:id",
   authorizeRoles({
@@ -273,6 +358,7 @@ router.delete(
   }),
   deleteEvent
 );
+
 router.patch(
   "/:id",
   authorizeRoles({
@@ -280,14 +366,6 @@ router.patch(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   updateEvent
-);
-router.delete(
-  "/:eventId/reviews/:reviewId",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN],
-  }),
-  deleteReview
 );
 
 export default router;
