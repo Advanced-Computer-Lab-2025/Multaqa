@@ -558,7 +558,7 @@ export default function HomePage() {
               variant="body2"
               sx={{ color: alpha(theme.palette.text.primary, 0.6) }}
             >
-              Select the language you’d like to use across Multaqa.
+              Select the language you&apos;d like to use across Multaqa.
             </Typography>
           </Stack>
 
@@ -1209,7 +1209,7 @@ export default function HomePage() {
               sx={{
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
-                color: theme.palette.secondary.dark,
+                color: theme.palette.primary.dark,
                 fontWeight: 600,
               }}
             >
