@@ -1549,7 +1549,8 @@ export default function HomePage() {
                   gridColumn: "5 / span 2",
                   gridRow: "5 / span 2",
                   borderRadius: "999px",
-                  bgcolor: theme.palette.primary.dark,
+                  // Mirror the pink accent used in gym sessions for a consistent highlight
+                  bgcolor: "#e91e63",
                   animation: "floatSlow 13s ease-in-out infinite",
                   animationDelay: "0.6s",
                 }}
