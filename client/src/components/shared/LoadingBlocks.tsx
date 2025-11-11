@@ -4,8 +4,9 @@ import { useMemo } from "react";
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import VectorFloating from "@/components/shared/VectorFloating";
+import LoadingSplashes from "@/components/shared/LoadingSplashes";
 
-export default function LoadingBlocks() {
+function LegacyLoadingBlocks() {
   const theme = useTheme();
 
   const blocks = [
@@ -140,24 +141,30 @@ export default function LoadingBlocks() {
             };
 
           return (
-          <Box
-            key={animationName}
-            sx={{
-              width: blockWidth,
-              height: blockWidth,
-              backgroundColor: color,
-              borderRadius: 2,
-              position: "absolute",
-              left: index * onePosition,
-              willChange: "transform",
-              animation: `${animationName} ${animationDuration}s linear infinite`,
-              animationFillMode: "both",
-              [`@keyframes ${animationName}`]: animationKeyframes,
-            }}
-          />
+            <Box
+              key={animationName}
+              sx={{
+                width: blockWidth,
+                height: blockWidth,
+                backgroundColor: color,
+                borderRadius: 2,
+                position: "absolute",
+                left: index * onePosition,
+                willChange: "transform",
+                animation: `${animationName} ${animationDuration}s linear infinite`,
+                animationFillMode: "both",
+                [`@keyframes ${animationName}`]: animationKeyframes,
+              }}
+            />
           );
         })}
       </Box>
     </Box>
   );
+}
+
+export default function LoadingBlocks() {
+  const variant: "splashes" | "blocks" = "splashes";
+
+  return variant === "splashes" ? <LoadingSplashes /> : <LegacyLoadingBlocks />;
 }
