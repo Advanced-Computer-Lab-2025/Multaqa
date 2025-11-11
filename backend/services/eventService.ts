@@ -493,22 +493,27 @@ export class EventsService {
       throw createError(404, "Review by this user not found for the event");
     }
 
-    // const review = event.reviews[reviewIndex] as any;
-    // const reviewer = await this.userService.getUserById(review.reviewer._id.toString());
-    // const reviewerName = (reviewer as any).firstName
-    //   ? `${(reviewer as any).firstName} ${(reviewer as any).lastName}`
-    //   : reviewer.email;
-
-    // await sendCommentDeletionWarningEmail(
-    //   reviewer.email,
-    //   reviewerName,
-    //   review.comment || "No comment text",
-    //   "Admin action",
-    //   event.eventName,
-    //   0
-    // );
+    await sendCommentDeletionWarningEmail(
+      user.email,
+      (event.reviews[reviewIndex].reviewer as any).firstName + " " + (event.reviews[reviewIndex].reviewer as any).lastName,
+      event.reviews[reviewIndex].comment || "No comment text",
+      "Admin action",
+      event.eventName,
+      0
+    );
 
     event.reviews.splice(reviewIndex, 1);
     await event.save();
+  }
+
+  async getAllReviewsByEvent(eventId: string): Promise<IReview[]> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    return event.reviews;
   }
 }

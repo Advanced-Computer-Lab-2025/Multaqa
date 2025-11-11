@@ -260,6 +260,28 @@ async function deleteReview(req: AuthenticatedRequest, res: Response<DeleteRevie
   }
 }
 
+async function getAllReviewsByEvent(req: Request, res: Response<GetAllReviewsByEventResponse>) {
+  try {
+    const eventId = req.params.eventId;
+    if (!eventId) {
+      throw createError(400, "eventId is required");
+    }
+
+    const reviews = await eventsService.getAllReviewsByEvent(eventId);
+    
+    res.status(200).json({
+      success: true,
+      data: reviews,
+      message: "Reviews retrieved successfully"
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving reviews"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -323,6 +345,15 @@ router.post(
     staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] 
   }), 
   createReview
+);
+
+router.get(
+  "/:eventId/reviews",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN]
+  }),
+  getAllReviewsByEvent
 );
 
 router.patch(
