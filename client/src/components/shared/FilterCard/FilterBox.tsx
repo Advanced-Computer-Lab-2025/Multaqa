@@ -78,7 +78,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
             </Box>
             {/* Action Buttons */}
             <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap:4 }}>
-                <CustomButton size="small" variant="contained"sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px",backgroundColor:'#85301C',borderColor:'#85302c' }} onClick={() => {
+                <CustomButton size="small" variant="contained" color="primary" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px"}} onClick={() => {
                     if (onReset) {
                         onReset();
                         return;
@@ -106,7 +106,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
                 }}>
                     Reset Filters
                 </CustomButton>
-               <CustomButton size="small" variant="contained" sx={{px: 1.5, width:"w-fit", height:"28px" ,fontWeight: 600, padding:"10px" }}>
+               <CustomButton size="small" variant="contained" color="tertiary" sx={{px: 1.5, width:"w-fit", height:"28px" ,fontWeight: 600, padding:"10px" }}>
                     Apply Filters
                 </CustomButton>
             </Box>

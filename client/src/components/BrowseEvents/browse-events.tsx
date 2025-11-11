@@ -193,10 +193,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setReady(true);
   };
 
-  const handleRegistered = () => {
+const handleRegistered = () => {
     setLoading(true);
+    console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
     const result = frameData(registeredEvents);
+    console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
   };
@@ -248,6 +250,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
+     if (user === "events-only") {
+      filtered = filtered.filter((event) =>
+        ["bazaar", "trip", "conference"].includes(event.type)
+      );
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -604,6 +611,12 @@ const handleFilterChange = useCallback(
             />
           </LocalizationProvider>
         <SortByDate value={sortBy} onChange={handleSortChange} />
+        {user === "events-only" && (
+          <MenuOptionComponent
+            options={Eventoptions}
+            setters={EventOptionsSetters}
+          />
+        )}
       </Box>
 
       {/* Loading State */}
@@ -673,7 +686,7 @@ const handleFilterChange = useCallback(
               imageAlt="Empty search results illustration"
             />
           )}
-        </Box>
+        </>
       )}
 
       <CreateTrip
