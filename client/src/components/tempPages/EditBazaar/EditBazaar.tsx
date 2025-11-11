@@ -111,7 +111,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
             ...wrapperContainerStyles,    
         }}>
         <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
-        Create Bazaar
+        Edit Bazaar
         </Typography>  
         <form onSubmit={handleSubmit}>
             <Box 
