@@ -4,7 +4,16 @@ import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import VectorFloating from "@/components/shared/VectorFloating";
 
-const RING_CONFIGS = [
+type RingConfig = {
+  key: "a" | "b" | "c" | "d";
+  radius: number;
+  dashArray: string;
+  dashOffset: number;
+  animation: string;
+  cx?: number;
+};
+
+const RING_CONFIGS: RingConfig[] = [
   {
     key: "a",
     radius: 105,
