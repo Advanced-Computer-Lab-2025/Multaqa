@@ -1,7 +1,8 @@
 import * as Yup from "yup";
 import { UserType } from "../types";
 import { api } from "../../../../api";
-
+import { FileUploadResponse } from "../../../../../../backend/interfaces/responses/fileUploadResponse.interface";
+import { IFileInfo } from "../../../../../../backend/interfaces/fileData.interface";
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
     .min(8, "Password must be at least 8 characters long.")
@@ -51,8 +52,10 @@ export const getValidationSchema = (userType: UserType) => {
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
-        taxCard: Yup.string().required("Please upload your tax card document."),
-        logo: Yup.string().required("Please upload your company logo."),
+        taxCard: Yup.object()
+          .required("Please upload your tax card document."),
+        logo: Yup.object()
+          .required("Please upload your company logo."),
       });
 
     default:
@@ -69,8 +72,10 @@ export const createDocumentHandler = (
   setDocumentStatus: (
     status: "idle" | "uploading" | "success" | "error"
   ) => void,
-  setFormikField: (field: string, value: string) => void,
-  fieldName: string
+  setFormikField: (field: string, value: IFileInfo | string) => void,
+  fieldName: string,
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  formik: any
 ) => {
   return async (file: File | null) => {
     if (file) {
@@ -83,31 +88,47 @@ export const createDocumentHandler = (
         const formData = new FormData();
 
         // Replace with your actual API endpoint
-        let response;
         if (fieldName === "taxCard") {
           formData.append("taxCard", file);
-          response = await api.post("/uploads/taxCard", formData);
-        } else {
-          formData.append("logo", file);
-          response = await api.post("/uploads/logo", formData);
-        }
-        
-        if (response) {
-          const responseData = await response.json();
+          const response = await api.post<FileUploadResponse>(
+            "/uploads/taxCard",
+            formData
+          );
 
-          const fileObject = responseData.data[fieldName];
+          if (response.data?.success) {
+            const fileObject = response.data.data;
 
-          if (fileObject) {
-            setDocumentStatus("success");
-            setFormikField(fieldName, fileObject);
+            if (fileObject) {
+              setDocumentStatus("success");
+              setFormikField(fieldName, fileObject);
+            } else {
+              setDocumentStatus("error");
+            }
           } else {
             setDocumentStatus("error");
           }
         } else {
-          setDocumentStatus("error");
+          formData.append("logo", file);
+          const response = await api.post<FileUploadResponse>(
+            "/uploads/logo",
+            formData
+          );
+
+          if (response.data?.success) {
+            const fileObject = response.data.data;
+
+            if (fileObject) {
+              setDocumentStatus("success");
+              setFormikField(fieldName, fileObject);
+            } else {
+              setDocumentStatus("error");
+            }
+          } else {
+            setDocumentStatus("error");
+          }
         }
-      } 
-      catch (error) {
+      } catch (error) {
+        console.error("Upload error:", error);
         setDocumentStatus("error");
       }
     } else {
@@ -116,11 +137,22 @@ export const createDocumentHandler = (
       setDocumentStatus("idle");
       setFormikField(fieldName, "");
 
-      // Optional: Delete from server if needed
-      // await fetch('/api/delete-document', {
-      //   method: 'DELETE',
-      //   body: JSON.stringify({ filePath })
-      // });
+      // Delete from server
+      const fileObject = formik.values[fieldName];
+
+      const publicId = fileObject?.publicId;
+
+      // Check if a publicId actually exists before trying to delete
+      if (publicId) {
+        
+        await api.delete("/uploads/deletefile", {
+          data: { publicId: publicId },
+        });
+
+        // clear the field in Formik
+        formik.setFieldValue(fieldName, null);
+        setDocumentStatus("idle");
+      }
     }
   };
 };
