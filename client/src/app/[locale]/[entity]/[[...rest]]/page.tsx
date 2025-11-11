@@ -22,6 +22,7 @@ import WorkshopList from "@/components/shared/Professor/WorkshopList";
 import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
+import Wallet from "@/components/Wallet/Wallet";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -289,6 +290,12 @@ export default function EntityCatchAllPage() {
             </p>
           </div>
         );
+      }
+    }
+
+    if(["student", "staff", "ta", "professor"].includes(entity) && tab === "wallet"){
+      if(section === "overview" || section === ""){
+        return<Wallet />;
       }
     }
 

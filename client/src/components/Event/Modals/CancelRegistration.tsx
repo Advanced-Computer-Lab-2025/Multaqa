@@ -2,7 +2,6 @@ import { CustomModal, CustomModalLayout } from '@/components/shared/modals'
 import { Box, Typography } from '@mui/material'
 import theme from "@/themes/lightTheme";
 import React from 'react'
-import { on } from 'events';
 
 interface CancelEventRegisterationProps {
     eventId: string;
