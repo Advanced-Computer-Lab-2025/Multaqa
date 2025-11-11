@@ -14,6 +14,7 @@ import EditTrip from "../tempPages/EditTrip/EditTrip";
 import EventCard from "../shared/cards/EventCard";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import EventDetails from "./Modals/EventDetails";
+import CancelRegistration from "./Modals/CancelRegistration";
 
 const TripView: React.FC<BazarViewProps> = ({
   id,
@@ -33,8 +34,13 @@ const TripView: React.FC<BazarViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
+  const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [edit, setEdit] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+
+  const startDate = new Date(details["Start Date"]);
+  const now = new Date();
+  const isRefundable = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
 
   const finalPrice = parseInt(details["Cost"], 10); // base 10
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -133,8 +139,7 @@ const TripView: React.FC<BazarViewProps> = ({
                       width: 'fit-content'
                     }}
                     onClick={() => {
-                      // Add cancel registration logic here
-                      console.log("Cancel registration clicked");
+                      setCancelRegisteration(true);
                     }}
                   >
                     Cancel Registration
@@ -209,7 +214,7 @@ const TripView: React.FC<BazarViewProps> = ({
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
       eventType={"Trip"} userInfo={userInfo} eventId={id} color={background}/>
-
+      <CancelRegistration eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
 
        <CustomModalLayout
         open={detailsModalOpen}
