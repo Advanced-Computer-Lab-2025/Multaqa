@@ -6,6 +6,7 @@ import { VerificationService } from '../services/verificationService';
 import { SignupResponse, LoginResponse, RefreshResponse, LogoutResponse, MeResponse } from '../interfaces/responses/authResponses.interface';
 import verifyJWT from '../middleware/verifyJWT.middleware';
 import { UserService } from '../services/userService';
+import { deleteCloudinaryFile } from '../utils/cloudinaryCleanup';
 
 const router = Router();
 const authService = new AuthService();
@@ -37,6 +38,12 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     });
   } catch (error: any) {
     console.error('Registration error:', error.message);
+    if(req.body.type === 'vendor' && req.body.taxCard.publicId){
+      await deleteCloudinaryFile(req.body.taxCard.publicId);
+    }
+    else if(req.body.type === 'vendor' && req.body.logo.publicId){
+      await deleteCloudinaryFile(req.body.logo.publicId);
+    }
     throw createError(
       error.status || 400,
       error.message || 'Registration failed'

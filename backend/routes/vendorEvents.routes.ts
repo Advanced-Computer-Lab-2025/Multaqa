@@ -87,6 +87,15 @@ async function applyToBooth(
       message: "Platform booth application successful",
     });
   } catch (error: any) {
+       if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {   
+      for (const attendee of req.body.boothAttendees) {
+        if (attendee.nationalId?.publicId) {
+          console.log('Deleting national ID with publicId:', attendee.nationalId.publicId);
+         await deleteCloudinaryFile(attendee.nationalId.publicId);  
+        }
+      }
+    }
+    
     throw createError(
       error.status || 500,
       error.message || 'Error applying to booth'
@@ -132,6 +141,13 @@ async function applyToBazaar(
       message: "Bazaar application successful",
     });
   } catch (error: any) {
+      if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {
+        for (const attendee of req.body.boothAttendees) {
+          if (attendee.nationalId?.publicId) {
+            await deleteCloudinaryFile(attendee.nationalId.publicId);
+          }
+        }
+      }
     throw createError(
       error.status || 500,
       error.message || 'Error applying to bazaar'
