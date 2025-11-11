@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import AnimatedLoading from "@/components/shared/AnimatedLoading";
+import LoadingBlocks from "@/components/shared/LoadingBlocks";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
@@ -94,7 +94,7 @@ export default function EntityCatchAllPage() {
 
   // Show loading state
   if (isLoading) {
-    return <AnimatedLoading />;
+    return <LoadingBlocks />;
   }
 
   // Show error if no user
