@@ -64,7 +64,7 @@ const BoothForm: React.FC = () => {
   const [attendeeCount, setAttendeeCount] = useState(1);
 
   const initialValues: BoothFormValues = {
-    boothAttendees: [{ name: "", email: "", idPath: "" }],
+    boothAttendees: [{ name: "", email: "", nationalId: null }],
     boothSize: "",
     boothSetupDuration: "",
     boothLocation: "",
@@ -174,7 +174,8 @@ const BoothForm: React.FC = () => {
                   setAttendeeIdStatuses(newStatuses);
                 },
                 formik.setFieldValue,
-                `boothAttendees.${index}.idPath`
+                `boothAttendees.${index}.nationalId`,
+                formik
               );
 
             return (
@@ -310,7 +311,7 @@ const BoothForm: React.FC = () => {
                                         return;
                                       formik.setFieldValue("boothAttendees", [
                                         ...formik.values.boothAttendees,
-                                        { name: "", email: "", idPath: "" },
+                                        { name: "", email: "", nationalId: "" },
                                       ]);
                                     }}
                                     disabled={
@@ -589,12 +590,12 @@ const BoothForm: React.FC = () => {
                                           }
                                         />
                                         {formik.touched.boothAttendees?.[index]
-                                          ?.idPath &&
+                                          ?.nationalId &&
                                           typeof formik.errors.boothAttendees?.[
                                             index
                                           ] !== "string" &&
                                           formik.errors.boothAttendees?.[index]
-                                            ?.idPath && (
+                                            ?.nationalId && (
                                             <Box
                                               display="flex"
                                               alignItems="center"
@@ -614,7 +615,7 @@ const BoothForm: React.FC = () => {
                                                 "string"
                                                   ? formik.errors
                                                       .boothAttendees?.[index]
-                                                      ?.idPath
+                                                      ?.nationalId
                                                   : formik.errors
                                                       .boothAttendees?.[index]}
                                               </Typography>
@@ -663,7 +664,7 @@ const BoothForm: React.FC = () => {
                                   startIcon={<AddIcon />}
                                   onClick={() => {
                                     formik.setFieldValue("boothAttendees", [
-                                      { name: "", email: "", idPath: "" },
+                                      { name: "", email: "", nationalId: "" },
                                     ]);
                                   }}
                                 >

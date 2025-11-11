@@ -80,50 +80,44 @@ export const createDocumentHandler = (
       // User selected a new file to upload
       setCurrentFile(file);
       setDocumentStatus("uploading");
-
+      console.log("field name", fieldName);
       try {
         // Upload to server
         const formData = new FormData();
 
+        let response;
         // Replace with your actual API endpoint
         if (fieldName === "taxCard") {
           formData.append("taxCard", file);
-          const response = await api.post<FileUploadResponse>(
+           response = await api.post<FileUploadResponse>(
             "/uploads/taxCard",
             formData
           );
+        } else if (fieldName === "logo") {
+          formData.append("logo", file);
+           response = await api.post<FileUploadResponse>(
+            "/uploads/logo",
+            formData
+          );
+        } else {
+          formData.append("nationalId", file);
+           response = await api.post<FileUploadResponse>(
+            `/vendorEvents/uploadNationalId`,
+            formData
+          );
+        }
 
-          if (response.data?.success) {
-            const fileObject = response.data.data;
+        if (response.data?.success) {
+          const fileObject = response.data.data;
 
-            if (fileObject) {
-              setDocumentStatus("success");
-              setFormikField(fieldName, fileObject);
-            } else {
-              setDocumentStatus("error");
-            }
+          if (fileObject) {
+            setDocumentStatus("success");
+            setFormikField(fieldName, fileObject);
           } else {
             setDocumentStatus("error");
           }
         } else {
-          formData.append("logo", file);
-          const response = await api.post<FileUploadResponse>(
-            "/uploads/logo",
-            formData
-          );
-
-          if (response.data?.success) {
-            const fileObject = response.data.data;
-
-            if (fileObject) {
-              setDocumentStatus("success");
-              setFormikField(fieldName, fileObject);
-            } else {
-              setDocumentStatus("error");
-            }
-          } else {
-            setDocumentStatus("error");
-          }
+          setDocumentStatus("error");
         }
       } catch (error) {
         console.error("Upload error:", error);
@@ -137,9 +131,9 @@ export const createDocumentHandler = (
 
       // Delete from server
       const fileObject = formik.values[fieldName];
-
+      console.log("fileObject to delete:", fileObject);
       const publicId = fileObject?.publicId;
-
+      console.log("publicId to delete:", publicId);
       // Check if a publicId actually exists before trying to delete
       if (publicId) {
         await api.delete("/uploads/deletefile", {
