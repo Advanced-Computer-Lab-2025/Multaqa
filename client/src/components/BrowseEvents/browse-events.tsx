@@ -19,7 +19,8 @@ import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
-import Create from "../shared/CreateConference/CreateConference";
+import Create from "../tempPages/CreateConference/CreateConference";
+import CreateParent from "../createButton/createParent";
 
 import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
@@ -36,6 +37,10 @@ import SellIcon from '@mui/icons-material/Sell';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
 
+import SortByDate from '@/components/shared/SortBy/sortByDate';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from "dayjs";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -74,6 +79,16 @@ type Event =
 
 const filterGroups: FilterGroup[] = [
   {
+    id: "eventName",
+    title: "Event Name",
+    type: "text"
+  }
+  ,{
+    id: "professorName",
+    title: "Professor Name",
+    type: "text"
+  },
+    {
     id: "eventType",
     title: "Event Type",
     type: "chip",
@@ -85,6 +100,20 @@ const filterGroups: FilterGroup[] = [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
+    {
+    id:"location",
+    title: "Location",
+    type: "chip",
+    options: [
+      { label: "GUC Cairo", value: "guc cairo" },
+      { label: "GUC Berlin", value: "guc berlin" },
+    ]
+  },
+  {
+    id: "date",
+    title: "Date",
+    type: "date", // <--- NEW TYPE
+  }
 ];
 
 const EventColor = [
@@ -117,12 +146,18 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   userInfo,
   userID,
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Filters>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<Filters>({
+    eventType: [], // Multi-select for event types
+    location: [], // Multi-select for locations
+    professorName: [], // Filter by professor name
+    eventName: [], // Filter by event name
+  });
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string>('none'); // Default: no sorting
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
@@ -160,10 +195,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   const handleRegistered = () => {
     setLoading(true);
-    console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
     const result = frameData(registeredEvents);
-    console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
   };
@@ -196,13 +229,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       window.alert(error.response.data.error);
     }
   };
 
-  // Use useCallback to memoize the search handler
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
@@ -210,21 +241,19 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     []
   );
 
+  const handleSortChange = useCallback((value: string) => {
+    setSortBy(value);
+  }, []);
+
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-    if (user === "events-only") {
-      filtered = filtered.filter((event) =>
-        ["bazaar", "trip", "conference"].includes(event.type)
-      );
-    }
 
     // Apply search filter
     if (searchQuery.trim()) {
       filtered = filtered.filter((event) => {
         const query = searchQuery.toLowerCase();
 
-        // Handle booth events differently since they don't have name/description
         if (event.type === EventType.BOOTH) {
           return (
             (event.company?.toLowerCase() || "").includes(query) ||
@@ -242,7 +271,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           );
         }
 
-        // Handle other event types
         return (
           ("name" in event && event.name.toLowerCase().includes(query)) ||
           ("description" in event &&
@@ -255,29 +283,153 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         );
       });
     }
-
     // Apply type filter
     if (filters.eventType && filters.eventType.length > 0) {
       const eventTypes = filters.eventType;
       filtered = filtered.filter((event) => eventTypes.includes(event.type));
     }
+    const locationFilterValue = filters.location;
+      if (Array.isArray(locationFilterValue) && locationFilterValue.length > 0) {
+          const selectedLocations = locationFilterValue as string[]; 
+          filtered = filtered.filter((event) => {
+              const eventLocationDetail = event.details.Location;
+              if (typeof eventLocationDetail === 'string') {
+                  const normalizedLocation = eventLocationDetail.toLowerCase();
+                  return selectedLocations.includes(normalizedLocation);
+              } 
+              return false; 
+          });
+      }
 
+const professorNameFilterValue = filters.professorName;
+if (Array.isArray(professorNameFilterValue) && professorNameFilterValue.length > 0) {
+    const selectedProfessors = professorNameFilterValue as string[]; 
+    
+    filtered = filtered.filter((event) => {
+        if (event.type === EventType.CONFERENCE || event.type === EventType.WORKSHOP) {
+            const professors = (event as any).professors as string[] | undefined; 
+
+            // Check if ALL selectedProfessors are included in the event's professor list
+            return selectedProfessors.every(query => 
+                professors?.some((prof) => 
+                    typeof prof === 'string' && prof.toLowerCase().includes(query.toLowerCase())
+                ) ?? false
+            );
+        }
+        return false; 
+    });
+}
+
+
+// 2. Correct Event Name Filter (Multi-select/Additive Text)
+const eventNameFilterValue = filters.eventName;
+if (Array.isArray(eventNameFilterValue) && eventNameFilterValue.length > 0) {
+    const selectedNames = eventNameFilterValue as string[]; 
+    
+    filtered = filtered.filter((event) => {
+        let targetName = '';
+
+        if (event.type === EventType.BOOTH) {
+            targetName = (event as BoothEvent).company || '';
+        } else if ("name" in event) {
+            targetName = (event as any).name || '';
+        }
+        
+        // Check if ALL selectedNames are included in the event's name
+        return selectedNames.every(query => 
+            targetName.toLowerCase().includes(query.toLowerCase())
+        );
+    });
+}
+// Apply Date Filter
+const dateFilterValue = filters.date;
+if (typeof dateFilterValue === 'string' && dateFilterValue) {
+    const selectedDate = dayjs(dateFilterValue).format('YYYY-MM-DD');
+
+    filtered = filtered.filter((event) => {
+        const eventStartDateString = event.details["Start Date"];
+        
+        if (eventStartDateString) {
+            // Normalize event date to the same YYYY-MM-DD format
+            const eventDate = dayjs(eventStartDateString).format('YYYY-MM-DD');
+            
+            // Check for exact date match
+            return eventDate === selectedDate;
+        }
+        return false;
+    });
+}
+
+    // Apply sorting logic
+    const parseDate = (dateStr: string | undefined) => {
+      if (!dateStr) return 0; // Default to earliest possible date
+      const parsedDate = Date.parse(dateStr); // Handles ISO 8601 format
+      return isNaN(parsedDate) ? 0 : parsedDate; // Fallback to 0 if parsing fails
+    };
+
+    switch (sortBy) {
+      case "start_asc":
+        filtered.sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateA - dateB;
+        });
+        break;
+
+      case "start_desc":
+        filtered.sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateB - dateA;
+        });
+        break;
+      default:
+        break;
+    }
     return filtered;
-  }, [searchQuery, filters, events]);
+  }, [searchQuery, filters, events, sortBy]);
 
-  const handleFilterChange = useCallback(
-    (groupId: string, value: FilterValue) => {
-      setFilters((prev) => ({
-        ...prev,
-        [groupId]: value,
-      }));
-    },
-    []
-  );
+const handleFilterChange = useCallback(
+    (groupId: string, value: any) => { // Use 'any' or your specific FilterValue type
+      setFilters((prev) => {
+        const currentVal = prev[groupId as keyof Filters];
+
+        // 1. Handle Multi-Select Filters (eventType and location)
+        if (
+          (groupId === 'eventType' || groupId === 'location') &&
+          Array.isArray(currentVal)
+        ) {
+          if (currentVal.includes(value)) {
+            return { 
+              ...prev, 
+              [groupId]: currentVal.filter((v) => v !== value) 
+            };
+          } else {
+            return { 
+              ...prev, 
+              [groupId]: [...currentVal, value] 
+            };
+          }
+        }
+        return { 
+          ...prev, 
+          [groupId]: value 
+        };
+      });
+    },
+    []
+  );
 
   const handleResetFilters = useCallback(() => {
-    setFilters({});
-    setSearchQuery("");
+    setFilters({
+      eventType: [],
+      location: [],
+      professorName: [],
+      eventName: [],
+    });
+    setSearchQuery('');
   }, []);
 
   const Eventoptions = [
@@ -422,7 +574,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         </Typography>
       </Box>
 
-      {/* Search and Filter Row */}
+      {/* Search, Filter, and Sort Row */}
       <Box
         sx={{
           display: "flex",
@@ -443,18 +595,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             autoSaveDelay={2000}
           />
         </Box>
-        <FilterPanel
-          filterGroups={filterGroups}
-          onFilterChange={handleFilterChange}
-          currentFilters={filters}
-          onReset={handleResetFilters}
-        />
-        {user === "events-only" && (
-          <MenuOptionComponent
-            options={Eventoptions}
-            setters={EventOptionsSetters}
-          />
-        )}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <FilterPanel
+              filterGroups={filterGroups}
+              onFilterChange={handleFilterChange}
+              currentFilters={filters}
+              onReset={handleResetFilters}
+            />
+          </LocalizationProvider>
+        <SortByDate value={sortBy} onChange={handleSortChange} />
       </Box>
 
       {/* Loading State */}
@@ -515,7 +664,16 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               </Typography>
             </Box>
           )}
-        </>
+
+          {/* No results message */}
+          {filteredEvents.length === 0 && events.length > 0 && (
+            <EmptyState
+              title="No events found"
+              description="Try adjusting your search or filters"
+              imageAlt="Empty search results illustration"
+            />
+          )}
+        </Box>
       )}
 
       <CreateTrip

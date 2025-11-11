@@ -15,6 +15,10 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
+import { wrapperContainerStyles, horizontalLayoutStyles,step1BoxStyles, step2BoxStyles, modalFormStyles,modalHeaderStyles, detailTitleStyles, modalFooterStyles } from '../../shared/styles';
+import RichTextField from '../../shared/TextField/TextField';
+import theme from '@/themes/lightTheme';
+import { Edit } from 'lucide-react';
 
 
 interface ProfessorOption {
@@ -170,323 +174,326 @@ const EditWorkshop = ({
     onSubmit: onSubmit,
   });
 
-  return (
-    <>
-      <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[90vw] xl:w-[90vw]'>
-      <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center'sx={{mb:2}}>Edit Workshop</Typography>
-        <Grid container spacing={2} sx={{mb:3}}>
-                <Grid size={4}>
+  const handleDescriptionChange = (htmlContent: string) => {
+      setFieldValue('description', htmlContent);
+    };
+  
+    return (
+      <>
+      <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
+        <Box sx={{
+        ...wrapperContainerStyles,    
+        }}>
+          <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+          Create Workshop
+          </Typography>
+            <form onSubmit={handleSubmit}>
+              <Box 
+              sx={horizontalLayoutStyles(theme)}
+              >
+              <Box sx={{...step1BoxStyles(theme),width:'400px',height:'560px'}}>
+                <Box sx={modalHeaderStyles}>
+                    <Typography sx={detailTitleStyles(theme)}>
+                      General Information
+                    </Typography>      
+                  </Box>
+                <Box sx={modalFormStyles}>
                     <CustomTextField
-                        name='workshopName'
-                        id='workshopName'
-                        label="Workshop Name" 
-                        fullWidth 
-                        placeholder='Enter Workshop Name' 
-                        fieldType="text"
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                        value={values.workshopName}
-                        onChange={handleChange}
-                    />
-                    { errors.workshopName && touched.workshopName ? <p style={{color:"#db3030"}}>{errors.workshopName}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
-                    <TextField
-                        name="budget"
-                        id='budget'
-                        label="Budget"
-                        type="number"
-                        fullWidth
-                        variant='standard'
-                        placeholder="Enter Budget"
-                        slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start">EGP</InputAdornment>
-                                )
-                            }
-                        }}
-                        value={values.budget}
-                        onChange={handleChange}
-                        sx={{mt:"7px"}}
-                    />
-                    { errors.budget && touched.budget ? <p style={{color:"#db3030"}}>{errors.budget}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
-                    <TextField
-                      name="capacity"
-                      id='budget'
-                      label="Capacity"
-                      type="number"
-                      fullWidth
-                      variant='standard'
-                      placeholder='Enter Capacity'
-                      slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start"></InputAdornment>
-                                )
-                            }
-                        }}
-                      value={values.capacity}
-                      onChange={handleChange}
-                      sx={{mt:"7px"}}
-                    /> 
-                    { errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:3}}>
-          <Grid size={4}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                          name='startDate'
-                          label="Start Date and Time"
-                          slotProps={{
-                              textField: {
-                                  fullWidth: true,
-                                  variant:"standard"                              
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'right',
-                                  sx: { zIndex: 1500 },
-                              }
-                          }}
-                          value={values.startDate}
-                          onChange={(value) => setFieldValue('startDate', value)}
+                          name='workshopName'
+                          id='workshopName'
+                          label="Workshop Name" 
+                          fullWidth 
+                          placeholder='Enter Workshop Name' 
+                          fieldType="text"
+                          autoCapitalize='off'
+                          autoCapitalizeName={false}
+                          value={values.workshopName}
+                          onChange={handleChange}
+                          sx={{mt:2}}
                       />
-                      {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
-              </LocalizationProvider>
-          </Grid>
-          <Grid size={4}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker 
-                          label="End Date and Time"
-                          name='endDate'
-                          slotProps={{
-                              textField: {
-                                  fullWidth: true,
-                                  variant:"standard"
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'left',
-                                  sx: { zIndex: 1500 },
-                              }
-                          }}
-                          value={values.endDate}
-                          onChange={(value) => setFieldValue('endDate', value)}
+                      { errors.workshopName && touched.workshopName ? <p style={{color:"#db3030"}}>{errors.workshopName}</p> : <></>}
+                    <Box sx={{ mt: 3 }}>
+                      <RichTextField
+                          label="Description" 
+                          value={values.description}
+                          placeholder="Provide a short description of the trip"
+                          onChange={handleDescriptionChange}
+                      />
+                      { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                    </Box>
+                    <Box sx={{ mt: 3 }}>
+                        <RichTextField
+                            label="Full Agenda" 
+                            value={values.agenda}
+                            placeholder="Provide the full agenda of the workshop"
+                            onChange={(htmlContent: string) => setFieldValue('agenda', htmlContent)}
+                        />
+                        { errors.agenda && touched.agenda ? <p style={{color:"#db3030"}}>{errors.agenda}</p> : <></>}
+                    </Box>
+  
+                </Box>
+              </Box>
+              <Box sx={{...step2BoxStyles(theme),width:'580px',height:'580px'}}>
+                      <Box sx={modalHeaderStyles}>
+                          <Typography sx={detailTitleStyles(theme)}>
+                              Workshop Details
+                          </Typography>      
+                      </Box>
+                      <Box sx={modalFormStyles}>
+  
+                        <Box sx={{ display: "flex", gap: 1, marginTop: "12px",marginBottom:"12px" }}>
+                          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DateTimePicker
+                                name="startDate"
+                                label="Start Date and Time"
+                                slotProps={{
+                                  textField: {
+                                    variant: "standard",
+                                    fullWidth: true,
+                                  },
+                                  popper: {
+                                    disablePortal: true,
+                                    placement: "right",
+                                    sx: { zIndex: 1500 },
+                                  },
+                                }}
+                                value={values.startDate}
+                                onChange={(value) => setFieldValue("startDate", value)}
+                              />
+                            </LocalizationProvider>
+                            {errors.startDate && touched.startDate && (
+                              <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
+                            )}
+                          </Box>
+  
+                          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DateTimePicker
+                                label="End Date and Time"
+                                name="endDate"
+                                slotProps={{
+                                  textField: {
+                                    variant: "standard",
+                                    fullWidth: true,
+                                  },
+                                  popper: {
+                                    disablePortal: true,
+                                    placement: "left",
+                                    sx: { zIndex: 1500 },
+                                  },
+                                }}
+                                value={values.endDate}
+                                onChange={(value) => setFieldValue("endDate", value)}
+                              />
+                            </LocalizationProvider>
+                            {errors.endDate && touched.endDate && (
+                              <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
+                            )}
+                          </Box>
+                        </Box>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                            name='registrationDeadline'
+                            label="Deadline to Register"
+                            slotProps={{
+                                textField: {
+                                    fullWidth:true,
+                                    variant:"standard", 
+                                },
+                                popper: {
+                                    disablePortal: true, // <-- Add this line
+                                    placement: 'left',
+                                    sx: { zIndex: 1500 },
+                                }                       
+                            }}
+                            sx={{marginTop: "6px"}}
+                            value={values.registrationDeadline}
+                            onChange={(value) => setFieldValue('registrationDeadline', value)}
+                        />
+                        {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
+                </LocalizationProvider>
+  <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom:"18px" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <TextField
+        name="budget"
+        id="budget"
+        label="Budget"
+        type="number"
+        fullWidth
+        variant="standard"
+        placeholder="Enter Budget"
+        value={values.budget}
+        onChange={handleChange}
+      />
+      {errors.budget && touched.budget ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.budget}</p> : <></>}
+    </Box>
+  
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <TextField
+        name="capacity"
+        id="capacity"
+        label="Capacity"
+        type="number"
+        fullWidth
+        variant="standard"
+        placeholder="Enter Capacity"
+        value={values.capacity}
+        onChange={handleChange}
+      />
+      {errors.capacity && touched.capacity ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.capacity}</p> : <></>}
+    </Box>
+  </Box>
+  <Box sx={{ display: "flex", gap: 2, marginTop: "20px", marginBottom: "16px" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <CustomSelectField
+      label="Funding"
+      fieldType="single"
+      options={[
+        { label: 'GUC', value: 'GUC' },
+        { label: 'External', value: 'External' },
+      ]}
+      value={values.fundingSource}
+      onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}            />
+    {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
+    </Box>
+    
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <CustomSelectField
+        label="Location"
+        fieldType="single"
+        options={[
+          { label: "GUC Cairo", value: "GUC Cairo" },
+          { label: "GUC Berlin", value: "GUC Berlin" },
+        ]}
+        value={values.location}
+        onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} name={""}
+      />
+      {errors.location && touched.location && (
+        <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.location}</p>
+      )}
+    </Box>
+  
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+      <CustomSelectField
+        label="Faculty"
+        fieldType="single"
+        options={[
+          { label: "MET", value: "MET" },
+          { label: "IET", value: "IET" },
+          { label: "EMS", value: "EMS" },
+          { label: "Management", value: "MNGT" },
+          { label: "Applied Arts", value: "AA" },
+          { label: "Architecture", value: "ARCH" },
+          { label: "Law", value: "LAW" },
+          { label: "DMET", value: "DMET" },
+        ]}
+        value={values.faculty}
+        onChange={(e: any) => setFieldValue("faculty", e.target ? e.target.value : e)}
+        name={""}
+      />
+      {errors.faculty && touched.faculty && (
+        <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.faculty}</p>
+      )}
+    </Box>
+  </Box>
+              <Typography sx={{...detailTitleStyles(theme), mb:"6px"}}> Participating Professors </Typography> 
+               <CustomSelectField
+                label="Participating Professors"
+                fieldType="single"
+                options={availableProfessors}
+                value={selectedProf}
+                onChange={(e: any) => {
+                  const val = e.target ? e.target.value : e;
+                  setSelectedProf(val);
+                  // Find the selected option object and add it to formik values.professors if not already present
+                  const opt = availableProfessors.find((o) => o.value === val);
+                  if (opt) {
+                    const already = values.professors.some((p: any) => p.value === opt.value);
+                    if (!already) {
+                      setFieldValue('professors', [...values.professors, opt]);
+                    }
+                  }
+                  // clear the select state so the UI can be used to add another
+                  setSelectedProf('');
+                }}
+                name={''}
+              />
+              {errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>} 
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: '8px', marginBottom: '12px' }}>
+                  {values.professors.map((prof) => (
+                    <Chip
+                      key={prof.value}
+                      label={prof.label}
+                      onDelete={() =>
+                        setFieldValue(
+                          'professors',
+                          values.professors.filter((p) => p.value !== prof.value)
+                        )
+                      }
+                      color="primary"
+                      variant="outlined"
+                      sx={{m:0.5}}
+                    />
+                ))}
+              </Box>
+            <Typography sx={detailTitleStyles(theme)}> Extra Resources </Typography>
+            <Box sx={{display:"flex", gap:1, marginTop: "6px",marginBottom:"12px", alignItems: "center" }}>
+                    <CustomTextField 
+                label='Extra Resources'
+                name='extraResources'
+                id = 'extraResources' 
+                fieldType='text' 
+                neumorphicBox
+                value={resourceInput}
+                onChange={(e: any) => setResourceInput(e.target.value)}
+                placeholder="e.g., Lab Equipment"
+                autoCapitalize='off'
+                autoCapitalizeName={false}
+              />
+              <CustomIcon
+                icon="add"
+                size="small"
+                containerType="outwards"
+                onClick={() => {
+                  const trimmed = resourceInput.trim();
+                  if (trimmed && !values.extraResources.includes(trimmed)) {
+                    setFieldValue("extraResources", [...values.extraResources, trimmed]);
+                    setResourceInput("");
+                  }
+                }}
+              />
+             </Box> 
+            
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
+                {values.extraResources.map((res) => (
+                  <Chip
+                    key={res}
+                    label={res}
+                    onDelete={() =>
+                      setFieldValue(
+                        "extraResources",
+                        values.extraResources.filter((r) => r !== res)
+                      )
+                    }
+                    color="primary"
+                    variant="outlined"
+                    sx={{ m: 0.5 }}
                   />
-                  {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
-               </LocalizationProvider>
-          </Grid>
-          <Grid size={4}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                          name='registrationDeadline'
-                          label="Deadline to Register"
-                          slotProps={{
-                              textField: {
-                                  fullWidth:true,
-                                  variant:"standard", 
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'right',
-                                  sx: { zIndex: 1500 },
-                              }                       
-                          }}
-                          value={values.registrationDeadline}
-                          onChange={(value) => setFieldValue('registrationDeadline', value)}
-                      />
-                      {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-              </LocalizationProvider>
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:3}}>
-            <Grid size={4}>
-            <CustomSelectField
-              label="Location"
-              fieldType="single"
-              options={[
-                { label: 'GUC Cairo', value: 'GUC Cairo' },
-                { label: 'GUC Berlin', value: 'GUC Berlin' },
-              ]}
-              value={values.location}
-              onChange={(e: any) => setFieldValue('location', e.target ? e.target.value : e)} name={''}            />
-            {errors.location && touched.location && (<p style={{ color: "#db3030" }}>{errors.location}</p>)}    
-          </Grid>
-          <Grid size={4}>
-            <CustomSelectField
-              label="Faculty"
-              fieldType="single"
-              options={[
-                { label: 'MET', value: 'MET' },
-                { label: 'IET', value: 'IET' },
-                { label: 'EMS', value: 'EMS' },
-                { label: 'Management', value: 'MNGT' },
-                { label: 'Applied Arts', value: 'AA' },
-                { label: 'Architecture', value: 'ARCH' },
-                { label: 'Law', value: 'LAW' },
-                { label: 'DMET', value: 'DMET' }
-              ]}
-              value={values.faculty}
-              onChange={(e: any) => setFieldValue('faculty', e.target ? e.target.value : e)} name={''}            />
-            {errors.faculty && touched.faculty && (<p style={{ color: "#db3030" }}>{errors.faculty}</p>)}    
-          </Grid>
-          <Grid size={4}>
-            <CustomSelectField
-              label="Funding Source"
-              fieldType="single"
-              options={[
-                { label: 'GUC', value: 'GUC' },
-                { label: 'External', value: 'External' },
-              ]}
-              value={values.fundingSource}
-              onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}            />
-            {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:3}}>
-          <Grid size={5}>
-                <CustomSelectField
-              label="Participating Professors"
-              fieldType="single"
-              options={availableProfessors}
-              value={selectedProf}
-              onChange={(e: any) => {
-                const val = e.target ? e.target.value : e;
-                setSelectedProf(val);
-              } } name={''}                />
-                { errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>}
-          </Grid>
-          <Grid size={1}>
-            <CustomIcon 
-              icon='add' 
-              size='medium' 
-              containerType='outwards'
-              onClick={() => {
-                const profToAdd = availableProfessors.find(p => p.value === selectedProf)
-                if (profToAdd && !values.professors.some(p => p.value === profToAdd.value)) {
-                  setFieldValue("professors", [...values.professors, profToAdd]);
-                  setSelectedProf("");
-                }
-              }}
-            />
-          </Grid>
-          <Grid size={5}>
-            <CustomTextField 
-              label='Extra Resources'
-              name='extraResources'
-              id = 'extraResources' 
-              fieldType='text' 
-              neumorphicBox
-              value={resourceInput}
-              onChange={(e: any) => setResourceInput(e.target.value)}
-              placeholder="e.g., Lab Equipment"
-              autoCapitalize='off'
-              autoCapitalizeName={false}
-            />
-          </Grid>
-          <Grid size={1}>
-            <CustomIcon
-              icon="add"
-              size="medium"
-              containerType="outwards"
-              onClick={() => {
-                const trimmed = resourceInput.trim();
-                if (trimmed && !values.extraResources.includes(trimmed)) {
-                  setFieldValue("extraResources", [...values.extraResources, trimmed]);
-                  setResourceInput("");
-                }
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <Typography variant='h6'>Participating Professors:</Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1}}>
-              {values.professors.map((prof) => (
-                <Chip
-                  key={prof.value}
-                  label={prof.label}
-                  onDelete={() =>
-                    setFieldValue(
-                      'professors',
-                      values.professors.filter((p) => p.label !== prof.label)
-                    )
-                  }
-                  color="primary"
-                  variant="outlined"
-                  sx={{m:0.5}}
-                />
-              ))}
-            </Box>
-          </Grid>
-          <Grid size={6}>
-            <Typography variant="h6">Extra Resources:</Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {values.extraResources.map((res) => (
-                <Chip
-                  key={res}
-                  label={res}
-                  onDelete={() =>
-                    setFieldValue(
-                      "extraResources",
-                      values.extraResources.filter((r) => r !== res)
-                    )
-                  }
-                  color="primary"
-                  variant="outlined"
-                  sx={{ m: 0.5 }}
-                />
-              ))}
-            </Box>
-          </Grid>
-        </Grid>
-        <Grid container spacing={2} sx={{mb:2}}>
-          <Grid size={6}>
-              <CustomTextField 
-                name='description'
-                id='description'
-                label="Short Description" 
-                fullWidth  
-                fieldType="text" 
-                multiline 
-                minRows={3} 
-                neumorphicBox={true}
-                autoCapitalize='off'
-                autoCapitalizeName={false}
-                value={values.description}
-                onChange={handleChange}
-              />
-              { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-          </Grid>
-          <Grid size={6}>
-              <CustomTextField 
-                name='agenda'
-                id='agenda'
-                label="Full Agenda" 
-                fullWidth  
-                fieldType="text" 
-                multiline 
-                minRows={3} 
-                neumorphicBox={true}
-                autoCapitalize='off'
-                autoCapitalizeName={false}
-                value={values.agenda}
-                onChange={handleChange}
-              />
-              { errors.agenda && touched.agenda ? <p style={{color:"#db3030"}}>{errors.agenda}</p> : <></>}
-          </Grid>
-        </Grid>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:3}}> 
-            <CustomButton disabled={isSubmitting || loadingProfessors} label={isSubmitting ? "Submitting" : 'Edit Information'} variant='contained' color='primary' fullWidth  type='submit'/>
+                ))}
+              </Box>
+              </Box>
+         </Box>
+      </Box>
+          <Box sx={modalFooterStyles}> 
+              <CustomButton color='tertiary' disabled={isSubmitting} label={isSubmitting ? "submitting":"Edit"} variant='contained' fullWidth type='submit' sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
+          </Box>
+        </form>  
         </Box>
-      </form>  
-      </CustomModalLayout>        
-    </>
-  )
-}
-
-export default EditWorkshop
+        </CustomModalLayout>     
+      </>
+    )
+  }
+  
+  export default EditWorkshop;
+  

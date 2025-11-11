@@ -52,7 +52,7 @@ export const headerLabelStyles = (theme: Theme): SxProps<Theme> => ({
 
 // Styles for the content editable area
 export const contentAreaStyles = (theme: Theme): SxProps<Theme> => ({
-  height: '160px',
+  height: '100px',
   padding: 2,
   flexGrow: 1,
   overflowY:'scroll',

@@ -15,7 +15,10 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
             case 'chip':
                 return renderChipGroup(group, currentFilters, onFilterChange);
             case 'text':
+                return renderInputOrSelect(group, currentFilters, onFilterChange);
             case 'select':
+                return renderInputOrSelect(group, currentFilters, onFilterChange);
+            case 'date':
                 return renderInputOrSelect(group, currentFilters, onFilterChange);
             default:
                 return <Typography color="error" variant="body2">Unsupported filter type: {group.type}</Typography>;
@@ -75,7 +78,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
             </Box>
             {/* Action Buttons */}
             <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap:4 }}>
-                <CustomButton size="small" variant="contained" color="secondary" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px" }} onClick={() => {
+                <CustomButton size="small" variant="contained"sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px",backgroundColor:'#85301C',borderColor:'#85302c' }} onClick={() => {
                     if (onReset) {
                         onReset();
                         return;
@@ -94,6 +97,8 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
                             case 'range':
                                 onFilterChange(group.id, [group.min ?? 0, group.max ?? 100]);
                                 break;
+                            case 'date':
+
                             default:
                                 onFilterChange(group.id, null);
                         }

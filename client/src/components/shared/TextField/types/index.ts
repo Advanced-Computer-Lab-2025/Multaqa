@@ -1,8 +1,19 @@
-export interface RichTextFieldProps {
-  label: string; // e.g., "Description"
-  onContentChange: (htmlContent: string) => void;
-  placeholder?: string;
-}
+import { FieldHookConfig } from "formik";
+
+export type RichTextFieldProps =
+  | (FieldHookConfig<string> & {   // Formik mode
+      label?: string;
+      placeholder?: string;
+      value?: never;               // forbid – we read from Formik
+      onChange?: never;
+    })
+  | {                               // Plain-form mode
+      name?: string;               // optional – only for accessibility
+      label?: string;
+      placeholder?: string;
+      value: string;
+      onChange: (html: string) => void;
+    };
 
 export type FontOption = {
   label: string;
