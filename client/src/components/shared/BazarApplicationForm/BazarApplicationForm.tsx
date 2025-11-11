@@ -22,6 +22,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AspectRatioIcon from "@mui/icons-material/AspectRatio"; // Icon for Booth Size
 import { useTheme } from "@mui/material/styles";
+
 import { BazarFormValues} from "./types";
 import { validationSchema, submitBazarForm } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";

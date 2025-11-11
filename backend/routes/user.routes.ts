@@ -43,7 +43,7 @@ async function getAllUsers(req: Request, res: Response<GetAllUsersResponse>) {
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving users'
+      err.message || "Error retrieving users"
     );
   }
 }
@@ -62,7 +62,7 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving user'
+      err.message || "Error retrieving user"
     );
   }
 }
@@ -75,7 +75,8 @@ async function registerForEvent(
   try {
     const { eventId } = req.params;
     const userId = req.user?.id;
-    if (!userId) throw createError(401, "Unauthorized: User ID missing in token");
+    if (!userId)
+      throw createError(401, "Unauthorized: User ID missing in token");
 
     const validatedData = validateEventRegistration(req.body);
     if (validatedData.error) {
@@ -103,7 +104,7 @@ async function registerForEvent(
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error registering for event'
+      err.message || "Error registering for event"
     );
   }
 }
@@ -111,7 +112,7 @@ async function registerForEvent(
 // Add event to user's favorites
 async function addToFavorites(
   req: AuthenticatedRequest,
-  res: Response<AddToFavoritesResponse>,
+  res: Response<AddToFavoritesResponse>
 ) {
   try {
     const eventId = req.params.eventId;
@@ -135,8 +136,8 @@ async function addToFavorites(
     });
   } catch (err: any) {
     throw createError(
-      err.status || 500, 
-      err.message || 'Error adding to favorites'
+      err.status || 500,
+      err.message || "Error adding to favorites"
     );
   }
 }
@@ -144,7 +145,7 @@ async function addToFavorites(
 // Remove event from user's favorites
 async function removeFromFavorites(
   req: AuthenticatedRequest,
-  res: Response<RemoveFromFavoritesResponse>,
+  res: Response<RemoveFromFavoritesResponse>
 ) {
   try {
     const eventId = req.params.eventId;
@@ -169,7 +170,7 @@ async function removeFromFavorites(
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error removing from favorites'
+      err.message || "Error removing from favorites"
     );
   }
 }
@@ -177,7 +178,7 @@ async function removeFromFavorites(
 // Get all favorites for the authenticated user
 async function getAllFavorites(
   req: AuthenticatedRequest,
-  res: Response<GetFavoritesResponse>,
+  res: Response<GetFavoritesResponse>
 ) {
   try {
     const userId = req.user?.id;
@@ -196,52 +197,8 @@ async function getAllFavorites(
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving favorites'
+      err.message || "Error retrieving favorites"
     );
-  }
-}
-
-// Pay for event using wallet balance
-async function payWithWallet(
-  req: AuthenticatedRequest,
-  res: Response<PayWithWalletResponse>,
-  next: any
-) {
-  try {
-    const eventId = req.params.eventId;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      throw createError(401, "Unauthorized: missing user in token");
-    }
-
-    if (!eventId) {
-      throw createError(400, "Missing eventId in params");
-    }
-
-    // Get event price before payment
-    const { Event } = await import("../schemas/event-schemas/eventSchema");
-    const event = await Event.findById(eventId);
-
-    if (!event) {
-      throw createError(404, "Event not found");
-    }
-
-    const amountPaid = event.price || 0;
-
-    // Process payment
-    const updatedUser = await userService.payWithWallet(userId, eventId);
-
-    res.json({
-      success: true,
-      message: "Payment successful",
-      data: {
-        walletBalance: (updatedUser as any).walletBalance || 0,
-        amountPaid: amountPaid,
-      },
-    });
-  } catch (err: any) {
-    next(err);
   }
 }
 
@@ -260,10 +217,7 @@ async function blockUser(req: Request, res: Response<BlockUserResponse>) {
     });
   } catch (err: any) {
     console.error("❌ Failed to block user:", err.message);
-    throw createError(
-      err.status || 500,
-      err.message || 'Error blocking user'
-    );
+    throw createError(err.status || 500, err.message || "Error blocking user");
   }
 }
 
@@ -283,7 +237,7 @@ async function unBlockUser(req: Request, res: Response<UnblockUserResponse>) {
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error unblocking user'
+      err.message || "Error unblocking user"
     );
   }
 }
@@ -302,7 +256,7 @@ async function getAllUnAssignedStaffMembers(
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving unassigned staff members'
+      err.message || "Error retrieving unassigned staff members"
     );
   }
 }
@@ -316,10 +270,7 @@ async function getAllTAs(req: Request, res: Response<GetAllTAsResponse>) {
       message: "TAs retrieved successfully",
     });
   } catch (err: any) {
-    throw createError(
-      err.status || 500,
-      err.message || 'Error retrieving TAs'
-    );
+    throw createError(err.status || 500, err.message || "Error retrieving TAs");
   }
 }
 
@@ -334,7 +285,7 @@ async function getAllStaff(req: Request, res: Response<GetAllStaffResponse>) {
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving staff members'
+      err.message || "Error retrieving staff members"
     );
   }
 }
@@ -383,7 +334,7 @@ async function getAllProfessors(
     }
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving professors'
+      err.message || "Error retrieving professors"
     );
   }
 }
@@ -512,19 +463,6 @@ router.post(
     ],
   }),
   addToFavorites
-);
-
-router.patch(
-  "/payments/:eventId/wallet",
-  authorizeRoles({
-    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
-    staffPositions: [
-      StaffPosition.PROFESSOR,
-      StaffPosition.TA,
-      StaffPosition.STAFF,
-    ],
-  }),
-  payWithWallet
 );
 
 router.delete(

@@ -1,7 +1,4 @@
-import { IReview } from "../review.interface";
-
-// !!!!!!! Sprint 2 !!!!!!!!
-// To be revised then 
+import { IReview } from "../models/review.interface";
 
 export interface CreateReviewResponse {
   success: boolean;
