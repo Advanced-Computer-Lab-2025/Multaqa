@@ -10,7 +10,7 @@ export default function LoadingBlocks() {
 
   const blocks = [
     theme.palette.primary.main,
-    theme.palette.primary.dark,
+    "#e91e63", // Flaming pink accent shared with hero/gym surfaces
     theme.palette.tertiary.main,
     theme.palette.secondary.main,
     theme.palette.tertiary.dark,
