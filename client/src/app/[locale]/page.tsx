@@ -183,7 +183,7 @@ export default function HomePage() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
-  const [isPageExiting, setIsPageExiting] = useState(false);
+  const [isPageExiting] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
@@ -506,15 +506,15 @@ export default function HomePage() {
                   height: 40,
                   width: "auto",
                   fontWeight: 700,
-                  backgroundColor: theme.palette.tertiary.main,
-                  color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.tertiary.dark}`,
+                  backgroundColor: theme.palette.secondary.main,
+                  color: theme.palette.secondary.contrastText,
+                  border: `2px solid ${theme.palette.secondary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.tertiary.dark,
-                    borderColor: theme.palette.tertiary.dark,
+                    backgroundColor: theme.palette.secondary.dark,
+                    borderColor: theme.palette.secondary.dark,
                   },
                   boxShadow: `0 10px 24px ${alpha(
-                    theme.palette.tertiary.main,
+                    theme.palette.secondary.main,
                     0.3
                   )}`,
                 }}
@@ -1209,7 +1209,7 @@ export default function HomePage() {
               sx={{
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
-                color: theme.palette.tertiary.dark,
+                color: theme.palette.secondary.dark,
                 fontWeight: 600,
               }}
             >
@@ -1263,12 +1263,12 @@ export default function HomePage() {
                 sx={{
                   width: { xs: "100%", sm: "160px" },
                   fontWeight: 700,
-                  backgroundColor: theme.palette.tertiary.main,
-                  color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.tertiary.dark}`,
+                  backgroundColor: theme.palette.secondary.main,
+                  color: theme.palette.secondary.contrastText,
+                  border: `2px solid ${theme.palette.secondary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.tertiary.dark,
-                    borderColor: theme.palette.tertiary.dark,
+                    backgroundColor: theme.palette.secondary.dark,
+                    borderColor: theme.palette.secondary.dark,
                   },
                 }}
                 endIcon={<ArrowForwardIcon />}
@@ -1491,7 +1491,7 @@ export default function HomePage() {
                   gridColumn: "3 / span 3",
                   gridRow: "1 / span 2",
                   borderRadius: 2,
-                  bgcolor: theme.palette.tertiary.main,
+                  bgcolor: theme.palette.secondary.main,
                   animation: "floatMed 11s ease-in-out infinite",
                   animationDelay: "0.8s",
                   "@keyframes floatMed": {
