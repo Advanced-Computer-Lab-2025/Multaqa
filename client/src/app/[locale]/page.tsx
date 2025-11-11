@@ -784,7 +784,7 @@ export default function HomePage() {
             minHeight: "100%",
             display: "flex",
             flexDirection: "column",
-            py: { xs: 6, md: 10 },
+            py: { xs: 1.5, md: 3 },
             gap: 6,
             overflowY: "auto",
             WebkitOverflowScrolling: "touch",
