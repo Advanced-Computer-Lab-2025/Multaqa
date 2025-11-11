@@ -21,6 +21,7 @@ import { UserService } from "../services/userService";
 import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware"
 import { CreateReviewResponse, GetAllReviewsByEventResponse, UpdateReviewResponse } from "../interfaces/responses/reviewResponses.interface";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
+import { userInfo } from "os";
 
 const eventsService = new EventsService();
 
@@ -185,25 +186,6 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
   }
 }
 
-async function deleteReview(req: Request, res: Response<DeleteReviewResponse>) {
-  try {
-    const eventId = req.params.eventId;
-    const reviewId = req.params.reviewId;
-
-    await eventsService.deleteReview(eventId, reviewId);
-
-    res.json({
-      success: true,
-      message: "Review deleted successfully",
-    });
-  } catch (err: any) {
-    throw createError(
-      err.status || 500,
-      err.message || "Error deleting review"
-    );
-  }
-}
-
 async function createReview(req: AuthenticatedRequest, res: Response<CreateReviewResponse>) {
   try {
     const eventId = req.params.eventId;
@@ -256,6 +238,28 @@ async function updateReview(req: AuthenticatedRequest, res: Response<UpdateRevie
   }
 }
 
+async function deleteReview(req: AuthenticatedRequest, res: Response<DeleteReviewResponse>) {
+  try {
+    const eventId = req.params.eventId;
+    const userId = req.params.userId;
+    if (!eventId || !userId) {
+      throw createError(400, "eventId and userId are required");
+    }
+
+    await eventsService.deleteReview(eventId, userId);
+
+    res.json({
+      success: true,
+      message: "Review deleted successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error deleting review"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -289,6 +293,7 @@ router.post(
   }),
   createEvent
 );
+
 router.get(
   "/workshops",
   authorizeRoles({
@@ -303,7 +308,7 @@ router.get(
 );
 
 router.delete(
-  "/:eventId/reviews/:reviewId",
+  "/:eventId/reviews/:userId",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.ADMIN],

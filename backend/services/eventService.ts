@@ -471,39 +471,43 @@ export class EventsService {
     return event.reviews[reviewIndex];
   }
 
-  async deleteReview(eventId: string, reviewId: string): Promise<void> {
+  async deleteReview(eventId: string, userId: string): Promise<void> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw createError(404, 'User not found');
+    }
+
     const event = await this.eventRepo.findById(eventId, {
-      populate: [{ path: "reviews" }] as any,
+      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
     });
     if (!event) {
       throw createError(404, "Event not found");
     }
 
-    if (!event.reviews || event.reviews.length === 0) {
-      throw createError(404, "No reviews found for this event");
+    const reviewIndex = event.reviews?.findIndex(
+      (review) => {
+        return (review.reviewer._id as any).toString() === userId.toString();
+      }
+    );
+    if (reviewIndex === undefined || reviewIndex < 0) {
+      throw createError(404, "Review by this user not found for the event");
     }
 
-    const reviewIndex = event.reviews.findIndex(
-      (review: any) => review._id?.toString() === reviewId
-    );
+    // const review = event.reviews[reviewIndex] as any;
+    // const reviewer = await this.userService.getUserById(review.reviewer._id.toString());
+    // const reviewerName = (reviewer as any).firstName
+    //   ? `${(reviewer as any).firstName} ${(reviewer as any).lastName}`
+    //   : reviewer.email;
 
-    if (reviewIndex === -1) {
-      throw createError(404, "Review not found in this event");
-    }
-    const review = event.reviews[reviewIndex] as any;
-    const reviewer = await this.userService.getUserById(review.reviewerId);
-    const reviewerName = (reviewer as any).firstName
-      ? `${(reviewer as any).firstName} ${(reviewer as any).lastName}`
-      : reviewer.email;
+    // await sendCommentDeletionWarningEmail(
+    //   reviewer.email,
+    //   reviewerName,
+    //   review.comment || "No comment text",
+    //   "Admin action",
+    //   event.eventName,
+    //   0
+    // );
 
-    await sendCommentDeletionWarningEmail(
-      reviewer.email,
-      reviewerName,
-      review.comment || "No comment text",
-      "Admin action",
-      event.eventName,
-      0
-    );
     event.reviews.splice(reviewIndex, 1);
     await event.save();
   }
