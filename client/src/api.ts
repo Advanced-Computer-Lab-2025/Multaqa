@@ -17,20 +17,21 @@ const autoRefreshEndpoints = [
   "/events",
   "/events/:id",
   "/users/:userId/assign-role",
-  "/users/:id/register/:eventId",
+  "/users/register/:eventId",
+  "/payments/:eventId/wallet",
+  "/payments/:eventId/refund",
   "/users/:id/block",
   "/users/:id/unblock",
   "/vendorEvents/:eventId/bazaar",
   "/vendorEvents/:eventId/vendor-requests/:vendorId",
-  "/vendorEvents/:vendorId/booth",
+  "/vendorEvents/booth",
   "/admins",
   "/admins/:adminId",
-  "/workshops/:professorId/:workshopId",
-  "/workshops/:professorId",
+  "/workshops/:workshopId",
+  "/workshops",
   "/eventsOffice/:professorId/:workshopId/status",
   "/gymsessions",
 ];
-
 
 // Attach token if present
 api.interceptors.request.use((config) => {
@@ -56,7 +57,6 @@ api.interceptors.response.use(
       return match;
     });
 
-
     if (shouldRefresh && setUserFn) {
       try {
         const meRes = await api.post<MeResponse>("/auth/me");
@@ -66,7 +66,7 @@ api.interceptors.response.use(
       } catch (err) {
         console.error("❌ Failed to refresh user automatically:", err);
       }
-    } 
+    }
     return response;
   },
 

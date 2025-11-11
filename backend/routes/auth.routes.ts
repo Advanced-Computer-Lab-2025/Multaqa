@@ -27,18 +27,20 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     }
 
     // Create user
-    const { user, verificationtoken } = await authService.signup(value);
+    const user = await authService.signup(value);
 
     // Send HTTP response
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       user: user,
-      verificationtoken: verificationtoken
     });
   } catch (error: any) {
     console.error('Registration error:', error.message);
-    throw createError(400, error.message || 'Registration failed');
+    throw createError(
+      error.status || 400,
+      error.message || 'Registration failed'
+    );
   }
 }
 
@@ -55,7 +57,10 @@ export const getMe = async (req: Request, res: Response<MeResponse>) => {
       message: 'User fetched successfully',
     });
   } catch (error: any) {
-    throw createError(400, error.message || 'Get Me failed');
+    throw createError(
+      error.status || 400,
+      error.message || 'Get Me failed'
+    );
   }
 };
 
@@ -102,7 +107,10 @@ async function login(req: Request, res: Response<LoginResponse>) {
     });
   } catch (error: any) {
     console.error('Login error:', error.message);
-    throw createError(400, error.message || 'Login failed');
+    throw createError(
+      error.status || 400,
+      error.message || 'Login failed'
+    );
   }
 }
 
@@ -114,7 +122,10 @@ async function refreshAccessToken(req: Request, res: Response<RefreshResponse>) 
       accessToken: newAccessToken
     });
   } catch (error: any) {
-    throw createError(403, error.message || 'Could not refresh access token');
+    throw createError(
+      error.status || 403,
+      error.message || 'Could not refresh access token'
+    );
   }
 }
 
@@ -127,7 +138,10 @@ async function logout(req: Request, res: Response<LogoutResponse>) {
       message: 'Logged out successfully'
     });
   } catch (error: any) {
-    throw createError(400, error.message || 'Logout failed');
+    throw createError(
+      error.status || 400, 
+      error.message || 'Logout failed'
+    );
   }
 }
 

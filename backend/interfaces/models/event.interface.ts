@@ -1,12 +1,11 @@
 import { Document, Schema } from "mongoose";
 import { IUser } from "./user.interface";
-import { IReview } from "../review.interface";
+import { IReview } from "./review.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
 import { IVendor } from "./vendor.interface";
 import { UserRole } from "../../constants/user.constants";
 
 export interface IEvent extends Document {
-  id: string;
   type: EVENT_TYPES;
   archived: boolean;
   attendees: IUser[] | Schema.Types.ObjectId[];
@@ -36,4 +35,6 @@ export interface IEvent extends Document {
   createdBy: IUser | string;
   createdAt: Date;
   updatedAt: Date;
+  stripeProductId?: string;
+  stripePriceId?: string;
 }

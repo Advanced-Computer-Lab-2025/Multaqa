@@ -5,21 +5,26 @@ import { validateUpdateWorkshop } from "../validation/validateUpdateWorkshop";
 import { WorkshopService } from "../services/workshopsService";
 import {
   CreateWorkshopResponse,
+  SendCertificatesResponse,
   UpdateWorkshopResponse,
 } from "../interfaces/responses/workshopsResponses.interface";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const workshopService = new WorkshopService();
 
 async function createWorkshop(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<CreateWorkshopResponse>
 ) {
   try {
-    const professorid = req.params.professorId;
+    const professorid = req.user?.id;
+    if (!professorid) {
+      throw createError(401, "Unauthorized: Professor ID missing in token");
+    }
 
     // To be used when authentication is automatically handled by the frontend
     // const professorid = (req as any).user.id;
@@ -42,18 +47,24 @@ async function createWorkshop(
     });
   } catch (err: any) {
     console.error("Error creating workshop:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error creating workshop'
+    );
   }
 }
 
 // Update Workshop
 async function updateWorkshop(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<UpdateWorkshopResponse>
 ) {
   try {
     // const professorid = (req as any).user.id;
-    const professorid = req.params.professorId;
+    const professorid = req.user?.id;
+    if (!professorid) {
+      throw createError(401, "Unauthorized: Professor ID missing in token");
+    }
     const workshopId = req.params.workshopId;
     const validationResult = validateUpdateWorkshop(req.body);
 
@@ -77,7 +88,10 @@ async function updateWorkshop(
     });
   } catch (err: any) {
     console.error("Error updating workshop:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating workshop'
+    );
   }
 }
 
@@ -107,11 +121,37 @@ async function updateWorkshopStatus(
     });
   } catch (err: any) {
     console.error("Error updating workshop status:", err);
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating workshop status'
+    );
+  }
+}
+
+export async function sendCertificatesManually(
+  req: Request,
+  res: Response<SendCertificatesResponse>
+): Promise<void> {
+  try {
+    const { eventId } = req.params;
+
+    await workshopService.sendCertificatesForWorkshop(eventId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Certificates sent successfully'
+    });
+  } catch (error: any) {
+    console.error('Error sending certificates:', error);
+    throw createError(
+      error.status || 500,
+      error.message || 'Error sending certificates'
+    );
   }
 }
 
 const router = Router();
+
 router.patch(
   "/:professorId/:workshopId/status",
   authorizeRoles({
@@ -120,21 +160,33 @@ router.patch(
   }),
   updateWorkshopStatus
 );
+
+// Used ONLY during testing for manual triggering of certificate sending
 router.patch(
-  "/:professorId/:workshopId",
+  "/:eventId/sendcertificates",
   authorizeRoles({
     userRoles: [UserRole.STAFF_MEMBER],
     staffPositions: [StaffPosition.PROFESSOR],
   }),
-  updateWorkshop
+  sendCertificatesManually
 );
+
 router.post(
-  "/:professorId",
+  "/",
   authorizeRoles({
     userRoles: [UserRole.STAFF_MEMBER],
     staffPositions: [StaffPosition.PROFESSOR],
   }),
   createWorkshop
+);
+
+router.patch(
+  "/:workshopId",
+  authorizeRoles({
+    userRoles: [UserRole.STAFF_MEMBER],
+    staffPositions: [StaffPosition.PROFESSOR],
+  }),
+  updateWorkshop
 );
 
 export default router;

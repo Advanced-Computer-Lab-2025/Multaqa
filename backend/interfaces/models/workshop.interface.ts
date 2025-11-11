@@ -15,4 +15,6 @@ export interface IWorkshop extends IEvent {
     timestamp: Date;
     text: string;
   }>;
+  certificatesSent: boolean;
+  certificatesSentAt: Date | null;
 }

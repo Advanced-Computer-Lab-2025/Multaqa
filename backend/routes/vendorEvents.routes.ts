@@ -13,16 +13,20 @@ import {
 import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const vendorEventsService = new VendorEventsService();
 
 async function getVendorUpcomingEvents(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<GetVendorEventsResponse>
 ) {
   try {
-    const vendorId = req.params.vendorId;
-    // const vendorId = (req as any).user.id;
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
 
     const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
     if (!events || events.length === 0) {
@@ -33,79 +37,103 @@ async function getVendorUpcomingEvents(
       data: events,
       message: "Vendor events retrieved successfully",
     });
-  } catch (error) {
-    throw createError(500, (error as Error).message);
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || 'Error retrieving vendor events'
+    );
   }
 }
 
 async function applyToBooth(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<ApplyToBazaarOrBoothResponse>
 ) {
-  const { vendorId, eventId } = req.params;
-  const validatedData = validateCreateApplicationData(req.body);
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+    const validatedData = validateCreateApplicationData(req.body);
 
-  // Handle validation errors
-  if (validatedData.error) {
-    throw createError(400, validatedData.error.message);
-  }
+    // Handle validation errors
+    if (validatedData.error) {
+      throw createError(400, validatedData.error.message);
+    }
 
-  // Ensure this is a platform booth application
-  if (validatedData.value.eventType !== "platform_booth") {
+    // Ensure this is a platform booth application
+    if (validatedData.value.eventType !== "platform_booth") {
+      throw createError(
+        400,
+        "Invalid event type. Expected platform booth application"
+      );
+    }
+
+    const applicationResult = await vendorEventsService.applyToPlatformBooth(
+      vendorId,
+      validatedData
+    );
+
+    if (!applicationResult) {
+      throw createError(400, "Platform booth application failed");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: applicationResult,
+      message: "Platform booth application successful",
+    });
+  } catch (error: any) {
     throw createError(
-      400,
-      "Invalid event type. Expected platform booth application"
+      error.status || 500,
+      error.message || 'Error applying to booth'
     );
   }
-
-  const applicationResult = await vendorEventsService.applyToPlatformBooth(
-    vendorId,
-    validatedData
-  );
-
-  if (!applicationResult) {
-    throw createError(400, "Platform booth application failed");
-  }
-
-  res.status(200).json({
-    success: true,
-    data: applicationResult,
-    message: "Platform booth application successful",
-  });
 }
 
 async function applyToBazaar(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<ApplyToBazaarOrBoothResponse>
 ) {
-  const { vendorId, eventId } = req.params;
-  const validatedData = validateCreateApplicationData(req.body);
+  try {
+    const { eventId } = req.params;
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+    const validatedData = validateCreateApplicationData(req.body);
 
-  // Handle validation errors
-  if (validatedData.error) {
-    throw createError(400, validatedData.error.message);
+    // Handle validation errors
+    if (validatedData.error) {
+      throw createError(400, validatedData.error.message);
+    }
+
+    // Ensure this is a bazaar application
+    if (validatedData.value.eventType !== "bazaar") {
+      throw createError(400, "Invalid event type. Expected bazaar application");
+    }
+
+    const applicationResult = await vendorEventsService.applyToBazaar(
+      vendorId,
+      eventId,
+      validatedData
+    );
+
+    if (!applicationResult) {
+      throw createError(400, "Bazaar application failed");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: applicationResult,
+      message: "Bazaar application successful",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || 'Error applying to bazaar'
+    );
   }
-
-  // Ensure this is a bazaar application
-  if (validatedData.value.eventType !== "bazaar") {
-    throw createError(400, "Invalid event type. Expected bazaar application");
-  }
-
-  const applicationResult = await vendorEventsService.applyToBazaar(
-    vendorId,
-    eventId,
-    validatedData
-  );
-
-  if (!applicationResult) {
-    throw createError(400, "Bazaar application failed");
-  }
-
-  res.status(200).json({
-    success: true,
-    data: applicationResult,
-    message: "Bazaar application successful",
-  });
 }
 
 async function getVendorsRequests(
@@ -121,10 +149,10 @@ async function getVendorsRequests(
       message: "Vendor requests retrieved successfully",
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error retrieving vendor requests'
+    );
   }
 }
 
@@ -147,10 +175,10 @@ async function getVendorRequestsDetails(
       message: "Vendor request retrieved successfully",
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw err;
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error retrieving vendor requests'
+    );
   }
 }
 
@@ -178,10 +206,10 @@ async function updateVendorRequest(
       message: "Vendor request updated successfully",
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw createError(err.status, err.message);
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500,
+      err.message || 'Error updating vendor request'
+    );
   }
 }
 
@@ -210,14 +238,20 @@ async function getAvailableBooths(
       message: "Available booths retrieved successfully",
     });
   } catch (err: any) {
-    if (err.status || err.statusCode) {
-      throw createError(err.status, err.message);
-    }
-    throw createError(500, err.message);
+    throw createError(
+      err.status || 500, 
+      err.message || 'Error retrieving available booths'
+    );
   }
 }
 
 const router = Router();
+
+router.get(
+  "/",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  getVendorUpcomingEvents
+);
 
 router.get(
   "/vendor-requests",
@@ -231,24 +265,14 @@ router.get(
   getVendorsRequests
 );
 
-// Single parameter routes
-router.get(
-  "/:vendorId",
-  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
-  getVendorUpcomingEvents
-);
-
 router.post(
-  "/:vendorId/booth",
+  "/booth",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBooth
 );
 
-
-
-
 router.post(
-  "/:vendorId/:eventId/bazaar",
+  "/:eventId/bazaar",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBazaar
 );
