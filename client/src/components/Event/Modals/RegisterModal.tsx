@@ -17,6 +17,7 @@ interface RegisterEventModalProps {
   isReady: boolean;
   eventId: string;
   color:string;
+  paymentOpen:() => void;
 }
 
 const validationSchema = Yup.object({
@@ -37,7 +38,8 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   eventType,
   isReady,
   eventId,
-  color
+  color,
+  paymentOpen
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
@@ -114,12 +116,13 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
       name: values.name,
       email: values.email,
     };
-    await handleCallApi(payload); 
+    paymentOpen();
+    //await handleCallApi(payload); 
 
     actions.resetForm();
       setTimeout(() => {
            onClose()
-     }, 1500);
+     }, 400);
    
   };
   const {

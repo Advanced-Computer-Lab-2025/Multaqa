@@ -11,6 +11,7 @@ import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
 import { CustomModalLayout } from "../shared/modals";
 import EventDetails from "./Modals/EventDetails";
+import PaymentDrawer from "./helpers/PaymentDrawer";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -33,6 +34,15 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [register, setRegister] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
+  
+   const handlePaymentSuccess = (paymentDetails:any) => {
+    console.log('Payment successful:', paymentDetails);
+    setPaymentDrawerOpen(false);
+    
+    // Handle successful payment - redirect, show confirmation, etc.
+    alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
+  };
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -205,14 +215,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         </Box>
       </CustomModal>
       <RegisterEventModal 
-        isReady={isReady} 
-        open={register} 
+        isReady={isReady}
+        open={register}
         onClose={() => { setRegister(false); } }
-        eventType={"Workshop"} 
-        userInfo={userInfo} 
+        eventType={"Workshop"}
+        userInfo={userInfo}
         eventId={id}
-        color={background}
-      />
+        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
       <CustomModalLayout
               open={detailsModalOpen}
               onClose={() => setDetailsModalOpen(false)}
@@ -258,6 +267,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 attended ={attended}
               />
             </CustomModalLayout>
+             <PaymentDrawer
+              open={paymentDrawerOpen}
+              onClose={() => setPaymentDrawerOpen(false)}
+              totalAmount={parseInt(details["Cost"])}
+              walletBalance={10} //user.wallet or whatever 
+              onPaymentSuccess={handlePaymentSuccess}
+            />
     </>
   );
 };

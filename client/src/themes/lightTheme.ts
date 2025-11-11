@@ -35,17 +35,17 @@ const theme = createTheme({
       main: "#6299d0",
       light: "#b2cee2",
       dark: "#598bbd",
-      contrastText: "#fff",
+      contrastText: "#e6e6da",
     },
     secondary: {
-      main: "#e5ed6f",
+      main: "#9c27b0",  // Purple main shade
       dark: "#d5de57",
       contrastText: "#13233d",
     },
     tertiary: {
-      light: "#e1bee7",
-      main: "#9c27b0",  // Purple main shade
-      dark: "#7b1fa2",
+      light: "#6e8ae6",
+      main: "#3a4f99",  // The main shade
+      dark: "#25346b",
       contrastText: '#fff', // Important for text readability
     },
     error: {
@@ -53,8 +53,8 @@ const theme = createTheme({
       dark: "#c72c2c",
     },
     warning: {
-      main: "#9c27b0",
-      dark: "#7b1fa2",
+      main: "#ff9800",
+      dark: "#ff8a00",
       contrastText: "#fff",
     },
     success: {

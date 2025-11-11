@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import ActionCard from "../shared/cards/ActionCard";
+import { Box, Drawer, IconButton, Tooltip, Typography } from "@mui/material";
+// import { Drawer } from '@heroui/react'; // Adjust import based on your HeroUI version
 import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
 import theme from "@/themes/lightTheme";
@@ -14,6 +14,7 @@ import EditTrip from "../tempPages/EditTrip/EditTrip";
 import EventCard from "../shared/cards/EventCard";
 import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import EventDetails from "./Modals/EventDetails";
+import PaymentDrawer from "./helpers/PaymentDrawer";
 
 const TripView: React.FC<BazarViewProps> = ({
   id,
@@ -35,6 +36,17 @@ const TripView: React.FC<BazarViewProps> = ({
   const [register, setRegister] = useState(false);
   const [edit, setEdit] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
+  
+
+  const handlePaymentSuccess = (paymentDetails:any) => {
+    console.log('Payment successful:', paymentDetails);
+    setPaymentDrawerOpen(false);
+    
+    // Handle successful payment - redirect, show confirmation, etc.
+    alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
+  };
+
 
   const finalPrice = parseInt(details["Cost"], 10); // base 10
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -208,7 +220,7 @@ const TripView: React.FC<BazarViewProps> = ({
       </CustomModal>
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
       <RegisterEventModal isReady={isReady} open={register} onClose={() => { setRegister(false); } }
-      eventType={"Trip"} userInfo={userInfo} eventId={id} color={background}/>
+      eventType={"Trip"} userInfo={userInfo} eventId={id} color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
 
 
        <CustomModalLayout
@@ -255,6 +267,14 @@ const TripView: React.FC<BazarViewProps> = ({
           user={user ? user : ""}
           attended={attended}  />
       </CustomModalLayout>
+     
+      <PaymentDrawer
+        open={paymentDrawerOpen}
+        onClose={() => setPaymentDrawerOpen(false)}
+        totalAmount={parseInt(details["Cost"])}
+        walletBalance={100} //user.wallet or whatever 
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </>
   );
 };
