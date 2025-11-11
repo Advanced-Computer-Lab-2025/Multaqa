@@ -1876,9 +1876,12 @@ export default function HomePage() {
                 component={Link}
                 href="/privacy"
                 sx={{
-                      border: `2px solid ${theme.palette.tertiary.dark}`,
+                  color: theme.palette.common.white,
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.primary.main },
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
                   textAlign: "center",
                 }}
               >
@@ -1888,9 +1891,12 @@ export default function HomePage() {
                 component={Link}
                 href="/terms"
                 sx={{
-                  color: "inherit",
+                  color: theme.palette.common.white,
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.primary.main },
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
                   textAlign: "center",
                 }}
               >
@@ -1900,9 +1906,12 @@ export default function HomePage() {
                 component={Link}
                 href="/support"
                 sx={{
-                  color: "inherit",
+                  color: theme.palette.common.white,
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.primary.main },
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
                   textAlign: "center",
                 }}
               >
