@@ -11,11 +11,10 @@ import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import Stripe from "stripe";
+import { sendCommentDeletionWarningEmail } from "./emailService";
+import { UserService } from "./userService";
 import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
-import { IUser } from "../interfaces/models/user.interface";
-import { User } from "../schemas/stakeholder-schemas/userSchema";
-import path from "path";
 const { Types } = require("mongoose");
 
 
@@ -27,15 +26,15 @@ export class EventsService {
   private tripRepo: GenericRepository<ITrip>;
   private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
-  private userRepo: GenericRepository<IUser>;
   private stripe?: Stripe;
+  private userService: UserService;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
     this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
-    this.userRepo = new GenericRepository(User);
+    this.userService = new UserService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -424,7 +423,7 @@ export class EventsService {
       throw createError(404, "Event not found");
     }
 
-    const user = await this.userRepo.findById(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw createError(404, 'User not found');
     }
@@ -455,7 +454,7 @@ export class EventsService {
   }
 
   async updateReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
-    const user = await this.userRepo.findById(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw createError(404, 'User not found');
     }
@@ -485,5 +484,51 @@ export class EventsService {
 
     await event.save();
     return event.reviews[reviewIndex];
+  }
+
+  async deleteComment(eventId: string, userId: string): Promise<void> {
+    const user = await this.userService.getUserById(userId);
+    if (!user) {
+      throw createError(404, 'User not found');
+    }
+
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const reviewIndex = event.reviews?.findIndex(
+      (review) => {
+        return (review.reviewer._id as any).toString() === userId.toString();
+      }
+    );
+    if (reviewIndex === undefined || reviewIndex < 0) {
+      throw createError(404, "Review by this user not found for the event");
+    }
+
+    await sendCommentDeletionWarningEmail(
+      user.email,
+      (event.reviews[reviewIndex].reviewer as any).firstName + " " + (event.reviews[reviewIndex].reviewer as any).lastName,
+      event.reviews[reviewIndex].comment || "No comment text",
+      "Admin action",
+      event.eventName,
+      0
+    );
+
+    event.reviews.splice(reviewIndex, 1);
+    await event.save();
+  }
+
+  async getAllReviewsByEvent(eventId: string): Promise<IReview[]> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    return event.reviews;
   }
 }
