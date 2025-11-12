@@ -14,6 +14,9 @@ import { UserRole } from "../constants/user.constants";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
+import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
+import { uploadFiles } from "../middleware/upload";
+import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -84,6 +87,15 @@ async function applyToBooth(
       message: "Platform booth application successful",
     });
   } catch (error: any) {
+       if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {   
+      for (const attendee of req.body.boothAttendees) {
+        if (attendee.nationalId?.publicId) {
+          console.log('Deleting national ID with publicId:', attendee.nationalId.publicId);
+         await deleteCloudinaryFile(attendee.nationalId.publicId);  
+        }
+      }
+    }
+    
     throw createError(
       error.status || 500,
       error.message || 'Error applying to booth'
@@ -129,6 +141,13 @@ async function applyToBazaar(
       message: "Bazaar application successful",
     });
   } catch (error: any) {
+      if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {
+        for (const attendee of req.body.boothAttendees) {
+          if (attendee.nationalId?.publicId) {
+            await deleteCloudinaryFile(attendee.nationalId.publicId);
+          }
+        }
+      }
     throw createError(
       error.status || 500,
       error.message || 'Error applying to bazaar'
@@ -244,6 +263,34 @@ async function getAvailableBooths(
     );
   }
 }
+async function uploadNationalId(req: Request, res: Response<FileUploadResponse>) {
+  
+    const nationalId: Express.Multer.File | undefined = req.file;
+try {
+    if (!nationalId) {
+      throw createError(400, 'National ID is required for vendor signup');
+    }
+    res.status(200).json({
+      success: true,
+      data: {
+          url: nationalId.path,
+          publicId: nationalId.filename,
+          originalName: nationalId.originalname,
+          uploadedAt: new Date()
+      },
+        message: 'National ID uploaded successfully'
+    });
+} 
+  catch (error: any) {
+    if(nationalId && nationalId.filename){
+      await deleteCloudinaryFile(nationalId.filename);
+    }
+    throw createError(
+      error.status || 500,
+      error.message || 'National ID upload failed'
+    );
+  }
+}
 
 const router = Router();
 
@@ -275,6 +322,13 @@ router.post(
   "/:eventId/bazaar",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBazaar
+);
+
+router.post(
+  "/uploadNationalId",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  uploadFiles.single("nationalId"),
+  uploadNationalId
 );
 
 // Two parameters with complex paths
