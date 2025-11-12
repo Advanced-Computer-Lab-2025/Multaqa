@@ -27,6 +27,7 @@ export interface CreateCheckoutSessionParams {
   quantity?: number;
   customerEmail?: string;
   metadata?: Record<string, unknown>;
+  walletBalance?: number;
 }
 
 export interface CreateCheckoutSessionResponse {
@@ -53,7 +54,14 @@ export class PaymentService {
     params: CreateCheckoutSessionParams,
     expectedTypes: EVENT_TYPES[]
   ): Promise<CreateCheckoutSessionResponse> {
-    const { eventId, userId, quantity = 1, customerEmail, metadata } = params;
+    const {
+      eventId,
+      userId,
+      quantity = 1,
+      customerEmail,
+      metadata,
+      walletBalance = 0,
+    } = params;
 
     // Validate quantity
     if (!Number.isInteger(quantity) || quantity <= 0) {
@@ -97,11 +105,31 @@ export class PaymentService {
       throw createError(400, "Not enough spots available for this event");
     }
 
+    // Calculate subtotal
+    const subtotal = price * quantity;
+
+    // Validate and apply wallet balance
+    if (walletBalance < 0) {
+      throw createError(400, "Wallet balance cannot be negative");
+    }
+
+    const amountToPay = Math.max(0, subtotal - walletBalance);
+
+    // If amount to pay is 0, we might want to handle this differently
+    // For now, we'll allow it but Stripe will need at least some amount
+    if (amountToPay <= 0) {
+      throw createError(
+        400,
+        "Wallet balance covers the entire amount. No payment needed"
+      );
+    }
+
     // Build metadata
     const sanitizedMetadata: Record<string, string> = {
       eventId,
       eventType: eventType,
       userId,
+      walletBalanceApplied: walletBalance.toString(),
     };
 
     if (metadata && typeof metadata === "object") {
@@ -111,26 +139,28 @@ export class PaymentService {
       }
     }
 
-    // Calculate amount
-    const unitAmount = Math.round(price * 100);
+    // Calculate amount in cents
+    const unitAmount = Math.round(amountToPay * 100);
     if (!Number.isInteger(unitAmount) || unitAmount <= 0) {
-      throw createError(500, "Invalid event pricing configuration");
+      throw createError(500, "Invalid pricing configuration");
     }
 
     // Build line item
-    const lineItem = event.stripePriceId
-      ? { price: event.stripePriceId, quantity }
-      : {
-          price_data: {
-            currency: DEFAULT_CURRENCY,
-            unit_amount: unitAmount,
-            product_data: {
-              name: event.eventName,
-              description: event.description?.slice(0, 250),
+    // Always use price_data when wallet balance is applied to ensure correct pricing
+    const lineItem =
+      event.stripePriceId && walletBalance === 0
+        ? { price: event.stripePriceId, quantity }
+        : {
+            price_data: {
+              currency: DEFAULT_CURRENCY,
+              unit_amount: unitAmount,
+              product_data: {
+                name: event.eventName,
+                description: event.description?.slice(0, 250),
+              },
             },
-          },
-          quantity,
-        };
+            quantity: 1, // quantity is handled in unit_amount calculation
+          };
 
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
