@@ -72,7 +72,7 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-const filterGroups: FilterGroup[] = [
+const getFilterGroups = (userRole: string): FilterGroup[] => [
   {
     id: "eventType",
     title: "Event Type",
@@ -85,14 +85,16 @@ const filterGroups: FilterGroup[] = [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
-  {
-    id: "attendance",
-    title: "My Status",
-    type: "chip",
-    options: [
-      { label: "Attended", value: "attended" },
-    ],
-  },
+  ...(userRole !== "vendor"
+    ? [
+        {
+          id: "attendance",
+          title: "My Status",
+          type: "chip" as const,
+          options: [{ label: "Attended", value: "attended" }],
+        },
+      ]
+    : []),
 ];
 
 const EventColor = [
@@ -464,7 +466,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         </Box>
         <FilterPanel
-          filterGroups={filterGroups}
+          filterGroups={getFilterGroups(user)}
           onFilterChange={handleFilterChange}
           currentFilters={filters}
           onReset={handleResetFilters}
