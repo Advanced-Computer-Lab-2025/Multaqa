@@ -238,7 +238,7 @@ async function updateReview(req: AuthenticatedRequest, res: Response<UpdateRevie
   }
 }
 
-async function deleteReview(req: AuthenticatedRequest, res: Response<DeleteReviewResponse>) {
+async function deleteComment(req: AuthenticatedRequest, res: Response<DeleteReviewResponse>) {
   try {
     const eventId = req.params.eventId;
     const userId = req.params.userId;
@@ -246,16 +246,16 @@ async function deleteReview(req: AuthenticatedRequest, res: Response<DeleteRevie
       throw createError(400, "eventId and userId are required");
     }
 
-    await eventsService.deleteReview(eventId, userId);
+    await eventsService.deleteComment(eventId, userId);
 
     res.json({
       success: true,
-      message: "Review deleted successfully",
+      message: "Comment deleted successfully",
     });
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || "Error deleting review"
+      err.message || "Error deleting comment"
     );
   }
 }
@@ -335,7 +335,7 @@ router.delete(
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
-  deleteReview
+  deleteComment
 );
 
 router.post(

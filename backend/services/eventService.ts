@@ -15,9 +15,6 @@ import { sendCommentDeletionWarningEmail } from "./emailService";
 import { UserService } from "./userService";
 import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
-import { IUser } from "../interfaces/models/user.interface";
-import { User } from "../schemas/stakeholder-schemas/userSchema";
-import path from "path";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -28,7 +25,6 @@ export class EventsService {
   private tripRepo: GenericRepository<ITrip>;
   private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
-  private userRepo: GenericRepository<IUser>;
   private stripe?: Stripe;
   private userService: UserService;
 
@@ -38,8 +34,6 @@ export class EventsService {
     this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
     this.userService = new UserService();
-
-    this.userRepo = new GenericRepository(User);
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -408,7 +402,7 @@ export class EventsService {
       throw createError(404, "Event not found");
     }
 
-    const user = await this.userRepo.findById(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw createError(404, 'User not found');
     }
@@ -439,7 +433,7 @@ export class EventsService {
   }
 
   async updateReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
-    const user = await this.userRepo.findById(userId);
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw createError(404, 'User not found');
     }
@@ -471,8 +465,8 @@ export class EventsService {
     return event.reviews[reviewIndex];
   }
 
-  async deleteReview(eventId: string, userId: string): Promise<void> {
-    const user = await this.userRepo.findById(userId);
+  async deleteComment(eventId: string, userId: string): Promise<void> {
+    const user = await this.userService.getUserById(userId);
     if (!user) {
       throw createError(404, 'User not found');
     }
