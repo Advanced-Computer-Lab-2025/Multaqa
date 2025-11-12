@@ -24,7 +24,7 @@ async function createCheckoutSession(
       throw createError(400, "Missing eventId parameter");
     }
 
-    const { quantity, customerEmail, metadata } = req.body || {};
+    const { quantity, customerEmail, metadata, amount } = req.body || {};
 
     const sessionData = await paymentService.createCheckoutSessionForEvent(
       {
@@ -33,6 +33,7 @@ async function createCheckoutSession(
         quantity,
         customerEmail,
         metadata,
+        walletBalance: amount || 0,
       },
       [EVENT_TYPES.TRIP, EVENT_TYPES.WORKSHOP]
     );
