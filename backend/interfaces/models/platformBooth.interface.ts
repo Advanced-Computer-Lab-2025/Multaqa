@@ -2,10 +2,12 @@ import { Types } from "mongoose";
 import { Event_Request_Status } from "../../constants/user.constants";
 import { IEvent } from "./event.interface";
 import { IVendor } from "./vendor.interface";
+import { IFileInfo } from "../fileData.interface";
 
 export interface IBoothAttendee {
   name: string;
   email: string;
+  nationalId: IFileInfo;
 }
 
 export interface IPlatformBoothRequestData {

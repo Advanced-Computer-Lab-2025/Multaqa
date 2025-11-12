@@ -136,7 +136,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     try {
       console.log("Payload being sent:", payload);
       const res = await api.patch(
-        `/eventsOffice/${professorId}/${workshop.id}/status`,
+        `/workshops/${professorId}/${workshop.id}/status`,
         payload
       );
     } catch (err: any) {
