@@ -41,7 +41,7 @@ async function signup(req: Request, res: Response<SignupResponse>) {
     if(req.body.type === 'vendor' && req.body.taxCard.publicId){
       await deleteCloudinaryFile(req.body.taxCard.publicId);
     }
-    else if(req.body.type === 'vendor' && req.body.logo.publicId){
+    if(req.body.type === 'vendor' && req.body.logo.publicId){
       await deleteCloudinaryFile(req.body.logo.publicId);
     }
     throw createError(
