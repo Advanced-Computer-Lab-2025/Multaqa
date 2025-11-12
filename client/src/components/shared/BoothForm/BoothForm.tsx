@@ -36,8 +36,6 @@ import {
 } from "./utils";
 import type { UploadStatus } from "../FileUpload/types";
 import CustomSelectField from "../input-fields/CustomSelectField";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { submitBoothForm } from "./utils";
 import { createDocumentHandler } from "../RegistrationForm/utils";
 import { useAuth } from "../../../context/AuthContext";
@@ -1228,7 +1226,6 @@ const BoothForm: React.FC = () => {
           }}
         </Formik>
       </Box>
-      <ToastContainer />
     </Box>
   );
 };
