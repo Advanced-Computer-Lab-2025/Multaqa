@@ -1,3 +1,6 @@
+import { Request } from 'express';
+import { IFileInfo } from './fileData.interface';
+
 // Base signup request (common fields)
 export interface BaseSignupRequest {
   email: string;
@@ -14,9 +17,10 @@ export interface StudentAndStaffSignupRequest extends BaseSignupRequest {
 // Vendor signup request
 export interface VendorSignupRequest extends BaseSignupRequest {
   companyName: string;
-  taxCard: string;   
-  logo: string;
+  taxCard: IFileInfo;
+  logo: IFileInfo;
 }
+
 
 // Administration signup request (admin/event office)
 // created by super admin, not public signup
