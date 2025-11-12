@@ -26,9 +26,7 @@ import { BazarFormValues } from "./types";
 import type { UploadStatus } from "../FileUpload/types";
 import { validationSchema, submitBazarForm } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
-import CustomIcon from "../Icons/CustomIcon";
-import { submitBazarForm } from "./utils";
-import {BazarApplicationFormProps} from "./types"
+import { BazarApplicationFormProps } from "./types";
 import { useAuth } from "@/context/AuthContext";
 import { UploadID } from "../FileUpload";
 import { createDocumentHandler } from "../RegistrationForm/utils";
@@ -758,11 +756,10 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                   </Box>
                 </div>
               </Box>
-            </div>
-          </Box>
-        </form>
-      )}
-    </Formik>
+            </form>
+          );
+        }}
+      </Formik>
     </>
   );
 };
