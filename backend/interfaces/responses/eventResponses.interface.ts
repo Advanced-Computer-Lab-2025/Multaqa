@@ -12,9 +12,14 @@ export interface GetEventByIdResponse {
   message: string;
 }
 
-export interface CreateEventResponse {
+export interface DeleteEventResponse {
   success: boolean;
   data: IEvent;
+  message: string;
+}
+
+export interface DeleteReviewResponse {
+  success: boolean;
   message: string;
 }
 
@@ -24,7 +29,7 @@ export interface UpdateEventResponse {
   message: string;
 }
 
-export interface DeleteEventResponse {
+export interface CreateEventResponse {
   success: boolean;
   data: IEvent;
   message: string;
