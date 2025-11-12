@@ -162,7 +162,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setLoading(true);
     console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
-    const result = frameData(registeredEvents);
+    const result = frameData(registeredEvents, userID);
     console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
@@ -175,7 +175,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
-        const result = frameData(data);
+        const result = frameData(data, userID);
         const newResults =
           user === "vendor"
             ? result.filter((event) => event.type === "bazaar")
@@ -309,6 +309,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.WORKSHOP:
@@ -331,6 +332,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.BAZAAR:
@@ -350,6 +352,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.BOOTH:
@@ -369,6 +372,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.TRIP:
@@ -387,6 +391,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
+            attended={event.attended}
           />
         );
       default:
