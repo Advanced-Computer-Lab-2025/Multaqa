@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Box, Typography, Avatar, TextField, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Avatar, TextField, Chip, IconButton, Tooltip, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import Rating from '../../shared/mui-core/Rating';
@@ -10,6 +10,8 @@ import EventTypeDetails from './EventTypeDetails';
 import { Trash2 } from 'lucide-react';
 import { CustomModal } from '../../shared/modals';
 import theme from '@/themes/lightTheme';
+import { toast } from 'react-toastify';
+//import { api } from '../../../api'; // TODO: Uncomment when integrating with backend
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -83,12 +85,14 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   onSubmitReview,
   sections = ['general', 'details', 'reviews'],
   user,
-  attended=false
+  attended=false,
+  eventId,
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
   const [commentToDelete, setCommentToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const contentRef = React.useRef<HTMLDivElement>(null);
   
   const checkScroll = React.useCallback(() => {
@@ -98,11 +102,81 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     }
   }, []);
 
-  const handleSubmitReview = () => {
-    if (onSubmitReview && newRating > 0) {
-      onSubmitReview(newRating, newComment);
+  const handleSubmitReview = async () => {
+    // Validation: Ensure rating is provided
+    if (newRating === 0) {
+      toast.warning('Please provide a rating before submitting', {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // TODO: Replace with actual API call when backend is ready
+
+      /* api call:
+      const response = await api.post(`/events/${eventId}/reviews`, {
+        rating: newRating,
+        comment: newComment.trim() || undefined, // Only send if not empty
+      });
+      
+      // If backend returns the created review, you can use it
+      // const newReview = response.data.review;
+      */
+
+      // Call the optional callback if provided (for backward compatibility)
+      if (onSubmitReview) {
+        onSubmitReview(newRating, newComment);
+      }
+
+      // Show success toast
+      toast.success(
+        "Review submitted successfully! Thank you for your feedback.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
+
+      // Reset form
       setNewRating(0);
       setNewComment('');
+
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      
+      const message =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to submit review. Please try again.";
+
+      toast.error(message, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -252,17 +326,29 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         />
         <CustomButton
           onClick={handleSubmitReview}
-          disabled={newRating === 0}
+          disabled={newRating === 0 || isSubmitting}
           sx={{
             backgroundColor: color,
             border:`2px solid ${color}`,
             color: '#fff',
+            minWidth: '150px',
             '&:hover': {
               backgroundColor: `${color}CC`,
             },
+            '&.Mui-disabled': {
+              backgroundColor: `${color}40`,
+              borderColor: `${color}40`,
+            },
           }}
         >
-          Submit Review
+          {isSubmitting ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={16} sx={{ color: '#fff' }} />
+              <span>Submitting...</span>
+            </Box>
+          ) : (
+            'Submit Review'
+          )}
         </CustomButton>
       </Box>
       :null}

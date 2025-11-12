@@ -258,7 +258,9 @@ const TripView: React.FC<BazarViewProps> = ({
           sections={user == "vendor" ? ['general', 'details'] : ['general', 'details',
             'reviews']}
           user={user ? user : ""}
-          attended={attended}  />
+          attended={attended} 
+          eventId={id}
+          />
       </CustomModalLayout>
     </>
   );

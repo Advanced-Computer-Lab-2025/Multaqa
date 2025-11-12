@@ -208,6 +208,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           'reviews']}
         user={user?user:""}
         attended ={attended}
+        eventId={id}
         />
       </CustomModalLayout>
     </>
