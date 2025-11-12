@@ -85,6 +85,14 @@ const filterGroups: FilterGroup[] = [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
+  {
+    id: "attendance",
+    title: "My Status",
+    type: "chip",
+    options: [
+      { label: "Attended", value: "attended" },
+    ],
+  },
 ];
 
 const EventColor = [
@@ -217,6 +225,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       filtered = filtered.filter((event) =>
         ["bazaar", "trip", "conference"].includes(event.type)
       );
+    }
+    // Apply attendance filter
+    if (
+      filters.attendance &&
+      (filters.attendance as string[]).includes("attended")
+    ) {
+      filtered = filtered.filter((event) => event.attended === true);
     }
 
     // Apply search filter
