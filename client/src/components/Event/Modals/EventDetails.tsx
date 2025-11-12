@@ -10,8 +10,8 @@ import EventTypeDetails from './EventTypeDetails';
 import { Trash2 } from 'lucide-react';
 import { CustomModal } from '../../shared/modals';
 import theme from '@/themes/lightTheme';
-import { toast } from 'react-toastify';
-//import { api } from '../../../api'; // TODO: Uncomment when integrating with backend
+import { toast, ToastContainer } from 'react-toastify';
+import { api } from '../../../api'; 
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -103,39 +103,21 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   }, []);
 
   const handleSubmitReview = async () => {
-    // Validation: Ensure rating is provided
-    if (newRating === 0) {
-      toast.warning('Please provide a rating before submitting', {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-      return;
-    }
 
     setIsSubmitting(true);
 
     try {
-      // TODO: Replace with actual API call when backend is ready
-
-      /* api call:
       const response = await api.post(`/events/${eventId}/reviews`, {
-        rating: newRating,
-        comment: newComment.trim() || undefined, // Only send if not empty
+        rating: newRating || undefined,
+        comment: newComment.trim() || undefined, 
       });
-      
-      // If backend returns the created review, you can use it
-      // const newReview = response.data.review;
-      */
 
-      // Call the optional callback if provided (for backward compatibility)
-      if (onSubmitReview) {
-        onSubmitReview(newRating, newComment);
-      }
+      // const newReview = response.data;
+      
+      // // Call the optional callback if provided (for backward compatibility)
+      // if (onSubmitReview) {
+      //   onSubmitReview(newRating, newComment);
+      // }
 
       // Show success toast
       toast.success(
@@ -326,7 +308,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         />
         <CustomButton
           onClick={handleSubmitReview}
-          disabled={newRating === 0 || isSubmitting}
+          disabled={isSubmitting}
           sx={{
             backgroundColor: color,
             border:`2px solid ${color}`,
