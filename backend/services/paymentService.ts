@@ -145,22 +145,40 @@ export class PaymentService {
       throw createError(500, "Invalid pricing configuration");
     }
 
-    // Build line item
-    // Always use price_data when wallet balance is applied to ensure correct pricing
-    const lineItem =
-      event.stripePriceId && walletBalance === 0
-        ? { price: event.stripePriceId, quantity }
-        : {
-            price_data: {
-              currency: DEFAULT_CURRENCY,
-              unit_amount: unitAmount,
-              product_data: {
-                name: event.eventName,
-                description: event.description?.slice(0, 250),
-              },
+    // Build line items with proper pricing display
+    const lineItems: any[] = [];
+
+    if (walletBalance > 0) {
+      // Show the discounted price (what user actually pays)
+      lineItems.push({
+        price_data: {
+          currency: DEFAULT_CURRENCY,
+          unit_amount: Math.round(amountToPay * 100),
+          product_data: {
+            name: event.eventName,
+            description: event.description?.slice(0, 250),
+          },
+        },
+        quantity: 1,
+      });
+    } else {
+      // Use stripePriceId if available and no wallet balance
+      if (event.stripePriceId) {
+        lineItems.push({ price: event.stripePriceId, quantity });
+      } else {
+        lineItems.push({
+          price_data: {
+            currency: DEFAULT_CURRENCY,
+            unit_amount: Math.round(price * 100),
+            product_data: {
+              name: event.eventName,
+              description: event.description?.slice(0, 250),
             },
-            quantity: 1, // quantity is handled in unit_amount calculation
-          };
+          },
+          quantity,
+        });
+      }
+    }
 
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
@@ -168,7 +186,7 @@ export class PaymentService {
       payment_method_types: ["card"],
       currency: DEFAULT_CURRENCY,
       customer_email: customerEmail,
-      line_items: [lineItem],
+      line_items: lineItems,
       success_url: DEFAULT_SUCCESS_URL,
       cancel_url: DEFAULT_CANCEL_URL,
       metadata: sanitizedMetadata,
