@@ -27,12 +27,14 @@ const eventsService = new EventsService();
 
 async function findAll(req: Request, res: Response<GetEventsResponse>) {
   try {
-    const { search, type, location, sort } = req.query;
+    const { search, type, location, sort, startDate, endDate } = req.query;
     const events = await eventsService.getEvents(
       search as string,
       type as string,
       location as string,
-      sort === "true"
+      sort === "true",
+      startDate as string,
+      endDate as string 
     );
     if (!events || events.length === 0) {
       throw createError(404, "No events found");

@@ -17,6 +17,7 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 const { Types } = require("mongoose");
 
+
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
 
@@ -103,7 +104,9 @@ export class EventsService {
     search?: string,
     type?: string,
     location?: string,
-    sort?: boolean
+    sort?: boolean,
+    startDate?:string,
+    endDate?:string
   ) {
     const filter: any = {
       type: { $ne: EVENT_TYPES.GYM_SESSION },
@@ -128,12 +131,13 @@ export class EventsService {
     let events = await this.eventRepo.findAll(filter, {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
+        { path: "createdBy", select: "firstName lastName email" },
         { path: "vendors.vendor", select: "companyName email logo" },
         { path: "vendor", select: "companyName email logo" },
         { path: "attendees", select: "firstName lastName email gucId " },
       ] as any,
     });
-
+     
     // filter out unapproved bazaar vendors
     events = events.map((event: any) => {
       if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
@@ -147,25 +151,42 @@ export class EventsService {
     if (sort) {
       events = events.sort((a: any, b: any) => {
         return (
-          new Date(a.eventStartDate).getTime() -
-          new Date(b.eventEndDate).getTime()
+          new Date(a.eventStartDate).getTime() - new Date(b.eventStartDate).getTime()
         );
       });
     }
 
-    if (search) {
-      const searchRegex = new RegExp(search, "i");
-      return events.filter(
-        (event: any) =>
-          searchRegex.test(event.eventName) ||
-          searchRegex.test(event.type) ||
-          event.associatedProfs?.some(
-            (prof: any) =>
-              searchRegex.test(prof?.firstName) ||
-              searchRegex.test(prof?.lastName)
-          )
-      );
-    }
+    
+
+
+  if (startDate && endDate) {
+    const startTime = new Date(startDate).getTime();
+    const endTime = new Date(endDate).getTime();
+
+    events = events.filter((event: any) => {
+      const eventStart = new Date(event.eventStartDate).getTime();
+      const eventEnd = new Date(event.eventEndDate).getTime();
+   
+      return eventEnd >= startTime && eventStart <= endTime;
+    });
+  }
+
+
+  if (search) {
+  const searchRegex = new RegExp(search, "i");
+  return events.filter(
+    (event: any) =>
+      searchRegex.test(event.eventName) ||
+      searchRegex.test(event.type) ||
+      searchRegex.test(event.createdBy?.firstName || "") ||
+      searchRegex.test(event.createdBy?.lastName || "") ||
+      event.associatedProfs?.some(
+        (prof: any) =>
+          searchRegex.test(prof?.firstName || "") ||
+          searchRegex.test(prof?.lastName || "")
+      )
+  );
+}
 
     return events;
   }
