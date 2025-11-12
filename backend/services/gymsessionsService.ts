@@ -36,13 +36,14 @@ export class GymSessionsService {
         sessionDate.getTime() - 24 * 60 * 60 * 1000
       ), // 1 day before
       location: "Gym",
-     description: data.trainer
-  ? `${data.sessionType} class instructed by ${data.trainer}`
-  : `${data.sessionType} class`,
+      description: data.trainer
+        ? `${data.sessionType} class instructed by ${data.trainer}`
+        : `${data.sessionType} class`,
       price: 0,
       allowedUsers: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
     });
   }
+
   async getAllGymSessions(): Promise<IGymSessionEvent[]> {
     const filter: any = { type: EVENT_TYPES.GYM_SESSION };
 

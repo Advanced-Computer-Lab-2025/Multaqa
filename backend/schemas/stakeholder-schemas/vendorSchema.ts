@@ -5,8 +5,8 @@ import { Event_Request_Status } from "../../constants/user.constants";
 
 const vendorSchema = new Schema<IVendor>({
   companyName: { type: String, required: true },
-  // taxCard: { type: String, required: true },
-  // logo: { type: String, required: true },
+  taxCard: { type: Schema.Types.Mixed, required: true },
+  logo: { type: Schema.Types.Mixed, required: true },
   loyaltyProgram: {
     discountRate: Number,
     promoCode: String,
