@@ -273,6 +273,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   'reviews']}
                 user={user?user:""}
                 attended ={attended}
+                eventId={id}
               />
             </CustomModalLayout>
              <PaymentDrawer

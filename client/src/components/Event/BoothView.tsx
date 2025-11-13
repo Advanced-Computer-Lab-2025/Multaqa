@@ -179,6 +179,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                       'reviews']}
                     user={user?user:""}
                     attended ={attended}
+                    eventId={id}
                     />
                   </CustomModalLayout>
     </>

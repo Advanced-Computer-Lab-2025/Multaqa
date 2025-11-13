@@ -166,6 +166,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                         'reviews']}
                       user={user?user:""}
                       attended ={attended}
+                      eventId={id}
                     />
                   </CustomModalLayout>
     </>
