@@ -21,6 +21,7 @@ import { SignupResponse } from "../../../../../backend/interfaces/responses/auth
 import { useState } from "react";
 import type { UploadStatus } from "../FileUpload/types";
 import { Button } from "@mui/material";
+import { IFileInfo } from "../../../../../backend/interfaces/fileData.interface";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
@@ -37,6 +38,24 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
     const result = await signup(data);
     return result as unknown as SignupResponse;
   };
+  interface StudentSignupData {
+    type: "studentOrStaff";
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    gucId: string;
+  }
+  
+  interface VendorSignupData {
+    type: "vendor";
+    companyName: string;
+    email: string;
+    password: string;
+    taxCard: IFileInfo | null; 
+    logo: IFileInfo | null; 
+  }
+type SignupData = StudentSignupData | VendorSignupData;
 
   const initialValues =
     UserType !== "vendor"
@@ -53,8 +72,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
           email: "",
           password: "",
           confirmPassword: "",
-          taxCardPath: "",
-          logoPath: "",
+          taxCard: null,
+          logo: null,
         };
 
   return (
@@ -64,7 +83,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         try {
           // Prepare data for signup based on user type
-          const signupData =
+          const signupData: SignupData =
             UserType !== "vendor"
               ? ({
                   firstName: values.firstName as string,
@@ -79,14 +98,13 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                   companyName: values.companyName as string,
                   email: values.email,
                   password: values.password,
-                  taxCardPath: taxCardStatus === "success" ? values.taxCardPath as string : "",
-                  logoPath: logoStatus === "success" ? values.logoPath as string : "",
+                  taxCard: taxCardStatus === "success" ? values.taxCard : null,
+                  logo: logoStatus === "success" ? values.logo : null,
                   type: "vendor",
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any);
 
           await handleRegistration(signupData);
-          alert(JSON.stringify(signupData));
 
           resetForm();
 
@@ -393,22 +411,22 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                           setCurrentTaxCardFile,
                           setTaxCardStatus,
                           formik.setFieldValue,
-                          "taxCardPath"
+                          "taxCard",
+                          formik
                         )}
                         width={300}
                       />
-                      {formik.touched.taxCardPath &&
-                        formik.errors.taxCardPath && (
-                          <Box display="flex" alignItems="center" mt={1}>
-                            <ErrorOutlineIcon
-                              color="error"
-                              sx={{ fontSize: 16, mr: 0.5 }}
-                            />
-                            <Typography variant="caption" color="error">
-                              {formik.errors.taxCardPath}
-                            </Typography>
-                          </Box>
-                        )}
+                      {formik.touched.taxCard && formik.errors.taxCard && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.taxCard}
+                          </Typography>
+                        </Box>
+                      )}
                       {taxCardStatus === "error" && (
                         <Button
                           onClick={createRetryHandler(
@@ -417,7 +435,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                               setCurrentTaxCardFile,
                               setTaxCardStatus,
                               formik.setFieldValue,
-                              "taxCardPath"
+                              "taxCard",
+                              formik
                             )
                           )}
                           variant="outlined"
@@ -439,18 +458,19 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                           setCurrentLogoFile,
                           setLogoStatus,
                           formik.setFieldValue,
-                          "logoPath"
+                          "logo",
+                          formik
                         )}
                         width={300}
                       />
-                      {formik.touched.logoPath && formik.errors.logoPath && (
+                      {formik.touched.logo && formik.errors.logo && (
                         <Box display="flex" alignItems="center" mt={1}>
                           <ErrorOutlineIcon
                             color="error"
                             sx={{ fontSize: 16, mr: 0.5 }}
                           />
                           <Typography variant="caption" color="error">
-                            {formik.errors.logoPath}
+                            {formik.errors.logo}
                           </Typography>
                         </Box>
                       )}
@@ -462,7 +482,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                               setCurrentLogoFile,
                               setLogoStatus,
                               formik.setFieldValue,
-                              "logoPath"
+                              "logo",
+                              formik
                             )
                           )}
                           variant="outlined"

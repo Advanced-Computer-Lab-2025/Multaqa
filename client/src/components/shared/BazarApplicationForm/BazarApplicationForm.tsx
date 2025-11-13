@@ -22,18 +22,17 @@ import PeopleIcon from "@mui/icons-material/People";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AspectRatioIcon from "@mui/icons-material/AspectRatio"; // Icon for Booth Size
 import { useTheme } from "@mui/material/styles";
-import { BazarFormValues } from "./types";
-import type { UploadStatus } from "../FileUpload/types";
+
+import { BazarFormValues} from "./types";
 import { validationSchema, submitBazarForm } from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { BazarApplicationFormProps } from "./types";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "@/context/AuthContext";
 import { UploadID } from "../FileUpload";
 import { createDocumentHandler } from "../RegistrationForm/utils";
 import StyledAccordion from "../Accordion/StyledAccordion";
 import StyledAccordionSummary from "../Accordion/StyledAccordionSummary";
+import type { UploadStatus } from "../FileUpload/types";
 
 const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
   const theme = useTheme();
@@ -53,7 +52,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
   );
 
   const initialValues: BazarFormValues = {
-    bazaarAttendees: [{ name: "", email: "", idPath: "" }],
+    bazaarAttendees: [{ name: "", email: "", nationalId: null }],
     boothSize: "",
   };
 
@@ -132,7 +131,8 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                 setAttendeeIdStatuses(newStatuses);
               },
               formik.setFieldValue,
-              `bazaarAttendees.${index}.idPath`
+              `bazaarAttendees.${index}.nationalId`,
+              formik
             );
 
           return (
@@ -257,7 +257,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                                     return;
                                   formik.setFieldValue("bazaarAttendees", [
                                     ...formik.values.bazaarAttendees,
-                                    { name: "", email: "", idPath: "" },
+                                    { name: "", email: "", nationalId: "" },
                                   ]);
                                 }}
                                 disabled={
@@ -532,12 +532,12 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                                       }
                                     />
                                     {formik.touched.bazaarAttendees?.[index]
-                                      ?.idPath &&
+                                      ?.nationalId &&
                                       typeof formik.errors.bazaarAttendees?.[
                                         index
                                       ] !== "string" &&
                                       formik.errors.bazaarAttendees?.[index]
-                                        ?.idPath && (
+                                        ?.nationalId && (
                                         <Box
                                           display="flex"
                                           alignItems="center"
@@ -562,7 +562,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                                             "string"
                                               ? formik.errors.bazaarAttendees?.[
                                                   index
-                                                ]?.idPath
+                                                ]?.nationalId
                                               : formik.errors.bazaarAttendees?.[
                                                   index
                                                 ]}
@@ -612,7 +612,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                               startIcon={<AddIcon />}
                               onClick={() => {
                                 formik.setFieldValue("bazaarAttendees", [
-                                  { name: "", email: "", idPath: "" },
+                                  { name: "", email: "", nationalId: "" },
                                 ]);
                               }}
                             >
@@ -762,7 +762,6 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
           );
         }}
       </Formik>
-      <ToastContainer />
     </>
   );
 };

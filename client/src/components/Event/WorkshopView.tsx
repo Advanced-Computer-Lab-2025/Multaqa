@@ -24,6 +24,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   agenda,
   user,
   registered,
+  isRegisteredEvent,
   onDelete,
   isReady,
   userInfo,
@@ -94,31 +95,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
       registerButton={
             (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
               <>
-                {!registered ? (
-                  <CustomButton
-                    size="small"
-                    variant="contained"
-                    sx={{ 
-                      borderRadius: 999,
-                      backgroundColor: `${background}40`,
-                      color: background,
-                      borderColor: background,
-                      fontWeight: 600,
-                      px: 3,
-                      textTransform: "none",
-                      boxShadow: `0 4px 14px ${background}40`,
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor: `${background}50`,
-                        transform: "translateY(-2px)",
-                        boxShadow: `0 6px 20px ${background}50`,
-                      },
-                    }}
-                    onClick={() => setRegister(true)}
-                  >
-                    Register
-                  </CustomButton>
-                ) : (
+                {registered || isRegisteredEvent? (
                   <CustomButton
                     size="small"
                     variant="outlined"
@@ -144,6 +121,30 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                     }}
                   >
                     Cancel Registration
+                  </CustomButton>
+                ) : (
+                  <CustomButton
+                    size="small"
+                    variant="contained"
+                    sx={{ 
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                    }}
+                    onClick={() => setRegister(true)}
+                  >
+                    Register
                   </CustomButton>
                 )}
               </>

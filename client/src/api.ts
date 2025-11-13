@@ -14,23 +14,17 @@ export const registerSetUser = (fn: typeof setUserFn) => {
 
 // Endpoints that should automatically trigger /auth/me after completion
 const autoRefreshEndpoints = [
-  "/events",
   "/events/:id",
-  "/users/:userId/assign-role",
   "/users/register/:eventId",
+  "/users/favorites/:eventId",
   "/payments/:eventId/wallet",
   "/payments/:eventId/refund",
-  "/users/:id/block",
-  "/users/:id/unblock",
   "/vendorEvents/:eventId/bazaar",
   "/vendorEvents/:eventId/vendor-requests/:vendorId",
   "/vendorEvents/booth",
-  "/admins",
-  "/admins/:adminId",
   "/workshops/:workshopId",
   "/workshops",
-  "/eventsOffice/:professorId/:workshopId/status",
-  "/gymsessions",
+  "/workshops/:professorId/:workshopId/status",
 ];
 
 // Attach token if present
