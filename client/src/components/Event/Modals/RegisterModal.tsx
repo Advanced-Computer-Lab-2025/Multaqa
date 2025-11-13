@@ -7,7 +7,7 @@ import { Typography, Box } from "@mui/material";
 import { api } from "@/api";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 interface RegisterEventModalProps {
   userInfo: { id: string; name: string; email: string };
@@ -250,7 +250,6 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
           </Box>
         </Box>
       </form>
-    <ToastContainer />
     </CustomModalLayout>
   );
 };

@@ -1,6 +1,9 @@
 import * as Yup from "yup";
 import { UserType } from "../types";
-
+import { api } from "../../../../api";
+import { FileUploadResponse } from "../../../../../../backend/interfaces/responses/fileUploadResponse.interface";
+import { IFileInfo } from "../../../../../../backend/interfaces/fileData.interface";
+import { toast } from "react-toastify";
 export const getValidationSchema = (userType: UserType) => {
   const passwordSchema = Yup.string()
     .min(8, "Password must be at least 8 characters long.")
@@ -50,10 +53,8 @@ export const getValidationSchema = (userType: UserType) => {
         email: emailSchema,
         password: passwordSchema,
         confirmPassword: confirmPasswordSchema,
-        taxCardPath: Yup.string().required(
-          "Please upload your tax card document."
-        ),
-        logoPath: Yup.string().required("Please upload your company logo."),
+        taxCard: Yup.object().required("Please upload your tax card document."),
+        logo: Yup.object().required("Please upload your company logo."),
       });
 
     default:
@@ -64,65 +65,121 @@ export const getValidationSchema = (userType: UserType) => {
       });
   }
 };
-// Create a handler factory that returns a proper callback function
+
+// Helper function to get nested value from object by string path
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getNestedValue = (obj: any, path: string) => {
+  try {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  } catch (e) {
+    console.error("Error getting nested value:", e);
+    return undefined;
+  }
+};
+
 export const createDocumentHandler = (
   setCurrentFile: (file: File | null) => void,
   setDocumentStatus: (
     status: "idle" | "uploading" | "success" | "error"
   ) => void,
-  setFormikField: (field: string, value: string) => void,
-  fieldName: string
+  setFormikField: (field: string, value: IFileInfo | null) => void,
+  fieldName: string,
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  formik: any
 ) => {
   return async (file: File | null) => {
     if (file) {
       // User selected a new file to upload
       setCurrentFile(file);
       setDocumentStatus("uploading");
-
+      console.log("field name", fieldName);
       try {
         // Upload to server
         const formData = new FormData();
-        formData.append("document", file);
 
-        // Replace with your actual API endpoint
-        // const response = await fetch("/api/upload-document", {
-        //   method: "POST",
-        //   body: formData,
-        // });
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        const response = true;
-        if (response) {
-          // const data = await response.json();
-          // const filePath = data.filePath || data.path || data.url; // Adjust based on your API response
-          const filePath = "lalalla";
-          setDocumentStatus("success");
-          // Update Formik field with the file path
-          setFormikField(fieldName, filePath);
-          console.log(`✅ Document uploaded successfully: ${filePath}`);
+        let response;
+        if (fieldName === "taxCard") {
+          formData.append("taxCard", file);
+          response = await api.post<FileUploadResponse>(
+            "/uploads/taxCard",
+            formData
+          );
+        } else if (fieldName === "logo") {
+          formData.append("logo", file);
+          response = await api.post<FileUploadResponse>(
+            "/uploads/logo",
+            formData
+          );
+        } else {
+          formData.append("nationalId", file);
+          response = await api.post<FileUploadResponse>(
+            `/vendorEvents/uploadNationalId`,
+            formData
+          );
+        }
+
+        if (response.data?.success) {
+          const fileObject = response.data.data;
+
+          if (fileObject) {
+            setDocumentStatus("success");
+            setFormikField(fieldName, fileObject);
+          } else {
+            setDocumentStatus("error");
+          }
         } else {
           setDocumentStatus("error");
-          console.error("❌ Upload failed");
         }
       } catch (error) {
+        console.error("Upload error:", error);
         setDocumentStatus("error");
-        console.error("❌ Upload error:", error);
       }
     } else {
       // User clicked the delete button (X) - file is null
-      console.log("🗑️ Document removed by user - resetting to idle");
+
+      
+      // Get the file object from Formik using the helper
+      const fileObject = getNestedValue(formik.values, fieldName);
+      console.log("fileObject to delete:", fileObject);
+
+      // Get the publicId
+      const publicId = fileObject?.publicId;
+      console.log("publicId to delete:", publicId);
+
+      // Update local state
       setCurrentFile(null);
       setDocumentStatus("idle");
-      // Clear the Formik field
-      setFormikField(fieldName, "");
 
-      // Optional: Delete from server if needed
-      // await fetch('/api/delete-document', {
-      //   method: 'DELETE',
-      //   body: JSON.stringify({ filePath })
-      // });
+      // Clear Formik field
+      setFormikField(fieldName, null);
+
+      // Delete it from the server
+      if (publicId) {
+        try {
+          await api.delete("/uploads/deletefile", {
+            data: { publicId: publicId },
+          });
+        } catch (err) {
+          const error = err as { response?: { data?: { error?: string } } };
+          toast.error(
+            error.response?.data?.error || "Failed to delete file from server.",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+        }
+      }
     }
   };
 };
+
 
 // Create a retry handler factory
 export const createRetryHandler = (

@@ -16,6 +16,8 @@ import userRouter from "./routes/user.routes";
 import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
+import uploadsRouter from "./routes/upload.routes";
+
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -33,6 +35,7 @@ import "./schemas/event-schemas/platformBoothEventSchema";
 import "./schemas/event-schemas/tripSchema";
 import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
+import "./config/cloudinary";
 
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
@@ -46,8 +49,10 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use("/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
 
 app.use(json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use("/uploads", uploadsRouter);
 app.use("/auth", authRouter);
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
@@ -58,6 +63,7 @@ app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
+
 
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";

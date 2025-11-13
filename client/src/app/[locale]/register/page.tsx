@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import { useRouter } from "@/i18n/navigation";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function RegisterPage() {
   const searchParams = useSearchParams();
@@ -36,14 +34,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <>
-      <div
-        className="flex flex-col items-center justify-center"
-        style={{ transform: "scale(0.8)" }}
-      >
-        <RegistrationForm UserType={userType} />
-      </div>
-      <ToastContainer />
-    </>
+    <div
+      className="flex flex-col items-center justify-center"
+      style={{ transform: "scale(0.8)" }}
+    >
+      <RegistrationForm UserType={userType} />
+    </div>
   );
 }
