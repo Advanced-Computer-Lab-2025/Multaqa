@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
@@ -23,6 +23,7 @@ import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
 import Wallet from "@/components/Wallet/Wallet";
+import VectorFloating from "@/components/shared/VectorFloating";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,6 +54,56 @@ const getUserEntitySegment = (user: any): string => {
   return "student"; // ultimate fallback
 };
 
+const SignedOutFallback = ({
+  onGoToLogin,
+}: {
+  onGoToLogin: () => void;
+}) => {
+  const [showAction, setShowAction] = useState(false);
+
+  useEffect(() => {
+    const hintTimer = window.setTimeout(() => setShowAction(true), 1200);
+    return () => window.clearTimeout(hintTimer);
+  }, []);
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-4 py-12 text-gray-900">
+      <div className="absolute inset-0 -z-10 opacity-45">
+        <VectorFloating />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/40 bg-white/80 p-10 text-center shadow-2xl backdrop-blur-xl">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/70 shadow-inner">
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-4 border-[#6299d0] border-t-transparent"
+            aria-hidden="true"
+          />
+        </div>
+
+        <h1 className="text-2xl font-semibold text-gray-900">Redirecting to sign in</h1>
+        <p className="mt-3 text-sm text-gray-600">
+          We safely closed your session. Hang tight while we guide you back to the
+          login screen.
+        </p>
+
+        {showAction && (
+          <button
+            type="button"
+            onClick={onGoToLogin}
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-[#6299d0] px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-[#4c82b9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6299d0]/60"
+          >
+            Open login
+          </button>
+        )}
+
+        <p className="mt-4 text-xs text-gray-500">
+          Not seeing the login page? Tap the button above to continue.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 export default function EntityCatchAllPage() {
   const params = useParams() as {
     locale?: string;
@@ -77,6 +128,17 @@ export default function EntityCatchAllPage() {
   // Get the correct entity segment from backend user data
   const correctEntitySegment = getUserEntitySegment(user);
 
+  const handleGoToLogin = useCallback(() => {
+    router.replace("/login");
+  }, [router]);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      const redirectTimer = window.setTimeout(handleGoToLogin, 1800);
+      return () => window.clearTimeout(redirectTimer);
+    }
+  }, [isLoading, user, handleGoToLogin]);
+
   // Redirect only if URL entity doesn't match user's actual role AND we're not already on a valid path
   useEffect(() => {
     if (isLoading || !user) return;
@@ -98,13 +160,9 @@ export default function EntityCatchAllPage() {
     return <LoadingBlocks />;
   }
 
-  // Show error if no user
+  // Transition screen if the user is signed out
   if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Please log in to continue</p>
-      </div>
-    );
+    return <SignedOutFallback onGoToLogin={handleGoToLogin} />;
   }
 
   // Use the correct entity (from user data, not URL)
