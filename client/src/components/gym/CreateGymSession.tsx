@@ -12,6 +12,8 @@ import { DateTimePicker } from "../shared/DateTimePicker";
 import { formatDuration } from "../shared/DateTimePicker/utils";
 import { GymSessionType, SESSION_LABEL } from "./types";
 import { createGymSession } from "./utils";
+import { modalFooterStyles } from "../shared/styles/index";
+import { color } from "storybook/internal/theming";
 
 interface CreateGymSessionProps {
   open: boolean;
@@ -124,13 +126,14 @@ export default function CreateGymSession({
       borderColor={theme.palette.primary.main}
     >
       <form onSubmit={formik.handleSubmit}>
+       
         <Box sx={{ p: 4 }}>
           <Typography
             variant="h5"
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
               fontWeight: 700,
-              color: theme.palette.primary.main,
+              color: theme.palette.tertiary.main,
               textAlign: "center",
               mb: 3,
             }}
@@ -148,8 +151,18 @@ export default function CreateGymSession({
               {error}
             </Alert>
           )}
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    
+          <Box sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            gap: 3,
+            borderRadius: '6px',
+            borderColor:theme.palette.tertiary.main,
+            borderWidth:'1px',
+            padding: '32px', // No vertical padding on outer box
+            boxShadow: theme.shadows[5],
+            minHeight:'450px',
+            }}>
             {/* Session Type */}
             <CustomSelectField
               label="Session Type"
@@ -168,6 +181,7 @@ export default function CreateGymSession({
               required
               fullWidth
               size="small"
+
             />
 
           {/* Start Date and Time */}
@@ -190,6 +204,7 @@ export default function CreateGymSession({
               minDate={new Date()}
               containerType="inwards"
               touched={formik.touched.startDateTime}
+              labelColor={theme.palette.tertiary.main}
             />
 
             {/* Trainer Name (Optional) */}
@@ -281,6 +296,7 @@ export default function CreateGymSession({
             />
 
           </Box>
+          </Box>
 
           {/* Action Buttons */}
           <Box
@@ -315,7 +331,6 @@ export default function CreateGymSession({
               }}
             />
           </Box>
-        </Box>
       </form>
     </CustomModalLayout>
   );
