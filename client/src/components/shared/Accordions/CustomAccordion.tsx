@@ -18,7 +18,13 @@ const CustomAccordion: React.FC<CustomAccordionProps> = ({
   ...props
 }) => {
   return (
-    <StyledAccordion disableGutters square elevation={0} {...props}>
+    <StyledAccordion
+      disableGutters
+      square
+      elevation={0}
+      TransitionProps={{ timeout: 420 }}
+      {...props}
+    >
       <StyledAccordionSummary expandIcon={<ExpandMoreIcon />}>
         <SummaryContent>
           <SummaryTitle variant="h6">{title}</SummaryTitle>
