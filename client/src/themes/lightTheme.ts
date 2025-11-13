@@ -38,9 +38,9 @@ const theme = createTheme({
       contrastText: "#e6e6da",
     },
     secondary: {
-      main: "#9c27b0",  // Purple main shade
-      dark: "#d5de57",
-      contrastText: "#13233d",
+      main: "#542aa2",
+      dark: "#4c16b1",
+      contrastText: "#fff",
     },
     tertiary: {
       light: "#6e8ae6",

@@ -13,7 +13,6 @@ import { VerificationService } from "./verificationService";
 import {
   sendBlockUnblockEmail,
   sendStaffRoleAssignmentEmail,
-  sendVerificationEmail,
 } from "./emailService";
 
 export class UserService {

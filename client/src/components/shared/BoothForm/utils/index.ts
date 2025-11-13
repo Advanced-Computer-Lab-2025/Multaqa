@@ -5,6 +5,7 @@ import { FormikProps } from "formik";
 import { BoothFormValues } from "../types";
 import type { UploadStatus } from "../../FileUpload/types";
 import { ErrorResponse } from "../../../../../../backend/interfaces/errors/errorResponse.interface";
+import { IFileInfo } from "../../../../../../backend/interfaces/fileData.interface";
 
 export const validationSchema = Yup.object({
   boothAttendees: Yup.array()
@@ -14,7 +15,7 @@ export const validationSchema = Yup.object({
         email: Yup.string()
           .email("Please enter a valid email address")
           .required("Email is required"),
-        idPath: Yup.string().required("ID document is required"),
+        nationalId: Yup.object().required("ID document is required"),
       })
     )
     .min(1, "At least one attendee is required")
@@ -35,14 +36,14 @@ export const submitBoothForm = async (
   attendeeIdStatuses: UploadStatus[]
 ) => {
   try {
-    // Loop through attendeeIdStatuses and clear idPath if status is not success
+    // Loop through attendeeIdStatuses and clear nationalId if status is not success
     const processedAttendees = values.boothAttendees.map(
       (
-        attendee: { name: string; email: string; idPath: string },
+        attendee: { name: string; email: string; nationalId: IFileInfo | null },
         index: number
       ) => ({
         ...attendee,
-        idPath: attendeeIdStatuses[index] === "success" ? attendee.idPath : "",
+        nationalId: attendeeIdStatuses[index] === "success" ? attendee.nationalId : null,
       })
     );
 

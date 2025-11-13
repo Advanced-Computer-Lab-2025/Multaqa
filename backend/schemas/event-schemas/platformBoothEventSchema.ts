@@ -14,6 +14,7 @@ const platformBoothSchema = new Schema<IPlatformBooth>({
           {
             name: { type: String },
             email: { type: String },
+            nationalId: { type: Schema.Types.Mixed },
           },
         ],
         boothSize: { type: String, enum: ["2x2", "4x4"] },

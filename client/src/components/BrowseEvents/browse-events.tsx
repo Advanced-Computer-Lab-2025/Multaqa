@@ -141,6 +141,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
 
 
+  const registeredEvents = userInfo.registeredEvents;
+  
   const handleRegistered = () => {
     setLoading(true);
     const result = frameData(registeredEvents);
@@ -306,6 +308,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
           />
@@ -324,6 +327,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
           />
@@ -342,6 +346,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
           />
@@ -359,6 +364,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
           />

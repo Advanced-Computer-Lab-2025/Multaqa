@@ -12,7 +12,7 @@ export const validationSchema = Yup.object({
         email: Yup.string()
           .email("Please enter a valid email address")
           .required("Email is required"),
-        idPath: Yup.string().required("ID document is required"), // Add idPath validation
+        nationalId: Yup.object().required("ID document is required"),
       })
     )
     .min(1, "At least one attendee is required")
@@ -30,11 +30,11 @@ export const submitBazarForm = async (
   attendeeIdStatuses: UploadStatus[] // Add attendeeIdStatuses
 ) => {
   try {
-    // Process attendees to clear idPath if upload was not successful
+    // Process attendees to clear nationalId if upload was not successful
     const processedAttendees = values.bazaarAttendees.map(
       (attendee, index) => ({
         ...attendee,
-        idPath: attendeeIdStatuses[index] === "success" ? attendee.idPath : "",
+        nationalId: attendeeIdStatuses[index] === "success" ? attendee.nationalId : null,
       })
     );
 

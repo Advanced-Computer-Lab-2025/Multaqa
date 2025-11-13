@@ -11,6 +11,7 @@ import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
 import { CustomModalLayout } from "../shared/modals";
 import EventDetails from "./Modals/EventDetails";
+import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
@@ -24,6 +25,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   agenda,
   user,
   registered,
+  isRegisteredEvent,
   onDelete,
   userInfo,
   attended
@@ -32,6 +34,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
+  const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
@@ -43,6 +46,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     // Handle successful payment - redirect, show confirmation, etc.
     alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
   };
+
+  const startDate = new Date(details["Start Date"]);
+  const now = new Date();
+  const isRefundable = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -98,7 +105,34 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
       registerButton={
             (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
               <>
-                {!registered ? (
+                {registered || isRegisteredEvent? (
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{ 
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                      width: 'fit-content'
+                    }}
+                    onClick={() => {
+                      setCancelRegisteration(true);
+                    }}
+                  >
+                    Cancel Registration
+                  </CustomButton>
+                ) : (
                   <CustomButton
                     size="small"
                     variant="contained"
@@ -121,34 +155,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                     onClick={() => setRegister(true)}
                   >
                     Register
-                  </CustomButton>
-                ) : (
-                  <CustomButton
-                    size="small"
-                    variant="outlined"
-                    sx={{ 
-                      borderRadius: 999,
-                      backgroundColor: `${background}40`,
-                      color: background,
-                      borderColor: background,
-                      fontWeight: 600,
-                      px: 3,
-                      textTransform: "none",
-                      boxShadow: `0 4px 14px ${background}40`,
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor: `${background}50`,
-                        transform: "translateY(-2px)",
-                        boxShadow: `0 6px 20px ${background}50`,
-                      },
-                      width: 'fit-content'
-                    }}
-                    onClick={() => {
-                      // Add cancel registration logic here
-                      console.log("Cancel registration clicked");
-                    }}
-                  >
-                    Cancel Registration
                   </CustomButton>
                 )}
               </>
@@ -220,7 +226,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         eventType={"Workshop"}
         userInfo={userInfo}
         eventId={id}
-        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
+       color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
+      
+      <CancelRegistration eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+        
       <CustomModalLayout
               open={detailsModalOpen}
               onClose={() => setDetailsModalOpen(false)}
