@@ -20,6 +20,12 @@ export interface EmailOptions {
   to: string;
   subject: string;
   html: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer | string;
+    contentType?: string;
+    disposition?: string;
+  }>;
 }
 
 // Helper function to encode subject line
@@ -27,9 +33,11 @@ const encodeSubject = (subject: string): string => {
   return `=?utf-8?B?${Buffer.from(subject).toString("base64")}?=`;
 };
 
-export const sendEmail = async ({ to, subject, html }: EmailOptions) => {
+export const sendEmail = async ({ to, subject, html, attachments }: EmailOptions) => {
   try {
     const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+    const boundary = "boundary_" + Date.now();
 
     // Create email message in RFC 2822 format with proper encoding
     const message = [
@@ -37,14 +45,37 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions) => {
       `To: ${to}`,
       `Subject: ${encodeSubject(subject)}`,
       "MIME-Version: 1.0",
+       `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      "",
+      `--${boundary}`,
       "Content-Type: text/html; charset=utf-8",
       "Content-Transfer-Encoding: base64",
       "",
       Buffer.from(html).toString("base64"),
-    ].join("\r\n");
+    ]
+
+     // Add attachments if they exist
+    if (attachments && attachments.length > 0) {
+      for (const attachment of attachments) {
+        const content = Buffer.isBuffer(attachment.content)
+          ? attachment.content
+          : Buffer.from(attachment.content);
+
+        message.push(
+          `--${boundary}`,
+          `Content-Type: ${attachment.contentType || 'application/octet-stream'}`,
+          `Content-Disposition: ${attachment.disposition || 'attachment'}; filename="${attachment.filename}"`,
+          "Content-Transfer-Encoding: base64",
+          "",
+          content.toString("base64")
+        );
+      }
+    }
+
+    message.push(`--${boundary}--`);
 
     // Encode the message in base64url format
-    const encodedMessage = Buffer.from(message)
+    const encodedMessage = Buffer.from(message.join("\r\n"))
       .toString("base64")
       .replace(/\+/g, "-")
       .replace(/\//g, "_")

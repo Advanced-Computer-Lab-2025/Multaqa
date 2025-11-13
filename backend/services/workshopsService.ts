@@ -14,6 +14,7 @@ import cron from "node-cron";
 import { sendCertificateOfAttendanceEmail } from "./emailService";
 import { IUser } from "../interfaces/models/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
+import { CertificateService } from "./certificateService";
 
 export class WorkshopService {
   private eventRepo: GenericRepository<IEvent>;
@@ -185,9 +186,9 @@ export class WorkshopService {
       throw new Error('Workshop not found');
     }
 
-    if(workshop.certificatesSent) {
-      throw new Error('Certificates have already been sent for this workshop');
-    }
+    // if(workshop.certificatesSent) {
+    //   throw new Error('Certificates have already been sent for this workshop');
+    // }
     
     const now = new Date();
     const endTime = this.calculateWorkshopEndTime(workshop);
@@ -218,18 +219,20 @@ export class WorkshopService {
     // Send certificates to all attendees
     const promises = workshop.attendees.map(async (attendee: any) => {
       if (attendee) {
-        // const certificateBuffer = await this.certificateService.generateCertificate(
-        //   attendee.email,
-        //   workshop.eventName,
-        //   workshop.id.toString()
-        // );
+        const certificateBuffer = await CertificateService.generateCertificatePDF({
+          firstName: attendee.firstName,
+          lastName: attendee.lastName,
+          workshopName: workshop.eventName,
+          startDate: workshop.eventStartDate,
+          endDate: workshop.eventEndDate
+        });
+    
 
         await sendCertificateOfAttendanceEmail(
           attendee.email,
           `${attendee.firstName} ${attendee.lastName}`,
           workshop.eventName,
-          // certificateBuffer,
-          Buffer.from('')
+          certificateBuffer
         );
       }
     });

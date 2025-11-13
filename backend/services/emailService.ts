@@ -118,12 +118,19 @@ export const sendCertificateOfAttendanceEmail = async (
   const html = getCertificateOfAttendanceTemplate(
     username,
     workshopName,
-    certificateBuffer
   );
   await sendEmail({
     to: userEmail,
     subject: "🎓 Your Certificate of Attendance - Multaqa",
     html,
+     attachments: [   
+    {
+      filename: `Certificate_${username}_${workshopName}.pdf`,
+      content: certificateBuffer,  
+      contentType: 'application/pdf',
+      disposition: 'attachment' 
+    }
+  ]
   });
 };
 

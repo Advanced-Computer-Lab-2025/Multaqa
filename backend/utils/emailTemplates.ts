@@ -269,8 +269,7 @@ export const getPaymentReceiptTemplate = (
 //Certificate of Attendance Email Template
 export const getCertificateOfAttendanceTemplate = (
   username: string,
-  workshopName: string,
-  certificateBuffer: Buffer
+  workshopName: string
 ): string => {
   return `
     <div style="${baseStyles.container}">
@@ -300,7 +299,6 @@ export const getCertificateOfAttendanceTemplate = (
     </div>
   `;
 };
-
 // Application Status (Bazaar/Booth) Email Template
 export const getApplicationStatusTemplate = (
   username: string,
