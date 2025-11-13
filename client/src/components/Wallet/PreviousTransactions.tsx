@@ -15,6 +15,8 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
+  const gradient = `linear-gradient(135deg, ${theme.palette.tertiary?.main ?? theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`;
+
   return (
     <>
      <Typography variant="h5" sx={{width: '100%', mt: 5, mb: 2, pb:2, fontWeight: 600, color: theme.palette.text.primary, borderBottom: `2px solid ${theme.palette.divider}`}}>
@@ -37,7 +39,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 alignItems: 'center',
                 gap: 2,
                 p: 2,
-                backgroundColor: '#FAFAFA',
+                background: gradient,
                 borderRadius: 2,
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
                 transition: 'all 0.3s ease',
@@ -57,7 +59,9 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                   width: 50,
                   height: 50,
                   borderRadius: 1.5,
-                  backgroundColor: isRefund ? '#D1FAE5' : '#FEE2E2',
+                  backgroundColor: theme.palette.tertiary.contrastText,
+                  borderColor: "black",
+                  borderWidth: 1,
                   transition: 'transform 0.3s ease',
                 }}
               >
@@ -73,10 +77,10 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 <Typography variant="subtitle1" fontWeight="600" color={theme.palette.text.primary}>
                   {transaction.event_name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                <Typography variant="body2" color={theme.palette.tertiary.contrastText} sx={{ textTransform: 'capitalize' }}>
                   {transaction.type}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color={theme.palette.tertiary.contrastText}>
                   {transaction.date}
                 </Typography>
               </Box>
@@ -85,7 +89,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
               <Typography
                 variant="h6"
                 fontWeight="bold"
-                sx={{ color: amountColor, minWidth: '80px', textAlign: 'right' }}
+                sx={{ color: theme.palette.tertiary.contrastText, minWidth: '80px', textAlign: 'right' }}
               >
                 {amountPrefix}${transaction.amount.toFixed(2)}
               </Typography>

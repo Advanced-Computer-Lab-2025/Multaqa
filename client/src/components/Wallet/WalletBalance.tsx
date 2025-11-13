@@ -9,10 +9,12 @@ interface WalletBalanceProps {
 }
 
 const WalletBalance = ({userInfo, currentBalance=0}:WalletBalanceProps) => {
+  const gradient = `linear-gradient(135deg, ${theme.palette.tertiary?.main ?? theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`;
+
   return (
     <Box
       sx={{
-        backgroundColor: '#F5F5F5', // slightly lighter grey
+        background: gradient, // slightly lighter grey
         borderRadius: 3,            // rounder corners
         m: 2,
         display: 'flex',
@@ -38,7 +40,7 @@ const WalletBalance = ({userInfo, currentBalance=0}:WalletBalanceProps) => {
           borderBottom: `2px solid #E6E6E6`, // full width border under header
         }}
       >
-        <User size={40} color={theme.palette.primary.main} />
+        <User size={40} color={theme.palette.tertiary.contrastText} />
         <Typography variant="h6" fontWeight="bold">
           {userInfo?.firstName ?? "User"}'s Account
         </Typography>
@@ -46,10 +48,10 @@ const WalletBalance = ({userInfo, currentBalance=0}:WalletBalanceProps) => {
 
       {/* Body */}
       <Box sx={{ p: 2, width: '100%' }}>
-        <Typography variant="h6" color="text.secondary" mb={1}>
+        <Typography variant="h6" color={theme.palette.tertiary.contrastText} mb={1}>
           Current Balance
         </Typography>
-        <Typography variant="h5" color={theme.palette.primary.main}>
+        <Typography variant="h5" color={theme.palette.tertiary.contrastText}>
           ${currentBalance.toFixed(2)}
         </Typography>
       </Box>
