@@ -1,8 +1,9 @@
 // components/Create/styles/CreateStyles.ts
 import { SxProps, Theme } from '@mui/material/styles';
 const STEP1_WIDTH = '370px'; 
-const STEP2_WIDTH = '550px';
-const STEP2_HEIGHT = '540px'
+const STEP2_WIDTH = '530px';
+const STEP2_HEIGHT = '550px';
+const minHeight = '380px';
 const GAP_WIDTH = 24;    
 const TOTAL_WIDTH = `${parseInt(STEP1_WIDTH) + parseInt(STEP2_WIDTH) + GAP_WIDTH}px`; 
 
@@ -21,20 +22,25 @@ export const horizontalLayoutStyles = (theme: Theme): SxProps<Theme> => ({
     justifyContent: 'center', // Center boxes within the container
     gap: 3, // Space between the two boxes
     maxWidth: TOTAL_WIDTH, // 450px + 450px + 30px gap
-    padding: 3, 
+    padding: '12px 0px 12px 12px', 
     borderRadius: '12px',
-    backgroundColor: theme.palette.background.default, 
+    //backgroundColor: (theme) =>"#ffffff",
+    backgroundColor:'transparent',
 });
 
 // Style for the fixed width of Box 1 (Smaller)
 export const step1BoxStyles = (theme: Theme): SxProps<Theme> => ({
     width: STEP1_WIDTH, 
+    maxHeight: STEP2_HEIGHT,
+    minHeight: minHeight,
     justifyContent: 'flex-start',
     flexShrink: 0,
     flexDirection: 'column',
     backgroundColor: theme.palette.background.paper,
     borderRadius: '6px',
-    padding: '0px 16px',
+    borderColor:theme.palette.tertiary.main,
+    borderWidth:'1px',
+    padding: '0px 12px',
     fontFamily: 'var(--font-jost), system-ui, sans-serif',
     boxShadow: theme.shadows[5],
     overflow: 'hidden',
@@ -43,14 +49,17 @@ export const step1BoxStyles = (theme: Theme): SxProps<Theme> => ({
 // Style for the fixed width of Box 2 (Wider)
 export const step2BoxStyles = (theme: Theme): SxProps<Theme> => ({
     width: STEP2_WIDTH, 
-    height: STEP2_HEIGHT,
+    maxHeight: STEP2_HEIGHT,
+    minHeight: minHeight,
     display: 'flex',
     flexDirection: 'column', 
     justifyContent: 'flex-start',
     flexShrink: 0,
     backgroundColor: theme.palette.background.paper,
     borderRadius: '6px',
-    padding: '8px 16px', // No vertical padding on outer box
+    borderColor:theme.palette.tertiary.main,
+    borderWidth:'1px',
+    padding: '0px 12px', // No vertical padding on outer box
     boxShadow: theme.shadows[5],
     overflow: 'hidden',
 });
@@ -65,8 +74,8 @@ export const detailTitleStyles = (theme: Theme): SxProps<Theme> => ({
 
 // Styles for the main form content area
 export const modalFormStyles: SxProps<Theme> = {
-    padding: '8px 16px 0px 16px',
-    marginTop: 0,
+    padding: '0px 12px 0px 12px',
+    marginTop:0,
     flexGrow: 1,
     minHeight:'0px',
     overflowY: 'auto',
@@ -74,7 +83,7 @@ export const modalFormStyles: SxProps<Theme> = {
 
 export const modalHeaderStyles: SxProps<Theme> = {
     borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-    padding: '16px 0px 0px 0px',
+    padding: '12px 0px 0px 0px',
     backgroundColor: (theme) =>"#ffffff", 
     flexShrink:0 // Light background for the header bar
 };
@@ -83,7 +92,8 @@ export const modalFooterStyles: SxProps<Theme> = {
     display: 'flex',
     flexShrink:0,
     justifyContent: 'flex-end',
-    padding: '12px 16px 12px 0px',
+    padding: '10px 16px 12px 0px',
     borderTop: (theme) => `1px solid ${theme.palette.divider}`,
-    backgroundColor: (theme) => "#ffffff",
+    //backgroundColor: (theme) =>"#ffffff",
+    backgroundColor: 'transparent,'
 };

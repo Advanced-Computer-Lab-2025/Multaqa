@@ -1,12 +1,11 @@
+import dayjs from 'dayjs';
 import { FormEvent } from 'react';
 
 export interface EventFormData {
     eventName:string,
-    eventStartDate:string,
+    eventStartDate:dayjs.Dayjs | null,
+    eventEndDate:dayjs.Dayjs | null,
     location:string,
-    eventEndDate:string,
-    eventStartTime:string,
-    eventEndTime:string,
     description:string,
     fullAgenda: string,
     websiteLink: string, 

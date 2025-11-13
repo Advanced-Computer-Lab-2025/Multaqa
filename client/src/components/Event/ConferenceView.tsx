@@ -9,7 +9,7 @@ import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { Copy, Check } from "lucide-react";
 import { CustomModal, CustomModalLayout } from "../shared/modals";
 import Utilities from "../shared/Utilities";
-import Edit from "../shared/CreateConference/Edit";
+import EditConference from "../../components/tempPages/EditConference/EditConference";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 
@@ -132,7 +132,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <Edit 
+      <EditConference
         conferenceId={id}
         open={edit} 
         onClose={() => setEdit(false)} 

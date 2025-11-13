@@ -130,8 +130,7 @@ export const getDropdownIconStyles = (isOpen: boolean): React.CSSProperties => {
  * Styles for the dropdown menu
  */
 export const getDropdownStyles = (
-  props: DropdownStyleProps
-): React.CSSProperties => {
+props: DropdownStyleProps, border?: any): React.CSSProperties => {
   const { isOpen } = props;
 
   return {
