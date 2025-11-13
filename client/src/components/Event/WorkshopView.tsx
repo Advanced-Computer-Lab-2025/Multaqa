@@ -242,6 +242,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 details={updatedDetails}
                 color={background}
                 agenda={agenda}
+                userId={userInfo._id}
                 button={
                   !registered &&
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (

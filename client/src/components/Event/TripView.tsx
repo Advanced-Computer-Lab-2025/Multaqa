@@ -30,7 +30,7 @@ const TripView: React.FC<BazarViewProps> = ({
   onDelete,
   setRefresh,
   userInfo,
-  attended
+  attended,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -277,6 +277,7 @@ const TripView: React.FC<BazarViewProps> = ({
           user={user ? user : ""}
           attended={attended} 
           eventId={id}
+          userId={userInfo._id}
           />
       </CustomModalLayout>
      

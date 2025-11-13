@@ -24,6 +24,7 @@ export interface EventDetailsProps {
   user:string;
   attended?:boolean;
   eventId: string; // Required for backend API calls
+  userId:string;
 }
 
 // Mock data for reviews

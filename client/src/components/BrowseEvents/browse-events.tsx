@@ -137,9 +137,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
   const registeredEvents = userInfo.registeredEvents;
-
- 
-
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {
@@ -152,7 +149,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   
   const handleRegistered = () => {
     setLoading(true);
-    console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
     const result = frameData(registeredEvents, userID);
     console.log("register events:" + registeredEvents[0]);

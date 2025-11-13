@@ -21,7 +21,8 @@ const BoothView: React.FC<BoothViewProps> = ({
   registered,
   onDelete,
   attended ,
-  id
+  id,
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -165,6 +166,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                     details={updatedDetails}
                     color={background}
                     description={description}
+                    userId={userInfo._id}
                     button={
                       !registered &&
                       user == "vendor" && (

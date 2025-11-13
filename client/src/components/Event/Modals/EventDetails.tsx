@@ -87,7 +87,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   sections = ['general', 'details', 'reviews'],
   user,
   attended=false,
-  eventId
+  eventId,
+  userId
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
   const [newRating, setNewRating] = useState(0);
@@ -98,10 +99,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(false);
-  const [Reviews, setReviews] = useState<Review[]>(reviews);
+  const [Reviews, setReviews] = useState<Review[]>();
 
   const handleDeleteComment = async (id: string, reviewerId:string) => {
-  setReviews((prevReviews) => prevReviews.filter((review) => review.id !== id));
+  setReviews((prevReviews) => prevReviews?.filter((review) => review.id !== id));
   setCommentToDelete(null);
   try {
     await api.delete(`/events/${eventId}/reviews/${reviewerId}`);
@@ -123,14 +124,35 @@ const EventDetails: React.FC<EventDetailsProps> = ({
 };
 
 
+  // Make sure to pass 'userId' when you call this function
   async function handleCallAPI() {
       try {
         setLoading(true);
         setError(null);
         const res = await api.get(`/events/${eventId}/reviews`);
-        const result = frameData(res.data.data)
-        console.log(result);
-        setReviews(result);
+        const allReviews: Review[] = frameData(res.data.data);
+        
+        const { userReview, otherReviews } = allReviews.reduce((acc, review) => {
+          if (review.userId === userId) {
+            acc.userReview = { 
+              ...review, 
+              firstName: "You",    
+              lastName: "" 
+            };
+            
+          } else {
+            acc.otherReviews.push(review);
+          }
+          return acc;
+        }, { userReview: null as Review | null, otherReviews: [] as Review[] }); 
+
+        const finalSortedReviews = userReview 
+          ? [userReview, ...otherReviews] 
+          : otherReviews;
+        
+        console.log(finalSortedReviews);
+        setReviews(finalSortedReviews); 
+
       } catch (err) {
         console.error(err);
         setError("Failed to load events. Please try again later.");
@@ -138,7 +160,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         setLoading(false);
       }
     }
-  
   
     useEffect(() => {
      handleCallAPI();
@@ -379,7 +400,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       :null}
       {/* Reviews List */}
       <Box sx={{ flex: 1 , maxHeight: '450px', overflowY: 'auto' }}>
-        {Reviews.map((review) => (
+        {Reviews?.map((review) => (
           <Box
             key={review.id}
             sx={{

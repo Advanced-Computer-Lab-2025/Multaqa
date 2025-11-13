@@ -25,7 +25,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   icon: IconComponent,
   background,
   setRefresh,
-  attended
+  attended,
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -188,6 +189,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           eventType="Bazaar"
           details={updatedDetails}
           color={background}
+          userId={userInfo._id}
           button={
           !registered &&
           user == "vendor" && (

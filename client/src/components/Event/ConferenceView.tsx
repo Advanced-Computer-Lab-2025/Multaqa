@@ -24,7 +24,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   user,
   onDelete,
   setRefresh,
-  attended
+  attended,
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -171,6 +172,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                       user={user?user:""}
                       attended ={attended}
                       eventId={id}
+                      userId={userInfo._id}
                     />
                   </CustomModalLayout>
     </>
