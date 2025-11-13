@@ -13,6 +13,7 @@ import theme from '@/themes/lightTheme';
 import { toast, ToastContainer } from 'react-toastify';
 import { api } from '../../../api'; 
 import { frameData } from './utils/frameData';
+import { ReviewSkeletonList } from './utils/ReviewSkeletonList';
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -157,12 +158,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         console.error(err);
         setError("Failed to load events. Please try again later.");
       } finally {
-        setLoading(false);
+        setLoading(true);
       }
     }
   
     useEffect(() => {
      handleCallAPI();
+    // setReviews(reviews);
     }, [refresh]);
   
   const checkScroll = React.useCallback(() => {
@@ -400,7 +402,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       :null}
       {/* Reviews List */}
       <Box sx={{ flex: 1 , maxHeight: '450px', overflowY: 'auto' }}>
-        {Reviews?.map((review) => (
+         {loading?<ReviewSkeletonList/> :
+        Reviews?.map((review) => (
           <Box
             key={review.id}
             sx={{
@@ -409,6 +412,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
               borderRadius: 2,
               backgroundColor: 'background.paper',
               boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+              border:"1px solid rgba(0,0,0,0.07)"
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
