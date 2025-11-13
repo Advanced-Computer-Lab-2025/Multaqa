@@ -75,10 +75,10 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 <Typography variant="subtitle1" fontWeight="600">
                   {transaction.event_name}
                 </Typography>
-                <Typography variant="body2" color="textSecondary" sx={{ textTransform: 'capitalize' }}>
+                <Typography variant="body2" color={isRefund?'#10B981':'#EF4444'} sx={{ textTransform: 'capitalize' }}>
                   {transaction.type}
                 </Typography>
-                <Typography variant="caption" color="textSecondary">
+                <Typography variant="caption" color="textPrimary">
                   {transaction.date}
                 </Typography>
               </Box>
