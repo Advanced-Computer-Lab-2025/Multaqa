@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Box, Paper, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { keyframes, useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import type { SvgIconComponent } from "@mui/icons-material";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -97,6 +97,39 @@ export default function CreationHubDropdown({
     };
   }, [options.length]);
 
+  const bloomPanel = keyframes`
+    0% {
+      transform: translateY(24px) scale(0.88, 0.94);
+      opacity: 0;
+      filter: blur(12px);
+    }
+    55% {
+      transform: translateY(-4px) scale(1.02, 1.01);
+      opacity: 1;
+      filter: blur(0px);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      filter: blur(0px);
+    }
+  `;
+
+  const haloPulse = keyframes`
+    0% {
+      opacity: 0.35;
+      transform: scale(0.8);
+    }
+    70% {
+      opacity: 0.1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.08);
+    }
+  `;
+
   return (
     <Box sx={{ position: "relative", display: "inline-flex" }}>
       <CustomButton
@@ -134,6 +167,18 @@ export default function CreationHubDropdown({
             boxShadow: "0 18px 40px rgba(24, 39, 75, 0.18)",
             backgroundColor: theme.palette.background.paper,
             zIndex: 12,
+            transformOrigin: "top right",
+            animation: `${bloomPanel} 520ms cubic-bezier(0.19, 1, 0.22, 1)` ,
+            overflow: "visible",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              inset: "-12px",
+              borderRadius: "28px",
+              border: `1px solid ${theme.palette.primary.light}66`,
+              pointerEvents: "none",
+              animation: `${haloPulse} 680ms ease-out forwards`,
+            },
           }}
         >
           <Typography
