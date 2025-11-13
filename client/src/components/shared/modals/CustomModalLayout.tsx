@@ -11,7 +11,8 @@ import { createDelayedCloseHandler } from './utils';
 import { useTheme, lighten } from '@mui/material/styles';
 
 export default function CustomModalLayout({ children, open, onClose, width, borderColor }: CustomModalLayoutProps) {
-  const handleClose = createDelayedCloseHandler(onClose, 500);
+  const transitionDuration = 650;
+  const handleClose = createDelayedCloseHandler(onClose, transitionDuration);
 
   const theme = useTheme();
   // Use provided borderColor or fallback to theme. Compute a lighter variant for the close icon.
@@ -81,11 +82,12 @@ export default function CustomModalLayout({ children, open, onClose, width, bord
       slots={{ backdrop: Backdrop }}
       slotProps={{
         backdrop: {
-          timeout: 500,
+          timeout: transitionDuration,
         },
       }}
+      disableAutoFocus
     >
-      <Fade in={open}>
+      <Fade in={open} timeout={transitionDuration}>
   <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
             {/* Close Icon at the top right - Fixed header */}

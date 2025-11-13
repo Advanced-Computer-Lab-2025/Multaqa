@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useRouter, usePathname } from "@/i18n/navigation";
+import LoadingBlocks from "@/components/shared/LoadingBlocks";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -27,19 +28,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Show loader until we know if user exists
   if (isLoading) {
-    return (
-      <div
-        style={{
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: "1.2rem",
-        }}
-      >
-        Loading...
-      </div>
-    );
+    return <LoadingBlocks />;
   }
 
   // If it's public route → show content even if user = null

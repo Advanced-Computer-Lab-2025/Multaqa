@@ -20,7 +20,6 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
-import CreateParent from "../createButton/createParent";
 
 import { deleteEvent, frameData } from "./utils";
 import { mockEvents, mockUserInfo } from "./mockData";
@@ -33,6 +32,10 @@ import EventIcon from "@mui/icons-material/Event";
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
+import SellIcon from '@mui/icons-material/Sell';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
+
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -84,6 +87,30 @@ const filterGroups: FilterGroup[] = [
   },
 ];
 
+const EventColor = [
+   {
+    color:"#6e8ae6", // Trips
+    icon: FlightTakeoffIcon , //indigo
+  },
+  {
+    icon:StorefrontIcon, //Booth
+    color: "#2196f3", // Blue
+  },
+  {
+    icon: EventIcon, //Conference
+    color: "#ff9800", // Orange
+  },
+  {
+    icon: SellIcon, //Bazaar
+    color: "#e91e63", // Pink
+  },
+  {
+    icon: Diversity3Icon, //workshop
+    color: "#9c27b0", // Purple
+  },
+];
+
+
 const BrowseEvents: React.FC<BrowseEventsProps> = ({
   registered,
   user,
@@ -107,7 +134,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     email: string;
   }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
-
   // Separate effect for initial user data
   useEffect(() => {
     getUserData();
@@ -132,6 +158,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setReady(true);
   };
 
+  const registeredEvents = userInfo.registeredEvents;
+  
   const handleRegistered = () => {
     setLoading(true);
     console.log(userInfo);
@@ -150,9 +178,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const res = await api.get("/events");
         const data = res.data.data;
         const result = frameData(data);
-        const newResults = user === "vendor"
-        ? result.filter((event) => event.type === "bazaar")
-        : result;
+        const newResults =
+          user === "vendor"
+            ? result.filter((event) => event.type === "bazaar")
+            : result;
         setEvents(newResults);
       }
     } catch (err) {
@@ -176,9 +205,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   };
 
   // Use useCallback to memoize the search handler
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  }, []);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    []
+  );
 
   // Filter and search logic
   const filteredEvents = useMemo(() => {
@@ -235,12 +267,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     return filtered;
   }, [searchQuery, filters, events]);
 
-  const handleFilterChange = useCallback((groupId: string, value: FilterValue) => {
-    setFilters((prev) => ({
-      ...prev,
-      [groupId]: value,
-    }));
-  }, []);
+  const handleFilterChange = useCallback(
+    (groupId: string, value: FilterValue) => {
+      setFilters((prev) => ({
+        ...prev,
+        [groupId]: value,
+      }));
+    },
+    []
+  );
 
   const handleResetFilters = useCallback(() => {
     setFilters({});
@@ -257,12 +292,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
+    //here you can check if attended should be set to true by cheking if it exists in the attended list of the current user 
     switch (event.type) {
       case EventType.CONFERENCE:
         return (
           <ConferenceView
             id={event.id}
             setRefresh={setRefresh}
+            background={EventColor[2].color}
+            icon={EventColor[2].icon}
             key={event.id}
             details={event.details}
             name={event.name}
@@ -276,9 +314,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         );
       case EventType.WORKSHOP:
+        console.log(event)
         return (
           <WorkshopView
             id={event.id}
+            background={EventColor[4].color}
+            icon={EventColor[4].icon}
             setRefresh={setRefresh}
             key={event.id}
             details={event.details}
@@ -289,6 +330,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -298,6 +340,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BazarView
             id={event.id}
+            vendors={event.vendors}
+            background={EventColor[3].color}
+            icon={EventColor[3].icon}
             setRefresh={setRefresh}
             key={event.id}
             details={event.details}
@@ -305,6 +350,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -314,13 +360,17 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         return (
           <BoothView
             id={event.id}
+            background={EventColor[1].color}
+            icon={EventColor[1].icon}
             setRefresh={setRefresh}
             key={event.id}
             company={event.company}
             people={event.people}
+            description={event.description}
             details={event.details}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -329,6 +379,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       case EventType.TRIP:
         return (
           <TripView
+            background={EventColor[0].color}
+            icon={EventColor[0].icon}
             id={event.id}
             setRefresh={setRefresh}
             key={event.id}
@@ -337,6 +389,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -361,7 +414,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             color: `${theme.palette.tertiary.dark}`,
           }}
         >
-          {registered ? " My Registered Events" : "Browse Events"}
+          {user !== "events-only"? registered ? " My Registered Events" : "Browse Events":"Manage Events"}
         </Typography>
         <Typography
           variant="body2"
@@ -387,7 +440,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       >
         <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
           <CustomSearchBar
-            width="60vw"
+            width="64vw"
             type="outwards"
             icon
             value={searchQuery}
@@ -412,11 +465,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       {/* Loading State */}
       {loading && (
-        <Box sx={{ textAlign: "center", py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Loading events...
-          </Typography>
-        </Box>
+       <EventCardsListSkeleton />
       )}
 
       {/* Error State */}
@@ -434,12 +483,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(3, 1fr)",
-              },
+              gridTemplateColumns: "repeat(1, 1fr)",
               gap: 3,
+              padding:"0px 40px"
             }}
           >
             {filteredEvents.map((event) => (
@@ -471,7 +517,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           {events.length > 0 && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="caption" color="text.secondary">
-                Browsing {filteredEvents.length} of {events.length} events
+                {registered?`Viewing ${filteredEvents.length} of ${events.length} events`:`Browsing ${filteredEvents.length} of ${events.length} events`}
               </Typography>
             </Box>
           )}

@@ -1,3 +1,5 @@
+import { SvgIconComponent } from "@mui/icons-material";
+
 type BasicProps = {
   user?: string,
   registered?: boolean,
@@ -5,12 +7,16 @@ type BasicProps = {
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
   id:string,
   userInfo:{ id: string; name: string; email:string };
+  background:string,
+  icon: SvgIconComponent;
   isReady:boolean;
+  attended?:boolean;
+  isRegisteredEvent?:boolean;
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
   name: string;
-  // vendors:
+  vendors?:any;
   description: string;
 };
 
@@ -18,6 +24,7 @@ export type BazarViewProps = BasicProps & {
 export type BoothViewProps = BasicProps & {
   company: string,
   people?: { name: string; email: string }[];
+  description:string,
   details: Record<string, string>,
 }
 

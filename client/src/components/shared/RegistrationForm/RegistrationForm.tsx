@@ -1,7 +1,11 @@
 import React from "react";
 import { Formik } from "formik";
 import { RegistrationFormProps } from "./types";
-import { getValidationSchema, handleRegistrationSubmit } from "./utils";
+import {
+  getValidationSchema,
+  createDocumentHandler,
+  createRetryHandler,
+} from "./utils";
 import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
@@ -9,39 +13,51 @@ import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
-// import UploadField from "../UploadField/UploadField";
-// import DescriptionIcon from "@mui/icons-material/Description";
-// import BusinessIcon from "@mui/icons-material/Business";
+import { FileUpload } from "../FileUpload";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface";
+import { useState } from "react";
+import type { UploadStatus } from "../FileUpload/types";
+import { Button } from "@mui/material";
+import { IFileInfo } from "../../../../../backend/interfaces/fileData.interface";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
   const { signup } = useAuth();
+  const [taxCardStatus, setTaxCardStatus] = useState<UploadStatus>("idle");
+  const [logoStatus, setLogoStatus] = useState<UploadStatus>("idle");
+  const [currentTaxCardFile, setCurrentTaxCardFile] = useState<File | null>(
+    null
+  );
+  const [currentLogoFile, setCurrentLogoFile] = useState<File | null>(null);
 
-  const handleRegistration = async (data: {
-    firstName?: string;
-    lastName?: string;
-    email: string;
-    password: string;
-    gucId?: string;
-    companyName?: string;
-    type: string;
-  }) => {
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleRegistration = async (data: any) => {
     const result = await signup(data);
     return result as unknown as SignupResponse;
   };
-
-  const initialValues: {
-    firstName?: string;
-    lastName?: string;
+  interface StudentSignupData {
+    type: "studentOrStaff";
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
-    confirmPassword: string;
-    gucId?: string;
-    companyName?: string;
-  } =
+    gucId: string;
+  }
+  
+  interface VendorSignupData {
+    type: "vendor";
+    companyName: string;
+    email: string;
+    password: string;
+    taxCard: IFileInfo | null; 
+    logo: IFileInfo | null; 
+  }
+type SignupData = StudentSignupData | VendorSignupData;
+
+  const initialValues =
     UserType !== "vendor"
       ? {
           firstName: "",
@@ -56,20 +72,77 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
           email: "",
           password: "",
           confirmPassword: "",
+          taxCard: null,
+          logo: null,
         };
 
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={getValidationSchema(UserType)}
-      onSubmit={(values, formikBag) =>
-        handleRegistrationSubmit(
-          values,
-          formikBag,
-          UserType,
-          handleRegistration
-        )
-      }
+      onSubmit={async (values, { setSubmitting, resetForm }) => {
+        try {
+          // Prepare data for signup based on user type
+          const signupData: SignupData =
+            UserType !== "vendor"
+              ? ({
+                  firstName: values.firstName as string,
+                  lastName: values.lastName as string,
+                  email: values.email,
+                  password: values.password,
+                  gucId: values.gucId as string,
+                  type: "studentOrStaff",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } as any)
+              : ({
+                  companyName: values.companyName as string,
+                  email: values.email,
+                  password: values.password,
+                  taxCard: taxCardStatus === "success" ? values.taxCard : null,
+                  logo: logoStatus === "success" ? values.logo : null,
+                  type: "vendor",
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                } as any);
+
+          await handleRegistration(signupData);
+
+          resetForm();
+
+          toast.success(
+            "Registration successful! Please check your email for verification.",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+
+          //eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+          const message =
+            error?.response?.data?.error ||
+            error?.message ||
+            "Something went wrong. Please try again.";
+
+          toast.error(message, {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
+        } finally {
+          setSubmitting(false);
+        }
+      }}
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
@@ -77,7 +150,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             containerType="outwards"
             padding="1px"
             margin="20px"
-            width="650px"
+            width="700px"
             borderRadius="20px"
           >
             <Box sx={{ position: "relative" }}>
@@ -323,64 +396,106 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
                     )}
                 </div>
                 {/* File Upload Field */}
-                {/* {UserType === "vendor" && (
+                {UserType === "vendor" && (
                   <div
                     className="flex items-start justify-between gap-10 flex-row w-full"
                     style={{ marginTop: "30px", marginBottom: "20px" }}
                   >
-                    
                     <div className="flex flex-col w-full">
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          mb: 1,
-                          fontWeight: 600,
-                          color: theme.palette.text.primary,
-                        }}
-                      >
-                        <DescriptionIcon
-                          sx={{
-                            fontSize: 20,
-                            color: theme.palette.primary.main,
-                            marginRight: "5px",
-                          }}
-                        />
-                        Company Tax Card:
-                      </Typography>
-                      <UploadField
+                      <FileUpload
                         label="Upload Tax Card"
-                        accept=".pdf,image/*"
-                        showPreviewAs="file"
+                        accept=".pdf,.doc,.docx,image/*"
+                        variant="tax-card"
+                        uploadStatus={taxCardStatus}
+                        onFileSelected={createDocumentHandler(
+                          setCurrentTaxCardFile,
+                          setTaxCardStatus,
+                          formik.setFieldValue,
+                          "taxCard",
+                          formik
+                        )}
+                        width={300}
                       />
+                      {formik.touched.taxCard && formik.errors.taxCard && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.taxCard}
+                          </Typography>
+                        </Box>
+                      )}
+                      {taxCardStatus === "error" && (
+                        <Button
+                          onClick={createRetryHandler(
+                            currentTaxCardFile,
+                            createDocumentHandler(
+                              setCurrentTaxCardFile,
+                              setTaxCardStatus,
+                              formik.setFieldValue,
+                              "taxCard",
+                              formik
+                            )
+                          )}
+                          variant="outlined"
+                          color="error"
+                          sx={{ mt: 2 }}
+                        >
+                          Retry Upload
+                        </Button>
+                      )}
                     </div>
 
-                    
                     <div className="flex flex-col w-full">
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          mb: 1,
-                          fontWeight: 600,
-                          color: theme.palette.text.primary,
-                        }}
-                      >
-                        <BusinessIcon
-                          sx={{
-                            fontSize: 20,
-                            color: theme.palette.primary.main,
-                            marginRight: "5px",
-                          }}
-                        />
-                        Company Logo:
-                      </Typography>
-                      <UploadField
+                      <FileUpload
                         label="Upload Company Logo"
-                        accept="image/*"
-                        showPreviewAs="image"
+                        accept="image/*,.pdf,.doc,.docx"
+                        variant="logo"
+                        uploadStatus={logoStatus}
+                        onFileSelected={createDocumentHandler(
+                          setCurrentLogoFile,
+                          setLogoStatus,
+                          formik.setFieldValue,
+                          "logo",
+                          formik
+                        )}
+                        width={300}
                       />
+                      {formik.touched.logo && formik.errors.logo && (
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <ErrorOutlineIcon
+                            color="error"
+                            sx={{ fontSize: 16, mr: 0.5 }}
+                          />
+                          <Typography variant="caption" color="error">
+                            {formik.errors.logo}
+                          </Typography>
+                        </Box>
+                      )}
+                      {logoStatus === "error" && (
+                        <Button
+                          onClick={createRetryHandler(
+                            currentLogoFile,
+                            createDocumentHandler(
+                              setCurrentLogoFile,
+                              setLogoStatus,
+                              formik.setFieldValue,
+                              "logo",
+                              formik
+                            )
+                          )}
+                          variant="outlined"
+                          color="error"
+                          sx={{ mt: 2 }}
+                        >
+                          Retry Upload
+                        </Button>
+                      )}
                     </div>
                   </div>
-                )} */}
+                )}
 
                 {/* Submit Button */}
                 <div className="w-full mt-4">

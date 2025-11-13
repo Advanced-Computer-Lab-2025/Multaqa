@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import LoadingBlocks from "@/components/shared/LoadingBlocks";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
@@ -21,6 +22,7 @@ import WorkshopList from "@/components/shared/Professor/WorkshopList";
 import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
+import Wallet from "@/components/Wallet/Wallet";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,22 +91,11 @@ export default function EntityCatchAllPage() {
       // This will be handled by EntityNavigation's useEffect
       return;
     }
-  }, [
-    user,
-    isLoading,
-    entityFromUrl,
-    correctEntitySegment,
-    router,
-    tab,
-  ]);
+  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, tab]);
 
   // Show loading state
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingBlocks />;
   }
 
   // Show error if no user
@@ -246,7 +237,6 @@ export default function EntityCatchAllPage() {
 
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
-     
       if (section === "available") {
         // Interpreting "Available Opportunities" as upcoming accepted participation view for consistency
         return <VendorUpcomingParticipation />;
@@ -261,8 +251,15 @@ export default function EntityCatchAllPage() {
       }
 
       if (section === "bazaars") {
-        return <BrowseEventsContent registered={false} user={"vendor"} userInfo={user} userID={userId}/>
-       }
+        return (
+          <BrowseEventsContent
+            registered={false}
+            user={"vendor"}
+            userInfo={user}
+            userID={userId}
+          />
+        );
+      }
     }
 
     // Courts booking page for stakeholders
@@ -293,6 +290,12 @@ export default function EntityCatchAllPage() {
             </p>
           </div>
         );
+      }
+    }
+
+    if(["student", "staff", "ta", "professor"].includes(entity) && tab === "wallet"){
+      if(section === "overview" || section === ""){
+        return<Wallet />;
       }
     }
 
@@ -339,15 +342,21 @@ export default function EntityCatchAllPage() {
         return (
           <div className="p-6 bg-white">
             <h2 className="text-xl font-semibold mb-4">Vendor Directory</h2>
-            <p className="text-gray-600">Vendor directory management is coming soon.</p>
+            <p className="text-gray-600">
+              Vendor directory management is coming soon.
+            </p>
           </div>
         );
       }
       if (section === "loyalty-partners") {
         return (
           <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Loyalty Program Partners</h2>
-            <p className="text-gray-600">Loyalty partnership management will be available soon.</p>
+            <h2 className="text-xl font-semibold mb-4">
+              Loyalty Program Partners
+            </h2>
+            <p className="text-gray-600">
+              Loyalty partnership management will be available soon.
+            </p>
           </div>
         );
       }
@@ -355,7 +364,9 @@ export default function EntityCatchAllPage() {
         return (
           <div className="p-6 bg-white">
             <h2 className="text-xl font-semibold mb-4">Vendor Documents</h2>
-            <p className="text-gray-600">Document storage and approvals are under construction.</p>
+            <p className="text-gray-600">
+              Document storage and approvals are under construction.
+            </p>
           </div>
         );
       }
@@ -368,7 +379,7 @@ export default function EntityCatchAllPage() {
             registered={false}
             user="events-only"
             userID={userId}
-            userInfo={user} 
+            userInfo={user}
           />
         );
       }
@@ -392,7 +403,9 @@ export default function EntityCatchAllPage() {
         return (
           <div className="p-6 bg-white">
             <h2 className="text-xl font-semibold mb-4">Vendor Directory</h2>
-            <p className="text-gray-600">Vendor directory management is coming soon.</p>
+            <p className="text-gray-600">
+              Vendor directory management is coming soon.
+            </p>
           </div>
         );
       }
@@ -400,8 +413,12 @@ export default function EntityCatchAllPage() {
       if (section === "loyalty-partners") {
         return (
           <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Loyalty Program Partners</h2>
-            <p className="text-gray-600">Loyalty partnership management will be available soon.</p>
+            <h2 className="text-xl font-semibold mb-4">
+              Loyalty Program Partners
+            </h2>
+            <p className="text-gray-600">
+              Loyalty partnership management will be available soon.
+            </p>
           </div>
         );
       }
@@ -410,7 +427,9 @@ export default function EntityCatchAllPage() {
         return (
           <div className="p-6 bg-white">
             <h2 className="text-xl font-semibold mb-4">Vendor Documents</h2>
-            <p className="text-gray-600">Document storage and approvals are under construction.</p>
+            <p className="text-gray-600">
+              Document storage and approvals are under construction.
+            </p>
           </div>
         );
       }
@@ -497,7 +516,9 @@ export default function EntityCatchAllPage() {
           <BrowseEventsContent
             registered={false}
             user={entity}
-            userID={userId} userInfo={user}  />
+            userID={userId}
+            userInfo={user}
+          />
         );
       }
       if (section === "all-events") {
@@ -506,7 +527,7 @@ export default function EntityCatchAllPage() {
             registered={false}
             user={entity}
             userID={userId}
-            userInfo={user} 
+            userInfo={user}
           />
         );
       }
@@ -518,7 +539,7 @@ export default function EntityCatchAllPage() {
             registered={true}
             user="student"
             userID={userId}
-            userInfo={user} 
+            userInfo={user}
           />
         );
       }
@@ -526,19 +547,31 @@ export default function EntityCatchAllPage() {
 
     if (entity === "professor" && tab === "workshops") {
       if (section === "my-workshops") {
-        return <WorkshopList userId={userId} filter={"none"}  userInfo={user}  />;
+        return <WorkshopList userId={userId} filter={"none"} userInfo={user} />;
       }
       if (section === "my-accepted-workshops") {
-        return <WorkshopList userId={userId} filter={"approved"}  userInfo={user}  />;
+        return (
+          <WorkshopList userId={userId} filter={"approved"} userInfo={user} />
+        );
       }
       if (section === "my-rejected-workshops") {
-        return <WorkshopList userId={userId} filter={"rejected"}  userInfo={user}  />;
+        return (
+          <WorkshopList userId={userId} filter={"rejected"} userInfo={user} />
+        );
       }
       if (section === "my-under-workshops") {
-        return <WorkshopList userId={userId} filter={"awaiting_review"}  userInfo={user}  />;
+        return (
+          <WorkshopList
+            userId={userId}
+            filter={"awaiting_review"}
+            userInfo={user}
+          />
+        );
       }
       if (section === "my-pending-workshops") {
-        return <WorkshopList userId={userId} filter={"pending"}  userInfo={user}  />;
+        return (
+          <WorkshopList userId={userId} filter={"pending"} userInfo={user} />
+        );
       }
     }
     // Default placeholder content

@@ -41,7 +41,7 @@ const sessionTypeConfig = [
   {
     type: "AEROBICS" as GymSessionType,
     icon: AerobicsIcon,
-    color: "#ff9800", // Orange
+    color: "#e91e63", // Pink
     label: "Aerobics",
   },
   {
@@ -175,12 +175,12 @@ export default function SessionTypeDropdown({
                     key={config.type}
                     onMouseDown={(e) => {
                       e.stopPropagation();
-                      console.log("Box mouseDown for:", config.type);
+                      // console.log("Box mouseDown for:", config.type);
                       handleSessionTypeClick(config.type);
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log("Box clicked for:", config.type);
+                      // console.log("Box clicked for:", config.type);
                       handleSessionTypeClick(config.type);
                     }}
                     sx={{

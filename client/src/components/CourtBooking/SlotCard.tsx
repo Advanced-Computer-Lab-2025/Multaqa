@@ -39,21 +39,27 @@ const SlotCard: React.FC<Props> = ({
     <Card
       elevation={0}
       sx={{
-        borderRadius: 2,
+        borderRadius: 1.75,
         border: (theme) => `1px solid ${theme.palette[color].light}`,
-        background: (theme) => theme.palette.background.default,
+        background: (theme) => theme.palette.background.paper,
         boxShadow:
-          "-5px -5px 10px 0 #FAFBFF, 5px 5px 10px 0 rgba(22, 27, 29, 0.12)",
+          "-4px -4px 8px 0 #FAFBFF, 4px 4px 8px 0 rgba(22, 27, 29, 0.1)",
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          py: 1.5,
+          px: 1.75,
+          '&:last-child': { pb: 1.5 },
+        }}
+      >
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          spacing={1}
+          spacing={1.5}
         >
-          <Typography fontWeight={600} sx={{ color: "text.primary" }}>
+          <Typography fontWeight={700} sx={{ color: "text.primary", fontSize: 14 }}>
             {formatTimeRange(slot.start, slot.end)}
           </Typography>
           <Box
@@ -68,9 +74,9 @@ const SlotCard: React.FC<Props> = ({
                 : isReserved
                 ? "#6e6e6e"
                 : "#fff",
-              borderRadius: "16px",
-              padding: "4px 12px",
-              fontSize: "10px",
+              borderRadius: "14px",
+              padding: "2px 10px",
+              fontSize: "11px",
               fontWeight: 600,
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
             }}
@@ -86,9 +92,8 @@ const SlotCard: React.FC<Props> = ({
               variant="contained"
               color="primary"
               onClick={() => onReserve?.(slot)}
-            >
-              Reserve
-            </CustomButton>
+              label="Reserve"
+            />
           )}
           {isYours && (
             <CustomButton
@@ -96,10 +101,8 @@ const SlotCard: React.FC<Props> = ({
               variant="outlined"
               color="primary"
               onClick={() => onCancel?.(slot)}
-              sx={{ borderRadius: '12px', fontWeight: 700 }}
-            >
-              Cancel
-            </CustomButton>
+              label="Cancel"
+            />
           )}
         </Stack>
       </CardContent>

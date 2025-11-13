@@ -97,7 +97,7 @@ export default function GymSessionsManagementContent() {
     const colors = {
       YOGA: "#4caf50", // Green - matches SessionTypeDropdown
       PILATES: "#2196f3", // Blue - matches SessionTypeDropdown
-      AEROBICS: "#ff9800", // Orange - matches SessionTypeDropdown
+      AEROBICS: "#e91e63", // Pink - matches SessionTypeDropdown
       ZUMBA: "#e91e63", // Pink - matches SessionTypeDropdown
       CROSS_CIRCUIT: "#9c27b0", // Purple - matches SessionTypeDropdown
       KICK_BOXING: "#f44336", // Red - matches SessionTypeDropdown

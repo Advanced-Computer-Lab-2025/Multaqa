@@ -5,6 +5,7 @@ import { FUNDING_SOURCES } from "../../constants/events.constants";
 import "../stakeholder-schemas/staffMemberSchema";
 import { Event_Request_Status } from "../../constants/user.constants";
 import { IWorkshop } from "../../interfaces/models/workshop.interface";
+import { boolean } from "joi";
 
 const workshopSchema = new Schema<IWorkshop>({
   fullAgenda: { type: String },
@@ -29,7 +30,7 @@ const workshopSchema = new Schema<IWorkshop>({
   fundingSource: { type: String, enum: Object.values(FUNDING_SOURCES) },
   extraRequiredResources: [{ type: String }],
   capacity: { type: Number, min: 1, default: 10 },
-  createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: "staffMember", required: true },
   price: { type: Number, required: true, min: 0 },
   approvalStatus: {
     type: String,
@@ -47,6 +48,8 @@ const workshopSchema = new Schema<IWorkshop>({
     ],
     default: [],
   },
+  certificatesSent: { type: Boolean, default: false },
+  certificatesSentAt: { type: Date, default: null }
 });
 
 export const Workshop = Event.discriminator("workshop", workshopSchema);

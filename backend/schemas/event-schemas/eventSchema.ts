@@ -18,7 +18,14 @@ const EventSchema = new Schema<IEvent>(
     },
     attendees: [{ type: Schema.Types.ObjectId, ref: "User" }],
     allowedUsers: [{ type: String, enum: Object.values(UserRole) }],
-    reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
+    reviews: [
+      {
+        reviewer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        rating: { type: Number, min: 1, max: 5},
+        comment: { type: String },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     eventName: { type: String, required: true },
     eventStartDate: { type: Date, required: true },
     eventEndDate: { type: Date, required: true },
@@ -27,9 +34,12 @@ const EventSchema = new Schema<IEvent>(
     registrationDeadline: { type: Date, required: true },
     location: { type: String, required: true, default: "" },
     description: { type: String, required: true },
+    stripeProductId: { type: String },
+    stripePriceId: { type: String },
   },
-  { discriminatorKey: "type", collection: "events" }
+  { discriminatorKey: "type", collection: "events", timestamps: true }
 );
+EventSchema.set("toObject", { virtuals: true });
 
 EventSchema.virtual("isPassed").get(function (this: IEvent) {
   return new Date() > this.eventEndDate;
@@ -42,9 +52,14 @@ EventSchema.set("toJSON", {
     if (doc.attendees !== undefined) {
       ret.attendees = doc.attendees;
     }
+    const record = ret as unknown as Record<string, unknown>;
+    Object.keys(record).forEach((key) => {
+      if (record[key] == null) {
+        delete record[key];
+      }
+    });
     return ret;
   },
 });
-EventSchema.set("toObject", { virtuals: true });
 
 export const Event = model<IEvent>("Event", EventSchema);

@@ -17,7 +17,7 @@ export const StyledIconButton = styled(IconButton, {
       case "success":
         return "#4caf50";
       case "warning":
-        return "#ff9800";
+        return theme.palette.warning.main;
       case "info":
       case "help":
         return "#2196f3";
@@ -53,5 +53,5 @@ export const StyledIconButton = styled(IconButton, {
   };
 });
 
-export type IconType = "close" | "delete" | "edit" | "add" | "save" | "submit" | "bookmark" | "search" | "warning" | "error" | "success" | "info" | "help"| "primary"
-|"secondary"|"tertiary";
+export type IconType = "close" | "delete" | "edit" | "add" | "save" | "submit" | "bookmark" | "search" | "warning" | "error" | "success" | "info" | "help" | "primary"
+  | "secondary" | "tertiary";
