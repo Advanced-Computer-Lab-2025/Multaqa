@@ -12,6 +12,7 @@ import EventCard from "../shared/cards/EventCard";
 import { CustomModalLayout } from "../shared/modals";
 import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
+import PaymentDrawer from "./helpers/PaymentDrawer";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -26,16 +27,25 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   registered,
   isRegisteredEvent,
   onDelete,
-  isReady,
   userInfo,
   attended
 }) => {
+  console.log(userInfo);
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
+  
+   const handlePaymentSuccess = (paymentDetails:any) => {
+    console.log('Payment successful:', paymentDetails);
+    setPaymentDrawerOpen(false);
+    
+    // Handle successful payment - redirect, show confirmation, etc.
+    alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
+  };
 
   const startDate = new Date(details["Start Date"]);
   const now = new Date();
@@ -211,15 +221,15 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         </Box>
       </CustomModal>
       <RegisterEventModal 
-        isReady={isReady} 
-        open={register} 
+        open={register}
         onClose={() => { setRegister(false); } }
-        eventType={"Workshop"} 
-        userInfo={userInfo} 
+        eventType={"Workshop"}
+        userInfo={userInfo}
         eventId={id}
-        color={background}
-      />
+       color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
+      
       <CancelRegistration eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+        
       <CustomModalLayout
               open={detailsModalOpen}
               onClose={() => setDetailsModalOpen(false)}
@@ -266,6 +276,15 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 eventId={id}
               />
             </CustomModalLayout>
+             <PaymentDrawer
+              open={paymentDrawerOpen}
+              onClose={() => setPaymentDrawerOpen(false)}
+              totalAmount={parseInt(details["Cost"])}
+              walletBalance={userInfo.walletBalance||0} 
+              onPaymentSuccess={handlePaymentSuccess}
+              eventId={id}
+              email={userInfo.email}
+            />
     </>
   );
 };
