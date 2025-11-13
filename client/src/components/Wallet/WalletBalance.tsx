@@ -9,19 +9,20 @@ interface WalletBalanceProps {
 }
 
 const WalletBalance = ({userInfo, currentBalance=0}:WalletBalanceProps) => {
-  const gradient = `linear-gradient(135deg, ${theme.palette.tertiary?.main ?? theme.palette.primary.light} 0%, ${theme.palette.primary.dark} 100%)`;
+  // Move gradient definition INSIDE the component
+  const gradient = `linear-gradient(135deg, #3a4f99 0%, #598bbd 100%)`;
 
   return (
     <Box
       sx={{
-        background: gradient, // slightly lighter grey
-        borderRadius: 3,            // rounder corners
+        background: gradient, // use background instead of backgroundColor
+        borderRadius: 3,
         m: 2,
         display: 'flex',
         flexDirection: 'column',
         gap: 0,
         overflow: 'hidden',
-        boxShadow: '0 6px 18px rgba(30, 30, 37, 0.1)', // subtle 3D shadow
+        boxShadow: '0 6px 18px rgba(30, 30, 37, 0.1)',
         transition: 'box-shadow 200ms ease, transform 200ms ease',
         '&:hover': {
           boxShadow: '0 12px 30px rgba(14, 30, 37, 0.12)',
@@ -29,7 +30,7 @@ const WalletBalance = ({userInfo, currentBalance=0}:WalletBalanceProps) => {
         },
       }}
     >
-      {/* Header: icon + name on same line with full-width bottom border */}
+      {/* Header */}
       <Box
         sx={{
           display: 'flex',
@@ -37,21 +38,21 @@ const WalletBalance = ({userInfo, currentBalance=0}:WalletBalanceProps) => {
           gap: 2,
           p: 2,
           width: '100%',
-          borderBottom: `2px solid #E6E6E6`, // full width border under header
+          borderBottom: `2px solid rgba(255, 255, 255, 0.3)`,
         }}
       >
-        <User size={40} color={theme.palette.tertiary.contrastText} />
-        <Typography variant="h6" fontWeight="bold">
+        <User size={40} color="#fff" />
+        <Typography variant="h6" fontWeight="bold" color="#fff">
           {userInfo?.firstName ?? "User"}'s Account
         </Typography>
       </Box>
 
       {/* Body */}
       <Box sx={{ p: 2, width: '100%' }}>
-        <Typography variant="h6" color={theme.palette.tertiary.contrastText} mb={1}>
+        <Typography variant="h6" color="#fff" mb={1}>
           Current Balance
         </Typography>
-        <Typography variant="h5" color={theme.palette.tertiary.contrastText}>
+        <Typography variant="h5" color="#fff" fontWeight="bold">
           ${currentBalance.toFixed(2)}
         </Typography>
       </Box>

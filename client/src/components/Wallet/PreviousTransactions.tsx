@@ -39,8 +39,8 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 alignItems: 'center',
                 gap: 2,
                 p: 2,
-                background: gradient,
-                borderRadius: 2,
+                backgroundColor: "#FAFAFA",
+                borderRadius: 3,
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
                 transition: 'all 0.3s ease',
                 '&:hover': {
@@ -59,9 +59,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                   width: 50,
                   height: 50,
                   borderRadius: 1.5,
-                  backgroundColor: theme.palette.tertiary.contrastText,
-                  borderColor: "black",
-                  borderWidth: 1,
+                  backgroundColor: isRefund ? '#D1FAE5' : '#FEE2E2',
                   transition: 'transform 0.3s ease',
                 }}
               >
@@ -74,13 +72,13 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
 
               {/* Transaction Details */}
               <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle1" fontWeight="600" color={theme.palette.text.primary}>
+                <Typography variant="subtitle1" fontWeight="600">
                   {transaction.event_name}
                 </Typography>
-                <Typography variant="body2" color={theme.palette.tertiary.contrastText} sx={{ textTransform: 'capitalize' }}>
+                <Typography variant="body2" color="textSecondary" sx={{ textTransform: 'capitalize' }}>
                   {transaction.type}
                 </Typography>
-                <Typography variant="caption" color={theme.palette.tertiary.contrastText}>
+                <Typography variant="caption" color="textSecondary">
                   {transaction.date}
                 </Typography>
               </Box>
@@ -89,7 +87,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
               <Typography
                 variant="h6"
                 fontWeight="bold"
-                sx={{ color: theme.palette.tertiary.contrastText, minWidth: '80px', textAlign: 'right' }}
+                sx={{ color: amountColor, minWidth: '80px', textAlign: 'right' }}
               >
                 {amountPrefix}${transaction.amount.toFixed(2)}
               </Typography>
