@@ -90,6 +90,7 @@ export const modalHeaderStyles: SxProps<Theme> = {
 // Styles for the footer section (Buttons)
 export const modalFooterStyles: SxProps<Theme> = {
     display: 'flex',
+    gap:2,
     flexShrink:0,
     justifyContent: 'flex-end',
     padding: '10px 16px 12px 0px',

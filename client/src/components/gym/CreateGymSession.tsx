@@ -170,26 +170,7 @@ export default function CreateGymSession({
               size="small"
             />
 
-            {/* Trainer Name (Optional) */}
-            <CustomTextField
-              label="Trainer Name (Optional)"
-              fieldType="text"
-              name="trainer"
-              value={formik.values.trainer}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
-              helperText={
-                formik.touched.trainer
-                  ? formik.errors.trainer
-                  : "Leave empty if trainer is not assigned yet"
-              }
-              placeholder="Enter trainer name"
-              neumorphicBox
-              fullWidth
-            />
-
-            {/* Start Date and Time */}
+          {/* Start Date and Time */}
             <DateTimePicker
               id="startDateTime"
               label="Start Date & Time"
@@ -209,6 +190,25 @@ export default function CreateGymSession({
               minDate={new Date()}
               containerType="inwards"
               touched={formik.touched.startDateTime}
+            />
+
+            {/* Trainer Name (Optional) */}
+            <CustomTextField
+              label="Trainer Name (Optional)"
+              fieldType="text"
+              name="trainer"
+              value={formik.values.trainer}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
+              helperText={
+                formik.touched.trainer
+                  ? formik.errors.trainer
+                  : "Leave empty if trainer is not assigned yet"
+              }
+              placeholder="Enter trainer name"
+              neumorphicBox
+              fullWidth
             />
 
             {/* Duration */}
@@ -279,6 +279,7 @@ export default function CreateGymSession({
                 inputMode: "numeric",
               }}
             />
+
           </Box>
 
           {/* Action Buttons */}

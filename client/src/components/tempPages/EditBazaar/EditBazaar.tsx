@@ -69,6 +69,9 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     }
   };
 
+  const handleClose = () => {
+  onClose();
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (values: any, actions: any) => {
     onClose();
@@ -326,6 +329,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
             </Box>
             </Box>
         <Box sx={modalFooterStyles}> 
+            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
             <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Edit'} variant='contained' color='tertiary' fullWidth  type='submit' sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>

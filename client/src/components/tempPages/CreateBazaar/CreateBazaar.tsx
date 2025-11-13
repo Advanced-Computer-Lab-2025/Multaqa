@@ -87,6 +87,11 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
 const handleDescriptionChange = (htmlContent: string) => {
     setFieldValue('description', htmlContent);
     };
+
+const handleClose = () => {
+onClose();
+};
+
   return (
     <>
      <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
@@ -309,6 +314,8 @@ const handleDescriptionChange = (htmlContent: string) => {
             </Box>
             </Box>
         <Box sx={modalFooterStyles}> 
+        
+            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
             <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create'} variant='contained' color='tertiary' fullWidth  type='submit' sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>

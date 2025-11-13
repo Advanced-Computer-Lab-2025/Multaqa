@@ -124,7 +124,9 @@ const Edit: React.FC<EditConferenceProps> = ({
         validationSchema: validationSchema,
         onSubmit:onSubmit,
     });
-    const handleClose = () => { console.log("Modal flow closed/canceled."); };
+    const handleClose = () => {
+    onClose();
+    };
     return (
         <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]" borderColor="#5A67D8">
         <Box sx={{
@@ -147,6 +149,7 @@ const Edit: React.FC<EditConferenceProps> = ({
                     />
                 </Box>
                 <Box sx={modalFooterStyles}>
+                <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={formik.isSubmitting} sx={{ width: "150px", height: "32px"}} />
                 <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
                     Edit 
                 </CustomButton>

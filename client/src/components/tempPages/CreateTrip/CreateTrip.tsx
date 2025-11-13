@@ -85,6 +85,10 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
     registrationDeadline: null,
     capacity: 0,
   };
+
+  const handleClose = () => {
+    onClose();
+    };
   
   const onSubmit = async (values: any, actions: any) => {
     onClose();
@@ -372,7 +376,8 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                     </Box>
                 </Box>
             </Box>
-        <Box sx={modalFooterStyles}> 
+        <Box sx={modalFooterStyles}>
+            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
             <CustomButton color='tertiary' disabled={isSubmitting} label={isSubmitting ? "submitting":"Create"} variant='contained' fullWidth type='submit' sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>

@@ -519,7 +519,7 @@ const handleFilterChange = useCallback(
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -539,7 +539,7 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -559,7 +559,7 @@ const handleFilterChange = useCallback(
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -578,7 +578,7 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}

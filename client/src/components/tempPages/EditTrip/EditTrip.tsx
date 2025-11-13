@@ -95,6 +95,11 @@ const EditTrip = ({tripId, tripName, location, price,
         setLoading(false);
         }
     };
+
+      const handleClose = () => {
+    onClose();
+    };
+  
   
   const onSubmit = async (values: any, actions: any) => {
     const startDateObj = values.startDate; // dayjs object
@@ -386,6 +391,7 @@ const EditTrip = ({tripId, tripName, location, price,
                 </Box>
             </Box>
         <Box sx={modalFooterStyles}> 
+            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
             <CustomButton color='tertiary' disabled={isSubmitting} label={isSubmitting ? "submitting":"Edit"} variant='contained' fullWidth type='submit' sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>

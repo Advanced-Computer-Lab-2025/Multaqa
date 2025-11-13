@@ -87,7 +87,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
         validationSchema: validationSchema,
         onSubmit:onSubmit,
     });
-    const handleClose = () => { console.log("Modal flow closed/canceled."); 
+    const handleClose = () => {
+    onClose();
     };
     return (
         <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]" borderColor="#5A67D8">
@@ -111,9 +112,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
                     />
                 </Box>
                 <Box sx={modalFooterStyles}>
-                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
-                    Create 
-                </CustomButton>
+                <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={formik.isSubmitting} sx={{ width: "150px", height: "32px", }} />
+                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}> Create</CustomButton>
                 </Box>
             </form>
         </FormikProvider>
