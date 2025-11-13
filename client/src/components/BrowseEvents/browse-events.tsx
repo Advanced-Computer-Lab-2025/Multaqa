@@ -77,7 +77,7 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-const filterGroups: FilterGroup[] = [
+const getFilterGroups = (userRole: string): FilterGroup[] => [
   {
     id: "eventName",
     title: "Event Name",
@@ -109,11 +109,24 @@ const filterGroups: FilterGroup[] = [
       { label: "GUC Berlin", value: "guc berlin" },
     ]
   },
+    ...(userRole !== "vendor"
+    ? [
+        {
+          id: "attendance",
+          title: "My Status",
+          type: "chip" as const,
+          options: [
+            { label: "Attended", value: "attended" },
+          ],
+        },
+      ]
+    : []),
   {
     id: "date",
     title: "Date",
     type: "date", // <--- NEW TYPE
-  }
+  },
+
 ];
 
 const EventColor = [
@@ -152,6 +165,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     location: [], // Multi-select for locations
     professorName: [], // Filter by professor name
     eventName: [], // Filter by event name
+    attendance: [], // Multi-select for attendance status
+    date: '', // Single date selection
   });
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
@@ -336,8 +351,6 @@ if (Array.isArray(professorNameFilterValue) && professorNameFilterValue.length >
     });
 }
 
-
-
 // 2. Correct Event Name Filter (Multi-select/Additive Text)
 const eventNameFilterValue = filters.eventName;
 if (Array.isArray(eventNameFilterValue) && eventNameFilterValue.length > 0) {
@@ -357,6 +370,10 @@ if (Array.isArray(eventNameFilterValue) && eventNameFilterValue.length > 0) {
             targetName.toLowerCase().includes(query.toLowerCase())
         );
     });
+}
+//Apply Attendance Filter
+if (filters.attendance && (filters.attendance as string[]).includes("attended")) {
+  filtered = filtered.filter((event) => event.attended === true);
 }
 // Apply Date Filter
 const dateFilterValue = filters.date;
@@ -405,7 +422,10 @@ if (typeof dateFilterValue === 'string' && dateFilterValue) {
       default:
         break;
     }
+
+
     return filtered;
+  
   }, [searchQuery, filters, events, sortBy]);
 
 const handleFilterChange = useCallback(
@@ -415,7 +435,7 @@ const handleFilterChange = useCallback(
 
         // 1. Handle Multi-Select Filters (eventType and location)
         if (
-          (groupId === 'eventType' || groupId === 'location') &&
+          (groupId === 'eventType' || groupId === 'location'|| groupId==='attendance') &&
           Array.isArray(currentVal)
         ) {
           if (currentVal.includes(value)) {
@@ -445,6 +465,8 @@ const handleFilterChange = useCallback(
       location: [],
       professorName: [],
       eventName: [],
+      attendance: [],
+      date: '', 
     });
     setSearchQuery('');
   }, []);
@@ -618,7 +640,7 @@ const handleFilterChange = useCallback(
         </Box>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <FilterPanel
-              filterGroups={filterGroups}
+              filterGroups= {getFilterGroups(user)}
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}
