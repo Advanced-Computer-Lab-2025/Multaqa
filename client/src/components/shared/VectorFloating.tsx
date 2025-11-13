@@ -100,7 +100,8 @@ const floatingStyles = (theme: Theme, isExiting: boolean) => ({
         gridColumn: "5 / span 2",
         gridRow: "5 / span 2",
         borderRadius: "999px",
-        bgcolor: theme.palette.primary.dark,
+        // Reuse the pink accent applied across gym sessions (e.g. SessionTypeDropdown)
+        bgcolor: "#e91e63",
         animation: "floatSlow 8.5s ease-in-out infinite",
         animationDelay: "0.5s",
       },

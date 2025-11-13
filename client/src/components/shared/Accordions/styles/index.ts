@@ -11,7 +11,7 @@ import { styled } from "@mui/material/styles";
 
 export const StyledAccordion = styled(Accordion)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as number) * 2,
   border: `1px solid ${theme.palette.divider}`,
   boxShadow: "none",
   "&:before": {
@@ -26,6 +26,10 @@ export const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
   padding: theme.spacing(2.5, 3),
   "& .MuiAccordionSummary-expandIconWrapper": {
     color: theme.palette.primary.main,
+    transition: "transform 0.32s ease",
+    "&.Mui-expanded": {
+      transform: "rotate(180deg)",
+    },
   },
   "&:hover": {
     backgroundColor: theme.palette.action.hover,
@@ -51,7 +55,7 @@ export const SummaryDescription = styled(Typography)(({ theme }) => ({
 }));
 
 export const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(0, 3, 3),
+  padding: theme.spacing(3, 3.5, 3.75),
   color: theme.palette.text.secondary,
   fontSize: "0.95rem",
   lineHeight: 1.6,
