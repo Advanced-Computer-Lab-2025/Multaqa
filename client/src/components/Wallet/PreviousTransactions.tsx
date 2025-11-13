@@ -9,6 +9,12 @@ interface TransactionsProps {
 }
 
 const PreviousTransactions = ({transactions}:TransactionsProps) => {
+
+   // Sort transactions by date in descending order (newest first)
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   return (
     <>
      <Typography variant="h5" sx={{width: '100%', mt: 5, mb: 2, pb:2, fontWeight: 600, color: theme.palette.text.primary, borderBottom: `2px solid ${theme.palette.divider}`}}>
@@ -17,7 +23,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
       
       {/* Transactions List */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {transactions.map((transaction:any, index:any) => {
+        {sortedTransactions.map((transaction:any, index:any) => {
           const isRefund = transaction.type === 'refund';
           const arrowColor = isRefund ? '#10B981' : '#EF4444';
           const amountColor = isRefund ? '#10B981' : '#EF4444';
