@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
@@ -24,6 +25,7 @@ import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
 import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,18 +88,32 @@ const SignedOutFallback = ({
           login screen.
         </p>
 
-        {showAction && (
-          <button
-            type="button"
-            onClick={onGoToLogin}
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-[#6299d0] px-6 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-[#4c82b9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6299d0]/60"
-          >
-            Open login
-          </button>
-        )}
+        <CustomButton
+          variant="contained"
+          color="primary"
+          onClick={onGoToLogin}
+          label={showAction ? "Open login" : "Take me to login"}
+          sx={{
+            mt: 6,
+            width: "100%",
+            maxWidth: 240,
+            mx: "auto",
+            fontWeight: 700,
+          }}
+        />
 
         <p className="mt-4 text-xs text-gray-500">
-          Not seeing the login page? Tap the button above to continue.
+          Not seeing the login page? Tap the button above or use the quick link
+          below.
+        </p>
+
+        <p className="mt-2 text-xs font-semibold">
+          <Link
+            href="/login"
+            className="text-[#6299d0] transition-colors duration-200 hover:text-[#4c82b9]"
+          >
+            Open login in a new view
+          </Link>
         </p>
       </div>
     </div>
