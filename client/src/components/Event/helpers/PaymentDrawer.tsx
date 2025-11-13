@@ -209,7 +209,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
   };
 
   const canPayWithWallet = useWallet && walletBalance >= totalAmount;
-  const canPayWithCombined = useWallet && walletBalance > 0 && needsStripePayment;
+  const canPayWithCombined = useWallet && needsStripePayment;
   const isPayButtonEnabled = !isProcessing && (
     !useWallet || 
     canPayWithWallet || 

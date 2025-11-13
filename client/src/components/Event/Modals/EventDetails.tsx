@@ -161,13 +161,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         comment: newComment.trim() || undefined, 
       });
 
-      // const newReview = response.data;
-      
-      // // Call the optional callback if provided (for backward compatibility)
-      // if (onSubmitReview) {
-      //   onSubmitReview(newRating, newComment);
-      // }
-
       // Show success toast
       toast.success(
         "Review submitted successfully! Thank you for your feedback.",
