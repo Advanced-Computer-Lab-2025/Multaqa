@@ -34,6 +34,32 @@ interface CreateWorkshopProps {
   setRefresh?:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+const tertiaryInputStyles = {
+  '& .MuiInputLabel-root': {
+    color: theme.palette.tertiary.main,
+    '&.Mui-focused': {
+      color: theme.palette.tertiary.main,
+    },
+  },
+  '& .MuiInputBase-input': {
+    color: '#000000', // user-entered text is black
+    '&::placeholder': {
+      color:theme.palette.grey[400], // placeholder text color
+      opacity: 1,
+    },
+  },
+  '& .MuiInput-underline:before': {
+    borderBottomColor: theme.palette.tertiary.main,
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottomColor: theme.palette.tertiary.main,
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: theme.palette.tertiary.main,
+  },
+};
+
+
 const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefresh}: CreateWorkshopProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
@@ -210,80 +236,156 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
                             Workshop Details
                         </Typography>      
                     </Box>
-                    <Box sx={modalFormStyles}>
-
-                      <Box sx={{ display: "flex", gap: 1, marginTop: "12px",marginBottom:"12px" }}>
+              <Box sx={modalFormStyles}>
+                        <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom: "12px" }}>
                         <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                              name="startDate"
-                              label="Start Date and Time"
-                              slotProps={{
-                                textField: {
-                                  variant: "standard",
-                                  fullWidth: true,
-                                },
-                                popper: {
-                                  disablePortal: true,
-                                  placement: "right",
-                                  sx: { zIndex: 1500 },
-                                },
-                              }}
-                              value={values.startDate}
-                              onChange={(value) => setFieldValue("startDate", value)}
-                            />
-                          </LocalizationProvider>
-                          {errors.startDate && touched.startDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
-                          )}
-                        </Box>
-
-                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                              label="End Date and Time"
-                              name="endDate"
-                              slotProps={{
-                                textField: {
-                                  variant: "standard",
-                                  fullWidth: true,
-                                },
-                                popper: {
-                                  disablePortal: true,
-                                  placement: "left",
-                                  sx: { zIndex: 1500 },
-                                },
-                              }}
-                              value={values.endDate}
-                              onChange={(value) => setFieldValue("endDate", value)}
-                            />
-                          </LocalizationProvider>
-                          {errors.endDate && touched.endDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
-                          )}
-                        </Box>
-                      </Box>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                          name='registrationDeadline'
-                          label="Deadline to Register"
-                          slotProps={{
-                              textField: {
-                                  fullWidth:true,
-                                  variant:"standard", 
-                              },
-                              popper: {
-                                  disablePortal: true, // <-- Add this line
-                                  placement: 'left',
-                                  sx: { zIndex: 1500 },
-                              }                       
-                          }}
-                          sx={{marginTop: "6px"}}
-                          value={values.registrationDeadline}
-                          onChange={(value) => setFieldValue('registrationDeadline', value)}
-                      />
-                      {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-              </LocalizationProvider>
+                    <DateTimePicker
+                        name="startDate"
+                        label="Start Date and Time"
+                        slotProps={{
+                        textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                            sx: {
+                                color: theme.palette.tertiary.main,
+                                '&.Mui-focused': {
+                                color: theme.palette.tertiary.main,
+                                },
+                            },
+                            },
+                            sx: {
+                            // Input text color
+                            color: theme.palette.tertiary.main,
+                            // Underline (before focus)
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (on hover)
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (after focus)
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            },
+                        },
+                        popper: {
+                            disablePortal: true,
+                            placement: "right",
+                            sx: {
+                            zIndex: 1500,
+                            },
+                        },
+                        }}
+                        value={values.startDate}
+                        onChange={(value) => setFieldValue("startDate", value)}
+                    />
+                    </LocalizationProvider>
+                            {errors.startDate && touched.startDate && (
+                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
+                            )}
+                        </Box>
+        
+                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                                label="End Date and Time"
+                                name="endDate"
+                                slotProps={{
+                        textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                            sx: {
+                                color: theme.palette.tertiary.main,
+                                '&.Mui-focused': {
+                                color: theme.palette.tertiary.main,
+                                },
+                            },
+                            },
+                            sx: {
+                            // Input text color
+                            color: theme.palette.tertiary.main,
+                            // Underline (before focus)
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (on hover)
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (after focus)
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            },
+                        },
+                                    popper: {
+                                    disablePortal: true,
+                                    placement: "right",
+                                    sx: {
+                                    zIndex: 1500,
+                                    },
+                                },
+                                }}
+                                value={values.endDate}
+                                onChange={(value) => setFieldValue("endDate", value)}
+                            />
+                            </LocalizationProvider>
+                            {errors.endDate && touched.endDate && (
+                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
+                            )}
+                        </Box>
+                        </Box>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                            name='registrationDeadline'
+                            label="Deadline to Register"
+                            slotProps={{
+                            textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                            sx: {
+                                color: theme.palette.tertiary.main,
+                                '&.Mui-focused': {
+                                color: theme.palette.tertiary.main,
+                                },
+                            },
+                            },
+                            sx: {
+                            // Input text color
+                            color: theme.palette.tertiary.main,
+                            // Underline (before focus)
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (on hover)
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (after focus)
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            },
+                        },
+                                    popper: {
+                                    disablePortal: true,
+                                    placement: "right",
+                                    sx: {
+                                    zIndex: 1500,
+                                    },
+                                },
+                                }}
+                                value={values.registrationDeadline}
+                                onChange={(value) => setFieldValue('registrationDeadline', value)}
+                            />
+                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
+                    </LocalizationProvider>
 <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom:"18px" }}>
   <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
     <TextField
@@ -296,6 +398,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
       placeholder="Enter Budget"
       value={values.budget}
       onChange={handleChange}
+      sx={{ ...tertiaryInputStyles }}
     />
     {errors.budget && touched.budget ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.budget}</p> : <></>}
   </Box>
@@ -311,6 +414,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
       placeholder="Enter Capacity"
       value={values.capacity}
       onChange={handleChange}
+      sx={{ ...tertiaryInputStyles }}
     />
     {errors.capacity && touched.capacity ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.capacity}</p> : <></>}
   </Box>

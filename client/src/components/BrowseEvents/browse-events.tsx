@@ -310,22 +310,31 @@ const handleRegistered = () => {
 
 const professorNameFilterValue = filters.professorName;
 if (Array.isArray(professorNameFilterValue) && professorNameFilterValue.length > 0) {
-    const selectedProfessors = professorNameFilterValue as string[]; 
-    
+    const selectedProfessors = professorNameFilterValue as string[];
+
     filtered = filtered.filter((event) => {
         if (event.type === EventType.CONFERENCE || event.type === EventType.WORKSHOP) {
-            const professors = (event as any).professors as string[] | undefined; 
+            const professors = (event as any).professors as string[] | undefined;
+            const agendaText = (event.agenda as string | undefined)?.toLowerCase() || "";
 
-            // Check if ALL selectedProfessors are included in the event's professor list
-            return selectedProfessors.every(query => 
-                professors?.some((prof) => 
-                    typeof prof === 'string' && prof.toLowerCase().includes(query.toLowerCase())
-                ) ?? false
-            );
+            return selectedProfessors.every(query => {
+                const lowerQuery = query.toLowerCase();
+
+                // Check in professors list
+                const inProfessors = professors?.some(
+                    (prof) => typeof prof === "string" && prof.toLowerCase().includes(lowerQuery)
+                ) ?? false;
+
+                // Check in agenda text
+                const inAgenda = agendaText.includes(lowerQuery);
+
+                return inProfessors || inAgenda;
+            });
         }
-        return false; 
+        return false;
     });
 }
+
 
 
 // 2. Correct Event Name Filter (Multi-select/Additive Text)
@@ -440,7 +449,7 @@ const handleFilterChange = useCallback(
   }, []);
 
   const Eventoptions = [
-    { label: "Gym", icon: FitnessCenterIcon },
+    { label: "Gym Sessions", icon: FitnessCenterIcon },
     { label: "Bazaars", icon: StorefrontIcon },
     { label: "Trips", icon: FlightTakeoffIcon },
     { label: "Conference", icon: EventIcon },

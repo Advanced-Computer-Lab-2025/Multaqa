@@ -13,6 +13,27 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomIcon from '@/components/shared/Icons/CustomIcon';
 import dayjs, { Dayjs } from 'dayjs';
+import theme from '../../../themes/lightTheme';
+
+const tertiaryInputStyles = {
+  color: theme.palette.tertiary.main,
+  '& .MuiInputLabel-root': {
+    color: theme.palette.tertiary.main,
+    '&.Mui-focused': { color: theme.palette.tertiary.main },
+  },
+  '& .MuiInputBase-input': {
+    color: theme.palette.tertiary.main,
+  },
+  '& .MuiInput-underline:before': {
+    borderBottomColor: theme.palette.tertiary.main,
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottomColor: theme.palette.tertiary.main,
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: theme.palette.tertiary.main,
+  },
+};
 
 
 const EventCreationStep2Details: React.FC<Step2Props> = ({ 
@@ -37,25 +58,51 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
            <Box sx={modalFormStyles}>  
                 <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom: "12px" }}>
                 <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                        name="eventStartDate"
-                        label="Start Date and Time"
-                        slotProps={{
-                        textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                        },
-                        popper: {
-                            disablePortal: true,
-                            placement: "right",
-                            sx: { zIndex: 1500 },
-                        },
-                        }}
-                    value={values.eventStartDate}
-                    onChange={(value) => setFieldValue("eventStartDate", value)}
-                    />
-                    </LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              name="eventStartDate"
+              label="Start Date and Time"
+              slotProps={{
+                textField: {
+                  variant: "standard",
+                  fullWidth: true,
+                  InputLabelProps: {
+                    sx: {
+                      color: theme.palette.tertiary.main,
+                      '&.Mui-focused': {
+                        color: theme.palette.tertiary.main,
+                      },
+                    },
+                  },
+                  sx: {
+                    // Input text color
+                    color: theme.palette.tertiary.main,
+                    // Underline (before focus)
+                    '& .MuiInput-underline:before': {
+                      borderBottomColor: theme.palette.tertiary.main,
+                    },
+                    // Underline (on hover)
+                    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                      borderBottomColor: theme.palette.tertiary.main,
+                    },
+                    // Underline (after focus)
+                    '& .MuiInput-underline:after': {
+                      borderBottomColor: theme.palette.tertiary.main,
+                    },
+                  },
+                },
+                popper: {
+                  disablePortal: true,
+                  placement: "right",
+                  sx: {
+                    zIndex: 1500,
+                  },
+                },
+              }}
+              value={values.eventStartDate}
+              onChange={(value) => setFieldValue("eventStartDate", value)}
+            />
+          </LocalizationProvider>
                     {errors.eventStartDate && touched.eventStartDate && (
                     <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.eventStartDate}</p>
                     )}
@@ -67,18 +114,44 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                         label="End Date and Time"
                         name="eventEndDate"
                         slotProps={{
-                        textField: {
-                            variant: "standard",
-                            fullWidth: true,
+                textField: {
+                  variant: "standard",
+                  fullWidth: true,
+                  InputLabelProps: {
+                    sx: {
+                      color: theme.palette.tertiary.main,
+                      '&.Mui-focused': {
+                        color: theme.palette.tertiary.main,
+                      },
+                    },
+                  },
+                  sx: {
+                    // Input text color
+                    color: theme.palette.tertiary.main,
+                    // Underline (before focus)
+                    '& .MuiInput-underline:before': {
+                      borderBottomColor: theme.palette.tertiary.main,
+                    },
+                    // Underline (on hover)
+                    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                      borderBottomColor: theme.palette.tertiary.main,
+                    },
+                    // Underline (after focus)
+                    '& .MuiInput-underline:after': {
+                      borderBottomColor: theme.palette.tertiary.main,
+                    },
+                  },
+                },
+                          popper: {
+                          disablePortal: true,
+                          placement: "right",
+                          sx: {
+                            zIndex: 1500,
+                          },
                         },
-                        popper: {
-                            disablePortal: true,
-                            placement: "left",
-                            sx: { zIndex: 1500 },
-                        },
-                        }}
-                        value={values.eventEndDate}
-                        onChange={(value) => setFieldValue("eventEndDate", value)}
+                      }}
+                      value={values.eventEndDate}
+                      onChange={(value) => setFieldValue("eventEndDate", value)}
                     />
                     </LocalizationProvider>
                     {errors.eventEndDate && touched.eventEndDate && (
@@ -96,7 +169,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     error={touched.websiteLink && Boolean(errors.websiteLink)}
                     autoCapitalize='off'
                     autoCapitalizeName={false}
-                    sx={{ marginTop: "8px" }}
+                    sx={{ marginTop: "8px"}}
                 />
                 {/* 4. Required Budget */}
                 <CustomTextField
@@ -122,7 +195,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                     { label: 'External', value: 'External' },
                     ]}
                     value={values.fundingSource}
-                    onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}            />
+                    onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}          />
                 {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
                 </Box>
 
