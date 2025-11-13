@@ -70,20 +70,24 @@ const BazarView: React.FC<BazarViewProps> = ({
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
         <Tooltip title="Delete Bazaar">
-          <IconButton
-            size="medium"
-            onClick={handleOpenDeleteModal}
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              "&:hover": {
-                backgroundColor: "rgba(255, 0, 0, 0.1)",
-                color: "error.main",
-              },
-            }}
-          >
-            <Trash2 size={16} />
-          </IconButton>
-        </Tooltip>
+                 <IconButton
+                   size="medium"
+                   onClick={handleOpenDeleteModal}
+                   sx={{
+                     backgroundColor: "rgba(255, 255, 255, 0.9)",
+                     border: '1px solid',
+                     borderColor: 'divider',
+                     borderRadius: 2,
+                     "&:hover": {
+                       backgroundColor: "rgba(255, 0, 0, 0.1)",
+                       borderColor: "error.main",
+                       color: "error.main",
+                     },
+                   }}
+                 >
+                   <Trash2 size={18} />
+                 </IconButton>
+               </Tooltip>
       ) : (user === "events-office" || user === "events-only" ? <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
       registerButton={!registered &&
         user == "vendor" && (

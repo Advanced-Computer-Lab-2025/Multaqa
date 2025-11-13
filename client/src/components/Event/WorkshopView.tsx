@@ -30,7 +30,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   userInfo,
   attended
 }) => {
-  console.log(userInfo);
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);

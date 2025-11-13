@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Avatar, TextField, Chip, IconButton, Tooltip, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import Rating from '../../shared/mui-core/Rating';
-import { EventDetailsProps, mockReviews, EventSection } from './types';
+import { EventDetailsProps, mockReviews, EventSection, Review } from './types';
 import EventTypeDetails from './EventTypeDetails';
 import { Trash2 } from 'lucide-react';
 import { CustomModal } from '../../shared/modals';
 import theme from '@/themes/lightTheme';
 import { toast, ToastContainer } from 'react-toastify';
 import { api } from '../../../api'; 
+import { frameData } from './utils/frameData';
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -86,14 +87,62 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   sections = ['general', 'details', 'reviews'],
   user,
   attended=false,
-  eventId,
+  eventId
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
   const [newRating, setNewRating] = useState(0);
   const [newComment, setNewComment] = useState('');
-  const [commentToDelete, setCommentToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [commentToDelete, setCommentToDelete] = useState<{ id: string; reviewerId:string; name: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refresh, setRefresh] = useState(false);
+  const [Reviews, setReviews] = useState<Review[]>(reviews);
+
+  const handleDeleteComment = async (id: string, reviewerId:string) => {
+  setReviews((prevReviews) => prevReviews.filter((review) => review.id !== id));
+  setCommentToDelete(null);
+  try {
+    await api.delete(`/events/${eventId}/reviews/${reviewerId}`);
+    toast.success("Comment deleted successfully.", {
+      position: "bottom-right",
+      autoClose: 3000,
+      theme: "colored",
+    });
+  } catch (error) {
+    console.error("Failed to delete comment:", error);
+    toast.error("Failed to delete comment. Please try again.", {
+      position: "bottom-right",
+      autoClose: 3000,
+      theme: "colored",
+    });
+  } finally {
+    setCommentToDelete(null);
+  }
+};
+
+
+  async function handleCallAPI() {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await api.get(`/events/${eventId}/reviews`);
+        const result = frameData(res.data.data)
+        console.log(result);
+        setReviews(result);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load events. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  
+  
+    useEffect(() => {
+     handleCallAPI();
+    }, [refresh]);
   
   const checkScroll = React.useCallback(() => {
     if (contentRef.current) {
@@ -159,6 +208,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       });
     } finally {
       setIsSubmitting(false);
+      setRefresh((prev) => !prev);
     }
   };
 
@@ -336,7 +386,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       :null}
       {/* Reviews List */}
       <Box sx={{ flex: 1 , maxHeight: '450px', overflowY: 'auto' }}>
-        {reviews.map((review) => (
+        {Reviews.map((review) => (
           <Box
             key={review.id}
             sx={{
@@ -355,11 +405,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                 <Typography variant="subtitle2">
                   {review.firstName} {review.lastName}
                 </Typography>
-                <Rating
+                {(review.rating>0)&&<Rating
                   value={review.rating}
                   readOnly
                   size="small"
                 />
+                }
                 <Typography variant="caption" sx={{ color: 'text.primary', display: 'block' }}>
                   {new Date(review.createdAt).toLocaleDateString()}
                 </Typography>
@@ -369,7 +420,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   <IconButton
                     size="small"
                     onClick={() => setCommentToDelete({ 
-                      id: review.id, 
+                      id:review.id,
+                      reviewerId: review.userId, 
                       name: `${review.firstName} ${review.lastName}` 
                     })}
                     sx={{
@@ -476,10 +528,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({
           label: "Delete",
           variant: "contained",
           color: "error",
-          onClick: () => {
-            // TODO: Add delete functionality here
-            console.log('Deleting comment:', commentToDelete?.id);
-            setCommentToDelete(null);
+           onClick: () => {
+            console.log(commentToDelete);
+            if (commentToDelete?.id && commentToDelete?.reviewerId) handleDeleteComment(commentToDelete.id, commentToDelete.reviewerId);
           },
         }}
         buttonOption2={{

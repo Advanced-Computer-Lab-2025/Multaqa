@@ -51,20 +51,24 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
     <>
      <EventCard title={name} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]}  link={details["Link"]} color={background} leftIcon={<IconComponent />} eventType={"Conference"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={ user === "admin" ? (
             <Tooltip title="Delete Conference">
-            <IconButton
-                    size="medium"
-                    onClick={handleOpenDeleteModal}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                        color: "error.main",
-                      },
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
-            </Tooltip>
+                     <IconButton
+                       size="medium"
+                       onClick={handleOpenDeleteModal}
+                       sx={{
+                         backgroundColor: "rgba(255, 255, 255, 0.9)",
+                         border: '1px solid',
+                         borderColor: 'divider',
+                         borderRadius: 2,
+                         "&:hover": {
+                           backgroundColor: "rgba(255, 0, 0, 0.1)",
+                           borderColor: "error.main",
+                           color: "error.main",
+                         },
+                       }}
+                     >
+                       <Trash2 size={18} />
+                     </IconButton>
+                   </Tooltip>
           ) : ( user==="events-office"|| user==="events-only"?
            <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
         expanded={expanded} location={details["Location"]} />

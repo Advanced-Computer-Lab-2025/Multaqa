@@ -39,7 +39,7 @@ import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   userInfo: any;
   userID: string;
 }
@@ -149,9 +149,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
   }, [registered, refresh]);
 
-
-
-  const registeredEvents = userInfo.registeredEvents;
   
   const handleRegistered = () => {
     setLoading(true);
@@ -328,7 +325,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
@@ -348,7 +345,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
@@ -368,7 +365,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
@@ -387,7 +384,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
