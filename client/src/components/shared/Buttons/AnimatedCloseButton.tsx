@@ -72,7 +72,7 @@ export default function AnimatedCloseButton({
               top: index === 0 ? 0 : index === 1 ? "50%" : "100%",
               transform: open
                 ? index === 0
-                  ? "translateY(6px) rotate(45deg)"
+                  ? "translateY(8px) rotate(45deg)"
                   : index === 1
                   ? "scaleX(0)"
                   : "translateY(-6px) rotate(-45deg)"
