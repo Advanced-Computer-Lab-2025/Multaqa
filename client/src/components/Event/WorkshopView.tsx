@@ -234,29 +234,61 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 color={background}
                 agenda={agenda}
                 button={
-                  !registered &&
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-                    <CustomButton
-                      size="small"
-                      variant="contained"
-                      sx={{ 
-                        borderRadius: 999 , backgroundColor: `${background}40`,
-                        color:background, borderColor:background,
-                        fontWeight: 600,
-                        px: 3,
-                        textTransform: 'none',
-                        boxShadow: `0 4px 14px ${background}40`,
-                        transition: 'all 0.3s ease',
-                        "&:hover": {
-                          backgroundColor: `${background}50`,
-                          transform: 'translateY(-2px)',
-                          boxShadow: `0 6px 20px ${background}50`,
-                        }
-                      }}
-                      onClick={() => { setRegister(true) }}
-                    >
-                      Register
-                    </CustomButton>
+                    <>
+                      {registered  || isRegisteredEvent? (
+                        <CustomButton
+                          size="small"
+                          variant="outlined"
+                          sx={{ 
+                            borderRadius: 999,
+                            backgroundColor: `${background}40`,
+                            color: background,
+                            borderColor: background,
+                            fontWeight: 600,
+                            px: 3,
+                            textTransform: "none",
+                            boxShadow: `0 4px 14px ${background}40`,
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: `${background}50`,
+                              transform: "translateY(-2px)",
+                              boxShadow: `0 6px 20px ${background}50`,
+                            },
+                            width: 'fit-content'
+                          }}
+                          onClick={() => {
+                            setCancelRegisteration(true);
+                          }}
+                        >
+                          Cancel Registration
+                        </CustomButton>
+                      ) : (
+                        <CustomButton
+                          size="small"
+                          variant="contained"
+                          sx={{ 
+                            borderRadius: 999,
+                            backgroundColor: `${background}40`,
+                            color: background,
+                            borderColor: background,
+                            fontWeight: 600,
+                            px: 3,
+                            textTransform: "none",
+                            boxShadow: `0 4px 14px ${background}40`,
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: `${background}50`,
+                              transform: "translateY(-2px)",
+                              boxShadow: `0 6px 20px ${background}50`,
+                            },
+                          }}
+                          onClick={() => setRegister(true)}
+                        >
+                          Register
+                        </CustomButton>
+                      )}
+                    </>
                   )
                 }
                 sections={user=="vendor"?['general','agenda', 'details']:['general','agenda','details',
