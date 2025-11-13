@@ -119,7 +119,7 @@ export default function AnimatedCloseButton({
       top: 0,
       getTransform: (isOpen: boolean) =>
         isOpen
-          ? "translateY(6px) rotate(45deg)"
+          ? "translateY(8px) rotate(45deg)"
           : "translateY(0) rotate(0)",
     },
     {
