@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Avatar, TextField, Chip, IconButton, Tooltip, CircularProgress } from '@mui/material';
+import { Box, Typography, Avatar, TextField, Chip, IconButton, Tooltip, CircularProgress, Divider } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import Rating from '../../shared/mui-core/Rating';
@@ -14,6 +14,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { api } from '../../../api'; 
 import { frameData } from './utils/frameData';
 import { ReviewSkeletonList } from './utils/ReviewSkeletonList';
+import { NoReviews } from './utils/NoReviews';
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -158,7 +159,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         console.error(err);
         setError("Failed to load events. Please try again later.");
       } finally {
-        setLoading(true);
+        setLoading(false);
       }
     }
   
@@ -338,135 +339,256 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       </Box>
   );
 
-  const renderReviews = () => (
-    <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
-       {/* New Review Form */}
-       {(user=="student"||user=="professor"||user=="staff"||user=="ta")&&attended?
-      <Box sx={{ flex: 1 , display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'center', flexDirection: 'column' }}>
-         <Typography variant="h5" sx={{ color: 'text.primary', display: 'block' , fontWeight:600}}>
-             Add Your Review
-          </Typography>
-        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'center' }}>
-          <Rating
-            value={newRating}
-            onChange={(event, value) => setNewRating(value || 0)}
-            size="large"
-          />
-        </Box>
-        <TextField
-          fullWidth
-          multiline
-          rows={4}
-          placeholder="Share your thoughts..."
-          value={newComment}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
-          sx={{ 
-            mb: 2,
-            '& .MuiOutlinedInput-root': {
-              '&.Mui-focused fieldset': {
-                borderColor: color,
-              },
-              '&:hover fieldset': {
-                borderColor: `${color}90`,
-              },
-            },
-          }}
-        />
-        <CustomButton
-          onClick={handleSubmitReview}
-          disabled={isSubmitting}
-          sx={{
-            backgroundColor: color,
-            border:`2px solid ${color}`,
-            color: '#fff',
-            minWidth: '150px',
-            '&:hover': {
-              backgroundColor: `${color}CC`,
-            },
-            '&.Mui-disabled': {
-              backgroundColor: `${color}40`,
-              borderColor: `${color}40`,
-            },
-          }}
-        >
-          {isSubmitting ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CircularProgress size={16} sx={{ color: '#fff' }} />
-              <span>Submitting...</span>
-            </Box>
-          ) : (
-            'Submit Review'
-          )}
-        </CustomButton>
-      </Box>
-      :null}
-      {/* Reviews List */}
-      <Box sx={{ flex: 1 , maxHeight: '450px', overflowY: 'auto' }}>
-         {loading?<ReviewSkeletonList/> :
-        Reviews?.map((review) => (
-          <Box
-            key={review.id}
-            sx={{
-              mb: 3,
-              p: 2,
-              borderRadius: 2,
-              backgroundColor: 'background.paper',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-              border:"1px solid rgba(0,0,0,0.07)"
+  const renderReviews = () => {
+  const showAddReview = (user === "student" || user === "professor" || user === "staff" || user === "ta") && attended;
+  
+  return (
+    <Box sx={{ 
+      display: 'flex', 
+      gap: 4, 
+      flexDirection: { xs: 'column', md: 'row' },
+      height: '100%',
+    }}>
+      {showAddReview && (
+        <Box sx={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          height: "100%",
+          alignItems: 'stretch',
+          py: 2
+        }}>
+          {/* Title */}
+          <Typography 
+            variant="h5" 
+            sx={{ 
+              color: 'text.primary', 
+              display: 'block', 
+              fontWeight: 600,
+              mb: 6,
+              textAlign: 'center'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
-              <Avatar sx={{ bgcolor: color }}>
-                {review.firstName[0]}{review.lastName[0]}
-              </Avatar>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle2">
-                  {review.firstName} {review.lastName}
-                </Typography>
-                {(review.rating>0)&&<Rating
-                  value={review.rating}
-                  readOnly
-                  size="small"
-                />
-                }
-                <Typography variant="caption" sx={{ color: 'text.primary', display: 'block' }}>
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </Typography>
-              </Box>
-              {user === "admin" && (
-                <Tooltip title="Delete Comment">
-                  <IconButton
-                    size="small"
-                    onClick={() => setCommentToDelete({ 
-                      id:review.id,
-                      reviewerId: review.userId, 
-                      name: `${review.firstName} ${review.lastName}` 
-                    })}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                        borderColor: "error.main",
-                        color: "error.main",
-                      },
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </IconButton>
-                </Tooltip>
+            Add Your Review
+          </Typography>
+        
+          {/* Form Content Wrapper */}
+          <Box sx={{
+            flexGrow: 1,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2
+          }}>
+            {/* Form Elements */}
+            <Rating
+              value={newRating}
+              onChange={(event, value) => setNewRating(value || 0)}
+              size="large"
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              placeholder="Share your thoughts..."
+              value={newComment}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
+              sx={{ 
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: color,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: `${color}90`,
+                  },
+                },
+              }}
+            />
+            <CustomButton
+              onClick={handleSubmitReview}
+              disabled={isSubmitting}
+              sx={{
+                backgroundColor: color,
+                border: `2px solid ${color}`,
+                color: '#fff',
+                minWidth: '150px',
+                '&:hover': {
+                  backgroundColor: `${color}CC`,
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: `${color}40`,
+                  borderColor: `${color}40`,
+                },
+              }}
+            >
+              {isSubmitting ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={16} sx={{ color: '#fff' }} />
+                  <span>Submitting...</span>
+                </Box>
+              ) : (
+                'Submit Review'
               )}
-            </Box>
-            <Typography variant="body2" sx={{ ml: 7, color: 'text.primary' }}>
-              {review.comment}
-            </Typography>
+            </CustomButton>
           </Box>
-        ))}
+        </Box>
+      )}
+      
+      {/* Modern Divider - Only shows when both sections are visible */}
+      {showAddReview && (
+        <Box 
+          sx={{ 
+            display: { xs: 'none', md: 'flex' },
+            position: 'relative',
+            width: '2px',
+            alignSelf: 'stretch',
+            my: 2
+          }}
+        >
+          {/* Gradient background */}
+          <Box sx={{
+            width: '100%',
+            background: `linear-gradient(to bottom, 
+              transparent 0%, 
+              ${color}40 10%, 
+              ${color}80 50%, 
+              ${color}40 90%, 
+              transparent 100%)`,
+            borderRadius: '2px'
+          }} />
+          
+          {/* Decorative dots */}
+          <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            zIndex: 1
+          }}>
+            <Box sx={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: color,
+              boxShadow: `0 0 8px ${color}80`
+            }} />
+            <Box sx={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: color,
+              opacity: 0.6,
+              ml: '1px'
+            }} />
+            <Box sx={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: color,
+              boxShadow: `0 0 8px ${color}80`
+            }} />
+          </Box>
+        </Box>
+      )}
+
+      {/* Mobile Divider */}
+      {showAddReview && (
+        <Box 
+          sx={{ 
+            display: { xs: 'block', md: 'none' },
+            height: '2px',
+            position: 'relative',
+            my: 3
+          }}
+        >
+          <Box sx={{
+            height: '100%',
+            background: `linear-gradient(to right, 
+              transparent 0%, 
+              ${color}40 10%, 
+              ${color}80 50%, 
+              ${color}40 90%, 
+              transparent 100%)`,
+            borderRadius: '2px'
+          }} />
+        </Box>
+      )}
+      
+      {/* Reviews List */}
+      <Box sx={{ flex: 1, height: "450px", maxHeight: '450px', overflowY: 'auto' }}>
+        {loading ? <ReviewSkeletonList /> : (Reviews && Reviews.length > 0) ? (
+          Reviews?.map((review) => (
+            <Box
+              key={review.id}
+              sx={{
+                mb: 3,
+                p: 2,
+                borderRadius: 2,
+                backgroundColor: 'background.paper',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                border: "1px solid rgba(0,0,0,0.07)"
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
+                <Avatar sx={{ bgcolor: color }}>
+                  {review.firstName[0]}{review.lastName[0]}
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2">
+                    {review.firstName} {review.lastName}
+                  </Typography>
+                  {(review.rating > 0) && <Rating
+                    value={review.rating}
+                    readOnly
+                    size="small"
+                  />}
+                  <Typography variant="caption" sx={{ color: 'text.primary', display: 'block' }}>
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+                {user === "admin" && (
+                  <Tooltip title="Delete Comment">
+                    <IconButton
+                      size="small"
+                      onClick={() => setCommentToDelete({ 
+                        id: review.id,
+                        reviewerId: review.userId, 
+                        name: `${review.firstName} ${review.lastName}` 
+                      })}
+                      sx={{
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 0, 0, 0.1)",
+                          borderColor: "error.main",
+                          color: "error.main",
+                        },
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+              <Typography variant="body2" sx={{ ml: 7, color: 'text.primary' }}>
+                {review.comment ? review.comment : ""}
+              </Typography>
+            </Box>
+          ))
+        ) : (
+          <NoReviews canAddReview={attended} color={color}/> 
+        )}
       </Box>
     </Box>
   );
+};
 
   const renderContent = () => {
     switch (activeTab) {
