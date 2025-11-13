@@ -22,10 +22,8 @@ import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
 
 import { deleteEvent, frameData } from "./utils";
-import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
-import MenuOptionComponent from "../createButton/MenuOptionComponent";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import CreationHubDropdown from "../createButton/CreationHubDropdown";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
@@ -126,50 +124,46 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
-  const [createWorkshop, setWorkshop] = useState(false);
-  const [createSession, setSession] = useState(false);
   const [UserInfo, setUserInfo] = useState<{
     id: string;
     name: string;
     email: string;
   }>({ id: userID, name: "", email: "" });
   const [isReady, setReady] = useState(false);
-  // Separate effect for initial user data
-  useEffect(() => {
-    getUserData();
-  }, []);
-
-  // Separate effect for loading events
-  useEffect(() => {
-    if (!registered) {
-      handleCallAPI();
-    } else {
-      handleRegistered();
-    }
-  }, [registered, refresh]);
-
-  const getUserData = () => {
+  const getUserData = useCallback(() => {
     if (!userInfo) {
       return;
     }
 
-    const user = {
+    const userRecord = {
       id: userInfo._id,
       name: `${userInfo.firstName ?? ""} ${userInfo.lastName ?? ""}`.trim(),
       email: userInfo.email ?? "",
     };
-    setUserInfo(user);
+    setUserInfo(userRecord);
     setReady(true);
-  };
+  }, [userInfo]);
 
-  const registeredEvents = Array.isArray(userInfo?.registeredEvents)
-    ? userInfo.registeredEvents
-    : [];
-  
-  const handleRegistered = () => {
+  type RegisteredEventRef = { _id?: string };
+  const registeredEvents: RegisteredEventRef[] = useMemo(
+    () =>
+      Array.isArray(userInfo?.registeredEvents)
+        ? (userInfo.registeredEvents as RegisteredEventRef[])
+        : [],
+    [userInfo?.registeredEvents]
+  );
+
+  const registeredEventIds = useMemo(
+    () =>
+      registeredEvents
+        .map((eventRef) => eventRef?._id)
+        .filter((id): id is string => Boolean(id)),
+    [registeredEvents]
+  );
+
+  const handleRegistered = useCallback(() => {
     setLoading(true);
-    console.log(userInfo);
-    if (!Array.isArray(registeredEvents) || registeredEvents.length === 0) {
+    if (registeredEvents.length === 0) {
       setEvents([]);
       setLoading(false);
       return;
@@ -177,9 +171,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     const result = frameData(registeredEvents);
     setEvents(result);
     setLoading(false);
-  };
+  }, [registeredEvents]);
 
-  async function handleCallAPI() {
+  const handleCallAPI = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -199,7 +193,19 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     } finally {
       setLoading(false);
     }
-  }
+  }, [registered, user]);
+
+  useEffect(() => {
+    getUserData();
+  }, [getUserData]);
+
+  useEffect(() => {
+    if (!registered) {
+      handleCallAPI();
+    } else {
+      handleRegistered();
+    }
+  }, [registered, refresh, handleCallAPI, handleRegistered]);
 
   const handleDeleteEvent = async (eventId: string) => {
     try {
@@ -274,7 +280,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
 
     return filtered;
-  }, [searchQuery, filters, events]);
+  }, [searchQuery, filters, events, user]);
 
   const handleFilterChange = useCallback(
     (groupId: string, value: FilterValue) => {
@@ -291,13 +297,32 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setSearchQuery("");
   }, []);
 
-  const Eventoptions = [
-    { label: "Gym", icon: FitnessCenterIcon },
-    { label: "Bazaars", icon: StorefrontIcon },
-    { label: "Trips", icon: FlightTakeoffIcon },
-    { label: "Conference", icon: EventIcon },
-  ];
-  const EventOptionsSetters = [setSession, setBazaar, setTrip, setConference];
+  const creationHubOptions = useMemo(
+    () => [
+      {
+        label: "Bazaar",
+        icon: StorefrontIcon,
+        color: "#e91e63",
+        description: "Plan a vendor marketplace",
+        onSelect: () => setBazaar(true),
+      },
+      {
+        label: "Trip",
+        icon: FlightTakeoffIcon,
+        color: "#6e8ae6",
+        description: "Organize an off-campus journey",
+        onSelect: () => setTrip(true),
+      },
+      {
+        label: "Conference",
+        icon: EventIcon,
+        color: "#ff9800",
+        description: "Host an academic gathering",
+        onSelect: () => setConference(true),
+      },
+    ],
+    [setBazaar, setTrip, setConference]
+  );
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -323,7 +348,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         );
       case EventType.WORKSHOP:
-        console.log(event)
         return (
           <WorkshopView
             id={event.id}
@@ -339,9 +363,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents
-              .map((e: any) => e?._id)
-              .includes(event.id)}
+            isRegisteredEvent={registeredEventIds.includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -361,9 +383,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents
-              .map((e: any) => e?._id)
-              .includes(event.id)}
+            isRegisteredEvent={registeredEventIds.includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -383,9 +403,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents
-              .map((e: any) => e?._id)
-              .includes(event.id)}
+            isRegisteredEvent={registeredEventIds.includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -404,9 +422,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents
-              .map((e: any) => e?._id)
-              .includes(event.id)}
+            isRegisteredEvent={registeredEventIds.includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -473,10 +489,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           onReset={handleResetFilters}
         />
         {user === "events-only" && (
-          <MenuOptionComponent
-            options={Eventoptions}
-            setters={EventOptionsSetters}
-          />
+          <Box sx={{ ml: "auto" }}>
+            <CreationHubDropdown
+              options={creationHubOptions}
+              helperText="Start something new"
+            />
+          </Box>
         )}
       </Box>
 
