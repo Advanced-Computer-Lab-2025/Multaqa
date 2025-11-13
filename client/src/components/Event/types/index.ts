@@ -11,6 +11,7 @@ type BasicProps = {
   icon: SvgIconComponent;
   isReady:boolean;
   attended?:boolean;
+  isRegisteredEvent?:boolean;
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
