@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import AnimatedLoading from "@/components/shared/AnimatedLoading";
+import LoadingBlocks from "@/components/shared/LoadingBlocks";
 import EntityNavigation from "@/components/layout/EntityNavigation";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
@@ -22,6 +22,7 @@ import WorkshopList from "@/components/shared/Professor/WorkshopList";
 import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
+import Wallet from "@/components/Wallet/Wallet";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,7 +95,7 @@ export default function EntityCatchAllPage() {
 
   // Show loading state
   if (isLoading) {
-    return <AnimatedLoading />;
+    return <LoadingBlocks />;
   }
 
   // Show error if no user
@@ -289,6 +290,12 @@ export default function EntityCatchAllPage() {
             </p>
           </div>
         );
+      }
+    }
+
+    if(["student", "staff", "ta", "professor"].includes(entity) && tab === "wallet"){
+      if(section === "overview" || section === ""){
+        return<Wallet />;
       }
     }
 

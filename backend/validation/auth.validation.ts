@@ -1,4 +1,19 @@
+import { url } from 'inspector';
 import Joi from 'joi';
+
+export const fileformatValidationSchema = Joi.object({
+  url: Joi.string()
+    .uri()
+    .required(),
+  publicId: Joi.string()
+    .trim()
+    .required(),
+  originalName: Joi.string()
+    .trim()
+    .required(),
+  uploadedAt: Joi.date()
+    .required()
+});
 
 // for student and staffMembers (staff/TA/Professor)
 export const signupStudentAndStaffValidationSchema = Joi.object({
@@ -56,12 +71,8 @@ export const signupVendorValidationSchema = Joi.object({
   type: Joi.string()
     .valid('vendor')
     .required(),
-  // taxCard: Joi.string()
-  //   .trim()
-  //   .required(),
-  // logo: Joi.string()
-  //   .uri()
-  //   .required()
+  taxCard: fileformatValidationSchema,
+  logo: fileformatValidationSchema,
 });
 
 // for admin/event office accounts (created by another admin)

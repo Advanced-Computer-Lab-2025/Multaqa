@@ -193,6 +193,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setReady(true);
   };
 
+const registeredEvents = userInfo.registeredEvents;
 const handleRegistered = () => {
     setLoading(true);
     console.log(userInfo);
@@ -496,6 +497,7 @@ const handleFilterChange = useCallback(
             agenda={event.agenda}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -515,6 +517,7 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -534,6 +537,7 @@ const handleFilterChange = useCallback(
             details={event.details}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}
@@ -552,6 +556,7 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
+            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
             userInfo={UserInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             isReady={isReady}

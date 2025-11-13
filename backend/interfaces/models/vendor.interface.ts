@@ -1,5 +1,6 @@
 import { IUser } from "./user.interface";
 import { Event_Request_Status } from "../../constants/user.constants";
+import { IFileInfo } from "../fileData.interface";
 
 export interface IRequestedEvent {
   event: string;
@@ -17,8 +18,8 @@ export interface VendorRequest {
 
 export interface IVendor extends IUser {
   companyName: string;
-  // taxCard: string;
-  // logo: string;
+  taxCard: IFileInfo;
+  logo: IFileInfo;
   loyaltyProgram?: {
     discountRate: number;
     promoCode: string;

@@ -12,6 +12,28 @@ import {
   MeResponse,
   UserResponse,
 } from "../../../backend/interfaces/responses/authResponses.interface";
+import { IFileInfo } from "../../../backend/interfaces/fileData.interface";
+
+interface StudentSignupData {
+  type: "studentOrStaff";
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  gucId: string;
+}
+
+interface VendorSignupData {
+  type: "vendor";
+  companyName: string;
+  email: string;
+  password: string;
+  taxCard: IFileInfo | null;
+  logo: IFileInfo | null;
+}
+
+// Create a union type
+type SignupData = StudentSignupData | VendorSignupData;
 
 interface AuthContextType {
   user: UserResponse | null;
@@ -23,7 +45,7 @@ interface AuthContextType {
     password: string;
   }) => Promise<{ user: UserResponse } | undefined>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signup: (data: any) => Promise<void>;
+  signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<UserResponse | null>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -113,7 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Signup
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const signup = useCallback(async (data: any) => {
+  const signup = useCallback(async (data: SignupData) => {
     setIsLoading(true);
     try {
       const response = await api.post("/auth/signup", data);
@@ -133,13 +155,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Logout
   const logout = useCallback(async () => {
-    try {
-      // clear refreshToken from cookies by making a logout request
-      await api.post("/auth/logout", {}, { withCredentials: true });
-    } catch {}
     localStorage.removeItem("token");
     setUser(null);
     router.replace("/login");
+    try {
+      await api.post("/auth/logout", {}, { withCredentials: true });
+    } catch (error) {
+      console.error("Failed to clear refreshToken on server:", error);
+    }
   }, [router]);
 
   return (

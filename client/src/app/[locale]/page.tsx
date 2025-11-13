@@ -157,7 +157,7 @@ const MenuToggleButton = ({
             height: 2,
             borderRadius: 1,
             backgroundColor: theme.palette.text.primary,
-            transition: "transform 0.35s ease, opacity 0.35s ease",
+            transition: "transform 0.52s ease, opacity 0.52s ease",
             transformOrigin: "center",
             top: index === 0 ? 0 : index === 1 ? "50%" : "100%",
             transform: open
@@ -183,7 +183,7 @@ export default function HomePage() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
-  const [isPageExiting, setIsPageExiting] = useState(false);
+  const [isPageExiting] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
@@ -510,8 +510,8 @@ export default function HomePage() {
                   color: theme.palette.tertiary.contrastText,
                   border: `2px solid ${theme.palette.tertiary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.tertiary.dark,
-                    borderColor: theme.palette.tertiary.dark,
+                    backgroundColor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.dark,
                   },
                   boxShadow: `0 10px 24px ${alpha(
                     theme.palette.tertiary.main,
@@ -558,7 +558,7 @@ export default function HomePage() {
               variant="body2"
               sx={{ color: alpha(theme.palette.text.primary, 0.6) }}
             >
-              Select the language you’d like to use across Multaqa.
+              Select the language you&apos;d like to use across Multaqa.
             </Typography>
           </Stack>
 
@@ -613,16 +613,30 @@ export default function HomePage() {
       <CustomModalLayout
         open={isConsentOpen}
         onClose={handleDismissConsent}
-        width="w-[90vw] sm:w-[480px]"
+        width="w-[90vw] sm:w-[540px]"
       >
-        <Stack spacing={3}>
-          <Stack spacing={1}>
-            <Typography component="h2" variant="h5" sx={{ fontWeight: 600 }}>
+        <Stack spacing={3.5} sx={{ px: { xs: 1, sm: 2 }, py: 1 }}>
+          {/* Header Section */}
+          <Stack spacing={2} alignItems="center">
+            <Typography 
+              component="h2" 
+              variant="h4" 
+              sx={{ 
+                fontWeight: 700,
+                textAlign: "center",
+                fontSize: { xs: "1.75rem", sm: "2rem" },
+              }}
+            >
               Your Privacy Choices
             </Typography>
             <Typography
-              variant="body2"
-              sx={{ color: alpha(theme.palette.text.primary, 0.65) }}
+              variant="body1"
+              sx={{ 
+                color: alpha(theme.palette.text.primary, 0.75),
+                textAlign: "center",
+                lineHeight: 1.65,
+                maxWidth: "90%",
+              }}
             >
               We use essential cookies to keep Multaqa running and optional
               analytics to improve your experience. Review the policies below to
@@ -630,76 +644,114 @@ export default function HomePage() {
             </Typography>
           </Stack>
 
-          <Stack
-            direction="row"
-            spacing={1.5}
-            flexWrap="wrap"
-            justifyContent="center"
-            rowGap={1}
+          {/* Policies List */}
+          <Box
+            sx={{
+              backgroundColor: alpha(theme.palette.primary.main, 0.03),
+              borderRadius: 2,
+              px: 3,
+              py: 2.5,
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+            }}
           >
-            {[
-              { href: "/privacy", label: "Privacy Policy" },
-              { href: "/terms", label: "Terms of Service" },
-              { href: "/cookies", label: "Cookies Policy" },
-              { href: "/gdpr", label: "GDPR Compliance" },
-              { href: "/support", label: "Support" },
-            ].map((item) => (
-              <Typography
-                key={item.href}
-                component={Link}
-                href={item.href}
-                sx={{
-                  textDecoration: "none",
-                  fontWeight: 600,
-                  color: theme.palette.primary.main,
-                  fontSize: { xs: "0.9rem", sm: "0.95rem" },
-                  "&:hover": {
-                    textDecoration: "underline",
+            <Box
+              component="ul"
+              sx={{
+                m: 0,
+                pl: 2,
+                listStyleType: "disc",
+                listStylePosition: "outside",
+                "& li": {
+                  mb: 1.25,
+                  pl: 0.75,
+                  "&:last-child": {
+                    mb: 0,
                   },
-                }}
-              >
-                {item.label}
-              </Typography>
-            ))}
-          </Stack>
+                },
+                "& li::marker": {
+                  color: theme.palette.primary.main,
+                  fontSize: "1.1rem",
+                },
+              }}
+            >
+              {[
+                { href: "/privacy", label: "Privacy Policy" },
+                { href: "/terms", label: "Terms of Service" },
+                { href: "/cookies", label: "Cookies Policy" },
+                { href: "/gdpr", label: "GDPR Compliance" },
+                { href: "/support", label: "Support" },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Typography
+                    component={Link}
+                    href={item.href}
+                    sx={{
+                      textDecoration: "none",
+                      fontWeight: 600,
+                      color: theme.palette.primary.main,
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        color: theme.palette.primary.dark,
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    {item.label}
+                  </Typography>
+                </li>
+              ))}
+            </Box>
+          </Box>
 
+          {/* Footer Note */}
           <Typography
-            variant="caption"
-            sx={{ color: alpha(theme.palette.text.primary, 0.6) }}
+            variant="body2"
+            sx={{ 
+              color: alpha(theme.palette.text.primary, 0.6),
+              textAlign: "center",
+              lineHeight: 1.6,
+              fontSize: "0.875rem",
+              px: 1,
+            }}
           >
             You can revisit these settings anytime from the footer links. We
             respect your choices and only store this preference in your browser.
           </Typography>
 
+          {/* Action Buttons */}
           <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={1.5}
-            justifyContent="flex-end"
+            direction="column"
+            spacing={1.25}
+            sx={{ pt: 0.5 }}
           >
+            <CustomButton
+              variant="contained"
+              onClick={handleAcceptConsent}
+              sx={{
+                width: "100%",
+                fontWeight: 700,
+                backgroundColor: theme.palette.tertiary.main,
+                color: theme.palette.tertiary.contrastText,
+                border: `2px solid ${theme.palette.tertiary.dark}`,
+                "&:hover": {
+                  backgroundColor: theme.palette.tertiary.dark,
+                  borderColor: theme.palette.tertiary.dark,
+                },
+              }}
+            >
+              Accept all
+            </CustomButton>
             <CustomButton
               variant="outlined"
               color="primary"
               onClick={handleDismissConsent}
-              sx={{ width: { xs: "100%", sm: "auto" } }}
+              sx={{ 
+                width: "100%",
+                py: 0.75,
+              }}
             >
               Continue without optional cookies
-            </CustomButton>
-              <CustomButton
-                variant="contained"
-                onClick={handleAcceptConsent}
-                sx={{
-                  width: { xs: "100%", sm: "auto" },
-                  fontWeight: 700,
-                  backgroundColor: theme.palette.tertiary.main,
-                  color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.tertiary.dark}`,
-                  "&:hover": {
-                    backgroundColor: theme.palette.tertiary.dark,
-                    borderColor: theme.palette.tertiary.dark,
-                  },
-                }}
-              >
-              Accept all
             </CustomButton>
           </Stack>
         </Stack>
@@ -732,7 +784,7 @@ export default function HomePage() {
             minHeight: "100%",
             display: "flex",
             flexDirection: "column",
-            py: { xs: 6, md: 10 },
+            py: { xs: 1.5, md: 3 },
             gap: 6,
             overflowY: "auto",
             WebkitOverflowScrolling: "touch",
@@ -1157,7 +1209,7 @@ export default function HomePage() {
               sx={{
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
-                color: theme.palette.tertiary.dark,
+                color: theme.palette.primary.dark,
                 fontWeight: 600,
               }}
             >
@@ -1215,8 +1267,8 @@ export default function HomePage() {
                   color: theme.palette.tertiary.contrastText,
                   border: `2px solid ${theme.palette.tertiary.dark}`,
                   "&:hover": {
-                    backgroundColor: theme.palette.tertiary.dark,
-                    borderColor: theme.palette.tertiary.dark,
+                    backgroundColor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.dark,
                   },
                 }}
                 endIcon={<ArrowForwardIcon />}
@@ -1439,7 +1491,7 @@ export default function HomePage() {
                   gridColumn: "3 / span 3",
                   gridRow: "1 / span 2",
                   borderRadius: 2,
-                  bgcolor: theme.palette.tertiary.main,
+                  bgcolor: theme.palette.secondary.main,
                   animation: "floatMed 11s ease-in-out infinite",
                   animationDelay: "0.8s",
                   "@keyframes floatMed": {
@@ -1497,7 +1549,8 @@ export default function HomePage() {
                   gridColumn: "5 / span 2",
                   gridRow: "5 / span 2",
                   borderRadius: "999px",
-                  bgcolor: theme.palette.primary.dark,
+                  // Mirror the pink accent used in gym sessions for a consistent highlight
+                  bgcolor: "#e91e63",
                   animation: "floatSlow 13s ease-in-out infinite",
                   animationDelay: "0.6s",
                 }}
@@ -1823,9 +1876,12 @@ export default function HomePage() {
                 component={Link}
                 href="/privacy"
                 sx={{
-                  color: "inherit",
+                  color: theme.palette.common.white,
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.primary.main },
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
                   textAlign: "center",
                 }}
               >
@@ -1835,9 +1891,12 @@ export default function HomePage() {
                 component={Link}
                 href="/terms"
                 sx={{
-                  color: "inherit",
+                  color: theme.palette.common.white,
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.primary.main },
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
                   textAlign: "center",
                 }}
               >
@@ -1847,9 +1906,12 @@ export default function HomePage() {
                 component={Link}
                 href="/support"
                 sx={{
-                  color: "inherit",
+                  color: theme.palette.common.white,
                   textDecoration: "none",
-                  "&:hover": { color: theme.palette.primary.main },
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
                   textAlign: "center",
                 }}
               >

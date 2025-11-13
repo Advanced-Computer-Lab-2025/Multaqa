@@ -6,6 +6,9 @@ import { useTheme } from "@mui/material/styles";
 import { flushSync } from "react-dom";
 import VectorFloating from "./animations/VectorFloating";
 
+// Minimum loading display time in milliseconds
+const MINIMUM_LOADING_TIME = 3000;
+
 type FloatingShapeProps = {
   delay: number;
   duration: number;
@@ -69,9 +72,28 @@ export default function AnimatedLoading({
 }: AnimatedLoadingProps) {
   const theme = useTheme();
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [canFinish, setCanFinish] = useState(false);
+  const [startTime] = useState(() => Date.now());
   const progressTimerRef = useRef<number | null>(null);
   const progressRef = useRef(0);
   const isFinishingRef = useRef(false);
+  const minimumTimeTimerRef = useRef<number | null>(null);
+
+  // Minimum time enforcement
+  useEffect(() => {
+    if (!showProgress) return;
+
+    // Set timer for minimum display time
+    minimumTimeTimerRef.current = window.setTimeout(() => {
+      setCanFinish(true);
+    }, MINIMUM_LOADING_TIME);
+
+    return () => {
+      if (minimumTimeTimerRef.current) {
+        clearTimeout(minimumTimeTimerRef.current);
+      }
+    };
+  }, [showProgress]);
 
   useEffect(() => {
     if (!showProgress) return;
@@ -102,14 +124,15 @@ export default function AnimatedLoading({
 
     progressRef.current = loadingProgress;
 
-    if (loadingProgress >= 99.5) {
+    // Only allow finishing if minimum time has passed AND progress is high enough
+    if (loadingProgress >= 99.5 && canFinish) {
       isFinishingRef.current = true;
       if (progressTimerRef.current) {
         clearInterval(progressTimerRef.current);
         progressTimerRef.current = null;
       }
     }
-  }, [loadingProgress, showProgress]);
+  }, [loadingProgress, showProgress, canFinish]);
 
   useEffect(() => {
     if (!showProgress) return;
@@ -118,14 +141,19 @@ export default function AnimatedLoading({
       if (progressTimerRef.current) {
         clearInterval(progressTimerRef.current);
       }
-      if (progressRef.current < 100) {
+      if (minimumTimeTimerRef.current) {
+        clearTimeout(minimumTimeTimerRef.current);
+      }
+      // Only complete if minimum time has passed
+      const elapsed = Date.now() - startTime;
+      if (progressRef.current < 100 && elapsed >= MINIMUM_LOADING_TIME) {
         flushSync(() => {
           isFinishingRef.current = true;
           setLoadingProgress(100);
         });
       }
     };
-  }, [showProgress]);
+  }, [showProgress, startTime]);
 
   const shapes = [
     {
