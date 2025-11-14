@@ -6,6 +6,7 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
+import { capitalizeName } from "../shared/input-fields/utils";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModalLayout } from "../shared/modals";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
@@ -47,7 +48,12 @@ export default function AllUsersContent() {
     },
     validationSchema: userCreationSchema,
     onSubmit: (values) => {
-      handleCreateUser(values, setUsers, handleCloseCreate);
+      const normalizedValues = {
+        ...values,
+        fullName: capitalizeName(String(values.fullName ?? ""), false),
+      };
+
+      handleCreateUser(normalizedValues, setUsers, handleCloseCreate);
     },
   });
 
@@ -205,7 +211,7 @@ export default function AllUsersContent() {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <CustomTextField
                 label="Full Name"
-                fieldType="text"
+                fieldType="name"
                 placeholder="Enter full name"
                 name="fullName"
                 value={formik.values.fullName}

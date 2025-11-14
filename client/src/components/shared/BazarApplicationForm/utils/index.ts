@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { api } from "../../../../api";
 import type { UploadStatus } from "../../FileUpload/types";
 import { BazarFormValues } from "../types"; // Import BazarFormValues
+import { capitalizeName } from "../../input-fields/utils";
 
 export const validationSchema = Yup.object({
   bazaarAttendees: Yup.array()
@@ -34,7 +35,11 @@ export const submitBazarForm = async (
     const processedAttendees = values.bazaarAttendees.map(
       (attendee, index) => ({
         ...attendee,
-        nationalId: attendeeIdStatuses[index] === "success" ? attendee.nationalId : null,
+        name: capitalizeName(String(attendee.name ?? ""), false),
+        nationalId:
+          attendeeIdStatuses[index] === "success"
+            ? attendee.nationalId
+            : null,
       })
     );
 
