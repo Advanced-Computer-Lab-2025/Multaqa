@@ -2,11 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import theme from "@/themes/lightTheme";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
-import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
+import { GymSession, GymSessionType, SESSION_LABEL, SESSION_COLORS } from "./types";
 import { fetchGymSessions } from "./utils";
 
 // colors handled by `GymSessionCard`
@@ -141,19 +144,41 @@ export default function GymSchedule({ month, sessions }: Props) {
             variant="outlined"
             color="primary"
             onClick={goPrev}
-            width="auto"
-            height="36px"
+            width="42px"
+            height="42px"
+            aria-label="Previous month"
+            sx={{
+              minWidth: "42px",
+              width: 42,
+              height: 42,
+              borderRadius: "999px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            Prev
+            <ArrowBackIosNewIcon fontSize="small" />
           </CustomButton>
           <CustomButton
             variant="contained"
             color="primary"
             onClick={goNext}
-            width="auto"
-            height="36px"
+            width="42px"
+            height="42px"
+            aria-label="Next month"
+            sx={{
+              minWidth: "42px",
+              width: 42,
+              height: 42,
+              borderRadius: "999px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            Next
+            <ArrowForwardIosIcon fontSize="small" />
           </CustomButton>
         </Stack>
       </Box>
@@ -176,44 +201,38 @@ export default function GymSchedule({ month, sessions }: Props) {
           {monthLabel}
         </Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-          {filterChips.map(({ key, label }) => (
-            <Chip
-              key={key}
-              label={label}
-              size="medium"
-              onClick={() => setFilter(key)}
-              sx={{
-                fontFamily: "var(--font-poppins)",
-                fontWeight: 700,
-                letterSpacing: 0.2,
-                borderRadius: "9999px",
-                px: 1.5,
-                height: 36,
-                transition: "all 0.15s ease-in-out",
-                ...(filter === key
-                  ? {
-                      backgroundColor: theme.palette.primary.main,
-                      color: theme.palette.primary.contrastText,
-                      borderColor: theme.palette.primary.main,
-                      boxShadow: "0 2px 6px rgba(98, 153, 208, 0.35)",
-                      "&:hover": {
-                        backgroundColor: theme.palette.primary.dark,
-                        borderColor: theme.palette.primary.dark,
-                      },
-                    }
-                  : {
-                      backgroundColor: "#fff",
-                      borderColor: theme.palette.primary.light,
-                      color: theme.palette.tertiary.dark,
-                      "&:hover": {
-                        backgroundColor: `${theme.palette.primary.light}60`,
-                        borderColor: theme.palette.primary.main,
-                      },
-                    }),
-              }}
-              variant={filter === key ? "filled" : "outlined"}
-            />
-          ))}
+          {filterChips.map(({ key, label }) => {
+            const isActive = filter === key;
+            const baseColor = key === "ALL" ? theme.palette.primary.main : SESSION_COLORS[key];
+            return (
+              <Chip
+                key={key}
+                label={label}
+                size="medium"
+                onClick={() => setFilter(key)}
+                variant={isActive ? "filled" : "outlined"}
+                sx={{
+                  fontFamily: "var(--font-poppins)",
+                  fontWeight: 700,
+                  letterSpacing: 0.2,
+                  borderRadius: "9999px",
+                  px: 1.75,
+                  height: 36,
+                  borderWidth: 1,
+                  borderColor: baseColor,
+                  color: isActive ? theme.palette.common.white : baseColor,
+                  backgroundColor: isActive ? baseColor : alpha(baseColor, 0.08),
+                  boxShadow: isActive
+                    ? `0 4px 12px ${alpha(baseColor, 0.35)}`
+                    : `0 1px 3px ${alpha(baseColor, 0.18)}`,
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    backgroundColor: isActive ? alpha(baseColor, 0.85) : alpha(baseColor, 0.16),
+                  },
+                }}
+              />
+            );
+          })}
         </Stack>
       </Box>
 

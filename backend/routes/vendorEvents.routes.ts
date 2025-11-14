@@ -263,31 +263,35 @@ async function getAvailableBooths(
     );
   }
 }
-async function uploadNationalId(req: Request, res: Response<FileUploadResponse>) {
-  
-    const nationalId: Express.Multer.File | undefined = req.file;
-try {
+async function uploadNationalId(
+  req: Request,
+  res: Response<FileUploadResponse>
+) {
+  const nationalId = req.file as Express.Multer.File | undefined;
+
+  try {
     if (!nationalId) {
-      throw createError(400, 'National ID is required for vendor signup');
+      throw createError(400, "National ID is required for vendor signup");
     }
+
     res.status(200).json({
       success: true,
       data: {
-          url: nationalId.path,
-          publicId: nationalId.filename,
-          originalName: nationalId.originalname,
-          uploadedAt: new Date()
+        url: nationalId.path,
+        publicId: nationalId.filename,
+        originalName: nationalId.originalname,
+        uploadedAt: new Date(),
       },
-        message: 'National ID uploaded successfully'
+      message: "National ID uploaded successfully",
     });
-} 
-  catch (error: any) {
-    if(nationalId && nationalId.filename){
+  } catch (error: any) {
+    if (nationalId && nationalId.filename) {
       await deleteCloudinaryFile(nationalId.filename);
     }
+
     throw createError(
       error.status || 500,
-      error.message || 'National ID upload failed'
+      error.message || "National ID upload failed"
     );
   }
 }
@@ -316,6 +320,12 @@ router.post(
   "/booth",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBooth
+);
+
+router.post(
+  "/upload-national-id",
+  uploadFiles.single("nationalId"),
+  uploadNationalId
 );
 
 router.post(

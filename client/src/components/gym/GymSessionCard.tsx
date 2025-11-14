@@ -2,45 +2,71 @@
 
 import React from "react";
 import { Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import ActionCard from "@/components/shared/cards/ActionCard";
-import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
+import { GymSession, SESSION_LABEL, SESSION_COLORS } from "./types";
 
 type Props = {
   session: GymSession;
   showSpots?: boolean;
 };
 
-const typeColors: Record<GymSessionType, { bg: string; fg: string }> = {
-  YOGA: { bg: "#c8e6c9", fg: "#1E1E1E" },
-  PILATES: { bg: "#ffe0b2", fg: "#1E1E1E" },
-  AEROBICS: { bg: "#bbdefb", fg: "#1E1E1E" },
-  ZUMBA: { bg: "#f8bbd0", fg: "#1E1E1E" },
-  CROSS_CIRCUIT: { bg: "#e6ee9c", fg: "#1E1E1E" },
-  KICK_BOXING: { bg: "#ffccbc", fg: "#1E1E1E" },
-};
-
 export default function GymSessionCard({ session, showSpots = true }: Props) {
-  const c = typeColors[session.type];
+  const baseColor = SESSION_COLORS[session.type];
+  const chipBackground = alpha(baseColor, 0.08);
+  const chipBorder = alpha(baseColor, 0.4);
   const start = new Date(session.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const end = new Date(session.end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const spotsLeft = (session.spotsTotal ?? 0) - (session.spotsTaken ?? 0);
 
   const tags: Array<{ label: React.ReactNode } & Partial<import("@mui/material").ChipProps>> = [
-    { label: SESSION_LABEL[session.type], sx: { bgcolor: c.bg, color: c.fg, fontWeight: 600 } },
+    {
+      label: SESSION_LABEL[session.type],
+      variant: "outlined",
+      sx: {
+        backgroundColor: chipBackground,
+        color: baseColor,
+        fontWeight: 700,
+        fontFamily: "var(--font-poppins)",
+        letterSpacing: 0.4,
+        borderRadius: "999px",
+        border: `1px solid ${chipBorder}`,
+        height: 24,
+        "& .MuiChip-label": {
+          px: 1.25,
+        },
+        "&:hover": {
+          backgroundColor: alpha(baseColor, 0.16),
+          borderColor: baseColor,
+        },
+      },
+    },
   ];
 
   return (
     <ActionCard
       title={`${SESSION_LABEL[session.type]} — ${session.title}`}
       tags={tags}
-      subtitleNode={<Typography variant="body2" sx={{ color: "#6299d0" }}>{session.location ?? "Main Gym"}</Typography>}
+      subtitleNode={
+        <Typography
+          variant="body2"
+          sx={{ color: alpha(baseColor, 0.8), fontWeight: 600 }}
+        >
+          {session.location ?? "Main Gym"}
+        </Typography>
+      }
       metaNodes={[
-        <Typography key="time" variant="body2" sx={{ color: "#6b7280" }}>{start} – {end} · Instructor: {session.instructor ?? "TBA"}</Typography>,
+        <Typography key="time" variant="body2" sx={{ color: alpha(baseColor, 0.8) }}>
+          {start} – {end} · Instructor: {session.instructor ?? "TBA"}
+        </Typography>,
         showSpots ? (
-          <Typography key="spots" variant="caption" sx={{ color: "#6b7280" }}>{spotsLeft} spots left</Typography>
+          <Typography key="spots" variant="caption" sx={{ color: alpha(baseColor, 0.65), fontWeight: 600 }}>
+            {spotsLeft} spots left
+          </Typography>
         ) : null,
       ].filter(Boolean) as React.ReactNode[]}
-      borderColor={c.bg}
+      borderColor={alpha(baseColor, 0.3)}
+      background={alpha(baseColor, 0.04)}
     />
   );
 }
