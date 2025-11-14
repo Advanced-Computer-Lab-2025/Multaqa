@@ -84,8 +84,8 @@ const EventCard: React.FC<EventCardProps> = ({
         overflow: 'hidden',
         transition: 'all 0.3s ease',
         position: 'relative',
-        minHeight:220,
-        maxHeight:220,
+        minHeight:250,
+        maxHeight:250,
         '&:hover': {
           borderColor: color,
           transform: 'translateY(-2px)',
