@@ -1,6 +1,9 @@
 import { GymSessionsService } from "../services/gymsessionsService";
 import { Router, Request, Response } from "express";
-import { createGymSessionValidationSchema } from "../validation/gymSessions.validation";
+import {
+  createGymSessionValidationSchema,
+  editGymSessionValidationSchema,
+} from "../validation/gymSessions.validation";
 import createError from "http-errors";
 import {
   CreateGymSessionResponse,
@@ -71,15 +74,23 @@ async function getAllGymSessions(
 async function editGymSession(req: Request, res: Response) {
   try {
     const { sessionId } = req.params;
-    const updateData = req.body;
 
     if (!sessionId) {
       throw createError(400, "Session ID is required");
     }
 
+    const { value, error } = editGymSessionValidationSchema.validate(req.body);
+
+    if (error) {
+      const errorMessages = error.details
+        .map((detail) => detail.message)
+        .join("; ");
+      throw createError(400, errorMessages);
+    }
+
     const updatedSession = await gymSessionsService.editGymSession(
       sessionId,
-      updateData
+      value
     );
 
     res.json({

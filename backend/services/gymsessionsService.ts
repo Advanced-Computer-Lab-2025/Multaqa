@@ -64,21 +64,6 @@ export class GymSessionsService {
     sessionId: string,
     updateData: { date?: string; time?: string; duration?: number }
   ): Promise<IGymSessionEvent> {
-    // Check that only allowed fields are being updated
-    const allowedFields = ["date", "time", "duration"];
-    const providedFields = Object.keys(updateData);
-    const invalidFields = providedFields.filter(
-      (field) => !allowedFields.includes(field)
-    );
-
-    if (invalidFields.length > 0) {
-      throw new Error(
-        `Cannot update fields: ${invalidFields.join(
-          ", "
-        )}. Only date, time, and duration can be edited.`
-      );
-    }
-
     const session = await this.gymSessionRepo.findById(sessionId);
     if (!session) {
       throw new Error("Gym session not found");
@@ -87,16 +72,6 @@ export class GymSessionsService {
     // Update date if provided
     if (updateData.date) {
       const sessionDate = new Date(updateData.date);
-
-      // Do not allow setting the session date to a past date (date-only comparison)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const normalizedSessionDate = new Date(sessionDate);
-      normalizedSessionDate.setHours(0, 0, 0, 0);
-      if (normalizedSessionDate < today) {
-        throw new Error("Cannot set session date to a past date");
-      }
-
       session.eventStartDate = sessionDate;
       session.eventEndDate = sessionDate;
       session.registrationDeadline = new Date(
