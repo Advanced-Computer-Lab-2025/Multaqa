@@ -324,4 +324,37 @@ export class UserService {
     await user.save();
     return user;
   }
+
+  /**
+   * Add a transaction to user's transaction history
+   * @param userId - User ID
+   * @param transaction - Transaction details
+   * @returns Updated user
+   */
+  async addTransaction(
+    userId: string,
+    transaction: {
+      eventName: string;
+      amount: number;
+      walletAmount?: number;
+      cardAmount?: number;
+      type: "payment" | "refund";
+      date: Date;
+    }
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    if (!user.transactions) {
+      user.transactions = [];
+    }
+
+    user.transactions.push(transaction as any);
+    await user.save();
+    return user;
+  }
 }

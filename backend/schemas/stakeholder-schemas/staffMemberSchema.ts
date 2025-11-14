@@ -14,6 +14,16 @@ const staffMemberSchema = new Schema<IStaffMember>(
       default: StaffPosition.UNKNOWN,
     },
     walletBalance: { type: Number, default: 0 },
+    transactions: [
+      {
+        eventName: { type: String, required: true },
+        amount: { type: Number, required: true },
+        walletAmount: { type: Number, default: 0 },
+        cardAmount: { type: Number, default: 0 },
+        type: { type: String, enum: ["payment", "refund"], required: true },
+        date: { type: Date, default: Date.now },
+      },
+    ],
     favorites: [{ type: Schema.Types.ObjectId, ref: "Event", default: [] }],
     registeredEvents: [
       { type: Schema.Types.ObjectId, ref: "Event", default: [] },
