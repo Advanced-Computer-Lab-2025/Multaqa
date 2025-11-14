@@ -15,13 +15,11 @@ export const createGymSessionValidationSchema = Joi.object({
     .messages({
       "string.pattern.base": "Time must be in HH:MM format",
     }),
-  duration: Joi.number().min(10).max(180).required().messages({
-    "number.min": "Duration must be at least 10 minutes",
-    "number.max": "Duration must be at most 180 minutes",
+  duration: Joi.number().required().messages({
+    "number.base": "Duration must be a number",
   }),
-  capacity: Joi.number().min(1).max(100).default(10).messages({
-    "number.min": "Capacity must be at least 1",
-    "number.max": "Capacity must be at most 100",
+  capacity: Joi.number().required().messages({
+    "number.base": "Capacity must be a number",
   }),
   sessionType: Joi.string()
     .valid(...Object.values(GYM_SESSION_TYPES))
