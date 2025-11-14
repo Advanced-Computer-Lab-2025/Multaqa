@@ -164,7 +164,7 @@ const TripView: React.FC<BazarViewProps> = ({
               </>
             )
           }
-        expanded={expanded} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+        expanded={expanded} attended={attended} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
     
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
