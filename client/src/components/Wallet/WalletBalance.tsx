@@ -14,7 +14,6 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
   currentBalance = 0 ,
   transactions
 }) => {
-  console.log(userInfo);
   const getInitials = () => {
     const firstInitial = userInfo?.firstName?.charAt(0).toUpperCase() || '';
     const lastInitial = userInfo?.lastName?.charAt(0).toUpperCase() || '';
@@ -23,6 +22,16 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
   const active = userInfo.status=="active";
   const fullName = userInfo?.firstName +" "+userInfo?.lastName ;
   
+  const monthTransactions = transactions.reduce((acc:any, tx:any) => {
+    const txDate = new Date(tx.date);
+    const now = new Date();
+    if (txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()) {
+      return acc + (tx.type === 'refund' ? tx.amount : -tx.amount);
+    }
+    return acc;
+  }, 0).toFixed(2)
+  const isMonthPositive = parseFloat(monthTransactions) >= 0;
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
       {/* Modern Card with Glassmorphism Effect */}
@@ -175,8 +184,8 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                     This Month
                   </Typography>
                   <Typography variant="body1" sx={{ color: '#fff', fontWeight: 600, mt: 0.5 }}>
-                    $164.99
                     {/* sum transactions with their signs and check this month's date */}
+                    {isMonthPositive ? "+" : "-"}${Math.abs(parseFloat(monthTransactions)).toFixed(2)}
                   </Typography>
                 </Box>
               </Grid>
@@ -220,8 +229,8 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                     Last Activity
                   </Typography>
                   <Typography variant="body1" sx={{ color: '#fff', fontWeight: 600, mt: 0.5 }}>
-                    Nov 11
-                    {/* get from last transaction */}
+                    {/* // get newest transaction date */}
+                    {transactions.length > 0 ? new Date(Math.max(...transactions.map((tx:any) => new Date(tx.date).getTime()))).toLocaleDateString() : 'N/A'}
                   </Typography>
                 </Box>
               </Grid>
