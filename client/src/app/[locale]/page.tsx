@@ -29,8 +29,59 @@ import { Link } from "@/i18n/navigation";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomAccordion from "@/components/shared/Accordions/CustomAccordion";
 import CustomModalLayout from "@/components/shared/modals/CustomModalLayout";
+import { motion, AnimatePresence } from "framer-motion";
+import LoginForm from "@/components/shared/LoginForm/LoginForm";
 
 const consentStorageKey = "multaqa-consent-v1";
+
+type Shape = {
+  id: string;
+  type: "circle" | "rectangle" | "triangle";
+  color: string;
+  size: number;
+  width?: number;
+  height?: number;
+  padding?: number;
+  initialPos: { x: number; y: number };
+  targetPos: { x: number; y: number };
+  rotation?: number;
+  targetRotation?: number;
+  scale?: number;
+  targetScale?: number;
+};
+
+const getShapeStyle = (shape: Shape, shapesAligned: boolean) => {
+  const w = shape.width ?? shape.size;
+  const h = shape.height ?? shape.size;
+  const p = shape.padding ?? 0;
+
+  // --- TRIANGLE ---
+  if (shape.type === "triangle") {
+    return {
+      width: 0,
+      height: 0,
+      borderLeft: `${w / 2}px solid transparent`,
+      borderRight: `${w / 2}px solid transparent`,
+      borderBottom: `${h}px solid ${alpha(shape.color, 1)}`,
+      padding: p,
+      backgroundColor: "transparent",
+      boxShadow: "none",
+    };
+  }
+
+  // --- CIRCLE & RECTANGLE ---
+  return {
+    width: w,
+    height: h,
+    padding: p,
+    backgroundColor: shape.color,
+    borderRadius: shape.type === "circle" ? "50%" : "12px",
+    boxShadow: shapesAligned
+      ? `0 15px 40px ${alpha(shape.color, 0.4)}`
+      : `0 8px 25px ${alpha(shape.color, 0.25)}`,
+  };
+};
+
 
 const signUpOptions = [
   {
@@ -183,13 +234,222 @@ export default function HomePage() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
-  const [isPageExiting] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [shapesAligned, setShapesAligned] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
+
+  // Initial shapes scattered on the right side
+  const initialShapes: Shape[] = [
+    {
+      id: "shape-1",
+      type: "triangle",
+      color: theme.palette.primary.main,
+      size: 80,
+      width: 80,
+      height: 80,
+      initialPos: { x: 100, y: 50 },
+      targetPos: { x: 0, y: 50 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-2",
+      type: "rectangle",
+      color: theme.palette.secondary.main,
+      width: 90,
+      height: 90,
+      size: 90,
+      initialPos: { x: 250, y: 20 },
+      targetPos: { x: 0, y: 180 },
+      rotation: 15,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-3",
+      type: "circle",
+      color: theme.palette.tertiary.main,
+      width: 70,
+      height: 70,
+      size: 70,
+      initialPos: { x: 150, y: 150 },
+      targetPos: { x: 0, y: 310 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-4",
+      type: "rectangle",
+      color: "#9c27b0",
+      width: 85,
+      height: 85,
+      size: 85,
+      initialPos: { x: 50, y: 220 },
+      targetPos: { x: 0, y: 440 },
+      rotation: -20,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-5",
+      type: "circle",
+      color: "#ff9800",
+      width: 95,
+      height: 95,
+      size: 95,
+      initialPos: { x: 300, y: 180 },
+      targetPos: { x: 0, y: 570 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-6",
+      type: "rectangle",
+      color: "#e91e63",
+      width: 75,
+      height: 75,
+      size: 75,
+      initialPos: { x: 180, y: 280 },
+      targetPos: { x: 120, y: 50 },
+      rotation: 25,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-7",
+      type: "circle",
+      color: "#00bcd4",
+      width: 88,
+      height: 88,
+      size: 88,
+      initialPos: { x: 90, y: 100 },
+      targetPos: { x: 120, y: 180 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-8",
+      type: "rectangle",
+      color: "#4caf50",
+      width: 82,
+      height: 82,
+      size: 82,
+      initialPos: { x: 270, y: 120 },
+      targetPos: { x: 120, y: 310 },
+      rotation: -12,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-9",
+      type: "circle",
+      color: theme.palette.primary.dark,
+      width: 78,
+      height: 78,
+      size: 78,
+      initialPos: { x: 200, y: 240 },
+      targetPos: { x: 120, y: 440 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+    {
+      id: "shape-10",
+      type: "rectangle",
+      color: "#f44336",
+      width: 92,
+      height: 92,
+      size: 92,
+      initialPos: { x: 330, y: 80 },
+      targetPos: { x: 120, y: 570 },
+      rotation: 18,
+      targetRotation: 0,
+      scale: 1,
+      targetScale: 1,
+    },
+  ];
+
+  // Additional shapes from top & bottom after login
+  const extraShapes: Shape[] = [
+    {
+      id: "extra-1",
+      type: "circle",
+      color: "#673ab7",
+      width: 85,
+      height: 85,
+      size: 85,
+      initialPos: { x: 0, y: -150 },
+      targetPos: { x: 0, y: 700 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 0.8,
+      targetScale: 1,
+    },
+    {
+      id: "extra-2",
+      type: "rectangle",
+      color: "#3f51b5",
+      width: 90,
+      height: 90,
+      size: 90,
+      initialPos: { x: 120, y: -150 },
+      targetPos: { x: 120, y: 700 },
+      rotation: -15,
+      targetRotation: 0,
+      scale: 0.8,
+      targetScale: 1,
+    },
+    {
+      id: "extra-3",
+      type: "circle",
+      color: "#009688",
+      width: 80,
+      height: 80,
+      size: 80,
+      initialPos: { x: 0, y: 900 },
+      targetPos: { x: 0, y: 830 },
+      rotation: 0,
+      targetRotation: 0,
+      scale: 0.8,
+      targetScale: 1,
+    },
+    {
+      id: "extra-4",
+      type: "rectangle",
+      color: "#ff5722",
+      width: 88,
+      height: 88,
+      size: 88,
+      initialPos: { x: 120, y: 900 },
+      targetPos: { x: 120, y: 830 },
+      rotation: 20,
+      targetRotation: 0,
+      scale: 0.8,
+      targetScale: 1,
+    },
+  ];
+
+  const shapes = shapesAligned
+    ? [...initialShapes, ...extraShapes]
+    : initialShapes;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -497,8 +757,12 @@ export default function HomePage() {
 
               <CustomButton
                 variant="contained"
-                component={Link}
-                href="/login"
+                onClick={() => {
+                  setShowLoginForm(true);
+                  setShapesAligned(true);
+                  // Scroll to hero section
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
                 label="Login"
                 size="small"
                 sx={{
@@ -618,10 +882,10 @@ export default function HomePage() {
         <Stack spacing={3.5} sx={{ px: { xs: 1, sm: 2 }, py: 1 }}>
           {/* Header Section */}
           <Stack spacing={2} alignItems="center">
-            <Typography 
-              component="h2" 
-              variant="h4" 
-              sx={{ 
+            <Typography
+              component="h2"
+              variant="h4"
+              sx={{
                 fontWeight: 700,
                 textAlign: "center",
                 fontSize: { xs: "1.75rem", sm: "2rem" },
@@ -631,7 +895,7 @@ export default function HomePage() {
             </Typography>
             <Typography
               variant="body1"
-              sx={{ 
+              sx={{
                 color: alpha(theme.palette.text.primary, 0.75),
                 textAlign: "center",
                 lineHeight: 1.65,
@@ -707,7 +971,7 @@ export default function HomePage() {
           {/* Footer Note */}
           <Typography
             variant="body2"
-            sx={{ 
+            sx={{
               color: alpha(theme.palette.text.primary, 0.6),
               textAlign: "center",
               lineHeight: 1.6,
@@ -720,11 +984,7 @@ export default function HomePage() {
           </Typography>
 
           {/* Action Buttons */}
-          <Stack
-            direction="column"
-            spacing={1.25}
-            sx={{ pt: 0.5 }}
-          >
+          <Stack direction="column" spacing={1.25} sx={{ pt: 0.5 }}>
             <CustomButton
               variant="contained"
               onClick={handleAcceptConsent}
@@ -746,7 +1006,7 @@ export default function HomePage() {
               variant="outlined"
               color="primary"
               onClick={handleDismissConsent}
-              sx={{ 
+              sx={{
                 width: "100%",
                 py: 0.75,
               }}
@@ -1190,60 +1450,72 @@ export default function HomePage() {
             pb: { xs: 10, md: 14 },
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "center", md: "center" },
-          gap: { xs: 7, md: 10 },
-          textAlign: { xs: "center", md: "left" },
+            alignItems: { xs: "center", md: "center" },
+            gap: { xs: 7, md: 10 },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
-        <Box
-          sx={{
-            flex: { md: 1 },
-            position: "relative",
-            zIndex: 1,
-            width: "100%",
-            maxWidth: { xs: 560, md: "100%" },
-          }}
-        >
-            <Typography
-              variant="overline"
-              sx={{
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                color: theme.palette.primary.dark,
-                fontWeight: 600,
+          <Box
+            sx={{
+              flex: { md: 1 },
+              position: "relative",
+              zIndex: 1,
+              width: "100%",
+              maxWidth: { xs: 560, md: "100%" },
+            }}
+          >
+            <motion.div
+              animate={{
+                x: showLoginForm ? -500 : 0,
+                opacity: showLoginForm ? 0 : 1,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 100,
+                damping: 20,
               }}
             >
-              Multaqa • GUC
-            </Typography>
-            <Typography
-              component="h1"
-              variant="h1"
-              sx={{
-                fontSize: { xs: "2.75rem", md: "3.75rem" },
-                fontWeight: 600,
-                letterSpacing: { xs: "0.4px", md: "1px" },
-                lineHeight: 1.1,
-                color: theme.palette.text.primary,
-                mt: 2,
-                textAlign: { xs: "center", md: "left" },
-              }}
-            >
-              Artful events for every voice on campus.
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                mt: 3,
-                maxWidth: { xs: 560, md: 520 },
-                color: alpha(theme.palette.text.primary, 0.75),
-                fontSize: { xs: "1rem", md: "1.1rem" },
-                mx: { xs: "auto", md: 0 },
-              }}
-            >
-              Multaqa reimagines campus life with a vibrant hub for showcasing
-              events, workshops, and cultural experiences inspired by the GUC
-              community.
-            </Typography>
+              <Typography
+                variant="overline"
+                sx={{
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  color: theme.palette.primary.dark,
+                  fontWeight: 600,
+                }}
+              >
+                Multaqa • GUC
+              </Typography>
+              <Typography
+                component="h1"
+                variant="h1"
+                sx={{
+                  fontSize: { xs: "2.75rem", md: "3.75rem" },
+                  fontWeight: 600,
+                  letterSpacing: { xs: "0.4px", md: "1px" },
+                  lineHeight: 1.1,
+                  color: theme.palette.text.primary,
+                  mt: 2,
+                  textAlign: { xs: "center", md: "left" },
+                }}
+              >
+                Artful events for every voice on campus.
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  mt: 3,
+                  maxWidth: { xs: 560, md: 520 },
+                  color: alpha(theme.palette.text.primary, 0.75),
+                  fontSize: { xs: "1rem", md: "1.1rem" },
+                  mx: { xs: "auto", md: 0 },
+                }}
+              >
+                Multaqa reimagines campus life with a vibrant hub for showcasing
+                events, workshops, and cultural experiences inspired by the GUC
+                community.
+              </Typography>
+            </motion.div>
 
             <Stack
               direction={{ xs: "column", sm: "row" }}
@@ -1255,83 +1527,55 @@ export default function HomePage() {
                 justifyContent: { xs: "center", md: "flex-start" },
               }}
             >
-              <CustomButton
-                variant="contained"
-                component={Link}
-                href="/login"
-                label="Login"
-                sx={{
-                  width: { xs: "100%", sm: "160px" },
-                  fontWeight: 700,
-                  backgroundColor: theme.palette.tertiary.main,
-                  color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.tertiary.dark}`,
-                  "&:hover": {
-                    backgroundColor: theme.palette.primary.main,
-                    borderColor: theme.palette.primary.dark,
-                  },
+              <motion.div
+                animate={{
+                  x: showLoginForm ? -500 : 0,
+                  opacity: showLoginForm ? 0 : 1,
                 }}
-                endIcon={<ArrowForwardIcon />}
-              />
-
-              <Box
-                ref={signUpHoverRef}
-                onMouseEnter={() => {
-                  if (isMobile) {
-                    return;
-                  }
-                  if (signUpHoverTimeout.current) {
-                    clearTimeout(signUpHoverTimeout.current);
-                    signUpHoverTimeout.current = null;
-                  }
-                  setShowSignUpOptions(true);
+                transition={{
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 20,
                 }}
-                onMouseLeave={(event) => {
-                  if (isMobile) {
-                    return;
-                  }
-                  const nextTarget = event.relatedTarget as Node | null;
-                  if (
-                    nextTarget &&
-                    signUpHoverRef.current?.contains(nextTarget)
-                  ) {
-                    return;
-                  }
-                  if (signUpHoverTimeout.current) {
-                    clearTimeout(signUpHoverTimeout.current);
-                  }
-                  signUpHoverTimeout.current = setTimeout(() => {
-                    setShowSignUpOptions(false);
-                    signUpHoverTimeout.current = null;
-                  }, 150);
-                }}
-                sx={{
-                  position: "relative",
-                  width: { xs: "100%", sm: "200px" },
-                  maxWidth: "100%",
-                }}
+                style={{ width: isMobile ? "100%" : "160px" }}
               >
                 <CustomButton
-                  variant="outlined"
-                  color="primary"
-                  label="Sign Up"
-                  endIcon={<ArrowOutwardIcon />}
+                  variant="contained"
                   onClick={() => {
-                    if (isMobile) {
-                      setShowSignUpOptions((prev) => !prev);
-                    }
+                    setShowLoginForm(true);
+                    setShapesAligned(true);
                   }}
-                  aria-haspopup="true"
-                  aria-expanded={showSignUpOptions}
+                  label="Login"
                   sx={{
                     width: "100%",
                     fontWeight: 700,
-                    backdropFilter: "blur(4px)",
+                    backgroundColor: theme.palette.tertiary.main,
+                    color: theme.palette.tertiary.contrastText,
+                    border: `2px solid ${theme.palette.tertiary.dark}`,
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.main,
+                      borderColor: theme.palette.primary.dark,
+                    },
                   }}
+                  endIcon={<ArrowForwardIcon />}
                 />
+              </motion.div>
 
-                <Paper
-                  elevation={8}
+              <motion.div
+                animate={{
+                  x: showLoginForm ? -500 : 0,
+                  opacity: showLoginForm ? 0 : 1,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 20,
+                  delay: 0.05,
+                }}
+                style={{ width: isMobile ? "100%" : "200px" }}
+              >
+                <Box
+                  ref={signUpHoverRef}
                   onMouseEnter={() => {
                     if (isMobile) {
                       return;
@@ -1362,252 +1606,263 @@ export default function HomePage() {
                     }, 150);
                   }}
                   sx={{
-                    position: "absolute",
-                    top: { xs: "72px", sm: "54px" },
-                    left: 0,
-                    width: { xs: "100%", sm: 260 },
-                    borderRadius: 3,
-                    p: 2,
-                    background: theme.palette.common.white,
-                    boxShadow: `0 18px 40px ${alpha(
-                      theme.palette.primary.main,
-                      0.18
-                    )}`,
-                    opacity: showSignUpOptions ? 1 : 0,
-                    transform: showSignUpOptions
-                      ? "translateY(0)"
-                      : "translateY(-10px)",
-                    pointerEvents: showSignUpOptions ? "auto" : "none",
-                    transition: "all 0.28s ease",
-                    zIndex: 60,
+                    position: "relative",
+                    width: "100%",
+                    maxWidth: "100%",
                   }}
                 >
-                  <Stack spacing={1.5}>
-                    {signUpOptions.map((option) => (
-                      <Box
-                        key={option.label}
-                        component={Link}
-                        href={option.href}
-                        sx={{
-                          borderRadius: 2,
-                          p: 1.5,
-                          display: "block",
-                          color: theme.palette.text.primary,
-                          textDecoration: "none",
-                          transition: "background 0.2s ease",
-                  "&:hover": {
-                            background: alpha(
-                              theme.palette.primary.main,
-                              0.35
-                            ),
-                          },
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {option.label}
-                        </Typography>
-                        <Typography
-                          variant="body2"
+                  <CustomButton
+                    variant="outlined"
+                    color="primary"
+                    label="Sign Up"
+                    endIcon={<ArrowOutwardIcon />}
+                    onClick={() => {
+                      if (isMobile) {
+                        setShowSignUpOptions((prev) => !prev);
+                      }
+                    }}
+                    aria-haspopup="true"
+                    aria-expanded={showSignUpOptions}
+                    sx={{
+                      width: "100%",
+                      fontWeight: 700,
+                      backdropFilter: "blur(4px)",
+                    }}
+                  />
+
+                  <Paper
+                    elevation={8}
+                    onMouseEnter={() => {
+                      if (isMobile) {
+                        return;
+                      }
+                      if (signUpHoverTimeout.current) {
+                        clearTimeout(signUpHoverTimeout.current);
+                        signUpHoverTimeout.current = null;
+                      }
+                      setShowSignUpOptions(true);
+                    }}
+                    onMouseLeave={(event) => {
+                      if (isMobile) {
+                        return;
+                      }
+                      const nextTarget = event.relatedTarget as Node | null;
+                      if (
+                        nextTarget &&
+                        signUpHoverRef.current?.contains(nextTarget)
+                      ) {
+                        return;
+                      }
+                      if (signUpHoverTimeout.current) {
+                        clearTimeout(signUpHoverTimeout.current);
+                      }
+                      signUpHoverTimeout.current = setTimeout(() => {
+                        setShowSignUpOptions(false);
+                        signUpHoverTimeout.current = null;
+                      }, 150);
+                    }}
+                    sx={{
+                      position: "absolute",
+                      top: { xs: "72px", sm: "54px" },
+                      left: 0,
+                      width: { xs: "100%", sm: 260 },
+                      borderRadius: 3,
+                      p: 2,
+                      background: theme.palette.common.white,
+                      boxShadow: `0 18px 40px ${alpha(
+                        theme.palette.primary.main,
+                        0.18
+                      )}`,
+                      opacity: showSignUpOptions ? 1 : 0,
+                      transform: showSignUpOptions
+                        ? "translateY(0)"
+                        : "translateY(-10px)",
+                      pointerEvents: showSignUpOptions ? "auto" : "none",
+                      transition: "all 0.28s ease",
+                      zIndex: 60,
+                    }}
+                  >
+                    <Stack spacing={1.5}>
+                      {signUpOptions.map((option) => (
+                        <Box
+                          key={option.label}
+                          component={Link}
+                          href={option.href}
                           sx={{
-                            color: alpha(theme.palette.text.primary, 0.7),
-                            mt: 0.5,
+                            borderRadius: 2,
+                            p: 1.5,
+                            display: "block",
+                            color: theme.palette.text.primary,
+                            textDecoration: "none",
+                            transition: "background 0.2s ease",
+                            "&:hover": {
+                              background: alpha(
+                                theme.palette.primary.main,
+                                0.35
+                              ),
+                            },
                           }}
                         >
-                          {option.description}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
-                </Paper>
-              </Box>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {option.label}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: alpha(theme.palette.text.primary, 0.7),
+                              mt: 0.5,
+                            }}
+                          >
+                            {option.description}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </Paper>
+                </Box>
+              </motion.div>
             </Stack>
           </Box>
 
+          {/* Shapes and Login Form Container */}
           <Box
             sx={{
               flex: { md: 1 },
               position: "relative",
-              minHeight: { xs: 300, sm: 380, md: 420 },
+              minHeight: { xs: 500, sm: 600, md: shapesAligned ? 900 : 500 },
               width: "100%",
-              maxWidth: { xs: 520, md: "100%" },
-              mx: { xs: "auto", md: 0 },
-              opacity: isPageExiting ? 0 : 1,
-              transition: "opacity 0.5s ease-out",
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: { xs: 4, md: 6 },
+              alignItems: { xs: "center", md: "flex-start" },
             }}
           >
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: 6,
-                background: `linear-gradient(135deg, ${alpha(
-                  theme.palette.primary.main,
-                  0.12
-                )}, ${alpha(theme.palette.tertiary.main, 0.25)})`,
-                filter: "blur(60px)",
-                zIndex: 0,
-              }}
-            />
-
+            {/* Animated Shapes */}
             <Box
               sx={{
                 position: "relative",
-                height: "100%",
-                display: "grid",
-                gridTemplateColumns: "repeat(6, 1fr)",
-                gridTemplateRows: "repeat(6, 1fr)",
-                gap: { xs: 9, sm: 12, md: 14 },
-                animation: isPageExiting
-                  ? "exitToLoading 0.8s ease-in-out forwards"
-                  : "none",
-                "@keyframes exitToLoading": {
-                  "0%": { transform: "translateX(0) scale(1)", opacity: 1 },
-                  "100%": {
-                    transform: "translateX(-50%) scale(0.6)",
-                    opacity: 0,
-                  },
-                },
+                width: { xs: "100%", md: shapesAligned ? "30%" : "100%" },
+                minHeight: { xs: 400, md: shapesAligned ? 900 : 500 },
+                transition: "all 0.6s ease",
               }}
             >
               <Box
                 sx={{
-                  gridColumn: "1 / span 2",
-                  gridRow: "1 / span 3",
-                  borderRadius: "999px",
-                  bgcolor: theme.palette.primary.main,
-                  animation: "floatSlow 9s ease-in-out infinite",
-                  animationDelay: "0s",
-                  "@keyframes floatSlow": {
-                    "0%, 100%": { transform: "translateY(0px)" },
-                    "50%": { transform: "translateY(-8px)" },
-                  },
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: 6,
+                  background: `linear-gradient(135deg, ${alpha(
+                    theme.palette.primary.main,
+                    0.08
+                  )}, ${alpha(theme.palette.tertiary.main, 0.15)})`,
+                  filter: "blur(80px)",
+                  zIndex: 0,
+                  opacity: 1,
                 }}
               />
+
               <Box
                 sx={{
-                  gridColumn: "3 / span 3",
-                  gridRow: "1 / span 2",
-                  borderRadius: 2,
-                  bgcolor: theme.palette.secondary.main,
-                  animation: "floatMed 11s ease-in-out infinite",
-                  animationDelay: "0.8s",
-                  "@keyframes floatMed": {
-                    "0%, 100%": { transform: "translateY(0px)" },
-                    "50%": { transform: "translateY(12px)" },
-                  },
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "6 / span 1",
-                  gridRow: "1 / span 2",
-                  borderRadius: "20px",
-                  bgcolor: theme.palette.tertiary.main,
-                  animation: "floatFast 7.5s ease-in-out infinite",
-                  animationDelay: "0.4s",
-                  "@keyframes floatFast": {
-                    "0%, 100%": { transform: "translateY(0px)" },
-                    "50%": { transform: "translateY(-5px)" },
-                  },
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "1 / span 2",
-                  gridRow: "4 / span 2",
-                  borderRadius: 2,
-                  bgcolor: theme.palette.tertiary.dark,
-                  animation: "floatSlow 10s ease-in-out infinite",
-                  animationDelay: "1.1s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "4 / span 2",
-                  gridRow: "3 / span 3",
-                  borderRadius: "50%",
-                  bgcolor: theme.palette.primary.light,
-                  animation: "floatMed 12s ease-in-out infinite",
-                  animationDelay: "0.2s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "3 / span 1",
-                  gridRow: "4 / span 3",
-                  bgcolor: theme.palette.tertiary.dark,
-                  borderRadius: 1,
-                  animation: "floatFast 8.5s ease-in-out infinite",
-                  animationDelay: "1.6s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "5 / span 2",
-                  gridRow: "5 / span 2",
-                  borderRadius: "999px",
-                  // Mirror the pink accent used in gym sessions for a consistent highlight
-                  bgcolor: "#e91e63",
-                  animation: "floatSlow 13s ease-in-out infinite",
-                  animationDelay: "0.6s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "2 / span 2",
-                  gridRow: "3 / span 2",
-                  bgcolor: "transparent",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  position: "relative",
+                  height: "100%",
+                  width: "100%",
+                  overflow: "visible",
                 }}
               >
-                <Box
-                  sx={{
-                    width: "80%",
-                    height: 6,
-                    bgcolor: theme.palette.common.black,
-                    borderRadius: 3,
-                    animation: "floatFast 9.5s ease-in-out infinite",
-                    animationDelay: "1.3s",
-                  }}
-                />
+                {shapes.map((shape, index) => {
+                  const targetX = shapesAligned
+                    ? shape.targetPos.x
+                    : shape.initialPos.x;
+                  const targetY = shapesAligned
+                    ? shape.targetPos.y
+                    : shape.initialPos.y;
+                  const targetRot = shapesAligned
+                    ? shape.targetRotation || 0
+                    : shape.rotation || 0;
+                  const targetScl = shapesAligned
+                    ? shape.targetScale || 1
+                    : shape.scale || 1;
+
+                  return (
+                    <motion.div
+                      key={shape.id}
+                      initial={false}
+                      animate={{
+                        x: targetX,
+                        y: targetY,
+                        rotate: targetRot,
+                        scale: targetScl,
+                        opacity: 1,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 60,
+                        damping: 20,
+                        delay: shapesAligned ? index * 0.04 : 0,
+                      }}
+                      style={{
+                        position: "absolute",
+                        width: shape.size,
+                        height: shape.size,
+                        top: 0,
+                        left: 0,
+                      }}
+                    >
+                      <motion.div
+                        animate={
+                          !shapesAligned
+                            ? {
+                                y: [0, -15, 0],
+                                rotate: [0, 5, -5, 0],
+                              }
+                            : {}
+                        }
+                        transition={{
+                          duration: 4 + index * 0.3,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: index * 0.2,
+                        }}
+                        style={getShapeStyle(shape, shapesAligned)}
+                      />
+                    </motion.div>
+                  );
+                })}
               </Box>
-              <Box
-                sx={{
-                  gridColumn: "2 / span 1",
-                  gridRow: "6 / span 1",
-                  width: "70%",
-                  justifySelf: "center",
-                  borderRadius: 1,
-                  bgcolor: theme.palette.tertiary.main,
-                  animation: "floatMed 11.5s ease-in-out infinite",
-                  animationDelay: "0.9s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "6 / span 1",
-                  gridRow: "3 / span 3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 12,
-                    height: "100%",
-                    bgcolor: theme.palette.text.primary,
-                    borderRadius: 999,
-                    animation: "floatFast 10.5s ease-in-out infinite",
-                    animationDelay: "0.5s",
-                  }}
-                />
-              </Box>
+            </Box>
+
+            {/* Login Form - Appears on the right */}
+            <Box
+              sx={{
+                flex: 1,
+                width: { xs: "100%", md: "auto" },
+                display: showLoginForm ? "flex" : "none",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: { xs: 400, md: 500 },
+              }}
+            >
+              <AnimatePresence mode="wait">
+                {showLoginForm && (
+                  <motion.div
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 100 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 80,
+                      damping: 20,
+                      delay: 0.3,
+                    }}
+                    style={{ width: "100%", maxWidth: 550 }}
+                  >
+                    <LoginForm />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Box>
           </Box>
         </Container>
@@ -1758,10 +2013,9 @@ export default function HomePage() {
       <Box
         component="footer"
         sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(
-            theme.palette.tertiary.main,
-            0.7
-          )} 100%)`,
+          background: `linear-gradient(135deg, ${
+            theme.palette.primary.main
+          } 0%, ${alpha(theme.palette.tertiary.main, 0.7)} 100%)`,
           color: theme.palette.common.white,
           position: "relative",
           overflow: "hidden",
