@@ -1,9 +1,7 @@
 import { GymSessionsService } from "../services/gymsessionsService";
 import { Router, Request, Response } from "express";
-import {
-  createGymSessionValidationSchema,
-  editGymSessionValidationSchema,
-} from "../validation/gymSessions.validation";
+import { createGymSessionValidationSchema } from "../validation/gymSessions.validation";
+import { editGymSessionValidationSchema } from "../validation/validateEditGymSession";
 import createError from "http-errors";
 import {
   CreateGymSessionResponse,
