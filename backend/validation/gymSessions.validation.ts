@@ -42,9 +42,8 @@ export const editGymSessionValidationSchema = Joi.object({
     .messages({
       "string.pattern.base": "Time must be in HH:MM format",
     }),
-  duration: Joi.number().min(10).max(180).messages({
-    "number.min": "Duration must be at least 10 minutes",
-    "number.max": "Duration must be at most 180 minutes",
+  duration: Joi.number().messages({
+    "number.base": "Duration must be a number",
   }),
 })
   .min(1)
