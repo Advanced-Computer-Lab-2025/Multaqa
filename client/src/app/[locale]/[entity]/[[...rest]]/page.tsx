@@ -689,7 +689,7 @@ export default function EntityCatchAllPage() {
   };
 
   return (
-    <ScaledViewport scale={0.9}>
+    <ScaledViewport scale={0.95}>
       <EntityNavigation user={user}>{renderContent()}</EntityNavigation>
     </ScaledViewport>
   );
