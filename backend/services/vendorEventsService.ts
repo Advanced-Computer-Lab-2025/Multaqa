@@ -431,18 +431,6 @@ export class VendorEventsService {
 
     const vendorRequest = vendor.requestedEvents[requestIndex];
 
-    // Log details for debugging
-    console.log("=== CANCEL PARTICIPATION DEBUG ===");
-    console.log("Vendor ID:", vendorId);
-    console.log("Event ID:", eventId);
-    console.log("Event Type:", event.type);
-    console.log("Vendor Request Status:", vendorRequest.status);
-    console.log("RequestData:", vendorRequest.RequestData);
-
-    // For platform booth, also log event RequestData
-    if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.RequestData) {
-      console.log("Event RequestData Status:", event.RequestData.status);
-    }
 
     // For bazaar, log the vendor entry in the event
     if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
