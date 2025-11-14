@@ -214,6 +214,14 @@ export class PaymentService {
     // Deduct from wallet and get updated user
     const user = await this.userService.deductFromWallet(userId, event.price);
 
+    // Log payment transaction
+    await this.userService.addTransaction(userId, {
+      eventName: event.eventName,
+      amount: event.price,
+      type: "payment",
+      date: new Date(),
+    });
+
     // Get user details for email
     const userDetails = await this.userService.getUserById(userId);
     const username =
@@ -269,5 +277,13 @@ export class PaymentService {
 
     // Refund amount to user's wallet
     await this.userService.addToWallet(userId, event.price);
+
+    // Log refund transaction
+    await this.userService.addTransaction(userId, {
+      eventName: event.eventName,
+      amount: event.price,
+      type: "refund",
+      date: new Date(),
+    });
   }
 }

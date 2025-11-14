@@ -339,6 +339,43 @@ async function getAllProfessors(
   }
 }
 
+async function getUserTransactions(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    const user = await userService.getUserById(userId);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Format transactions for frontend (with event_name field)
+    const transactions = ((user as any).transactions || []).map((t: any) => ({
+      _id: t._id,
+      event_name: t.eventName,
+      amount: t.amount,
+      type: t.type,
+      date: t.date,
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        transactions,
+        currentBalance: (user as any).walletBalance || 0,
+      },
+      message: "Transactions retrieved successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving transactions"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -361,6 +398,19 @@ router.get(
     ],
   }),
   getAllFavorites
+);
+
+router.get(
+  "/transactions",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  getUserTransactions
 );
 
 router.get(
