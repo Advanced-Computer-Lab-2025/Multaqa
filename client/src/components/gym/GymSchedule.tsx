@@ -249,13 +249,23 @@ export default function GymSchedule({ month, sessions }: Props) {
             <React.Fragment key={day}>
               {index !== 0 && <Divider sx={{ my: 3 }} />}{" "}
               {/* divider between days */}
+              {/** Day container with glow (moved from individual cards) */}
               <Box
-                sx={{
-                  p: { xs: 2, md: 3 },
-                  borderRadius: "12px",
-                  border: `1px solid ${theme.palette.primary.light}`,
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
-                  backgroundColor: "#fff",
+                sx={() => {
+                  const accent = SESSION_COLORS[list[0].type];
+                  return {
+                    p: { xs: 2, md: 3 },
+                    borderRadius: "16px",
+                    position: "relative",
+                    backgroundColor: "#fff",
+                    border: `1px solid ${alpha(accent, 0.35)}`,
+                    boxShadow: `0 0 0 1px ${alpha(accent, 0.35)}, 0 4px 14px ${alpha(accent, 0.20)}, 0 0 22px ${alpha(accent, 0.18)}`,
+                    transition: "box-shadow 0.35s ease, transform 0.35s ease",
+                    "&:hover": {
+                      boxShadow: `0 0 0 2px ${alpha(accent, 0.55)}, 0 6px 18px ${alpha(accent, 0.28)}, 0 0 28px ${alpha(accent, 0.28)}`,
+                      transform: "translateY(-3px)",
+                    },
+                  };
                 }}
               >
                 <Typography
@@ -268,11 +278,24 @@ export default function GymSchedule({ month, sessions }: Props) {
                 >
                   {day}
                 </Typography>
-                <Stack spacing={1.5}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 1.5,
+                    overflowX: "auto",
+                    py: 1,
+                    scrollSnapType: "x mandatory",
+                    "& > *": { scrollSnapAlign: "start" },
+                    "&::-webkit-scrollbar": { height: 8 },
+                    "&::-webkit-scrollbar-track": { background: alpha(theme.palette.grey[200], 0.6), borderRadius: 4 },
+                    "&::-webkit-scrollbar-thumb": { background: alpha(theme.palette.primary.main, 0.45), borderRadius: 4 },
+                  }}
+                >
                   {list.map((s) => (
                     <GymSessionCard key={s.id} session={s} showSpots />
                   ))}
-                </Stack>
+                </Box>
               </Box>
             </React.Fragment>
           ))
