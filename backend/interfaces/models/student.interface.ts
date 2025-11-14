@@ -4,6 +4,8 @@ import { IUser } from "./user.interface";
 export interface ITransaction {
   eventName: string;
   amount: number;
+  walletAmount?: number;
+  cardAmount?: number;
   type: "payment" | "refund";
   date: Date;
 }

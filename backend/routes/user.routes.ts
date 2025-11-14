@@ -356,6 +356,8 @@ async function getUserTransactions(req: AuthenticatedRequest, res: Response) {
       _id: t._id,
       event_name: t.eventName,
       amount: t.amount,
+      wallet_amount: t.walletAmount || 0,
+      card_amount: t.cardAmount || 0,
       type: t.type,
       date: t.date,
     }));

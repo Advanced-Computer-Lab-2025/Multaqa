@@ -12,6 +12,8 @@ const studentSchema = new Schema<IStudent>(
       {
         eventName: { type: String, required: true },
         amount: { type: Number, required: true },
+        walletAmount: { type: Number, default: 0 },
+        cardAmount: { type: Number, default: 0 },
         type: { type: String, enum: ["payment", "refund"], required: true },
         date: { type: Date, default: Date.now },
       },

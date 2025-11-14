@@ -180,6 +180,27 @@ export class PaymentService {
       }
     }
 
+    // Deduct wallet balance if being used for hybrid payment
+    if (walletBalance > 0) {
+      await this.userService.deductFromWallet(userId, walletBalance);
+      console.log(
+        `✅ Deducted ${walletBalance} from user ${userId}'s wallet for hybrid payment`
+      );
+
+      // Log transaction immediately with wallet and card breakdown
+      await this.userService.addTransaction(userId, {
+        eventName: event.eventName,
+        amount: price,
+        walletAmount: walletBalance,
+        cardAmount: amountToPay,
+        type: "payment",
+        date: new Date(),
+      });
+      console.log(
+        `✅ Transaction logged: ${price} (wallet: ${walletBalance}, card: ${amountToPay})`
+      );
+    }
+
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -214,10 +235,12 @@ export class PaymentService {
     // Deduct from wallet and get updated user
     const user = await this.userService.deductFromWallet(userId, event.price);
 
-    // Log payment transaction
+    // Log payment transaction (full amount paid with wallet)
     await this.userService.addTransaction(userId, {
       eventName: event.eventName,
       amount: event.price,
+      walletAmount: event.price,
+      cardAmount: 0,
       type: "payment",
       date: new Date(),
     });
@@ -282,6 +305,8 @@ export class PaymentService {
     await this.userService.addTransaction(userId, {
       eventName: event.eventName,
       amount: event.price,
+      walletAmount: event.price,
+      cardAmount: 0,
       type: "refund",
       date: new Date(),
     });

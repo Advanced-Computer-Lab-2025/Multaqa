@@ -336,6 +336,8 @@ export class UserService {
     transaction: {
       eventName: string;
       amount: number;
+      walletAmount?: number;
+      cardAmount?: number;
       type: "payment" | "refund";
       date: Date;
     }
@@ -351,7 +353,7 @@ export class UserService {
       user.transactions = [];
     }
 
-    user.transactions.push(transaction);
+    user.transactions.push(transaction as any);
     await user.save();
     return user;
   }
