@@ -152,7 +152,7 @@ async function logout(req: Request, res: Response<LogoutResponse>) {
   }
 }
 
-router.post('/me', verifyJWT, getMe);
+router.get('/me', verifyJWT, getMe);
 router.post('/signup', signup);
 router.get('/verify', verifyUser);
 router.post('/login', login);
