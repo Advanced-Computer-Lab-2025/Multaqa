@@ -80,7 +80,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
 
   return (
     <>
-    <EventCard title={name} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
+    <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
         <Tooltip title="Delete Workshop">
           <IconButton
             size="medium"
