@@ -90,11 +90,19 @@ const ConferenceDetails: React.FC<ConferenceDetailsType> = ({
     }}
     onClick={handleCopyLink}
   >
+         <Typography 
+          variant="h5" 
+          color= {theme.palette.primary.main}
+          fontWeight="medium"
+          sx={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight:600 }}
+        >
+          Conference Website:
+        </Typography>
         {/* Link */}
         <Typography
           variant="body2"
           sx={{
-            color: theme.palette.primary.main,
+            color: "text.primary" ,
             fontWeight: 500,
             overflow: 'hidden',
             textOverflow: 'ellipsis',

@@ -25,7 +25,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   icon: IconComponent,
   background,
   setRefresh,
-  attended
+  attended,
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -70,20 +71,24 @@ const BazarView: React.FC<BazarViewProps> = ({
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
         <Tooltip title="Delete Bazaar">
-          <IconButton
-            size="medium"
-            onClick={handleOpenDeleteModal}
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              "&:hover": {
-                backgroundColor: "rgba(255, 0, 0, 0.1)",
-                color: "error.main",
-              },
-            }}
-          >
-            <Trash2 size={16} />
-          </IconButton>
-        </Tooltip>
+                 <IconButton
+                   size="medium"
+                   onClick={handleOpenDeleteModal}
+                   sx={{
+                     backgroundColor: "rgba(255, 255, 255, 0.9)",
+                     border: '1px solid',
+                     borderColor: 'divider',
+                     borderRadius: 2,
+                     "&:hover": {
+                       backgroundColor: "rgba(255, 0, 0, 0.1)",
+                       borderColor: "error.main",
+                       color: "error.main",
+                     },
+                   }}
+                 >
+                   <Trash2 size={18} />
+                 </IconButton>
+               </Tooltip>
       ) : (user === "events-office" || user === "events-only" ? <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
       registerButton={!registered &&
         user == "vendor" && (
@@ -184,6 +189,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           eventType="Bazaar"
           details={updatedDetails}
           color={background}
+          userId={userInfo._id}
           button={
           !registered &&
           user == "vendor" && (
@@ -208,6 +214,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           'reviews']}
         user={user?user:""}
         attended ={attended}
+        eventId={id}
         />
       </CustomModalLayout>
     </>
