@@ -12,7 +12,6 @@ interface WalletProps {
 }
 
 const Wallet = ({userID, userInfo}: WalletProps) => {
-  const currentBalance = 0;
   const dummyTransactions = [
     {
       "type": "payment",
@@ -78,7 +77,7 @@ const Wallet = ({userID, userInfo}: WalletProps) => {
 
   return (
     <>
-      <WalletBalance userInfo={userInfo} currentBalance={currentBalance}/>
+      <WalletBalance userInfo={userInfo} currentBalance={userInfo.walletBalance} transactions={dummyTransactions}/>
       <PreviousTransactions transactions={dummyTransactions}/>
     </>
   );
