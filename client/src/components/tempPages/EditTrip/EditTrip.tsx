@@ -20,6 +20,7 @@ import RichTextField from '@/components/shared/TextField/TextField';
 import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
 import theme from '@/themes/lightTheme';
 import { Edit } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 
  const tertiaryInputStyles = {
@@ -87,10 +88,20 @@ const EditTrip = ({tripId, tripName, location, price,
         const res = await api.patch("/events/" + tripId, payload);
         setResponse(res.data);
         setRefresh((refresh) => !refresh);
+        toast.success("Trip edited successfully", {
+        position:"bottom-right",
+        autoClose:3000,
+        theme: "colored",
+         })
         return res.data;
         } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to edit trip. Please try again.", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+            });
         } finally {
         setLoading(false);
         }

@@ -19,6 +19,7 @@ import { CustomModalLayout } from '@/components/shared/modals';
 import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
 import theme from '@/themes/lightTheme';
 import RichTextField from '@/components/shared/TextField/TextField';  
+import { toast } from 'react-toastify';
 
 
 interface ProfessorOption {
@@ -126,10 +127,20 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
         // TODO: Replace with your API route
         const res = await api.post("/workshops/", payload);
         setResponse(res.data);
+        toast.success("Workshop created successfully", {
+                    position:"bottom-right",
+                    autoClose:3000,
+                    theme: "colored",
+                })
         // setRefresh((prev) => !prev);
     } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to create workshop. Please try again.", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+            });
     } finally {
         setLoading(false);
     }

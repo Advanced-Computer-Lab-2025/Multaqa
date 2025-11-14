@@ -20,6 +20,7 @@ import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
 import RichTextField from '@/components/shared/TextField/TextField';
 import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
+import { toast } from 'react-toastify';
 
 
 interface CreateTripProps {
@@ -63,9 +64,19 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
       const res = await api.post("/events", payload);
       setResponse(res.data);
       setRefresh((prev)=> !prev);
+      toast.success("Trip created successfully", {
+                  position:"bottom-right",
+                  autoClose:3000,
+                  theme: "colored",
+              })
     } catch (err: any) {
       setError(err?.message || "API call failed");
       window.alert(err.response.data.error);
+      toast.error("Failed to create trip. Please try again.", {
+          position:"bottom-right",
+          autoClose:3000,
+          theme: "colored",
+          });
     } finally {
       setLoading(false);
     }

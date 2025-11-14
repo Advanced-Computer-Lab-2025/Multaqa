@@ -12,6 +12,7 @@ import {api} from "../../../api";
 import CustomButton from '../../shared/Buttons/CustomButton';
 import { CustomModalLayout } from '../../shared/modals';
 import dayjs from 'dayjs';
+import { toast } from 'react-toastify';
 
 //Define the validation schema 
 const validationSchema = yup.object({
@@ -87,9 +88,19 @@ const Edit: React.FC<EditConferenceProps> = ({
         setResponse(res.data);
         console.log("Success! Response:", res.data);
         setRefresh((prev)=> !prev);
+        toast.success("Conference edited successfully", {
+                    position:"bottom-right",
+                    autoClose:3000,
+                    theme: "colored",
+                })
     } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to edit conference. Please try again.", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+            });
     } finally {
         setLoading(false);
     }

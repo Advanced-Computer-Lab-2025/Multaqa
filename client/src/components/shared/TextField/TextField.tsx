@@ -38,18 +38,17 @@ const RichTextField: React.FC<RichTextFieldProps> = (props) => {
 
   const contentRef = React.useRef<HTMLDivElement>(null);
 
-  // Internal state to manage typing without overwriting the content
-  const [internalValue, setInternalValue] = React.useState(value);
+const [internalValue, setInternalValue] = React.useState(""); // always start empty
 
-  // Sync internal value when external value changes (e.g., DB content)
-  React.useEffect(() => {
-    if (value !== internalValue) {
-      setInternalValue(value);
-      if (contentRef.current) {
-        contentRef.current.innerHTML = value || "";
-      }
+// Sync external value into the editor
+React.useEffect(() => {
+  if (value !== undefined && value !== null && value !== internalValue) {
+    setInternalValue(value);
+    if (contentRef.current) {
+      contentRef.current.innerHTML = value;
     }
-  }, [value]);
+  }
+}, [value, internalValue]);
 
   // Handle typing/input
   const handleInput = () => {
@@ -83,7 +82,6 @@ const RichTextField: React.FC<RichTextFieldProps> = (props) => {
         onInput={handleInput}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        dangerouslySetInnerHTML={{ __html: internalValue }}
         sx={{
           ...contentAreaStyles(theme),
           minHeight: "120px",

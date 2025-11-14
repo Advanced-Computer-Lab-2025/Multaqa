@@ -17,6 +17,7 @@ import { CustomModalLayout } from '@/components/shared/modals';
 import RichTextField from '@/components/shared/TextField/TextField';
 import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
 import theme from '@/themes/lightTheme';
+import { toast } from 'react-toastify';
 
 interface EditBazaarProps {
   bazaarId: string;
@@ -60,10 +61,20 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
       if (setRefresh) {
         setRefresh((refresh) => !refresh);
       }
+      toast.success("Bazaar edited successfully", {
+          position:"bottom-right",
+          autoClose:3000,
+          theme: "colored",
+      })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.message || "API call failed");
       window.alert(err.response.data.error);
+      toast.error("Failed to edit bazaar. Please try again.", {
+                  position:"bottom-right",
+                  autoClose:3000,
+                  theme: "colored",
+                  });
     } finally {
       setLoading(false);
     }

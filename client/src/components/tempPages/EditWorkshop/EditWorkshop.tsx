@@ -19,6 +19,7 @@ import { wrapperContainerStyles, horizontalLayoutStyles,step1BoxStyles, step2Box
 import RichTextField from '../../shared/TextField/TextField';
 import theme from '@/themes/lightTheme';
 import { Edit } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 
 interface ProfessorOption {
@@ -126,13 +127,13 @@ const EditWorkshop = ({
       try {
         setLoadingProfessors(true);
         const res = await api.get("/users/professors");
-        
         const options = res.data.data
           .filter((prof: any) => prof._id !== creatingProfessor)
           .map((prof: any) => ({
             label: `${prof.firstName} ${prof.lastName}`,
             value: prof._id, // use ID, not name
-        }));
+        }
+        ))
         setAvailableProfessors(options);
       } catch (err: any) {
           setError(err?.message || "API call failed");
@@ -165,9 +166,19 @@ const EditWorkshop = ({
         // TODO: Replace with your API route
         const res = await api.patch("/workshops/" + workshopId, payload);
         setResponse(res.data);
+        toast.success("Workshop edited successfully", {
+                    position:"bottom-right",
+                    autoClose:3000,
+                    theme: "colored",
+                })
     } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to edit workshop. Please try again.", {
+        position:"bottom-right",
+        autoClose:3000,
+        theme: "colored",
+        });
     } finally {
         setLoading(false);
     }

@@ -11,6 +11,7 @@ import {api} from "../../../api";
 import CustomButton from '../../shared/Buttons/CustomButton';
 import { CustomModalLayout } from '../../shared/modals';
 import { validationSchema } from './schemas/conference';
+import { toast } from 'react-toastify';
 
 
 const initialFormData: EventFormData = {
@@ -48,10 +49,19 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             const res = await api.post("/events", payload);
             setResponse(res.data);
             setRefresh((prev)=> !prev);
-            return res.data
+            toast.success("Conference created successfully", {
+                        position:"bottom-right",
+                        autoClose:3000,
+                        theme: "colored",
+                    })
         } catch (err: any) {
             setError(err?.message || "API call failed");
             window.alert(err.response.data.error);
+            toast.error("Failed to create conference. Please try again.", {
+                position:"bottom-right",
+                autoClose:3000,
+                theme: "colored",
+                });
         } finally {
             setLoading(false);
         }
@@ -78,7 +88,6 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             registrationDeadline:"2025-1-1"
         }
         const res = await handleCallApi(payload);
-        console.log(res.data) ;
         
     }
 

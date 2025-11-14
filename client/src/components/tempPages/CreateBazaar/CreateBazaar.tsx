@@ -16,6 +16,7 @@ import { bazaarSchema } from "./schemas/bazaar";
 
 import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
+import { toast } from 'react-toastify';
 
 const initialValues = {
     bazaarName: '',
@@ -42,13 +43,22 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
     setError(null);
     setResponse([]);
     try {
-        // TODO: Replace with your API route
         const res = await api.post("/events", payload);
         setResponse(res.data);
         setRefresh((prev)=> !prev);
+        toast.success("Bazaar created successfully", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+        })
     } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to create bazaar. Please try again.", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+            });
     } finally {
         setLoading(false);
     }
@@ -78,7 +88,7 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
   const [infoOpen, setInfoOpen] = useState(true);
   const [scheduleOpen, setScheduleOpen] = useState(false);
 
-  const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
+  const {handleSubmit, values,isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
     initialValues,
     validationSchema: bazaarSchema,
     onSubmit: onSubmit,
