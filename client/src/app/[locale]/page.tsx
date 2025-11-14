@@ -13,7 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import type { Theme, SxProps } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LanguageIcon from "@mui/icons-material/Language";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -29,6 +29,7 @@ import { Link } from "@/i18n/navigation";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomAccordion from "@/components/shared/Accordions/CustomAccordion";
 import CustomModalLayout from "@/components/shared/modals/CustomModalLayout";
+import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
 
 const consentStorageKey = "multaqa-consent-v1";
 
@@ -108,72 +109,6 @@ const socialLinks = [
     icon: <XIcon fontSize="small" />,
   },
 ];
-
-const MenuToggleButton = ({
-  open,
-  onClick,
-  sx,
-}: {
-  open: boolean;
-  onClick: () => void;
-  sx?: SxProps<Theme>;
-}) => (
-  <IconButton
-    onClick={onClick}
-    aria-label={open ? "Close menu" : "Open menu"}
-    sx={[
-      (theme) => ({
-        borderRadius: 12,
-        backgroundColor: alpha(theme.palette.common.white, 0.65),
-        boxShadow: `0 8px 20px ${alpha(theme.palette.common.black, 0.12)}`,
-        width: 44,
-        height: 44,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        transition: "background-color 0.2s ease, box-shadow 0.2s ease",
-        "&:hover": {
-          backgroundColor: alpha(theme.palette.common.white, 0.82),
-        },
-      }),
-      ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
-    ]}
-  >
-    <Box
-      sx={{
-        position: "relative",
-        width: 20,
-        height: 14,
-      }}
-    >
-      {[0, 1, 2].map((index) => (
-        <Box
-          key={index}
-          component="span"
-          sx={(theme) => ({
-            position: "absolute",
-            left: 0,
-            width: "100%",
-            height: 2,
-            borderRadius: 1,
-            backgroundColor: theme.palette.text.primary,
-            transition: "transform 0.52s ease, opacity 0.52s ease",
-            transformOrigin: "center",
-            top: index === 0 ? 0 : index === 1 ? "50%" : "100%",
-            transform: open
-              ? index === 0
-                ? "translateY(6px) rotate(45deg)"
-                : index === 1
-                ? "scaleX(0)"
-                : "translateY(-6px) rotate(-45deg)"
-              : "translateY(0) rotate(0)",
-            opacity: open && index === 1 ? 0 : 1,
-          })}
-        />
-      ))}
-    </Box>
-  </IconButton>
-);
 
 export default function HomePage() {
   const theme = useTheme();
@@ -539,7 +474,7 @@ export default function HomePage() {
               <LanguageIcon />
             </IconButton>
 
-            <MenuToggleButton open={isMenuOpen} onClick={toggleMenu} />
+            <AnimatedCloseButton open={isMenuOpen} onClick={toggleMenu} />
           </Stack>
         </Container>
       </Box>
@@ -802,7 +737,7 @@ export default function HomePage() {
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               Explore Multaqa
             </Typography>
-            <MenuToggleButton
+            <AnimatedCloseButton
               open
               onClick={() => setIsMenuOpen(false)}
               sx={(theme) => ({
