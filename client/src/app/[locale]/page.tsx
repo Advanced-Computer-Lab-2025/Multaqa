@@ -44,6 +44,8 @@ type Shape = {
   padding?: number;
   initialPos: { x: number; y: number };
   targetPos: { x: number; y: number };
+  rotation?: number;
+  targetRotation?: number;
   scale?: number;
   targetScale?: number;
 };
@@ -252,6 +254,8 @@ export default function HomePage() {
       height: 80,
       initialPos: { x: 100, y: 50 },
       targetPos: { x: 0, y: 50 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -264,6 +268,8 @@ export default function HomePage() {
       size: 90,
       initialPos: { x: 250, y: 20 },
       targetPos: { x: 0, y: 180 },
+      rotation: 15,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -276,6 +282,8 @@ export default function HomePage() {
       size: 70,
       initialPos: { x: 150, y: 150 },
       targetPos: { x: 0, y: 310 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -288,6 +296,8 @@ export default function HomePage() {
       size: 85,
       initialPos: { x: 50, y: 220 },
       targetPos: { x: 0, y: 440 },
+      rotation: -20,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -300,6 +310,8 @@ export default function HomePage() {
       size: 95,
       initialPos: { x: 300, y: 180 },
       targetPos: { x: 0, y: 570 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -312,6 +324,8 @@ export default function HomePage() {
       size: 75,
       initialPos: { x: 180, y: 280 },
       targetPos: { x: 120, y: 50 },
+      rotation: 25,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -324,6 +338,8 @@ export default function HomePage() {
       size: 88,
       initialPos: { x: 90, y: 100 },
       targetPos: { x: 120, y: 180 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -336,6 +352,8 @@ export default function HomePage() {
       size: 82,
       initialPos: { x: 270, y: 120 },
       targetPos: { x: 120, y: 310 },
+      rotation: -12,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -348,6 +366,8 @@ export default function HomePage() {
       size: 78,
       initialPos: { x: 200, y: 240 },
       targetPos: { x: 120, y: 440 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -360,6 +380,8 @@ export default function HomePage() {
       size: 92,
       initialPos: { x: 330, y: 80 },
       targetPos: { x: 120, y: 570 },
+      rotation: 18,
+      targetRotation: 0,
       scale: 1,
       targetScale: 1,
     },
@@ -376,6 +398,8 @@ export default function HomePage() {
       size: 85,
       initialPos: { x: 0, y: -150 },
       targetPos: { x: 0, y: 700 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 0.8,
       targetScale: 1,
     },
@@ -388,6 +412,8 @@ export default function HomePage() {
       size: 90,
       initialPos: { x: 120, y: -150 },
       targetPos: { x: 120, y: 700 },
+      rotation: -15,
+      targetRotation: 0,
       scale: 0.8,
       targetScale: 1,
     },
@@ -400,6 +426,8 @@ export default function HomePage() {
       size: 80,
       initialPos: { x: 0, y: 900 },
       targetPos: { x: 0, y: 830 },
+      rotation: 0,
+      targetRotation: 0,
       scale: 0.8,
       targetScale: 1,
     },
@@ -412,6 +440,8 @@ export default function HomePage() {
       size: 88,
       initialPos: { x: 120, y: 900 },
       targetPos: { x: 120, y: 830 },
+      rotation: 20,
+      targetRotation: 0,
       scale: 0.8,
       targetScale: 1,
     },
@@ -1749,6 +1779,9 @@ export default function HomePage() {
                   const targetY = shapesAligned
                     ? shape.targetPos.y
                     : shape.initialPos.y;
+                  const targetRot = shapesAligned
+                    ? shape.targetRotation || 0
+                    : shape.rotation || 0;
                   const targetScl = shapesAligned
                     ? shape.targetScale || 1
                     : shape.scale || 1;
@@ -1760,6 +1793,7 @@ export default function HomePage() {
                       animate={{
                         x: targetX,
                         y: targetY,
+                        rotate: targetRot,
                         scale: targetScl,
                         opacity: 1,
                       }}
