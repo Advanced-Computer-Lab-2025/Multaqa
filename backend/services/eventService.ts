@@ -15,6 +15,7 @@ import { sendCommentDeletionWarningEmail } from "./emailService";
 import { UserService } from "./userService";
 import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
+import { bool } from "joi";
 const { Types } = require("mongoose");
 
 
@@ -105,8 +106,8 @@ export class EventsService {
     type?: string,
     location?: string,
     sort?: boolean,
-    startDate?:string,
-    endDate?:string
+    startDate?: string,
+    endDate?: string
   ) {
     const filter: any = {
       type: { $ne: EVENT_TYPES.GYM_SESSION },
@@ -137,7 +138,7 @@ export class EventsService {
         { path: "attendees", select: "firstName lastName email gucId " },
       ] as any,
     });
-     
+
     // filter out unapproved bazaar vendors
     events = events.map((event: any) => {
       if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
@@ -156,37 +157,37 @@ export class EventsService {
       });
     }
 
-    
 
 
-  if (startDate && endDate) {
-    const startTime = new Date(startDate).getTime();
-    const endTime = new Date(endDate).getTime();
 
-    events = events.filter((event: any) => {
-      const eventStart = new Date(event.eventStartDate).getTime();
-      const eventEnd = new Date(event.eventEndDate).getTime();
-   
-      return eventEnd >= startTime && eventStart <= endTime;
-    });
-  }
+    if (startDate && endDate) {
+      const startTime = new Date(startDate).getTime();
+      const endTime = new Date(endDate).getTime();
+
+      events = events.filter((event: any) => {
+        const eventStart = new Date(event.eventStartDate).getTime();
+        const eventEnd = new Date(event.eventEndDate).getTime();
+
+        return eventEnd >= startTime && eventStart <= endTime;
+      });
+    }
 
 
-  if (search) {
-  const searchRegex = new RegExp(search, "i");
-  return events.filter(
-    (event: any) =>
-      searchRegex.test(event.eventName) ||
-      searchRegex.test(event.type) ||
-      searchRegex.test(event.createdBy?.firstName || "") ||
-      searchRegex.test(event.createdBy?.lastName || "") ||
-      event.associatedProfs?.some(
-        (prof: any) =>
-          searchRegex.test(prof?.firstName || "") ||
-          searchRegex.test(prof?.lastName || "")
-      )
-  );
-}
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      return events.filter(
+        (event: any) =>
+          searchRegex.test(event.eventName) ||
+          searchRegex.test(event.type) ||
+          searchRegex.test(event.createdBy?.firstName || "") ||
+          searchRegex.test(event.createdBy?.lastName || "") ||
+          event.associatedProfs?.some(
+            (prof: any) =>
+              searchRegex.test(prof?.firstName || "") ||
+              searchRegex.test(prof?.lastName || "")
+          )
+      );
+    }
 
     return events;
   }
@@ -417,7 +418,12 @@ export class EventsService {
     return event;
   }
 
+  // one-time comment or rating
   async createReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
+    if(!comment && !rating) {
+      throw createError(400, "Either comment or rating must be provided");
+    }
+    
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
       throw createError(404, "Event not found");
@@ -428,31 +434,41 @@ export class EventsService {
       throw createError(404, 'User not found');
     }
 
-    if (event.reviews?.some((review) => review.reviewer.toString() === userId.toString())) {
-      throw createError(409, "User has already submitted a review for this event");
+    let reviewIndex = event.reviews?.findIndex(
+      (review) => {
+        return (review.reviewer._id as any).toString() === userId.toString();
+      }
+    );
+
+    if (reviewIndex === undefined || reviewIndex < 0) {
+      const newReview: IReview = {
+        reviewer: new mongoose.Types.ObjectId(userId),
+        comment: comment,
+        rating: rating,
+        createdAt: new Date(),
+      };
+      event.reviews?.push(newReview);
+      reviewIndex = (event.reviews?.length || 1) - 1;
+      await event.save();
+
+    } else {
+      if (event.reviews[reviewIndex].comment && comment) {
+        throw createError(409, "You have already submitted a comment for this event");
+      }
+      if (event.reviews[reviewIndex].rating && rating) {
+        throw createError(409, "You have already submitted a rating for this event");
+      }
+
+      if (comment)
+        event.reviews[reviewIndex].comment = comment;
+      if (rating)
+        event.reviews[reviewIndex].rating = rating;
+      await event.save();
     }
-
-    const newReview: IReview = {
-      reviewer: new mongoose.Types.ObjectId(userId),
-      comment: comment,
-      rating: rating,
-      createdAt: new Date(),
-    };
-
-    event.reviews?.push(newReview);
-    await event.save();
-
-    // Get the last added review
-    const populatedEvent = await this.eventRepo.findById(eventId, {
-      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
-    });
-    if (!populatedEvent) {
-      throw createError(404, "Event not found after saving review");
-    }
-    const createdReview = populatedEvent.reviews?.slice(-1)[0];
-    return createdReview;
+    return event.reviews[reviewIndex];
   }
 
+  // infinite changes in comments and ratings
   async updateReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
     const user = await this.userService.getUserById(userId);
     if (!user) {
