@@ -203,7 +203,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
             <Box 
             sx={horizontalLayoutStyles(theme)}
             >
-            <Box sx={{...step1BoxStyles(theme),width:'400px',height:'560px'}}>
+            <Box sx={{...step1BoxStyles(theme),width:'350px',height:'560px'}}>
               <Box sx={modalHeaderStyles}>
                   <Typography sx={detailTitleStyles(theme)}>
                     General Information
