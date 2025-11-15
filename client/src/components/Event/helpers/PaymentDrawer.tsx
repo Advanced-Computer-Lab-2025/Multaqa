@@ -22,8 +22,8 @@ import {
   LockOutlined,
   ArrowForward
 } from '@mui/icons-material';
-import CustomButton from '@/components/shared/Buttons/CustomButton';
 import { api } from '@/api';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
 
 // Type definitions
 interface PaymentSuccessDetails {
@@ -621,20 +621,6 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
                 fontWeight: 700,
                 textTransform: 'none',
                 width:"100%"
-                // background: isPayButtonEnabled 
-                //   ? `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.primary.dark} 100%)`
-                //   : alpha(theme.palette.action.disabled, 0.5),
-                // boxShadow: isPayButtonEnabled 
-                //   ? `0 6px 24px ${alpha(colors.primary.main, 0.35)}`
-                //   : 'none',
-                // transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                // '&:hover': isPayButtonEnabled ? {
-                //   transform: 'translateY(-2px)',
-                //   boxShadow: `0 8px 32px ${alpha(colors.primary.main, 0.45)}`,
-                // } : {},
-                // '&:active': isPayButtonEnabled ? {
-                //   transform: 'translateY(0)',
-                // } : {},
               }}
             >
               {isProcessing ? (
