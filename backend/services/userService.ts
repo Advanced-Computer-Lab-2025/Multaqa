@@ -31,7 +31,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName",
+          "firstName lastName name email role gucId position roleType status companyName verifiedAt updatedAt",
       }
     );
 
