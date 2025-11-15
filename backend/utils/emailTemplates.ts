@@ -275,18 +275,17 @@ export const getCertificateOfAttendanceTemplate = (
     <div style="${baseStyles.container}">
       <div style="${baseStyles.card}">
         <div style="${baseStyles.headerSuccess}">
-          <h2 style="margin: 0; font-size: 22px;">🎓 Congratulations!</h2>
+          <h2 style="margin: 0; font-size: 22px;"> Congratulations!</h2>
         </div>
         <div style="${baseStyles.content}">
           <p style="font-size: 16px; color: #333;">
             Hi ${username},<br><br>
             Congratulations on successfully completing the workshop! We're pleased to present you with your Certificate of Attendance.
           </p>
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; text-align: center; margin: 20px 0;">
-            <h3 style="margin: 0 0 10px 0; font-size: 20px;">Certificate of Attendance</h3>
-            <p style="margin: 5px 0; font-size: 18px; font-weight: bold;">${workshopName}</p>
-            <p style="margin: 15px 0 5px 0; font-size: 14px; opacity: 0.9;">Awarded to</p>
-            <p style="margin: 0; font-size: 22px; font-weight: bold;">${username}</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="#" download style="${baseStyles.buttonSuccess}">
+              You'll find your certificate attached to this email.
+            </a>
           </div>
           <p style="font-size: 14px; color: #555;">
             We hope you found the workshop valuable and informative. Thank you for being part of the Multaqa community!
