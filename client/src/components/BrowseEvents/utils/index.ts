@@ -7,7 +7,7 @@ export const frameData = (data: any, userInfo:any) => {
 
   for (const event of data) {
     // ✅ use 'of' if 'data' is an array
-    const transformed = transformEvent(event, userInfo.attendedEvents);
+    const transformed = transformEvent(event, userInfo?.attendedEvents);
     res.push(transformed);
   }
 
@@ -16,9 +16,6 @@ export const frameData = (data: any, userInfo:any) => {
 
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
-}
-const flattenId = (profs:{ id: string }[])=>{
-  return profs.map(prof => `${prof.id}`);
 }
 const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
   return vendors.map(vendor =>vendor.vendor);
