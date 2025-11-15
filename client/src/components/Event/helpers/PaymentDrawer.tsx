@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import { api } from '@/api';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
+import { toast } from 'react-toastify';
 
 // Type definitions
 interface PaymentSuccessDetails {
@@ -124,7 +125,8 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
     const payload = {
       customerEmail:email,
       quantity:1,
-      metadata:''
+      metadata:'',
+      amount:0,
     }
     
     try {
@@ -146,21 +148,35 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
 
     setIsProcessing(true);
     setPaymentError('');
-    
     try {
-      const walletResponse = await mockWalletPayment(totalAmount);
-      
-      if (walletResponse.success) {
-        onPaymentSuccess({
-          method: 'wallet',
-          amount: totalAmount,
-          transactionId: walletResponse.transactionId
-        });
-      } else {
-        setPaymentError(walletResponse.error || 'Wallet payment failed');
-      }
-    } catch (error) {
+      const walletResponse = await api.patch(`/payments/${eventId}/wallet`); 
+      console.log(walletResponse);
+      toast.success('Wallet payment was sucessful!', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } catch (error:any) {
+        const message = error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Wallet payment failed. Please try again.";
       setPaymentError('Wallet payment failed');
+      toast.error(message, {
+             position: "bottom-right",
+             autoClose: 5000,
+             hideProgressBar: false,
+             closeOnClick: true,
+             pauseOnHover: true,
+             draggable: true,
+             progress: undefined,
+             theme: "colored",
+           });
     } finally {
       setIsProcessing(false);
     }
@@ -169,28 +185,16 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
   const handleCombinedPayment = async (): Promise<void> => {
     setIsProcessing(true);
     setPaymentError('');
-    
+     const payload = {
+      customerEmail:email,
+      quantity:1,
+      metadata:'',
+      amount:totalAmount-remainingAmount,
+    }
     try {
-      const walletResponse = await mockWalletPayment(walletCoverage);
-      
-      if (!walletResponse.success) {
-        setPaymentError('Wallet payment failed');
-        return;
-      }
-
-      const stripeResponse = await mockStripePayment(remainingAmount);
-      
-      if (stripeResponse.success) {
-        onPaymentSuccess({
-          method: 'combined',
-          amount: totalAmount,
-          walletAmount: walletCoverage,
-          stripeAmount: remainingAmount,
-          transactionId: stripeResponse.transactionId
-        });
-      } else {
-        setPaymentError('Stripe payment failed');
-      }
+      const stripeResponse = await api.post(`/payments/${eventId}`, payload); 
+      console.log(stripeResponse);
+      window.location.href = stripeResponse.data.data.url;
     } catch (error) {
       setPaymentError('Payment processing failed');
     } finally {
