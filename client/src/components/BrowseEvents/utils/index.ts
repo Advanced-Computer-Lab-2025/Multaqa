@@ -7,7 +7,7 @@ export const frameData = (data: any, userInfo:any) => {
 
   for (const event of data) {
     // ✅ use 'of' if 'data' is an array
-    const transformed = transformEvent(event, userInfo.attendedEvents);
+    const transformed = transformEvent(event, userInfo?.attendedEvents);
     res.push(transformed);
   }
 
