@@ -73,51 +73,54 @@ export const sendEmail = async ({ to, subject, html, attachments }: EmailOptions
   try {
     const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
     
-    const mixedBoundary = `mixed_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    const alternativeBoundary = `alt_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const hasAttachments = attachments && attachments.length > 0;
+    
+    // Use different structure based on whether there are attachments
+    if (hasAttachments) {
+      // WITH ATTACHMENTS: multipart/mixed structure
+      const mixedBoundary = `mixed_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const alternativeBoundary = `alt_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-    const message = [
-      `From: Multaqa <${GMAIL_USER}>`,
-      `To: ${to}`,
-      `Reply-To: ${GMAIL_USER}`,
-      `Subject: ${encodeSubject(subject)}`,
-      `Message-ID: <${Date.now()}.${Math.random().toString(36).substring(2)}@${GMAIL_USER.split('@')[1]}>`,
-      `Date: ${new Date().toUTCString()}`,
-      "MIME-Version: 1.0",
-      "X-Priority: 3",
-      "X-MSMail-Priority: Normal",
-      "Importance: Normal",
-      `Content-Type: multipart/mixed; boundary="${mixedBoundary}"`,
-      "",
-      `--${mixedBoundary}`,
-      `Content-Type: multipart/alternative; boundary="${alternativeBoundary}"`,
-      "",
-      // Plain text version first
-      `--${alternativeBoundary}`,
-      "Content-Type: text/plain; charset=utf-8",
-      "Content-Transfer-Encoding: quoted-printable",
-      "",
-      encodeQuotedPrintable(htmlToPlainText(html)),
-      "",
-      // HTML version
-      `--${alternativeBoundary}`,
-      "Content-Type: text/html; charset=utf-8",
-      "Content-Transfer-Encoding: quoted-printable",
-      "",
-      encodeQuotedPrintable(html),
-      "",
-      `--${alternativeBoundary}--`,
-      ""
-    ];
+      const message = [
+        `From: Multaqa <${GMAIL_USER}>`,
+        `To: ${to}`,
+        `Reply-To: ${GMAIL_USER}`,
+        `Subject: ${encodeSubject(subject)}`,
+        `Message-ID: <${Date.now()}.${Math.random().toString(36).substring(2)}@${GMAIL_USER.split('@')[1]}>`,
+        `Date: ${new Date().toUTCString()}`,
+        "MIME-Version: 1.0",
+        "X-Priority: 3",
+        "X-MSMail-Priority: Normal",
+        "Importance: Normal",
+        `Content-Type: multipart/mixed; boundary="${mixedBoundary}"`,
+        "",
+        `--${mixedBoundary}`,
+        `Content-Type: multipart/alternative; boundary="${alternativeBoundary}"`,
+        "",
+        // Plain text version
+        `--${alternativeBoundary}`,
+        "Content-Type: text/plain; charset=utf-8",
+        "Content-Transfer-Encoding: quoted-printable",
+        "",
+        encodeQuotedPrintable(htmlToPlainText(html)),
+        "",
+        // HTML version
+        `--${alternativeBoundary}`,
+        "Content-Type: text/html; charset=utf-8",
+        "Content-Transfer-Encoding: quoted-printable",
+        "",
+        encodeQuotedPrintable(html),
+        "",
+        `--${alternativeBoundary}--`,
+        ""
+      ];
 
-    // Add attachments with proper PDF recognition
-    if (attachments && attachments.length > 0) {
+      // Add attachments
       for (const attachment of attachments) {
         const content = Buffer.isBuffer(attachment.content)
           ? attachment.content
           : Buffer.from(attachment.content);
 
-        // Ensure filename has .pdf extension
         let safeFilename = attachment.filename
           .toLowerCase()
           .replace(/\s+/g, '_')
@@ -126,19 +129,17 @@ export const sendEmail = async ({ to, subject, html, attachments }: EmailOptions
           .replace(/\.{2,}/g, '.')
           .substring(0, 100);
         
-        // CRITICAL: Ensure .pdf extension exists
         if (!safeFilename.endsWith('.pdf')) {
           safeFilename = safeFilename.replace(/\.[^.]*$/, '') + '.pdf';
         }
 
-        // Force application/pdf for PDF files
         const contentType = safeFilename.endsWith('.pdf') 
           ? 'application/pdf' 
           : (attachment.contentType || 'application/octet-stream');
         
         message.push(
           `--${mixedBoundary}`,
-          `Content-Type: ${contentType}; name="${safeFilename}"`, // Add name parameter back
+          `Content-Type: ${contentType}; name="${safeFilename}"`,
           `Content-Disposition: attachment; filename="${safeFilename}"`,
           `Content-Transfer-Encoding: base64`,
           "",
@@ -146,25 +147,54 @@ export const sendEmail = async ({ to, subject, html, attachments }: EmailOptions
           ""
         );
       }
-    }
 
-    message.push(`--${mixedBoundary}--`);
+      message.push(`--${mixedBoundary}--`);
 
-    const encodedMessage = Buffer.from(message.join("\r\n"))
+      const encodedMessage = Buffer.from(message.join("\r\n"))
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+
+      const result = await gmail.users.messages.send({
+        userId: "me",
+        requestBody: {
+          raw: encodedMessage,
+        },
+      });
+
+      console.log("✅ Email sent successfully:", result.data.id);
+      return result;
+      
+    } else {
+      // WITHOUT ATTACHMENTS: simple email structure
+     const message = [
+      `From: Multaqa <${GMAIL_USER}>`,
+      `To: ${to}`,
+      `Subject: ${encodeSubject(subject)}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=utf-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      Buffer.from(html).toString("base64"),
+    ].join("\r\n");
+
+    // Encode the message in base64url format
+    const encodedMessage = Buffer.from(message)
       .toString("base64")
       .replace(/\+/g, "-")
       .replace(/\//g, "_")
       .replace(/=+$/, "");
-
+    // Send the email using Gmail API
     const result = await gmail.users.messages.send({
       userId: "me",
       requestBody: {
         raw: encodedMessage,
       },
     });
-
     console.log("✅ Email sent successfully:", result.data.id);
     return result;
+    }
   } catch (error) {
     console.error("❌ Error sending email:", error);
     throw error;
