@@ -30,7 +30,6 @@ async function getVendorUpcomingEvents(
       throw createError(401, "Unauthorized: Vendor ID missing in token");
     }
 
-
     const events = await vendorEventsService.getVendorUpcomingEvents(vendorId);
     if (!events || events.length === 0) {
       throw createError(404, "No events found for this vendor");
@@ -43,7 +42,7 @@ async function getVendorUpcomingEvents(
   } catch (error: any) {
     throw createError(
       error.status || 500,
-      error.message || 'Error retrieving vendor events'
+      error.message || "Error retrieving vendor events"
     );
   }
 }
@@ -87,18 +86,21 @@ async function applyToBooth(
       message: "Platform booth application successful",
     });
   } catch (error: any) {
-       if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {   
+    if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {
       for (const attendee of req.body.boothAttendees) {
         if (attendee.nationalId?.publicId) {
-          console.log('Deleting national ID with publicId:', attendee.nationalId.publicId);
-         await deleteCloudinaryFile(attendee.nationalId.publicId);  
+          console.log(
+            "Deleting national ID with publicId:",
+            attendee.nationalId.publicId
+          );
+          await deleteCloudinaryFile(attendee.nationalId.publicId);
         }
       }
     }
-    
+
     throw createError(
       error.status || 500,
-      error.message || 'Error applying to booth'
+      error.message || "Error applying to booth"
     );
   }
 }
@@ -141,16 +143,16 @@ async function applyToBazaar(
       message: "Bazaar application successful",
     });
   } catch (error: any) {
-      if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {
-        for (const attendee of req.body.boothAttendees) {
-          if (attendee.nationalId?.publicId) {
-            await deleteCloudinaryFile(attendee.nationalId.publicId);
-          }
+    if (req.body.boothAttendees && Array.isArray(req.body.boothAttendees)) {
+      for (const attendee of req.body.boothAttendees) {
+        if (attendee.nationalId?.publicId) {
+          await deleteCloudinaryFile(attendee.nationalId.publicId);
         }
       }
+    }
     throw createError(
       error.status || 500,
-      error.message || 'Error applying to bazaar'
+      error.message || "Error applying to bazaar"
     );
   }
 }
@@ -170,11 +172,10 @@ async function getVendorsRequests(
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error retrieving vendor requests'
+      err.message || "Error retrieving vendor requests"
     );
   }
 }
-
 
 async function getVendorRequestsDetails(
   req: Request,
@@ -195,8 +196,8 @@ async function getVendorRequestsDetails(
     });
   } catch (err: any) {
     throw createError(
-      err.status || 500, 
-      err.message || 'Error retrieving vendor requests'
+      err.status || 500,
+      err.message || "Error retrieving vendor requests"
     );
   }
 }
@@ -227,7 +228,7 @@ async function updateVendorRequest(
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error updating vendor request'
+      err.message || "Error updating vendor request"
     );
   }
 }
@@ -258,36 +259,67 @@ async function getAvailableBooths(
     });
   } catch (err: any) {
     throw createError(
-      err.status || 500, 
-      err.message || 'Error retrieving available booths'
+      err.status || 500,
+      err.message || "Error retrieving available booths"
     );
   }
 }
-async function uploadNationalId(req: Request, res: Response<FileUploadResponse>) {
-  
-    const nationalId: Express.Multer.File | undefined = req.file;
-try {
+async function uploadNationalId(
+  req: Request,
+  res: Response<FileUploadResponse>
+) {
+  const nationalId: Express.Multer.File | undefined = req.file;
+  try {
     if (!nationalId) {
-      throw createError(400, 'National ID is required for vendor signup');
+      throw createError(400, "National ID is required for vendor signup");
     }
     res.status(200).json({
       success: true,
       data: {
-          url: nationalId.path,
-          publicId: nationalId.filename,
-          originalName: nationalId.originalname,
-          uploadedAt: new Date()
+        url: nationalId.path,
+        publicId: nationalId.filename,
+        originalName: nationalId.originalname,
+        uploadedAt: new Date(),
       },
-        message: 'National ID uploaded successfully'
+      message: "National ID uploaded successfully",
     });
-} 
-  catch (error: any) {
-    if(nationalId && nationalId.filename){
+  } catch (error: any) {
+    if (nationalId && nationalId.filename) {
       await deleteCloudinaryFile(nationalId.filename);
     }
     throw createError(
       error.status || 500,
-      error.message || 'National ID upload failed'
+      error.message || "National ID upload failed"
+    );
+  }
+}
+
+async function cancelEventParticipation(
+  req: AuthenticatedRequest,
+  res: Response<{ success: boolean; message: string }>
+) {
+  try {
+    const { eventId } = req.params;
+    const vendorId = req.user?.id;
+
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    if (!eventId) {
+      throw createError(400, "Event ID is required");
+    }
+
+    await vendorEventsService.cancelEventParticipation(vendorId, eventId);
+
+    res.status(200).json({
+      success: true,
+      message: "Event participation cancelled successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error cancelling event participation"
     );
   }
 }
@@ -329,6 +361,12 @@ router.post(
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   uploadFiles.single("nationalId"),
   uploadNationalId
+);
+
+router.delete(
+  "/:eventId/cancel",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  cancelEventParticipation
 );
 
 // Two parameters with complex paths

@@ -1,13 +1,13 @@
 import { api } from "@/api";
 import { EventType } from "../types";
 
-
-export const frameData = (data: any, userID?: string) => {
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const frameData = (data: any, userInfo:any) => {
   const res: any[] = [];
 
   for (const event of data) {
     // ✅ use 'of' if 'data' is an array
-    const transformed = transformEvent(event, userID);
+    const transformed = transformEvent(event, userInfo?.attendedEvents);
     res.push(transformed);
   }
 
@@ -16,9 +16,6 @@ export const frameData = (data: any, userID?: string) => {
 
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
-}
-const flattenId = (profs:{ id: string }[])=>{
-  return profs.map(prof => `${prof.id}`);
 }
 const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
   console.log(vendors);
@@ -32,15 +29,12 @@ const cleanDateString = (isoDate: string | undefined): string => {
 };
 
 
-function transformEvent(event: any, userID?: string) {
+function transformEvent(event: any, attendedEvents?: string[]) {
   const id = event._id?.$oid || event._id || "";
   const registrationDeadline = event.registrationDeadline;
   const startDate = event.eventStartDate;
   const endDate = event.eventEndDate;
-  const attended = event.attendees?.some((attendee: any) => attendee._id === userID) || false; 
-
-  // console.log("look here")
-  // console.log(event.createdBy)
+  const attended = attendedEvents ? attendedEvents.includes(id) : false; 
 
   switch (event.type?.toLowerCase()) {
     case "trip":

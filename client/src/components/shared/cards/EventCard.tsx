@@ -25,6 +25,7 @@ interface EventCardProps {
   onOpenDetails?: () => void;
   expanded?: boolean;
   details?: Record<string, any>;
+  attended?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -48,6 +49,7 @@ const EventCard: React.FC<EventCardProps> = ({
   eventType,
   expanded = false,
   details,
+  attended = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = spotsLeft&&parseInt(spotsLeft)||0;
@@ -147,21 +149,41 @@ const EventCard: React.FC<EventCardProps> = ({
             alignItems: 'center',
             mb: 1 
           }}>
-            <Chip
-              label={eventType}
-              size="small"
-              sx={{
-                backgroundColor: `${color}08`,
-                color: color,
-                fontWeight: 600,
-                fontSize: '0.7rem',
-                height: 20,
-                border: `1px solid ${color}`,
-                '&:hover': {
-                  backgroundColor: `${color}15`,
-                },
-              }}
-            />
+            <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
+              <Chip
+                label={eventType}
+                size="small"
+                sx={{
+                  backgroundColor: `${color}08`,
+                  color: color,
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 20,
+                  border: `1px solid ${color}`,
+                  '&:hover': {
+                    backgroundColor: `${color}15`,
+                  },
+                }}
+              />
+              {attended && (
+                <Chip
+                  label="Attended"
+                  size="small"
+                  sx={{
+                    backgroundColor: '#10b98108',
+                    color: '#10b981',
+                    fontWeight: 600,
+                    fontSize: '0.7rem',
+                    height: 20,
+                    border: '1px solid #10b981',
+                    '&:hover': {
+                      backgroundColor: '#10b98115',
+                    },
+                  }}
+                />
+              )}
+            </Box>
+
             
             {/* Show spots in top right if register button exists, show utilities if they exist */}
             {/* Utilities and Expand Button Group */}

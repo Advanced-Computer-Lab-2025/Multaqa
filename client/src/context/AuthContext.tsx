@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const response = await api.post<MeResponse>("/auth/me");
+        const response = await api.get<MeResponse>("/auth/me");
         if (response.data?.user) {
           setUser(response.data.user);
           console.log("✅ User loaded:", user);

@@ -80,7 +80,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
 
   return (
     <>
-    <EventCard title={name} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
+    <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
         <Tooltip title="Delete Workshop">
           <IconButton
             size="medium"
@@ -244,29 +244,61 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 agenda={agenda}
                 userId={userInfo._id}
                 button={
-                  !registered &&
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-                    <CustomButton
-                      size="small"
-                      variant="contained"
-                      sx={{ 
-                        borderRadius: 999 , backgroundColor: `${background}40`,
-                        color:background, borderColor:background,
-                        fontWeight: 600,
-                        px: 3,
-                        textTransform: 'none',
-                        boxShadow: `0 4px 14px ${background}40`,
-                        transition: 'all 0.3s ease',
-                        "&:hover": {
-                          backgroundColor: `${background}50`,
-                          transform: 'translateY(-2px)',
-                          boxShadow: `0 6px 20px ${background}50`,
-                        }
-                      }}
-                      onClick={() => { setRegister(true) }}
-                    >
-                      Register
-                    </CustomButton>
+                    <>
+                      {registered  || isRegisteredEvent? (
+                        <CustomButton
+                          size="small"
+                          variant="outlined"
+                          sx={{ 
+                            borderRadius: 999,
+                            backgroundColor: `${background}40`,
+                            color: background,
+                            borderColor: background,
+                            fontWeight: 600,
+                            px: 3,
+                            textTransform: "none",
+                            boxShadow: `0 4px 14px ${background}40`,
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: `${background}50`,
+                              transform: "translateY(-2px)",
+                              boxShadow: `0 6px 20px ${background}50`,
+                            },
+                            width: 'fit-content'
+                          }}
+                          onClick={() => {
+                            setCancelRegisteration(true);
+                          }}
+                        >
+                          Cancel Registration
+                        </CustomButton>
+                      ) : (
+                        <CustomButton
+                          size="small"
+                          variant="contained"
+                          sx={{ 
+                            borderRadius: 999,
+                            backgroundColor: `${background}40`,
+                            color: background,
+                            borderColor: background,
+                            fontWeight: 600,
+                            px: 3,
+                            textTransform: "none",
+                            boxShadow: `0 4px 14px ${background}40`,
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: `${background}50`,
+                              transform: "translateY(-2px)",
+                              boxShadow: `0 6px 20px ${background}50`,
+                            },
+                          }}
+                          onClick={() => setRegister(true)}
+                        >
+                          Register
+                        </CustomButton>
+                      )}
+                    </>
                   )
                 }
                 sections={user=="vendor"?['general','agenda', 'details']:['general','agenda','details',
