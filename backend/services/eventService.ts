@@ -357,12 +357,19 @@ export class EventsService {
         "Registrations are only allowed for trips and workshops"
       );
     }
+
+    // Check if registration deadline has passed
+    if (new Date() > new Date(event.registrationDeadline)) {
+      throw createError(400, "Registration deadline has passed for this event");
+    }
+
     // Check if user is already registered
     const isAlreadyRegistered = event.attendees?.some((attendee: any) => {
       // Handle both populated objects and ObjectIds
       const attendeeId = attendee._id || attendee;
       return attendeeId.toString() === userId.toString();
     });
+
     if (isAlreadyRegistered) {
       throw createError(409, "User already registered for this event");
     }
