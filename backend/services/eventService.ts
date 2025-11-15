@@ -18,7 +18,6 @@ import { IReview } from "../interfaces/models/review.interface";
 import { bool } from "joi";
 const { Types } = require("mongoose");
 
-
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
 
@@ -152,13 +151,11 @@ export class EventsService {
     if (sort) {
       events = events.sort((a: any, b: any) => {
         return (
-          new Date(a.eventStartDate).getTime() - new Date(b.eventStartDate).getTime()
+          new Date(a.eventStartDate).getTime() -
+          new Date(b.eventStartDate).getTime()
         );
       });
     }
-
-
-
 
     if (startDate && endDate) {
       const startTime = new Date(startDate).getTime();
@@ -171,7 +168,6 @@ export class EventsService {
         return eventEnd >= startTime && eventStart <= endTime;
       });
     }
-
 
     if (search) {
       const searchRegex = new RegExp(search, "i");
@@ -362,10 +358,11 @@ export class EventsService {
       );
     }
     // Check if user is already registered
-    const isAlreadyRegistered = event.attendees?.some(
-      (attendeeId: { toString: () => string }) =>
-        attendeeId.toString() === userId.toString()
-    );
+    const isAlreadyRegistered = event.attendees?.some((attendee: any) => {
+      // Handle both populated objects and ObjectIds
+      const attendeeId = attendee._id || attendee;
+      return attendeeId.toString() === userId.toString();
+    });
     if (isAlreadyRegistered) {
       throw createError(409, "User already registered for this event");
     }
@@ -419,11 +416,16 @@ export class EventsService {
   }
 
   // one-time comment or rating
-  async createReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
-    if(!comment && !rating) {
+  async createReview(
+    eventId: string,
+    userId: string,
+    comment?: string,
+    rating?: number
+  ): Promise<IReview> {
+    if (!comment && !rating) {
       throw createError(400, "Either comment or rating must be provided");
     }
-    
+
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
       throw createError(404, "Event not found");
@@ -431,14 +433,12 @@ export class EventsService {
 
     const user = await this.userService.getUserById(userId);
     if (!user) {
-      throw createError(404, 'User not found');
+      throw createError(404, "User not found");
     }
 
-    let reviewIndex = event.reviews?.findIndex(
-      (review) => {
-        return (review.reviewer._id as any).toString() === userId.toString();
-      }
-    );
+    let reviewIndex = event.reviews?.findIndex((review) => {
+      return (review.reviewer._id as any).toString() === userId.toString();
+    });
 
     if (reviewIndex === undefined || reviewIndex < 0) {
       const newReview: IReview = {
@@ -450,43 +450,51 @@ export class EventsService {
       event.reviews?.push(newReview);
       reviewIndex = (event.reviews?.length || 1) - 1;
       await event.save();
-
     } else {
       if (event.reviews[reviewIndex].comment && comment) {
-        throw createError(409, "You have already submitted a comment for this event");
+        throw createError(
+          409,
+          "You have already submitted a comment for this event"
+        );
       }
       if (event.reviews[reviewIndex].rating && rating) {
-        throw createError(409, "You have already submitted a rating for this event");
+        throw createError(
+          409,
+          "You have already submitted a rating for this event"
+        );
       }
 
-      if (comment)
-        event.reviews[reviewIndex].comment = comment;
-      if (rating)
-        event.reviews[reviewIndex].rating = rating;
+      if (comment) event.reviews[reviewIndex].comment = comment;
+      if (rating) event.reviews[reviewIndex].rating = rating;
       await event.save();
     }
     return event.reviews[reviewIndex];
   }
 
   // infinite changes in comments and ratings
-  async updateReview(eventId: string, userId: string, comment?: string, rating?: number): Promise<IReview> {
+  async updateReview(
+    eventId: string,
+    userId: string,
+    comment?: string,
+    rating?: number
+  ): Promise<IReview> {
     const user = await this.userService.getUserById(userId);
     if (!user) {
-      throw createError(404, 'User not found');
+      throw createError(404, "User not found");
     }
 
     const event = await this.eventRepo.findById(eventId, {
-      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+      populate: [
+        { path: "reviews.reviewer", select: "firstName lastName email role" },
+      ] as any[],
     });
     if (!event) {
       throw createError(404, "Event not found");
     }
 
-    const reviewIndex = event.reviews?.findIndex(
-      (review) => {
-        return (review.reviewer._id as any).toString() === userId.toString();
-      }
-    );
+    const reviewIndex = event.reviews?.findIndex((review) => {
+      return (review.reviewer._id as any).toString() === userId.toString();
+    });
     if (reviewIndex === undefined || reviewIndex < 0) {
       throw createError(404, "Review by this user not found for the event");
     }
@@ -505,28 +513,30 @@ export class EventsService {
   async deleteComment(eventId: string, userId: string): Promise<void> {
     const user = await this.userService.getUserById(userId);
     if (!user) {
-      throw createError(404, 'User not found');
+      throw createError(404, "User not found");
     }
 
     const event = await this.eventRepo.findById(eventId, {
-      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+      populate: [
+        { path: "reviews.reviewer", select: "firstName lastName email role" },
+      ] as any[],
     });
     if (!event) {
       throw createError(404, "Event not found");
     }
 
-    const reviewIndex = event.reviews?.findIndex(
-      (review) => {
-        return (review.reviewer._id as any).toString() === userId.toString();
-      }
-    );
+    const reviewIndex = event.reviews?.findIndex((review) => {
+      return (review.reviewer._id as any).toString() === userId.toString();
+    });
     if (reviewIndex === undefined || reviewIndex < 0) {
       throw createError(404, "Review by this user not found for the event");
     }
 
     await sendCommentDeletionWarningEmail(
       user.email,
-      (event.reviews[reviewIndex].reviewer as any).firstName + " " + (event.reviews[reviewIndex].reviewer as any).lastName,
+      (event.reviews[reviewIndex].reviewer as any).firstName +
+        " " +
+        (event.reviews[reviewIndex].reviewer as any).lastName,
       event.reviews[reviewIndex].comment || "No comment text",
       "Admin action",
       event.eventName,
@@ -539,7 +549,9 @@ export class EventsService {
 
   async getAllReviewsByEvent(eventId: string): Promise<IReview[]> {
     const event = await this.eventRepo.findById(eventId, {
-      populate: [{ path: "reviews.reviewer", select: "firstName lastName email role" }] as any[]
+      populate: [
+        { path: "reviews.reviewer", select: "firstName lastName email role" },
+      ] as any[],
     });
     if (!event) {
       throw createError(404, "Event not found");
