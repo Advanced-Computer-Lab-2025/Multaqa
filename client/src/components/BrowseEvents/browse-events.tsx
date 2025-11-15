@@ -302,6 +302,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.WORKSHOP:
@@ -324,6 +325,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.BAZAAR:
@@ -344,6 +346,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.BOOTH:
@@ -364,6 +367,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.TRIP:
@@ -383,6 +387,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       default:
