@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import NotFound from "../../not-found";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
