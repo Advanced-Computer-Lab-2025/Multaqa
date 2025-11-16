@@ -249,26 +249,12 @@ export default function EntityCatchAllPage() {
         router.replace(validBase);
         return;
       }
-      // If tab/section is invalid, redirect to default for stakeholder
-      const valid = getValidTabSection(user);
-      // If tab is invalid
-      if (tab && valid.tab !== tab) {
-        setRedirecting(true);
-        router.replace(`/${segments[0]}/${valid.tab}/${valid.section}`);
-        return;
-      }
-      // If section is invalid
-      if (tab && section && valid.section !== section) {
-        setRedirecting(true);
-        router.replace(`/${segments[0]}/${tab}/${valid.section}`);
-        return;
-      }
-      // If no tab, let navigation handle default
+      // Route is valid - no need to redirect for tab/section validation
+      // The navigation component and renderContent handle showing appropriate content
       setRedirecting(false);
     }
-    // getValidTabSection is defined outside component, so no need to add to deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, tab, section, segments]);
+  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, segments]);
 
   // Show loading state for initial load only
   if (isLoading) {
