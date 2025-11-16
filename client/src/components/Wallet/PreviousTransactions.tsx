@@ -32,8 +32,8 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
           const amountPrefix = isRefund ? '+' : '-';
 
           const total = Number(transaction.amount ?? 0).toFixed(2);
-          const card = Number(transaction.card_amount ?? 0).toFixed(2);
-          const wallet = Number(transaction.wallet_amount ?? 0).toFixed(2);
+          const card = Number(transaction.cardAmount ?? 0).toFixed(2);
+          const wallet = Number(transaction.walletAmount ?? 0).toFixed(2);
           const displayDate = transaction.date ? new Date(transaction.date).toLocaleDateString() : '';
 
           return (
@@ -78,7 +78,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
               {/* Transaction Details - adjusted to new dummy fields */}
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle1" fontWeight="600">
-                  {isRefund ? `Refund for ${transaction.event_name}` : `Payment for ${transaction.event_name}`}
+                  {isRefund ? `Refund for ${transaction.eventName}` : `Payment for ${transaction.eventName}`}
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary">
