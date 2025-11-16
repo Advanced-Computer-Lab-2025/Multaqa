@@ -1,15 +1,5 @@
 import { api } from "../../../../api";
 import { toast } from "react-toastify";
-const toastOptions = {
-  position: "bottom-right",
-  autoClose: 5000,
-  hideProgressBar: false,
-  closeOnClick: true,
-  pauseOnHover: true,
-  draggable: true,
-  progress: undefined,
-  theme: "colored",
-};
 
 export const handleExport = async (
   setIsExporting: React.Dispatch<React.SetStateAction<boolean>>,
@@ -51,16 +41,49 @@ export const handleExport = async (
     link?.parentNode?.removeChild(link);
     window.URL.revokeObjectURL(url);
 
+    toast.success("File download started!", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toast.success("File download started!", toastOptions as any);
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err:any) {
-    const errorMessage =
-      err?.response?.data?.error ||
-      err?.message ||
-      "Export failed. Please try again.";
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toast.error(errorMessage, toastOptions as any);
+  } catch (err: any) {
+    let errorMessage = "Something went wrong. Please try again.";
+
+    if (err.response && err.response.data instanceof Blob) {
+      try {
+        const errorText = await err.response.data.text();
+        const errorJson = JSON.parse(errorText);
+        if (errorJson.statusCode !== 404) {
+          errorMessage = "Something went wrong. Please try again.";
+        } else {
+          errorMessage = errorJson.error || errorJson.message || errorMessage;
+        }
+      } catch (parseError) {
+        console.error("Failed to parse error Blob as JSON:", parseError);
+      }
+    } else {
+      errorMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        errorMessage;
+    }
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
   } finally {
     setIsExporting(false);
   }

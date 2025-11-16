@@ -54,7 +54,7 @@ const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, colo
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         {type.toLowerCase() !== "conference" &&
-          userRole === "events-only" && (
+          userRole === "events-office" && (
             <ExportButton
               isLoading={isExporting}
               sx={{ mr: 3 }}
