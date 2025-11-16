@@ -16,9 +16,10 @@ interface EventTypeDetailsProps {
   details: Record<string, any>;
   color: string;
   eventId: string;
+  userRole?: string;
 }
 
-const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, color, eventId }) => {
+const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, color, eventId, userRole }) => {
   const mappedDetails = mapDetailsToType(type, details, color);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -52,13 +53,14 @@ const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, colo
       {renderContent()}
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        {type.toLowerCase() !== "conference" && (
-          <ExportButton
-            isLoading={isExporting}
-            sx={{ mr: 3 }}
-            onClick={() => handleExport(setIsExporting, eventId)}
-          />
-        )}
+        {type.toLowerCase() !== "conference" &&
+          userRole === "events-only" && (
+            <ExportButton
+              isLoading={isExporting}
+              sx={{ mr: 3 }}
+              onClick={() => handleExport(setIsExporting, eventId)}
+            />
+          )}
       </Box>
     </Box>
   );

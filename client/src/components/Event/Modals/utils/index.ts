@@ -11,14 +11,18 @@ const toastOptions = {
   theme: "colored",
 };
 
-export const handleExport = async (setIsExporting: React.Dispatch<React.SetStateAction<boolean>>, eventId: string) => {
+export const handleExport = async (
+  setIsExporting: React.Dispatch<React.SetStateAction<boolean>>,
+  eventId: string
+) => {
   setIsExporting(true);
-  //wait 5000 ms
-  await new Promise(resolve => setTimeout(resolve, 50000));
   try {
-    const response = await api.get(`/export/event/${eventId}/attendees`, {
-      responseType: "blob",
-    });
+    const response = await api.get(
+      `/events/export/event/${eventId}/attendees`,
+      {
+        responseType: "blob",
+      }
+    );
 
     // Create a URL for the blob
     const blob = new Blob([response.data], {
@@ -49,25 +53,12 @@ export const handleExport = async (setIsExporting: React.Dispatch<React.SetState
 
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     toast.success("File download started!", toastOptions as any);
-  } catch (err) {
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const error = err as { response?: { data?: any; status?: number } };
-    let errorMessage = "Export failed. Please try again.";
-
-    // Error responses for 'blob' requests are also blobs,
-    // must try to parse them as text, then JSON.
-    if (error.response?.data instanceof Blob) {
-      try {
-        const errorText = await error.response.data.text();
-        const errorJson = JSON.parse(errorText);
-        errorMessage = errorJson.error || errorMessage;
-      } catch (parseError) {
-        console.error("Could not parse blob error response", parseError);
-      }
-    } else if (error.response?.data?.error) {
-      // Handle standard JSON error
-      errorMessage = error.response.data.error;
-    }
+  } catch (err:any) {
+    const errorMessage =
+      err?.response?.data?.error ||
+      err?.message ||
+      "Export failed. Please try again.";
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
     toast.error(errorMessage, toastOptions as any);
   } finally {
