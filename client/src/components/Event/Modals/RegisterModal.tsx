@@ -7,6 +7,7 @@ import { Typography, Box } from "@mui/material";
 import { api } from "@/api";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { capitalizeName } from "@/components/shared/input-fields/utils";
 import { toast } from "react-toastify";
 
 interface RegisterEventModalProps {
@@ -112,7 +113,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
 
   const onSubmit = async (values: any, actions: any) => {
     const payload = {
-      name: values.name,
+      name: capitalizeName(String(values.name ?? ""), false),
       email: values.email,
     };
     paymentOpen();
@@ -165,7 +166,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
                  <CustomTextField
                 id={`name-${eventId}`}
                 label="Name"
-                fieldType="text"
+                fieldType="name"
                 placeholder={name}
                 name="name"
                 value={values.name}

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
@@ -24,6 +25,9 @@ import { WorkshopViewProps } from "@/components/Event/types";
 import { useAuth } from "@/context/AuthContext";
 import VendorParticipationRequests from "@/components/EventsOffice/VendorRequests/VendorParticipationRequests";
 import Wallet from "@/components/Wallet/Wallet";
+import VectorFloating from "@/components/shared/VectorFloating";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import ScaledViewport from "@/components/layout/ScaledViewport";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,6 +56,70 @@ const getUserEntitySegment = (user: any): string => {
   }
 
   return "student"; // ultimate fallback
+};
+
+const SignedOutFallback = ({
+  onGoToLogin,
+}: {
+  onGoToLogin: () => void;
+}) => {
+  const [showAction, setShowAction] = useState(false);
+
+  useEffect(() => {
+    const hintTimer = window.setTimeout(() => setShowAction(true), 1200);
+    return () => window.clearTimeout(hintTimer);
+  }, []);
+
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-4 py-12 text-gray-900">
+      <div className="absolute inset-0 -z-10 opacity-45">
+        <VectorFloating />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-white/40 bg-white/80 p-10 text-center shadow-2xl backdrop-blur-xl">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/70 shadow-inner">
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-4 border-[#6299d0] border-t-transparent"
+            aria-hidden="true"
+          />
+        </div>
+
+        <h1 className="text-2xl font-semibold text-gray-900">Redirecting to sign in</h1>
+        <p className="mt-3 text-sm text-gray-600">
+          We safely closed your session. Hang tight while we guide you back to the
+          login screen.
+        </p>
+
+        <CustomButton
+          variant="contained"
+          color="primary"
+          onClick={onGoToLogin}
+          label={showAction ? "Open login" : "Take me to login"}
+          sx={{
+            mt: 6,
+            width: "100%",
+            maxWidth: 240,
+            mx: "auto",
+            fontWeight: 700,
+          }}
+        />
+
+        <p className="mt-4 text-xs text-gray-500">
+          Not seeing the login page? Tap the button above or use the quick link
+          below.
+        </p>
+
+        <p className="mt-2 text-xs font-semibold">
+          <Link
+            href="/login"
+            className="text-[#6299d0] transition-colors duration-200 hover:text-[#4c82b9]"
+          >
+            Open login in a new view
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default function EntityCatchAllPage() {
@@ -99,6 +167,20 @@ const roleMap: Record<string, { tab: string; section: string }> = {
   "events-office": { tab: "events", section: "all-events" },
   admin: { tab: "users", section: "all-users" },
 };
+  const handleGoToLogin = useCallback(() => {
+    router.replace("/login");
+  }, [router]);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      const redirectTimer = window.setTimeout(handleGoToLogin, 1800);
+      return () => window.clearTimeout(redirectTimer);
+    }
+  }, [isLoading, user, handleGoToLogin]);
+
+  // Redirect only if URL entity doesn't match user's actual role AND we're not already on a valid path
+  useEffect(() => {
+    if (isLoading || !user) return;
 
 // Use a more specific type for user (partial, as backend shape is dynamic)
 interface UserLike {
@@ -198,6 +280,9 @@ function getValidTabSection(user: UserLike) {
   if (showLoginRedirect) {
     // Don't show not-found for public routes, just redirect handled above
     return null;
+  // Transition screen if the user is signed out
+  if (!user) {
+    return <SignedOutFallback onGoToLogin={handleGoToLogin} />;
   }
 
   // Use the correct entity (from user data, not URL)
@@ -608,7 +693,7 @@ function getValidTabSection(user: UserLike) {
   };
 
   return (
-    <>
+    <ScaledViewport scale={0.95}>
       <EntityNavigation user={user}>{renderContent()}</EntityNavigation>
       {redirecting && (
         <div style={{
@@ -621,6 +706,6 @@ function getValidTabSection(user: UserLike) {
           <AnimatedLoading />
         </div>
       )}
-    </>
+    </ScaledViewport>
   );
 }

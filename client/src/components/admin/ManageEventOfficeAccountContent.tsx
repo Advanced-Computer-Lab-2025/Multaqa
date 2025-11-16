@@ -20,6 +20,7 @@ import {
   handleDeleteAccount,
   fetchAdminAccounts,
 } from "./utils";
+import { capitalizeName } from "../shared/input-fields/utils";
 
 export default function ManageEventOfficeAccountContent() {
   const theme = useTheme();
@@ -61,7 +62,16 @@ export default function ManageEventOfficeAccountContent() {
     validationSchema: accountCreationSchema,
     onSubmit: async (values) => {
       try {
-        await handleCreateAccount(values, setAccounts, handleCloseCreate);
+        const normalizedValues = {
+          ...values,
+          fullName: capitalizeName(String(values.fullName ?? ""), false),
+        };
+
+        await handleCreateAccount(
+          normalizedValues,
+          setAccounts,
+          handleCloseCreate
+        );
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create account";
@@ -319,7 +329,7 @@ export default function ManageEventOfficeAccountContent() {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               <CustomTextField
                 label="Full Name"
-                fieldType="text"
+                fieldType="name"
                 placeholder="Enter full name"
                 name="fullName"
                 value={formik.values.fullName}
