@@ -157,16 +157,17 @@ export default function EntityCatchAllPage() {
   // Get the correct entity segment from backend user data
   const correctEntitySegment = getUserEntitySegment(user);
 
-// Helper: Get valid tabs/sections for current user role
-const roleMap: Record<string, { tab: string; section: string }> = {
-  student: { tab: "events", section: "browse-events" },
-  vendor: { tab: "opportunities", section: "bazaars" },
-  staff: { tab: "events", section: "browse-events" },
-  ta: { tab: "events", section: "browse-events" },
-  professor: { tab: "workshops", section: "my-workshops" },
-  "events-office": { tab: "events", section: "all-events" },
-  admin: { tab: "users", section: "all-users" },
-};
+  // Helper: Get valid tabs/sections for current user role
+  const roleMap: Record<string, { tab: string; section: string }> = {
+    student: { tab: "events", section: "browse-events" },
+    vendor: { tab: "opportunities", section: "bazaars" },
+    staff: { tab: "events", section: "browse-events" },
+    ta: { tab: "events", section: "browse-events" },
+    professor: { tab: "workshops", section: "my-workshops" },
+    "events-office": { tab: "events", section: "all-events" },
+    admin: { tab: "users", section: "all-users" },
+  };
+
   const handleGoToLogin = useCallback(() => {
     router.replace("/login");
   }, [router]);
@@ -178,31 +179,28 @@ const roleMap: Record<string, { tab: string; section: string }> = {
     }
   }, [isLoading, user, handleGoToLogin]);
 
-  // Redirect only if URL entity doesn't match user's actual role AND we're not already on a valid path
-  useEffect(() => {
-    if (isLoading || !user) return;
-
-// Use a more specific type for user (partial, as backend shape is dynamic)
-interface UserLike {
-  role?: string;
-  position?: string;
-  roleType?: string;
-}
-function getValidTabSection(user: UserLike) {
-  if (!user) return { tab: "", section: "" };
-  let roleKey = "student";
-  if (user.role === "student") roleKey = "student";
-  else if (user.role === "vendor") roleKey = "vendor";
-  else if (user.role === "staffMember") {
-    if ("position" in user && user.position === "professor") roleKey = "professor";
-    else if ("position" in user && user.position === "TA") roleKey = "ta";
-    else roleKey = "staff";
-  } else if (user.role === "administration") {
-    if ("roleType" in user && user.roleType === "eventsOffice") roleKey = "events-office";
-    else roleKey = "admin";
+  // Use a more specific type for user (partial, as backend shape is dynamic)
+  interface UserLike {
+    role?: string;
+    position?: string;
+    roleType?: string;
   }
-  return roleMap[roleKey] || roleMap["student"];
-}
+
+  function getValidTabSection(user: UserLike) {
+    if (!user) return { tab: "", section: "" };
+    let roleKey = "student";
+    if (user.role === "student") roleKey = "student";
+    else if (user.role === "vendor") roleKey = "vendor";
+    else if (user.role === "staffMember") {
+      if ("position" in user && user.position === "professor") roleKey = "professor";
+      else if ("position" in user && user.position === "TA") roleKey = "ta";
+      else roleKey = "staff";
+    } else if (user.role === "administration") {
+      if ("roleType" in user && user.roleType === "eventsOffice") roleKey = "events-office";
+      else roleKey = "admin";
+    }
+    return roleMap[roleKey] || roleMap["student"];
+  }
 
   // Login redirect effect
   useEffect(() => {
@@ -280,6 +278,8 @@ function getValidTabSection(user: UserLike) {
   if (showLoginRedirect) {
     // Don't show not-found for public routes, just redirect handled above
     return null;
+  }
+
   // Transition screen if the user is signed out
   if (!user) {
     return <SignedOutFallback onGoToLogin={handleGoToLogin} />;
