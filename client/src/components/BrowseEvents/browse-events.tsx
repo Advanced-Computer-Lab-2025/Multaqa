@@ -20,10 +20,10 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
-
 import { deleteEvent, frameData } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
-import CreationHubDropdown from "../createButton/CreationHubDropdown";
+import MenuOptionComponent from "../createButton/MenuOptionComponent";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
@@ -38,7 +38,7 @@ import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   userInfo: any;
   userID: string;
 }
@@ -70,7 +70,7 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-const filterGroups: FilterGroup[] = [
+const getFilterGroups = (userRole: string): FilterGroup[] => [
   {
     id: "eventType",
     title: "Event Type",
@@ -83,6 +83,16 @@ const filterGroups: FilterGroup[] = [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
+  ...(userRole !== "vendor"
+    ? [
+        {
+          id: "attendance",
+          title: "My Status",
+          type: "chip" as const,
+          options: [{ label: "Attended", value: "attended" }],
+        },
+      ]
+    : []),
 ];
 
 const EventColor = [
@@ -115,6 +125,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   userInfo,
   userID,
 }) => {
+  console.log(userInfo);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
@@ -124,63 +135,34 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
-  const [UserInfo, setUserInfo] = useState<{
-    id: string;
-    name: string;
-    email: string;
-  }>({ id: userID, name: "", email: "" });
-  const [isReady, setReady] = useState(false);
-  const getUserData = useCallback(() => {
-    if (!userInfo) {
-      return;
+  const registeredEvents = userInfo.registeredEvents;
+  // Separate effect for loading events
+  useEffect(() => {
+    if (!registered) {
+      handleCallAPI();
+    } else {
+      handleRegistered();
     }
+  }, [registered, refresh]);
 
-    const userRecord = {
-      id: userInfo._id,
-      name: `${userInfo.firstName ?? ""} ${userInfo.lastName ?? ""}`.trim(),
-      email: userInfo.email ?? "",
-    };
-    setUserInfo(userRecord);
-    setReady(true);
-  }, [userInfo]);
-
-  type RegisteredEventRef = { _id?: string };
-  const registeredEvents: RegisteredEventRef[] = useMemo(
-    () =>
-      Array.isArray(userInfo?.registeredEvents)
-        ? (userInfo.registeredEvents as RegisteredEventRef[])
-        : [],
-    [userInfo?.registeredEvents]
-  );
-
-  const registeredEventIds = useMemo(
-    () =>
-      registeredEvents
-        .map((eventRef) => eventRef?._id)
-        .filter((id): id is string => Boolean(id)),
-    [registeredEvents]
-  );
-
-  const handleRegistered = useCallback(() => {
+  
+  const handleRegistered = () => {
     setLoading(true);
-    if (registeredEvents.length === 0) {
-      setEvents([]);
-      setLoading(false);
-      return;
-    }
-    const result = frameData(registeredEvents);
+    const registeredEvents = userInfo.registeredEvents;
+    const result = frameData(registeredEvents, userInfo);
+    console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
-  }, [registeredEvents]);
+  };
 
-  const handleCallAPI = useCallback(async () => {
+  async function handleCallAPI() {
     try {
       setLoading(true);
       setError(null);
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
-        const result = frameData(data);
+        const result = frameData(data, userInfo);
         const newResults =
           user === "vendor"
             ? result.filter((event) => event.type === "bazaar")
@@ -193,19 +175,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [registered, user]);
-
-  useEffect(() => {
-    getUserData();
-  }, [getUserData]);
-
-  useEffect(() => {
-    if (!registered) {
-      handleCallAPI();
-    } else {
-      handleRegistered();
-    }
-  }, [registered, refresh, handleCallAPI, handleRegistered]);
+  }
 
   const handleDeleteEvent = async (eventId: string) => {
     try {
@@ -234,6 +204,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       filtered = filtered.filter((event) =>
         ["bazaar", "trip", "conference"].includes(event.type)
       );
+    }
+    // Apply attendance filter
+    if (
+      filters.attendance &&
+      (filters.attendance as string[]).includes("attended")
+    ) {
+      filtered = filtered.filter((event) => event.attended === true);
     }
 
     // Apply search filter
@@ -280,7 +257,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
 
     return filtered;
-  }, [searchQuery, filters, events, user]);
+  }, [searchQuery, filters, events]);
 
   const handleFilterChange = useCallback(
     (groupId: string, value: FilterValue) => {
@@ -297,32 +274,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setSearchQuery("");
   }, []);
 
-  const creationHubOptions = useMemo(
-    () => [
-      {
-        label: "Bazaar",
-        icon: StorefrontIcon,
-        color: "#e91e63",
-        description: "Plan a vendor marketplace",
-        onSelect: () => setBazaar(true),
-      },
-      {
-        label: "Trip",
-        icon: FlightTakeoffIcon,
-        color: "#6e8ae6",
-        description: "Organize an off-campus journey",
-        onSelect: () => setTrip(true),
-      },
-      {
-        label: "Conference",
-        icon: EventIcon,
-        color: "#ff9800",
-        description: "Host an academic gathering",
-        onSelect: () => setConference(true),
-      },
-    ],
-    [setBazaar, setTrip, setConference]
-  );
+  const Eventoptions = [
+    { label: "Bazaars", icon: StorefrontIcon },
+    { label: "Trips", icon: FlightTakeoffIcon },
+    { label: "Conference", icon: EventIcon },
+  ];
+  const EventOptionsSetters = [setBazaar, setTrip, setConference];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -342,9 +299,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.WORKSHOP:
@@ -363,10 +320,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEventIds.includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.BAZAAR:
@@ -383,10 +340,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEventIds.includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.BOOTH:
@@ -403,10 +360,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEventIds.includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.TRIP:
@@ -422,10 +379,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEventIds.includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       default:
@@ -483,18 +440,16 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         </Box>
         <FilterPanel
-          filterGroups={filterGroups}
+          filterGroups={getFilterGroups(user)}
           onFilterChange={handleFilterChange}
           currentFilters={filters}
           onReset={handleResetFilters}
         />
         {user === "events-only" && (
-          <Box sx={{ ml: "auto" }}>
-            <CreationHubDropdown
-              options={creationHubOptions}
-              helperText="Start something new"
-            />
-          </Box>
+          <MenuOptionComponent
+            options={Eventoptions}
+            setters={EventOptionsSetters}
+          />
         )}
       </Box>
 

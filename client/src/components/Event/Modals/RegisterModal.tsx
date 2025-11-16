@@ -11,13 +11,13 @@ import { capitalizeName } from "@/components/shared/input-fields/utils";
 import { toast } from "react-toastify";
 
 interface RegisterEventModalProps {
-  userInfo: { id: string; name: string; email: string };
+  userInfo: {firstName:string, lastName:string, email:string};
   open: boolean;
   onClose: () => void;
   eventType: string;
-  isReady: boolean;
   eventId: string;
   color:string;
+  paymentOpen:() => void;
 }
 
 const validationSchema = Yup.object({
@@ -36,17 +36,18 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   open,
   onClose,
   eventType,
-  isReady,
   eventId,
-  color
+  color,
+  paymentOpen
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const name = (userInfo.firstName+" "+userInfo.lastName);
 
   const initialValues = {
-    name: isReady ? userInfo.name : "",
-    email: isReady ? userInfo.email : "",
+    name: (userInfo.firstName+" "+userInfo.lastName),
+    email:  userInfo.email
   };
  const handleCallApi = async (payload: any) => {
   try {
@@ -115,12 +116,13 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
       name: capitalizeName(String(values.name ?? ""), false),
       email: values.email,
     };
-    await handleCallApi(payload); 
+    paymentOpen();
+    //await handleCallApi(payload); 
 
     actions.resetForm();
       setTimeout(() => {
            onClose()
-     }, 1500);
+     }, 400);
    
   };
   const {
@@ -165,7 +167,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
                 id={`name-${eventId}`}
                 label="Name"
                 fieldType="name"
-                placeholder={userInfo.name}
+                placeholder={name}
                 name="name"
                 value={values.name}
                 onChange={handleChange('name')}
@@ -196,7 +198,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
               <CustomTextField
                 id={`email-${eventId}`}
                 label="Email"
-                fieldType="email"
+                fieldType="text"
                 placeholder={userInfo.email}
                 name="email"
                 value={values.email}
