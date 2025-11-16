@@ -501,6 +501,17 @@ export default function EntityNavigation({
 
   // If only /stakeholder is visited, redirect to default tab/section
   React.useEffect(() => {
+    // Fallback: if tab or section is not found, redirect to not-found page
+    const tabExists = tab === "" || config.tabs.some((t) => t.key === tab);
+    const sectionExists =
+      tab === "" || section === "" ||
+      (config.tabs.find((t) => t.key === tab)?.sections || []).some((s) => s.id === section);
+
+    if (!tabExists || !sectionExists) {
+      router.replace("/not-found");
+      return;
+    }
+
     if (
       segments.length === 1 &&
       stakeholder === userRoleKey &&
@@ -508,7 +519,7 @@ export default function EntityNavigation({
     ) {
       router.replace(`/${userRoleKey}/${config.defaultTab}/${config.defaultSection}`);
     }
-  }, [segments, stakeholder, userRoleKey, config.defaultTab, config.defaultSection, router]);
+  }, [segments, stakeholder, userRoleKey, config, tab, section, router]);
 
   // Get tab configuration
   const tabItems: TabItem[] = config.tabs;
