@@ -74,6 +74,16 @@ export default function EntityCatchAllPage() {
   // Track if login redirect should be shown
   const showLoginRedirect = !user && !isLoading;
 
+  // Track last valid public route for unauthenticated users
+  useEffect(() => {
+    if (!user && !isLoading) {
+      // Only track public routes (not /login, not /register, not /404, not /error)
+      if (!pathname.match(/\/login|\/register|\/404|\/error/)) {
+        sessionStorage.setItem("lastValidPublicRoute", pathname);
+      }
+    }
+  }, [pathname, user, isLoading]);
+
   // Get the correct entity segment from backend user data
   const correctEntitySegment = getUserEntitySegment(user);
 
@@ -113,6 +123,14 @@ function getValidTabSection(user: UserLike) {
   // Login redirect effect
   useEffect(() => {
     if (showLoginRedirect) {
+      // If route is invalid for public user, redirect to last valid public route
+      const lastValidPublicRoute = sessionStorage.getItem("lastValidPublicRoute") || "/";
+      // If current route is not valid (e.g., too many segments, or not a known public route)
+      if (segments.length > 3 || pathname.match(/\/404|\/error/)) {
+        router.replace(lastValidPublicRoute);
+        return;
+      }
+      // Otherwise, show login redirect as before
       if (countdown <= 0) {
         router.replace("/login");
         return;
@@ -129,7 +147,7 @@ function getValidTabSection(user: UserLike) {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [showLoginRedirect, countdown, router]);
+  }, [showLoginRedirect, countdown, router, pathname, segments]);
 
   // Route validation and redirect effect
   useEffect(() => {
@@ -171,32 +189,8 @@ function getValidTabSection(user: UserLike) {
   }
 
   if (showLoginRedirect) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-        <div className="max-w-2xl w-full text-center">
-          <div className="mb-8">
-            <svg className="mx-auto" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="60" cy="60" r="56" stroke="#6299d0" strokeWidth="8" fill="#fff" />
-              <text x="60" y="75" fontSize="32" fontWeight="bold" fill="#6299d0" textAnchor="middle">🔒</text>
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Redirecting to Login</h1>
-          <p className="text-lg text-gray-600 mb-2">You need to log in to access this page.</p>
-          <div className="mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white shadow-lg border-4 border-blue-500 mb-4">
-              <span className="text-2xl font-bold text-blue-600">{countdown}</span>
-            </div>
-            <p className="text-sm text-gray-600">Redirecting in {countdown} second{countdown !== 1 ? "s" : ""}...</p>
-          </div>
-          <button
-            onClick={() => router.replace("/login")}
-            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105"
-          >
-            Go to Login Now
-          </button>
-        </div>
-      </div>
-    );
+    // Don't show not-found for public routes, just redirect handled above
+    return null;
   }
 
   // Use the correct entity (from user data, not URL)
