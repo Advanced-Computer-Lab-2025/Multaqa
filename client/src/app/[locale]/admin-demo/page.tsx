@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import EventOfficeAccountsContent from "@/components/admin/EventOfficeAccountsContent";
+import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOfficeAccountContent";
 import RoleAssignmentContent from "@/components/admin/RoleAssignmentContent";
 import SidebarNavigation from "@/components/layout/SidebarNavigation";
 
@@ -60,7 +60,7 @@ export default function AdminDemoPage() {
         >
           {activeSection === "role-assignment" && <RoleAssignmentContent />}
           {activeSection === "event-office-accounts" && (
-            <EventOfficeAccountsContent />
+            <ManageEventOfficeAccountContent />
           )}
         </Box>
       </Box>
