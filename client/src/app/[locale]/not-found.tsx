@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 
 // Helper: Get stakeholder default route
 // disabled-next-line @typescript-eslint/no-explicit-any
-const getDefaultRoute = (user: any): string => {
+const getDefaultRoute = (user: any): string => { // disabled-next-line @typescript-eslint/no-explicit-any
   if (!user) return "/";
 
   const roleMap: Record<string, { entity: string; tab: string; section: string }> = {

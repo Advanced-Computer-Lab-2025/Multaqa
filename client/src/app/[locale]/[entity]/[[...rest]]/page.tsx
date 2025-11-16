@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import NotFound from "../../not-found";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
@@ -63,46 +64,137 @@ export default function EntityCatchAllPage() {
   const router = useRouter();
   const entityFromUrl = params.entity ?? "";
   const segments = pathname.split("/").filter(Boolean);
-  // const entity = segments[0] || "";
   const tab = segments[1] || "";
   const section = segments[2] || "";
-  console.log("EntityCatchAllPage segments:", segments);
-  console.log("EntityCatchAllPage tab:", tab);
-  console.log("EntityCatchAllPage section:", section);
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
   const { user, isLoading } = useAuth();
   const userId = String(user?._id);
+  const [countdown, setCountdown] = useState(3);
+  // Track if login redirect should be shown
+  const showLoginRedirect = !user && !isLoading;
 
   // Get the correct entity segment from backend user data
   const correctEntitySegment = getUserEntitySegment(user);
 
-  // Redirect only if URL entity doesn't match user's actual role AND we're not already on a valid path
-  useEffect(() => {
-    if (isLoading || !user) return;
+// Helper: Get valid tabs/sections for current user role
+const roleMap: Record<string, { tab: string; section: string }> = {
+  student: { tab: "events", section: "browse-events" },
+  vendor: { tab: "opportunities", section: "bazaars" },
+  staff: { tab: "events", section: "browse-events" },
+  ta: { tab: "events", section: "browse-events" },
+  professor: { tab: "workshops", section: "my-workshops" },
+  "events-office": { tab: "events", section: "all-events" },
+  admin: { tab: "users", section: "all-users" },
+};
 
-    // If the entity in URL doesn't match the user's actual role, redirect
-    if (entityFromUrl && entityFromUrl !== correctEntitySegment) {
-      const newPath = `/${correctEntitySegment}`;
-      router.replace(newPath);
+// Use a more specific type for user (partial, as backend shape is dynamic)
+interface UserLike {
+  role?: string;
+  position?: string;
+  roleType?: string;
+}
+function getValidTabSection(user: UserLike) {
+  if (!user) return { tab: "", section: "" };
+  let roleKey = "student";
+  if (user.role === "student") roleKey = "student";
+  else if (user.role === "vendor") roleKey = "vendor";
+  else if (user.role === "staffMember") {
+    if ("position" in user && user.position === "professor") roleKey = "professor";
+    else if ("position" in user && user.position === "TA") roleKey = "ta";
+    else roleKey = "staff";
+  } else if (user.role === "administration") {
+    if ("roleType" in user && user.roleType === "eventsOffice") roleKey = "events-office";
+    else roleKey = "admin";
+  }
+  return roleMap[roleKey] || roleMap["student"];
+}
+
+  // Login redirect effect
+  useEffect(() => {
+    if (showLoginRedirect) {
+      if (countdown <= 0) {
+        router.replace("/login");
+        return;
+      }
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            router.replace("/login");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
     }
-    // If we're on the correct entity but no tab/section, redirect to default
-    else if (entityFromUrl === correctEntitySegment && !tab) {
-      // This will be handled by EntityNavigation's useEffect
-      return;
+  }, [showLoginRedirect, countdown, router]);
+
+  // Route validation and redirect effect
+  useEffect(() => {
+    if (user && !isLoading) {
+      // If entity doesn't match, redirect (existing logic)
+      if (entityFromUrl && entityFromUrl !== correctEntitySegment) {
+        const newPath = `/${correctEntitySegment}`;
+        router.replace(newPath);
+        return;
+      }
+      // If too many segments (e.g., /en/professor/workshops/my-workshops/asd)
+      if (segments.length > 3) {
+        // Only keep up to /locale/entity/tab/section
+        const validBase = `/${segments[0]}/${segments[1]}/${segments[2]}`;
+        router.replace(validBase);
+        return;
+      }
+      // If tab/section is invalid, redirect to default for stakeholder
+      const valid = getValidTabSection(user);
+      // If tab is invalid
+      if (tab && valid.tab !== tab) {
+        router.replace(`/${segments[0]}/${valid.tab}/${valid.section}`);
+        return;
+      }
+      // If section is invalid
+      if (tab && section && valid.section !== section) {
+        router.replace(`/${segments[0]}/${tab}/${valid.section}`);
+        return;
+      }
+      // If no tab, let navigation handle default
     }
-  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, tab]);
+    // getValidTabSection is defined outside component, so no need to add to deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, tab, section, segments]);
 
   // Show loading state
   if (isLoading) {
     return <LoadingBlocks />;
   }
 
-  // Show error if no user
-  if (!user) {
+  if (showLoginRedirect) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Please log in to continue</p>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+        <div className="max-w-2xl w-full text-center">
+          <div className="mb-8">
+            <svg className="mx-auto" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="60" cy="60" r="56" stroke="#6299d0" strokeWidth="8" fill="#fff" />
+              <text x="60" y="75" fontSize="32" fontWeight="bold" fill="#6299d0" textAnchor="middle">🔒</text>
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Redirecting to Login</h1>
+          <p className="text-lg text-gray-600 mb-2">You need to log in to access this page.</p>
+          <div className="mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white shadow-lg border-4 border-blue-500 mb-4">
+              <span className="text-2xl font-bold text-blue-600">{countdown}</span>
+            </div>
+            <p className="text-sm text-gray-600">Redirecting in {countdown} second{countdown !== 1 ? "s" : ""}...</p>
+          </div>
+          <button
+            onClick={() => router.replace("/login")}
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 transform hover:scale-105"
+          >
+            Go to Login Now
+          </button>
+        </div>
       </div>
     );
   }

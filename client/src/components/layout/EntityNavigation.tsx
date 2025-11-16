@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import SidebarNavigation from "./SidebarNavigation";
 import TopNavigation from "./TopNavigation";
 import Tabs from "./Tabs";
@@ -492,6 +492,28 @@ export default function EntityNavigation({
   const tab = segments[1] || "";
   const section = segments[2] || "";
 
+    // Track last valid route in sessionStorage
+    useEffect(() => {
+      // Get current path segments
+      if (typeof window !== "undefined" && user) {
+        const path = window.location.pathname;
+        // Only store if route is valid (matches a tab/section for the user's role)
+        const roleKey = getUserRoleKey(user);
+        const config = roleNavigationConfig[roleKey];
+        if (config) {
+          const segments = path.split("/").filter(Boolean);
+          // Find tab and section in path
+          const tab = segments[2] || "";
+          const section = segments[3] || "";
+          const validTab = config.tabs.find(t => t.key === tab);
+          const validSection = validTab && validTab.sections ? validTab.sections.find(s => s.id === section) : null;
+          // If valid tab/section, store route
+          if (validTab && (validSection || !validTab.sections || validTab.sections.length === 0)) {
+            sessionStorage.setItem("lastValidRoute", path);
+          }
+        }
+      }
+    }, [user]);
   // Get role key from backend user
   const userRoleKeyUnformated = getUserRoleKey(user);
   const userRoleKey = userRoleKeyUnformated.toLowerCase();
