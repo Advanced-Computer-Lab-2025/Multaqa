@@ -14,21 +14,9 @@ export const StyledWrapper = styled("div")`
     overflow: hidden;
     z-index: 1;
     transition: all 250ms;
-    cursor: pointer; /* Added cursor pointer */
+    cursor: pointer; 
+    width: 270px;
   }
-
-  /* This CSS rule was for the hidden input, so it's no longer needed.
-    I've removed it.
-  */
-  /*
-  .container-btn-file input[type="file"] {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-  }
-  */
 
   .container-btn-file > svg {
     margin-right: 1em;

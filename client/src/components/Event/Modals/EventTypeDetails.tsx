@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from "react";
 import { Box, Typography } from '@mui/material';
 import ConferenceDetails from './Details/ConferenceDetails';
 import WorkshopDetails from './Details/WorkshopDetails';
@@ -9,16 +9,18 @@ import BoothDetails from './Details/BoothDetails';
 import TripDetails from './Details/TripDetails';
 import { mapDetailsToType } from './utils/detailsMapper';
 import ExportButton from '@/components/shared/ExportButton/ExportButton';
+import { handleExport } from './utils/index';
 
 interface EventTypeDetailsProps {
   type: string;
   details: Record<string, any>;
   color: string;
+  eventId: string;
 }
 
-
-const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, color }) => {
+const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, color, eventId }) => {
   const mappedDetails = mapDetailsToType(type, details, color);
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!mappedDetails) {
     return (
@@ -52,9 +54,9 @@ const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, colo
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
         {type.toLowerCase() !== "conference" && (
           <ExportButton
-            onClick={() => {
-            }}
-            sx={{ width: "fit-content", mr: 3}}
+            isLoading={isExporting}
+            sx={{ mr: 3 }}
+            onClick={() => handleExport(setIsExporting, eventId)}
           />
         )}
       </Box>
