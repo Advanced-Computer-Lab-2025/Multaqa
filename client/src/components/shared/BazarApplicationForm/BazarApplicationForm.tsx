@@ -393,7 +393,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                                         name={`bazaarAttendees.${index}.name`}
                                         id={`bazaarAttendees.${index}.name`}
                                         label="Full Name"
-                                        fieldType="text"
+                                        fieldType="name"
                                         width="100%"
                                         value={attendee.name}
                                         onChange={(e) => {
