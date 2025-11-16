@@ -1,13 +1,15 @@
 import React from "react";
+import { SxProps, Theme } from "@mui/system";
 import { StyledWrapper } from "./styles";
 
 type ExportButtonProps = {
   onClick: () => void;
+  sx?: SxProps<Theme>;
 };
 
-const ExportButton = ({ onClick }: ExportButtonProps) => {
+const ExportButton = ({ onClick, sx }: ExportButtonProps) => {
   return (
-    <StyledWrapper>
+    <StyledWrapper sx={sx}>
       <div>
         <button className="container-btn-file" onClick={onClick}>
           <svg

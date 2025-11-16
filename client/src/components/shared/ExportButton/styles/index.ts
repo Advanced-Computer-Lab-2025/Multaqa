@@ -6,14 +6,13 @@ export const StyledWrapper = styled("div")`
     position: relative;
     justify-content: center;
     align-items: center;
-    background-color: #307750;
+    background-color: #4caf50;
     color: #fff;
     border-style: none;
-    padding: 1em 2em;
+    padding: 0.75em 1.1em;
     border-radius: 0.5em;
     overflow: hidden;
     z-index: 1;
-    box-shadow: 4px 8px 10px -3px rgba(0, 0, 0, 0.356);
     transition: all 250ms;
     cursor: pointer; /* Added cursor pointer */
   }

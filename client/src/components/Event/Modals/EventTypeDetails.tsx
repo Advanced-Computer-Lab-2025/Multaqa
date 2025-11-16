@@ -8,6 +8,7 @@ import BazaarDetails from './Details/BazaarDetails';
 import BoothDetails from './Details/BoothDetails';
 import TripDetails from './Details/TripDetails';
 import { mapDetailsToType } from './utils/detailsMapper';
+import ExportButton from '@/components/shared/ExportButton/ExportButton';
 
 interface EventTypeDetailsProps {
   type: string;
@@ -45,8 +46,18 @@ const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, colo
   };
 
   return (
-    <Box sx={{ overflowY: 'auto', maxHeight: '400px', p: 2 }}>
+    <Box sx={{ p: 2 }}>
       {renderContent()}
+
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        {type.toLowerCase() !== "conference" && (
+          <ExportButton
+            onClick={() => {
+            }}
+            sx={{ width: "fit-content", mr: 3}}
+          />
+        )}
+      </Box>
     </Box>
   );
 };
