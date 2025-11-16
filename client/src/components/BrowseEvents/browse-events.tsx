@@ -326,6 +326,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       case EventType.BAZAAR:
@@ -347,6 +348,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       case EventType.BOOTH:
@@ -388,6 +390,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       default:

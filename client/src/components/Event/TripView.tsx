@@ -32,6 +32,7 @@ const TripView: React.FC<BazarViewProps> = ({
   userInfo,
   attended,
   datePassed,
+  registrationPassed,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -139,29 +140,31 @@ const TripView: React.FC<BazarViewProps> = ({
                       </CustomButton>
                     ) : (
                       // User is not registered - show register button
-                      <CustomButton
-                        size="small"
-                        variant="contained"
-                        sx={{ 
-                          borderRadius: 999,
-                          backgroundColor: `${background}40`,
-                          color: background,
-                          borderColor: background,
-                          fontWeight: 600,
-                          px: 3,
-                          textTransform: "none",
-                          boxShadow: `0 4px 14px ${background}40`,
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            backgroundColor: `${background}50`,
-                            transform: "translateY(-2px)",
-                            boxShadow: `0 6px 20px ${background}50`,
-                          },
-                        }}
-                        onClick={() => setRegister(true)}
-                      >
-                        Register
-                      </CustomButton>
+                      !(registrationPassed) && (
+                        <CustomButton
+                          size="small"
+                          variant="contained"
+                          sx={{ 
+                            borderRadius: 999,
+                            backgroundColor: `${background}40`,
+                            color: background,
+                            borderColor: background,
+                            fontWeight: 600,
+                            px: 3,
+                            textTransform: "none",
+                            boxShadow: `0 4px 14px ${background}40`,
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: `${background}50`,
+                              transform: "translateY(-2px)",
+                              boxShadow: `0 6px 20px ${background}50`,
+                            },
+                          }}
+                          onClick={() => setRegister(true)}
+                        >
+                          Register
+                        </CustomButton>
+                      )
                     )}
                   </>
                 )
@@ -279,30 +282,31 @@ const TripView: React.FC<BazarViewProps> = ({
                         Cancel Registration
                       </CustomButton>
                     ) : (
-                      // User is not registered - show register button
-                      <CustomButton
-                        size="small"
-                        variant="contained"
-                        sx={{ 
-                          borderRadius: 999,
-                          backgroundColor: `${background}40`,
-                          color: background,
-                          borderColor: background,
-                          fontWeight: 600,
-                          px: 3,
-                          textTransform: "none",
-                          boxShadow: `0 4px 14px ${background}40`,
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            backgroundColor: `${background}50`,
-                            transform: "translateY(-2px)",
-                            boxShadow: `0 6px 20px ${background}50`,
-                          },
-                        }}
-                        onClick={() => setRegister(true)}
-                      >
-                        Register
-                      </CustomButton>
+                      !(registrationPassed) && (
+                        <CustomButton
+                          size="small"
+                          variant="contained"
+                          sx={{ 
+                            borderRadius: 999,
+                            backgroundColor: `${background}40`,
+                            color: background,
+                            borderColor: background,
+                            fontWeight: 600,
+                            px: 3,
+                            textTransform: "none",
+                            boxShadow: `0 4px 14px ${background}40`,
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                              backgroundColor: `${background}50`,
+                              transform: "translateY(-2px)",
+                              boxShadow: `0 6px 20px ${background}50`,
+                            },
+                          }}
+                          onClick={() => setRegister(true)}
+                        >
+                          Register
+                        </CustomButton>
+                      )
                     )}
                   </>
                 )
