@@ -487,21 +487,28 @@ export default function EntityNavigation({
   const segments = pathname.split("/").filter(Boolean);
   // const locale = segments[0] || "en";
 
+  // Detect stakeholder from path (first segment)
+  const stakeholder = segments[0] || "";
   const tab = segments[1] || "";
   const section = segments[2] || "";
-
-  // console.log("EntityNavigation segments:", segments);
-  // console.log("EntityNavigation entity:", entity);
-  // console.log("EntityNavigation tab:", tab);
-  // console.log("EntityNavigation section:", section);
 
   // Get role key from backend user
   const userRoleKeyUnformated = getUserRoleKey(user);
   const userRoleKey = userRoleKeyUnformated.toLowerCase();
   const userData = formatUserData(user);
-
   const config: RoleConfig =
     roleNavigationConfig[userRoleKey] ?? roleNavigationConfig["student"];
+
+  // If only /stakeholder is visited, redirect to default tab/section
+  React.useEffect(() => {
+    if (
+      segments.length === 1 &&
+      stakeholder === userRoleKey &&
+      config.defaultTab && config.defaultSection
+    ) {
+      router.replace(`/${userRoleKey}/${config.defaultTab}/${config.defaultSection}`);
+    }
+  }, [segments, stakeholder, userRoleKey, config.defaultTab, config.defaultSection, router]);
 
   // Get tab configuration
   const tabItems: TabItem[] = config.tabs;
