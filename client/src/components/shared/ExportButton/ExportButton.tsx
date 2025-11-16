@@ -16,13 +16,13 @@ const ExportButton = ({ onClick, sx, isLoading = false }: ExportButtonProps) => 
         onClick={onClick}
         disabled={isLoading} // Disable button when loading
         width="100%"
-        height="100%"
+        height="30"
         sx={{ borderColor: "#4caf50", color: "#4caf50", ...sx }}
       >
         {isLoading ? (
           <>
             {/* Show spinner and text when loading */}
-            <CircularProgress size={20} color="inherit" sx={{ mr: 1.5 }} />
+            <CircularProgress size={30} color="inherit" sx={{ mr: 1.5 }} />
             Exporting...
           </>
         ) : (
