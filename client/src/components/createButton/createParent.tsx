@@ -3,6 +3,7 @@
 "use client";
 import React, { useState, Dispatch, SetStateAction } from 'react';
 import { Box, Collapse, IconButton, Typography } from '@mui/material';
+import { keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import { SvgIconComponent } from '@mui/icons-material';
 
@@ -30,6 +31,39 @@ const BUTTON_LABEL_TEXT = "+ Create New";
 const MENU_TITLE_TEXT = "Create New";
 
 // The component now accepts props: options, setters, and setRefresh
+const liftAndBloom = keyframes`
+  0% {
+    transform: translateY(-6px) scale(0.8, 0.92);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  55% {
+    transform: translateY(-18px) scale(1.04, 1.02);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translateY(-12px) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+`;
+
+const haloReveal = keyframes`
+  0% {
+    opacity: 0.6;
+    transform: scale(0.7);
+  }
+  70% {
+    opacity: 0.15;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+`;
+
 const CreateParent: React.FC<CreateParentProps> = ({ options, setters}) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -74,8 +108,9 @@ const CreateParent: React.FC<CreateParentProps> = ({ options, setters}) => {
       >
         <Collapse
           in={isOpen}
-          timeout={300}
+          timeout={450}
           unmountOnExit
+          easing="cubic-bezier(0.16, 1, 0.3, 1)"
           sx={{
             '& .MuiCollapse-wrapperInner': {
               display: 'flex',
@@ -87,10 +122,22 @@ const CreateParent: React.FC<CreateParentProps> = ({ options, setters}) => {
             sx={{
               padding: 2,
               borderRadius: 3,
-              boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+              boxShadow: '0 18px 40px rgba(15, 23, 42, 0.25)',
               backgroundColor:'theme.background',
-              width:'240px',
+              width:'250px',
               position: 'relative',
+              transformOrigin: 'top center',
+              animation: isOpen ? `${liftAndBloom} 520ms cubic-bezier(0.19, 1, 0.22, 1) both` : 'none',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                inset: '-8px',
+                borderRadius: '24px',
+                border: '1px solid rgba(94, 234, 212, 0.4)',
+                pointerEvents: 'none',
+                opacity: 0,
+                animation: isOpen ? `${haloReveal} 720ms ease-out forwards` : 'none',
+              },
             }}
           >
             {/* Animated Title Container */}
