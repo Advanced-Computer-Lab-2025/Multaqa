@@ -291,7 +291,8 @@ export class VendorEventsService {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    vendor.requestedEvents[requestIndex].status = status as Event_Request_Status;
+    vendor.requestedEvents[requestIndex].status =
+      status as Event_Request_Status;
     vendor.markModified("requestedEvents");
     await vendor.save();
 
@@ -334,11 +335,11 @@ export class VendorEventsService {
     await sendApplicationStatusEmail(
       vendor.email,
       vendor.companyName,
-      event.type === EVENT_TYPES.BAZAAR ? 'bazaar' : 'booth',
+      event.type === EVENT_TYPES.BAZAAR ? "bazaar" : "booth",
       event.eventName,
-      status === 'approved' ? 'accepted' : 'rejected',
-      status === 'rejected' ? event.RequestData?.rejectionReason : undefined,
-      status === 'approved' ? event.RequestData?.nextSteps : undefined
+      status === "approved" ? "accepted" : "rejected",
+      status === "rejected" ? event.RequestData?.rejectionReason : undefined,
+      status === "approved" ? event.RequestData?.nextSteps : undefined
     );
     await event.save();
   }
@@ -398,5 +399,96 @@ export class VendorEventsService {
     return Object.values(BOOTH_LOCATIONS).filter(
       (booth) => !reservedBooths.has(booth)
     );
+  }
+
+  /**
+   * Allows a vendor to cancel their participation in an event if they haven't paid yet
+   * Vendors can cancel when status is PENDING or PENDING_PAYMENT
+   * Once status is APPROVED (payment completed), cancellation is not allowed
+   * @param vendorId vendor's ID
+   * @param eventId event's ID
+   * @returns void
+   */
+  async cancelEventParticipation(
+    vendorId: string,
+    eventId: string
+  ): Promise<void> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    const event = await this.eventRepo.findById(eventId);
+
+    if (!vendor || !event) {
+      throw createError(404, "Vendor or Event not found");
+    }
+
+    // Find the vendor's request for this event
+    const requestIndex = vendor.requestedEvents.findIndex(
+      (req) => req.event?.toString() === eventId.toString()
+    );
+
+    if (requestIndex === -1) {
+      throw createError(404, "Vendor has not applied to this event");
+    }
+
+    const vendorRequest = vendor.requestedEvents[requestIndex];
+
+
+    // For bazaar, log the vendor entry in the event
+    if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
+      const vendorInEvent = event.vendors.find(
+        (ve) => ve.vendor?.toString() === vendorId.toString()
+      );
+      if (vendorInEvent) {
+        console.log(
+          "Bazaar Vendor Entry Status:",
+          vendorInEvent.RequestData?.status
+        );
+      }
+    }
+    console.log("===================================");
+
+    // Check if the vendor has already paid (status is APPROVED)
+    if (vendorRequest.status === Event_Request_Status.APPROVED) {
+      throw createError(
+        400,
+        "Cannot cancel - payment has already been completed for this event"
+      );
+    }
+
+    // Allow cancellation if status is PENDING or PENDING_PAYMENT
+    if (
+      vendorRequest.status !== Event_Request_Status.PENDING &&
+      vendorRequest.status !== Event_Request_Status.PENDING_PAYMENT
+    ) {
+      throw createError(
+        400,
+        `Cannot cancel event with status: ${vendorRequest.status}. Only PENDING or PENDING_PAYMENT requests can be cancelled.`
+      );
+    }
+
+    // Remove the request from vendor's requestedEvents
+    vendor.requestedEvents.splice(requestIndex, 1);
+    vendor.markModified("requestedEvents");
+    await vendor.save({ validateBeforeSave: false });
+
+    // Update the event based on type
+    if (event.type === EVENT_TYPES.BAZAAR) {
+      // Remove vendor from bazaar's vendors list
+      const vendorIndex = event.vendors?.findIndex(
+        (ve) => ve.vendor?.toString() === vendorId.toString()
+      );
+
+      if (vendorIndex !== -1 && vendorIndex !== undefined && event.vendors) {
+        event.vendors.splice(vendorIndex, 1);
+        event.markModified("vendors");
+        await event.save();
+      }
+    } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      // For platform booth, delete the event entirely since it was created for this vendor
+      if (event.vendor?.toString() === vendorId.toString()) {
+        await this.eventRepo.delete(eventId);
+      } else {
+        throw createError(404, "Vendor not found in this platform booth event");
+      }
+    }
   }
 }

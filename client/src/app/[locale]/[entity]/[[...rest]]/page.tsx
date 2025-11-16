@@ -370,7 +370,7 @@ export default function EntityCatchAllPage() {
 
     if(["student", "staff", "ta", "professor"].includes(entity) && tab === "wallet"){
       if(section === "overview" || section === ""){
-        return<Wallet />;
+        return<Wallet  userID={userId} userInfo={user}/>;
       }
     }
 

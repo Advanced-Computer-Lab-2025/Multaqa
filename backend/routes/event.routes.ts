@@ -352,8 +352,13 @@ router.post(
 router.get(
   "/:eventId/reviews",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN]
+    userRoles: [UserRole.ADMINISTRATION,UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
   }),
   getAllReviewsByEvent
 );

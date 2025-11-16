@@ -38,7 +38,7 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
     try{
       const res = await api.get(`/events/workshops`);
       const data = res.data.data;
-      const result = frameData(data);
+      const result = frameData(data, null);
       setRequests(result);
       console.log(data);
       }
