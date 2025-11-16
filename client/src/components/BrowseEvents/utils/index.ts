@@ -17,9 +17,6 @@ export const frameData = (data: any, userInfo:any) => {
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
-const flattenId = (profs:{ id: string }[])=>{
-  return profs.map(prof => `${prof.id}`);
-}
 const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
   return vendors.map(vendor =>vendor.vendor);
 }

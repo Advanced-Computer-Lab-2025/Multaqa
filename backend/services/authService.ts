@@ -100,6 +100,7 @@ export class AuthService {
         password: hashedPassword,
         registeredAt: new Date(),
         updatedAt: new Date(),
+        verifiedAt: new Date(),
         isVerified: true, // Verification of vendors is done in person, nothing is done on the system
         role: UserRole.VENDOR,
       });

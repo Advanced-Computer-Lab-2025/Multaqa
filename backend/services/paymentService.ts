@@ -45,6 +45,31 @@ export class PaymentService {
   }
 
   /**
+   * Validate if user can register for an event
+   * @param event - Event to validate registration for
+   * @param userId - User ID attempting to register
+   * @throws Error if user cannot register
+   */
+  private validateUserRegistrationEligibility(
+    event: IEvent,
+    userId: string
+  ): void {
+    // Check if registration deadline has passed
+    if (new Date() > new Date(event.registrationDeadline)) {
+      throw createError(400, "Registration deadline has passed for this event");
+    }
+
+    // Check if user is already registered
+    const isAlreadyRegistered = event.attendees?.some((attendee: any) => {
+      const attendeeId = attendee._id || attendee;
+      return attendeeId.toString() === userId.toString();
+    });
+    if (isAlreadyRegistered) {
+      throw createError(409, "User already registered for this event");
+    }
+  }
+
+  /**
    * Create a Stripe checkout session for an event
    * @param params - Checkout session parameters
    * @param expectedTypes - Array of allowed event types
@@ -82,6 +107,9 @@ export class PaymentService {
         `Event is not one of: ${expectedTypes.join(", ")}`
       );
     }
+
+    // Validate user registration eligibility
+    this.validateUserRegistrationEligibility(event, userId);
 
     // Validate event price
     const price = typeof event.price === "number" ? event.price : undefined;
@@ -226,6 +254,9 @@ export class PaymentService {
     if (!event) {
       throw createError(404, "Event not found");
     }
+
+    // Validate user registration eligibility
+    this.validateUserRegistrationEligibility(event, userId);
 
     // Check if event has a price
     if (event.price === undefined || event.price === null) {
