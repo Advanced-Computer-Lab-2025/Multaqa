@@ -60,6 +60,14 @@ export class GymSessionsService {
     });
   }
 
+  async cancelGymSession(sessionId: string): Promise<void> {
+    const deleted = await this.gymSessionRepo.delete(sessionId);
+    if (!deleted) {
+      throw new Error("Gym session not found");
+    }
+    return;
+  }
+
   async editGymSession(
     sessionId: string,
     updateData: { date?: string; time?: string; duration?: number }

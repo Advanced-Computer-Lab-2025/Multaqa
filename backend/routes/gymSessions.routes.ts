@@ -69,41 +69,6 @@ async function getAllGymSessions(
   }
 }
 
-async function editGymSession(req: Request, res: Response) {
-  try {
-    const { sessionId } = req.params;
-
-    if (!sessionId) {
-      throw createError(400, "Session ID is required");
-    }
-
-    const { value, error } = editGymSessionValidationSchema.validate(req.body);
-
-    if (error) {
-      const errorMessages = error.details
-        .map((detail) => detail.message)
-        .join("; ");
-      throw createError(400, errorMessages);
-    }
-
-    const updatedSession = await gymSessionsService.editGymSession(
-      sessionId,
-      value
-    );
-
-    res.json({
-      success: true,
-      data: updatedSession,
-      message: "Gym session updated successfully",
-    });
-  } catch (err: any) {
-    throw createError(
-      err.status || 400,
-      err.message || "Error updating gym session"
-    );
-  }
-}
-
 const router = Router();
 router.get(
   "/",
@@ -129,14 +94,6 @@ router.post(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   createGymSession
-);
-router.patch(
-  "/:sessionId",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
-  }),
-  editGymSession
 );
 
 export default router;

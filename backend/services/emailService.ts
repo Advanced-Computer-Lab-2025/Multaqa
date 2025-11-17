@@ -115,15 +115,25 @@ export const sendCertificateOfAttendanceEmail = async (
   workshopName: string,
   certificateBuffer: Buffer
 ) => {
+
+  const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+
   const html = getCertificateOfAttendanceTemplate(
     username,
     workshopName,
-    certificateBuffer
   );
   await sendEmail({
     to: userEmail,
     subject: "🎓 Your Certificate of Attendance - Multaqa",
     html,
+     attachments: [   
+    {
+      filename: `Certificate_${username.replace(/[^a-zA-Z0-9]/g, '_')}_${workshopName.replace(/[^a-zA-Z0-9]/g, '_')}_${randomId}.pdf`,
+      content: certificateBuffer,  
+      contentType: 'application/pdf',
+      disposition: 'attachment' 
+    }
+  ]
   });
 };
 

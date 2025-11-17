@@ -20,7 +20,6 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
-
 import { deleteEvent, frameData } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
@@ -150,7 +149,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const handleRegistered = () => {
     setLoading(true);
     const registeredEvents = userInfo.registeredEvents;
-    const result = frameData(registeredEvents, userID);
+    const result = frameData(registeredEvents, userInfo);
     console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
@@ -163,7 +162,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
-        const result = frameData(data, userID);
+        const result = frameData(data, userInfo);
         const newResults =
           user === "vendor"
             ? result.filter((event) => event.type === "bazaar")
