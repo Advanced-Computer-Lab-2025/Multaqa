@@ -378,6 +378,11 @@ export class EventsService {
     console.log(userId);
     event.attendees?.push(userId);
     await event.save();
+
+    // Add event to user's registered events
+    const eventObjectId = event._id as mongoose.Schema.Types.ObjectId;
+    await this.userService.addEventToUser(userId, eventObjectId);
+
     return event;
   }
 

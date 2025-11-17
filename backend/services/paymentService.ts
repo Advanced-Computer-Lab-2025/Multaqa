@@ -328,6 +328,8 @@ export class PaymentService {
     }
     //remove user from event attendees
     await this.eventsService.removeAttendeeFromEvent(eventId, userId);
+    // remove event from user's registered events
+    await this.userService.removeEventFromUserRegistrations(userId, eventId);
 
     // Refund amount to user's wallet
     await this.userService.addToWallet(userId, event.price);
