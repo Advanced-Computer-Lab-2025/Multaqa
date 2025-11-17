@@ -8,7 +8,7 @@ export const handleExport = async (
   setIsExporting(true);
   try {
     const response = await api.get(
-      `/events/export/event/${eventId}/attendees`,
+      `/events/export/${eventId}/attendees`,
       {
         responseType: "blob",
       }
