@@ -30,18 +30,25 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomAccordion from "@/components/shared/Accordions/CustomAccordion";
 import CustomModalLayout from "@/components/shared/modals/CustomModalLayout";
 import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
+import { motion, AnimatePresence } from "framer-motion";
+import LoginForm from "@/components/shared/LoginForm/LoginForm";
+import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
+import HomeIcon from "@mui/icons-material/Home";
+
+// Create a MotionBox component for animating sx props
+const MotionBox = motion(Box);
 
 const consentStorageKey = "multaqa-consent-v1";
 
 const signUpOptions = [
   {
     label: "Join as University Member",
-    href: "/register?userType=university-member",
+    userType: "university-member", // Changed from href
     description: "Access exclusive campus events and resources.",
   },
   {
     label: "Join as Vendor",
-    href: "/register?userType=vendor",
+    userType: "vendor", // Changed from href
     description: "Collaborate with GUC events and bazaars.",
   },
 ];
@@ -118,13 +125,36 @@ export default function HomePage() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
-  const [isPageExiting] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
+  const [userType, setUserType] = useState<string>("");
+  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
+    "home"
+  );
+
+  // A helper boolean for state-based animations
+  const isHome = currentView === "home";
+
+  const handleLoginClick = () => {
+    setCurrentView("login");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRegisterClick = (type: string) => {
+    setUserType(type);
+    setCurrentView("register");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleHomeClick = () => {
+    setCurrentView("home");
+    setUserType("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -358,6 +388,12 @@ export default function HomePage() {
           <Typography
             component={Link}
             href="/"
+            onClick={(e) => {
+              if (currentView !== "home") {
+                e.preventDefault();
+                handleHomeClick();
+              }
+            }}
             variant="h6"
             sx={{
               textDecoration: "none",
@@ -365,6 +401,7 @@ export default function HomePage() {
               fontFamily: "var(--font-jost), system-ui, sans-serif",
               fontWeight: 600,
               letterSpacing: "0.08em",
+              cursor: "pointer",
             }}
           >
             MULTAQA
@@ -381,6 +418,51 @@ export default function HomePage() {
               spacing={3}
               sx={{ display: { xs: "none", md: "flex" } }}
             >
+              {currentView !== "home" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <IconButton
+                    onClick={handleHomeClick}
+                    aria-label="Go to home"
+                    sx={{
+                      height: 40,
+                      borderRadius: 14,
+                      px: 2,
+                      border: `1px solid ${alpha(
+                        theme.palette.text.primary,
+                        0.12
+                      )}`,
+                      backgroundColor: alpha(theme.palette.common.white, 0.75),
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.9,
+                      "&:hover": {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      },
+                    }}
+                  >
+                    <HomeIcon
+                      sx={{
+                        fontSize: 18,
+                        color: alpha(theme.palette.text.primary, 0.7),
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      Home
+                    </Typography>
+                  </IconButton>
+                </motion.div>
+              )}
+
               <IconButton
                 onClick={openLocaleModal}
                 aria-label="Change locale"
@@ -430,30 +512,31 @@ export default function HomePage() {
                 Support
               </Typography>
 
-              <CustomButton
-                variant="contained"
-                component={Link}
-                href="/login"
-                label="Login"
-                size="small"
-                sx={{
-                  px: 2.4,
-                  height: 40,
-                  width: "auto",
-                  fontWeight: 700,
-                  backgroundColor: theme.palette.tertiary.main,
-                  color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.tertiary.dark}`,
-                  "&:hover": {
-                    backgroundColor: theme.palette.primary.main,
-                    borderColor: theme.palette.primary.dark,
-                  },
-                  boxShadow: `0 10px 24px ${alpha(
-                    theme.palette.tertiary.main,
-                    0.3
-                  )}`,
-                }}
-              />
+              {currentView === "home" && (
+                <CustomButton
+                  variant="contained"
+                  onClick={handleLoginClick}
+                  label="Login"
+                  size="small"
+                  sx={{
+                    px: 2.4,
+                    height: 40,
+                    width: "auto",
+                    fontWeight: 700,
+                    backgroundColor: theme.palette.tertiary.main,
+                    color: theme.palette.tertiary.contrastText,
+                    border: `2px solid ${theme.palette.tertiary.dark}`,
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.main,
+                      borderColor: theme.palette.primary.dark,
+                    },
+                    boxShadow: `0 10px 24px ${alpha(
+                      theme.palette.tertiary.main,
+                      0.3
+                    )}`,
+                  }}
+                />
+              )}
             </Stack>
 
             <IconButton
@@ -513,7 +596,10 @@ export default function HomePage() {
                   borderRadius: 2,
                   textDecoration: "none",
                   backgroundColor: alpha(theme.palette.primary.light, 0.05),
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  border: `1px solid ${alpha(
+                    theme.palette.primary.main,
+                    0.1
+                  )}`,
                   "&:hover": {
                     backgroundColor: alpha(theme.palette.tertiary.main, 0.25),
                   },
@@ -553,10 +639,10 @@ export default function HomePage() {
         <Stack spacing={3.5} sx={{ px: { xs: 1, sm: 2 }, py: 1 }}>
           {/* Header Section */}
           <Stack spacing={2} alignItems="center">
-            <Typography 
-              component="h2" 
-              variant="h4" 
-              sx={{ 
+            <Typography
+              component="h2"
+              variant="h4"
+              sx={{
                 fontWeight: 700,
                 textAlign: "center",
                 fontSize: { xs: "1.75rem", sm: "2rem" },
@@ -566,7 +652,7 @@ export default function HomePage() {
             </Typography>
             <Typography
               variant="body1"
-              sx={{ 
+              sx={{
                 color: alpha(theme.palette.text.primary, 0.75),
                 textAlign: "center",
                 lineHeight: 1.65,
@@ -642,7 +728,7 @@ export default function HomePage() {
           {/* Footer Note */}
           <Typography
             variant="body2"
-            sx={{ 
+            sx={{
               color: alpha(theme.palette.text.primary, 0.6),
               textAlign: "center",
               lineHeight: 1.6,
@@ -655,11 +741,7 @@ export default function HomePage() {
           </Typography>
 
           {/* Action Buttons */}
-          <Stack
-            direction="column"
-            spacing={1.25}
-            sx={{ pt: 0.5 }}
-          >
+          <Stack direction="column" spacing={1.25} sx={{ pt: 0.5 }}>
             <CustomButton
               variant="contained"
               onClick={handleAcceptConsent}
@@ -681,7 +763,7 @@ export default function HomePage() {
               variant="outlined"
               color="primary"
               onClick={handleDismissConsent}
-              sx={{ 
+              sx={{
                 width: "100%",
                 py: 0.75,
               }}
@@ -878,7 +960,10 @@ export default function HomePage() {
                 p: { xs: 3, md: 4 },
                 borderRadius: 4,
                 background: alpha(theme.palette.primary.light, 0.12),
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                border: `1px solid ${alpha(
+                  theme.palette.primary.main,
+                  0.12
+                )}`,
                 display: "flex",
                 flexDirection: "column",
                 gap: 2.5,
@@ -1114,9 +1199,18 @@ export default function HomePage() {
         </Container>
       </Box>
 
+      {/* ================================================================
+      === 
+      === HERO / AUTH ANIMATION SECTION
+      === 
+      ================================================================
+      */}
       <Box
         component="section"
-        sx={{ position: "relative", overflow: "visible" }}
+        sx={{
+          position: "relative",
+          overflow: "hidden", // CRITICAL: Hides the components sliding in/out
+        }}
       >
         <Container
           maxWidth="lg"
@@ -1125,753 +1219,948 @@ export default function HomePage() {
             pb: { xs: 10, md: 14 },
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "center", md: "center" },
-          gap: { xs: 7, md: 10 },
-          textAlign: { xs: "center", md: "left" },
-          }}
-        >
-        <Box
-          sx={{
-            flex: { md: 1 },
+            alignItems: { xs: "stretch", md: "center" }, // Use stretch
+            gap: { xs: 7, md: 5 }, // Animated gap
+            textAlign: { xs: "center", md: "left" },
             position: "relative",
-            zIndex: 1,
-            width: "100%",
-            maxWidth: { xs: 560, md: "100%" },
+            minHeight: { md: "calc(500px + 20vh)" }, // Ensure space for forms
           }}
         >
+          {/* ---
+          --- BLOCK 1: Hero Text / Auth Form (Swappable)
+          ---
+          AnimatePresence handles swapping the Hero Text with the Auth Form
+          */}
+          <AnimatePresence mode="wait">
+            {isHome ? (
+              <motion.div
+                key="hero"
+                initial={{ opacity: 0, x: "-50%" }}
+                animate={{ opacity: 1, x: "0%" }}
+                exit={{ opacity: 0, x: "-50%" }}
+                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+                style={{
+                  flex: 1,
+                  minWidth: 0, // Fix for flex shrinking
+                  // Handle mobile view
+                  display: isHome ? "block" : "none",
+                }}
+              >
+                <HeroContent
+                  theme={theme}
+                  isMobile={isMobile}
+                  handleLoginClick={handleLoginClick}
+                  handleRegisterClick={handleRegisterClick}
+                  signUpHoverRef={signUpHoverRef}
+                  signUpHoverTimeout={signUpHoverTimeout}
+                  showSignUpOptions={showSignUpOptions}
+                  setShowSignUpOptions={setShowSignUpOptions}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="auth"
+                initial={{ opacity: 0, x: "50%" }}
+                animate={{ opacity: 1, x: "0%" }}
+                exit={{ opacity: 0, x: "50%" }}
+                transition={{
+                  duration: 0.6,
+                  ease: [0.4, 0, 0.2, 1],
+                  delay: 0.4, // <-- DELAY ADDED
+                }}
+                style={{
+                  flex: 1.2, // Takes more space
+                  width: "100%", // Full width on mobile
+                  minWidth: 0,
+                  // Handle mobile view
+                  display: isHome ? "none" : "block",
+                }}
+              >
+                <AuthForm
+                  currentView={currentView}
+                  userType={userType}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ---
+          --- BLOCK 2: Shapes (Persistent & Animated)
+          ---
+          This block is *always* rendered, but its sx props change.
+          The `layout` prop tells Framer to animate those changes.
+          */}
+          <Shapes
+            theme={theme}
+            isHome={isHome}
+          />
+        </Container>
+      </Box>
+      {/* ================================================================
+      === 
+      === END HERO / AUTH ANIMATION SECTION
+      === 
+      ================================================================
+      */}
+
+      {/* The rest of the page sections are only visible when on the home view
+      We wrap them in a Box that is hidden when currentView is not 'home'
+      */}
+      <Box sx={{ display: isHome ? "block" : "none" }}>
+        <Box
+          component="section"
+          sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.common.white }}
+        >
+          <Container maxWidth="lg">
             <Typography
-              variant="overline"
+              component="h2"
+              variant="h3"
               sx={{
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                color: theme.palette.primary.dark,
+                textAlign: "center",
                 fontWeight: 600,
+                fontSize: { xs: "2.1rem", md: "2.6rem" },
               }}
             >
-              Multaqa • GUC
-            </Typography>
-            <Typography
-              component="h1"
-              variant="h1"
-              sx={{
-                fontSize: { xs: "2.75rem", md: "3.75rem" },
-                fontWeight: 600,
-                letterSpacing: { xs: "0.4px", md: "1px" },
-                lineHeight: 1.1,
-                color: theme.palette.text.primary,
-                mt: 2,
-                textAlign: { xs: "center", md: "left" },
-              }}
-            >
-              Artful events for every voice on campus.
+              A curated space for collaboration and celebration.
             </Typography>
             <Typography
               variant="body1"
               sx={{
-                mt: 3,
-                maxWidth: { xs: 560, md: 520 },
-                color: alpha(theme.palette.text.primary, 0.75),
-                fontSize: { xs: "1rem", md: "1.1rem" },
-                mx: { xs: "auto", md: 0 },
+                maxWidth: 640,
+                mx: "auto",
+                textAlign: "center",
+                mt: 2.5,
+                color: alpha(theme.palette.text.primary, 0.7),
               }}
             >
-              Multaqa reimagines campus life with a vibrant hub for showcasing
-              events, workshops, and cultural experiences inspired by the GUC
-              community.
+              Multaqa streamlines event planning, registration, and discovery, so
+              every voice on campus can connect through meaningful experiences.
             </Typography>
 
             <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2.5}
+              direction={{ xs: "column", md: "row" }}
+              spacing={3}
               sx={{
-                mt: 5,
-                width: "100%",
-                alignItems: { xs: "stretch", sm: "center", md: "flex-start" },
-                justifyContent: { xs: "center", md: "flex-start" },
+                mt: { xs: 6, md: 8 },
+                alignItems: "stretch",
               }}
             >
-              <CustomButton
-                variant="contained"
-                component={Link}
-                href="/login"
-                label="Login"
-                sx={{
-                  width: { xs: "100%", sm: "160px" },
-                  fontWeight: 700,
-                  backgroundColor: theme.palette.tertiary.main,
-                  color: theme.palette.tertiary.contrastText,
-                  border: `2px solid ${theme.palette.tertiary.dark}`,
-                  "&:hover": {
-                    backgroundColor: theme.palette.primary.main,
-                    borderColor: theme.palette.primary.dark,
-                  },
-                }}
-                endIcon={<ArrowForwardIcon />}
-              />
-
-              <Box
-                ref={signUpHoverRef}
-                onMouseEnter={() => {
-                  if (isMobile) {
-                    return;
-                  }
-                  if (signUpHoverTimeout.current) {
-                    clearTimeout(signUpHoverTimeout.current);
-                    signUpHoverTimeout.current = null;
-                  }
-                  setShowSignUpOptions(true);
-                }}
-                onMouseLeave={(event) => {
-                  if (isMobile) {
-                    return;
-                  }
-                  const nextTarget = event.relatedTarget as Node | null;
-                  if (
-                    nextTarget &&
-                    signUpHoverRef.current?.contains(nextTarget)
-                  ) {
-                    return;
-                  }
-                  if (signUpHoverTimeout.current) {
-                    clearTimeout(signUpHoverTimeout.current);
-                  }
-                  signUpHoverTimeout.current = setTimeout(() => {
-                    setShowSignUpOptions(false);
-                    signUpHoverTimeout.current = null;
-                  }, 150);
-                }}
-                sx={{
-                  position: "relative",
-                  width: { xs: "100%", sm: "200px" },
-                  maxWidth: "100%",
-                }}
-              >
-                <CustomButton
-                  variant="outlined"
-                  color="primary"
-                  label="Sign Up"
-                  endIcon={<ArrowOutwardIcon />}
-                  onClick={() => {
-                    if (isMobile) {
-                      setShowSignUpOptions((prev) => !prev);
-                    }
-                  }}
-                  aria-haspopup="true"
-                  aria-expanded={showSignUpOptions}
-                  sx={{
-                    width: "100%",
-                    fontWeight: 700,
-                    backdropFilter: "blur(4px)",
-                  }}
-                />
-
+              {featureHighlights.map((feature) => (
                 <Paper
-                  elevation={8}
-                  onMouseEnter={() => {
-                    if (isMobile) {
-                      return;
-                    }
-                    if (signUpHoverTimeout.current) {
-                      clearTimeout(signUpHoverTimeout.current);
-                      signUpHoverTimeout.current = null;
-                    }
-                    setShowSignUpOptions(true);
-                  }}
-                  onMouseLeave={(event) => {
-                    if (isMobile) {
-                      return;
-                    }
-                    const nextTarget = event.relatedTarget as Node | null;
-                    if (
-                      nextTarget &&
-                      signUpHoverRef.current?.contains(nextTarget)
-                    ) {
-                      return;
-                    }
-                    if (signUpHoverTimeout.current) {
-                      clearTimeout(signUpHoverTimeout.current);
-                    }
-                    signUpHoverTimeout.current = setTimeout(() => {
-                      setShowSignUpOptions(false);
-                      signUpHoverTimeout.current = null;
-                    }, 150);
-                  }}
+                  key={feature.title}
+                  elevation={0}
                   sx={{
-                    position: "absolute",
-                    top: { xs: "72px", sm: "54px" },
-                    left: 0,
-                    width: { xs: "100%", sm: 260 },
-                    borderRadius: 3,
-                    p: 2,
-                    background: theme.palette.common.white,
-                    boxShadow: `0 18px 40px ${alpha(
+                    flex: 1,
+                    p: { xs: 3.5, md: 4 },
+                    borderRadius: 4,
+                    border: `1px solid ${alpha(
                       theme.palette.primary.main,
-                      0.18
+                      0.15
                     )}`,
-                    opacity: showSignUpOptions ? 1 : 0,
-                    transform: showSignUpOptions
-                      ? "translateY(0)"
-                      : "translateY(-10px)",
-                    pointerEvents: showSignUpOptions ? "auto" : "none",
-                    transition: "all 0.28s ease",
-                    zIndex: 60,
-                  }}
-                >
-                  <Stack spacing={1.5}>
-                    {signUpOptions.map((option) => (
-                      <Box
-                        key={option.label}
-                        component={Link}
-                        href={option.href}
-                        sx={{
-                          borderRadius: 2,
-                          p: 1.5,
-                          display: "block",
-                          color: theme.palette.text.primary,
-                          textDecoration: "none",
-                          transition: "background 0.2s ease",
-                  "&:hover": {
-                            background: alpha(
-                              theme.palette.primary.main,
-                              0.35
-                            ),
-                          },
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {option.label}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: alpha(theme.palette.text.primary, 0.7),
-                            mt: 0.5,
-                          }}
-                        >
-                          {option.description}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Stack>
-                </Paper>
-              </Box>
-            </Stack>
-          </Box>
-
-          <Box
-            sx={{
-              flex: { md: 1 },
-              position: "relative",
-              minHeight: { xs: 300, sm: 380, md: 420 },
-              width: "100%",
-              maxWidth: { xs: 520, md: "100%" },
-              mx: { xs: "auto", md: 0 },
-              opacity: isPageExiting ? 0 : 1,
-              transition: "opacity 0.5s ease-out",
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: 6,
-                background: `linear-gradient(135deg, ${alpha(
-                  theme.palette.primary.main,
-                  0.12
-                )}, ${alpha(theme.palette.tertiary.main, 0.25)})`,
-                filter: "blur(60px)",
-                zIndex: 0,
-              }}
-            />
-
-            <Box
-              sx={{
-                position: "relative",
-                height: "100%",
-                display: "grid",
-                gridTemplateColumns: "repeat(6, 1fr)",
-                gridTemplateRows: "repeat(6, 1fr)",
-                gap: { xs: 9, sm: 12, md: 14 },
-                animation: isPageExiting
-                  ? "exitToLoading 0.8s ease-in-out forwards"
-                  : "none",
-                "@keyframes exitToLoading": {
-                  "0%": { transform: "translateX(0) scale(1)", opacity: 1 },
-                  "100%": {
-                    transform: "translateX(-50%) scale(0.6)",
-                    opacity: 0,
-                  },
-                },
-              }}
-            >
-              <Box
-                sx={{
-                  gridColumn: "1 / span 2",
-                  gridRow: "1 / span 3",
-                  borderRadius: "999px",
-                  bgcolor: theme.palette.primary.main,
-                  animation: "floatSlow 9s ease-in-out infinite",
-                  animationDelay: "0s",
-                  "@keyframes floatSlow": {
-                    "0%, 100%": { transform: "translateY(0px)" },
-                    "50%": { transform: "translateY(-8px)" },
-                  },
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "3 / span 3",
-                  gridRow: "1 / span 2",
-                  borderRadius: 2,
-                  bgcolor: theme.palette.secondary.main,
-                  animation: "floatMed 11s ease-in-out infinite",
-                  animationDelay: "0.8s",
-                  "@keyframes floatMed": {
-                    "0%, 100%": { transform: "translateY(0px)" },
-                    "50%": { transform: "translateY(12px)" },
-                  },
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "6 / span 1",
-                  gridRow: "1 / span 2",
-                  borderRadius: "20px",
-                  bgcolor: theme.palette.tertiary.main,
-                  animation: "floatFast 7.5s ease-in-out infinite",
-                  animationDelay: "0.4s",
-                  "@keyframes floatFast": {
-                    "0%, 100%": { transform: "translateY(0px)" },
-                    "50%": { transform: "translateY(-5px)" },
-                  },
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "1 / span 2",
-                  gridRow: "4 / span 2",
-                  borderRadius: 2,
-                  bgcolor: theme.palette.tertiary.dark,
-                  animation: "floatSlow 10s ease-in-out infinite",
-                  animationDelay: "1.1s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "4 / span 2",
-                  gridRow: "3 / span 3",
-                  borderRadius: "50%",
-                  bgcolor: theme.palette.primary.light,
-                  animation: "floatMed 12s ease-in-out infinite",
-                  animationDelay: "0.2s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "3 / span 1",
-                  gridRow: "4 / span 3",
-                  bgcolor: theme.palette.tertiary.dark,
-                  borderRadius: 1,
-                  animation: "floatFast 8.5s ease-in-out infinite",
-                  animationDelay: "1.6s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "5 / span 2",
-                  gridRow: "5 / span 2",
-                  borderRadius: "999px",
-                  // Mirror the pink accent used in gym sessions for a consistent highlight
-                  bgcolor: "#e91e63",
-                  animation: "floatSlow 13s ease-in-out infinite",
-                  animationDelay: "0.6s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "2 / span 2",
-                  gridRow: "3 / span 2",
-                  bgcolor: "transparent",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: "80%",
-                    height: 6,
-                    bgcolor: theme.palette.common.black,
-                    borderRadius: 3,
-                    animation: "floatFast 9.5s ease-in-out infinite",
-                    animationDelay: "1.3s",
-                  }}
-                />
-              </Box>
-              <Box
-                sx={{
-                  gridColumn: "2 / span 1",
-                  gridRow: "6 / span 1",
-                  width: "70%",
-                  justifySelf: "center",
-                  borderRadius: 1,
-                  bgcolor: theme.palette.tertiary.main,
-                  animation: "floatMed 11.5s ease-in-out infinite",
-                  animationDelay: "0.9s",
-                }}
-              />
-              <Box
-                sx={{
-                  gridColumn: "6 / span 1",
-                  gridRow: "3 / span 3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 12,
+                    background: alpha(theme.palette.primary.light, 0.04),
                     height: "100%",
-                    bgcolor: theme.palette.text.primary,
-                    borderRadius: 999,
-                    animation: "floatFast 10.5s ease-in-out infinite",
-                    animationDelay: "0.5s",
-                  }}
-                />
-              </Box>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-
-      <Box
-        component="section"
-        sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.common.white }}
-      >
-        <Container maxWidth="lg">
-          <Typography
-            component="h2"
-            variant="h3"
-            sx={{
-              textAlign: "center",
-              fontWeight: 600,
-              fontSize: { xs: "2.1rem", md: "2.6rem" },
-            }}
-          >
-            A curated space for collaboration and celebration.
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              maxWidth: 640,
-              mx: "auto",
-              textAlign: "center",
-              mt: 2.5,
-              color: alpha(theme.palette.text.primary, 0.7),
-            }}
-          >
-            Multaqa streamlines event planning, registration, and discovery, so
-            every voice on campus can connect through meaningful experiences.
-          </Typography>
-
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={3}
-            sx={{
-              mt: { xs: 6, md: 8 },
-              alignItems: "stretch",
-            }}
-          >
-            {featureHighlights.map((feature) => (
-              <Paper
-                key={feature.title}
-                elevation={0}
-                sx={{
-                  flex: 1,
-                  p: { xs: 3.5, md: 4 },
-                  borderRadius: 4,
-                  border: `1px solid ${alpha(
-                    theme.palette.primary.main,
-                    0.15
-                  )}`,
-                  background: alpha(theme.palette.primary.light, 0.04),
-                  height: "100%",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    bgcolor: alpha(theme.palette.primary.main, 0.4),
-                    color: theme.palette.tertiary.dark,
-                    mb: 2.5,
                   }}
                 >
-                  {feature.icon}
-                </Box>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
-                  {feature.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
-                >
-                  {feature.copy}
-                </Typography>
-              </Paper>
-            ))}
-          </Stack>
-        </Container>
-      </Box>
-
-      <Box
-        component="section"
-        sx={{
-          py: { xs: 8, md: 12 },
-          backgroundColor: alpha(theme.palette.primary.light, 0.05),
-        }}
-      >
-        <Container maxWidth="lg">
-          <Typography
-            component="h2"
-            variant="h4"
-            sx={{
-              textAlign: "center",
-              fontWeight: 600,
-              fontSize: { xs: "2rem", md: "2.4rem" },
-            }}
-          >
-            Frequently Asked Questions
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              maxWidth: 600,
-              mx: "auto",
-              textAlign: "center",
-              mt: 2,
-              color: alpha(theme.palette.text.primary, 0.7),
-            }}
-          >
-            Quick answers to help students, staff, and partners get the most out
-            of Multaqa.
-          </Typography>
-
-          <Box
-            sx={{
-              mt: { xs: 5, md: 6 },
-              maxWidth: 900,
-              mx: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 2.5,
-              px: { xs: 1, md: 0 },
-            }}
-          >
-            {faqItems.map((faq) => (
-              <CustomAccordion key={faq.title} title={faq.title}>
-                <Typography
-                  variant="body2"
-                  sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
-                >
-                  {faq.content}
-                </Typography>
-              </CustomAccordion>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-
-      <Box
-        component="footer"
-        sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(
-            theme.palette.tertiary.main,
-            0.7
-          )} 100%)`,
-          color: theme.palette.common.white,
-          position: "relative",
-          overflow: "hidden",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `radial-gradient(circle at 30% 40%, ${alpha(
-              theme.palette.primary.light,
-              0.15
-            )}, transparent 60%)`,
-            pointerEvents: "none",
-          },
-        }}
-      >
-        <Container
-          maxWidth="lg"
-          sx={{
-            py: { xs: 6, md: 8 },
-            display: "flex",
-            flexDirection: "column",
-            gap: 4,
-            alignItems: { xs: "center", md: "stretch" },
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={4}
-            justifyContent={{ xs: "center", md: "space-between" }}
-            alignItems={{ xs: "center", md: "center" }}
-            sx={{
-              textAlign: { xs: "center", md: "left" },
-              gap: { xs: 3, md: 4 },
-              width: "100%",
-            }}
-          >
-            <Box
-              sx={{
-                width: { xs: "100%", md: "auto" },
-                display: "flex",
-                flexDirection: "column",
-                alignItems: { xs: "center", md: "flex-start" },
-              }}
-            >
-              <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                Multaqa
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  opacity: 0.75,
-                  mt: 1,
-                  maxWidth: 320,
-                  mx: { xs: "auto", md: 0 },
-                  textAlign: { xs: "center", md: "left" },
-                }}
-              >
-                Bringing the GUC community together through dynamic events and
-                collaborative storytelling.
-              </Typography>
-            </Box>
-
-            <Stack
-              direction="row"
-              spacing={2}
-              justifyContent={{ xs: "center", md: "flex-start" }}
-              sx={{ width: { xs: "100%", md: "auto" } }}
-            >
-              {[
-                {
-                  icon: <InstagramIcon />,
-                  href: "https://instagram.com",
-                },
-                {
-                  icon: <LinkedInIcon />,
-                  href: "https://linkedin.com",
-                },
-                {
-                  icon: <XIcon />,
-                  href: "https://twitter.com",
-                },
-              ].map((social) => (
-                <IconButton
-                  key={social.href}
-                  component="a"
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    backgroundColor: alpha(theme.palette.common.white, 0.12),
-                    color: theme.palette.common.white,
-                    "&:hover": {
-                      backgroundColor: alpha(theme.palette.common.white, 0.25),
-                    },
-                  }}
-                >
-                  {social.icon}
-                </IconButton>
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      bgcolor: alpha(theme.palette.primary.main, 0.4),
+                      color: theme.palette.tertiary.dark,
+                      mb: 2.5,
+                    }}
+                  >
+                    {feature.icon}
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
+                    {feature.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                  >
+                    {feature.copy}
+                  </Typography>
+                </Paper>
               ))}
             </Stack>
+          </Container>
+        </Box>
 
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={{ xs: 1.5, sm: 3 }}
+        <Box
+          component="section"
+          sx={{
+            py: { xs: 8, md: 12 },
+            backgroundColor: alpha(theme.palette.primary.light, 0.05),
+          }}
+        >
+          <Container maxWidth="lg">
+            <Typography
+              component="h2"
+              variant="h4"
+              sx={{
+                textAlign: "center",
+                fontWeight: 600,
+                fontSize: { xs: "2rem", md: "2.4rem" },
+              }}
             >
-              <Typography
-                component={Link}
-                href="/privacy"
-                sx={{
-                  color: theme.palette.common.white,
-                  textDecoration: "none",
-                  transition: "color 0.2s ease",
-                  "&:hover": {
-                    color: alpha(theme.palette.common.white, 0.75),
-                  },
-                  textAlign: "center",
-                }}
-              >
-                Privacy Policy
-              </Typography>
-              <Typography
-                component={Link}
-                href="/terms"
-                sx={{
-                  color: theme.palette.common.white,
-                  textDecoration: "none",
-                  transition: "color 0.2s ease",
-                  "&:hover": {
-                    color: alpha(theme.palette.common.white, 0.75),
-                  },
-                  textAlign: "center",
-                }}
-              >
-                Terms of Service
-              </Typography>
-              <Typography
-                component={Link}
-                href="/support"
-                sx={{
-                  color: theme.palette.common.white,
-                  textDecoration: "none",
-                  transition: "color 0.2s ease",
-                  "&:hover": {
-                    color: alpha(theme.palette.common.white, 0.75),
-                  },
-                  textAlign: "center",
-                }}
-              >
-                Support
-              </Typography>
-            </Stack>
-          </Stack>
+              Frequently Asked Questions
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                maxWidth: 600,
+                mx: "auto",
+                textAlign: "center",
+                mt: 2,
+                color: alpha(theme.palette.text.primary, 0.7),
+              }}
+            >
+              Quick answers to help students, staff, and partners get the most out
+              of Multaqa.
+            </Typography>
 
-          <Divider
-            sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }}
-          />
+            <Box
+              sx={{
+                mt: { xs: 5, md: 6 },
+                maxWidth: 900,
+                mx: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2.5,
+                px: { xs: 1, md: 0 },
+              }}
+            >
+              {faqItems.map((faq) => (
+                <CustomAccordion key={faq.title} title={faq.title}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                  >
+                    {faq.content}
+                  </Typography>
+                </CustomAccordion>
+              ))}
+            </Box>
+          </Container>
+        </Box>
 
-          <Typography
-            variant="body2"
-            sx={{ opacity: 0.7, textAlign: { xs: "center", md: "left" } }}
+        <Box
+          component="footer"
+          sx={{
+            background: `linear-gradient(135deg, ${
+              theme.palette.primary.main
+            } 0%, ${alpha(theme.palette.tertiary.main, 0.7)} 100%)`,
+            color: theme.palette.common.white,
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `radial-gradient(circle at 30% 40%, ${alpha(
+                theme.palette.primary.light,
+                0.15
+              )}, transparent 60%)`,
+              pointerEvents: "none",
+            },
+          }}
+        >
+          <Container
+            maxWidth="lg"
+            sx={{
+              py: { xs: 6, md: 8 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              alignItems: { xs: "center", md: "stretch" },
+              position: "relative",
+              zIndex: 1,
+            }}
           >
-            © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC
-            community.
-          </Typography>
-        </Container>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={4}
+              justifyContent={{ xs: "center", md: "space-between" }}
+              alignItems={{ xs: "center", md: "center" }}
+              sx={{
+                textAlign: { xs: "center", md: "left" },
+                gap: { xs: 3, md: 4 },
+                width: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  width: { xs: "100%", md: "auto" },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: { xs: "center", md: "flex-start" },
+                }}
+              >
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  Multaqa
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    opacity: 0.75,
+                    mt: 1,
+                    maxWidth: 320,
+                    mx: { xs: "auto", md: 0 },
+                    textAlign: { xs: "center", md: "left" },
+                  }}
+                >
+                  Bringing the GUC community together through dynamic events and
+                  collaborative storytelling.
+                </Typography>
+              </Box>
+
+              <Stack
+                direction="row"
+                spacing={2}
+                justifyContent={{ xs: "center", md: "flex-start" }}
+                sx={{ width: { xs: "100%", md: "auto" } }}
+              >
+                {[
+                  {
+                    icon: <InstagramIcon />,
+                    href: "https://instagram.com",
+                  },
+                  {
+                    icon: <LinkedInIcon />,
+                    href: "https://linkedin.com",
+                  },
+                  {
+                    icon: <XIcon />,
+                    href: "https://twitter.com",
+                  },
+                ].map((social) => (
+                  <IconButton
+                    key={social.href}
+                    component="a"
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      backgroundColor: alpha(theme.palette.common.white, 0.12),
+                      color: theme.palette.common.white,
+                      "&:hover": {
+                        backgroundColor: alpha(
+                          theme.palette.common.white,
+                          0.25
+                        ),
+                      },
+                    }}
+                  >
+                    {social.icon}
+                  </IconButton>
+                ))}
+              </Stack>
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={{ xs: 1.5, sm: 3 }}
+              >
+                <Typography
+                  component={Link}
+                  href="/privacy"
+                  sx={{
+                    color: theme.palette.common.white,
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                    "&:hover": {
+                      color: alpha(theme.palette.common.white, 0.75),
+                    },
+                    textAlign: "center",
+                  }}
+                >
+                  Privacy Policy
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/terms"
+                  sx={{
+                    color: theme.palette.common.white,
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                    "&:hover": {
+                      color: alpha(theme.palette.common.white, 0.75),
+                    },
+                    textAlign: "center",
+                  }}
+                >
+                  Terms of Service
+                </Typography>
+                <Typography
+                  component={Link}
+                  href="/support"
+                  sx={{
+                    color: theme.palette.common.white,
+                    textDecoration: "none",
+                    transition: "color 0.2s ease",
+                    "&:hover": {
+                      color: alpha(theme.palette.common.white, 0.75),
+                    },
+                    textAlign: "center",
+                  }}
+                >
+                  Support
+                </Typography>
+              </Stack>
+            </Stack>
+
+            <Divider
+              sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }}
+            />
+
+            <Typography
+              variant="body2"
+              sx={{ opacity: 0.7, textAlign: { xs: "center", md: "left" } }}
+            >
+              © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC
+              community.
+            </Typography>
+          </Container>
+        </Box>
       </Box>
     </Box>
   );
 }
 
+// ================================================================
+// === 
+// === HELPER COMPONENTS FOR THE HERO ANIMATION
+// === 
+// ================================================================
+
+/*
+---
+--- 1. Hero Content Component
+---
+*/
+const HeroContent = ({
+  theme,
+  isMobile,
+  handleLoginClick,
+  handleRegisterClick,
+  signUpHoverRef,
+  signUpHoverTimeout,
+  showSignUpOptions,
+  setShowSignUpOptions,
+}) => (
+  <Box
+    sx={{
+      flex: { md: 1 },
+      position: "relative",
+      zIndex: 1,
+      width: "100%",
+      maxWidth: { xs: 560, md: "100%" },
+    }}
+  >
+    <Typography
+      variant="overline"
+      sx={{
+        letterSpacing: "0.3em",
+        textTransform: "uppercase",
+        color: theme.palette.primary.dark,
+        fontWeight: 600,
+      }}
+    >
+      Multaqa • GUC
+    </Typography>
+    <Typography
+      component="h1"
+      variant="h1"
+      sx={{
+        fontSize: { xs: "2.75rem", md: "3.75rem" },
+        fontWeight: 600,
+        letterSpacing: { xs: "0.4px", md: "1px" },
+        lineHeight: 1.1,
+        color: theme.palette.text.primary,
+        mt: 2,
+        textAlign: { xs: "center", md: "left" },
+      }}
+    >
+      Artful events for every voice on campus.
+    </Typography>
+    <Typography
+      variant="body1"
+      sx={{
+        mt: 3,
+        maxWidth: { xs: 560, md: 520 },
+        color: alpha(theme.palette.text.primary, 0.75),
+        fontSize: { xs: "1rem", md: "1.1rem" },
+        mx: { xs: "auto", md: 0 },
+      }}
+    >
+      Multaqa reimagines campus life with a vibrant hub for showcasing events,
+      workshops, and cultural experiences inspired by the GUC community.
+    </Typography>
+
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={2.5}
+      sx={{
+        mt: 5,
+        width: "100%",
+        alignItems: {
+          xs: "stretch",
+          sm: "center",
+          md: "flex-start",
+        },
+        justifyContent: { xs: "center", md: "flex-start" },
+      }}
+    >
+      <CustomButton
+        variant="contained"
+        onClick={handleLoginClick} // Use state handler
+        label="Login"
+        sx={{
+          width: { xs: "100%", sm: "160px" },
+          fontWeight: 700,
+          backgroundColor: theme.palette.tertiary.main,
+          color: theme.palette.tertiary.contrastText,
+          border: `2px solid ${theme.palette.tertiary.dark}`,
+          "&:hover": {
+            backgroundColor: theme.palette.primary.main,
+            borderColor: theme.palette.primary.dark,
+          },
+        }}
+        endIcon={<ArrowForwardIcon />}
+      />
+
+      <Box
+        ref={signUpHoverRef}
+        onMouseEnter={() => {
+          if (isMobile) {
+            return;
+          }
+          if (signUpHoverTimeout.current) {
+            clearTimeout(signUpHoverTimeout.current);
+            signUpHoverTimeout.current = null;
+          }
+          setShowSignUpOptions(true);
+        }}
+        onMouseLeave={(event) => {
+          if (isMobile) {
+            return;
+          }
+          const nextTarget = event.relatedTarget as Node | null;
+          if (nextTarget && signUpHoverRef.current?.contains(nextTarget)) {
+            return;
+          }
+          if (signUpHoverTimeout.current) {
+            clearTimeout(signUpHoverTimeout.current);
+          }
+          signUpHoverTimeout.current = setTimeout(() => {
+            setShowSignUpOptions(false);
+            signUpHoverTimeout.current = null;
+          }, 150);
+        }}
+        sx={{
+          position: "relative",
+          width: { xs: "100%", sm: "200px" },
+          maxWidth: "100%",
+        }}
+      >
+        <CustomButton
+          variant="outlined"
+          color="primary"
+          label="Sign Up"
+          endIcon={<ArrowOutwardIcon />}
+          onClick={() => {
+            if (isMobile) {
+              setShowSignUpOptions((prev) => !prev);
+            }
+          }}
+          aria-haspopup="true"
+          aria-expanded={showSignUpOptions}
+          sx={{
+            width: "100%",
+            fontWeight: 700,
+            backdropFilter: "blur(4px)",
+          }}
+        />
+
+        <Paper
+          elevation={8}
+          onMouseEnter={() => {
+            if (isMobile) {
+              return;
+            }
+            if (signUpHoverTimeout.current) {
+              clearTimeout(signUpHoverTimeout.current);
+              signUpHoverTimeout.current = null;
+            }
+            setShowSignUpOptions(true);
+          }}
+          onMouseLeave={(event) => {
+            if (isMobile) {
+              return;
+            }
+            const nextTarget = event.relatedTarget as Node | null;
+            if (nextTarget && signUpHoverRef.current?.contains(nextTarget)) {
+              return;
+            }
+            if (signUpHoverTimeout.current) {
+              clearTimeout(signUpHoverTimeout.current);
+            }
+            signUpHoverTimeout.current = setTimeout(() => {
+              setShowSignUpOptions(false);
+              signUpHoverTimeout.current = null;
+            }, 150);
+          }}
+          sx={{
+            position: "absolute",
+            top: { xs: "72px", sm: "54px" },
+            left: 0,
+            width: { xs: "100%", sm: 260 },
+            borderRadius: 3,
+            p: 2,
+            background: theme.palette.common.white,
+            boxShadow: `0 18px 40px ${alpha(
+              theme.palette.primary.main,
+              0.18
+            )}`,
+            opacity: showSignUpOptions ? 1 : 0,
+            transform: showSignUpOptions
+              ? "translateY(0)"
+              : "translateY(-10px)",
+            pointerEvents: showSignUpOptions ? "auto" : "none",
+            transition: "all 0.28s ease",
+            zIndex: 60,
+          }}
+        >
+          <Stack spacing={1.5}>
+            {signUpOptions.map((option) => (
+              <Box
+                key={option.label}
+                component="button" // Changed to button
+                onClick={() => handleRegisterClick(option.userType)}
+                sx={{
+                  borderRadius: 2,
+                  p: 1.5,
+                  display: "block",
+                  color: theme.palette.text.primary,
+                  textDecoration: "none",
+                  transition: "background 0.2s ease",
+                  // Button reset styles
+                  width: "100%",
+                  textAlign: "left",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  // ---
+                  "&:hover": {
+                    background: alpha(theme.palette.primary.main, 0.35),
+                  },
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  {option.label}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: alpha(theme.palette.text.primary, 0.7),
+                    mt: 0.5,
+                  }}
+                >
+                  {option.description}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Paper>
+      </Box>
+    </Stack>
+  </Box>
+);
+
+/*
+---
+--- 2. Auth Form Component
+---
+*/
+const AuthForm = ({ currentView, userType }) => (
+  <Box
+    sx={{
+      width: "100%",
+      maxWidth: 450, // Max width for the form itself
+      mx: { xs: "auto", md: 0 }, // Center on mobile, align left on desktop
+    }}
+  >
+    <AnimatePresence mode="wait">
+      {currentView === "login" && (
+        <motion.div
+          key="login"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.3 }}
+        >
+          <LoginForm />
+        </motion.div>
+      )}
+      {currentView === "register" && (
+        <motion.div
+          key="register"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.3 }}
+        >
+          <RegistrationForm UserType={userType} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </Box>
+);
+
+/*
+---
+--- 3. Shapes Component (Animated with `layout` AND individual `variants`)
+---
+*/
+// Define a standard transition for the "home" (return) animation
+const homeTransition = { type: "spring", stiffness: 80, damping: 20 } as const;
+
+// Define a function to create the "auth" (move) transition with a delay
+const authTransition = (delay: number) => ({
+  type: "spring" as const,
+  stiffness: 80,
+  damping: 20,
+  delay: delay,
+});
+
+const Shapes = ({ theme, isHome }) => (
+  <MotionBox
+    layout // <-- Animates the BOX's position and size
+    transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
+    sx={{
+      // --- BASE STYLES ---
+      position: "relative",
+      minHeight: { xs: 300, sm: 380, md: 420 },
+      width: "100%",
+      maxWidth: { xs: 520, md: "100%" },
+      mx: { xs: "auto", md: 0 },
+
+      // --- STATE-BASED STYLES (for `layout` to animate) ---
+      
+      // On mobile, hide it when not home
+      display: { xs: isHome ? "block" : "none", md: "block" }, 
+      
+      // On desktop, change flex & order
+      flex: { md: isHome ? 1 : 0.8 }, 
+      order: { md: isHome ? 1 : -1 }, 
+    }}
+  >
+    <Box
+      sx={{
+        position: "absolute",
+        inset: 0,
+        borderRadius: 6,
+        background: `linear-gradient(135deg, ${alpha(
+          theme.palette.primary.main,
+          0.12
+        )}, ${alpha(theme.palette.tertiary.main, 0.25)})`,
+        filter: "blur(60px)",
+        zIndex: 0,
+      }}
+    />
+
+    {/* This is the new positioning context.
+      We no longer use Grid. All shapes are positioned absolutely
+      inside this box.
+    */}
+    <Box
+      sx={{
+        position: "relative",
+        width: "100%",
+        height: { xs: 300, sm: 380, md: 420 },
+      }}
+    >
+      {/* --- Shape 1 (was Col 1/span 2, Row 1/span 3) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "10%", left: "5%", width: "25%", height: "40%", rotate: 0, transition: homeTransition },
+          auth: { top: "15%", left: "10%", width: "20%", height: "30%", rotate: 15, transition: authTransition(0.1) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: "999px",
+          bgcolor: theme.palette.primary.main,
+          animation: "floatSlow 9s ease-in-out infinite",
+          animationDelay: "0s",
+          "@keyframes floatSlow": {
+            "0%, 100%": { transform: "translateY(0px)" },
+            "50%": { transform: "translateY(-8px)" },
+          },
+        }}
+      />
+      
+      {/* --- Shape 2 (was Col 3/span 3, Row 1/span 2) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "10%", left: "33%", width: "50%", height: "25%", rotate: 0, transition: homeTransition },
+          auth: { top: "50%", left: "30%", width: "40%", height: "20%", rotate: -10, transition: authTransition(0.15) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: 2,
+          bgcolor: theme.palette.secondary.main,
+          animation: "floatMed 11s ease-in-out infinite",
+          animationDelay: "0.8s",
+          "@keyframes floatMed": {
+            "0%, 100%": { transform: "translateY(0px)" },
+            "50%": { transform: "translateY(12px)" },
+          },
+        }}
+      />
+      
+      {/* --- Shape 3 (was Col 6/span 1, Row 1/span 2) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "10%", left: "85%", width: "12%", height: "25%", rotate: 0, transition: homeTransition },
+          auth: { top: "30%", left: "20%", width: "10%", height: "20%", rotate: 25, transition: authTransition(0.2) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: "20px",
+          bgcolor: theme.palette.tertiary.main,
+          animation: "floatFast 7.5s ease-in-out infinite",
+          animationDelay: "0.4s",
+          "@keyframes floatFast": {
+            "0%, 100%": { transform: "translateY(0px)" },
+            "50%": { transform: "translateY(-5px)" },
+          },
+        }}
+      />
+      
+      {/* --- Shape 4 (was Col 1/span 2, Row 4/span 2) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "55%", left: "5%", width: "25%", height: "30%", rotate: 0, transition: homeTransition },
+          auth: { top: "65%", left: "15%", width: "20%", height: "25%", rotate: -5, transition: authTransition(0.1) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: 2,
+          bgcolor: theme.palette.tertiary.dark,
+          animation: "floatSlow 10s ease-in-out infinite",
+          animationDelay: "1.1s",
+        }}
+      />
+      
+      {/* --- Shape 5 (was Col 4/span 2, Row 3/span 3) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "40%", left: "50%", width: "30%", height: "45%", rotate: 0, transition: homeTransition },
+          auth: { top: "30%", left: "50%", width: "25%", height: "35%", rotate: 20, transition: authTransition(0.15) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: "50%",
+          bgcolor: theme.palette.primary.light,
+          animation: "floatMed 12s ease-in-out infinite",
+          animationDelay: "0.2s",
+        }}
+      />
+      
+      {/* --- Shape 6 (was Col 3/span 1, Row 4/span 3) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "55%", left: "33%", width: "12%", height: "40%", rotate: 0, transition: homeTransition },
+          auth: { top: "80%", left: "10%", width: "10%", height: "30%", rotate: -30, transition: authTransition(0.2) },
+        }}
+        sx={{
+          position: "absolute",
+          bgcolor: theme.palette.tertiary.dark,
+          borderRadius: 1,
+          animation: "floatFast 8.5s ease-in-out infinite",
+          animationDelay: "1.6s",
+        }}
+      />
+      
+      {/* --- Shape 7 (was Col 5/span 2, Row 5/span 2) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "70%", left: "68%", width: "28%", height: "25%", rotate: 0, transition: homeTransition },
+          auth: { top: "75%", left: "45%", width: "22%", height: "20%", rotate: 10, transition: authTransition(0.1) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: "999px",
+          bgcolor: "#e91e63",
+          animation: "floatSlow 13s ease-in-out infinite",
+          animationDelay: "0.6s",
+        }}
+      />
+      
+      {/* --- Shape 8 (was Col 2/span 2, Row 3/span 2) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "40%", left: "20%", width: "25%", height: "6px", rotate: 0, transition: homeTransition },
+          auth: { top: "40%", left: "25%", width: "20%", height: "6px", rotate: -15, transition: authTransition(0.15) },
+        }}
+        sx={{
+          position: "absolute",
+          bgcolor: theme.palette.common.black,
+          borderRadius: 3,
+          animation: "floatFast 9.5s ease-in-out infinite",
+          animationDelay: "1.3s",
+        }}
+      />
+      
+      {/* --- Shape 9 (was Col 2/span 1, Row 6/span 1) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "85%", left: "20%", width: "10%", height: "10%", rotate: 0, transition: homeTransition },
+          auth: { top: "85%", left: "35%", width: "8%", height: "8%", rotate: 5, transition: authTransition(0.2) },
+        }}
+        sx={{
+          position: "absolute",
+          borderRadius: 1,
+          bgcolor: theme.palette.tertiary.main,
+          animation: "floatMed 11.5s ease-in-out infinite",
+          animationDelay: "0.9s",
+        }}
+      />
+      
+      {/* --- Shape 10 (was Col 6/span 1, Row 3/span 3) --- */}
+      <MotionBox
+        animate={isHome ? "home" : "auth"}
+        variants={{
+          home: { top: "40%", left: "85%", width: "12px", height: "45%", rotate: 0, transition: homeTransition },
+          auth: { top: "60%", left: "60%", width: "12px", height: "35%", rotate: -45, transition: authTransition(0.1) },
+        }}
+        sx={{
+          position: "absolute",
+          bgcolor: theme.palette.text.primary,
+          borderRadius: 999,
+          animation: "floatFast 10.5s ease-in-out infinite",
+          animationDelay: "0.5s",
+        }}
+      />
+    </Box>
+  </MotionBox>
+);
 const menuLinkStyles = (theme: Theme) => ({
   textDecoration: "none",
   color: theme.palette.text.primary,
