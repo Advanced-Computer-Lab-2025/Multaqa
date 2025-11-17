@@ -8,7 +8,7 @@ import {
   IconButton,
   ClickAwayListener,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { keyframes, useTheme } from "@mui/material/styles";
 import {
   SelfImprovement as YogaIcon,
   FitnessCenter as PilatesIcon,
@@ -113,8 +113,41 @@ export default function SessionTypeDropdown({
     };
   }, [open]);
 
+  const floatIn = keyframes`
+    0% {
+      transform: translateY(28px) scale(0.9, 0.96);
+      opacity: 0;
+      filter: blur(10px);
+    }
+    55% {
+      transform: translateY(-6px) scale(1.03, 1.01);
+      opacity: 1;
+      filter: blur(0px);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      filter: blur(0px);
+    }
+  `;
+
+  const haloPulse = keyframes`
+    0% {
+      opacity: 0.3;
+      transform: scale(0.82);
+    }
+    70% {
+      opacity: 0.1;
+      transform: scale(1.04);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.08);
+    }
+  `;
+
   return (
-    <>
+    <Box sx={{ position: "relative", display: "inline-flex" }}>
       <CustomButton
         ref={buttonRef}
         label="Create New"
@@ -130,7 +163,7 @@ export default function SessionTypeDropdown({
       />
 
       {open && (
-                  <Paper
+        <Paper
             elevation={8}
             ref={paperRef}
             sx={{
@@ -142,10 +175,22 @@ export default function SessionTypeDropdown({
               borderRadius: "16px",
               backgroundColor: "white",
               border: `1px solid ${theme.palette.primary.light}`,
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+              boxShadow: "0 18px 40px rgba(24, 39, 75, 0.18)",
               zIndex: 1300,
               minWidth: "280px",
               maxWidth: "320px",
+              transformOrigin: "top right",
+              animation: `${floatIn} 500ms cubic-bezier(0.19, 1, 0.22, 1)` ,
+              overflow: "visible",
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                inset: "-14px",
+                borderRadius: "28px",
+                border: `1px solid ${theme.palette.primary.light}66`,
+                pointerEvents: "none",
+                animation: `${haloPulse} 700ms ease-out forwards`,
+              },
             }}
           >
             <Typography
@@ -251,6 +296,6 @@ export default function SessionTypeDropdown({
             </Typography>
           </Paper>
       )}
-    </>
+    </Box>
   );
 }

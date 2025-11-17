@@ -56,7 +56,15 @@ export class GymSessionsService {
 
     return this.gymSessionRepo.findAll(filter, {
       select:
-        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity"
+        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity",
     });
+  }
+
+  async cancelGymSession(sessionId: string): Promise<void> {
+    const deleted = await this.gymSessionRepo.delete(sessionId);
+    if (!deleted) {
+      throw new Error("Gym session not found");
+    }
+    return;
   }
 }

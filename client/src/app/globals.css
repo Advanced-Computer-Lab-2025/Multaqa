@@ -31,3 +31,44 @@ body {
   color: var(--foreground);
   font-family: var(--font-poppins), var(--font-jost), Arial, Helvetica, sans-serif;
 }
+
+/* --- Global Scrollbar Styling --- */
+:root {
+  --scrollbar-track: #e7eff7;
+  --scrollbar-thumb: linear-gradient(180deg, #8db8e6 0%, #6299d0 55%, #3a4f99 100%);
+  --scrollbar-thumb-solid: #6c8cc4;
+  --scrollbar-hover: #516ba5;
+  --scrollbar-active: #3a4f99;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-solid) var(--scrollbar-track);
+}
+
+/* WebKit */
+*::-webkit-scrollbar {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid var(--scrollbar-track);
+  box-shadow: inset 0 0 0.5rem rgba(58, 79, 153, 0.25);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-active);
+}

@@ -18,6 +18,9 @@ import {
 } from "../types";
 import theme from "@/themes/lightTheme";
 
+export const NAME_FORMATTING_NOTE =
+  "Tip: Please enter your name with proper capitalization (e.g., John Doe).";
+
 /**
  * Get email domain based on stakeholder type
  */
@@ -46,6 +49,7 @@ export const getFieldIcon = (fieldType: FieldType) => {
     case "email":
       return <EmailIcon sx={{ mr: 1, fontSize: "1rem" }} />;
     case "text":
+    case "name":
       return <PersonIcon sx={{ mr: 1, fontSize: "1rem" }} />;
     case "password":
       return <LockIcon sx={{ mr: 1, fontSize: "1rem" }} />;
@@ -409,12 +413,15 @@ export const createBlurHandler = (
     }
 
     // For text fields with auto-capitalization, normalize spaces on blur
-    if (fieldType === "text" && autoCapitalizeName && onChange) {
-      const currentValue = String(value || "");
-      const normalizedValue = capitalizeName(currentValue, false); // preserveSpaces = false
+    const blurValue = String(event.target.value ?? "");
+    const shouldNormalizeName =
+      (fieldType === "text" && autoCapitalizeName) || fieldType === "name";
+
+    if (shouldNormalizeName && onChange) {
+      const normalizedValue = capitalizeName(blurValue, false);
 
       // Only update if the value changed
-      if (currentValue !== normalizedValue) {
+      if (blurValue !== normalizedValue) {
         const syntheticEvent = {
           ...event,
           target: {

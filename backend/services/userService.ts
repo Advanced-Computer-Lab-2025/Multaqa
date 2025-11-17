@@ -31,7 +31,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName",
+          "firstName lastName name email role gucId position roleType status companyName verifiedAt updatedAt",
       }
     );
 
@@ -321,6 +321,39 @@ export class UserService {
 
     const walletBalance = user.walletBalance || 0;
     user.walletBalance = walletBalance + amount;
+    await user.save();
+    return user;
+  }
+
+  /**
+   * Add a transaction to user's transaction history
+   * @param userId - User ID
+   * @param transaction - Transaction details
+   * @returns Updated user
+   */
+  async addTransaction(
+    userId: string,
+    transaction: {
+      eventName: string;
+      amount: number;
+      walletAmount?: number;
+      cardAmount?: number;
+      type: "payment" | "refund";
+      date: Date;
+    }
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    if (!user.transactions) {
+      user.transactions = [];
+    }
+
+    user.transactions.push(transaction as any);
     await user.save();
     return user;
   }
