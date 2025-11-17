@@ -9,9 +9,10 @@ interface CancelEventRegisterationProps {
     open: boolean;
     onClose: () => void;
     isRefundable?: boolean;
+    setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelEventRegisterationProps) => {
+const CancelRegistration = ({eventId, open, onClose, isRefundable=true , setRefresh}: CancelEventRegisterationProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +25,7 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelE
         // TODO: Replace with your API route
         const res = await api.post("/payments/"+ eventId + "/refund");
         setResponse(res.data);
+        setRefresh((prev)=> !prev);
       } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);

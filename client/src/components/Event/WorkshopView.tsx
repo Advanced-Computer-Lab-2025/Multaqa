@@ -27,6 +27,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   registered,
   isRegisteredEvent,
   onDelete,
+  setRefresh,
   userInfo,
   attended,
   datePassed,
@@ -232,7 +233,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         eventId={id}
        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
       
-      <CancelRegistration eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+      <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
         
       <CustomModalLayout
               open={detailsModalOpen}
