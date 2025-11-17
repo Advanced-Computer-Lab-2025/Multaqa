@@ -21,7 +21,8 @@ const BoothView: React.FC<BoothViewProps> = ({
   registered,
   onDelete,
   attended ,
-  id
+  id,
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -45,23 +46,27 @@ const BoothView: React.FC<BoothViewProps> = ({
 
   return (
     <>
-     <EventCard title={company} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
+     <EventCard title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
          (user === "events-office" ||   user === "admin")? (
-          <Tooltip title="Delete Booth">
-          <IconButton
-                  size="medium"
-                  onClick={handleOpenDeleteModal}
-                  sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 0, 0, 0.1)",
-                      color: "error.main",
-                    },
-                  }}
-                >
-                  <Trash2 size={18} />
-                </IconButton>
-          </Tooltip>
+         <Tooltip title="Delete Booth">
+                  <IconButton
+                    size="medium"
+                    onClick={handleOpenDeleteModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        borderColor: "error.main",
+                        color: "error.main",
+                      },
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </IconButton>
+                </Tooltip>
           ) : null
         }
           registerButton={
@@ -161,6 +166,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                     details={updatedDetails}
                     color={background}
                     description={description}
+                    userId={userInfo._id}
                     button={
                       !registered &&
                       user == "vendor" && (
@@ -179,6 +185,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                       'reviews']}
                     user={user?user:""}
                     attended ={attended}
+                    eventId={id}
                     />
                   </CustomModalLayout>
     </>

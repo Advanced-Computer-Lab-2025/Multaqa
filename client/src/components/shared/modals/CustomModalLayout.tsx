@@ -1,18 +1,48 @@
 "use client";
 
-import * as React from 'react';
-import Backdrop from '@mui/material/Backdrop';
-import { Modal } from '@mui/material';
-import Fade from '@mui/material/Fade';
-import { StyledModalBox, ModalCardWrapper, StyledModalContent, StyledModalHeader } from './styles/StyledModal';
-import CustomIcon from '../Icons/CustomIcon';
-import { CustomModalLayoutProps } from './types';
-import { createDelayedCloseHandler } from './utils';
-import { useTheme, lighten } from '@mui/material/styles';
+import * as React from "react";
+import Backdrop from "@mui/material/Backdrop";
+import { Modal } from "@mui/material";
+import Fade from "@mui/material/Fade";
+import {
+  StyledModalBox,
+  ModalCardWrapper,
+  StyledModalContent,
+  StyledModalHeader,
+} from "./styles/StyledModal";
+import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
+import { CustomModalLayoutProps } from "./types";
+import { createDelayedCloseHandler } from "./utils";
+import { useTheme, lighten } from "@mui/material/styles";
 
-export default function CustomModalLayout({ children, open, onClose, width, borderColor }: CustomModalLayoutProps) {
+export default function CustomModalLayout({
+  children,
+  open,
+  onClose,
+  width,
+  borderColor,
+}: CustomModalLayoutProps) {
   const transitionDuration = 650;
-  const handleClose = createDelayedCloseHandler(onClose, transitionDuration);
+  const [isCloseActive, setIsCloseActive] = React.useState(false);
+
+  const handleClose = React.useCallback(() => {
+    setIsCloseActive(false);
+    const delayedClose = createDelayedCloseHandler(onClose, transitionDuration);
+    delayedClose();
+  }, [onClose, transitionDuration]);
+
+  React.useEffect(() => {
+    if (!open) {
+      setIsCloseActive(false);
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setIsCloseActive(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
 
   const theme = useTheme();
   // Use provided borderColor or fallback to theme. Compute a lighter variant for the close icon.
@@ -31,7 +61,7 @@ export default function CustomModalLayout({ children, open, onClose, width, bord
     if (!width) return {};
     
     // Extract breakpoint-specific widths from the width string
-  const sxOverrides: Record<string, unknown> = {};
+    const sxOverrides: Record<string, unknown> = {};
     
     // Match patterns like w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[60vw], xl:w-[50vw]
     const baseWidth = width.match(/(?:^|\s)w-\[([^\]]+)\]/);
@@ -88,17 +118,24 @@ export default function CustomModalLayout({ children, open, onClose, width, bord
       disableAutoFocus
     >
       <Fade in={open} timeout={transitionDuration}>
-  <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
+      <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
             {/* Close Icon at the top right - Fixed header */}
             <StyledModalHeader>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <CustomIcon
-                  icon="close"
-                  size="small"
-                  containerType="inwards"
+                <AnimatedCloseButton
+                  open={isCloseActive}
                   onClick={handleClose}
-                  sx={{ color: closeIconColor }}
+                  appearance="neumorphic"
+                  lineColor={closeIconColor}
+                  neumorphicProps={{
+                    containerType: "inwards",
+                    width: "42px",
+                    height: "42px",
+                    padding: "2px",
+                  }}
+                  variant="closeOnly"
+                  ariaLabel="Close modal"
                 />
               </div>
             </StyledModalHeader>

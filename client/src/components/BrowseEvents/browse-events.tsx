@@ -20,9 +20,7 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../shared/CreateConference/CreateConference";
-
 import { deleteEvent, frameData } from "./utils";
-import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
@@ -40,7 +38,7 @@ import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   userInfo: any;
   userID: string;
 }
@@ -72,7 +70,7 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-const filterGroups: FilterGroup[] = [
+const getFilterGroups = (userRole: string): FilterGroup[] => [
   {
     id: "eventType",
     title: "Event Type",
@@ -85,6 +83,16 @@ const filterGroups: FilterGroup[] = [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
+  ...(userRole !== "vendor"
+    ? [
+        {
+          id: "attendance",
+          title: "My Status",
+          type: "chip" as const,
+          options: [{ label: "Attended", value: "attended" }],
+        },
+      ]
+    : []),
 ];
 
 const EventColor = [
@@ -117,6 +125,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   userInfo,
   userID,
 }) => {
+  console.log(userInfo);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({});
   const [events, setEvents] = useState<Event[]>([]);
@@ -126,19 +135,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
-  const [createWorkshop, setWorkshop] = useState(false);
-  const [createSession, setSession] = useState(false);
-  const [UserInfo, setUserInfo] = useState<{
-    id: string;
-    name: string;
-    email: string;
-  }>({ id: userID, name: "", email: "" });
-  const [isReady, setReady] = useState(false);
-  // Separate effect for initial user data
-  useEffect(() => {
-    getUserData();
-  }, []);
-
+  const registeredEvents = userInfo.registeredEvents;
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {
@@ -148,23 +145,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
   }, [registered, refresh]);
 
-  const getUserData = () => {
-    const user = {
-      id: userInfo._id,
-      name: `${userInfo.firstName} ${userInfo.lastName}`,
-      email: userInfo.email,
-    };
-    setUserInfo(user);
-    setReady(true);
-  };
-
-  const registeredEvents = userInfo.registeredEvents;
   
   const handleRegistered = () => {
     setLoading(true);
-    console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
-    const result = frameData(registeredEvents);
+    const result = frameData(registeredEvents, userInfo);
     console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
@@ -177,7 +162,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
-        const result = frameData(data);
+        const result = frameData(data, userInfo);
         const newResults =
           user === "vendor"
             ? result.filter((event) => event.type === "bazaar")
@@ -219,6 +204,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       filtered = filtered.filter((event) =>
         ["bazaar", "trip", "conference"].includes(event.type)
       );
+    }
+    // Apply attendance filter
+    if (
+      filters.attendance &&
+      (filters.attendance as string[]).includes("attended")
+    ) {
+      filtered = filtered.filter((event) => event.attended === true);
     }
 
     // Apply search filter
@@ -283,12 +275,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }, []);
 
   const Eventoptions = [
-    { label: "Gym", icon: FitnessCenterIcon },
     { label: "Bazaars", icon: StorefrontIcon },
     { label: "Trips", icon: FlightTakeoffIcon },
     { label: "Conference", icon: EventIcon },
   ];
-  const EventOptionsSetters = [setSession, setBazaar, setTrip, setConference];
+  const EventOptionsSetters = [setBazaar, setTrip, setConference];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -308,13 +299,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.WORKSHOP:
-        console.log(event)
         return (
           <WorkshopView
             id={event.id}
@@ -330,10 +320,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.BAZAAR:
@@ -350,10 +340,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.BOOTH:
@@ -370,10 +360,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       case EventType.TRIP:
@@ -389,10 +379,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents.map((e: any) => e._id).includes(event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
           />
         );
       default:
@@ -450,7 +440,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         </Box>
         <FilterPanel
-          filterGroups={filterGroups}
+          filterGroups={getFilterGroups(user)}
           onFilterChange={handleFilterChange}
           currentFilters={filters}
           onReset={handleResetFilters}

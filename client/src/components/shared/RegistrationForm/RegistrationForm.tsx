@@ -22,6 +22,7 @@ import { useState } from "react";
 import type { UploadStatus } from "../FileUpload/types";
 import { Button } from "@mui/material";
 import { IFileInfo } from "../../../../../backend/interfaces/fileData.interface";
+import { capitalizeName } from "../input-fields/utils";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
@@ -83,26 +84,41 @@ type SignupData = StudentSignupData | VendorSignupData;
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         try {
           // Prepare data for signup based on user type
-          const signupData: SignupData =
-            UserType !== "vendor"
-              ? ({
-                  firstName: values.firstName as string,
-                  lastName: values.lastName as string,
-                  email: values.email,
-                  password: values.password,
-                  gucId: values.gucId as string,
-                  type: "studentOrStaff",
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any)
-              : ({
-                  companyName: values.companyName as string,
-                  email: values.email,
-                  password: values.password,
-                  taxCard: taxCardStatus === "success" ? values.taxCard : null,
-                  logo: logoStatus === "success" ? values.logo : null,
-                  type: "vendor",
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any);
+          let signupData: SignupData;
+
+          if (UserType !== "vendor") {
+            const firstName = capitalizeName(
+              String(values.firstName ?? ""),
+              false
+            );
+            const lastName = capitalizeName(
+              String(values.lastName ?? ""),
+              false
+            );
+
+            signupData = {
+              firstName,
+              lastName,
+              email: values.email,
+              password: values.password,
+              gucId: String(values.gucId ?? ""),
+              type: "studentOrStaff",
+            } as SignupData;
+          } else {
+            const companyName = capitalizeName(
+              String(values.companyName ?? ""),
+              false
+            );
+
+            signupData = {
+              companyName,
+              email: values.email,
+              password: values.password,
+              taxCard: taxCardStatus === "success" ? values.taxCard : null,
+              logo: logoStatus === "success" ? values.logo : null,
+              type: "vendor",
+            } as SignupData;
+          }
 
           await handleRegistration(signupData);
 
@@ -212,7 +228,7 @@ type SignupData = StudentSignupData | VendorSignupData;
                           name="firstName"
                           id="firstName"
                           label="First Name"
-                          fieldType="text"
+                          fieldType="name"
                           onChange={(e) => {
                             formik.setFieldValue("firstName", e.target.value);
                           }}
@@ -239,7 +255,7 @@ type SignupData = StudentSignupData | VendorSignupData;
                           name="lastName"
                           id="lastName"
                           label="Last Name"
-                          fieldType="text"
+                          fieldType="name"
                           onChange={(e) => {
                             formik.setFieldValue("lastName", e.target.value);
                           }}

@@ -53,7 +53,7 @@ api.interceptors.response.use(
 
     if (shouldRefresh && setUserFn) {
       try {
-        const meRes = await api.post<MeResponse>("/auth/me");
+        const meRes = await api.get<MeResponse>("/auth/me");
         if (meRes.data?.user) {
           setUserFn(meRes.data.user);
         }

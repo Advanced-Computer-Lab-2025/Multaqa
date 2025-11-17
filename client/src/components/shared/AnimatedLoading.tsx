@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Box, alpha, CircularProgress, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { flushSync } from "react-dom";
-import VectorFloating from "./animations/VectorFloating";
+import VectorFloating from "./VectorFloating";
 
 // Minimum loading display time in milliseconds
 const MINIMUM_LOADING_TIME = 3000;

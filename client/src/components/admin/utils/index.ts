@@ -13,6 +13,7 @@ import { api } from "@/api";
 import { CreateAdminResponse, GetAllAdminsResponse } from "../../../../../backend/interfaces/responses/administrationResponses.interface";
 import { AxiosError } from "axios";
 import { GetAllUnAssignedStaffMembersResponse, GetAllUsersResponse, GetAllProfessorsResponse, GetAllStaffResponse, GetAllTAsResponse } from "../../../../../backend/interfaces/responses/userResponses.interface";
+import { capitalizeName } from "../../shared/input-fields/utils";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -77,8 +78,10 @@ export const handleCreateAccount = async (
   handleCloseCreate: () => void
 ) => {
   try {
+    const normalizedFullName = capitalizeName(String(values.fullName ?? ""), false);
+
     const response = await api.post<CreateAdminResponse>("/admins", {
-      name: values.fullName,
+      name: normalizedFullName,
       email: values.email,
       password: values.password,
       role: mapAccountTypeToRole(values.accountType),
@@ -88,7 +91,7 @@ export const handleCreateAccount = async (
     const newAccount: Account = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       id: (createdAdmin as any)._id || (createdAdmin as any).id,
-      name: createdAdmin.name || "",
+      name: capitalizeName(String(createdAdmin.name || ""), false),
       email: createdAdmin.email || "",
       accountType: mapRoleToAccountType(createdAdmin.roleType || ""),
       createdDate: formatDate(createdAdmin.registeredAt?.toString() || new Date().toISOString()),
@@ -136,7 +139,7 @@ export const handleCreateUser = (
 
   const created: User = {
     id: String(Date.now()),
-    name: values.fullName,
+    name: capitalizeName(String(values.fullName ?? ""), false),
     email: values.email,
     role: values.userRole as User["role"],
     status: "Active",
@@ -432,7 +435,7 @@ export const handleAssignRole = async (
 
     // Keep the optimistic update that was already done
     // The assignment was already moved visually, we just confirm it worked
-    
+
     return response.data;
   } catch (error: unknown) {
     // If it fails, revert the optimistic update

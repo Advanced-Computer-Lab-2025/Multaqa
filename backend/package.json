@@ -4,8 +4,9 @@
   "main": "app.ts",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon app.ts",
-    "start": "ts-node app.ts",
+    "dev": "node ./scripts/kill-port.js && nodemon app.ts",
+    "start": "node ./scripts/kill-port.js && ts-node app.ts",
+    "kill-port": "node ./scripts/kill-port.js",
     "stripe:webhook": "./scripts/start-stripe-webhook.sh"
   },
   "keywords": [],
@@ -33,6 +34,7 @@
     "node-cron": "^4.2.1",
     "node-http-exceptions": "^1.1.0",
     "nodemon": "^3.1.10",
+    "pdfkit": "^0.17.2",
     "redis": "^5.8.3"
   },
   "devDependencies": {
@@ -46,6 +48,7 @@
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.6.1",
+    "@types/pdfkit": "^0.17.3",
     "@types/redis": "^4.0.10",
     "cors": "^2.8.5",
     "stripe": "^19.3.0",

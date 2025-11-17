@@ -45,6 +45,31 @@ export class PaymentService {
   }
 
   /**
+   * Validate if user can register for an event
+   * @param event - Event to validate registration for
+   * @param userId - User ID attempting to register
+   * @throws Error if user cannot register
+   */
+  private validateUserRegistrationEligibility(
+    event: IEvent,
+    userId: string
+  ): void {
+    // Check if registration deadline has passed
+    if (new Date() > new Date(event.registrationDeadline)) {
+      throw createError(400, "Registration deadline has passed for this event");
+    }
+
+    // Check if user is already registered
+    const isAlreadyRegistered = event.attendees?.some((attendee: any) => {
+      const attendeeId = attendee._id || attendee;
+      return attendeeId.toString() === userId.toString();
+    });
+    if (isAlreadyRegistered) {
+      throw createError(409, "User already registered for this event");
+    }
+  }
+
+  /**
    * Create a Stripe checkout session for an event
    * @param params - Checkout session parameters
    * @param expectedTypes - Array of allowed event types
@@ -82,6 +107,9 @@ export class PaymentService {
         `Event is not one of: ${expectedTypes.join(", ")}`
       );
     }
+
+    // Validate user registration eligibility
+    this.validateUserRegistrationEligibility(event, userId);
 
     // Validate event price
     const price = typeof event.price === "number" ? event.price : undefined;
@@ -180,6 +208,27 @@ export class PaymentService {
       }
     }
 
+    // Deduct wallet balance if being used for hybrid payment
+    if (walletBalance > 0) {
+      await this.userService.deductFromWallet(userId, walletBalance);
+      console.log(
+        `✅ Deducted ${walletBalance} from user ${userId}'s wallet for hybrid payment`
+      );
+
+      // Log transaction immediately with wallet and card breakdown
+      await this.userService.addTransaction(userId, {
+        eventName: event.eventName,
+        amount: price,
+        walletAmount: walletBalance,
+        cardAmount: amountToPay,
+        type: "payment",
+        date: new Date(),
+      });
+      console.log(
+        `✅ Transaction logged: ${price} (wallet: ${walletBalance}, card: ${amountToPay})`
+      );
+    }
+
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -206,6 +255,9 @@ export class PaymentService {
       throw createError(404, "Event not found");
     }
 
+    // Validate user registration eligibility
+    this.validateUserRegistrationEligibility(event, userId);
+
     // Check if event has a price
     if (event.price === undefined || event.price === null) {
       throw createError(400, "Event does not have a price");
@@ -213,6 +265,16 @@ export class PaymentService {
 
     // Deduct from wallet and get updated user
     const user = await this.userService.deductFromWallet(userId, event.price);
+
+    // Log payment transaction (full amount paid with wallet)
+    await this.userService.addTransaction(userId, {
+      eventName: event.eventName,
+      amount: event.price,
+      walletAmount: event.price,
+      cardAmount: 0,
+      type: "payment",
+      date: new Date(),
+    });
 
     // Get user details for email
     const userDetails = await this.userService.getUserById(userId);
@@ -269,5 +331,15 @@ export class PaymentService {
 
     // Refund amount to user's wallet
     await this.userService.addToWallet(userId, event.price);
+
+    // Log refund transaction
+    await this.userService.addTransaction(userId, {
+      eventName: event.eventName,
+      amount: event.price,
+      walletAmount: event.price,
+      cardAmount: 0,
+      type: "refund",
+      date: new Date(),
+    });
   }
 }

@@ -16,24 +16,24 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelE
       open={open} 
       onClose={onClose} 
       title="Cancel Registration"
-      modalType='warning'
-      borderColor={theme.palette.warning.main}
+      modalType='error'
+      borderColor={theme.palette.error.main}
       buttonOption2={isRefundable ?{
         label: "Yes",
         variant: "contained",
-        color: "warning",
+        color: "error",
         onClick:onClose,
       }: undefined}
       buttonOption1={isRefundable? {
         label: "No",
         variant: "outlined",
-        color: "warning",
+        color: "error",
         onClick:onClose,
       }: 
       {
         label: "Close",
         variant: "contained",
-        color: "warning",
+        color: "error",
         onClick:onClose,
       }
     }  
@@ -43,7 +43,7 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelE
         <Typography
           sx={{
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            color: "text.primary",
+            color: theme.palette.error.main,
             mb: 2,  
             fontSize: "1.1rem",
             fontWeight: 600,
@@ -54,7 +54,7 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelE
         <Typography
           sx={{
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            color: theme.palette.warning.main,
+            color: "gray",
             mb: 1,
             fontSize: "0.95rem",
           }}
@@ -64,7 +64,7 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelE
         <Typography
           sx={{
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            color: theme.palette.warning.main,
+            color: "gray",
             fontSize: "0.9rem",
             fontWeight: 500,
           }}

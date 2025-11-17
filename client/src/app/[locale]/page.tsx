@@ -13,7 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import type { Theme, SxProps } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LanguageIcon from "@mui/icons-material/Language";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -24,59 +24,14 @@ import PlaceIcon from "@mui/icons-material/Place";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import PaletteIcon from "@mui/icons-material/Palette";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import HomeIcon from "@mui/icons-material/Home";
-import { motion, AnimatePresence } from "framer-motion";
-import LoginForm from "@/components/shared/LoginForm/LoginForm";
-import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
+import Flag from "react-world-flags";
+import { Link } from "@/i18n/navigation";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import CustomAccordion from "@/components/shared/Accordions/CustomAccordion";
+import CustomModalLayout from "@/components/shared/modals/CustomModalLayout";
+import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
 
 const consentStorageKey = "multaqa-consent-v1";
-
-type Shape = {
-  id: string;
-  type: "circle" | "rectangle" | "triangle";
-  color: string;
-  size: number;
-  width?: number;
-  height?: number;
-  padding?: number;
-  initialPos: { x: number; y: number };
-  targetPosLogin: { x: number; y: number };
-  targetPosRegister: { x: number; y: number };
-  rotation?: number;
-  targetRotation?: number;
-  scale?: number;
-  targetScale?: number;
-};
-
-const getShapeStyle = (shape: Shape, isAligned: boolean) => {
-  const w = shape.width ?? shape.size;
-  const h = shape.height ?? shape.size;
-  const p = shape.padding ?? 0;
-
-  if (shape.type === "triangle") {
-    return {
-      width: 0,
-      height: 0,
-      borderLeft: `${w / 2}px solid transparent`,
-      borderRight: `${w / 2}px solid transparent`,
-      borderBottom: `${h}px solid ${alpha(shape.color, 1)}`,
-      padding: p,
-      backgroundColor: "transparent",
-      boxShadow: "none",
-    };
-  }
-
-  return {
-    width: w,
-    height: h,
-    padding: p,
-    backgroundColor: shape.color,
-    borderRadius: shape.type === "circle" ? "50%" : "12px",
-    boxShadow: isAligned
-      ? `0 15px 40px ${alpha(shape.color, 0.4)}`
-      : `0 8px 25px ${alpha(shape.color, 0.25)}`,
-  };
-};
 
 const signUpOptions = [
   {
@@ -113,7 +68,7 @@ const faqItems = [
   {
     title: "How do I register for an event on Multaqa?",
     content:
-      "Log in with your university account, browse any event, and tap the register button. We'll confirm your spot instantly and send reminders as the event approaches.",
+      "Log in with your university account, browse any event, and tap the register button. We’ll confirm your spot instantly and send reminders as the event approaches.",
   },
   {
     title: "Can external vendors participate in campus events?",
@@ -155,254 +110,6 @@ const socialLinks = [
   },
 ];
 
-const MenuToggleButton = ({
-  open,
-  onClick,
-  sx,
-}: {
-  open: boolean;
-  onClick: () => void;
-  sx?: SxProps<Theme>;
-}) => (
-  <IconButton
-    onClick={onClick}
-    aria-label={open ? "Close menu" : "Open menu"}
-    sx={[
-      (theme) => ({
-        borderRadius: 12,
-        backgroundColor: alpha(theme.palette.common.white, 0.65),
-        boxShadow: `0 8px 20px ${alpha(theme.palette.common.black, 0.12)}`,
-        width: 44,
-        height: 44,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        transition: "background-color 0.2s ease, box-shadow 0.2s ease",
-        "&:hover": {
-          backgroundColor: alpha(theme.palette.common.white, 0.82),
-        },
-      }),
-      ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
-    ]}
-  >
-    <Box
-      sx={{
-        position: "relative",
-        width: 20,
-        height: 14,
-      }}
-    >
-      {[0, 1, 2].map((index) => (
-        <Box
-          key={index}
-          component="span"
-          sx={(theme) => ({
-            position: "absolute",
-            left: 0,
-            width: "100%",
-            height: 2,
-            borderRadius: 1,
-            backgroundColor: theme.palette.text.primary,
-            transition: "transform 0.52s ease, opacity 0.52s ease",
-            transformOrigin: "center",
-            top: index === 0 ? 0 : index === 1 ? "50%" : "100%",
-            transform: open
-              ? index === 0
-                ? "translateY(6px) rotate(45deg)"
-                : index === 1
-                ? "scaleX(0)"
-                : "translateY(-6px) rotate(-45deg)"
-              : "translateY(0) rotate(0)",
-            opacity: open && index === 1 ? 0 : 1,
-          })}
-        />
-      ))}
-    </Box>
-  </IconButton>
-);
-
-const CustomAccordion = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => {
-  const [expanded, setExpanded] = useState(false);
-  const theme = useTheme();
-
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
-        borderRadius: 2,
-        overflow: "hidden",
-      }}
-    >
-      <Box
-        onClick={() => setExpanded(!expanded)}
-        sx={{
-          p: 2,
-          cursor: "pointer",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          "&:hover": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.05),
-          },
-        }}
-      >
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          {title}
-        </Typography>
-        <Typography
-          sx={{
-            transform: expanded ? "rotate(180deg)" : "rotate(0)",
-            transition: "transform 0.3s",
-          }}
-        >
-          ▼
-        </Typography>
-      </Box>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Box sx={{ p: 2, pt: 0 }}>{children}</Box>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Paper>
-  );
-};
-
-const CustomModalLayout = ({
-  open,
-  onClose,
-  children,
-  width,
-}: {
-  open: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-  width?: string;
-}) => {
-  const theme = useTheme();
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <Box
-          sx={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onClick={onClose}
-        >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: alpha(theme.palette.common.black, 0.5),
-              backdropFilter: "blur(4px)",
-            }}
-          />
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "relative",
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: 16,
-              padding: 24,
-              maxWidth: width || "500px",
-              width: "90%",
-              maxHeight: "90vh",
-              overflow: "auto",
-            }}
-          >
-            {children}
-          </motion.div>
-        </Box>
-      )}
-    </AnimatePresence>
-  );
-};
-
-const CustomButton = ({
-  variant = "contained",
-  color = "primary",
-  label,
-  onClick,
-  endIcon,
-  sx,
-  component,
-  href,
-  ...props
-}: any) => {
-  const theme = useTheme();
-  const Component = component || "button";
-
-  const getStyles = () => {
-    if (variant === "contained") {
-      return {
-        backgroundColor: theme.palette[color].main,
-        color: theme.palette[color].contrastText,
-        "&:hover": {
-          backgroundColor: theme.palette[color].dark,
-        },
-      };
-    }
-    return {
-      backgroundColor: "transparent",
-      color: theme.palette[color].main,
-      border: `2px solid ${theme.palette[color].main}`,
-      "&:hover": {
-        backgroundColor: alpha(theme.palette[color].main, 0.1),
-      },
-    };
-  };
-
-  return (
-    <Component
-      onClick={onClick}
-      href={href}
-      sx={{
-        px: 3,
-        py: 1.5,
-        borderRadius: 2,
-        fontWeight: 600,
-        cursor: "pointer",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 1,
-        textDecoration: "none",
-        transition: "all 0.2s ease",
-        ...getStyles(),
-        ...sx,
-      }}
-      {...props}
-    >
-      {label}
-      {endIcon}
-    </Component>
-  );
-};
-
 export default function HomePage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -411,310 +118,13 @@ export default function HomePage() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
+  const [isPageExiting] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
-    "home"
-  );
-  const [userType, setUserType] = useState<string>("");
-
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
-
-  // Initial shapes scattered on the right side
-  const initialShapes: Shape[] = [
-    {
-      id: "shape-1",
-      type: "triangle",
-      color: theme.palette.primary.main,
-      size: 80,
-      width: 80,
-      height: 80,
-      initialPos: { x: 100, y: 50 },
-      targetPosLogin: { x: -50, y: 50 },
-      targetPosRegister: { x: -50, y: 80 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-2",
-      type: "rectangle",
-      color: theme.palette.secondary.main,
-      width: 90,
-      height: 90,
-      size: 90,
-      initialPos: { x: 250, y: 20 },
-      targetPosLogin: { x: -50, y: 200 },
-      targetPosRegister: { x: -50, y: 250 },
-      rotation: 15,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-3",
-      type: "circle",
-      color: theme.palette.tertiary?.main || "#ff5722",
-      width: 70,
-      height: 70,
-      size: 70,
-      initialPos: { x: 150, y: 150 },
-      targetPosLogin: { x: -50, y: 350 },
-      targetPosRegister: { x: -50, y: 420 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-4",
-      type: "rectangle",
-      color: "#9c27b0",
-      width: 85,
-      height: 85,
-      size: 85,
-      initialPos: { x: 50, y: 220 },
-      targetPosLogin: { x: -50, y: 500 },
-      targetPosRegister: { x: -50, y: 580 },
-      rotation: -20,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-5",
-      type: "circle",
-      color: "#ff9800",
-      width: 95,
-      height: 95,
-      size: 95,
-      initialPos: { x: 300, y: 180 },
-      targetPosLogin: { x: -50, y: 650 },
-      targetPosRegister: { x: -50, y: 740 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-6",
-      type: "rectangle",
-      color: "#e91e63",
-      width: 75,
-      height: 75,
-      size: 75,
-      initialPos: { x: 180, y: 280 },
-      targetPosLogin: { x: 80, y: 50 },
-      targetPosRegister: { x: 80, y: 100 },
-      rotation: 25,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-7",
-      type: "circle",
-      color: "#00bcd4",
-      width: 88,
-      height: 88,
-      size: 88,
-      initialPos: { x: 90, y: 100 },
-      targetPosLogin: { x: 80, y: 200 },
-      targetPosRegister: { x: 80, y: 260 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-8",
-      type: "rectangle",
-      color: "#4caf50",
-      width: 82,
-      height: 82,
-      size: 82,
-      initialPos: { x: 270, y: 120 },
-      targetPosLogin: { x: 80, y: 350 },
-      targetPosRegister: { x: 80, y: 420 },
-      rotation: -12,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-9",
-      type: "circle",
-      color: theme.palette.primary.dark,
-      width: 78,
-      height: 78,
-      size: 78,
-      initialPos: { x: 200, y: 240 },
-      targetPosLogin: { x: 80, y: 500 },
-      targetPosRegister: { x: 80, y: 580 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-    {
-      id: "shape-10",
-      type: "rectangle",
-      color: "#f44336",
-      width: 92,
-      height: 92,
-      size: 92,
-      initialPos: { x: 330, y: 80 },
-      targetPosLogin: { x: 80, y: 650 },
-      targetPosRegister: { x: 80, y: 740 },
-      rotation: 18,
-      targetRotation: 0,
-      scale: 1,
-      targetScale: 1,
-    },
-  ];
-
-  // Additional shapes that appear when transitioning to login
-  const extraShapesLogin: Shape[] = [
-    {
-      id: "extra-login-1",
-      type: "circle",
-      color: "#673ab7",
-      width: 85,
-      height: 85,
-      size: 85,
-      initialPos: { x: -50, y: -150 },
-      targetPosLogin: { x: -50, y: 800 },
-      targetPosRegister: { x: -50, y: 0 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-    {
-      id: "extra-login-2",
-      type: "rectangle",
-      color: "#3f51b5",
-      width: 90,
-      height: 90,
-      size: 90,
-      initialPos: { x: 80, y: -150 },
-      targetPosLogin: { x: 80, y: 800 },
-      targetPosRegister: { x: 80, y: 0 },
-      rotation: -15,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-    {
-      id: "extra-login-3",
-      type: "triangle",
-      color: "#009688",
-      width: 80,
-      height: 80,
-      size: 80,
-      initialPos: { x: -50, y: 1000 },
-      targetPosLogin: { x: -50, y: 0 },
-      targetPosRegister: { x: -50, y: 900 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-    {
-      id: "extra-login-4",
-      type: "circle",
-      color: "#ff5722",
-      width: 88,
-      height: 88,
-      size: 88,
-      initialPos: { x: 80, y: 1000 },
-      targetPosLogin: { x: 80, y: 0 },
-      targetPosRegister: { x: 80, y: 900 },
-      rotation: 20,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-  ];
-
-  // Additional shapes that appear when transitioning to register
-  const extraShapesRegister: Shape[] = [
-    {
-      id: "extra-register-1",
-      type: "rectangle",
-      color: "#607d8b",
-      width: 95,
-      height: 75,
-      size: 85,
-      initialPos: { x: -50, y: -150 },
-      targetPosLogin: { x: -50, y: 0 },
-      targetPosRegister: { x: -50, y: 900 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-    {
-      id: "extra-register-2",
-      type: "circle",
-      color: "#795548",
-      width: 80,
-      height: 80,
-      size: 80,
-      initialPos: { x: 80, y: -150 },
-      targetPosLogin: { x: 80, y: 0 },
-      targetPosRegister: { x: 80, y: 900 },
-      rotation: -25,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-    {
-      id: "extra-register-3",
-      type: "triangle",
-      color: "#cddc39",
-      width: 85,
-      height: 85,
-      size: 85,
-      initialPos: { x: -150, y: 400 },
-      targetPosLogin: { x: -50, y: 900 },
-      targetPosRegister: { x: -50, y: 0 },
-      rotation: 0,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-    {
-      id: "extra-register-4",
-      type: "rectangle",
-      color: "#ffc107",
-      width: 78,
-      height: 92,
-      size: 85,
-      initialPos: { x: -150, y: 200 },
-      targetPosLogin: { x: 80, y: 900 },
-      targetPosRegister: { x: 80, y: 0 },
-      rotation: 15,
-      targetRotation: 0,
-      scale: 0.8,
-      targetScale: 1,
-    },
-  ];
-
-  const getActiveShapes = () => {
-    if (currentView === "login") {
-      return [...initialShapes, ...extraShapesLogin];
-    } else if (currentView === "register") {
-      return [...initialShapes, ...extraShapesRegister];
-    }
-    return initialShapes;
-  };
-
-  const shapes = getActiveShapes();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -879,23 +289,6 @@ export default function HomePage() {
     setIsLocaleModalOpen(false);
   };
 
-  const handleLoginClick = () => {
-    setCurrentView("login");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleRegisterClick = (type: string) => {
-    setUserType(type);
-    setCurrentView("register");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleHomeClick = () => {
-    setCurrentView("home");
-    setUserType("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const locales = [
     {
       code: "en",
@@ -963,12 +356,8 @@ export default function HomePage() {
           }}
         >
           <Typography
-            component="a"
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handleHomeClick();
-            }}
+            component={Link}
+            href="/"
             variant="h6"
             sx={{
               textDecoration: "none",
@@ -976,7 +365,6 @@ export default function HomePage() {
               fontFamily: "var(--font-jost), system-ui, sans-serif",
               fontWeight: 600,
               letterSpacing: "0.08em",
-              cursor: "pointer",
             }}
           >
             MULTAQA
@@ -993,51 +381,6 @@ export default function HomePage() {
               spacing={3}
               sx={{ display: { xs: "none", md: "flex" } }}
             >
-              {currentView !== "home" && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                >
-                  <IconButton
-                    onClick={handleHomeClick}
-                    aria-label="Go to home"
-                    sx={{
-                      height: 40,
-                      borderRadius: 14,
-                      px: 2,
-                      border: `1px solid ${alpha(
-                        theme.palette.text.primary,
-                        0.12
-                      )}`,
-                      backgroundColor: alpha(theme.palette.common.white, 0.75),
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.9,
-                      "&:hover": {
-                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                      },
-                    }}
-                  >
-                    <HomeIcon
-                      sx={{
-                        fontSize: 18,
-                        color: alpha(theme.palette.text.primary, 0.7),
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        color: theme.palette.text.primary,
-                      }}
-                    >
-                      Home
-                    </Typography>
-                  </IconButton>
-                </motion.div>
-              )}
-
               <IconButton
                 onClick={openLocaleModal}
                 aria-label="Change locale"
@@ -1073,7 +416,7 @@ export default function HomePage() {
               </IconButton>
 
               <Typography
-                component="a"
+                component={Link}
                 href="/support"
                 sx={{
                   fontSize: "0.9rem",
@@ -1087,54 +430,31 @@ export default function HomePage() {
                 Support
               </Typography>
 
-              {currentView === "home" && (
-                <CustomButton
-                  variant="contained"
-                  onClick={handleLoginClick}
-                  label="Login"
-                  size="small"
-                  sx={{
-                    px: 2.4,
-                    height: 40,
-                    width: "auto",
-                    fontWeight: 700,
-                    backgroundColor: theme.palette.tertiary?.main || "#ff5722",
-                    color: theme.palette.tertiary?.contrastText || "#fff",
-                    border: `2px solid ${
-                      theme.palette.tertiary?.dark || "#e64a19"
-                    }`,
-                    "&:hover": {
-                      backgroundColor: theme.palette.primary.main,
-                      borderColor: theme.palette.primary.dark,
-                    },
-                    boxShadow: `0 10px 24px ${alpha(
-                      theme.palette.tertiary?.main || "#ff5722",
-                      0.3
-                    )}`,
-                  }}
-                />
-              )}
-            </Stack>
-
-            {currentView !== "home" && (
-              <IconButton
-                onClick={handleHomeClick}
-                aria-label="Go to home"
+              <CustomButton
+                variant="contained"
+                component={Link}
+                href="/login"
+                label="Login"
+                size="small"
                 sx={{
-                  display: { xs: "inline-flex", md: "none" },
-                  borderRadius: 12,
-                  width: 44,
-                  height: 44,
-                  backgroundColor: alpha(theme.palette.common.white, 0.65),
-                  boxShadow: `0 6px 16px ${alpha(
-                    theme.palette.common.black,
-                    0.12
+                  px: 2.4,
+                  height: 40,
+                  width: "auto",
+                  fontWeight: 700,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.dark,
+                  },
+                  boxShadow: `0 10px 24px ${alpha(
+                    theme.palette.tertiary.main,
+                    0.3
                   )}`,
                 }}
-              >
-                <HomeIcon />
-              </IconButton>
-            )}
+              />
+            </Stack>
 
             <IconButton
               onClick={openLocaleModal}
@@ -1154,16 +474,15 @@ export default function HomePage() {
               <LanguageIcon />
             </IconButton>
 
-            <MenuToggleButton open={isMenuOpen} onClick={toggleMenu} />
+            <AnimatedCloseButton open={isMenuOpen} onClick={toggleMenu} />
           </Stack>
         </Container>
       </Box>
 
-      {/* Locale Modal */}
       <CustomModalLayout
         open={isLocaleModalOpen}
         onClose={closeLocaleModal}
-        width="420px"
+        width="w-[90vw] sm:w-[420px]"
       >
         <Stack spacing={3}>
           <Stack spacing={0.5} textAlign="center">
@@ -1182,7 +501,7 @@ export default function HomePage() {
             {locales.map((locale) => (
               <Box
                 key={locale.code}
-                component="a"
+                component={Link}
                 href={locale.localePath}
                 sx={{
                   display: "flex",
@@ -1196,29 +515,16 @@ export default function HomePage() {
                   backgroundColor: alpha(theme.palette.primary.light, 0.05),
                   border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   "&:hover": {
-                    backgroundColor: alpha(
-                      theme.palette.tertiary?.main || "#ff5722",
-                      0.25
-                    ),
+                    backgroundColor: alpha(theme.palette.tertiary.main, 0.25),
                   },
                 }}
                 onClick={closeLocaleModal}
               >
                 <Stack direction="row" spacing={1.25} alignItems="center">
-                  <Box
-                    sx={{
-                      width: 30,
-                      height: 20,
-                      borderRadius: "6px",
-                      backgroundColor: alpha(theme.palette.primary.main, 0.2),
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.7rem",
-                    }}
-                  >
-                    {locale.flagCode}
-                  </Box>
+                  <Flag
+                    code={locale.flagCode}
+                    style={{ width: 30, height: 20, borderRadius: 6 }}
+                  />
                   <Typography
                     sx={{ fontWeight: 600, color: theme.palette.text.primary }}
                   >
@@ -1239,18 +545,18 @@ export default function HomePage() {
         </Stack>
       </CustomModalLayout>
 
-      {/* Consent Modal */}
       <CustomModalLayout
         open={isConsentOpen}
         onClose={handleDismissConsent}
-        width="540px"
+        width="w-[90vw] sm:w-[540px]"
       >
         <Stack spacing={3.5} sx={{ px: { xs: 1, sm: 2 }, py: 1 }}>
+          {/* Header Section */}
           <Stack spacing={2} alignItems="center">
-            <Typography
-              component="h2"
-              variant="h4"
-              sx={{
+            <Typography 
+              component="h2" 
+              variant="h4" 
+              sx={{ 
                 fontWeight: 700,
                 textAlign: "center",
                 fontSize: { xs: "1.75rem", sm: "2rem" },
@@ -1260,7 +566,7 @@ export default function HomePage() {
             </Typography>
             <Typography
               variant="body1"
-              sx={{
+              sx={{ 
                 color: alpha(theme.palette.text.primary, 0.75),
                 textAlign: "center",
                 lineHeight: 1.65,
@@ -1273,6 +579,7 @@ export default function HomePage() {
             </Typography>
           </Stack>
 
+          {/* Policies List */}
           <Box
             sx={{
               backgroundColor: alpha(theme.palette.primary.main, 0.03),
@@ -1311,7 +618,7 @@ export default function HomePage() {
               ].map((item) => (
                 <li key={item.href}>
                   <Typography
-                    component="a"
+                    component={Link}
                     href={item.href}
                     sx={{
                       textDecoration: "none",
@@ -1332,877 +639,59 @@ export default function HomePage() {
             </Box>
           </Box>
 
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1.5, sm: 3 }}
-            justifyContent={{ xs: "center", sm: "flex-start" }}
-            alignItems={{ xs: "center", sm: "flex-start" }}
-            sx={{ width: { xs: "100%", sm: "auto" } }}
+          {/* Footer Note */}
+          <Typography
+            variant="body2"
+            sx={{ 
+              color: alpha(theme.palette.text.primary, 0.6),
+              textAlign: "center",
+              lineHeight: 1.6,
+              fontSize: "0.875rem",
+              px: 1,
+            }}
           >
-            <Typography
-              component="a"
-              href="/terms"
-              sx={menuSubLinkStyles(theme)}
-            >
-              Terms of Service
-            </Typography>
-            <Typography
-              component="a"
-              href="/privacy"
-              sx={menuSubLinkStyles(theme)}
-            >
-              Privacy Policy
-            </Typography>
-            <Typography
-              component="a"
-              href="/cookies"
-              sx={menuSubLinkStyles(theme)}
-            >
-              Cookies
-            </Typography>
-            <Typography
-              component="a"
-              href="/gdpr"
-              sx={menuSubLinkStyles(theme)}
-            >
-              GDPR
-            </Typography>
-          </Stack>
+            You can revisit these settings anytime from the footer links. We
+            respect your choices and only store this preference in your browser.
+          </Typography>
 
-          <Stack direction="column" spacing={1.25} sx={{ pt: 0.5 }}>
+          {/* Action Buttons */}
+          <Stack
+            direction="column"
+            spacing={1.25}
+            sx={{ pt: 0.5 }}
+          >
             <CustomButton
               variant="contained"
               onClick={handleAcceptConsent}
-              label="Accept all"
               sx={{
                 width: "100%",
                 fontWeight: 700,
-                backgroundColor: theme.palette.tertiary?.main || "#ff5722",
-                color: theme.palette.tertiary?.contrastText || "#fff",
-                border: `2px solid ${
-                  theme.palette.tertiary?.dark || "#e64a19"
-                }`,
+                backgroundColor: theme.palette.tertiary.main,
+                color: theme.palette.tertiary.contrastText,
+                border: `2px solid ${theme.palette.tertiary.dark}`,
                 "&:hover": {
-                  backgroundColor: theme.palette.tertiary?.dark || "#e64a19",
-                  borderColor: theme.palette.tertiary?.dark || "#e64a19",
+                  backgroundColor: theme.palette.tertiary.dark,
+                  borderColor: theme.palette.tertiary.dark,
                 },
               }}
-            />
+            >
+              Accept all
+            </CustomButton>
             <CustomButton
               variant="outlined"
               color="primary"
               onClick={handleDismissConsent}
-              label="Continue without optional cookies"
-              sx={{
+              sx={{ 
                 width: "100%",
                 py: 0.75,
               }}
-            />
+            >
+              Continue without optional cookies
+            </CustomButton>
           </Stack>
         </Stack>
       </CustomModalLayout>
 
-      {/* Hero Section */}
-      <Box
-        component="section"
-        sx={{ position: "relative", overflow: "hidden" }}
-      >
-        <Container
-          maxWidth="lg"
-          sx={{
-            pt: { xs: 16, md: 18 },
-            pb: { xs: 10, md: 14 },
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "center", md: "center" },
-            gap: { xs: 7, md: 10 },
-            textAlign: { xs: "center", md: "left" },
-            minHeight: {
-              xs: "auto",
-              md: currentView !== "home" ? "100vh" : "auto",
-            },
-          }}
-        >
-          {/* Main Content Area */}
-          <AnimatePresence mode="wait">
-            {currentView === "home" && (
-              <motion.div
-                key="home-content"
-                initial={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -500 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 100,
-                  damping: 20,
-                }}
-                style={{
-                  flex: 1,
-                  position: "relative",
-                  zIndex: 1,
-                  width: "100%",
-                  maxWidth: "560px",
-                }}
-              >
-                <Typography
-                  variant="overline"
-                  sx={{
-                    letterSpacing: "0.3em",
-                    textTransform: "uppercase",
-                    color: theme.palette.primary.dark,
-                    fontWeight: 600,
-                  }}
-                >
-                  Multaqa • GUC
-                </Typography>
-                <Typography
-                  component="h1"
-                  variant="h1"
-                  sx={{
-                    fontSize: { xs: "2.75rem", md: "3.75rem" },
-                    fontWeight: 600,
-                    letterSpacing: { xs: "0.4px", md: "1px" },
-                    lineHeight: 1.1,
-                    color: theme.palette.text.primary,
-                    mt: 2,
-                    textAlign: { xs: "center", md: "left" },
-                  }}
-                >
-                  Artful events for every voice on campus.
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mt: 3,
-                    maxWidth: { xs: 560, md: 520 },
-                    color: alpha(theme.palette.text.primary, 0.75),
-                    fontSize: { xs: "1rem", md: "1.1rem" },
-                    mx: { xs: "auto", md: 0 },
-                  }}
-                >
-                  Multaqa reimagines campus life with a vibrant hub for
-                  showcasing events, workshops, and cultural experiences
-                  inspired by the GUC community.
-                </Typography>
-
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2.5}
-                  sx={{
-                    mt: 5,
-                    width: "100%",
-                    alignItems: {
-                      xs: "stretch",
-                      sm: "center",
-                      md: "flex-start",
-                    },
-                    justifyContent: { xs: "center", md: "flex-start" },
-                  }}
-                >
-                  <CustomButton
-                    variant="contained"
-                    onClick={handleLoginClick}
-                    label="Login"
-                    sx={{
-                      width: { xs: "100%", sm: "160px" },
-                      fontWeight: 700,
-                      backgroundColor:
-                        theme.palette.tertiary?.main || "#ff5722",
-                      color: theme.palette.tertiary?.contrastText || "#fff",
-                      border: `2px solid ${
-                        theme.palette.tertiary?.dark || "#e64a19"
-                      }`,
-                      "&:hover": {
-                        backgroundColor: theme.palette.primary.main,
-                        borderColor: theme.palette.primary.dark,
-                      },
-                    }}
-                    endIcon={<ArrowForwardIcon />}
-                  />
-
-                  <Box
-                    ref={signUpHoverRef}
-                    onMouseEnter={() => {
-                      if (isMobile) return;
-                      if (signUpHoverTimeout.current) {
-                        clearTimeout(signUpHoverTimeout.current);
-                        signUpHoverTimeout.current = null;
-                      }
-                      setShowSignUpOptions(true);
-                    }}
-                    onMouseLeave={(event) => {
-                      if (isMobile) return;
-                      const nextTarget = event.relatedTarget as Node | null;
-                      if (
-                        nextTarget &&
-                        signUpHoverRef.current?.contains(nextTarget)
-                      ) {
-                        return;
-                      }
-                      if (signUpHoverTimeout.current) {
-                        clearTimeout(signUpHoverTimeout.current);
-                      }
-                      signUpHoverTimeout.current = setTimeout(() => {
-                        setShowSignUpOptions(false);
-                        signUpHoverTimeout.current = null;
-                      }, 150);
-                    }}
-                    sx={{
-                      position: "relative",
-                      width: { xs: "100%", sm: "200px" },
-                      maxWidth: "100%",
-                    }}
-                  >
-                    <CustomButton
-                      variant="outlined"
-                      color="primary"
-                      label="Sign Up"
-                      endIcon={<ArrowOutwardIcon />}
-                      onClick={() => {
-                        if (isMobile) {
-                          setShowSignUpOptions((prev) => !prev);
-                        }
-                      }}
-                      aria-haspopup="true"
-                      aria-expanded={showSignUpOptions}
-                      sx={{
-                        width: "100%",
-                        fontWeight: 700,
-                        backdropFilter: "blur(4px)",
-                      }}
-                    />
-
-                    <Paper
-                      elevation={8}
-                      onMouseEnter={() => {
-                        if (isMobile) return;
-                        if (signUpHoverTimeout.current) {
-                          clearTimeout(signUpHoverTimeout.current);
-                          signUpHoverTimeout.current = null;
-                        }
-                        setShowSignUpOptions(true);
-                      }}
-                      onMouseLeave={(event) => {
-                        if (isMobile) return;
-                        const nextTarget = event.relatedTarget as Node | null;
-                        if (
-                          nextTarget &&
-                          signUpHoverRef.current?.contains(nextTarget)
-                        ) {
-                          return;
-                        }
-                        if (signUpHoverTimeout.current) {
-                          clearTimeout(signUpHoverTimeout.current);
-                        }
-                        signUpHoverTimeout.current = setTimeout(() => {
-                          setShowSignUpOptions(false);
-                          signUpHoverTimeout.current = null;
-                        }, 150);
-                      }}
-                      sx={{
-                        position: "absolute",
-                        top: { xs: "72px", sm: "54px" },
-                        left: 0,
-                        width: { xs: "100%", sm: 260 },
-                        borderRadius: 3,
-                        p: 2,
-                        background: theme.palette.common.white,
-                        boxShadow: `0 18px 40px ${alpha(
-                          theme.palette.primary.main,
-                          0.18
-                        )}`,
-                        opacity: showSignUpOptions ? 1 : 0,
-                        transform: showSignUpOptions
-                          ? "translateY(0)"
-                          : "translateY(-10px)",
-                        pointerEvents: showSignUpOptions ? "auto" : "none",
-                        transition: "all 0.28s ease",
-                        zIndex: 60,
-                      }}
-                    >
-                      <Stack spacing={1.5}>
-                        {signUpOptions.map((option) => (
-                          <Box
-                            key={option.label}
-                            component="a"
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const type = option.href.includes(
-                                "university-member"
-                              )
-                                ? "university-member"
-                                : "vendor";
-                              handleRegisterClick(type);
-                            }}
-                            sx={{
-                              borderRadius: 2,
-                              p: 1.5,
-                              display: "block",
-                              color: theme.palette.text.primary,
-                              textDecoration: "none",
-                              transition: "background 0.2s ease",
-                              "&:hover": {
-                                background: alpha(
-                                  theme.palette.primary.main,
-                                  0.35
-                                ),
-                              },
-                            }}
-                          >
-                            <Typography
-                              variant="subtitle2"
-                              sx={{ fontWeight: 600 }}
-                            >
-                              {option.label}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: alpha(theme.palette.text.primary, 0.7),
-                                mt: 0.5,
-                              }}
-                            >
-                              {option.description}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Stack>
-                    </Paper>
-                  </Box>
-                </Stack>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Shapes and Form Container */}
-          <Box
-            sx={{
-              flex: { md: 1 },
-              position: "relative",
-              minHeight: {
-                xs: 500,
-                sm: 600,
-                md: currentView !== "home" ? 900 : 500,
-              },
-              width: "100%",
-              maxWidth: { xs: 520, md: "100%" },
-              mx: { xs: "auto", md: 0 },
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              gap: { xs: 4, md: 6 },
-              alignItems: { xs: "center", md: "flex-start" },
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: 6,
-                background: `linear-gradient(135deg, ${alpha(
-                  theme.palette.primary.main,
-                  0.08
-                )}, ${alpha(theme.palette.tertiary?.main || "#ff5722", 0.15)})`,
-                filter: "blur(80px)",
-                zIndex: 0,
-                opacity: 1,
-              }}
-            />
-
-            {/* Animated Shapes */}
-            <Box
-              sx={{
-                position: "relative",
-                height: "100%",
-                width: {
-                  xs: "100%",
-                  md: currentView !== "home" ? "40%" : "100%",
-                },
-                minHeight: { xs: 400, md: currentView !== "home" ? 900 : 500 },
-                transition: "all 0.6s ease",
-              }}
-            >
-              {shapes.map((shape, index) => {
-                const isAligned = currentView !== "home";
-                const targetX = isAligned
-                  ? currentView === "login"
-                    ? shape.targetPosLogin.x
-                    : shape.targetPosRegister.x
-                  : shape.initialPos.x;
-                const targetY = isAligned
-                  ? currentView === "login"
-                    ? shape.targetPosLogin.y
-                    : shape.targetPosRegister.y
-                  : shape.initialPos.y;
-                const targetRot = isAligned
-                  ? shape.targetRotation || 0
-                  : shape.rotation || 0;
-                const targetScl = isAligned
-                  ? shape.targetScale || 1
-                  : shape.scale || 1;
-
-                const isExtraShape = shape.id.includes("extra");
-                const shouldShow =
-                  currentView === "home"
-                    ? !isExtraShape
-                    : currentView === "login"
-                    ? !shape.id.includes("register")
-                    : !shape.id.includes("login");
-
-                return (
-                  <motion.div
-                    key={shape.id}
-                    initial={false}
-                    animate={{
-                      x: targetX,
-                      y: targetY,
-                      rotate: targetRot,
-                      scale: targetScl,
-                      opacity: shouldShow ? 1 : 0,
-                    }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 60,
-                      damping: 20,
-                      delay: isAligned
-                        ? isExtraShape
-                          ? index * 0.06 + 0.3
-                          : index * 0.04
-                        : 0,
-                    }}
-                    style={{
-                      position: "absolute",
-                      width: shape.size,
-                      height: shape.size,
-                      top: 0,
-                      left: 0,
-                      zIndex: 1,
-                    }}
-                  >
-                    <motion.div
-                      animate={
-                        !isAligned
-                          ? {
-                              y: [0, -15, 0],
-                              rotate: [0, 5, -5, 0],
-                            }
-                          : {}
-                      }
-                      transition={{
-                        duration: 4 + index * 0.3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: index * 0.2,
-                      }}
-                      style={getShapeStyle(shape, isAligned)}
-                    />
-                  </motion.div>
-                );
-              })}
-            </Box>
-
-            {/* Login/Registration Form */}
-            <Box
-              sx={{
-                flex: 1,
-                width: { xs: "100%", md: "auto" },
-                display: currentView !== "home" ? "flex" : "none",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: { xs: 400, md: 500 },
-                zIndex: 2,
-              }}
-            >
-              <AnimatePresence mode="wait">
-                {currentView === "login" && (
-                  <motion.div
-                    key="login-form"
-                    initial={{ opacity: 0, x: 500 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 500 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 80,
-                      damping: 20,
-                      delay: 0.4,
-                    }}
-                    style={{ width: "100%", maxWidth: 550 }}
-                  >
-                    <LoginForm />
-                  </motion.div>
-                )}
-                {currentView === "register" && (
-                  <motion.div
-                    key="register-form"
-                    initial={{ opacity: 0, x: 500 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 500 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 80,
-                      damping: 20,
-                      delay: 0.4,
-                    }}
-                    style={{ width: "100%", maxWidth: 550 }}
-                  >
-                    <RegistrationForm UserType={userType} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-
-      {/* Features Section - Only show on home */}
-      <AnimatePresence>
-        {currentView === "home" && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Box
-              component="section"
-              sx={{
-                py: { xs: 8, md: 12 },
-                bgcolor: theme.palette.common.white,
-              }}
-            >
-              <Container maxWidth="lg">
-                <Typography
-                  component="h2"
-                  variant="h3"
-                  sx={{
-                    textAlign: "center",
-                    fontWeight: 600,
-                    fontSize: { xs: "2.1rem", md: "2.6rem" },
-                  }}
-                >
-                  A curated space for collaboration and celebration.
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    maxWidth: 640,
-                    mx: "auto",
-                    textAlign: "center",
-                    mt: 2.5,
-                    color: alpha(theme.palette.text.primary, 0.7),
-                  }}
-                >
-                  Multaqa streamlines event planning, registration, and
-                  discovery, so every voice on campus can connect through
-                  meaningful experiences.
-                </Typography>
-
-                <Stack
-                  direction={{ xs: "column", md: "row" }}
-                  spacing={3}
-                  sx={{
-                    mt: { xs: 6, md: 8 },
-                    alignItems: "stretch",
-                  }}
-                >
-                  {featureHighlights.map((feature) => (
-                    <Paper
-                      key={feature.title}
-                      elevation={0}
-                      sx={{
-                        flex: 1,
-                        p: { xs: 3.5, md: 4 },
-                        borderRadius: 4,
-                        border: `1px solid ${alpha(
-                          theme.palette.primary.main,
-                          0.15
-                        )}`,
-                        background: alpha(theme.palette.primary.light, 0.04),
-                        height: "100%",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 56,
-                          height: 56,
-                          borderRadius: 3,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          bgcolor: alpha(theme.palette.primary.main, 0.4),
-                          color: theme.palette.tertiary?.dark || "#e64a19",
-                          mb: 2.5,
-                        }}
-                      >
-                        {feature.icon}
-                      </Box>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 600, mb: 1.5 }}
-                      >
-                        {feature.title}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
-                      >
-                        {feature.copy}
-                      </Typography>
-                    </Paper>
-                  ))}
-                </Stack>
-              </Container>
-            </Box>
-
-            {/* FAQ Section */}
-            <Box
-              component="section"
-              sx={{
-                py: { xs: 8, md: 12 },
-                backgroundColor: alpha(theme.palette.primary.light, 0.05),
-              }}
-            >
-              <Container maxWidth="lg">
-                <Typography
-                  component="h2"
-                  variant="h4"
-                  sx={{
-                    textAlign: "center",
-                    fontWeight: 600,
-                    fontSize: { xs: "2rem", md: "2.4rem" },
-                  }}
-                >
-                  Frequently Asked Questions
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    maxWidth: 600,
-                    mx: "auto",
-                    textAlign: "center",
-                    mt: 2,
-                    color: alpha(theme.palette.text.primary, 0.7),
-                  }}
-                >
-                  Quick answers to help students, staff, and partners get the
-                  most out of Multaqa.
-                </Typography>
-
-                <Box
-                  sx={{
-                    mt: { xs: 5, md: 6 },
-                    maxWidth: 900,
-                    mx: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2.5,
-                    px: { xs: 1, md: 0 },
-                  }}
-                >
-                  {faqItems.map((faq) => (
-                    <CustomAccordion key={faq.title} title={faq.title}>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
-                      >
-                        {faq.content}
-                      </Typography>
-                    </CustomAccordion>
-                  ))}
-                </Box>
-              </Container>
-            </Box>
-
-            {/* Footer */}
-            <Box
-              component="footer"
-              sx={{
-                background: `linear-gradient(135deg, ${
-                  theme.palette.primary.main
-                } 0%, ${alpha(
-                  theme.palette.tertiary?.main || "#ff5722",
-                  0.7
-                )} 100%)`,
-                color: theme.palette.common.white,
-                position: "relative",
-                overflow: "hidden",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: `radial-gradient(circle at 30% 40%, ${alpha(
-                    theme.palette.primary.light,
-                    0.15
-                  )}, transparent 60%)`,
-                  pointerEvents: "none",
-                },
-              }}
-            >
-              <Container
-                maxWidth="lg"
-                sx={{
-                  py: { xs: 6, md: 8 },
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 4,
-                  alignItems: { xs: "center", md: "stretch" },
-                  position: "relative",
-                  zIndex: 1,
-                }}
-              >
-                <Stack
-                  direction={{ xs: "column", md: "row" }}
-                  spacing={4}
-                  justifyContent={{ xs: "center", md: "space-between" }}
-                  alignItems={{ xs: "center", md: "center" }}
-                  sx={{
-                    textAlign: { xs: "center", md: "left" },
-                    gap: { xs: 3, md: 4 },
-                    width: "100%",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: { xs: "100%", md: "auto" },
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: { xs: "center", md: "flex-start" },
-                    }}
-                  >
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                      Multaqa
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        opacity: 0.75,
-                        mt: 1,
-                        maxWidth: 320,
-                        mx: { xs: "auto", md: 0 },
-                        textAlign: { xs: "center", md: "left" },
-                      }}
-                    >
-                      Bringing the GUC community together through dynamic events
-                      and collaborative storytelling.
-                    </Typography>
-                  </Box>
-
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    justifyContent={{ xs: "center", md: "flex-start" }}
-                    sx={{ width: { xs: "100%", md: "auto" } }}
-                  >
-                    {[
-                      {
-                        icon: <InstagramIcon />,
-                        href: "https://instagram.com",
-                      },
-                      {
-                        icon: <LinkedInIcon />,
-                        href: "https://linkedin.com",
-                      },
-                      {
-                        icon: <XIcon />,
-                        href: "https://twitter.com",
-                      },
-                    ].map((social) => (
-                      <IconButton
-                        key={social.href}
-                        component="a"
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{
-                          backgroundColor: alpha(
-                            theme.palette.common.white,
-                            0.12
-                          ),
-                          color: theme.palette.common.white,
-                          "&:hover": {
-                            backgroundColor: alpha(
-                              theme.palette.common.white,
-                              0.25
-                            ),
-                          },
-                        }}
-                      >
-                        {social.icon}
-                      </IconButton>
-                    ))}
-                  </Stack>
-
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={{ xs: 1.5, sm: 3 }}
-                  >
-                    <Typography
-                      component="a"
-                      href="/privacy"
-                      sx={{
-                        color: theme.palette.common.white,
-                        textDecoration: "none",
-                        transition: "color 0.2s ease",
-                        "&:hover": {
-                          color: alpha(theme.palette.common.white, 0.75),
-                        },
-                        textAlign: "center",
-                      }}
-                    >
-                      Privacy Policy
-                    </Typography>
-                    <Typography
-                      component="a"
-                      href="/terms"
-                      sx={{
-                        color: theme.palette.common.white,
-                        textDecoration: "none",
-                        transition: "color 0.2s ease",
-                        "&:hover": {
-                          color: alpha(theme.palette.common.white, 0.75),
-                        },
-                        textAlign: "center",
-                      }}
-                    >
-                      Terms of Service
-                    </Typography>
-                    <Typography
-                      component="a"
-                      href="/support"
-                      sx={{
-                        color: theme.palette.common.white,
-                        textDecoration: "none",
-                        transition: "color 0.2s ease",
-                        "&:hover": {
-                          color: alpha(theme.palette.common.white, 0.75),
-                        },
-                        textAlign: "center",
-                      }}
-                    >
-                      Support
-                    </Typography>
-                  </Stack>
-                </Stack>
-
-                <Divider
-                  sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }}
-                />
-
-                <Typography
-                  variant="body2"
-                  sx={{ opacity: 0.7, textAlign: { xs: "center", md: "left" } }}
-                >
-                  © {new Date().getFullYear()} Multaqa. Crafted with care by the
-                  GUC community.
-                </Typography>
-              </Container>
-            </Box>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Mobile Menu */}
       <Box
         ref={dialogRef}
         role="dialog"
@@ -2248,7 +737,7 @@ export default function HomePage() {
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               Explore Multaqa
             </Typography>
-            <MenuToggleButton
+            <AnimatedCloseButton
               open
               onClick={() => setIsMenuOpen(false)}
               sx={(theme) => ({
@@ -2279,7 +768,7 @@ export default function HomePage() {
               <Stack direction={{ xs: "column", sm: "row" }} spacing={4}>
                 <Stack spacing={1.5} sx={{ flex: 1 }}>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events"
                     variant="h6"
                     sx={menuLinkStyles(theme)}
@@ -2287,21 +776,21 @@ export default function HomePage() {
                     Discover Events
                   </Typography>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/workshops"
                     sx={menuSubLinkStyles(theme)}
                   >
                     Workshops & Seminars
                   </Typography>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/competitions"
                     sx={menuSubLinkStyles(theme)}
                   >
                     Competitions & Hackathons
                   </Typography>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/festivals"
                     sx={menuSubLinkStyles(theme)}
                   >
@@ -2310,7 +799,7 @@ export default function HomePage() {
                 </Stack>
                 <Stack spacing={1.5} sx={{ flex: 1 }}>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/trips"
                     variant="h6"
                     sx={menuLinkStyles(theme)}
@@ -2318,21 +807,21 @@ export default function HomePage() {
                     Trips & Exchanges
                   </Typography>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/camps"
                     sx={menuSubLinkStyles(theme)}
                   >
                     Student Retreats
                   </Typography>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/sports"
                     sx={menuSubLinkStyles(theme)}
                   >
                     Sports & Recreation
                   </Typography>
                   <Typography
-                    component="a"
+                    component={Link}
                     href="/events/archives"
                     sx={menuSubLinkStyles(theme)}
                   >
@@ -2351,7 +840,7 @@ export default function HomePage() {
               </Typography>
               <Stack spacing={1.5}>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/vendor"
                   variant="h6"
                   sx={menuLinkStyles(theme)}
@@ -2359,21 +848,21 @@ export default function HomePage() {
                   Become a Vendor
                 </Typography>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/vendor/resources"
                   sx={menuSubLinkStyles(theme)}
                 >
                   Resources & Guidelines
                 </Typography>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/vendor/success"
                   sx={menuSubLinkStyles(theme)}
                 >
                   Success Stories
                 </Typography>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/vendor/support"
                   sx={menuSubLinkStyles(theme)}
                 >
@@ -2421,11 +910,8 @@ export default function HomePage() {
                     Sign up as
                   </Typography>
                   <CustomButton
-                    onClick={() => {
-                      handleRegisterClick("university-member");
-                      setIsMenuOpen(false);
-                    }}
-                    label="University Member"
+                    component={Link}
+                    href="/register?userType=university-member"
                     variant="contained"
                     sx={{
                       width: "100%",
@@ -2433,19 +919,17 @@ export default function HomePage() {
                       fontSize: "1.05rem",
                       fontWeight: 700,
                       letterSpacing: "0.04em",
-                      backgroundColor:
-                        theme.palette.tertiary?.main || "#ff5722",
-                      color: theme.palette.tertiary?.contrastText || "#fff",
-                      border: `2px solid ${
-                        theme.palette.tertiary?.dark || "#e64a19"
-                      }`,
+                      backgroundColor: theme.palette.tertiary.main,
+                      color: theme.palette.tertiary.contrastText,
+                      border: `2px solid ${theme.palette.tertiary.dark}`,
                       "&:hover": {
-                        backgroundColor:
-                          theme.palette.tertiary?.dark || "#e64a19",
-                        borderColor: theme.palette.tertiary?.dark || "#e64a19",
+                        backgroundColor: theme.palette.tertiary.dark,
+                        borderColor: theme.palette.tertiary.dark,
                       },
                     }}
-                  />
+                  >
+                    University Member
+                  </CustomButton>
                 </Stack>
                 <Stack spacing={1}>
                   <Typography
@@ -2459,11 +943,8 @@ export default function HomePage() {
                     Sign up as
                   </Typography>
                   <CustomButton
-                    onClick={() => {
-                      handleRegisterClick("vendor");
-                      setIsMenuOpen(false);
-                    }}
-                    label="Vendor"
+                    component={Link}
+                    href="/register?userType=vendor"
                     color="primary"
                     variant="outlined"
                     sx={{
@@ -2473,7 +954,9 @@ export default function HomePage() {
                       fontWeight: 600,
                       letterSpacing: "0.04em",
                     }}
-                  />
+                  >
+                    Vendor
+                  </CustomButton>
                 </Stack>
                 <Typography
                   sx={{
@@ -2489,18 +972,12 @@ export default function HomePage() {
                 >
                   Already have an account?
                   <Typography
-                    component="a"
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleLoginClick();
-                      setIsMenuOpen(false);
-                    }}
+                    component={Link}
+                    href="/login"
                     sx={{
                       color: theme.palette.primary.main,
                       fontWeight: 600,
                       textDecoration: "none",
-                      cursor: "pointer",
                       "&:hover": {
                         textDecoration: "underline",
                       },
@@ -2520,28 +997,28 @@ export default function HomePage() {
 
               <Stack spacing={1}>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/about"
                   sx={menuSubLinkStyles(theme)}
                 >
                   About Multaqa
                 </Typography>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/contact"
                   sx={menuSubLinkStyles(theme)}
                 >
                   Contact Team
                 </Typography>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/privacy"
                   sx={menuSubLinkStyles(theme)}
                 >
                   Privacy & Terms
                 </Typography>
                 <Typography
-                  component="a"
+                  component={Link}
                   href="/gdpr"
                   sx={menuSubLinkStyles(theme)}
                 >
@@ -2564,7 +1041,7 @@ export default function HomePage() {
                   direction="row"
                   spacing={1}
                   alignItems="center"
-                  component="a"
+                  component={Link}
                   href={item.href}
                   sx={{
                     textDecoration: "none",
@@ -2596,7 +1073,799 @@ export default function HomePage() {
                 </Stack>
               ))}
             </Stack>
+
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1.5, sm: 3 }}
+              justifyContent={{ xs: "center", sm: "flex-start" }}
+              alignItems={{ xs: "center", sm: "flex-start" }}
+              sx={{ width: { xs: "100%", sm: "auto" } }}
+            >
+              <Typography
+                component={Link}
+                href="/terms"
+                sx={menuSubLinkStyles(theme)}
+              >
+                Terms of Service
+              </Typography>
+              <Typography
+                component={Link}
+                href="/privacy"
+                sx={menuSubLinkStyles(theme)}
+              >
+                Privacy Policy
+              </Typography>
+              <Typography
+                component={Link}
+                href="/cookies"
+                sx={menuSubLinkStyles(theme)}
+              >
+                Cookies
+              </Typography>
+              <Typography
+                component={Link}
+                href="/gdpr"
+                sx={menuSubLinkStyles(theme)}
+              >
+                GDPR
+              </Typography>
+            </Stack>
           </Stack>
+        </Container>
+      </Box>
+
+      <Box
+        component="section"
+        sx={{ position: "relative", overflow: "visible" }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            pt: { xs: 16, md: 18 },
+            pb: { xs: 10, md: 14 },
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "center", md: "center" },
+          gap: { xs: 7, md: 10 },
+          textAlign: { xs: "center", md: "left" },
+          }}
+        >
+        <Box
+          sx={{
+            flex: { md: 1 },
+            position: "relative",
+            zIndex: 1,
+            width: "100%",
+            maxWidth: { xs: 560, md: "100%" },
+          }}
+        >
+            <Typography
+              variant="overline"
+              sx={{
+                letterSpacing: "0.3em",
+                textTransform: "uppercase",
+                color: theme.palette.primary.dark,
+                fontWeight: 600,
+              }}
+            >
+              Multaqa • GUC
+            </Typography>
+            <Typography
+              component="h1"
+              variant="h1"
+              sx={{
+                fontSize: { xs: "2.75rem", md: "3.75rem" },
+                fontWeight: 600,
+                letterSpacing: { xs: "0.4px", md: "1px" },
+                lineHeight: 1.1,
+                color: theme.palette.text.primary,
+                mt: 2,
+                textAlign: { xs: "center", md: "left" },
+              }}
+            >
+              Artful events for every voice on campus.
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                mt: 3,
+                maxWidth: { xs: 560, md: 520 },
+                color: alpha(theme.palette.text.primary, 0.75),
+                fontSize: { xs: "1rem", md: "1.1rem" },
+                mx: { xs: "auto", md: 0 },
+              }}
+            >
+              Multaqa reimagines campus life with a vibrant hub for showcasing
+              events, workshops, and cultural experiences inspired by the GUC
+              community.
+            </Typography>
+
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2.5}
+              sx={{
+                mt: 5,
+                width: "100%",
+                alignItems: { xs: "stretch", sm: "center", md: "flex-start" },
+                justifyContent: { xs: "center", md: "flex-start" },
+              }}
+            >
+              <CustomButton
+                variant="contained"
+                component={Link}
+                href="/login"
+                label="Login"
+                sx={{
+                  width: { xs: "100%", sm: "160px" },
+                  fontWeight: 700,
+                  backgroundColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.contrastText,
+                  border: `2px solid ${theme.palette.tertiary.dark}`,
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.dark,
+                  },
+                }}
+                endIcon={<ArrowForwardIcon />}
+              />
+
+              <Box
+                ref={signUpHoverRef}
+                onMouseEnter={() => {
+                  if (isMobile) {
+                    return;
+                  }
+                  if (signUpHoverTimeout.current) {
+                    clearTimeout(signUpHoverTimeout.current);
+                    signUpHoverTimeout.current = null;
+                  }
+                  setShowSignUpOptions(true);
+                }}
+                onMouseLeave={(event) => {
+                  if (isMobile) {
+                    return;
+                  }
+                  const nextTarget = event.relatedTarget as Node | null;
+                  if (
+                    nextTarget &&
+                    signUpHoverRef.current?.contains(nextTarget)
+                  ) {
+                    return;
+                  }
+                  if (signUpHoverTimeout.current) {
+                    clearTimeout(signUpHoverTimeout.current);
+                  }
+                  signUpHoverTimeout.current = setTimeout(() => {
+                    setShowSignUpOptions(false);
+                    signUpHoverTimeout.current = null;
+                  }, 150);
+                }}
+                sx={{
+                  position: "relative",
+                  width: { xs: "100%", sm: "200px" },
+                  maxWidth: "100%",
+                }}
+              >
+                <CustomButton
+                  variant="outlined"
+                  color="primary"
+                  label="Sign Up"
+                  endIcon={<ArrowOutwardIcon />}
+                  onClick={() => {
+                    if (isMobile) {
+                      setShowSignUpOptions((prev) => !prev);
+                    }
+                  }}
+                  aria-haspopup="true"
+                  aria-expanded={showSignUpOptions}
+                  sx={{
+                    width: "100%",
+                    fontWeight: 700,
+                    backdropFilter: "blur(4px)",
+                  }}
+                />
+
+                <Paper
+                  elevation={8}
+                  onMouseEnter={() => {
+                    if (isMobile) {
+                      return;
+                    }
+                    if (signUpHoverTimeout.current) {
+                      clearTimeout(signUpHoverTimeout.current);
+                      signUpHoverTimeout.current = null;
+                    }
+                    setShowSignUpOptions(true);
+                  }}
+                  onMouseLeave={(event) => {
+                    if (isMobile) {
+                      return;
+                    }
+                    const nextTarget = event.relatedTarget as Node | null;
+                    if (
+                      nextTarget &&
+                      signUpHoverRef.current?.contains(nextTarget)
+                    ) {
+                      return;
+                    }
+                    if (signUpHoverTimeout.current) {
+                      clearTimeout(signUpHoverTimeout.current);
+                    }
+                    signUpHoverTimeout.current = setTimeout(() => {
+                      setShowSignUpOptions(false);
+                      signUpHoverTimeout.current = null;
+                    }, 150);
+                  }}
+                  sx={{
+                    position: "absolute",
+                    top: { xs: "72px", sm: "54px" },
+                    left: 0,
+                    width: { xs: "100%", sm: 260 },
+                    borderRadius: 3,
+                    p: 2,
+                    background: theme.palette.common.white,
+                    boxShadow: `0 18px 40px ${alpha(
+                      theme.palette.primary.main,
+                      0.18
+                    )}`,
+                    opacity: showSignUpOptions ? 1 : 0,
+                    transform: showSignUpOptions
+                      ? "translateY(0)"
+                      : "translateY(-10px)",
+                    pointerEvents: showSignUpOptions ? "auto" : "none",
+                    transition: "all 0.28s ease",
+                    zIndex: 60,
+                  }}
+                >
+                  <Stack spacing={1.5}>
+                    {signUpOptions.map((option) => (
+                      <Box
+                        key={option.label}
+                        component={Link}
+                        href={option.href}
+                        sx={{
+                          borderRadius: 2,
+                          p: 1.5,
+                          display: "block",
+                          color: theme.palette.text.primary,
+                          textDecoration: "none",
+                          transition: "background 0.2s ease",
+                  "&:hover": {
+                            background: alpha(
+                              theme.palette.primary.main,
+                              0.35
+                            ),
+                          },
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {option.label}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: alpha(theme.palette.text.primary, 0.7),
+                            mt: 0.5,
+                          }}
+                        >
+                          {option.description}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
+                </Paper>
+              </Box>
+            </Stack>
+          </Box>
+
+          <Box
+            sx={{
+              flex: { md: 1 },
+              position: "relative",
+              minHeight: { xs: 300, sm: 380, md: 420 },
+              width: "100%",
+              maxWidth: { xs: 520, md: "100%" },
+              mx: { xs: "auto", md: 0 },
+              opacity: isPageExiting ? 0 : 1,
+              transition: "opacity 0.5s ease-out",
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: 6,
+                background: `linear-gradient(135deg, ${alpha(
+                  theme.palette.primary.main,
+                  0.12
+                )}, ${alpha(theme.palette.tertiary.main, 0.25)})`,
+                filter: "blur(60px)",
+                zIndex: 0,
+              }}
+            />
+
+            <Box
+              sx={{
+                position: "relative",
+                height: "100%",
+                display: "grid",
+                gridTemplateColumns: "repeat(6, 1fr)",
+                gridTemplateRows: "repeat(6, 1fr)",
+                gap: { xs: 9, sm: 12, md: 14 },
+                animation: isPageExiting
+                  ? "exitToLoading 0.8s ease-in-out forwards"
+                  : "none",
+                "@keyframes exitToLoading": {
+                  "0%": { transform: "translateX(0) scale(1)", opacity: 1 },
+                  "100%": {
+                    transform: "translateX(-50%) scale(0.6)",
+                    opacity: 0,
+                  },
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  gridColumn: "1 / span 2",
+                  gridRow: "1 / span 3",
+                  borderRadius: "999px",
+                  bgcolor: theme.palette.primary.main,
+                  animation: "floatSlow 9s ease-in-out infinite",
+                  animationDelay: "0s",
+                  "@keyframes floatSlow": {
+                    "0%, 100%": { transform: "translateY(0px)" },
+                    "50%": { transform: "translateY(-8px)" },
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "3 / span 3",
+                  gridRow: "1 / span 2",
+                  borderRadius: 2,
+                  bgcolor: theme.palette.secondary.main,
+                  animation: "floatMed 11s ease-in-out infinite",
+                  animationDelay: "0.8s",
+                  "@keyframes floatMed": {
+                    "0%, 100%": { transform: "translateY(0px)" },
+                    "50%": { transform: "translateY(12px)" },
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "6 / span 1",
+                  gridRow: "1 / span 2",
+                  borderRadius: "20px",
+                  bgcolor: theme.palette.tertiary.main,
+                  animation: "floatFast 7.5s ease-in-out infinite",
+                  animationDelay: "0.4s",
+                  "@keyframes floatFast": {
+                    "0%, 100%": { transform: "translateY(0px)" },
+                    "50%": { transform: "translateY(-5px)" },
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "1 / span 2",
+                  gridRow: "4 / span 2",
+                  borderRadius: 2,
+                  bgcolor: theme.palette.tertiary.dark,
+                  animation: "floatSlow 10s ease-in-out infinite",
+                  animationDelay: "1.1s",
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "4 / span 2",
+                  gridRow: "3 / span 3",
+                  borderRadius: "50%",
+                  bgcolor: theme.palette.primary.light,
+                  animation: "floatMed 12s ease-in-out infinite",
+                  animationDelay: "0.2s",
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "3 / span 1",
+                  gridRow: "4 / span 3",
+                  bgcolor: theme.palette.tertiary.dark,
+                  borderRadius: 1,
+                  animation: "floatFast 8.5s ease-in-out infinite",
+                  animationDelay: "1.6s",
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "5 / span 2",
+                  gridRow: "5 / span 2",
+                  borderRadius: "999px",
+                  // Mirror the pink accent used in gym sessions for a consistent highlight
+                  bgcolor: "#e91e63",
+                  animation: "floatSlow 13s ease-in-out infinite",
+                  animationDelay: "0.6s",
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "2 / span 2",
+                  gridRow: "3 / span 2",
+                  bgcolor: "transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "80%",
+                    height: 6,
+                    bgcolor: theme.palette.common.black,
+                    borderRadius: 3,
+                    animation: "floatFast 9.5s ease-in-out infinite",
+                    animationDelay: "1.3s",
+                  }}
+                />
+              </Box>
+              <Box
+                sx={{
+                  gridColumn: "2 / span 1",
+                  gridRow: "6 / span 1",
+                  width: "70%",
+                  justifySelf: "center",
+                  borderRadius: 1,
+                  bgcolor: theme.palette.tertiary.main,
+                  animation: "floatMed 11.5s ease-in-out infinite",
+                  animationDelay: "0.9s",
+                }}
+              />
+              <Box
+                sx={{
+                  gridColumn: "6 / span 1",
+                  gridRow: "3 / span 3",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 12,
+                    height: "100%",
+                    bgcolor: theme.palette.text.primary,
+                    borderRadius: 999,
+                    animation: "floatFast 10.5s ease-in-out infinite",
+                    animationDelay: "0.5s",
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      <Box
+        component="section"
+        sx={{ py: { xs: 8, md: 12 }, bgcolor: theme.palette.common.white }}
+      >
+        <Container maxWidth="lg">
+          <Typography
+            component="h2"
+            variant="h3"
+            sx={{
+              textAlign: "center",
+              fontWeight: 600,
+              fontSize: { xs: "2.1rem", md: "2.6rem" },
+            }}
+          >
+            A curated space for collaboration and celebration.
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              maxWidth: 640,
+              mx: "auto",
+              textAlign: "center",
+              mt: 2.5,
+              color: alpha(theme.palette.text.primary, 0.7),
+            }}
+          >
+            Multaqa streamlines event planning, registration, and discovery, so
+            every voice on campus can connect through meaningful experiences.
+          </Typography>
+
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={3}
+            sx={{
+              mt: { xs: 6, md: 8 },
+              alignItems: "stretch",
+            }}
+          >
+            {featureHighlights.map((feature) => (
+              <Paper
+                key={feature.title}
+                elevation={0}
+                sx={{
+                  flex: 1,
+                  p: { xs: 3.5, md: 4 },
+                  borderRadius: 4,
+                  border: `1px solid ${alpha(
+                    theme.palette.primary.main,
+                    0.15
+                  )}`,
+                  background: alpha(theme.palette.primary.light, 0.04),
+                  height: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: alpha(theme.palette.primary.main, 0.4),
+                    color: theme.palette.tertiary.dark,
+                    mb: 2.5,
+                  }}
+                >
+                  {feature.icon}
+                </Box>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5 }}>
+                  {feature.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                >
+                  {feature.copy}
+                </Typography>
+              </Paper>
+            ))}
+          </Stack>
+        </Container>
+      </Box>
+
+      <Box
+        component="section"
+        sx={{
+          py: { xs: 8, md: 12 },
+          backgroundColor: alpha(theme.palette.primary.light, 0.05),
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography
+            component="h2"
+            variant="h4"
+            sx={{
+              textAlign: "center",
+              fontWeight: 600,
+              fontSize: { xs: "2rem", md: "2.4rem" },
+            }}
+          >
+            Frequently Asked Questions
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              maxWidth: 600,
+              mx: "auto",
+              textAlign: "center",
+              mt: 2,
+              color: alpha(theme.palette.text.primary, 0.7),
+            }}
+          >
+            Quick answers to help students, staff, and partners get the most out
+            of Multaqa.
+          </Typography>
+
+          <Box
+            sx={{
+              mt: { xs: 5, md: 6 },
+              maxWidth: 900,
+              mx: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2.5,
+              px: { xs: 1, md: 0 },
+            }}
+          >
+            {faqItems.map((faq) => (
+              <CustomAccordion key={faq.title} title={faq.title}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                >
+                  {faq.content}
+                </Typography>
+              </CustomAccordion>
+            ))}
+          </Box>
+        </Container>
+      </Box>
+
+      <Box
+        component="footer"
+        sx={{
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(
+            theme.palette.tertiary.main,
+            0.7
+          )} 100%)`,
+          color: theme.palette.common.white,
+          position: "relative",
+          overflow: "hidden",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `radial-gradient(circle at 30% 40%, ${alpha(
+              theme.palette.primary.light,
+              0.15
+            )}, transparent 60%)`,
+            pointerEvents: "none",
+          },
+        }}
+      >
+        <Container
+          maxWidth="lg"
+          sx={{
+            py: { xs: 6, md: 8 },
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            alignItems: { xs: "center", md: "stretch" },
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={4}
+            justifyContent={{ xs: "center", md: "space-between" }}
+            alignItems={{ xs: "center", md: "center" }}
+            sx={{
+              textAlign: { xs: "center", md: "left" },
+              gap: { xs: 3, md: 4 },
+              width: "100%",
+            }}
+          >
+            <Box
+              sx={{
+                width: { xs: "100%", md: "auto" },
+                display: "flex",
+                flexDirection: "column",
+                alignItems: { xs: "center", md: "flex-start" },
+              }}
+            >
+              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                Multaqa
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  opacity: 0.75,
+                  mt: 1,
+                  maxWidth: 320,
+                  mx: { xs: "auto", md: 0 },
+                  textAlign: { xs: "center", md: "left" },
+                }}
+              >
+                Bringing the GUC community together through dynamic events and
+                collaborative storytelling.
+              </Typography>
+            </Box>
+
+            <Stack
+              direction="row"
+              spacing={2}
+              justifyContent={{ xs: "center", md: "flex-start" }}
+              sx={{ width: { xs: "100%", md: "auto" } }}
+            >
+              {[
+                {
+                  icon: <InstagramIcon />,
+                  href: "https://instagram.com",
+                },
+                {
+                  icon: <LinkedInIcon />,
+                  href: "https://linkedin.com",
+                },
+                {
+                  icon: <XIcon />,
+                  href: "https://twitter.com",
+                },
+              ].map((social) => (
+                <IconButton
+                  key={social.href}
+                  component="a"
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    backgroundColor: alpha(theme.palette.common.white, 0.12),
+                    color: theme.palette.common.white,
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.common.white, 0.25),
+                    },
+                  }}
+                >
+                  {social.icon}
+                </IconButton>
+              ))}
+            </Stack>
+
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1.5, sm: 3 }}
+            >
+              <Typography
+                component={Link}
+                href="/privacy"
+                sx={{
+                  color: theme.palette.common.white,
+                  textDecoration: "none",
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
+                  textAlign: "center",
+                }}
+              >
+                Privacy Policy
+              </Typography>
+              <Typography
+                component={Link}
+                href="/terms"
+                sx={{
+                  color: theme.palette.common.white,
+                  textDecoration: "none",
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
+                  textAlign: "center",
+                }}
+              >
+                Terms of Service
+              </Typography>
+              <Typography
+                component={Link}
+                href="/support"
+                sx={{
+                  color: theme.palette.common.white,
+                  textDecoration: "none",
+                  transition: "color 0.2s ease",
+                  "&:hover": {
+                    color: alpha(theme.palette.common.white, 0.75),
+                  },
+                  textAlign: "center",
+                }}
+              >
+                Support
+              </Typography>
+            </Stack>
+          </Stack>
+
+          <Divider
+            sx={{ borderColor: alpha(theme.palette.common.white, 0.15) }}
+          />
+
+          <Typography
+            variant="body2"
+            sx={{ opacity: 0.7, textAlign: { xs: "center", md: "left" } }}
+          >
+            © {new Date().getFullYear()} Multaqa. Crafted with care by the GUC
+            community.
+          </Typography>
         </Container>
       </Box>
     </Box>
