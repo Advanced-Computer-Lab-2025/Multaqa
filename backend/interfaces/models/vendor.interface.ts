@@ -13,6 +13,7 @@ export interface VendorRequest {
   RequestData: {
     data: any;
     status: Event_Request_Status;
+    QRCodeGenerated: boolean;
   };
 }
 

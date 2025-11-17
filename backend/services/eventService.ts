@@ -17,7 +17,7 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
-import { VendorEventsService } from "./vendorEventsService";
+import { IPlatformBoothRequestData } from "../interfaces/models/platformBooth.interface";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -676,4 +676,49 @@ export class EventsService {
     }
         return await workbook.xlsx.writeBuffer() as any;
       }
+
+    async getEventsForQRCodeGeneration(): Promise<IEvent[]> {
+      const filter: any = {
+        type: { $in: [EVENT_TYPES.BAZAAR, EVENT_TYPES.PLATFORM_BOOTH] },
+      };
+      const events = await this.eventRepo.findAll(filter);
+
+      const filteredEvents: IEvent[] = [];
+
+    
+    for (const event of events) {
+        
+        // Platform Booth Filtering 
+        if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+
+            if (event.RequestData && 
+                event.RequestData.status === 'approved' && 
+                event.RequestData.QRCodeGenerated === false) 
+            {
+                
+                filteredEvents.push(event);
+            }
+        }
+        // Bazaar Filtering
+        else if (event.type === EVENT_TYPES.BAZAAR) {
+          const vendorsNeedingQR = (event.vendors || []).filter(vendor => {
+                return vendor.RequestData && 
+                       vendor.RequestData.status === 'approved' && 
+                       vendor.RequestData.QRCodeGenerated === false;
+            });
+
+            if (vendorsNeedingQR.length > 0) {
+               event.vendors = vendorsNeedingQR; 
+
+                filteredEvents.push(event);
+            }
+         
+        }
+    }
+    if (filteredEvents.length === 0) {
+        throw createError(404, "No events found needing QR code generation");
+    }
+      return filteredEvents;
+   
+  }
 }
