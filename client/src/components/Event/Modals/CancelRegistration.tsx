@@ -33,9 +33,9 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true}: CancelE
     };
 
 
-  const handleCancelRegistration = () => {
+  const handleCancelRegistration = async () => {
     // Logic to cancel registration
-    console.log(`Registration for event ${eventId} has been cancelled.`);
+    await handleCallApi(eventId);
     onClose();
   }
 
