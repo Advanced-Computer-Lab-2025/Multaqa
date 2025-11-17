@@ -439,7 +439,7 @@ router.patch(
 );
 
 router.get(
-  "/export/event/:eventId/attendees",
+  "/export/:eventId/attendees",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
