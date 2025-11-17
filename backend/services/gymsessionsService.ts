@@ -67,4 +67,49 @@ export class GymSessionsService {
     }
     return;
   }
+
+  async editGymSession(
+    sessionId: string,
+    updateData: { date?: string; time?: string; duration?: number }
+  ): Promise<IGymSessionEvent> {
+    const session = await this.gymSessionRepo.findById(sessionId);
+    if (!session) {
+      throw new Error("Gym session not found");
+    }
+
+    // Update date if provided
+    if (updateData.date) {
+      const sessionDate = new Date(updateData.date);
+      session.eventStartDate = sessionDate;
+      session.eventEndDate = sessionDate;
+      session.registrationDeadline = new Date(
+        sessionDate.getTime() - 24 * 60 * 60 * 1000
+      );
+    }
+
+    // Update time and duration if provided
+    if (updateData.time) {
+      session.eventStartTime = updateData.time;
+    }
+
+    if (updateData.duration !== undefined) {
+      session.duration = updateData.duration;
+    }
+
+    // Recalculate end time if time or duration changed
+    if (updateData.time || updateData.duration !== undefined) {
+      const startTime = updateData.time || session.eventStartTime;
+      const duration =
+        updateData.duration !== undefined
+          ? updateData.duration
+          : session.duration;
+      const [h, m] = startTime.split(":").map(Number);
+      session.eventEndTime = new Date(0, 0, 0, h, m + duration)
+        .toTimeString()
+        .slice(0, 5);
+    }
+
+    await session.save();
+    return session;
+  }
 }
