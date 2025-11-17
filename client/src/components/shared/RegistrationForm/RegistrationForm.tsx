@@ -6,7 +6,6 @@ import {
   createDocumentHandler,
   createRetryHandler,
 } from "./utils";
-import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import { Link } from "@/i18n/navigation";
@@ -14,7 +13,6 @@ import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
 import { FileUpload } from "../FileUpload";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface";
@@ -47,16 +45,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
     password: string;
     gucId: string;
   }
-  
+
   interface VendorSignupData {
     type: "vendor";
     companyName: string;
     email: string;
     password: string;
-    taxCard: IFileInfo | null; 
-    logo: IFileInfo | null; 
+    taxCard: IFileInfo | null;
+    logo: IFileInfo | null;
   }
-type SignupData = StudentSignupData | VendorSignupData;
+  type SignupData = StudentSignupData | VendorSignupData;
 
   const initialValues =
     UserType !== "vendor"
@@ -162,49 +160,16 @@ type SignupData = StudentSignupData | VendorSignupData;
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
-          <NeumorphicBox
-            containerType="outwards"
-            padding="1px"
-            margin="20px"
-            width="700px"
-            borderRadius="20px"
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "700px",
+              mx: "auto",
+              px: { xs: 2, sm: 3 },
+              py: { xs: 3, sm: 4 },
+            }}
           >
-            <Box sx={{ position: "relative" }}>
-              <Link
-                href="/"
-                style={{
-                  position: "absolute",
-                  top: "16px",
-                  left: "16px",
-                  textDecoration: "none",
-                  color: theme.palette.primary.main,
-                  cursor: "pointer",
-                  zIndex: 10,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "4px",
-                  borderRadius: "50%",
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <ArrowBackIcon
-                  fontSize="large"
-                  sx={{
-                    "&:hover": {
-                      color: theme.palette.primary.dark,
-                    },
-                  }}
-                />
-              </Link>
-            </Box>
-            <Box
-              sx={{
-                border: `2px solid ${theme.palette.primary.main}`,
-                borderRadius: "20px",
-                padding: "30px",
-              }}
-            >
+            <Box>
               <div className="flex flex-col items-center justify-center gap-6">
                 {/* Header */}
                 <div className="text-center mb-6">
@@ -562,7 +527,7 @@ type SignupData = StudentSignupData | VendorSignupData;
                 </div>
               </div>
             </Box>
-          </NeumorphicBox>
+          </Box>
         </form>
       )}
     </Formik>

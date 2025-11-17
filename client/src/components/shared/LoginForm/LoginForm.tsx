@@ -1,12 +1,10 @@
 import React from "react";
 import { Formik } from "formik";
-import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@mui/material/styles";
 import { useAuth } from "../../../context/AuthContext";
 import { useRouter } from "@/i18n/navigation";
@@ -35,49 +33,16 @@ const LoginForm: React.FC = () => {
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
-          <NeumorphicBox
-            containerType="outwards"
-            width={"550px"}
-            borderRadius="20px"
-            padding={"1px"}
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "550px",
+              mx: "auto",
+              px: { xs: 2, sm: 3 },
+              py: { xs: 3, sm: 4 },
+            }}
           >
-            <Box sx={{ position: "relative" }}>
-              <Link
-                href="/"
-                style={{
-                  position: "absolute",
-                  top: "16px",
-                  left: "16px",
-                  textDecoration: "none",
-                  color: theme.palette.primary.main,
-                  cursor: "pointer",
-                  zIndex: 10,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "4px",
-                  borderRadius: "50%",
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <ArrowBackIcon
-                  fontSize="large"
-                  sx={{
-                    "&:hover": {
-                      color: theme.palette.primary.dark,
-                    },
-                  }}
-                />
-              </Link>
-            </Box>
-
-            <Box
-              sx={{
-                border: `2px solid ${theme.palette.primary.main}`,
-                borderRadius: "20px",
-                padding: "30px",
-              }}
-            >
+            <Box>
               <div className="flex flex-col items-center justify-center gap-10">
                 {/* Header */}
                 <div className="text-center mb-6">
@@ -195,7 +160,7 @@ const LoginForm: React.FC = () => {
                 </div>
               </div>
             </Box>
-          </NeumorphicBox>
+          </Box>
         </form>
       )}
     </Formik>

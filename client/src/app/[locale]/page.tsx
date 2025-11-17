@@ -596,10 +596,7 @@ export default function HomePage() {
                   borderRadius: 2,
                   textDecoration: "none",
                   backgroundColor: alpha(theme.palette.primary.light, 0.05),
-                  border: `1px solid ${alpha(
-                    theme.palette.primary.main,
-                    0.1
-                  )}`,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   "&:hover": {
                     backgroundColor: alpha(theme.palette.tertiary.main, 0.25),
                   },
@@ -960,10 +957,7 @@ export default function HomePage() {
                 p: { xs: 3, md: 4 },
                 borderRadius: 4,
                 background: alpha(theme.palette.primary.light, 0.12),
-                border: `1px solid ${alpha(
-                  theme.palette.primary.main,
-                  0.12
-                )}`,
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
                 display: "flex",
                 flexDirection: "column",
                 gap: 2.5,
@@ -1209,21 +1203,21 @@ export default function HomePage() {
         component="section"
         sx={{
           position: "relative",
-          overflow: "hidden", // CRITICAL: Hides the components sliding in/out
+          overflow: "visible", // Changed to visible to show dropdown
         }}
       >
         <Container
-          maxWidth="lg"
+          maxWidth="xl" // Changed from lg to xl for wider container
           sx={{
             pt: { xs: 16, md: 18 },
-            pb: { xs: 10, md: 14 },
+            pb: { xs: 10, md: 16 }, // Increased bottom padding
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             alignItems: { xs: "stretch", md: "center" }, // Use stretch
-            gap: { xs: 7, md: 5 }, // Animated gap
+            gap: { xs: 7, md: 6 }, // Increased gap
             textAlign: { xs: "center", md: "left" },
             position: "relative",
-            minHeight: { md: "calc(500px + 20vh)" }, // Ensure space for forms
+            minHeight: { md: "calc(600px + 45vh)" }, // Increased height to prevent cutoff
           }}
         >
           {/* ---
@@ -1269,17 +1263,16 @@ export default function HomePage() {
                   delay: 0.4, // <-- DELAY ADDED
                 }}
                 style={{
-                  flex: 1.2, // Takes more space
+                  flex: 1.3, // Takes more space
                   width: "100%", // Full width on mobile
                   minWidth: 0,
+                  marginLeft: "auto", // Push to the right
+                  marginRight: "8%", // Add right margin
                   // Handle mobile view
                   display: isHome ? "none" : "block",
                 }}
               >
-                <AuthForm
-                  currentView={currentView}
-                  userType={userType}
-                />
+                <AuthForm currentView={currentView} userType={userType} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -1290,10 +1283,7 @@ export default function HomePage() {
           This block is *always* rendered, but its sx props change.
           The `layout` prop tells Framer to animate those changes.
           */}
-          <Shapes
-            theme={theme}
-            isHome={isHome}
-          />
+          <Shapes theme={theme} isHome={isHome} />
         </Container>
       </Box>
       {/* ================================================================
@@ -1333,8 +1323,9 @@ export default function HomePage() {
                 color: alpha(theme.palette.text.primary, 0.7),
               }}
             >
-              Multaqa streamlines event planning, registration, and discovery, so
-              every voice on campus can connect through meaningful experiences.
+              Multaqa streamlines event planning, registration, and discovery,
+              so every voice on campus can connect through meaningful
+              experiences.
             </Typography>
 
             <Stack
@@ -1420,8 +1411,8 @@ export default function HomePage() {
                 color: alpha(theme.palette.text.primary, 0.7),
               }}
             >
-              Quick answers to help students, staff, and partners get the most out
-              of Multaqa.
+              Quick answers to help students, staff, and partners get the most
+              out of Multaqa.
             </Typography>
 
             <Box
@@ -1635,9 +1626,9 @@ export default function HomePage() {
 }
 
 // ================================================================
-// === 
+// ===
 // === HELPER COMPONENTS FOR THE HERO ANIMATION
-// === 
+// ===
 // ================================================================
 
 /*
@@ -1657,11 +1648,11 @@ const HeroContent = ({
 }) => (
   <Box
     sx={{
-      flex: { md: 1 },
+      flex: { md: 1.1 }, // Slightly increased flex
       position: "relative",
       zIndex: 1,
       width: "100%",
-      maxWidth: { xs: 560, md: "100%" },
+      maxWidth: { xs: 560, md: "650px" }, // Increased max width
     }}
   >
     <Typography
@@ -1825,10 +1816,7 @@ const HeroContent = ({
             borderRadius: 3,
             p: 2,
             background: theme.palette.common.white,
-            boxShadow: `0 18px 40px ${alpha(
-              theme.palette.primary.main,
-              0.18
-            )}`,
+            boxShadow: `0 18px 40px ${alpha(theme.palette.primary.main, 0.18)}`,
             opacity: showSignUpOptions ? 1 : 0,
             transform: showSignUpOptions
               ? "translateY(0)"
@@ -1893,8 +1881,8 @@ const AuthForm = ({ currentView, userType }) => (
   <Box
     sx={{
       width: "100%",
-      maxWidth: 450, // Max width for the form itself
-      mx: { xs: "auto", md: 0 }, // Center on mobile, align left on desktop
+      maxWidth: 550, // Increased max width for the form
+      mx: { xs: "auto", md: "auto" }, // Center on both mobile and desktop
     }}
   >
     <AnimatePresence mode="wait">
@@ -1953,13 +1941,13 @@ const Shapes = ({ theme, isHome }) => (
       mx: { xs: "auto", md: 0 },
 
       // --- STATE-BASED STYLES (for `layout` to animate) ---
-      
+
       // On mobile, hide it when not home
-      display: { xs: isHome ? "block" : "none", md: "block" }, 
-      
+      display: { xs: isHome ? "block" : "none", md: "block" },
+
       // On desktop, change flex & order
-      flex: { md: isHome ? 1 : 0.8 }, 
-      order: { md: isHome ? 1 : -1 }, 
+      flex: { md: isHome ? 1 : 0.8 },
+      order: { md: isHome ? 1 : -1 },
     }}
   >
     <Box
@@ -1991,8 +1979,22 @@ const Shapes = ({ theme, isHome }) => (
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "10%", left: "5%", width: "25%", height: "40%", rotate: 0, transition: homeTransition },
-          auth: { top: "15%", left: "10%", width: "20%", height: "30%", rotate: 15, transition: authTransition(0.1) },
+          home: {
+            top: "10%",
+            left: "5%",
+            width: "25%",
+            height: "40%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "5%",
+            left: "2%",
+            width: "32%",
+            height: "42%",
+            rotate: 22,
+            transition: authTransition(0.1),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2006,13 +2008,27 @@ const Shapes = ({ theme, isHome }) => (
           },
         }}
       />
-      
+
       {/* --- Shape 2 (was Col 3/span 3, Row 1/span 2) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "10%", left: "33%", width: "50%", height: "25%", rotate: 0, transition: homeTransition },
-          auth: { top: "50%", left: "30%", width: "40%", height: "20%", rotate: -10, transition: authTransition(0.15) },
+          home: {
+            top: "10%",
+            left: "33%",
+            width: "50%",
+            height: "25%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "48%",
+            left: "62%",
+            width: "52%",
+            height: "28%",
+            rotate: -18,
+            transition: authTransition(0.15),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2026,13 +2042,27 @@ const Shapes = ({ theme, isHome }) => (
           },
         }}
       />
-      
+
       {/* --- Shape 3 (was Col 6/span 1, Row 1/span 2) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "10%", left: "85%", width: "12%", height: "25%", rotate: 0, transition: homeTransition },
-          auth: { top: "30%", left: "20%", width: "10%", height: "20%", rotate: 25, transition: authTransition(0.2) },
+          home: {
+            top: "10%",
+            left: "85%",
+            width: "12%",
+            height: "25%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "12%",
+            left: "70%",
+            width: "18%",
+            height: "32%",
+            rotate: 35,
+            transition: authTransition(0.2),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2046,13 +2076,27 @@ const Shapes = ({ theme, isHome }) => (
           },
         }}
       />
-      
+
       {/* --- Shape 4 (was Col 1/span 2, Row 4/span 2) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "55%", left: "5%", width: "25%", height: "30%", rotate: 0, transition: homeTransition },
-          auth: { top: "65%", left: "15%", width: "20%", height: "25%", rotate: -5, transition: authTransition(0.1) },
+          home: {
+            top: "55%",
+            left: "5%",
+            width: "25%",
+            height: "30%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "72%",
+            left: "8%",
+            width: "28%",
+            height: "35%",
+            rotate: -12,
+            transition: authTransition(0.1),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2062,13 +2106,27 @@ const Shapes = ({ theme, isHome }) => (
           animationDelay: "1.1s",
         }}
       />
-      
+
       {/* --- Shape 5 (was Col 4/span 2, Row 3/span 3) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "40%", left: "50%", width: "30%", height: "45%", rotate: 0, transition: homeTransition },
-          auth: { top: "30%", left: "50%", width: "25%", height: "35%", rotate: 20, transition: authTransition(0.15) },
+          home: {
+            top: "40%",
+            left: "50%",
+            width: "30%",
+            height: "45%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "22%",
+            left: "38%",
+            width: "38%",
+            height: "48%",
+            rotate: 28,
+            transition: authTransition(0.15),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2078,13 +2136,27 @@ const Shapes = ({ theme, isHome }) => (
           animationDelay: "0.2s",
         }}
       />
-      
+
       {/* --- Shape 6 (was Col 3/span 1, Row 4/span 3) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "55%", left: "33%", width: "12%", height: "40%", rotate: 0, transition: homeTransition },
-          auth: { top: "80%", left: "10%", width: "10%", height: "30%", rotate: -30, transition: authTransition(0.2) },
+          home: {
+            top: "55%",
+            left: "33%",
+            width: "12%",
+            height: "40%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "85%",
+            left: "82%",
+            width: "16%",
+            height: "42%",
+            rotate: -38,
+            transition: authTransition(0.2),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2094,13 +2166,27 @@ const Shapes = ({ theme, isHome }) => (
           animationDelay: "1.6s",
         }}
       />
-      
+
       {/* --- Shape 7 (was Col 5/span 2, Row 5/span 2) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "70%", left: "68%", width: "28%", height: "25%", rotate: 0, transition: homeTransition },
-          auth: { top: "75%", left: "45%", width: "22%", height: "20%", rotate: 10, transition: authTransition(0.1) },
+          home: {
+            top: "70%",
+            left: "68%",
+            width: "28%",
+            height: "25%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "78%",
+            left: "52%",
+            width: "35%",
+            height: "30%",
+            rotate: 16,
+            transition: authTransition(0.1),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2110,13 +2196,27 @@ const Shapes = ({ theme, isHome }) => (
           animationDelay: "0.6s",
         }}
       />
-      
+
       {/* --- Shape 8 (was Col 2/span 2, Row 3/span 2) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "40%", left: "20%", width: "25%", height: "6px", rotate: 0, transition: homeTransition },
-          auth: { top: "40%", left: "25%", width: "20%", height: "6px", rotate: -15, transition: authTransition(0.15) },
+          home: {
+            top: "40%",
+            left: "20%",
+            width: "25%",
+            height: "6px",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "52%",
+            left: "14%",
+            width: "32%",
+            height: "8px",
+            rotate: -25,
+            transition: authTransition(0.15),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2126,13 +2226,27 @@ const Shapes = ({ theme, isHome }) => (
           animationDelay: "1.3s",
         }}
       />
-      
+
       {/* --- Shape 9 (was Col 2/span 1, Row 6/span 1) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "85%", left: "20%", width: "10%", height: "10%", rotate: 0, transition: homeTransition },
-          auth: { top: "85%", left: "35%", width: "8%", height: "8%", rotate: 5, transition: authTransition(0.2) },
+          home: {
+            top: "85%",
+            left: "20%",
+            width: "10%",
+            height: "10%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "90%",
+            left: "42%",
+            width: "14%",
+            height: "14%",
+            rotate: 12,
+            transition: authTransition(0.2),
+          },
         }}
         sx={{
           position: "absolute",
@@ -2142,13 +2256,27 @@ const Shapes = ({ theme, isHome }) => (
           animationDelay: "0.9s",
         }}
       />
-      
+
       {/* --- Shape 10 (was Col 6/span 1, Row 3/span 3) --- */}
       <MotionBox
         animate={isHome ? "home" : "auth"}
         variants={{
-          home: { top: "40%", left: "85%", width: "12px", height: "45%", rotate: 0, transition: homeTransition },
-          auth: { top: "60%", left: "60%", width: "12px", height: "35%", rotate: -45, transition: authTransition(0.1) },
+          home: {
+            top: "40%",
+            left: "85%",
+            width: "12px",
+            height: "45%",
+            rotate: 0,
+            transition: homeTransition,
+          },
+          auth: {
+            top: "35%",
+            left: "88%",
+            width: "18px",
+            height: "52%",
+            rotate: -52,
+            transition: authTransition(0.1),
+          },
         }}
         sx={{
           position: "absolute",
