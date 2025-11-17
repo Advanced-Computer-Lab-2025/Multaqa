@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import { CustomTextFieldProps } from "../types";
 import theme from "@/themes/lightTheme";
-import { capitalizeName } from "../utils";
+import { capitalizeName, NAME_FORMATTING_NOTE } from "../utils";
 
 // Custom styled component - no MUI dependency
 const StyledDefaultTextField: React.FC<
@@ -33,6 +33,9 @@ const StyledDefaultTextField: React.FC<
   const domainMeasureRef = useRef<HTMLSpanElement | null>(null);
   const [domainWidth, setDomainWidth] = useState<number>(0);
 
+  const isNameField = fieldType === "name";
+  const normalizedAutoCapitalizeName = isNameField ? false : autoCapitalizeName;
+
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
     if (onFocus) onFocus(e);
@@ -51,7 +54,7 @@ const StyledDefaultTextField: React.FC<
   const { ...inputProps } = props as any;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (fieldType === "text" && autoCapitalizeName) {
+    if (fieldType === "text" && normalizedAutoCapitalizeName) {
       // Use capitalizeName with preserveSpaces = true to allow multiple spaces during typing
       const inputValue = e.target.value;
       const capitalized = capitalizeName(inputValue, true);
@@ -78,10 +81,15 @@ const StyledDefaultTextField: React.FC<
     setIsFocused(false);
 
     // Normalize spaces on blur for text fields with auto-capitalization
-    if (fieldType === "text" && autoCapitalizeName && onChange) {
-      const normalizedValue = capitalizeName(e.target.value, false); // preserveSpaces = false
+    const blurValue = e.target.value ?? "";
+    const shouldNormalizeName =
+      (fieldType === "text" && normalizedAutoCapitalizeName) ||
+      fieldType === "name";
 
-      if (e.target.value !== normalizedValue) {
+    if (shouldNormalizeName && onChange) {
+      const normalizedValue = capitalizeName(blurValue, false); // preserveSpaces = false
+
+      if (blurValue !== normalizedValue) {
         const syntheticEvent = {
           ...e,
           target: { ...e.target, value: normalizedValue },
@@ -178,6 +186,7 @@ const StyledDefaultTextField: React.FC<
       case "password":
         return "Enter a strong password (min 8 characters)";
       case "text":
+      case "name":
         if (
           labelLower.includes("first name") ||
           labelLower.includes("firstname")
@@ -255,6 +264,7 @@ const StyledDefaultTextField: React.FC<
           </svg>
         );
       case "text":
+      case "name":
         return (
           <svg
             width={iconSize}
@@ -463,6 +473,51 @@ const StyledDefaultTextField: React.FC<
     }
   };
 
+  const isErrorState = Boolean(props.error || props.isError);
+
+  const helperTextValue = props.helperText;
+  const hasHelperTextContent =
+    helperTextValue !== undefined &&
+    helperTextValue !== null &&
+    !(
+      typeof helperTextValue === "string" &&
+      helperTextValue.trim().length === 0
+    );
+
+  const shouldRenderNameNote = isNameField;
+
+  const helperBlock = hasHelperTextContent ? (
+    <div
+      style={{
+        color: isErrorState ? "#d32f2f" : "#6b7280",
+        fontSize: "0.75rem",
+        marginTop: "3px",
+        marginLeft: neumorphicBox ? "16px" : "0px",
+        marginRight: "14px",
+        fontWeight: 400,
+        lineHeight: 1.66,
+      }}
+    >
+      {helperTextValue}
+    </div>
+  ) : null;
+
+  const noteBlock = shouldRenderNameNote ? (
+    <div
+      style={{
+        color: "#6b7280",
+        fontSize: "0.75rem",
+        marginTop: hasHelperTextContent ? "2px" : "3px",
+        marginLeft: neumorphicBox ? "16px" : "0px",
+        marginRight: "14px",
+        fontWeight: 400,
+        lineHeight: 1.66,
+      }}
+    >
+      {NAME_FORMATTING_NOTE}
+    </div>
+  ) : null;
+
   return (
     <div style={{ width: "100%" }}>
       {/* Separate Label - Rendered outside when neumorphic */}
@@ -513,6 +568,7 @@ const StyledDefaultTextField: React.FC<
           }
           disabled={disabled}
           style={getInputStyles()}
+          autoCapitalize={isNameField ? "off" : inputProps.autoCapitalize}
           // Add inputMode for better mobile keyboard support
           {...(fieldType === "numeric" && { inputMode: "numeric" as const })}
           {...(fieldType === "numeric-float" && {
@@ -677,22 +733,9 @@ const StyledDefaultTextField: React.FC<
         )}
       </div>
 
-      {/* Error/Helper Text */}
-      {props.error && props.helperText && (
-        <p
-          style={{
-            color: "#d32f2f",
-            fontSize: "0.75rem",
-            marginTop: "3px",
-            marginLeft: neumorphicBox ? "16px" : "0px",
-            marginRight: "14px",
-            fontWeight: 400,
-            lineHeight: 1.66,
-          }}
-        >
-          {props.helperText}
-        </p>
-      )}
+      {/* Helper / Note Text */}
+      {helperBlock}
+      {noteBlock}
     </div>
   );
 };

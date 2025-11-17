@@ -24,7 +24,7 @@ const InputFieldsShowcase = () => {
       </Typography>
       
       <CustomTextField
-        fieldType="text"
+        fieldType="name"
         label="Full Name"
         placeholder="Enter your full name"
         startIcon={
@@ -253,7 +253,7 @@ export const RegistrationForm: Story = {
       </Typography>
       
       <CustomTextField
-        fieldType="text"
+        fieldType="name"
         label="Full Name"
         placeholder="Enter your full name"
         startIcon={

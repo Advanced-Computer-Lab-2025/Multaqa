@@ -1,24 +1,18 @@
 import { api } from "../../../../api";
 import { toast } from "react-toastify";
-const toastOptions = {
-  position: "bottom-right",
-  autoClose: 5000,
-  hideProgressBar: false,
-  closeOnClick: true,
-  pauseOnHover: true,
-  draggable: true,
-  progress: undefined,
-  theme: "colored",
-};
 
-export const handleExport = async (setIsExporting: React.Dispatch<React.SetStateAction<boolean>>, eventId: string) => {
+export const handleExport = async (
+  setIsExporting: React.Dispatch<React.SetStateAction<boolean>>,
+  eventId: string
+) => {
   setIsExporting(true);
-  //wait 5000 ms
-  await new Promise(resolve => setTimeout(resolve, 50000));
   try {
-    const response = await api.get(`/export/event/${eventId}/attendees`, {
-      responseType: "blob",
-    });
+    const response = await api.get(
+      `/events/export/event/${eventId}/attendees`,
+      {
+        responseType: "blob",
+      }
+    );
 
     // Create a URL for the blob
     const blob = new Blob([response.data], {
@@ -47,29 +41,49 @@ export const handleExport = async (setIsExporting: React.Dispatch<React.SetState
     link?.parentNode?.removeChild(link);
     window.URL.revokeObjectURL(url);
 
+    toast.success("File download started!", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toast.success("File download started!", toastOptions as any);
-  } catch (err) {
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const error = err as { response?: { data?: any; status?: number } };
-    let errorMessage = "Export failed. Please try again.";
+  } catch (err: any) {
+    let errorMessage = "Something went wrong. Please try again.";
 
-    // Error responses for 'blob' requests are also blobs,
-    // must try to parse them as text, then JSON.
-    if (error.response?.data instanceof Blob) {
+    if (err.response && err.response.data instanceof Blob) {
       try {
-        const errorText = await error.response.data.text();
+        const errorText = await err.response.data.text();
         const errorJson = JSON.parse(errorText);
-        errorMessage = errorJson.error || errorMessage;
+        if (errorJson.statusCode !== 404) {
+          errorMessage = "Something went wrong. Please try again.";
+        } else {
+          errorMessage = errorJson.error || errorJson.message || errorMessage;
+        }
       } catch (parseError) {
-        console.error("Could not parse blob error response", parseError);
+        console.error("Failed to parse error Blob as JSON:", parseError);
       }
-    } else if (error.response?.data?.error) {
-      // Handle standard JSON error
-      errorMessage = error.response.data.error;
+    } else {
+      errorMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        errorMessage;
     }
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toast.error(errorMessage, toastOptions as any);
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
   } finally {
     setIsExporting(false);
   }
