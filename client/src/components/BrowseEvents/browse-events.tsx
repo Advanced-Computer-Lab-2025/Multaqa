@@ -135,7 +135,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
-  const registeredEvents = userInfo.registeredEvents;
+  const registeredEvents = userInfo?.registeredEvents;
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {
@@ -302,6 +302,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.WORKSHOP:
@@ -324,6 +325,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       case EventType.BAZAAR:
@@ -344,6 +347,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       case EventType.BOOTH:
@@ -364,6 +369,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.TRIP:
@@ -383,6 +389,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       default:
