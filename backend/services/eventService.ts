@@ -106,7 +106,8 @@ export class EventsService {
     location?: string,
     sort?: boolean,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    userRole?: string
   ) {
     const filter: any = {
       type: { $ne: EVENT_TYPES.GYM_SESSION },
@@ -147,6 +148,18 @@ export class EventsService {
       }
       return event;
     });
+
+    // filter events based on user role and allowedUsers list
+    if (userRole) {
+      events = events.filter((event: any) => {
+        // If allowedUsers is not defined or empty, allow all users
+        if (!event.allowedUsers || event.allowedUsers.length === 0) {
+          return true;
+        }
+        // Check if user's role is in the allowedUsers list
+        return event.allowedUsers.includes(userRole);
+      });
+    }
 
     if (sort) {
       events = events.sort((a: any, b: any) => {
