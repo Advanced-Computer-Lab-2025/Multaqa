@@ -374,6 +374,16 @@ router.get(
   findAllWorkshops
 );
 
+router.get(
+  "/QRcodes",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  getEventsForQRCodeGeneration
+);
+
+
 router.delete(
   "/:eventId/reviews/:userId",
   authorizeRoles({
@@ -463,13 +473,5 @@ router.get(
   exportEventUsers
 );
 
-router.get(
-  "/QRcodes",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
-  }),
-  getEventsForQRCodeGeneration
-);
 
 export default router;
