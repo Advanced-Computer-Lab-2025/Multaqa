@@ -7,6 +7,7 @@ import {
   getPaymentReceiptTemplate,
   getCertificateOfAttendanceTemplate,
   getApplicationStatusTemplate,
+  getExternalVisitorQREmailTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -165,6 +166,20 @@ export const sendApplicationStatusEmail = async (
   await sendEmail({
     to: userEmail,
     subject,
+    html,
+  });
+};
+
+export const sendQRCodeEmail = async (
+  userEmail: string,
+  username: string,
+  qrCodeUrl: string,
+  eventName: string
+) => {
+  const html = getExternalVisitorQREmailTemplate(username, eventName, qrCodeUrl);
+  await sendEmail({
+    to: userEmail,
+    subject: `🎟️ Your QR Code for ${eventName} - Multaqa`,
     html,
   });
 };
