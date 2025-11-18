@@ -382,3 +382,41 @@ export const getApplicationStatusTemplate = (
     </div>
   `;
 };
+
+export const getExternalVisitorQREmailTemplate = (
+  username: string,
+  eventContext: string,
+  qrCodeUrl: string
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.header}">
+          <h2 style="margin: 0; font-size: 22px;">🎫 Your Pass</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            Thank you for registering to participate in <strong>${eventContext}</strong>!
+            This email contains your personal QR code for quick and easy check-in.
+          </p>
+          <div style="${baseStyles.infoBox}">
+            <h3 style="margin: 0 0 15px 0; color: #2563eb; text-align: center;">Scan This Code to Check-In</h3>
+            <div style="text-align: center; padding: 10px; background-color: #ffffff; border-radius: 6px; border: 1px solid #e5e7eb;">
+              <img src="${qrCodeUrl}" alt="Check-in QR Code" style="width: 180px; height: 180px; display: block; margin: 0 auto;" />
+            </div>
+            <p style="text-align: center; font-size: 14px; color: #555; margin-top: 15px;">
+              Please have this QR code ready on your device when arriving at the venue.
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            We look forward to seeing you there!
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+      `;
+};
