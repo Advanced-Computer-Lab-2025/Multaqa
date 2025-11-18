@@ -22,12 +22,12 @@ const platformBoothSchema = new Schema<IPlatformBooth>({
           type: String,
           enum: Object.values(Event_Request_Status),
           default: Event_Request_Status.PENDING,
-        },QRCodeGenerated: { type: Boolean, default: false },
+        }
       },
       { _id: false }
     ),
     required: true,
-  }
+  },QRCodeGenerated: { type: Boolean, default: false }
 });
 
 export const PlatformBooth = Event.discriminator(

@@ -21,4 +21,5 @@ export interface IPlatformBoothRequestData {
 export interface IPlatformBooth extends IEvent {
   vendor: IVendor | string;
   RequestData: IPlatformBoothRequestData;
+  QRCodeGenerated: boolean;
 }
