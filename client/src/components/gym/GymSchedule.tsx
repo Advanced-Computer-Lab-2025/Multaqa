@@ -304,15 +304,11 @@ export default function GymSchedule({ month, sessions }: Props) {
         ) : error ? (
           <ErrorState
             title="Failed to load gym sessions"
-            description={error}
+            description={error ?? "An error has occured on our end while loading the gym sessions. Please try again later."}
             onCtaClick={() => window.location.reload()}
           />
         ) : byDay.length === 0 ? (
-          <EmptyState
-            title="No sessions for the selected activity for this month"
-            description="There are no gym sessions scheduled for the selected month or activity. Please check back later or try a different month or activity."
-            imageAlt="No sessions illustration"
-          />
+          a
         ) : (
           byDay.map(([day, list], index) => (
             <React.Fragment key={day}>

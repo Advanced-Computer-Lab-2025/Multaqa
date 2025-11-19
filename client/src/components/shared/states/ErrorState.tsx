@@ -23,8 +23,8 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   imageAlt = "Server error illustration",
   ctaLabel = "Refresh",
   onCtaClick,
-  width = 420,
-  height = 300,
+  width = 280,
+  height = 210,
 }) => {
   const handleDefaultClick = () => {
     if (typeof window !== "undefined") {
