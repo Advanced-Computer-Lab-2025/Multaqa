@@ -36,6 +36,8 @@ export default function ActionCard({
   borderColor,
   elevation = "soft",
   onExpandChange,
+  disableTitleEllipsis,
+  titleMaxLines,
 }: ActionCardProps) {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
@@ -92,7 +94,7 @@ export default function ActionCard({
         display: "flex",
         flexDirection: "column",
         borderRadius: 2,
-        backgroundColor: `${borderColor}10`,
+        backgroundColor: background || `${borderColor}10`,
         border: "2px solid transparent",
         borderColor: `${borderColor}40`,
         boxShadow: `0 4px 12px ${borderColor}30`,
@@ -164,10 +166,25 @@ export default function ActionCard({
               sx={{
                 fontWeight: 700,
                 color: "#1E1E1E",
-                overflow: "hidden",
-                maxWidth: type=="events"?"250px":"90%",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                ...(disableTitleEllipsis
+                  ? {
+                      whiteSpace: "normal",
+                      overflow: "visible",
+                      textOverflow: "unset",
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      ...(titleMaxLines
+                        ? { WebkitLineClamp: titleMaxLines }
+                        : {}),
+                      maxWidth: "100%",
+                      wordBreak: "break-word",
+                    }
+                  : {
+                      overflow: "hidden",
+                      maxWidth: type==="events"?"250px":"90%",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }),
               }}
             >
               {title}
