@@ -11,6 +11,7 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL, SESSION_COLORS } from "./types";
 import { fetchGymSessions } from "./utils";
+import EmptyState from "../shared/states/EmptyState";
 
 // colors handled by `GymSessionCard`
 
@@ -241,9 +242,11 @@ export default function GymSchedule({ month, sessions }: Props) {
       {/* Day groups */}
       <Stack spacing={2}>
         {byDay.length === 0 ? (
-          <Typography variant="body2" sx={{ color: "#6b7280" }}>
-            No sessions for this month.
-          </Typography>
+          <EmptyState
+            title="No sessions for the selected activity for this month"
+            description="There are no gym sessions scheduled for the selected month or activity. Please check back later or try a different month or activity."
+            imageAlt="No sessions illustration"
+          />
         ) : (
           byDay.map(([day, list], index) => (
             <React.Fragment key={day}>
