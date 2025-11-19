@@ -45,7 +45,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   const allChecked = formik.values.allowedUsers.length === options.length;
 
   return (
-    <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[40vw]'>
+    <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[45vw]'>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} color="primary.dark" className="text-center">
           {`Restrict Users for ${eventName ?? ""}`}
       </Typography>
