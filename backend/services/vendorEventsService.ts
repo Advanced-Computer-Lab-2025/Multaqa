@@ -167,8 +167,8 @@ export class VendorEventsService {
       {},
       {
         populate: [
-          { path: "vendor", select: "companyName logo" },
-          { path: "vendors.vendor", select: "companyName logo" },
+          { path: "vendor", select: "companyName logo taxCard" },
+          { path: "vendors.vendor", select: "companyName logo taxCard" },
         ] as any[],
       }
     );

@@ -5,24 +5,24 @@ import theme from '@/themes/lightTheme';
 
 interface WalletBalanceProps {
   currentBalance?: number;
-  userInfo?:any
-  transactions:any
+  userInfo?: any;
+  transactions?: any[]; // make optional
 }
 
-const WalletBalance: React.FC<WalletBalanceProps> = ({ 
-  userInfo, 
-  currentBalance = 0 ,
-  transactions
+const WalletBalance: React.FC<WalletBalanceProps> = ({
+  userInfo,
+  currentBalance = 0,
+  transactions = [], // default to empty array
 }) => {
   const getInitials = () => {
     const firstInitial = userInfo?.firstName?.charAt(0).toUpperCase() || '';
     const lastInitial = userInfo?.lastName?.charAt(0).toUpperCase() || '';
     return `${firstInitial}${lastInitial}` || 'U';
   };
-  const active = userInfo.status=="active";
-  const fullName = userInfo?.firstName +" "+userInfo?.lastName ;
-  
-  const monthTransactions = transactions.reduce((acc:any, tx:any) => {
+  const active = userInfo.status == "active";
+  const fullName = userInfo?.firstName + " " + userInfo?.lastName;
+
+  const monthTransactions = (transactions || []).reduce((acc: any, tx: any) => {
     const txDate = new Date(tx.date);
     const now = new Date();
     if (txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()) {
@@ -86,45 +86,45 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
             {/* Header */}
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Avatar
-              sx={{
-                width: 56,
-                height: 56,
-                background: `linear-gradient(135deg, ${theme.palette.tertiary.main} 0%, ${theme.palette.primary.main} 100%)`,
-                boxShadow: '0 8px 16px rgba(59, 130, 246, 0.4)',
-                fontSize: '1.25rem',
-                fontWeight: 600,
-              }}
-            >
-              {getInitials()}
-               </Avatar>
+                <Avatar
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    background: `linear-gradient(135deg, ${theme.palette.tertiary.main} 0%, ${theme.palette.primary.main} 100%)`,
+                    boxShadow: '0 8px 16px rgba(59, 130, 246, 0.4)',
+                    fontSize: '1.25rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {getInitials()}
+                </Avatar>
                 <Box>
                   <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: '0.875rem' }}>
                     Account Holder
                   </Typography>
                   <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
-                    {fullName?? "User"}'s Account
+                    {fullName ?? "User"}'s Account
                   </Typography>
                 </Box>
               </Box>
 
               {/* Status Badge */}
               <Chip
-                label={active?"Active":"Blocked"}
+                label={active ? "Active" : "Blocked"}
                 icon={
                   <Box
                     sx={{
                       width: 8,
                       height: 8,
                       borderRadius: '50%',
-                      bgcolor: active?'#34d399':"error.main",
+                      bgcolor: active ? '#34d399' : "error.main",
                       ml: 1,
                     }}
                   />
                 }
                 sx={{
-                  bgcolor: active?'rgba(16, 185, 129, 0.2)':'rgba(219, 48, 48, 0.2)',
-                  color: active?'#34d399':"error.main",
+                  bgcolor: active ? 'rgba(16, 185, 129, 0.2)' : 'rgba(219, 48, 48, 0.2)',
+                  color: active ? '#34d399' : "error.main",
                   fontWeight: 500,
                   fontSize: '0.75rem',
                   height: 28,
@@ -166,7 +166,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
 
             {/* Quick Stats */}
             <Grid container spacing={2}>
-              <Grid size={{xs:4}}>
+              <Grid size={{ xs: 4 }}>
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -189,7 +189,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                   </Typography>
                 </Box>
               </Grid>
-              <Grid size={{xs:4}}>
+              <Grid size={{ xs: 4 }}>
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -211,7 +211,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                   </Typography>
                 </Box>
               </Grid>
-             <Grid size={{xs:4}}>
+              <Grid size={{ xs: 4 }}>
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -230,7 +230,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                   </Typography>
                   <Typography variant="body1" sx={{ color: '#fff', fontWeight: 600, mt: 0.5 }}>
                     {/* // get newest transaction date */}
-                    {transactions.length > 0 ? new Date(Math.max(...transactions.map((tx:any) => new Date(tx.date).getTime()))).toLocaleDateString() : 'N/A'}
+                    {transactions.length > 0 ? new Date(Math.max(...transactions.map((tx: any) => new Date(tx.date).getTime()))).toLocaleDateString() : 'N/A'}
                   </Typography>
                 </Box>
               </Grid>

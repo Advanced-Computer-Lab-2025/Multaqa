@@ -27,8 +27,11 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   registered,
   isRegisteredEvent,
   onDelete,
+  setRefresh,
   userInfo,
-  attended
+  attended,
+  datePassed,
+  registrationPassed,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -102,36 +105,38 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         </Tooltip>
       ) : null}
       registerButton={
-            (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-              <>
-                {registered || isRegisteredEvent? (
-                  <CustomButton
-                    size="small"
-                    variant="outlined"
-                    sx={{ 
-                      borderRadius: 999,
-                      backgroundColor: `${background}40`,
-                      color: background,
-                      borderColor: background,
-                      fontWeight: 600,
-                      px: 3,
-                      textTransform: "none",
-                      boxShadow: `0 4px 14px ${background}40`,
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor: `${background}50`,
-                        transform: "translateY(-2px)",
-                        boxShadow: `0 6px 20px ${background}50`,
-                      },
-                      width: 'fit-content'
-                    }}
-                    onClick={() => {
-                      setCancelRegisteration(true);
-                    }}
-                  >
-                    Cancel Registration
-                  </CustomButton>
-                ) : (
+        (user == "staff" || user == "student" || user == "ta" || user == "professor") && 
+        !(datePassed || attended) && (
+          <>
+            {registered || isRegisteredEvent ? (
+              // User is registered - show cancel button
+              <CustomButton
+                size="small"
+                variant="outlined"
+                sx={{ 
+                  borderRadius: 999,
+                  backgroundColor: `${background}40`,
+                  color: background,
+                  borderColor: background,
+                  fontWeight: 600,
+                  px: 3,
+                  textTransform: "none",
+                  boxShadow: `0 4px 14px ${background}40`,
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: `${background}50`,
+                    transform: "translateY(-2px)",
+                    boxShadow: `0 6px 20px ${background}50`,
+                  },
+                  width: 'fit-content'
+                }}
+                onClick={() => setCancelRegisteration(true)}
+              >
+                Cancel Registration
+              </CustomButton>
+            ) : (
+              // User is not registered - show register button
+              !(registrationPassed) && (
                   <CustomButton
                     size="small"
                     variant="contained"
@@ -155,10 +160,11 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   >
                     Register
                   </CustomButton>
-                )}
-              </>
-            )
-          } expanded={expanded} location={details["Location"]} />
+                )
+            )}
+          </>
+        )
+      } expanded={expanded} location={details["Location"]} />
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -227,7 +233,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         eventId={id}
        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
       
-      <CancelRegistration eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+      <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
         
       <CustomModalLayout
               open={detailsModalOpen}
@@ -245,60 +251,64 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 userId={userInfo._id}
                 button={
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-                    <>
-                      {registered  || isRegisteredEvent? (
-                        <CustomButton
-                          size="small"
-                          variant="outlined"
-                          sx={{ 
-                            borderRadius: 999,
-                            backgroundColor: `${background}40`,
-                            color: background,
-                            borderColor: background,
-                            fontWeight: 600,
-                            px: 3,
-                            textTransform: "none",
-                            boxShadow: `0 4px 14px ${background}40`,
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                              backgroundColor: `${background}50`,
-                              transform: "translateY(-2px)",
-                              boxShadow: `0 6px 20px ${background}50`,
-                            },
-                            width: 'fit-content'
-                          }}
-                          onClick={() => {
-                            setCancelRegisteration(true);
-                          }}
-                        >
-                          Cancel Registration
-                        </CustomButton>
-                      ) : (
-                        <CustomButton
-                          size="small"
-                          variant="contained"
-                          sx={{ 
-                            borderRadius: 999,
-                            backgroundColor: `${background}40`,
-                            color: background,
-                            borderColor: background,
-                            fontWeight: 600,
-                            px: 3,
-                            textTransform: "none",
-                            boxShadow: `0 4px 14px ${background}40`,
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                              backgroundColor: `${background}50`,
-                              transform: "translateY(-2px)",
-                              boxShadow: `0 6px 20px ${background}50`,
-                            },
-                          }}
-                          onClick={() => setRegister(true)}
-                        >
-                          Register
-                        </CustomButton>
-                      )}
-                    </>
+                    !(datePassed || attended) && (
+                        <>
+                          {registered || isRegisteredEvent ? (
+                            // User is registered - show cancel button
+                            <CustomButton
+                              size="small"
+                              variant="outlined"
+                              sx={{ 
+                                borderRadius: 999,
+                                backgroundColor: `${background}40`,
+                                color: background,
+                                borderColor: background,
+                                fontWeight: 600,
+                                px: 3,
+                                textTransform: "none",
+                                boxShadow: `0 4px 14px ${background}40`,
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  backgroundColor: `${background}50`,
+                                  transform: "translateY(-2px)",
+                                  boxShadow: `0 6px 20px ${background}50`,
+                                },
+                                width: 'fit-content'
+                              }}
+                              onClick={() => setCancelRegisteration(true)}
+                            >
+                              Cancel Registration
+                            </CustomButton>
+                          ) : (
+                            // User is not registered - show register button
+                           !(registrationPassed) && (
+                              <CustomButton
+                                size="small"
+                                variant="contained"
+                                sx={{ 
+                                  borderRadius: 999,
+                                  backgroundColor: `${background}40`,
+                                  color: background,
+                                  borderColor: background,
+                                  fontWeight: 600,
+                                  px: 3,
+                                  textTransform: "none",
+                                  boxShadow: `0 4px 14px ${background}40`,
+                                  transition: "all 0.3s ease",
+                                  "&:hover": {
+                                    backgroundColor: `${background}50`,
+                                    transform: "translateY(-2px)",
+                                    boxShadow: `0 6px 20px ${background}50`,
+                                  },
+                                }}
+                                onClick={() => setRegister(true)}
+                              >
+                                Register
+                              </CustomButton>
+                            )
+                          )}
+                        </>
+                      )
                   )
                 }
                 sections={user=="vendor"?['general','agenda', 'details']:['general','agenda','details',
