@@ -1,4 +1,5 @@
-import React from "react";
+import React , {useState}from "react";
+import {api} from "../../../api";
 import { CustomModalLayout } from "@/components/shared/modals";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
@@ -23,6 +24,24 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   onClose,
   setRefresh,
 }) => {
+   const [loading, setLoading] = useState(false);
+   const [error, setError] = useState<string | null>(null);  
+   const handleCallApi = async (payload:any) => {
+          setLoading(true);
+          setError(null);
+          try {
+          // TODO: Replace with your API route
+          const res = await api.patch("/events/" + eventId, payload);
+          if (setRefresh) setRefresh((p) => !p);
+          } catch (err: any) {
+          setError(err?.message || "API call failed");
+          window.alert(err.response.data.error);
+          } finally {
+          setLoading(false);
+          }
+   };
+
+
   const options = [
     { label: "student", value: "student" },
     { label: "professor", value: "professor" },
@@ -36,9 +55,8 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
       allowedUsers: Yup.array().min(1, "Select at least one user type"),
     }),
     onSubmit: (values) => {
-      alert(JSON.stringify(values.allowedUsers));
-      if (setRefresh) setRefresh((p) => !p);
       onClose();
+      alert(JSON.stringify(values.allowedUsers));
     },
   });
 
