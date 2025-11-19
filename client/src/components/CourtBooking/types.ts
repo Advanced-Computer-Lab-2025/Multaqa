@@ -1,4 +1,4 @@
-export type CourtPaletteKey = 'primary' | 'secondary' | 'tertiary';
+export type CourtPaletteKey = 'primary' | 'secondary' | 'tertiary' | 'warning';
 
 export interface CourtType {
   id: string;

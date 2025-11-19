@@ -9,7 +9,7 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 interface Props {
   slot: CourtSlot;
-  color: "primary" | "secondary" | "tertiary";
+  color: "primary" | "secondary" | "tertiary" | "warning";
   currentUser?: string;
   onReserve?: (slot: CourtSlot) => void;
   onCancel?: (slot: CourtSlot) => void;
