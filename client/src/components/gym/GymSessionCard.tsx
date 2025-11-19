@@ -4,7 +4,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import ActionCard from "@/components/shared/cards/ActionCard";
-import { GymSession, SESSION_LABEL, SESSION_COLORS } from "./types";
+import { GymSession, SESSION_COLORS } from "./types";
 import SelfImprovementIcon from "@mui/icons-material/SelfImprovement";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
@@ -39,43 +39,18 @@ export default function GymSessionCard({ session, showSpots = true }: Props) {
   const leftIcon = (
     <Box
       sx={{
-        width: 48,
-        height: 48,
-        borderRadius: "16px",
+        width: 44,
+        height: 44,
+        borderRadius: "14px",
         backgroundColor: alpha(baseColor, 0.18),
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
       }}
     >
-      <Icon sx={{ fontSize: 28, color: baseColor }} />
+      <Icon sx={{ fontSize: 24, color: baseColor }} />
     </Box>
   );
-
-  const tags: Array<{ label: React.ReactNode } & Partial<import("@mui/material").ChipProps>> = [
-    {
-      label: SESSION_LABEL[session.type],
-      variant: "outlined",
-      sx: {
-        backgroundColor: chipBackground,
-        color: baseColor,
-        fontWeight: 700,
-        fontFamily: "var(--font-poppins)",
-        letterSpacing: 0.4,
-        borderRadius: "999px",
-        border: `1px solid ${chipBorder}`,
-        height: 24,
-        ml: 1,
-        "& .MuiChip-label": {
-          px: 1.25,
-        },
-        "&:hover": {
-          backgroundColor: alpha(baseColor, 0.16),
-          borderColor: baseColor,
-        },
-      },
-    },
-  ];
 
   return (
     <ActionCard
@@ -84,9 +59,8 @@ export default function GymSessionCard({ session, showSpots = true }: Props) {
       leftIcon={leftIcon}
       disableTitleEllipsis
       titleMaxLines={3}
-      tags={tags}
       subtitleNode={
-        <Typography variant="body2" sx={{ fontWeight: 600, color: "#111111" }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: "#111111", mb: 0.5 }}>
           {instructorLabel}
         </Typography>
       }
@@ -95,7 +69,11 @@ export default function GymSessionCard({ session, showSpots = true }: Props) {
           {start} – {end} · {session.location ?? "Main Gym"}
         </Typography>,
         showSpots ? (
-          <Typography key="spots" variant="caption" sx={{ fontWeight: 700, color: baseColor }}>
+          <Typography
+            key="spots"
+            variant="caption"
+            sx={{ fontWeight: 700, color: baseColor, mt: 0.5 }}
+          >
             {spotsLeft} spots left
           </Typography>
         ) : null,
@@ -106,23 +84,22 @@ export default function GymSessionCard({ session, showSpots = true }: Props) {
         width: 240,
         flexShrink: 0,
         position: "relative",
-        p: 0,
+        padding: "16px",
         borderRadius: "18px",
         border: `1.5px solid ${alpha(baseColor, 0.4)}`,
-        boxShadow: `0 12px 26px ${alpha(baseColor, 0.18)}`,
-        transition: "box-shadow 0.3s ease, transform 0.3s ease",
+        boxShadow: "none",
+        transition: "transform 0.3s ease",
         display: "flex",
         minHeight: "auto",
         maxHeight: "none",
         "&:hover": {
-          boxShadow: `0 18px 34px ${alpha(baseColor, 0.26)}`,
           transform: "translateY(-4px)",
         },
       }}
       headerSx={{
         alignItems: "center",
         flexDirection: "row",
-        gap: 1.25,
+        gap: 1.75,
       }}
     />
   );
