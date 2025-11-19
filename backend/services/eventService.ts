@@ -678,56 +678,5 @@ export class EventsService {
         return await workbook.xlsx.writeBuffer() as any;
       }
 
-    async getEventsForQRCodeGeneration(): Promise<IEvent[]> {
-      const filter: any = {
-        type: { $in: [EVENT_TYPES.BAZAAR, EVENT_TYPES.PLATFORM_BOOTH] },
-      };
-      const events = await this.eventRepo.findAll(filter, {
-      populate: [
-        { path: "vendors.vendor", select: "companyName logo" },
-        { path: "vendor", select: "companyName logo" }
-      ] as any[],
-    });
-
-      const filteredEvents: IEvent[] = [];
-
     
-    for (const event of events) {
-      const eventData = event.toObject();
-        
-        // Platform Booth Filtering 
-        if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
-          
-
-            if (eventData.RequestData && 
-                eventData.RequestData.status === 'approved' && 
-                eventData.QRCodeGenerated === false) 
-            {
-                
-                filteredEvents.push(eventData as IEvent);
-            }
-        }
-        // Bazaar Filtering
-        else if (event.type === EVENT_TYPES.BAZAAR) {
-          const vendorsNeedingQR = (eventData.vendors || []).filter((vendor: VendorRequest) => {
-                return vendor.RequestData && 
-                       vendor.RequestData.status === 'approved' && 
-                       vendor.QRCodeGenerated === false;
-            });
-            
-
-            if (vendorsNeedingQR.length > 0) {
-               eventData.vendors = vendorsNeedingQR; 
-
-                filteredEvents.push(eventData as IEvent);
-            }
-         
-        }
-    }
-    if (filteredEvents.length === 0) {
-        throw createError(404, "No events found needing QR code generation");
-    }
-      return filteredEvents;
-   
-  }
 }

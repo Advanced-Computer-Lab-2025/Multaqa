@@ -311,21 +311,7 @@ async function exportEventUsers(req: Request, res: Response) {
   }
 }
 
-async function getEventsForQRCodeGeneration(req: Request, res: Response<GetEventsResponse>) {
-  try {
-    const events = await eventsService.getEventsForQRCodeGeneration();
-    res.json({
-      success: true,
-      data: events,
-      message: "Events for QR code generation retrieved successfully",
-    });
-  } catch (err: any) {
-    throw createError(
-      err.status || 500,
-      err.message || "Error retrieving events for QR code generation"
-    );
-  }
-}
+
 
 const router = Router();
 
@@ -374,14 +360,7 @@ router.get(
   findAllWorkshops
 );
 
-router.get(
-  "/QRcodes",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
-  }),
-  getEventsForQRCodeGeneration
-);
+
 
 
 router.delete(
