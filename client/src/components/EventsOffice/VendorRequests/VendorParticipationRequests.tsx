@@ -10,8 +10,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { RefreshCw } from "lucide-react";
-import CustomButton from "@/components/shared/Buttons/CustomButton";
+import FilterPanel from "@/components/shared/FilterCard/FilterPanel";
+import { FilterGroup } from "@/components/shared/FilterCard/types";
 import { api } from "@/api";
 import VendorRequestCard from "./VendorRequestCard";
 import {
@@ -41,6 +41,19 @@ const typeFilters: Array<{ key: TypeFilter; label: string }> = [
   { key: "ALL", label: "All Types" },
   { key: "bazaar", label: "Bazaars" },
   { key: "platform_booth", label: "Platform Booths" },
+];
+
+const filterGroups: FilterGroup[] = [
+  {
+    id: "type",
+    title: "Event Type",
+    type: "chip",
+    options: [
+      { label: "All Types", value: "ALL" },
+      { label: "Bazaars", value: "bazaar" },
+      { label: "Platform Booths", value: "platform_booth" },
+    ],
+  },
 ];
 
 function ensureString(value: unknown): string | undefined {
@@ -201,6 +214,16 @@ export default function VendorParticipationRequests() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [responding, setResponding] = useState<Record<string, VendorRequestStatus | null>>({});
   const [refresh, setRefresh] = useState(false);
+
+  const handleFilterChange = useCallback((groupId: string, value: any) => {
+    if (groupId === "type") {
+      setTypeFilter(value);
+    }
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setTypeFilter("ALL");
+  }, []);
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -401,15 +424,6 @@ export default function VendorParticipationRequests() {
             Review pending vendor applications for bazaars and platform booths.
           </Typography>
         </Box>
-
-        <CustomButton
-          variant="outlined"
-          color="primary"
-          onClick={fetchRequests}
-          startIcon={<RefreshCw size={16} />}
-        >
-          Refresh
-        </CustomButton>
       </Box>
 
       {feedback ? (
@@ -432,29 +446,31 @@ export default function VendorParticipationRequests() {
         }}
       >
         <Stack direction="row" spacing={1} flexWrap="wrap">
-          {statusFilters.map(({ key, label }) => (
+          {statusFilters.map(({ key, label }) => {
+             let color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" = "default";
+             if (statusFilter === key) {
+                if (key === "pending") color = "warning";
+                else if (key === "approved") color = "success";
+                else if (key === "rejected") color = "error";
+                else color = "primary";
+             }
+            return (
             <Chip
               key={key}
               label={label}
               size="small"
               variant={statusFilter === key ? "filled" : "outlined"}
-              color={statusFilter === key ? "primary" : "default"}
+              color={color}
               onClick={() => setStatusFilter(key)}
             />
-          ))}
+          )})}
         </Stack>
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {typeFilters.map(({ key, label }) => (
-            <Chip
-              key={key}
-              label={label}
-              size="small"
-              variant={typeFilter === key ? "filled" : "outlined"}
-              color={typeFilter === key ? "primary" : "default"}
-              onClick={() => setTypeFilter(key)}
-            />
-          ))}
-        </Stack>
+        <FilterPanel
+          filterGroups={filterGroups}
+          onFilterChange={handleFilterChange}
+          currentFilters={{ type: typeFilter }}
+          onReset={handleResetFilters}
+        />
       </Box>
 
       <Divider sx={{ mb: 3 }} />
