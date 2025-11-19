@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import { Box, Chip, Divider, Stack, Typography, Skeleton } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -20,6 +20,34 @@ type Props = {
   month?: Date; // initial month
   sessions?: GymSession[]; // optional external data, else use demo
 };
+
+// Skeleton Loading Component
+const GymSessionsSkeleton = () => (
+  <Stack spacing={3}>
+    {[1, 2, 3].map((item) => (
+      <Box key={item}>
+        <Skeleton variant="text" width="30%" height={32} sx={{ mb: 2 }} />
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            overflowX: "hidden",
+          }}
+        >
+          {[1, 2, 3].map((card) => (
+            <Skeleton
+              key={card}
+              variant="rounded"
+              width={280}
+              height={200}
+              sx={{ borderRadius: "12px", flexShrink: 0 }}
+            />
+          ))}
+        </Box>
+      </Box>
+    ))}
+  </Stack>
+);
 
 export default function GymSchedule({ month, sessions }: Props) {
   const [current, setCurrent] = useState<Date>(month ?? new Date());
@@ -201,7 +229,7 @@ export default function GymSchedule({ month, sessions }: Props) {
                 label={label}
                 size="medium"
                 onClick={() => setFilter(key)}
-                variant={isActive ? "filled" : "outlined"}
+                variant="outlined"
                 sx={{
                   fontFamily: "var(--font-poppins)",
                   fontWeight: 700,
@@ -209,16 +237,17 @@ export default function GymSchedule({ month, sessions }: Props) {
                   borderRadius: "9999px",
                   px: 1.75,
                   height: 36,
-                  borderWidth: 1,
+                  borderWidth: isActive ? 4 : 1,
                   borderColor: baseColor,
-                  color: isActive ? theme.palette.common.white : baseColor,
-                  backgroundColor: isActive ? baseColor : alpha(baseColor, 0.08),
+                  color: baseColor,
+                  backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
                   boxShadow: isActive
                     ? `0 4px 12px ${alpha(baseColor, 0.35)}`
                     : `0 1px 3px ${alpha(baseColor, 0.18)}`,
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
-                    backgroundColor: isActive ? alpha(baseColor, 0.85) : alpha(baseColor, 0.16),
+                    backgroundColor: alpha(baseColor, 0.16),
+                    borderWidth: isActive ? 4 : 2,
                   },
                 }}
               />
@@ -232,11 +261,7 @@ export default function GymSchedule({ month, sessions }: Props) {
       {/* Day groups */}
       <Stack spacing={2}>
         {loading ? (
-          <EmptyState
-            title="Loading sessions..."
-            description="Please wait while we fetch the gym sessions for you."
-            imageAlt="Loading illustration"
-          />
+          <GymSessionsSkeleton />
         ) : error ? (
           <ErrorState
             title="Failed to load gym sessions"

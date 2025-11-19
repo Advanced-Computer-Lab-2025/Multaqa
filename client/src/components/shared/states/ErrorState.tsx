@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import theme from "@/themes/lightTheme";
-import ServerErrImg from "../../../../public/assets/images/undraw_co-server_err.svg";
+import ServerErrImg from "../../../../public/assets/images/undraw_co-cancel.svg";
 import CustomButton from "../Buttons/CustomButton";
 
 interface ErrorStateProps {
