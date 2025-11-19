@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import theme from "@/themes/lightTheme";
-import ServerErrImg from "../../../../public/assets/images/undraw_co-server_err.svg";
+import ServerErrImg from "../../../../public/assets/images/undraw_co-cancel.svg";
 import CustomButton from "../Buttons/CustomButton";
 
 interface ErrorStateProps {
@@ -23,8 +23,8 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   imageAlt = "Server error illustration",
   ctaLabel = "Refresh",
   onCtaClick,
-  width = 420,
-  height = 300,
+  width = 280,
+  height = 210,
 }) => {
   const handleDefaultClick = () => {
     if (typeof window !== "undefined") {
