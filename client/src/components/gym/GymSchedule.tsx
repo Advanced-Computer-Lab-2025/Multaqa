@@ -12,6 +12,7 @@ import GymSessionCard from "./GymSessionCard";
 import { GymSession, GymSessionType, SESSION_LABEL, SESSION_COLORS } from "./types";
 import { fetchGymSessions } from "./utils";
 import EmptyState from "../shared/states/EmptyState";
+import ErrorState from "../shared/states/ErrorState";
 
 // colors handled by `GymSessionCard`
 
@@ -118,17 +119,6 @@ export default function GymSchedule({ month, sessions }: Props) {
       title="Gym Sessions"
       description="Browse sessions by month and filter by type."
     >
-      {/* Loading / Error States */}
-      {loading && (
-        <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
-          Loading sessions...
-        </Typography>
-      )}
-      {error && (
-        <Typography variant="body2" sx={{ color: theme.palette.error.main, mb: 2 }}>
-          {error}
-        </Typography>
-      )}
       {/* Controls */}
       <Box
         sx={{
@@ -241,7 +231,19 @@ export default function GymSchedule({ month, sessions }: Props) {
 
       {/* Day groups */}
       <Stack spacing={2}>
-        {byDay.length === 0 ? (
+        {loading ? (
+          <EmptyState
+            title="Loading sessions..."
+            description="Please wait while we fetch the gym sessions for you."
+            imageAlt="Loading illustration"
+          />
+        ) : error ? (
+          <ErrorState
+            title="Failed to load gym sessions"
+            description={error}
+            onCtaClick={() => window.location.reload()}
+          />
+        ) : byDay.length === 0 ? (
           <EmptyState
             title="No sessions for the selected activity for this month"
             description="There are no gym sessions scheduled for the selected month or activity. Please check back later or try a different month or activity."
