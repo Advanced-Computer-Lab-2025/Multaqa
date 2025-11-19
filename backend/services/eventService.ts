@@ -6,10 +6,8 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { Trip } from "../schemas/event-schemas/tripSchema";
 import { ITrip } from "../interfaces/models/trip.interface";
-import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
-import { IWorkshop } from "../interfaces/models/workshop.interface";
 import Stripe from "stripe";
 import { sendCommentDeletionWarningEmail } from "./emailService";
 import { UserService } from "./userService";
@@ -17,7 +15,10 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
-import { VendorEventsService } from "./vendorEventsService";
+import eventBus from "../utils/eventBus";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -26,7 +27,6 @@ const STRIPE_MIN_AMOUNT_CENTS = 50;
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
   private tripRepo: GenericRepository<ITrip>;
-  private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
   private stripe?: Stripe;
   private userService: UserService;
@@ -34,7 +34,6 @@ export class EventsService {
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
-    this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
     this.userService = new UserService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
@@ -229,6 +228,15 @@ export class EventsService {
       }
 
       await this.ensureStripeProductForPricedEvent(createdEvent);
+
+      eventBus.emit("notification:event:new", {
+        role: [ UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.STAFF_MEMBER ],
+        StaffPosition: [ StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
+        adminRole: [ AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN ],
+        title: "New Event Added",
+        message: `A new event titled "${createdEvent.eventName}" has been added. Check it out!`,
+        createdAt: new Date(),
+      });
 
       return createdEvent;
     } catch (err) {

@@ -4,6 +4,12 @@ import mongoose from "mongoose";
 import { json } from "body-parser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import http from "http";
+import { Server } from "socket.io";
+import { authSocketMiddleware } from "./middleware/authSocket.middleware";
+
+export let io: Server;
+import { OnlineUsersService } from "./services/onlineUsersService";
 
 // Import routers
 import eventRouter from "./routes/event.routes";
@@ -52,6 +58,7 @@ app.use(json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Mount routers
 app.use("/uploads", uploadsRouter);
 app.use("/auth", authRouter);
 app.use(verifyJWT); // Protect all routes below this middleware
@@ -64,30 +71,49 @@ app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
 
+// Error handlers
+app.use(errorHandler);
+app.use(notFoundHandler);
 
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+const PORT = process.env.PORT || 4000;
 
 async function startServer() {
   try {
     console.log("Connecting to MongoDB...");
-    await mongoose.connect(MONGO_URI!);
-    console.log("✅ Connected to MongoDB:", mongoose.connection.name);
-    const PORT = process.env.PORT;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    await mongoose.connect(MONGO_URI);
+    // Create HTTP server manually
+    const server = http.createServer(app);
+
+    // Attach Socket.io to the http server object
+    io = new Server(server, {
+      cors: { origin: "http://localhost:3000", credentials: true }
     });
+
+    // Socket authentication
+    io.use(authSocketMiddleware);
+
+    // Handle socket connections
+    // executed ONLY when a socket tries to connect.
+    io.on("connection", (socket) => {
+      const userId = socket.data.userId;
+      OnlineUsersService.addSocket(userId, socket.id);
+
+      socket.on("disconnect", () => {
+        OnlineUsersService.removeSocket(userId, socket.id);
+      });
+    });
+
+    // Start server
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+    // Start workshop scheduler
+    const scheduler = new WorkshopScheduler();
+    scheduler.start();
   } catch (err) {
-    console.error("Failed to connect to MongoDB", err);
+    console.error("Failed to start server:", err);
     process.exit(1);
   }
 }
 
-app.use(errorHandler);
-app.use(notFoundHandler);
-
 startServer();
-
-// Start the workshop scheduler to send certificates periodically
-const scheduler = new WorkshopScheduler();
-scheduler.start();

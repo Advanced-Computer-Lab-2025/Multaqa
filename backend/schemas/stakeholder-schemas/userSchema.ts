@@ -19,16 +19,6 @@ const userSchema = new Schema<IUser>(
       enum: Object.values(UserRole),
     },
     isVerified: { type: Boolean, default: false },
-    notifications: {
-      type: [
-        {
-          title: String,
-          message: String,
-          createdAt: { type: Date, default: Date.now },
-        },
-      ],
-      default: [],
-    },
     registeredAt: { type: Date, default: Date.now },
     verifiedAt: { type: Date },
     updatedAt: { type: Date, default: Date.now },
