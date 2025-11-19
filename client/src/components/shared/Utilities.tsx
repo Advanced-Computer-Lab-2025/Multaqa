@@ -33,9 +33,9 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
               borderColor: 'divider',
               borderRadius: 2,
               "&:hover": {
-                backgroundColor: `${color}15`,
-                borderColor: color,
-                color: color,
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+                borderColor: "error.main",
+                color: "error.main",
               },
             }}
         >
