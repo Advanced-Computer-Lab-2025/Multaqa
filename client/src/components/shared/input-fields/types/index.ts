@@ -2,6 +2,7 @@ import { TextFieldProps } from "@mui/material";
 
 export type FieldType =
   | "text"
+  | "name"
   | "email"
   | "password"
   | "numeric"

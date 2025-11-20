@@ -43,12 +43,6 @@ const ConferenceDetails: React.FC<ConferenceDetailsType> = ({
         customColor: '#FF6B35'
       },
       {
-        icon: <LocationOn sx={{ color: '#4CAF50' }} />,
-        label: "Location",
-        value: location,
-        customColor: '#4CAF50'
-      },
-      {
         icon: <FileText style={{ color: '#FF6B35' }} />,
         label: "Resources",
         value: resources || 'None',
@@ -90,11 +84,19 @@ const ConferenceDetails: React.FC<ConferenceDetailsType> = ({
     }}
     onClick={handleCopyLink}
   >
+         <Typography 
+          variant="h5" 
+          color= {theme.palette.primary.main}
+          fontWeight="medium"
+          sx={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight:600 }}
+        >
+          Conference Website:
+        </Typography>
         {/* Link */}
         <Typography
           variant="body2"
           sx={{
-            color: theme.palette.primary.main,
+            color: "text.primary" ,
             fontWeight: 500,
             overflow: 'hidden',
             textOverflow: 'ellipsis',

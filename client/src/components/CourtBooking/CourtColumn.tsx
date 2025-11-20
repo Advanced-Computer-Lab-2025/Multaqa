@@ -106,7 +106,6 @@ const CourtColumn: React.FC<Props> = ({
 
         <CustomButton
           onClick={() => onSelectDate?.(court.id)}
-          color="primary"
           variant="outlined"
           sx={{
             minWidth: "auto",
@@ -114,6 +113,12 @@ const CourtColumn: React.FC<Props> = ({
             height: 40,
             padding: 0,
             borderRadius: "50%",
+            color: (t) => t.palette[court.colorKey].main,
+            borderColor: (t) => t.palette[court.colorKey].main,
+            "&:hover": {
+              borderColor: (t) => t.palette[court.colorKey].dark,
+              backgroundColor: (t) => `${t.palette[court.colorKey].light}33`,
+            },
           }}
         >
           <CalendarMonthIcon fontSize="small" />
@@ -170,7 +175,7 @@ const CourtColumn: React.FC<Props> = ({
           </Box>
         ) : (
           <Box>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: "black" }}>
               Select a date to view available slots.
             </Typography>
             {uniqueDays.length > 0 && (

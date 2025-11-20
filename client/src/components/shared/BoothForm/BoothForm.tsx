@@ -450,7 +450,7 @@ const BoothForm: React.FC = () => {
                                             name={`boothAttendees.${index}.name`}
                                             id={`boothAttendees.${index}.name`}
                                             label="Full Name"
-                                            fieldType="text"
+                                            fieldType="name"
                                             width="100%"
                                             value={attendee.name}
                                             onChange={(e) => {

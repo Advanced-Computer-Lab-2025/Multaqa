@@ -23,7 +23,6 @@ import Create from "../tempPages/CreateConference/CreateConference";
 import CreateParent from "../createButton/createParent";
 
 import { deleteEvent, frameData } from "./utils";
-import { mockEvents, mockUserInfo } from "./mockData";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import MenuOptionComponent from "../createButton/MenuOptionComponent";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
@@ -45,7 +44,7 @@ import dayjs from "dayjs";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   userInfo: any;
   userID: string;
 }
@@ -100,16 +99,7 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
-    {
-    id:"location",
-    title: "Location",
-    type: "chip",
-    options: [
-      { label: "GUC Cairo", value: "guc cairo" },
-      { label: "GUC Berlin", value: "guc berlin" },
-    ]
-  },
-    ...(userRole !== "vendor"
+  ...(userRole !== "vendor"
     ? [
         {
           id: "attendance",
@@ -176,19 +166,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
-  const [createWorkshop, setWorkshop] = useState(false);
-  const [createSession, setSession] = useState(false);
-  const [UserInfo, setUserInfo] = useState<{
-    id: string;
-    name: string;
-    email: string;
-  }>({ id: userID, name: "", email: "" });
-  const [isReady, setReady] = useState(false);
-  // Separate effect for initial user data
-  useEffect(() => {
-    getUserData();
-  }, []);
-
+  const registeredEvents = userInfo?.registeredEvents;
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {
@@ -211,9 +189,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 const registeredEvents = userInfo.registeredEvents;
 const handleRegistered = () => {
     setLoading(true);
-    console.log(userInfo);
     const registeredEvents = userInfo.registeredEvents;
-    const result = frameData(registeredEvents);
+    const result = frameData(registeredEvents, userInfo);
     console.log("register events:" + registeredEvents[0]);
     setEvents(result);
     setLoading(false);
@@ -226,7 +203,7 @@ const handleRegistered = () => {
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
-        const result = frameData(data);
+        const result = frameData(data, userInfo);
         const newResults =
           user === "vendor"
             ? result.filter((event) => event.type === "bazaar")
@@ -270,6 +247,13 @@ const handleRegistered = () => {
       filtered = filtered.filter((event) =>
         ["bazaar", "trip", "conference"].includes(event.type)
       );
+    }
+    // Apply attendance filter
+    if (
+      filters.attendance &&
+      (filters.attendance as string[]).includes("attended")
+    ) {
+      filtered = filtered.filter((event) => event.attended === true);
     }
 
     // Apply search filter
@@ -472,12 +456,11 @@ const handleFilterChange = useCallback(
   }, []);
 
   const Eventoptions = [
-    { label: "Gym Sessions", icon: FitnessCenterIcon },
     { label: "Bazaars", icon: StorefrontIcon },
     { label: "Trips", icon: FlightTakeoffIcon },
     { label: "Conference", icon: EventIcon },
   ];
-  const EventOptionsSetters = [setSession, setBazaar, setTrip, setConference];
+  const EventOptionsSetters = [setBazaar, setTrip, setConference];
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -497,13 +480,13 @@ const handleFilterChange = useCallback(
             agenda={event.agenda}
             user={user}
             registered={registered}
-            userInfo={UserInfo}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.WORKSHOP:
-        console.log(event)
         return (
           <WorkshopView
             id={event.id}
@@ -519,10 +502,12 @@ const handleFilterChange = useCallback(
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       case EventType.BAZAAR:
@@ -539,10 +524,12 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       case EventType.BOOTH:
@@ -559,10 +546,11 @@ const handleFilterChange = useCallback(
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.TRIP:
@@ -578,10 +566,12 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={(registeredEvents ?? []).some((e: any) => e._id === event.id)}
-            userInfo={UserInfo}
+            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
-            isReady={isReady}
+            attended={event.attended}
+            datePassed={new Date(event.details["Start Date"]) < new Date()}
+            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
           />
         );
       default:

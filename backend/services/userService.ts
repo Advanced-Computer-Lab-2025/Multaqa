@@ -31,7 +31,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName",
+          "firstName lastName name email role gucId position roleType status companyName verifiedAt updatedAt",
       }
     );
 
@@ -322,6 +322,87 @@ export class UserService {
     const walletBalance = user.walletBalance || 0;
     user.walletBalance = walletBalance + amount;
     await user.save();
+    return user;
+  }
+
+  /**
+   * Add a transaction to user's transaction history
+   * @param userId - User ID
+   * @param transaction - Transaction details
+   * @returns Updated user
+   */
+  async addTransaction(
+    userId: string,
+    transaction: {
+      eventName: string;
+      amount: number;
+      walletAmount?: number;
+      cardAmount?: number;
+      type: "payment" | "refund";
+      date: Date;
+    }
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    if (!user.transactions) {
+      user.transactions = [];
+    }
+
+    user.transactions.push(transaction as any);
+    await user.save();
+    return user;
+  }
+
+  /**
+   * Remove an event from user's registered events
+   * @param userId - User ID
+   * @param eventId - Event ID to remove
+   * @returns Updated user
+   */
+  async removeEventFromUserRegistrations(
+    userId: string,
+    eventId: string
+  ): Promise<IUser> {
+    const user = (await this.userRepo.findById(userId)) as
+      | IStaffMember
+      | IStudent;
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    // Normalize eventId to a mongoose ObjectId
+    const objectId =
+      typeof eventId === "string"
+        ? new mongoose.Types.ObjectId(eventId)
+        : eventId;
+
+    // Ensure registeredEvents array exists
+    const registeredEvents: any[] =
+      user.registeredEvents && Array.isArray(user.registeredEvents)
+        ? user.registeredEvents
+        : [];
+
+    // Check if event exists in registered events
+    const exists = registeredEvents.some(
+      (event: any) => event.toString() === objectId.toString()
+    );
+
+    if (!exists) {
+      throw createError(404, "Event not found in user's registered events");
+    }
+
+    // Remove the event from registered events
+    const filtered = registeredEvents.filter(
+      (event: any) => event.toString() !== objectId.toString()
+    );
+    user.registeredEvents = filtered as any;
+    await user.save();
+
     return user;
   }
 }

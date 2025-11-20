@@ -135,11 +135,15 @@ props: DropdownStyleProps, border?: any): React.CSSProperties => {
 
   return {
     position: "absolute",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    flexDirection:"column",
     top: "calc(100% + 8px)",
     left: 0,
     right: 0,
     maxHeight: "250px",
-    width: "100%",
+    width:"178px",
     overflowY: "auto" as const,
     backgroundColor: theme.palette.background.default,
     border: `2px solid  ${theme.palette.tertiary.main}`,

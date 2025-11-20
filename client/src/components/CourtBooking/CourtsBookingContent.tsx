@@ -7,10 +7,10 @@ import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { api } from "@/api";
 import { CircularProgress, Box, Alert } from "@mui/material";
 
-const courtTypeMap: Record<string, { name: string; colorKey: "primary" | "secondary" | "tertiary" }> = {
-  basketball: { name: "Basketball", colorKey: "primary" },
-  tennis: { name: "Tennis", colorKey: "tertiary" },
-  football: { name: "Football", colorKey: "secondary" },
+const courtTypeMap: Record<string, { name: string; colorKey: "primary" | "secondary" | "tertiary" | "warning" }> = {
+  basketball: { name: "Basketball", colorKey: "warning" },
+  tennis: { name: "Tennis", colorKey: "secondary" },
+  football: { name: "Football", colorKey: "tertiary" },
 };
 
 // All available time slots from backend constants

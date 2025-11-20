@@ -20,4 +20,8 @@ export interface ActionCardProps {
   borderColor?: string;
   elevation?: "none" | "soft" | "strong";
   onExpandChange?: (expanded: boolean) => void;
+  /** When true, allow the title to wrap normally (no ellipsis clip). */
+  disableTitleEllipsis?: boolean;
+  /** Optional max lines clamp for the title when ellipsis is disabled. */
+  titleMaxLines?: number;
 }
