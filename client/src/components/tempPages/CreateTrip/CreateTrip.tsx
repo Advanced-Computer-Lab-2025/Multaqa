@@ -31,7 +31,7 @@ interface CreateTripProps {
 
 const tertiaryInputStyles = {
   '& .MuiInputLabel-root': {
-    color: theme.palette.tertiary.main,
+    color:theme.palette.grey[500],
     '&.Mui-focused': { color: theme.palette.tertiary.main },
   },
   '& .MuiInputBase-input': {
@@ -199,7 +199,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -250,7 +250,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -300,7 +300,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -370,16 +370,19 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         </Box>
                         </Box>
                           <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                            <CustomSelectField
-                              label="Location"
-                              fieldType="single"
-                              options={[
-                                { label: "GUC Cairo", value: "GUC Cairo" },
-                                { label: "GUC Berlin", value: "GUC Berlin" },
-                              ]}
-                              value={values.location}
-                              onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} name={""}
-                            />
+                        <TextField 
+                            name='location'
+                            id='location'
+                            label="Location"    
+                            placeholder='Enter Trip Destination'
+                            type="text"
+                            variant="standard"
+                            value={values.location}
+                            onChange={handleChange}
+                            fullWidth
+                            autoCapitalize='off'
+                            sx={{...tertiaryInputStyles, border:"none"}}
+                        />   
                             {errors.location && touched.location && (
                               <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.location}</p>
                             )}

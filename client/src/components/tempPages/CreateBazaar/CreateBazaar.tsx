@@ -168,7 +168,7 @@ onClose();
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -219,7 +219,7 @@ onClose();
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -269,7 +269,7 @@ onClose();
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },

@@ -68,7 +68,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                   fullWidth: true,
                   InputLabelProps: {
                     sx: {
-                      color: theme.palette.tertiary.main,
+                      color: theme.palette.grey[500],
                       '&.Mui-focused': {
                         color: theme.palette.tertiary.main,
                       },
@@ -119,7 +119,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                   fullWidth: true,
                   InputLabelProps: {
                     sx: {
-                      color: theme.palette.tertiary.main,
+                      color: theme.palette.grey[500],
                       '&.Mui-focused': {
                         color: theme.palette.tertiary.main,
                       },

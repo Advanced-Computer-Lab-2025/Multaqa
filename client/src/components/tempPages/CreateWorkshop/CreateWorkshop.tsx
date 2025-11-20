@@ -37,7 +37,7 @@ interface CreateWorkshopProps {
 
 const tertiaryInputStyles = {
   '& .MuiInputLabel-root': {
-    color: theme.palette.tertiary.main,
+    color: theme.palette.grey[500],
     '&.Mui-focused': {
       color: theme.palette.tertiary.main,
     },
@@ -264,7 +264,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -315,7 +315,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
@@ -365,7 +365,7 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
                             fullWidth: true,
                             InputLabelProps: {
                             sx: {
-                                color: theme.palette.tertiary.main,
+                                color: theme.palette.grey[500],
                                 '&.Mui-focused': {
                                 color: theme.palette.tertiary.main,
                                 },
