@@ -362,7 +362,7 @@ export default function GymSchedule({ month, sessions }: Props) {
                     p: { xs: 2, md: 3 },
                     borderRadius: "16px",
                     position: "relative",
-                    backgroundColor: "#fff",
+                    backgroundColor: alpha(accent, 0.075),
                     border: `1px solid ${alpha(accent, 0.35)}`,
                     boxShadow: `0 0 0 1px ${alpha(
                       accent,
@@ -371,8 +371,10 @@ export default function GymSchedule({ month, sessions }: Props) {
                       accent,
                       0.18
                     )}`,
-                    transition: "box-shadow 0.35s ease, transform 0.35s ease",
+                    transition:
+                      "box-shadow 0.35s ease, transform 0.35s ease, background-color 0.35s ease",
                     "&:hover": {
+                      backgroundColor: alpha(accent, 0.1),
                       boxShadow: `0 0 0 2px ${alpha(
                         accent,
                         0.55
