@@ -12,6 +12,7 @@ import Utilities from "../shared/Utilities";
 import Edit from "../shared/CreateConference/Edit";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
+import RestrictUsers from "./Modals/RestrictUsers";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,
@@ -30,6 +31,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [edit, setEdit] = useState(false)
+  const [restrictUsers, setRestrictUsers] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -71,7 +73,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                      </IconButton>
                    </Tooltip>
           ) : ( user==="events-office"|| user==="events-only"?
-           <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
+           <Utilities onRestrict={() => setRestrictUsers(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
         expanded={expanded} location={details["Location"]} />
 
 
@@ -154,7 +156,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventStartTime={details["Start Time"]}
         eventEndTime={details["End Time"]}
       />
-
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
        <CustomModalLayout
                     open={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}
