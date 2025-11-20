@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton, Tooltip, Divider, Grid } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip, Divider, Grid, Stack } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle } from "lucide-react";
+import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban} from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -13,6 +13,7 @@ import { CustomModalLayout } from "../shared/modals";
 import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
+import RestrictUsers from "./Modals/RestrictUsers";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -36,6 +37,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
+  const [restrictUsers, setRestrictUsers] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
@@ -84,6 +86,28 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   return (
     <>
     <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
+        <Stack direction="row" spacing={1}>
+         {user ==="events-office" ?
+          <Tooltip title ={"Restrict Workshop"}>
+          <IconButton
+            size="medium"
+            onClick={() => setRestrictUsers(true)}
+            sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: `${"#6b7280"}15`,
+                  borderColor: "#6b7280",
+                  color: "#6b7280",
+                },
+              }}
+          >
+            <Ban size={18} />
+          </IconButton>
+        </Tooltip>
+        :<></>}  
         <Tooltip title="Delete Workshop">
           <IconButton
             size="medium"
@@ -103,6 +127,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
             <Trash2 size={18} />
           </IconButton>
         </Tooltip>
+        </Stack>
       ) : null}
       registerButton={
         (user == "staff" || user == "student" || user == "ta" || user == "professor") && 
@@ -232,6 +257,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         userInfo={userInfo}
         eventId={id}
        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
       
       <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
         

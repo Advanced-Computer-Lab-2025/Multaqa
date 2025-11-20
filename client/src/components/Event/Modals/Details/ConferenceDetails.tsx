@@ -43,12 +43,6 @@ const ConferenceDetails: React.FC<ConferenceDetailsType> = ({
         customColor: '#FF6B35'
       },
       {
-        icon: <LocationOn sx={{ color: '#4CAF50' }} />,
-        label: "Location",
-        value: location,
-        customColor: '#4CAF50'
-      },
-      {
         icon: <FileText style={{ color: '#FF6B35' }} />,
         label: "Resources",
         value: resources || 'None',

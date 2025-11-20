@@ -52,7 +52,8 @@ export const headerLabelStyles = (theme: Theme): SxProps<Theme> => ({
 
 // Styles for the content editable area
 export const contentAreaStyles = (theme: Theme): SxProps<Theme> => ({
-  height: '160px',
+  height: '100px',
+  direction: 'ltr' ,
   padding: 2,
   flexGrow: 1,
   overflowY:'scroll',
@@ -71,4 +72,5 @@ export const contentAreaStyles = (theme: Theme): SxProps<Theme> => ({
   '& b, & strong': { fontWeight: theme.typography.fontWeightBold },
   '& i, & em': { fontStyle: 'italic' },
   '& u': { textDecoration: 'underline' },
+ 
 });

@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -7,14 +8,19 @@ import {
 } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 import { useRouter } from '@/i18n/navigation';
+import { useAuth } from "@/context/AuthContext";
+import { toast } from 'react-toastify';
 
 const PaymentSuccess: React.FC = () => {
   const router = useRouter();
   const [countdown, setCountdown] = useState(3);
+  const { user} = useAuth();
+  const role = String(user?.role);
 
   useEffect(() => {
+    if(role==="staff"||role==="student"||role==="professor"||role==="ta"){
     const timer = setTimeout(() => {
-      router.push('/en/student/events/browse-events');
+      router.push(`/en/${role}/events/browse-events`);
     }, 3000); // Redirect after 3 seconds
 
     // Countdown effect
@@ -26,6 +32,21 @@ const PaymentSuccess: React.FC = () => {
       clearTimeout(timer);
       clearInterval(countdownTimer);
     };
+  }
+  else {
+    toast.error("Illegal Route",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+        }
   }, [router]);
 
   return (
