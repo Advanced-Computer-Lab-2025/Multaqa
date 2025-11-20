@@ -1,12 +1,13 @@
 import { api } from "@/api";
 import { EventType } from "../types";
 
-
-export const frameData = (data: any) => {
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const frameData = (data: any, userInfo:any) => {
   const res: any[] = [];
 
-  for (const event of data) {  // ✅ use 'of' if 'data' is an array
-    const transformed = transformEvent(event);
+  for (const event of data) {
+    // ✅ use 'of' if 'data' is an array
+    const transformed = transformEvent(event, userInfo?.attendedEvents);
     res.push(transformed);
   }
 
@@ -16,10 +17,8 @@ export const frameData = (data: any) => {
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
-const flattenId = (profs:{ id: string }[])=>{
-  return profs.map(prof => `${prof.id}`);
-}
 const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
+  console.log(vendors);
   return vendors.map(vendor =>vendor.vendor);
 }
 // Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
@@ -30,13 +29,12 @@ const cleanDateString = (isoDate: string | undefined): string => {
 };
 
 
-function transformEvent(event: any) {
+function transformEvent(event: any, attendedEvents?: string[]) {
   const id = event._id?.$oid || event._id || "";
   const registrationDeadline = event.registrationDeadline;
   const startDate = event.eventStartDate;
   const endDate = event.eventEndDate;
-  // console.log("look here")
-  // console.log(event.createdBy)
+  const attended = attendedEvents ? attendedEvents.includes(id) : false; 
 
   switch (event.type?.toLowerCase()) {
     case "trip":
@@ -54,8 +52,9 @@ function transformEvent(event: any) {
           Location: event.location,
           Cost: `${event.price?.$numberInt || event.price} EGP `,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": (event.capacity - event.attendees.length)
+          "Spots Left": event.capacity - event.attendees.length,
         },
+        attended,
       };
 
     case "workshop":
@@ -79,10 +78,11 @@ function transformEvent(event: any) {
           "Required Budget": event.requiredBudget,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": (event.capacity - event.attendees.length),
-          "Status": event.approvalStatus,
-          "Cost":`${event.price?.$numberInt || event.price} EGP `,
+          "Spots Left": event.capacity - event.attendees.length,
+          Status: event.approvalStatus,
+          Cost: `${event.price?.$numberInt || event.price} EGP `,
         },
+        attended,
       };
 
     // You can add more cases:
@@ -91,8 +91,7 @@ function transformEvent(event: any) {
         id,
         type: EventType.CONFERENCE,
         name: event.eventName,
-        description:
-        event.description,
+        description: event.description,
         agenda: event.fullAgenda,
         details: {
           "Start Date": cleanDateString(startDate),
@@ -102,9 +101,9 @@ function transformEvent(event: any) {
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
-          Location: event.location,
-          "Link": event.websiteLink,
-        }
+          Link: event.websiteLink,
+        },
+        attended,
       };
     case "bazaar":
       return {
@@ -122,7 +121,8 @@ function transformEvent(event: any) {
           Time: `${event.eventStartTime} - ${event.eventEndTime}`,
           Location: event.location,
           "Vendor Count": event.vendors.length,
-        }
+        },
+        attended,
       };
     case "platform_booth":
       return {
@@ -130,12 +130,13 @@ function transformEvent(event: any) {
         type: EventType.BOOTH,
         company: event.eventName,
         people: event.RequestData.boothAttendees,
-        description:event.description,
+        description: event.description,
         details: {
-          "Setup Duration": `${event.RequestData.boothSetupDuration} weeks` ,
-          "Location": event.RequestData.boothLocation,
+          "Setup Duration": `${event.RequestData.boothSetupDuration} weeks`,
+          Location: event.RequestData.boothLocation,
           "Booth Size": event.RequestData.boothSize,
         },
+        attended,
       };
 
     default:
@@ -145,6 +146,7 @@ function transformEvent(event: any) {
         name: event.eventName,
         description: event.description,
         details: {},
+        attended,
       };
   }
 }

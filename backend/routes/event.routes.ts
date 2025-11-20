@@ -284,6 +284,33 @@ async function getAllReviewsByEvent(req: Request, res: Response<GetAllReviewsByE
   }
 }
 
+async function exportEventUsers(req: Request, res: Response) {
+  try {
+    const eventId = req.params.eventId;
+    if (!eventId) {
+      throw createError(400, "eventId is required");
+    }
+    const xlxsData = await eventsService.exportEventUsersToXLXS(eventId);
+    
+ res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="event-${eventId}-attendees.xlsx"`
+      );
+      // Send the Excel file as the response (Response must only contain the file data)
+       res.send(xlxsData);
+
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error exporting event users"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -352,8 +379,13 @@ router.post(
 router.get(
   "/:eventId/reviews",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.ADMIN]
+    userRoles: [UserRole.ADMINISTRATION,UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
   }),
   getAllReviewsByEvent
 );
@@ -404,6 +436,15 @@ router.patch(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   updateEvent
+);
+
+router.get(
+  "/export/:eventId/attendees",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  exportEventUsers
 );
 
 export default router;

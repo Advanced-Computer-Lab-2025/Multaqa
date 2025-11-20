@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Box, Typography, Alert } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
+import { capitalizeName } from "../shared/input-fields/utils";
 import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
@@ -84,13 +85,16 @@ export default function CreateGymSession({
       setIsSubmitting(true);
       setError(null);
       try {
+        const trainerName = values.trainer
+          ? capitalizeName(String(values.trainer), false)
+          : undefined;
         // Create gym session via API
         await createGymSession({
           startDateTime: values.startDateTime!,
           duration: parseInt(values.duration),
           type: values.type as GymSessionType,
           maxParticipants: parseInt(values.maxParticipants),
-          trainer: values.trainer || undefined,
+          trainer: trainerName || undefined,
         });
 
         console.log("✅ Gym session created successfully");
@@ -182,6 +186,23 @@ export default function CreateGymSession({
               fullWidth
               size="small"
 
+            {/* Trainer Name (Optional) */}
+            <CustomTextField
+              label="Trainer Name (Optional)"
+              fieldType="name"
+              name="trainer"
+              value={formik.values.trainer}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
+              helperText={
+                formik.touched.trainer
+                  ? formik.errors.trainer
+                  : "Leave empty if trainer is not assigned yet"
+              }
+              placeholder="Enter trainer name"
+              neumorphicBox
+              fullWidth
             />
 
           {/* Start Date and Time */}

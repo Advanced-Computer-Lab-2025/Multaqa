@@ -23,6 +23,8 @@ export interface EventDetailsProps {
   sections?: EventSection[];
   user:string;
   attended?:boolean;
+  eventId: string; // Required for backend API calls
+  userId:string;
 }
 
 // Mock data for reviews

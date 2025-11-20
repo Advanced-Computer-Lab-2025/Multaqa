@@ -12,6 +12,7 @@ import Utilities from "../shared/Utilities";
 import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
+import RestrictUsers from "./Modals/RestrictUsers";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -25,12 +26,14 @@ const BazarView: React.FC<BazarViewProps> = ({
   icon: IconComponent,
   background,
   setRefresh,
-  attended
+  attended,
+  userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [restrictUsers, setRestrictUsers] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details, vendors};
 
@@ -70,21 +73,25 @@ const BazarView: React.FC<BazarViewProps> = ({
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
         <Tooltip title="Delete Bazaar">
-          <IconButton
-            size="medium"
-            onClick={handleOpenDeleteModal}
-            sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              "&:hover": {
-                backgroundColor: "rgba(255, 0, 0, 0.1)",
-                color: "error.main",
-              },
-            }}
-          >
-            <Trash2 size={16} />
-          </IconButton>
-        </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+                 <IconButton
+                   size="medium"
+                   onClick={handleOpenDeleteModal}
+                   sx={{
+                     backgroundColor: "rgba(255, 255, 255, 0.9)",
+                     border: '1px solid',
+                     borderColor: 'divider',
+                     borderRadius: 2,
+                     "&:hover": {
+                       backgroundColor: "rgba(255, 0, 0, 0.1)",
+                       borderColor: "error.main",
+                       color: "error.main",
+                     },
+                   }}
+                 >
+                   <Trash2 size={18} />
+                 </IconButton>
+               </Tooltip>
+      ) : (user === "events-office" || user === "events-only" ? <Utilities onRestrict={() => setRestrictUsers(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
       registerButton={!registered &&
         user == "vendor" && (
           <CustomButton
@@ -172,6 +179,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
         onClose={()=> {setEdit(false)}}
       />
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
@@ -184,6 +192,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           eventType="Bazaar"
           details={updatedDetails}
           color={background}
+          userId={userInfo._id}
           button={
           !registered &&
           user == "vendor" && (
@@ -208,6 +217,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           'reviews']}
         user={user?user:""}
         attended ={attended}
+        eventId={id}
         />
       </CustomModalLayout>
     </>
