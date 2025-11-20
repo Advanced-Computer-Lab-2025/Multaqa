@@ -156,27 +156,31 @@ const CourtColumn: React.FC<Props> = ({
         }}
       />
       <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          overflowY: "auto",
-          pr: 1,
-          display: "flex",
-          flexDirection: "column",
-          gap: 1.25,
-          scrollbarWidth: "thin",
-          "&::-webkit-scrollbar": { width: 6 },
-          "&::-webkit-scrollbar-track": {
-            background: "rgba(0,0,0,0.05)",
-            borderRadius: 0,
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#9e9e9e",
-            borderRadius: 0,
-            "&:hover": {
-              backgroundColor: "#757575",
+        sx={(t) => {
+          const accent = t.palette[court.colorKey].main;
+          return {
+            flex: 1,
+            minHeight: 0,
+            overflowY: "auto",
+            pr: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.25,
+            scrollbarWidth: "thin",
+            scrollbarColor: `${alpha(accent, 0.45)} transparent`,
+            "&::-webkit-scrollbar": { width: 6 },
+            "&::-webkit-scrollbar-track": {
+              background: alpha(accent, 0.08),
+              borderRadius: 0,
             },
-          },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: alpha(accent, 0.45),
+              borderRadius: 0,
+              "&:hover": {
+                backgroundColor: alpha(accent, 0.65),
+              },
+            },
+          };
         }}
       >
         <Box display="flex" flexDirection="column" gap={1.25}>
