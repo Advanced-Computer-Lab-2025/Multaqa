@@ -6,7 +6,6 @@ import { alpha } from "@mui/material/styles";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import theme from "@/themes/lightTheme";
-import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard, { GymSessionCardSkeleton } from "./GymSessionCard";
 import {
@@ -193,7 +192,7 @@ export default function GymSchedule({ month, sessions }: Props) {
           sx={{
             fontFamily: "var(--font-jost), system-ui, sans-serif",
             fontWeight: 700,
-            color: (theme.palette as any).tertiary?.dark ?? theme.palette.text.primary,
+            color: theme.palette.text.primary,
             mb: 1,
           }}
         >
@@ -224,8 +223,12 @@ export default function GymSchedule({ month, sessions }: Props) {
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {filterChips.map(({ key, label }) => {
             const isActive = filter === key;
-            const baseColor =
-              key === "ALL" ? theme.palette.primary.main : SESSION_COLORS[key];
+            const isAll = key === "ALL";
+
+            // All button uses sidebar blue (#6299d0)
+            // Other buttons keep their session colors
+            const baseColor = isAll ? "#6299d0" : SESSION_COLORS[key];
+
             return (
               <Chip
                 key={key}
@@ -332,7 +335,10 @@ export default function GymSchedule({ month, sessions }: Props) {
         ) : error ? (
           <ErrorState
             title="Failed to load gym sessions"
-            description={error ?? "An error has occured on our end while loading the gym sessions. Please try again later."}
+            description={
+              error ??
+              "An error has occured on our end while loading the gym sessions. Please try again later."
+            }
             onCtaClick={() => window.location.reload()}
           />
         ) : byDay.length === 0 ? (
