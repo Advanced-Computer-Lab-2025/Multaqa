@@ -6,7 +6,6 @@ import { alpha } from "@mui/material/styles";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import theme from "@/themes/lightTheme";
-import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard, { GymSessionCardSkeleton } from "./GymSessionCard";
 import {
@@ -178,87 +177,58 @@ export default function GymSchedule({ month, sessions }: Props) {
   ];
 
   return (
-    <ContentWrapper
-      title="Gym Sessions"
-      description="Browse sessions by month and filter by type."
+    <Box
+      sx={{
+        p: { xs: 2, md: 4 },
+        backgroundColor: "transparent",
+        minHeight: "100vh",
+        fontFamily: "var(--font-poppins), system-ui, sans-serif",
+      }}
     >
-      {/* Controls */}
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontFamily: "var(--font-jost), system-ui, sans-serif",
+            fontWeight: 700,
+            color: theme.palette.text.primary,
+            mb: 1,
+          }}
+        >
+          Gym Sessions
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "#757575",
+            fontFamily: "var(--font-poppins), system-ui, sans-serif",
+          }}
+        >
+          Browse sessions by month and filter by type.
+        </Typography>
+      </Box>
+
+      {/* Filters and Date Switcher */}
       <Box
         sx={{
           mb: 2,
           display: "flex",
-          alignItems: "center",
+          flexDirection: { xs: "column-reverse", md: "row" },
           justifyContent: "space-between",
+          alignItems: "center",
           gap: 2,
         }}
       >
-        <Box />
-        <Stack direction="row" spacing={1}>
-          <CustomButton
-            variant="outlined"
-            color="primary"
-            onClick={goPrev}
-            width="42px"
-            height="42px"
-            aria-label="Previous month"
-            sx={{
-              minWidth: "42px",
-              width: 42,
-              height: 42,
-              borderRadius: "999px",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ArrowBackIosNewIcon fontSize="small" />
-          </CustomButton>
-          <CustomButton
-            variant="contained"
-            color="primary"
-            onClick={goNext}
-            width="42px"
-            height="42px"
-            aria-label="Next month"
-            sx={{
-              minWidth: "42px",
-              width: 42,
-              height: 42,
-              borderRadius: "999px",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ArrowForwardIosIcon fontSize="small" />
-          </CustomButton>
-        </Stack>
-      </Box>
-
-      {/* Month and Filters */}
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 1,
-        }}
-      >
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 600, color: theme.palette.text.primary }}
-        >
-          {monthLabel}
-        </Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {filterChips.map(({ key, label }) => {
             const isActive = filter === key;
-            const baseColor =
-              key === "ALL" ? theme.palette.primary.main : SESSION_COLORS[key];
+            const isAll = key === "ALL";
+
+            // All button uses sidebar blue (#6299d0)
+            // Other buttons keep their session colors
+            const baseColor = isAll ? "#6299d0" : SESSION_COLORS[key];
+
             return (
               <Chip
                 key={key}
@@ -293,6 +263,67 @@ export default function GymSchedule({ month, sessions }: Props) {
             );
           })}
         </Stack>
+
+        <Stack direction="row" spacing={2} alignItems="center">
+          <CustomButton
+            variant="contained"
+            onClick={goPrev}
+            width="42px"
+            height="42px"
+            aria-label="Previous month"
+            sx={{
+              minWidth: "42px",
+              width: 42,
+              height: 42,
+              borderRadius: "999px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#fff",
+              color: "#000",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+            }}
+          >
+            <ArrowBackIosNewIcon fontSize="small" sx={{ color: "#000" }} />
+          </CustomButton>
+
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+          >
+            {monthLabel}
+          </Typography>
+
+          <CustomButton
+            variant="contained"
+            onClick={goNext}
+            width="42px"
+            height="42px"
+            aria-label="Next month"
+            sx={{
+              minWidth: "42px",
+              width: 42,
+              height: 42,
+              borderRadius: "999px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#fff",
+              color: "#000",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+            }}
+          >
+            <ArrowForwardIosIcon fontSize="small" sx={{ color: "#000" }} />
+          </CustomButton>
+        </Stack>
       </Box>
 
       <Divider sx={{ mb: 2 }} />
@@ -304,7 +335,10 @@ export default function GymSchedule({ month, sessions }: Props) {
         ) : error ? (
           <ErrorState
             title="Failed to load gym sessions"
-            description={error ?? "An error has occured on our end while loading the gym sessions. Please try again later."}
+            description={
+              error ??
+              "An error has occured on our end while loading the gym sessions. Please try again later."
+            }
             onCtaClick={() => window.location.reload()}
           />
         ) : byDay.length === 0 ? (
@@ -321,12 +355,14 @@ export default function GymSchedule({ month, sessions }: Props) {
               {/** Day container with glow (moved from individual cards) */}
               <Box
                 sx={() => {
-                  const accent = SESSION_COLORS[list[0].type];
+                  // Use blue (#6299d0) when "All" is selected, otherwise use the session type color
+                  const accent =
+                    filter === "ALL" ? "#6299d0" : SESSION_COLORS[list[0].type];
                   return {
                     p: { xs: 2, md: 3 },
                     borderRadius: "16px",
                     position: "relative",
-                    backgroundColor: "#fff",
+                    backgroundColor: alpha(accent, 0.075),
                     border: `1px solid ${alpha(accent, 0.35)}`,
                     boxShadow: `0 0 0 1px ${alpha(
                       accent,
@@ -335,8 +371,10 @@ export default function GymSchedule({ month, sessions }: Props) {
                       accent,
                       0.18
                     )}`,
-                    transition: "box-shadow 0.35s ease, transform 0.35s ease",
+                    transition:
+                      "box-shadow 0.35s ease, transform 0.35s ease, background-color 0.35s ease",
                     "&:hover": {
+                      backgroundColor: alpha(accent, 0.1),
                       boxShadow: `0 0 0 2px ${alpha(
                         accent,
                         0.55
@@ -352,7 +390,7 @@ export default function GymSchedule({ month, sessions }: Props) {
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    color: theme.palette.primary.main,
+                    color: theme.palette.text.primary,
                     fontWeight: 700,
                     mb: 1,
                   }}
@@ -388,6 +426,6 @@ export default function GymSchedule({ month, sessions }: Props) {
           ))
         )}
       </Stack>
-    </ContentWrapper>
+    </Box>
   );
 }

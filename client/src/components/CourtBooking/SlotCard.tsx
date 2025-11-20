@@ -1,11 +1,11 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, Typography, Stack, Box } from '@mui/material';
+import { Card, CardContent, Typography, Stack, Box, IconButton, Tooltip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { CourtSlot } from './types';
 import { formatTimeRange } from './utils';
-import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 interface Props {
   slot: CourtSlot;
@@ -59,50 +59,51 @@ const SlotCard: React.FC<Props> = ({
           justifyContent="space-between"
           spacing={1.5}
         >
-          <Typography fontWeight={700} sx={{ color: "text.primary", fontSize: 14 }}>
-            {formatTimeRange(slot.start, slot.end)}
-          </Typography>
-          <Box
-            sx={{
-              backgroundColor: isYours
-                ? "rgba(98, 153, 208, 0.1)"
-                : isReserved
-                ? "rgba(158, 158, 158, 0.1)"
-                : theme.palette.success.main,
-              color: isYours
-                ? theme.palette.primary.main
-                : isReserved
-                ? "#6e6e6e"
-                : "#fff",
-              borderRadius: "14px",
-              padding: "2px 10px",
-              fontSize: "11px",
-              fontWeight: 600,
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            }}
-          >
-            {label}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            <Typography fontWeight={700} sx={{ color: "text.primary", fontSize: 14 }}>
+              {formatTimeRange(slot.start, slot.end)}
+            </Typography>
+            <Box
+              sx={{
+                backgroundColor: isYours
+                  ? "rgba(98, 153, 208, 0.1)"
+                  : isReserved
+                  ? "rgba(158, 158, 158, 0.1)"
+                  : theme.palette.success.main,
+                color: isYours
+                  ? theme.palette.primary.main
+                  : isReserved
+                  ? "#6e6e6e"
+                  : "#fff",
+                borderRadius: "14px",
+                padding: "2px 10px",
+                fontSize: "11px",
+                fontWeight: 600,
+                fontFamily: "var(--font-poppins), system-ui, sans-serif",
+                width: "fit-content",
+              }}
+            >
+              {label}
+            </Box>
           </Box>
-        </Stack>
-
-        <Stack direction="row" spacing={1} mt={1}>
+          
           {isAvailable && (
-            <CustomButton
-              size="small"
-              variant="contained"
-              color="primary"
-              onClick={() => onReserve?.(slot)}
-              label="Reserve"
-            />
-          )}
-          {isYours && (
-            <CustomButton
-              size="small"
-              variant="outlined"
-              color="primary"
-              onClick={() => onCancel?.(slot)}
-              label="Cancel"
-            />
+            <Tooltip title="Reserve" arrow>
+              <IconButton
+                onClick={() => onReserve?.(slot)}
+                sx={{
+                  backgroundColor: theme.palette[color].main,
+                  color: "#fff",
+                  width: 36,
+                  height: 36,
+                  "&:hover": {
+                    backgroundColor: theme.palette[color].dark,
+                  },
+                }}
+              >
+                <EventAvailableIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
         </Stack>
       </CardContent>
