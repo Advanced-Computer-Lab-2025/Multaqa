@@ -355,7 +355,9 @@ export default function GymSchedule({ month, sessions }: Props) {
               {/** Day container with glow (moved from individual cards) */}
               <Box
                 sx={() => {
-                  const accent = SESSION_COLORS[list[0].type];
+                  // Use blue (#6299d0) when "All" is selected, otherwise use the session type color
+                  const accent =
+                    filter === "ALL" ? "#6299d0" : SESSION_COLORS[list[0].type];
                   return {
                     p: { xs: 2, md: 3 },
                     borderRadius: "16px",
