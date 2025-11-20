@@ -27,6 +27,10 @@ const BoothView: React.FC<BoothViewProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+    const fid = f?._id?.$oid || f?._id || f;
+    return String(fid) === String(id);
+  }));
   const updatedDetails={...details,people}
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -46,7 +50,7 @@ const BoothView: React.FC<BoothViewProps> = ({
 
   return (
     <>
-     <EventCard title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
+    <EventCard eventId={id} isFavorite={isFavorited} title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
          (user === "events-office" ||   user === "admin")? (
          <Tooltip title="Delete Booth">
                   <IconButton

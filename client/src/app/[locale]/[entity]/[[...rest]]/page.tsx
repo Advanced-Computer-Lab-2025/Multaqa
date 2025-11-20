@@ -12,6 +12,7 @@ import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOffic
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
 import BrowseEventsContent from "@/components/BrowseEvents/browse-events";
+import FavoritesList from "@/components/BrowseEvents/FavoritesList";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
@@ -585,6 +586,9 @@ export default function EntityCatchAllPage() {
             userInfo={user}
           />
         );
+      }
+      if (section === "favorites") {
+        return <FavoritesList userInfo={user} user={entity} />;
       }
       if (section === "all-events") {
         return (

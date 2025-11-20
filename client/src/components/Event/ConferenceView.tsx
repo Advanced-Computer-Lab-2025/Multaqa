@@ -31,6 +31,10 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [edit, setEdit] = useState(false)
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+    const fid = f?._id?.$oid || f?._id || f;
+    return String(fid) === String(id);
+  }));
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -50,7 +54,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
 
   return (
     <>
-     <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]}  link={details["Link"]} color={background} leftIcon={<IconComponent />} eventType={"Conference"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={ user === "admin" ? (
+    <EventCard eventId={id} isFavorite={isFavorited} title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]}  link={details["Link"]} color={background} leftIcon={<IconComponent />} eventType={"Conference"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={ user === "admin" ? (
             <Tooltip title="Delete Conference">
                      <IconButton
                        size="medium"

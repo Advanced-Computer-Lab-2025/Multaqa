@@ -41,6 +41,10 @@ const TripView: React.FC<BazarViewProps> = ({
   const [edit, setEdit] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
+  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+    const fid = f?._id?.$oid || f?._id || f;
+    return String(fid) === String(id);
+  }));
   
 
   const handlePaymentSuccess = (paymentDetails:any) => {
@@ -75,7 +79,8 @@ const TripView: React.FC<BazarViewProps> = ({
 
   return (
     <>
-     <EventCard 
+      <EventCard 
+        eventId={id} isFavorite={isFavorited}
         title={name} 
         startDate={details["Start Date"]} 
         endDate={details["End Date"]} 

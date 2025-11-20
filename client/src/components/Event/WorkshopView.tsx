@@ -41,6 +41,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const updatedDetails = {...details,professors}
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   
+  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+    const fid = f?._id?.$oid || f?._id || f;
+    return String(fid) === String(id);
+  }));
    const handlePaymentSuccess = (paymentDetails:any) => {
     console.log('Payment successful:', paymentDetails);
     setPaymentDrawerOpen(false);
@@ -48,7 +52,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     // Handle successful payment - redirect, show confirmation, etc.
     alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
   };
-
   const startDate = new Date(details["Start Date"]);
   const now = new Date();
   const isRefundable = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
@@ -83,7 +86,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
 
   return (
     <>
-    <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
+    <EventCard eventId={id} isFavorite={isFavorited} title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
         <Tooltip title="Delete Workshop">
           <IconButton
             size="medium"
