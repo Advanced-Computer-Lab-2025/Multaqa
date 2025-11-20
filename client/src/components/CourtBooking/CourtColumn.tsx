@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Box, Stack, Typography, Divider } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import SportsTennisIcon from "@mui/icons-material/SportsTennis";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
@@ -35,7 +36,14 @@ const CourtColumn: React.FC<Props> = ({
     () => Array.from(grouped.keys()).sort(),
     [grouped]
   );
-  const activeDay = selectedDate ?? null;
+  
+  // Auto-load today's date if no date is selected
+  const todayIso = React.useMemo(() => {
+    const today = new Date();
+    return today.toISOString().slice(0, 10);
+  }, []);
+  
+  const activeDay = selectedDate ?? todayIso;
   const filteredSlots = React.useMemo(() => {
     if (!activeDay) return [];
     return grouped.get(activeDay) ?? [];
@@ -60,19 +68,35 @@ const CourtColumn: React.FC<Props> = ({
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 1.5,
-        p: 2,
-        borderRadius: 3,
-        background: "#ffffffcc",
-        border: (t) => `2px solid ${t.palette[court.colorKey].light}`,
-        boxShadow:
-          "-8px -8px 16px 0 #FAFBFF, 8px 8px 16px 0 rgba(22, 27, 29, 0.15)",
-        maxHeight: { xs: 520, sm: 560, md: 600 },
-        minHeight: { xs: 520, sm: 560, md: 600 },
-        overflow: "hidden",
+      sx={(t) => {
+        const courtColor = t.palette[court.colorKey].main;
+        return {
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+          p: { xs: 2, md: 3 },
+          borderRadius: "16px",
+          position: "relative",
+          backgroundColor: alpha(courtColor, 0.075),
+          border: `1px solid ${alpha(courtColor, 0.35)}`,
+          boxShadow: `0 0 0 1px ${alpha(courtColor, 0.35)}, 0 4px 14px ${alpha(
+            courtColor,
+            0.2
+          )}, 0 0 22px ${alpha(courtColor, 0.18)}`,
+          transition:
+            "box-shadow 0.35s ease, transform 0.35s ease, background-color 0.35s ease",
+          maxHeight: { xs: 520, sm: 560, md: 600 },
+          minHeight: { xs: 520, sm: 560, md: 600 },
+          overflow: "hidden",
+          "&:hover": {
+            backgroundColor: alpha(courtColor, 0.1),
+            boxShadow: `0 0 0 2px ${alpha(courtColor, 0.55)}, 0 6px 18px ${alpha(
+              courtColor,
+              0.28
+            )}, 0 0 28px ${alpha(courtColor, 0.28)}`,
+            transform: "translateY(-3px)",
+          },
+        };
       }}
     >
       <Stack
@@ -142,9 +166,16 @@ const CourtColumn: React.FC<Props> = ({
           gap: 1.25,
           scrollbarWidth: "thin",
           "&::-webkit-scrollbar": { width: 6 },
+          "&::-webkit-scrollbar-track": {
+            background: "rgba(0,0,0,0.05)",
+            borderRadius: 0,
+          },
           "&::-webkit-scrollbar-thumb": {
-            backgroundColor: (t) => t.palette[court.colorKey].light,
-            borderRadius: 8,
+            backgroundColor: "#9e9e9e",
+            borderRadius: 0,
+            "&:hover": {
+              backgroundColor: "#757575",
+            },
           },
         }}
       >
@@ -152,7 +183,10 @@ const CourtColumn: React.FC<Props> = ({
           <Box display="flex" flexDirection="column" gap={1.25}>
             <Typography
               variant="body2"
-              sx={{ color: "text.secondary", fontWeight: 600 }}
+              sx={{
+                color: (t) => t.palette[court.colorKey].main,
+                fontWeight: 600,
+              }}
             >
               {formatDayLabel(activeDay)}
             </Typography>

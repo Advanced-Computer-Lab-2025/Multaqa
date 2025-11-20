@@ -102,14 +102,8 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
             onClick={handleReset}
           />
           <CustomButton
-            variant="outlined"
-            size="small"
-            label="Cancel"
-            onClick={onClose}
-          />
-          <CustomButton
             variant="contained"
-            color="primary"
+            color="tertiary"
             size="small"
             label="Apply"
             onClick={handleConfirm}

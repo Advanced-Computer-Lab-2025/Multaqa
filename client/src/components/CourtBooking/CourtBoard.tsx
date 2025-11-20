@@ -98,9 +98,9 @@ const CourtBoard: React.FC<CourtBoardProps> = ({
     <>
       <Box
         sx={{
-          px: embedded ? 0 : { xs: 1, sm: 2, md: 3, lg: 4 },
+          px: embedded ? 0 : { xs: 2, md: 4 },
           py: embedded ? 0 : 4,
-          backgroundColor: embedded ? "transparent" : "#e6e6da",
+          backgroundColor: "transparent",
         }}
       >
         <Box
