@@ -3,23 +3,22 @@
 import React, { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { useFormik, FormikProvider, FormikContextType} from 'formik';
-import * as yup from 'yup';
 import EventCreationStep1Modal from './Box1';
 import EventCreationStep2Details from './Box2';
-import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from './styles';
+import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from '../../shared/styles';
 import { EventFormData} from './types'; 
 import {api} from "../../../api";
-import CustomButton from '../Buttons/CustomButton';
-import { CustomModalLayout } from '../modals';
+import CustomButton from '../../shared/Buttons/CustomButton';
+import { CustomModalLayout } from '../../shared/modals';
+import { validationSchema } from './schemas/conference';
+import { toast } from 'react-toastify';
 
 
 const initialFormData: EventFormData = {
     eventName: '',
-    eventStartDate: '',
+    eventStartDate:null,
     location:'',
-    eventEndDate: '',
-    eventStartTime:'',
-    eventEndTime:'',
+    eventEndDate:null,
     description: '',
     fullAgenda: '',
     websiteLink: '', 
@@ -28,18 +27,6 @@ const initialFormData: EventFormData = {
     extraRequiredResources: [],
     registrationDeadline:''
 }
-
-//Define the validation schema 
-const validationSchema = yup.object({
-    eventName: yup.string().required('Conference Name is required').min(3, 'Name must be at least 3 characters'),
-    description: yup.string().required('Description is required'),
-    eventStartDate: yup.string().required('Start Date is required'),
-    eventEndDate: yup.string().required('End Date is required'),
-    requiredBudget: yup.number().typeError('Budget must be a number').positive('Budget must be positive').required('Budget is required'),
-    fundingSource: yup.string().required('Funding Source is required'),
-    websiteLink: yup.string().required('Link is required'),
-
-});
 
 interface CreateConferenceProps {
     open:boolean;
@@ -62,24 +49,36 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             const res = await api.post("/events", payload);
             setResponse(res.data);
             setRefresh((prev)=> !prev);
-            return res.data
+            toast.success("Conference created successfully", {
+                        position:"bottom-right",
+                        autoClose:3000,
+                        theme: "colored",
+                    })
         } catch (err: any) {
             setError(err?.message || "API call failed");
             window.alert(err.response.data.error);
+            toast.error("Failed to create conference. Please try again.", {
+                position:"bottom-right",
+                autoClose:3000,
+                theme: "colored",
+                });
         } finally {
             setLoading(false);
         }
     };
 
     const onSubmit = async (values: any, actions: any) => {
+    onClose();
+    const startDateObj = values.eventStartDate; // dayjs object
+    const endDateObj = values.eventEndDate;
         const payload = {
             type:"conference",
             eventName: values.eventName,
-            eventStartDate: values.eventStartDate,
-            eventEndDate: values.eventEndDate,
+            eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+            eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+            eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+            eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
             location:"GUC",
-            eventStartTime: values.eventStartTime,
-            eventEndTime:values.eventEndTime,
             description: values.description,
             fullAgenda: values.fullAgenda,
             websiteLink: values.websiteLink, 
@@ -89,8 +88,7 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
             registrationDeadline:"2025-1-1"
         }
         const res = await handleCallApi(payload);
-        console.log(res.data) ;
-        onClose();
+        
     }
 
     const formik = useFormik<EventFormData>({
@@ -98,12 +96,15 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
         validationSchema: validationSchema,
         onSubmit:onSubmit,
     });
-    const handleClose = () => { console.log("Modal flow closed/canceled."); 
+    const handleClose = () => {
+    onClose();
     };
     return (
-        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]" borderColor="#5A67D8">
-        <Box sx={wrapperContainerStyles}>    
-            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start'}}>
+        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]" borderColor="#5A67D8">
+        <Box sx={{
+    ...wrapperContainerStyles,    
+}}>
+            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
                 Create Conference
             </Typography>        
         <FormikProvider value={formik}>
@@ -120,9 +121,8 @@ const Create: React.FC<CreateConferenceProps> = ({open, onClose, setRefresh}) =>
                     />
                 </Box>
                 <Box sx={modalFooterStyles}>
-                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
-                    Create 
-                </CustomButton>
+                <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={formik.isSubmitting} sx={{ width: "150px", height: "32px", }} />
+                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}> Create</CustomButton>
                 </Box>
             </form>
         </FormikProvider>

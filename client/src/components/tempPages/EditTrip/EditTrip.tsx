@@ -3,7 +3,7 @@ import {useFormik} from 'formik';
 import dayjs from 'dayjs';
 
 
-import { CustomTextField } from '@/components/shared/input-fields';
+import { CustomSelectField, CustomTextField } from '@/components/shared/input-fields';
 import { Box, Grid, TextField, Typography } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -16,7 +16,35 @@ import {tripSchema} from "../CreateTrip/schemas/trip";
 
 import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
+import RichTextField from '@/components/shared/TextField/TextField';
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
+import theme from '@/themes/lightTheme';
+import { Edit } from 'lucide-react';
+import { toast } from 'react-toastify';
 
+
+ const tertiaryInputStyles = {
+   '& .MuiInputLabel-root': {
+     color: theme.palette.tertiary.main,
+     '&.Mui-focused': { color: theme.palette.tertiary.main },
+   },
+   '& .MuiInputBase-input': {
+     color: '#000000', // user-entered text is black
+     '&::placeholder': {
+       color:theme.palette.grey[400], // placeholder text color
+       opacity: 1, // ensures color is visible
+     },
+   },
+   '& .MuiInput-underline:before': {
+     borderBottomColor: theme.palette.tertiary.main,
+   },
+   '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+     borderBottomColor: theme.palette.tertiary.main,
+   },
+   '& .MuiInput-underline:after': {
+     borderBottomColor: theme.palette.tertiary.main,
+   },
+ };
 
 interface EditTripProps { 
   tripId: string;
@@ -32,7 +60,6 @@ interface EditTripProps {
   onClose: () => void;
   setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
  }
-
 const EditTrip = ({tripId, tripName, location, price, 
   description, startDate, endDate, registrationDeadline, capacity, open, onClose, setRefresh}: EditTripProps) => {
     const [loading, setLoading] = useState(false);
@@ -61,14 +88,29 @@ const EditTrip = ({tripId, tripName, location, price,
         const res = await api.patch("/events/" + tripId, payload);
         setResponse(res.data);
         setRefresh((refresh) => !refresh);
+        toast.success("Trip edited successfully", {
+        position:"bottom-right",
+        autoClose:3000,
+        theme: "colored",
+         })
         return res.data;
         } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to edit trip. Please try again.", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+            });
         } finally {
         setLoading(false);
         }
     };
+
+      const handleClose = () => {
+    onClose();
+    };
+  
   
   const onSubmit = async (values: any, actions: any) => {
     const startDateObj = values.startDate; // dayjs object
@@ -102,175 +144,276 @@ const EditTrip = ({tripId, tripName, location, price,
     onSubmit: onSubmit,
   });
 
+    const handleDescriptionChange = (htmlContent: string) => {
+    setFieldValue('description', htmlContent);
+    };
+
   return (
-    <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]'>
-        <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center mb-3'>Edit trip</Typography>
-        <Grid container spacing={2}>
-                <Grid size={4}>
-                    <CustomTextField 
-                        name='tripName'
-                        id='tripName'
-                        label="Trip Name" 
-                        fullWidth 
-                        margin="normal"  
-                        fieldType='text'
-                        placeholder='Enter Trip Name'
-                        value={values.tripName}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                    {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
-                </Grid>    
-                <Grid size={4}>
-                    <CustomTextField
-                        name='location'
-                        id='location' 
-                        label="Location" 
-                        fullWidth 
-                        margin="normal"  
-                        fieldType='text'
-                        placeholder='e.g. Berlin, Germany'
-                        value={values.location}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                    {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
-                    <TextField
-                        name="price"
-                        id='price'
-                        label="Price"
-                        type="number"
-                        fullWidth
-                        variant='standard'
-                        placeholder="Enter price"
+    <>
+     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
+        <Box sx={{
+            ...wrapperContainerStyles,    
+        }}>
+        <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+        Edit Trip
+        </Typography>   
+                             <form onSubmit={handleSubmit}>
+                <Box 
+                sx={horizontalLayoutStyles(theme)}
+                >
+                <Box sx={step1BoxStyles(theme)}>
+                    <Box sx={modalHeaderStyles}>
+                        <Typography sx={detailTitleStyles(theme)}>
+                            General Information
+                        </Typography>      
+                    </Box>
+                    <Box sx={modalFormStyles}>
+                        <CustomTextField 
+                            name='tripName'
+                            id='tripName'
+                            label="Trip Name"    
+                            fieldType='text'
+                            placeholder='Enter Trip Name'
+                            value={values.tripName}
+                            onChange={handleChange}
+                            fullWidth
+                            autoCapitalize='off'
+                            autoCapitalizeName={false}
+                            sx={{marginTop: "6px"}}
+                        />   
+                        {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
+
+                        <Box sx={{ mt: 3 }}>
+                            <RichTextField 
+                                label="Description" 
+                                value={values.description}
+                                onChange={handleDescriptionChange}
+                                placeholder="Provide a short description of the trip"
+                            />
+                            { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
+                        </Box>
+                    </Box>
+                </Box>
+                <Box sx={step2BoxStyles(theme)}>
+                    <Box sx={modalHeaderStyles}>
+                        <Typography sx={detailTitleStyles(theme)}>
+                            Trip Details
+                        </Typography>      
+                    </Box>
+                    <Box sx={modalFormStyles}>
+                        <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom: "12px" }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                        name="startDate"
+                        label="Start Date and Time"
                         slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start">EGP</InputAdornment>
-                                )
-                            }
+                        textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                            sx: {
+                                color: theme.palette.tertiary.main,
+                                '&.Mui-focused': {
+                                color: theme.palette.tertiary.main,
+                                },
+                            },
+                            },
+                            sx: {
+                            // Input text color
+                            color: theme.palette.tertiary.main,
+                            // Underline (before focus)
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (on hover)
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (after focus)
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            },
+                        },
+                        popper: {
+                            disablePortal: true,
+                            placement: "right",
+                            sx: {
+                            zIndex: 1500,
+                            },
+                        },
                         }}
-                        sx={{marginTop: '23px'}}
-                        value={values.price}
-                        onChange={handleChange}
+                        value={values.startDate}
+                        onChange={(value) => setFieldValue("startDate", value)}
                     />
-                    {errors.price && touched.price ? <p style={{color:"#db3030"}}>{errors.price}</p> : <></>}
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                                name='startDate'
-                                label="Start Date and Time"
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,                              
-                                    },
-                                    popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'right',
-                                        sx: { zIndex: 1500 },
-                                    }
-                                }}
-                                value={values.startDate}
-                                onChange={(value) => setFieldValue('startDate', value)}
-                            />
-                            {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker 
+                            {errors.startDate && touched.startDate && (
+                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
+                            )}
+                        </Box>
+        
+                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
                                 label="End Date and Time"
-                                name='endDate'
+                                name="endDate"
                                 slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,
-                                    },
+                        textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                            sx: {
+                                color: theme.palette.tertiary.main,
+                                '&.Mui-focused': {
+                                color: theme.palette.tertiary.main,
+                                },
+                            },
+                            },
+                            sx: {
+                            // Input text color
+                            color: theme.palette.tertiary.main,
+                            // Underline (before focus)
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (on hover)
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (after focus)
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            },
+                        },
                                     popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'left',
-                                        sx: { zIndex: 1500 },
-                                    }
+                                    disablePortal: true,
+                                    placement: "right",
+                                    sx: {
+                                    zIndex: 1500,
+                                    },
+                                },
                                 }}
-                                 value={values.endDate}
-                                onChange={(value) => setFieldValue('endDate', value)}
+                                value={values.endDate}
+                                onChange={(value) => setFieldValue("endDate", value)}
                             />
-                            {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
-                    </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            </LocalizationProvider>
+                            {errors.endDate && touched.endDate && (
+                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
+                            )}
+                        </Box>
+                        </Box>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
-                                name='registrationDeadline'
-                                label="Deadline to Register"
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,
-                                    },
+                            name='registrationDeadline'
+                            label="Deadline to Register"
+                            slotProps={{
+                            textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                            sx: {
+                                color: theme.palette.tertiary.main,
+                                '&.Mui-focused': {
+                                color: theme.palette.tertiary.main,
+                                },
+                            },
+                            },
+                            sx: {
+                            // Input text color
+                            color: theme.palette.tertiary.main,
+                            // Underline (before focus)
+                            '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (on hover)
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            // Underline (after focus)
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: theme.palette.tertiary.main,
+                            },
+                            },
+                        },
                                     popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'right',
-                                        sx: { zIndex: 1500 },
-                                    }                       
+                                    disablePortal: true,
+                                    placement: "right",
+                                    sx: {
+                                    zIndex: 1500,
+                                    },
+                                },
                                 }}
-                                 value={values.registrationDeadline}
+                                value={values.registrationDeadline}
                                 onChange={(value) => setFieldValue('registrationDeadline', value)}
                             />
                             {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
                     </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <TextField
-                        name="capacity"
-                        id='capacity'
-                        label="Capacity"
-                        type="number"
-                        fullWidth
-                        variant='standard'
-                        placeholder="Enter Capacity"
-                         slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start"></InputAdornment>
-                                )
-                            }
-                        }}
-                        value={values.capacity}
-                        onChange={handleChange}
-                    />
-                    {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                </Grid>
-                <Grid size={12}>
-                    <CustomTextField 
-                        name='description'
-                        id='description'
-                        label="Short Description" 
-                        fullWidth 
-                        fieldType='text' 
-                        multiline minRows={3} 
-                        neumorphicBox={true}
-                        value={values.description}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                </Grid>
-                { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-        </Grid>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
-            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Confirm Edits"} variant='contained' fullWidth type='submit'/>
+                        <Box sx={{ display: "flex", gap: 1, marginTop: "18px", marginBottom:"24px" }}>
+                            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                <TextField
+                                name="price"
+                                id="price"
+                                label="Price"
+                                type="number"
+                                fullWidth
+                                variant="standard"
+                                placeholder="Enter Price"
+                                value={values.price}
+                                onChange={handleChange}
+                                sx={tertiaryInputStyles}
+                                />
+                                {errors.price && touched.price ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.price}</p> : <></>}
+                        </Box>
+
+                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                            <TextField
+                            name="capacity"
+                            id="capacity"
+                            label="Capacity"
+                            type="number"
+                            fullWidth
+                            variant="standard"
+                            placeholder="Enter Capacity"
+                            value={values.capacity}
+                            onChange={handleChange}
+                            sx={tertiaryInputStyles}
+                            />
+                            {errors.capacity && touched.capacity ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.capacity}</p> : <></>}
+                        </Box>
+                        </Box>
+                          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                        <TextField 
+                            name='location'
+                            id='location'
+                            label="Location"    
+                            placeholder='Enter Trip Destination'
+                            type="text"
+                            variant="standard"
+                            value={values.location}
+                            onChange={handleChange}
+                            fullWidth
+                            autoCapitalize='off'
+                            sx={{...tertiaryInputStyles, border:"none"}}
+                        /> 
+                            {errors.location && touched.location && (
+                              <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.location}</p>
+                            )}
+                          </Box>
+                    </Box>
+                </Box>
+            </Box>
+        <Box sx={modalFooterStyles}> 
+            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
+            <CustomButton color='tertiary' disabled={isSubmitting} label={isSubmitting ? "submitting":"Edit"} variant='contained' fullWidth type='submit' sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
         </Box>
         </form>
+        </Box>
         </CustomModalLayout>
+    </>
   )
 }
 
 export default EditTrip;
+
