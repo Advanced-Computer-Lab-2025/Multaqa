@@ -185,8 +185,7 @@ export default function CreateGymSession({
               required
               fullWidth
               size="small"
-
-            {/* Trainer Name (Optional) */}
+              />
             <CustomTextField
               label="Trainer Name (Optional)"
               fieldType="name"

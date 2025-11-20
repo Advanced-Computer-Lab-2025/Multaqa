@@ -20,11 +20,10 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../tempPages/CreateConference/CreateConference";
-import CreateParent from "../createButton/createParent";
 
 import { deleteEvent, frameData } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
-import MenuOptionComponent from "../createButton/MenuOptionComponent";
+import CreationHubDropdown from "../createButton/CreationHubDropdown";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
@@ -32,13 +31,13 @@ import EventIcon from "@mui/icons-material/Event";
 import CreateTrip from "../tempPages/CreateTrip/CreateTrip";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
-import SellIcon from '@mui/icons-material/Sell';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
+import SellIcon from "@mui/icons-material/Sell";
+import Diversity3Icon from "@mui/icons-material/Diversity3";
 import { EventCardsListSkeleton } from "./utils/EventCardSkeleton";
 
-import SortByDate from '@/components/shared/SortBy/sortByDate';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import SortByDate from "@/components/shared/SortBy/sortByDate";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
 interface BrowseEventsProps {
@@ -80,14 +79,14 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
   {
     id: "eventName",
     title: "Event Name",
-    type: "text"
-  }
-  ,{
+    type: "text",
+  },
+  {
     id: "professorName",
     title: "Professor Name",
-    type: "text"
+    type: "text",
   },
-    {
+  {
     id: "eventType",
     title: "Event Type",
     type: "chip",
@@ -105,9 +104,7 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
           id: "attendance",
           title: "My Status",
           type: "chip" as const,
-          options: [
-            { label: "Attended", value: "attended" },
-          ],
+          options: [{ label: "Attended", value: "attended" }],
         },
       ]
     : []),
@@ -116,16 +113,15 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
     title: "Date",
     type: "date", // <--- NEW TYPE
   },
-
 ];
 
 const EventColor = [
-   {
-    color:"#6e8ae6", // Trips
-    icon: FlightTakeoffIcon , //indigo
+  {
+    color: "#6e8ae6", // Trips
+    icon: FlightTakeoffIcon, //indigo
   },
   {
-    icon:StorefrontIcon, //Booth
+    icon: StorefrontIcon, //Booth
     color: "#2196f3", // Blue
   },
   {
@@ -142,27 +138,26 @@ const EventColor = [
   },
 ];
 
-
 const BrowseEvents: React.FC<BrowseEventsProps> = ({
   registered,
   user,
   userInfo,
   userID,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({
     eventType: [], // Multi-select for event types
     location: [], // Multi-select for locations
     professorName: [], // Filter by professor name
     eventName: [], // Filter by event name
     attendance: [], // Multi-select for attendance status
-    date: '', // Single date selection
+    date: "", // Single date selection
   });
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>('none'); // Default: no sorting
+  const [sortBy, setSortBy] = useState<string>("none"); // Default: no sorting
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
@@ -185,9 +180,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     setUserInfo(user);
     setReady(true);
   };
-
-const registeredEvents = userInfo.registeredEvents;
-const handleRegistered = () => {
+  const handleRegistered = () => {
     setLoading(true);
     const registeredEvents = userInfo.registeredEvents;
     const result = frameData(registeredEvents, userInfo);
@@ -243,7 +236,7 @@ const handleRegistered = () => {
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-     if (user === "events-only") {
+    if (user === "events-only") {
       filtered = filtered.filter((event) =>
         ["bazaar", "trip", "conference"].includes(event.type)
       );
@@ -296,87 +289,103 @@ const handleRegistered = () => {
       filtered = filtered.filter((event) => eventTypes.includes(event.type));
     }
     const locationFilterValue = filters.location;
-      if (Array.isArray(locationFilterValue) && locationFilterValue.length > 0) {
-          const selectedLocations = locationFilterValue as string[]; 
-          filtered = filtered.filter((event) => {
-              const eventLocationDetail = event.details.Location;
-              if (typeof eventLocationDetail === 'string') {
-                  const normalizedLocation = eventLocationDetail.toLowerCase();
-                  return selectedLocations.includes(normalizedLocation);
-              } 
-              return false; 
-          });
-      }
-
-const professorNameFilterValue = filters.professorName;
-if (Array.isArray(professorNameFilterValue) && professorNameFilterValue.length > 0) {
-    const selectedProfessors = professorNameFilterValue as string[];
-
-    filtered = filtered.filter((event) => {
-        if (event.type === EventType.CONFERENCE || event.type === EventType.WORKSHOP) {
-            const professors = (event as any).professors as string[] | undefined;
-            const agendaText = (event.agenda as string | undefined)?.toLowerCase() || "";
-
-            return selectedProfessors.every(query => {
-                const lowerQuery = query.toLowerCase();
-
-                // Check in professors list
-                const inProfessors = professors?.some(
-                    (prof) => typeof prof === "string" && prof.toLowerCase().includes(lowerQuery)
-                ) ?? false;
-
-                // Check in agenda text
-                const inAgenda = agendaText.includes(lowerQuery);
-
-                return inProfessors || inAgenda;
-            });
+    if (Array.isArray(locationFilterValue) && locationFilterValue.length > 0) {
+      const selectedLocations = locationFilterValue as string[];
+      filtered = filtered.filter((event) => {
+        const eventLocationDetail = event.details.Location;
+        if (typeof eventLocationDetail === "string") {
+          const normalizedLocation = eventLocationDetail.toLowerCase();
+          return selectedLocations.includes(normalizedLocation);
         }
         return false;
-    });
-}
+      });
+    }
 
-// 2. Correct Event Name Filter (Multi-select/Additive Text)
-const eventNameFilterValue = filters.eventName;
-if (Array.isArray(eventNameFilterValue) && eventNameFilterValue.length > 0) {
-    const selectedNames = eventNameFilterValue as string[]; 
-    
-    filtered = filtered.filter((event) => {
-        let targetName = '';
+    const professorNameFilterValue = filters.professorName;
+    if (
+      Array.isArray(professorNameFilterValue) &&
+      professorNameFilterValue.length > 0
+    ) {
+      const selectedProfessors = professorNameFilterValue as string[];
+
+      filtered = filtered.filter((event) => {
+        if (
+          event.type === EventType.CONFERENCE ||
+          event.type === EventType.WORKSHOP
+        ) {
+          const professors = (event as any).professors as string[] | undefined;
+          const agendaText =
+            (event.agenda as string | undefined)?.toLowerCase() || "";
+
+          return selectedProfessors.every((query) => {
+            const lowerQuery = query.toLowerCase();
+
+            // Check in professors list
+            const inProfessors =
+              professors?.some(
+                (prof) =>
+                  typeof prof === "string" &&
+                  prof.toLowerCase().includes(lowerQuery)
+              ) ?? false;
+
+            // Check in agenda text
+            const inAgenda = agendaText.includes(lowerQuery);
+
+            return inProfessors || inAgenda;
+          });
+        }
+        return false;
+      });
+    }
+
+    // 2. Correct Event Name Filter (Multi-select/Additive Text)
+    const eventNameFilterValue = filters.eventName;
+    if (
+      Array.isArray(eventNameFilterValue) &&
+      eventNameFilterValue.length > 0
+    ) {
+      const selectedNames = eventNameFilterValue as string[];
+
+      filtered = filtered.filter((event) => {
+        let targetName = "";
 
         if (event.type === EventType.BOOTH) {
-            targetName = (event as BoothEvent).company || '';
+          targetName = (event as BoothEvent).company || "";
         } else if ("name" in event) {
-            targetName = (event as any).name || '';
+          targetName = (event as any).name || "";
         }
-        
-        // Check if ALL selectedNames are included in the event's name
-        return selectedNames.every(query => 
-            targetName.toLowerCase().includes(query.toLowerCase())
-        );
-    });
-}
-//Apply Attendance Filter
-if (filters.attendance && (filters.attendance as string[]).includes("attended")) {
-  filtered = filtered.filter((event) => event.attended === true);
-}
-// Apply Date Filter
-const dateFilterValue = filters.date;
-if (typeof dateFilterValue === 'string' && dateFilterValue) {
-    const selectedDate = dayjs(dateFilterValue).format('YYYY-MM-DD');
 
-    filtered = filtered.filter((event) => {
+        // Check if ALL selectedNames are included in the event's name
+        return selectedNames.every((query) =>
+          targetName.toLowerCase().includes(query.toLowerCase())
+        );
+      });
+    }
+    //Apply Attendance Filter
+    if (
+      filters.attendance &&
+      (filters.attendance as string[]).includes("attended")
+    ) {
+      filtered = filtered.filter((event) => event.attended === true);
+    }
+    // Apply Date Filter
+    const dateFilterValue = filters.date;
+    if (typeof dateFilterValue === "string" && dateFilterValue) {
+      const selectedDate = dayjs(dateFilterValue).format("YYYY-MM-DD");
+
+      filtered = filtered.filter((event) => {
         const eventStartDateString = event.details["Start Date"];
-        
+
         if (eventStartDateString) {
-            // Normalize event date to the same YYYY-MM-DD format
-            const eventDate = dayjs(eventStartDateString).format('YYYY-MM-DD');
-            
-            // Check for exact date match
-            return eventDate === selectedDate;
+          // Normalize event date to the same YYYY-MM-DD format
+          const eventDate = dayjs(eventStartDateString).format("YYYY-MM-DD");
+
+          // Check for exact date match
+          return eventDate === selectedDate;
         }
         return false;
-    });
-}
+      });
+    }
 
     // Apply sorting logic
     const parseDate = (dateStr: string | undefined) => {
@@ -407,41 +416,38 @@ if (typeof dateFilterValue === 'string' && dateFilterValue) {
         break;
     }
 
-
     return filtered;
-  
   }, [searchQuery, filters, events, sortBy]);
 
-const handleFilterChange = useCallback(
-    (groupId: string, value: any) => { // Use 'any' or your specific FilterValue type
-      setFilters((prev) => {
-        const currentVal = prev[groupId as keyof Filters];
+  const handleFilterChange = useCallback((groupId: string, value: any) => {
+    // Use 'any' or your specific FilterValue type
+    setFilters((prev) => {
+      const currentVal = prev[groupId as keyof Filters]; // 1. Handle Multi-Select Filters (eventType and location)
 
-        // 1. Handle Multi-Select Filters (eventType and location)
-        if (
-          (groupId === 'eventType' || groupId === 'location'|| groupId==='attendance') &&
-          Array.isArray(currentVal)
-        ) {
-          if (currentVal.includes(value)) {
-            return { 
-              ...prev, 
-              [groupId]: currentVal.filter((v) => v !== value) 
-            };
-          } else {
-            return { 
-              ...prev, 
-              [groupId]: [...currentVal, value] 
-            };
-          }
-        }
-        return { 
-          ...prev, 
-          [groupId]: value 
-        };
-      });
-    },
-    []
-  );
+      if (
+        (groupId === "eventType" ||
+          groupId === "location" ||
+          groupId === "attendance") &&
+        Array.isArray(currentVal)
+      ) {
+        if (currentVal.includes(value)) {
+          return {
+            ...prev,
+            [groupId]: currentVal.filter((v) => v !== value),
+          };
+        } else {
+          return {
+            ...prev,
+            [groupId]: [...currentVal, value],
+          };
+        }
+      }
+      return {
+        ...prev,
+        [groupId]: value,
+      };
+    });
+  }, []);
 
   const handleResetFilters = useCallback(() => {
     setFilters({
@@ -450,21 +456,41 @@ const handleFilterChange = useCallback(
       professorName: [],
       eventName: [],
       attendance: [],
-      date: '', 
+      date: "",
     });
-    setSearchQuery('');
+    setSearchQuery("");
   }, []);
 
-  const Eventoptions = [
-    { label: "Bazaars", icon: StorefrontIcon },
-    { label: "Trips", icon: FlightTakeoffIcon },
-    { label: "Conference", icon: EventIcon },
-  ];
-  const EventOptionsSetters = [setBazaar, setTrip, setConference];
+  const creationHubOptions = useMemo(
+    () => [
+      {
+        label: "Bazaars",
+        icon: StorefrontIcon,
+        color: "#e91e63",
+        description: "Showcase vendors or student booths",
+        onSelect: () => setBazaar(true),
+      },
+      {
+        label: "Trips",
+        icon: FlightTakeoffIcon,
+        color: "#6e8ae6",
+        description: "Plan logistics for student trips",
+        onSelect: () => setTrip(true),
+      },
+      {
+        label: "Conference",
+        icon: EventIcon,
+        color: "#ff9800",
+        description: "Organize talks and keynotes",
+        onSelect: () => setConference(true),
+      },
+    ],
+    [setBazaar, setTrip, setConference]
+  );
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
-    //here you can check if attended should be set to true by cheking if it exists in the attended list of the current user 
+    //here you can check if attended should be set to true by cheking if it exists in the attended list of the current user
     switch (event.type) {
       case EventType.CONFERENCE:
         return (
@@ -502,12 +528,16 @@ const handleFilterChange = useCallback(
             agenda={event.agenda}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents
+              ?.map((e: any) => e._id)
+              .includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
-            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
+            registrationPassed={
+              new Date(event.details["Registration Deadline"]) < new Date()
+            }
           />
         );
       case EventType.BAZAAR:
@@ -524,12 +554,16 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents
+              ?.map((e: any) => e._id)
+              .includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
-            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
+            registrationPassed={
+              new Date(event.details["Registration Deadline"]) < new Date()
+            }
           />
         );
       case EventType.BOOTH:
@@ -546,7 +580,9 @@ const handleFilterChange = useCallback(
             details={event.details}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents
+              ?.map((e: any) => e._id)
+              .includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
@@ -566,12 +602,16 @@ const handleFilterChange = useCallback(
             description={event.description}
             user={user}
             registered={registered}
-            isRegisteredEvent={registeredEvents?.map((e: any) => e._id).includes(event.id)}
+            isRegisteredEvent={registeredEvents
+              ?.map((e: any) => e._id)
+              .includes(event.id)}
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
-            registrationPassed={new Date(event.details["Registration Deadline"]) < new Date()}
+            registrationPassed={
+              new Date(event.details["Registration Deadline"]) < new Date()
+            }
           />
         );
       default:
@@ -593,7 +633,11 @@ const handleFilterChange = useCallback(
             color: `${theme.palette.tertiary.dark}`,
           }}
         >
-          {user !== "events-only"? registered ? " My Registered Events" : "Browse Events":"Manage Events"}
+          {user !== "events-only"
+            ? registered
+              ? " My Registered Events"
+              : "Browse Events"
+            : "Manage Events"}
         </Typography>
         <Typography
           variant="body2"
@@ -629,26 +673,24 @@ const handleFilterChange = useCallback(
           />
         </Box>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <FilterPanel
-              filterGroups= {getFilterGroups(user)}
-              onFilterChange={handleFilterChange}
-              currentFilters={filters}
-              onReset={handleResetFilters}
-            />
-          </LocalizationProvider>
+          <FilterPanel
+            filterGroups={getFilterGroups(user)}
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+            onReset={handleResetFilters}
+          />
+        </LocalizationProvider>
         <SortByDate value={sortBy} onChange={handleSortChange} />
         {user === "events-only" && (
-          <MenuOptionComponent
-            options={Eventoptions}
-            setters={EventOptionsSetters}
+          <CreationHubDropdown
+            options={creationHubOptions}
+            helperText="Choose what you would like to create"
           />
         )}
       </Box>
 
       {/* Loading State */}
-      {loading && (
-       <EventCardsListSkeleton />
-      )}
+      {loading && <EventCardsListSkeleton />}
 
       {/* Error State */}
       {error && (
@@ -667,7 +709,7 @@ const handleFilterChange = useCallback(
               display: "grid",
               gridTemplateColumns: "repeat(1, 1fr)",
               gap: 3,
-              padding:"0px 40px"
+              padding: "0px 40px",
             }}
           >
             {filteredEvents.map((event) => (
@@ -699,7 +741,9 @@ const handleFilterChange = useCallback(
           {events.length > 0 && (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="caption" color="text.secondary">
-                {registered?`Viewing ${filteredEvents.length} of ${events.length} events`:`Browsing ${filteredEvents.length} of ${events.length} events`}
+                {registered
+                  ? `Viewing ${filteredEvents.length} of ${events.length} events`
+                  : `Browsing ${filteredEvents.length} of ${events.length} events`}
               </Typography>
             </Box>
           )}
