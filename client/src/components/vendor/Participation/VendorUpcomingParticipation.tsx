@@ -94,7 +94,7 @@ export default function VendorUpcomingParticipation() {
       try {
         const response = await api.get(`/vendorEvents`);
         const requestedEventsRaw = response.data?.data || [];
-
+        console.log(requestedEventsRaw);
         const mapped = (requestedEventsRaw as any[])
           .map((entry) => mapRequestedEventToVendorParticipation(entry, vendorId as string))
           .filter((item: any) => {
