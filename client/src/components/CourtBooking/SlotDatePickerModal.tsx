@@ -79,20 +79,14 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
               }
             }}
             disablePast
-            shouldDisableDate={
-              availableSet && availableSet.size > 0
-                ? (date) => !availableSet.has(date.format("YYYY-MM-DD"))
-                : undefined
-            }
           />
         </LocalizationProvider>
         <Stack
           direction="row"
-          spacing={1}
-          justifyContent="flex-end"
+          spacing={2}
+          justifyContent="space-between"
           alignItems="center"
-          flexWrap="nowrap"
-          sx={{ overflowX: "auto" }}
+          sx={{ width: "100%" }}
         >
           <CustomButton
             variant="outlined"
@@ -100,6 +94,7 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
             size="small"
             label="Reset"
             onClick={handleReset}
+            sx={{ flex: 1 }}
           />
           <CustomButton
             variant="contained"
@@ -107,6 +102,7 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
             size="small"
             label="Apply"
             onClick={handleConfirm}
+            sx={{ flex: 1 }}
           />
         </Stack>
       </Stack>

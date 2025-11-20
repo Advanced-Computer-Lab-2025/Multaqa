@@ -179,46 +179,40 @@ const CourtColumn: React.FC<Props> = ({
           },
         }}
       >
-        {activeDay ? (
-          <Box display="flex" flexDirection="column" gap={1.25}>
-            <Typography
-              variant="body2"
-              sx={{
-                color: (t) => t.palette[court.colorKey].main,
-                fontWeight: 600,
-              }}
-            >
-              {formatDayLabel(activeDay)}
-            </Typography>
-            {filteredSlots.length > 0 ? (
-              filteredSlots.map((slot) => (
-                <SlotCard
-                  key={slot.id}
-                  slot={slot}
-                  color={court.colorKey}
-                  currentUser={currentUser}
-                  onReserve={onReserve}
-                  onCancel={onCancel}
-                />
-              ))
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No time slots available for this date yet.
+        <Box display="flex" flexDirection="column" gap={1.25}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: (t) => t.palette[court.colorKey].main,
+              fontWeight: 600,
+            }}
+          >
+            {formatDayLabel(activeDay)}
+          </Typography>
+          {filteredSlots.length > 0 ? (
+            filteredSlots.map((slot) => (
+              <SlotCard
+                key={slot.id}
+                slot={slot}
+                color={court.colorKey}
+                currentUser={currentUser}
+                onReserve={onReserve}
+                onCancel={onCancel}
+              />
+            ))
+          ) : (
+            <Stack spacing={1} sx={{ py: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+                No time slots available for this date.
               </Typography>
-            )}
-          </Box>
-        ) : (
-          <Box>
-            <Typography variant="body2" sx={{ color: "black" }}>
-              Select a date to view available slots.
-            </Typography>
-            {uniqueDays.length > 0 && (
-              <Typography variant="caption" color="text.disabled">
-                Next available: {formatDayLabel(uniqueDays[0])}
-              </Typography>
-            )}
-          </Box>
-        )}
+              {uniqueDays.length > 0 && (
+                <Typography variant="caption" color="text.disabled" sx={{ textAlign: "center" }}>
+                  Try: {formatDayLabel(uniqueDays[0])}
+                </Typography>
+              )}
+            </Stack>
+          )}
+        </Box>
       </Box>
     </Box>
   );
