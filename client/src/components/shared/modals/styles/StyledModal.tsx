@@ -79,6 +79,10 @@ export const StyledModalContent = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
     padding: "32px",
   },
+    [theme.breakpoints.up("xs")]: {
+    padding: "12px",
+  },
+
 }));
 
 // Close button container - stays fixed at top

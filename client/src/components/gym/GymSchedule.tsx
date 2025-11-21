@@ -6,7 +6,6 @@ import { alpha } from "@mui/material/styles";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import theme from "@/themes/lightTheme";
-import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard, { GymSessionCardSkeleton } from "./GymSessionCard";
 import {
@@ -193,7 +192,7 @@ export default function GymSchedule({ month, sessions }: Props) {
           sx={{
             fontFamily: "var(--font-jost), system-ui, sans-serif",
             fontWeight: 700,
-            color: (theme.palette as any).tertiary?.dark ?? theme.palette.text.primary,
+            color: theme.palette.text.primary,
             mb: 1,
           }}
         >
@@ -224,8 +223,12 @@ export default function GymSchedule({ month, sessions }: Props) {
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {filterChips.map(({ key, label }) => {
             const isActive = filter === key;
-            const baseColor =
-              key === "ALL" ? theme.palette.primary.main : SESSION_COLORS[key];
+            const isAll = key === "ALL";
+
+            // All button uses sidebar blue (#6299d0)
+            // Other buttons keep their session colors
+            const baseColor = isAll ? "#6299d0" : SESSION_COLORS[key];
+
             return (
               <Chip
                 key={key}
@@ -332,7 +335,10 @@ export default function GymSchedule({ month, sessions }: Props) {
         ) : error ? (
           <ErrorState
             title="Failed to load gym sessions"
-            description={error ?? "An error has occured on our end while loading the gym sessions. Please try again later."}
+            description={
+              error ??
+              "An error has occured on our end while loading the gym sessions. Please try again later."
+            }
             onCtaClick={() => window.location.reload()}
           />
         ) : byDay.length === 0 ? (
@@ -349,12 +355,14 @@ export default function GymSchedule({ month, sessions }: Props) {
               {/** Day container with glow (moved from individual cards) */}
               <Box
                 sx={() => {
-                  const accent = SESSION_COLORS[list[0].type];
+                  // Use blue (#6299d0) when "All" is selected, otherwise use the session type color
+                  const accent =
+                    filter === "ALL" ? "#6299d0" : SESSION_COLORS[list[0].type];
                   return {
                     p: { xs: 2, md: 3 },
                     borderRadius: "16px",
                     position: "relative",
-                    backgroundColor: "#fff",
+                    backgroundColor: alpha(accent, 0.075),
                     border: `1px solid ${alpha(accent, 0.35)}`,
                     boxShadow: `0 0 0 1px ${alpha(
                       accent,
@@ -363,8 +371,10 @@ export default function GymSchedule({ month, sessions }: Props) {
                       accent,
                       0.18
                     )}`,
-                    transition: "box-shadow 0.35s ease, transform 0.35s ease",
+                    transition:
+                      "box-shadow 0.35s ease, transform 0.35s ease, background-color 0.35s ease",
                     "&:hover": {
+                      backgroundColor: alpha(accent, 0.1),
                       boxShadow: `0 0 0 2px ${alpha(
                         accent,
                         0.55
