@@ -19,7 +19,6 @@ export type BazarViewProps = BasicProps & {
   name: string;
   vendors?:any;
   description: string;
-  requestedEvents?:any;
 };
 
 //names and emails of a max of 5 individuals attending, duration of booth set up, location of booth setup, booth size 
