@@ -7,6 +7,7 @@ import { VendorRequestItem } from "./types";
 import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
@@ -178,8 +179,24 @@ export default function VendorRequestsList() {
             item={item}
             details={renderDetails(item)}
             rightSlot={
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="column" spacing={5} alignItems="center">
                 {statusChip(item.status)}
+                {item.status === "PENDING" && (
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 999,
+                      backgroundColor: `${theme.palette.primary.main}10`,
+                      color: theme.palette.primary.main,
+                      borderColor: theme.palette.primary.main,
+                      width: "fit-content",
+                      fontSize: '0.5rem',
+                    }}
+                  >
+                    Cancel Application
+                  </CustomButton>
+                )}
               </Stack>
             }
           />
