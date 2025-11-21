@@ -167,8 +167,8 @@ export class VendorEventsService {
       {},
       {
         populate: [
-          { path: "vendor", select: "companyName logo" },
-          { path: "vendors.vendor", select: "companyName logo" },
+          { path: "vendor", select: "companyName logo taxCard" },
+          { path: "vendors.vendor", select: "companyName logo taxCard" },
         ] as any[],
       }
     );
@@ -214,8 +214,8 @@ export class VendorEventsService {
   ): Promise<VendorRequest> {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
-        { path: "vendor", select: "companyName logo" },
-        { path: "vendors.vendor", select: "companyName logo" },
+        { path: "vendor", select: "companyName logo taxCard" },
+        { path: "vendors.vendor", select: "companyName logo taxCard" },
       ] as any[],
     });
 
@@ -515,14 +515,14 @@ export class VendorEventsService {
       throw createError(400, "Vendor already has a loyalty program");
     }
 
-    // Update the loyalty program using the repository
+    // Update only the loyaltyProgram field via the repository to keep data access constrained
     const updatedVendor = await this.vendorRepo.update(vendorId, {
       loyaltyProgram: {
         discountRate: loyaltyData.discountRate,
         promoCode: loyaltyData.promoCode.toUpperCase(),
         termsAndConditions: loyaltyData.termsAndConditions,
       },
-    } as Partial<IVendor>);
+    });
 
     if (!updatedVendor) {
       throw createError(500, "Failed to update vendor loyalty program");
