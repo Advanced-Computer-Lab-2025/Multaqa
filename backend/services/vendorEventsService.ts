@@ -515,20 +515,14 @@ export class VendorEventsService {
       throw createError(400, "Vendor already has a loyalty program");
     }
 
-    // Update only the loyaltyProgram field, bypassing full document validation
-    const updatedVendor = await Vendor.findByIdAndUpdate(
-      vendorId,
-      {
-        $set: {
-          loyaltyProgram: {
-            discountRate: loyaltyData.discountRate,
-            promoCode: loyaltyData.promoCode.toUpperCase(),
-            termsAndConditions: loyaltyData.termsAndConditions,
-          },
-        },
+    // Update the loyalty program using the repository
+    const updatedVendor = await this.vendorRepo.update(vendorId, {
+      loyaltyProgram: {
+        discountRate: loyaltyData.discountRate,
+        promoCode: loyaltyData.promoCode.toUpperCase(),
+        termsAndConditions: loyaltyData.termsAndConditions,
       },
-      { new: true, runValidators: false }
-    );
+    } as Partial<IVendor>);
 
     if (!updatedVendor) {
       throw createError(500, "Failed to update vendor loyalty program");
