@@ -281,7 +281,7 @@ export class EventsService {
         if (!isOnlyArchiving) {
           throw createError(
             400,
-            "Cannot update bazaars & trips that have already started"
+            "Cannot update bazaars & trips that have already ended"
           );
         }
       }
