@@ -8,6 +8,8 @@ import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
+import { Cancel } from "@mui/icons-material";
+import CancelApplicationVendor from "@/components/Event/Modals/CancelApplicationVendor";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
@@ -83,6 +85,7 @@ export default function VendorRequestsList() {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [requests, setRequests] = useState<VendorRequestItem[]>([]);
+  const [cancelApplication, setCancelApplication] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -193,10 +196,12 @@ export default function VendorRequestsList() {
                       width: "fit-content",
                       fontSize: '0.5rem',
                     }}
+                    onClick={() => setCancelApplication(true)}
                   >
                     Cancel Application
                   </CustomButton>
                 )}
+                <CancelApplicationVendor eventId={item.id} open={cancelApplication} onClose={() => setCancelApplication(false)} setRefresh={()=> true}/>
               </Stack>
             }
           />

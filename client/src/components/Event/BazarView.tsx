@@ -13,6 +13,7 @@ import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
+import CancelApplicationVendor from "./Modals/CancelApplicationVendor";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -33,6 +34,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [cancelApplication, setCancelApplication] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details, vendors};
@@ -136,6 +138,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                     borderColor: background,
                     width: "fit-content",
                   }}
+                  onClick={() => setCancelApplication(true)}
                 >
                   Cancel Application
                 </CustomButton>
@@ -259,6 +262,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                     borderColor: background,
                     width: "fit-content",
                   }}
+                  onClick={() => setCancelApplication(true)}
                 >
                   Cancel Application
                 </CustomButton>
@@ -273,6 +277,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         eventId={id}
         />
       </CustomModalLayout>
+      <CancelApplicationVendor eventId={id} open={cancelApplication} onClose={() => setCancelApplication(false)} setRefresh={setRefresh}/>
     </>
   );
 };
