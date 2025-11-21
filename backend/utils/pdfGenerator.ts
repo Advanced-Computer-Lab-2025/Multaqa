@@ -9,7 +9,7 @@ interface CertificateData {
     issueDate?: Date;
 }
 
-export class pdfGeneratorService {
+export class pdfGenerator {
 
     static generateCertificatePDF(data: CertificateData): Promise<Buffer> {
         const { firstName, lastName, workshopName, startDate, endDate, issueDate = new Date() } = data;

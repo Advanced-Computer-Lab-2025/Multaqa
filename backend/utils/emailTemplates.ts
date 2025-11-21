@@ -393,13 +393,13 @@ export const getExternalVisitorQREmailTemplate = (
       <div style="${baseStyles.card}">
         
         <div style="${baseStyles.headerSuccess}">
-          <h2 style="margin: 0; font-size: 22px;">&#127915; Your Event Entry Pass</h2>
+          <h2 style="margin: 0; font-size: 22px;">&#x1F39F;&#xFE0F; Your Event Entry Pass</h2>
         </div>
 
         <div style="${baseStyles.content}">
           
           <p style="font-size: 16px; color: #333;">
-            Dear <strong>${companyName}</strong>,<br><br>
+            Dear <strong>${companyName}</strong> Team,<br><br>
             Thank you for registering to participate in <strong>${eventName}</strong>. We are delighted to welcome you to the event.
           </p>
 

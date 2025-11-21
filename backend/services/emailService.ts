@@ -179,7 +179,7 @@ export const sendQRCodeEmail = async (
   const html = getExternalVisitorQREmailTemplate(name, eventName);
   await sendEmail({
     to: email,
-    subject: `🎫 Your QR Code for ${eventName} - Multaqa`,
+    subject: `🎟️ Your QR Code for ${eventName} - Multaqa`,
     html,
     attachments: [
       {

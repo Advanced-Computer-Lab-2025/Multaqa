@@ -14,7 +14,7 @@ import cron from "node-cron";
 import { sendCertificateOfAttendanceEmail } from "./emailService";
 import { IUser } from "../interfaces/models/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
-import { CertificateService } from "./certificateService";
+import { pdfGenerator } from "../utils/pdfGenerator";
 
 export class WorkshopService {
   private eventRepo: GenericRepository<IEvent>;
@@ -219,7 +219,7 @@ export class WorkshopService {
     // Send certificates to all attendees
     const promises = workshop.attendees.map(async (attendee: any) => {
       if (attendee) {
-        const certificateBuffer = await CertificateService.generateCertificatePDF({
+        const certificateBuffer = await pdfGenerator.generateCertificatePDF({
           firstName: attendee.firstName,
           lastName: attendee.lastName,
           workshopName: workshop.eventName,
