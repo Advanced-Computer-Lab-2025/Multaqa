@@ -342,6 +342,28 @@ async function getEventsForQRCodeGeneration(req: Request, res: Response<GetEvent
   }
 }
 
+async function generateVendorEventQRCodes(
+  req: Request,
+  res: Response<{ success: boolean; message: string }>
+) {
+  const { eventId } = req.params
+  try {
+    if (!eventId ) {
+      throw createError(400, "Event ID and Vendor ID are required");
+    }
+    await vendorEventsService.generateVendorEventQRCodes(eventId);
+    res.status(200).json({
+      success: true,
+      message: "QR codes generated successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error generating QR codes"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -375,6 +397,15 @@ router.get(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
   }),
   getEventsForQRCodeGeneration
+);
+
+router.post(
+  "/:eventId/generateQRCodes",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  generateVendorEventQRCodes
 );
 
 router.post(

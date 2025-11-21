@@ -13,8 +13,11 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
-import { IPlatformBooth } from "../interfaces/models/platformBooth.interface";
-import { sendApplicationStatusEmail } from "./emailService";
+import { IBoothAttendee, IPlatformBooth } from "../interfaces/models/platformBooth.interface";
+import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
+import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
+import { pdfGenerator } from "../utils/pdfGenerator";
+import { IUser } from "../interfaces/models/user.interface";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -514,7 +517,7 @@ export class VendorEventsService {
   
               if (eventData.RequestData && 
                   eventData.RequestData.status === 'approved' && 
-                  eventData.QRCodeGenerated === false) 
+                  eventData.RequestData.QRCodeGenerated === false) 
               {
                   
                   filteredEvents.push(eventData as IEvent);
@@ -525,7 +528,7 @@ export class VendorEventsService {
             const vendorsNeedingQR = (eventData.vendors || []).filter((vendor: VendorRequest) => {
                   return vendor.RequestData && 
                          vendor.RequestData.status === 'approved' && 
-                         vendor.QRCodeGenerated === false;
+                         vendor.RequestData.QRCodeGenerated === false;
               });
               
   
@@ -543,4 +546,58 @@ export class VendorEventsService {
         return filteredEvents;
      
     }
+
+async generateVendorEventQRCodes(eventId: string): Promise<void> {
+  
+  const event = await this.eventRepo.findById(eventId, {
+    populate: [
+      { path: "vendors.vendor", select: "companyName logo email" },
+      { path: "vendor", select: "companyName logo email" }
+    ] as any[],
+  });
+  if (!event) {
+      throw createError(404, "Event not found");
+  }
+
+  if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+     await this.generateAndSendQRCodes(
+          (event.vendor as IVendor).companyName,
+          (event.vendor as IUser).email ,
+          event.eventName,
+          event.location || "Unknown Location"
+      );
+
+      event.RequestData.QRCodeGenerated = true;
+      event.markModified('RequestData');
+  }
+   
+
+  else if (event.type === EVENT_TYPES.BAZAAR) {
+    for (const vendorEntry of event.vendors || []) {
+      
+         await this.generateAndSendQRCodes(
+              (vendorEntry.vendor as IVendor).companyName,
+              (vendorEntry.vendor as IVendor).email ,
+              event.eventName,
+              event.location || "Unknown Location"
+          );
+            vendorEntry.RequestData.QRCodeGenerated = true;
+          
+          }         
+      event.markModified('vendors');
+  }
+  await event.save();
 }
+
+    
+  private async generateAndSendQRCodes(companyName: string, email: string, eventName: string, location: string): Promise<void> {
+    const qrCodeBuffer = await generateQrCodeBuffer(eventName, location, new Date().toISOString());
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeBuffer);
+    console.log("Sending QR Code Email to:", email);
+    await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
+  }
+}
+
+
+
+  

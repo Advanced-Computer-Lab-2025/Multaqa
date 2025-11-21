@@ -16,10 +16,10 @@ export interface IPlatformBoothRequestData {
   boothAttendees: IBoothAttendee[];
   boothSize: "2x2" | "4x4";
   status: Event_Request_Status;
+  QRCodeGenerated: boolean;
 }
 
 export interface IPlatformBooth extends IEvent {
   vendor: IVendor | string;
   RequestData: IPlatformBoothRequestData;
-  QRCodeGenerated: boolean;
 }
