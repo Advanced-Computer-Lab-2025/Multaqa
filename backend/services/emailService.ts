@@ -171,15 +171,23 @@ export const sendApplicationStatusEmail = async (
 };
 
 export const sendQRCodeEmail = async (
-  userEmail: string,
-  username: string,
-  qrCodeUrl: string,
-  eventName: string
+  email: string,
+  name: string,
+  eventName: string,
+  qrCodeBuffer: Buffer
 ) => {
-  const html = getExternalVisitorQREmailTemplate(username, eventName, qrCodeUrl);
+  const html = getExternalVisitorQREmailTemplate(name, eventName);
   await sendEmail({
-    to: userEmail,
-    subject: `🎟️ Your QR Code for ${eventName} - Multaqa`,
+    to: email,
+    subject: `🎫 Your QR Code for ${eventName} - Multaqa`,
     html,
+    attachments: [
+      {
+        filename: `QR_Code_${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.png`,
+        content: qrCodeBuffer,
+        contentType: 'pdf',
+        disposition: 'attachment'
+      }
+    ]
   });
 };

@@ -9,7 +9,7 @@ interface CertificateData {
     issueDate?: Date;
 }
 
-export class CertificateService {
+export class pdfGeneratorService {
 
     static generateCertificatePDF(data: CertificateData): Promise<Buffer> {
         const { firstName, lastName, workshopName, startDate, endDate, issueDate = new Date() } = data;
@@ -205,4 +205,45 @@ export class CertificateService {
             doc.end();
         });
     }
+
+  
+static buildQrCodePdfBuffer(
+    qrBuffer: Buffer,
+): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+        // Create a new PDF document with standard A4 size
+        const doc = new PDFDocument({
+            size: 'A4',
+            margins: { top: 72, bottom: 72, left: 72, right: 72 }, // 1 inch margins
+        });
+
+        const buffers: Buffer[] = [];
+        doc.on('data', (chunk) => buffers.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+        doc.on('error', reject);
+
+        
+        
+        // A4 dimensions (approx 595.28 x 841.89 points)
+        const pageWidth = doc.page.width;
+        const pageHeight = doc.page.height;
+
+        // Define a large size for the QR code (e.g., 300 points wide/high)
+        const qrSize = 300; 
+
+        // Calculate position to center the image horizontally and vertically
+        const xPos = (pageWidth / 2) - (qrSize / 2);
+        const yPos = (pageHeight / 2) - (qrSize / 2);
+
+        // Add the QR code image to the PDF
+        doc.image(qrBuffer, xPos, yPos, {
+            fit: [qrSize, qrSize],
+            align: 'center',
+            valign: 'center'
+        });
+
+        // Finalize the PDF
+        doc.end();
+    });
+}
 }

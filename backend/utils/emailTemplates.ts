@@ -383,40 +383,45 @@ export const getApplicationStatusTemplate = (
   `;
 };
 
+// External Visitor QR Email Template
 export const getExternalVisitorQREmailTemplate = (
-  username: string,
-  eventContext: string,
-  qrCodeUrl: string
+  companyName: string,
+  eventName: string,
 ): string => {
   return `
     <div style="${baseStyles.container}">
       <div style="${baseStyles.card}">
-        <div style="${baseStyles.header}">
-          <h2 style="margin: 0; font-size: 22px;">🎫 Your Pass</h2>
+        
+        <div style="${baseStyles.headerSuccess}">
+          <h2 style="margin: 0; font-size: 22px;">&#127915; Your Event Entry Pass</h2>
         </div>
+
         <div style="${baseStyles.content}">
+          
           <p style="font-size: 16px; color: #333;">
-            Hi ${username} 👋,<br><br>
-            Thank you for registering to participate in <strong>${eventContext}</strong>!
-            This email contains your personal QR code for quick and easy check-in.
+            Dear <strong>${companyName}</strong>,<br><br>
+            Thank you for registering to participate in <strong>${eventName}</strong>. We are delighted to welcome you to the event.
           </p>
-          <div style="${baseStyles.infoBox}">
-            <h3 style="margin: 0 0 15px 0; color: #2563eb; text-align: center;">Scan This Code to Check-In</h3>
-            <div style="text-align: center; padding: 10px; background-color: #ffffff; border-radius: 6px; border: 1px solid #e5e7eb;">
-              <img src="${qrCodeUrl}" alt="Check-in QR Code" style="width: 180px; height: 180px; display: block; margin: 0 auto;" />
-            </div>
-            <p style="text-align: center; font-size: 14px; color: #555; margin-top: 15px;">
-              Please have this QR code ready on your device when arriving at the venue.
+
+          <div style="${baseStyles.successBox}">
+            <h3 style="margin: 0 0 15px 0; color: #16a34a; text-align: center;">Your Digital Pass is Attached</h3>
+            <p style="text-align: center; font-size: 14px; color: #333; margin: 10px 0;">
+              Your QR entry pass is included as a PDF attachment in this email.
             </p>
           </div>
-          <p style="font-size: 14px; color: #555;">
-            We look forward to seeing you there!
+
+          <p style="font-size: 14px; color: #555; text-align: center;">
+            We look forward to having you at <strong>${eventName}</strong>.<br>
+            If you have any questions, please contact our support team.
           </p>
+
         </div>
+
         <div style="${baseStyles.footer}">
           © ${new Date().getFullYear()} Multaqa. All rights reserved.
         </div>
+
       </div>
     </div>
-      `;
+  `;
 };
