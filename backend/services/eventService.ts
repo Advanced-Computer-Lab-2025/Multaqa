@@ -107,7 +107,8 @@ export class EventsService {
     sort?: boolean,
     startDate?: string,
     endDate?: string,
-    userRole?: string
+    userRole?: string,
+    userPosition?: string
   ) {
     const filter: any = {
       type: { $ne: EVENT_TYPES.GYM_SESSION },
@@ -126,6 +127,12 @@ export class EventsService {
         },
       ],
     };
+
+    // Non-admin users should only see non-archived events
+    if (userRole !== "ADMINISTRATION") {
+      filter.archived = { $ne: true };
+    }
+
     if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
     if (location) filter.location = { $regex: new RegExp(location, "i") };
 
@@ -149,15 +156,19 @@ export class EventsService {
       return event;
     });
 
-    // filter events based on user role and allowedUsers list
+    // filter events based on user role/position and allowedUsers list
     if (userRole) {
       events = events.filter((event: any) => {
         // If allowedUsers is not defined or empty, allow all users
         if (!event.allowedUsers || event.allowedUsers.length === 0) {
           return true;
         }
-        // Check if user's role is in the allowedUsers list
-        return event.allowedUsers.includes(userRole);
+        // Check if user's role OR position is in the allowedUsers list
+        const hasRoleAccess = event.allowedUsers.includes(userRole);
+        const hasPositionAccess = userPosition
+          ? event.allowedUsers.includes(userPosition)
+          : false;
+        return hasRoleAccess || hasPositionAccess;
       });
     }
 

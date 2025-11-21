@@ -1,6 +1,7 @@
 import Joi from "joi";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { UserRole } from "../constants/user.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
 
 // Event base schema
 const eventBaseSchema = Joi.object({
@@ -8,7 +9,12 @@ const eventBaseSchema = Joi.object({
     .valid(...Object.values(EVENT_TYPES))
     .required(),
   allowedUsers: Joi.array()
-    .items(Joi.string().valid(...Object.values(UserRole)))
+    .items(
+      Joi.string().valid(
+        ...Object.values(UserRole),
+        ...Object.values(StaffPosition)
+      )
+    )
     .optional(),
   eventName: Joi.string().optional(),
   eventStartDate: Joi.date().optional(),

@@ -34,6 +34,7 @@ async function findAll(req: Request, res: Response<GetEventsResponse>) {
     const { search, type, location, sort, startDate, endDate } = req.query;
     const user = (req as any).user;
     const userRole = user?.role;
+    const userPosition = user?.position;
     const events = await eventsService.getEvents(
       search as string,
       type as string,
@@ -41,7 +42,8 @@ async function findAll(req: Request, res: Response<GetEventsResponse>) {
       sort === "true",
       startDate as string,
       endDate as string,
-      userRole
+      userRole,
+      userPosition
     );
     if (!events || events.length === 0) {
       throw createError(404, "No events found");
