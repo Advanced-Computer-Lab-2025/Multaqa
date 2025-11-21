@@ -324,12 +324,45 @@ async function cancelEventParticipation(
   }
 }
 
+async function getAllLoyaltyPartners(req: Request, res: Response) {
+  try {
+    const partners = await vendorEventsService.getAllLoyaltyPartners();
+
+    res.json({
+      success: true,
+      message: "Loyalty partners retrieved successfully",
+      data: partners,
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving loyalty partners"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
   "/",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   getVendorUpcomingEvents
+);
+
+router.get(
+  "/loyalty-partners",
+  authorizeRoles({
+    userRoles: [
+      UserRole.STUDENT,
+      UserRole.STAFF_MEMBER,
+      UserRole.ADMINISTRATION,
+    ],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+  }),
+  getAllLoyaltyPartners
 );
 
 router.get(
