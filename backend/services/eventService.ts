@@ -246,15 +246,37 @@ export class EventsService {
     }
 
     // Check if trying to archive an event that hasn't passed
-    if (updateData.archived === true && !event.isPassed) {
+    if (
+      updateData.archived &&
+      updateData.archived === true &&
+      !event.isPassed
+    ) {
       throw createError(400, "Cannot archive an event that has not passed yet");
     }
 
     if (event.type === EVENT_TYPES.BAZAAR || event.type === EVENT_TYPES.TRIP) {
-      if (new Date(event.eventStartDate) < new Date()) {
-        // Allow archival for passed events, but block other updates
+      const now = new Date();
+      const eventStarted = new Date(event.eventStartDate) < now;
+      const eventEnded = new Date(event.eventEndDate) < now;
+      const isOngoing = eventStarted && !eventEnded;
+
+      if (isOngoing) {
+        // Block all updates including archival while event is ongoing
+        throw createError(
+          400,
+          "Cannot update bazaars & trips while they are ongoing"
+        );
+      }
+
+      if (eventStarted) {
+        // After event starts (but has ended), only allow archival
+        const updateKeys = Object.keys(updateData).filter(
+          (key) => key !== "type"
+        );
         const isOnlyArchiving =
-          Object.keys(updateData).length === 1 && updateData.archived === true;
+          updateKeys.length === 1 &&
+          updateKeys[0] === "archived" &&
+          updateData.archived === true;
 
         if (!isOnlyArchiving) {
           throw createError(
