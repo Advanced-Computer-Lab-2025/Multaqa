@@ -8,6 +8,7 @@ import {
   getCertificateOfAttendanceTemplate,
   getApplicationStatusTemplate,
   getExternalVisitorQREmailTemplate,
+  getGymSessionNotificationTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -189,5 +190,41 @@ export const sendQRCodeEmail = async (
         disposition: 'attachment'
       }
     ]
+  });
+};
+// Send gym session notification email (cancelled or edited)
+export const sendGymSessionNotificationEmail = async (params: {
+  userEmail: string;
+  username: string;
+  sessionName: string;
+  actionType: "cancelled" | "edited";
+  oldDetails: {
+    date: Date;
+    time: string;
+    location: string;
+    instructor?: string;
+  };
+  newDetails?: {
+    date: Date;
+    time: string;
+    location: string;
+    instructor?: string;
+  };
+}) => {
+  const html = getGymSessionNotificationTemplate(
+    params.username,
+    params.sessionName,
+    params.actionType,
+    params.oldDetails,
+    params.newDetails
+  );
+
+  const actionLabel = params.actionType === "cancelled" ? "Cancelled" : "Updated";
+  const emoji = params.actionType === "cancelled" ? "❌" : "🔄";
+  
+  await sendEmail({
+    to: params.userEmail,
+    subject: `${emoji} Gym Session ${actionLabel} - Multaqa`,
+    html,
   });
 };

@@ -6,6 +6,7 @@ import {
 } from "../interfaces/models/gymSessionsEvent.interface";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { UserRole } from "../constants/user.constants";
+import { sendGymSessionNotificationEmail } from "./emailService";
 
 export class GymSessionsService {
   private gymSessionRepo: GenericRepository<IGymSessionEvent>;
@@ -65,6 +66,19 @@ export class GymSessionsService {
     if (!deleted) {
       throw new Error("Gym session not found");
     }
+
+    // await sendGymSessionNotificationEmail({
+    //   userEmail: deleted.userEmail,
+    //   username: deleted.username,
+    //   sessionName: deleted.eventName,
+    //   actionType: "cancelled",
+    //   oldDetails: {
+    //     date: deleted.eventStartDate,
+    //     time: deleted.eventStartTime,
+    //     location: deleted.location,
+    //     trainer: deleted.trainer,
+    //   },
+    // });
     return;
   }
 
@@ -110,6 +124,26 @@ export class GymSessionsService {
     }
 
     await session.save();
+
+    // await sendGymSessionNotificationEmail({
+    //   userEmail: session.userEmail,
+    //   username: session.username,
+    //   sessionName: session.eventName,
+    //   actionType: "edited",
+    //   oldDetails: {
+    //     date: session.eventStartDate,
+    //     time: session.eventStartTime,
+    //     location: session.location,
+    //     trainer: session.trainer,
+    //   },
+    //   newDetails: {
+    //     date: session.eventStartDate,
+    //     time: session.eventStartTime,
+    //     location: session.location,
+    //     trainer: session.trainer,
+    //   },
+    // });
+
     return session;
   }
 }

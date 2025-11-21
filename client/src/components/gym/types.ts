@@ -20,3 +20,12 @@ export const SESSION_LABEL: Record<GymSessionType, string> = {
   CROSS_CIRCUIT: "Cross Circuit",
   KICK_BOXING: "Kick-boxing",
 };
+
+export const SESSION_COLORS: Record<GymSessionType, string> = {
+  YOGA: "#4caf50", // Green
+  PILATES: "#2196f3", // Blue
+  AEROBICS: "#e91e63", // Pink
+  ZUMBA: "#e91e63", // Pink
+  CROSS_CIRCUIT: "#9c27b0", // Purple
+  KICK_BOXING: "#f44336", // Red
+};

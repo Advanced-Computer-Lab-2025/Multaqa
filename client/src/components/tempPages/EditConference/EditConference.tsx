@@ -4,13 +4,15 @@ import React, { useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { useFormik, FormikProvider, FormikContextType} from 'formik';
 import * as yup from 'yup';
-import EventCreationStep1Modal from './Box1';
-import EventCreationStep2Details from './Box2';
-import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from './styles';
-import { EventFormData} from './types/'; 
+import EventCreationStep1Modal from '../CreateConference/Box1';
+import EventCreationStep2Details from '../CreateConference/Box2';
+import { wrapperContainerStyles, horizontalLayoutStyles,detailTitleStyles,modalFooterStyles } from '../../shared/styles';
+import { EventFormData} from '../CreateConference/types'; 
 import {api} from "../../../api";
-import CustomButton from '../Buttons/CustomButton';
-import { CustomModalLayout } from '../modals';
+import CustomButton from '../../shared/Buttons/CustomButton';
+import { CustomModalLayout } from '../../shared/modals';
+import dayjs from 'dayjs';
+import { toast } from 'react-toastify';
 
 //Define the validation schema 
 const validationSchema = yup.object({
@@ -56,8 +58,6 @@ const Edit: React.FC<EditConferenceProps> = ({
     websiteLink,
     agenda = "",
     extraRequiredResources = [],
-    eventStartTime,
-    eventEndTime,
     }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
@@ -66,11 +66,9 @@ const Edit: React.FC<EditConferenceProps> = ({
 
     const initialFormData: EventFormData = {
         eventName: eventName,
-        eventStartDate: eventStartDate,
-        location: eventStartDate,
-        eventEndDate: eventEndDate,
-        eventStartTime,
-        eventEndTime,
+        eventStartDate: eventStartDate ? dayjs(eventStartDate) : null,
+        eventEndDate: eventEndDate ? dayjs(eventEndDate) : null,
+        location:"GUC Cairo",
         description: description,
         fullAgenda: agenda,
         websiteLink: websiteLink, 
@@ -90,9 +88,19 @@ const Edit: React.FC<EditConferenceProps> = ({
         setResponse(res.data);
         console.log("Success! Response:", res.data);
         setRefresh((prev)=> !prev);
+        toast.success("Conference edited successfully", {
+                    position:"bottom-right",
+                    autoClose:3000,
+                    theme: "colored",
+                })
     } catch (err: any) {
         setError(err?.message || "API call failed");
         window.alert(err.response.data.error);
+        toast.error("Failed to edit conference. Please try again.", {
+            position:"bottom-right",
+            autoClose:3000,
+            theme: "colored",
+            });
     } finally {
         setLoading(false);
     }
@@ -100,14 +108,16 @@ const Edit: React.FC<EditConferenceProps> = ({
 
     const onSubmit = async (values: any, actions: any) => {
         onClose();
+        const startDateObj = values.eventStartDate; // dayjs object
+        const endDateObj = values.eventEndDate;
         const payload = {
         type:"conference",
         eventName: values.eventName,
-        eventStartDate: values.eventStartDate,
-        eventEndDate: values.eventEndDate,
+        eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
+        eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
+        eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
+        eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
         location:"GUC Cairo",
-        eventStartTime: "06:00",
-        eventEndTime:"07:00",
         description: values.description,
         fullAgenda: values.fullAgenda,
         websiteLink: values.websiteLink, 
@@ -125,12 +135,16 @@ const Edit: React.FC<EditConferenceProps> = ({
         validationSchema: validationSchema,
         onSubmit:onSubmit,
     });
-    const handleClose = () => { console.log("Modal flow closed/canceled."); };
+    const handleClose = () => {
+    onClose();
+    };
     return (
-        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]" borderColor="#5A67D8">
-        <Box sx={wrapperContainerStyles}>    
-            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start'}}>
-                Edit Conference
+        <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]" borderColor="#5A67D8">
+        <Box sx={{
+    ...wrapperContainerStyles,    
+}}>
+            <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+               Edit Conference 
             </Typography>        
         <FormikProvider value={formik}>
             <form onSubmit={formik.handleSubmit}>
@@ -146,14 +160,15 @@ const Edit: React.FC<EditConferenceProps> = ({
                     />
                 </Box>
                 <Box sx={modalFooterStyles}>
-                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"200px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
+                <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={formik.isSubmitting} sx={{ width: "150px", height: "32px"}} />
+                <CustomButton color="tertiary" type='submit' variant="contained" sx={{px: 1.5, width:"100px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}>
                     Edit 
                 </CustomButton>
                 </Box>
             </form>
         </FormikProvider>
         </Box>
-        </CustomModalLayout>
+      </CustomModalLayout>  
     );
 };
 

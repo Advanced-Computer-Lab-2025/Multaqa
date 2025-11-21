@@ -298,6 +298,7 @@ export const getCertificateOfAttendanceTemplate = (
     </div>
   `;
 };
+
 // Application Status (Bazaar/Booth) Email Template
 export const getApplicationStatusTemplate = (
   username: string,
@@ -423,5 +424,88 @@ export const getExternalVisitorQREmailTemplate = (
 
       </div>
     </div>
+  `;
+};
+export const getGymSessionNotificationTemplate = (
+  username: string,
+  sessionName: string,
+  actionType: "cancelled" | "edited",
+  oldDetails?: {
+    date: Date;
+    time: string;
+    location: string;
+    instructor?: string;
+  },
+  newDetails?: {
+    date: Date;
+    time: string;
+    location: string;
+    instructor?: string;
+  }
+) => {
+  const actionMessage = actionType === "cancelled" 
+    ? `<p style="color: #dc3545; font-weight: bold;">This session has been cancelled.</p>`
+    : `<p style="color: #ffc107; font-weight: bold;">This session has been updated with new details.</p>`;
+
+  const detailsSection = actionType === "cancelled"
+    ? `
+      <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #721c24; margin-top: 0;">Cancelled Session Details:</h3>
+        <p><strong>Date:</strong> ${oldDetails?.date.toLocaleDateString()}</p>
+        <p><strong>Time:</strong> ${oldDetails?.time}</p>
+        <p><strong>Location:</strong> ${oldDetails?.location}</p>
+        ${oldDetails?.instructor ? `<p><strong>Instructor:</strong> ${oldDetails.instructor}</p>` : ''}
+      </div>
+      <p>We apologize for any inconvenience. Please check our schedule for alternative sessions.</p>
+    `
+    : `
+      <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #856404; margin-top: 0;">Original Details:</h3>
+        <p><strong>Date:</strong> ${oldDetails?.date.toLocaleDateString()}</p>
+        <p><strong>Time:</strong> ${oldDetails?.time}</p>
+        <p><strong>Location:</strong> ${oldDetails?.location}</p>
+        ${oldDetails?.instructor ? `<p><strong>Instructor:</strong> ${oldDetails.instructor}</p>` : ''}
+      </div>
+      <div style="background-color: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #155724; margin-top: 0;">New Details:</h3>
+        <p><strong>Date:</strong> ${newDetails?.date.toLocaleDateString()}</p>
+        <p><strong>Time:</strong> ${newDetails?.time}</p>
+        <p><strong>Location:</strong> ${newDetails?.location}</p>
+        ${newDetails?.instructor ? `<p><strong>Instructor:</strong> ${newDetails.instructor}</p>` : ''}
+      </div>
+      <p>Your registration has been automatically transferred to the updated session.</p>
+    `;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #ddd; border-top: none; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🏋️ Gym Session ${actionType === "cancelled" ? "Cancelled" : "Updated"}</h1>
+        </div>
+        <div class="content">
+          <p>Hello <strong>${username}</strong>,</p>
+          ${actionMessage}
+          <p>The gym session "<strong>${sessionName}</strong>" that you registered for has been ${actionType}.</p>
+          ${detailsSection}
+          <p>If you have any questions, please contact our support team.</p>
+          <p>Best regards,<br>The Multaqa Team</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Multaqa. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
   `;
 };
