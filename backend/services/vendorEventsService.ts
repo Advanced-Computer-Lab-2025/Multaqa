@@ -530,4 +530,33 @@ export class VendorEventsService {
 
     return updatedVendor;
   }
+
+  /**
+   * Cancel vendor's loyalty program participation
+   * @param vendorId - Vendor ID
+   * @returns Updated vendor
+   */
+  async cancelLoyaltyProgram(vendorId: string): Promise<IVendor> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    if (!vendor.loyaltyProgram || !vendor.loyaltyProgram.promoCode) {
+      throw createError(404, "No active loyalty program found to cancel");
+    }
+
+    // Remove loyalty program using findByIdAndUpdate to avoid validation issues
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { $unset: { loyaltyProgram: "" } },
+      { new: true, runValidators: false }
+    );
+
+    if (!updatedVendor) {
+      throw createError(500, "Failed to cancel loyalty program");
+    }
+
+    return updatedVendor;
+  }
 }

@@ -357,6 +357,28 @@ async function applyToLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
   }
 }
 
+async function cancelLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    await vendorEventsService.cancelLoyaltyProgram(vendorId);
+
+    res.json({
+      success: true,
+      message: "Successfully cancelled loyalty program participation",
+      data: null,
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error cancelling loyalty program"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -400,6 +422,12 @@ router.delete(
   "/:eventId/cancel",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   cancelEventParticipation
+);
+
+router.delete(
+  "/loyalty-program",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  cancelLoyaltyProgram
 );
 
 // Two parameters with complex paths
