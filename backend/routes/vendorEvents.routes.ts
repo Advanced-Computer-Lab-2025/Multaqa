@@ -17,6 +17,7 @@ import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
 import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
+import { loyaltyProgramSchema } from "../validation/loyaltyProgram.validation";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -324,6 +325,38 @@ async function cancelEventParticipation(
   }
 }
 
+async function applyToLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    const { error, value } = loyaltyProgramSchema.validate(req.body);
+    if (error) {
+      throw createError(400, error.details[0].message);
+    }
+
+    const updatedVendor = await vendorEventsService.applyToLoyaltyProgram(
+      vendorId,
+      value
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Successfully applied to loyalty program",
+      data: {
+        loyaltyProgram: updatedVendor.loyaltyProgram,
+      },
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error applying to loyalty program"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
@@ -392,6 +425,12 @@ router.patch(
     ],
   }),
   updateVendorRequest
+);
+
+router.post(
+  "/loyalty-program",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  applyToLoyaltyProgram
 );
 
 export default router;
