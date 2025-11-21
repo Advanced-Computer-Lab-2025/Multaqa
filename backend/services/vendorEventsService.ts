@@ -214,8 +214,8 @@ export class VendorEventsService {
   ): Promise<VendorRequest> {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
-        { path: "vendor", select: "companyName logo" },
-        { path: "vendors.vendor", select: "companyName logo" },
+        { path: "vendor", select: "companyName logo taxCard" },
+        { path: "vendors.vendor", select: "companyName logo taxCard" },
       ] as any[],
     });
 
@@ -489,6 +489,46 @@ export class VendorEventsService {
         throw createError(404, "Vendor not found in this platform booth event");
       }
     }
+  }
+
+  /**
+   * Apply to GUC loyalty program
+   * @param vendorId - Vendor ID
+   * @param loyaltyData - Discount rate, promo code, terms and conditions
+   * @returns Updated vendor
+   */
+  async applyToLoyaltyProgram(
+    vendorId: string,
+    loyaltyData: {
+      discountRate: number;
+      promoCode: string;
+      termsAndConditions: string;
+    }
+  ): Promise<IVendor> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    // Check if vendor already has a loyalty program
+    if (vendor.loyaltyProgram && vendor.loyaltyProgram.promoCode) {
+      throw createError(400, "Vendor already has a loyalty program");
+    }
+
+    // Update only the loyaltyProgram field via the repository to keep data access constrained
+    const updatedVendor = await this.vendorRepo.update(vendorId, {
+      loyaltyProgram: {
+        discountRate: loyaltyData.discountRate,
+        promoCode: loyaltyData.promoCode.toUpperCase(),
+        termsAndConditions: loyaltyData.termsAndConditions,
+      },
+    });
+
+    if (!updatedVendor) {
+      throw createError(500, "Failed to update vendor loyalty program");
+    }
+
+    return updatedVendor;
   }
 
   /**
