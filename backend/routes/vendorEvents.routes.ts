@@ -17,7 +17,7 @@ import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
 import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
-import { loyaltyProgramSchema } from "../validation/loyaltyProgram.validation";
+import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
 
 const vendorEventsService = new VendorEventsService();
 
