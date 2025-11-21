@@ -157,7 +157,8 @@ export class EventsService {
     });
 
     // filter events based on user role/position and allowedUsers list
-    if (userRole) {
+    // Skip filtering for admin users
+    if (userRole && userRole !== "ADMINISTRATION") {
       events = events.filter((event: any) => {
         // If allowedUsers is not defined or empty, allow all users
         if (!event.allowedUsers || event.allowedUsers.length === 0) {
