@@ -9,22 +9,24 @@ export const createGymSessionValidationSchema = Joi.object({
   date: Joi.date().greater("now").required().messages({
     "date.greater": "Date must be in the future",
   }),
-  time: Joi.string().pattern(/^\d{2}:\d{2}$/).required().messages({
-    "string.pattern.base": "Time must be in HH:MM format",
+  time: Joi.string()
+    .pattern(/^\d{2}:\d{2}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "Time must be in HH:MM format",
+    }),
+  duration: Joi.number().required().messages({
+    "number.base": "Duration must be a number",
   }),
-  duration: Joi.number().min(10).max(180).required().messages({
-    "number.min": "Duration must be at least 10 minutes",
-    "number.max": "Duration must be at most 180 minutes",
-  }),
-  capacity: Joi.number().min(1).max(100).default(10).messages({
-    "number.min": "Capacity must be at least 1",
-    "number.max": "Capacity must be at most 100",
+  capacity: Joi.number().required().messages({
+    "number.base": "Capacity must be a number",
   }),
   sessionType: Joi.string()
     .valid(...Object.values(GYM_SESSION_TYPES))
-    .required().messages({
-      "any.only": `Session type must be one of: ${Object.values(GYM_SESSION_TYPES).join(", ")}`,
+    .required()
+    .messages({
+      "any.only": `Session type must be one of: ${Object.values(
+        GYM_SESSION_TYPES
+      ).join(", ")}`,
     }),
 });
-
-

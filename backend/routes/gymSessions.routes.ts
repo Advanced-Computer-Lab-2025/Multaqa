@@ -1,6 +1,7 @@
 import { GymSessionsService } from "../services/gymsessionsService";
 import { Router, Request, Response } from "express";
 import { createGymSessionValidationSchema } from "../validation/gymSessions.validation";
+import { editGymSessionValidationSchema } from "../validation/validateEditGymSession";
 import createError from "http-errors";
 import {
   CreateGymSessionResponse,
@@ -68,28 +69,6 @@ async function getAllGymSessions(
   }
 }
 
-async function cancelGymSession(req: Request, res: Response) {
-  try {
-    const { sessionId } = req.params;
-
-    if (!sessionId) {
-      throw createError(400, "Session ID is required");
-    }
-
-    await gymSessionsService.cancelGymSession(sessionId);
-
-    res.json({
-      success: true,
-      message: "Gym session cancelled successfully",
-    });
-  } catch (err: any) {
-    throw createError(
-      err.status || 404,
-      err.message || "Error cancelling gym session"
-    );
-  }
-}
-
 const router = Router();
 router.get(
   "/",
@@ -115,14 +94,6 @@ router.post(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   createGymSession
-);
-router.delete(
-  "/:sessionId",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
-  }),
-  cancelGymSession
 );
 
 export default router;

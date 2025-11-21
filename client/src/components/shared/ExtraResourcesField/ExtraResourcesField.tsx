@@ -6,11 +6,9 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useFormikContext } from 'formik';
 import CustomTextField from '../input-fields/CustomTextField';
-import { EventFormData } from './types'; // Ensure this type has 'extraResources: string[]'
-import { detailTitleStyles } from './styles';
-import { useTheme } from '@mui/material/styles';
+import { EventFormData } from '../../tempPages/CreateConference/types'; // Ensure this type has 'extraResources: string[]'
+import { detailTitleStyles } from '../styles';
 import theme from '@/themes/lightTheme';
-import CustomIcon from '../Icons/CustomIcon';
 
 const initialResourceValue = ''; // The default value for a new resource field
 
@@ -71,6 +69,7 @@ const ExtraResourcesField: React.FC = () => {
                         <Box key={index} sx={{ display:'flex',alignItems:"end",justifyContent:"space-between",mb:2,
                               '&:focus-within': {outline: 'none',},}} >
                                 <CustomTextField
+                                    name={fieldName}
                                     fieldType="text"
                                     label={`Resource ${index + 1}`}
                                     sx={{ flexGrow: 1 }} 

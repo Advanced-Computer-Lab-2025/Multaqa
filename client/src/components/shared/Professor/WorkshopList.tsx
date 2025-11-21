@@ -9,7 +9,7 @@ import { api } from "@/api";
 import { frameData } from "@/components/BrowseEvents/utils";
 import { WorkshopViewProps } from "@/components/Event/types";
 import EventIcon from '@mui/icons-material/Event';
-import CreateParent from "@/components/createButton/createParent";
+import CreationHubDropdown from "@/components/createButton/CreationHubDropdown";
 import { EditIcon } from "lucide-react";
 import { color } from "storybook/internal/theming";
 import CreateWorkshop from "@/components/tempPages/CreateWorkshop/CreateWorkshop";
@@ -40,11 +40,15 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
   const [creation, setCreation] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rawWorkshops, setRawWorkshops] = useState<any[]>([]);
-  const WorkshopSetter = [
-    setCreation
-   ];
-   const Workshop = [
-    { label: 'Workshop', icon: EventIcon},
+
+  const creationHubOptions = [
+    {
+      label: "Workshop",
+      icon: EventIcon,
+      color: "#9c27b0",
+      description: "Schedule a new workshop session",
+      onSelect: () => setCreation(true),
+    },
   ];
   // console.log(workshops);
 
@@ -97,7 +101,14 @@ const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo })
           Here are all the workshops you have created. Thanks for your continuous effort!
         </Typography>
       </Box>
-      <CreateParent options={Workshop} setters={WorkshopSetter}/>
+
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+        <CreationHubDropdown
+          options={creationHubOptions}
+          helperText="Start something new"
+        />
+      </Box>
+
       <Stack spacing={2}>
         {
         workshops && workshops.length>0&&

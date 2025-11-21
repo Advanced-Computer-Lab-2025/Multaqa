@@ -21,6 +21,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   errorMessage,
   minDate,
   touched: propTouched = false,
+  labelColor,
 }) => {
   const theme = useTheme();
   const styles = getDateTimePickerStyles(theme);
@@ -43,7 +44,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     <div className="w-full" style={styles.container}>
       <NeumorphicBox
         containerType="inwards"
-        borderRadius="12px"
+        borderRadius="48px"
+        padding='10px'
         className="mb-2"
         sx={fieldError ? styles.neuBoxError : {}}
       >
@@ -51,8 +53,11 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <label
             htmlFor={id}
             className="block mb-2 text-sm font-medium"
-            style={styles.label}
-          >
+            style={{
+            ...styles.label,
+            color: labelColor || styles.label.color,  // use passed color if available
+            }}
+            >
             {label}
           </label>
           <input

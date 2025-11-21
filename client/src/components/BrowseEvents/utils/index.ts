@@ -18,6 +18,7 @@ const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
 const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
+  console.log(vendors);
   return vendors.map(vendor =>vendor.vendor);
 }
 // Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
@@ -100,7 +101,6 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
-          Location: event.location,
           Link: event.websiteLink,
         },
         attended,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box } from "@mui/material";
 import CourtColumn from "./CourtColumn";
 import { CourtBoardProps, CourtSlot } from "./types";
@@ -16,6 +16,10 @@ const CourtBoard: React.FC<CourtBoardProps> = ({
   onChangeCourtDate,
 }) => {
   const [localSlots, setLocalSlots] = useState<CourtSlot[]>(slots);
+
+  useEffect(() => {
+    setLocalSlots(slots);
+  }, [slots]);
   const [activeCourtId, setActiveCourtId] = useState<string | null>(null);
   const [selectedDates, setSelectedDates] = useState<Record<string, string>>({});
 
@@ -98,9 +102,9 @@ const CourtBoard: React.FC<CourtBoardProps> = ({
     <>
       <Box
         sx={{
-          px: embedded ? 0 : { xs: 1, sm: 2, md: 3, lg: 4 },
+          px: embedded ? 0 : { xs: 2, md: 4 },
           py: embedded ? 0 : 4,
-          backgroundColor: embedded ? "transparent" : "#e6e6da",
+          backgroundColor: "transparent",
         }}
       >
         <Box

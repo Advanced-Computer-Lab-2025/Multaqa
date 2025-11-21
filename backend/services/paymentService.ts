@@ -17,7 +17,7 @@ const stripe = new Stripe(stripeSecretKey);
 const DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const DEFAULT_SUCCESS_URL =
   process.env.STRIPE_SUCCESS_URL ||
-  "https://example.com/payments/success?session_id={CHECKOUT_SESSION_ID}";
+  "http://localhost:3000/en/successfulPayment";
 const DEFAULT_CANCEL_URL =
   process.env.STRIPE_CANCEL_URL || "https://example.com/payments/cancel";
 
@@ -328,6 +328,8 @@ export class PaymentService {
     }
     //remove user from event attendees
     await this.eventsService.removeAttendeeFromEvent(eventId, userId);
+    // remove event from user's registered events
+    await this.userService.removeEventFromUserRegistrations(userId, eventId);
 
     // Refund amount to user's wallet
     await this.userService.addToWallet(userId, event.price);
