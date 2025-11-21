@@ -22,6 +22,7 @@ interface EventCardProps {
   utilities?: React.ReactNode;
   registerButton?: React.ReactNode;
   evaluateButton?: React.ReactNode;
+  commentButton?: React.ReactNode;
   onExpandChange?: (expanded: boolean) => void;
   onOpenDetails?: () => void;
   expanded?: boolean;
@@ -53,6 +54,7 @@ const EventCard: React.FC<EventCardProps> = ({
   expanded = false,
   details,
   attended = false,
+  commentButton,
   evaluateButton,
   professorStatus,
   createdBy
@@ -212,7 +214,7 @@ const statusChip = (status: string) => {
             {/* Utilities and Expand Button Group */}
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
-              {registerButton && (
+              {/* {registerButton && (
                   spotsLeft&& totalSpots && (
                     <Box
                        sx={{
@@ -241,7 +243,7 @@ const statusChip = (status: string) => {
                       </Typography>
                     </Box>
                   )
-                )}
+                )} */}
                     {spotsLeft && totalSpots && ( 
                     <Box
                       sx={{
@@ -507,6 +509,17 @@ const statusChip = (status: string) => {
               pt: 1
             }}>
               {evaluateButton}
+            </Box>
+          )}
+           {commentButton && professorStatus && professorStatus=="awaiting_review"&&(
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              alignItems: 'flex-end',
+              mt: 'auto',
+              pt: 1
+            }}>
+              {commentButton}
             </Box>
           )}
         </Box>

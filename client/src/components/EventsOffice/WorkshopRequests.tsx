@@ -90,13 +90,14 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
     });
   };
 
-    const filterOptions = [
-      { label: "All", value: "all", color: "#6299d0" },
-      { label: "Accepted", value: "approved", color: "#10b981" },
-      { label: "Pending", value: "pending", color: "#f59e0b" },
-      { label: "Awaiting Review", value: "awaiting_review", color: "#3b82f6" },
-      { label: "Rejected", value: "rejected", color: "#ef4444" },
-    ];
+   
+     const filterOptions = [
+       { label: "All", value: "all", color:"#6299d0" },
+       { label: "Accepted", value: "approved", color: "#10b981" },
+       { label: "Pending", value: "pending", color: "#f59e0b" },
+       { label: "Awaiting Review", value: "awaiting_review", color: "#3b82f6" },
+       { label: "Rejected", value: "rejected", color: "#ef4444" },
+     ];
     const background =  "#9c27b0";
 
   function filterWorkshops(){

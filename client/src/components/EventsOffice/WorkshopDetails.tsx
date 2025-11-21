@@ -130,6 +130,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     comments: CommentWithoutId[];
   }) => {
     const professorId = workshop.details["CreatedId"];
+    console.log(professorId);
     console.log(payload);
 
     try {

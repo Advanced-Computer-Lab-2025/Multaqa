@@ -224,7 +224,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
     defaultTab: "workshops",
-    defaultSection: "my-workshops",
+    defaultSection: "",
     tabs: [
       {
         key: "workshops",

@@ -52,4 +52,5 @@ export type WorkshopViewProps = BasicProps & {
   details: Record<string, string>,
   professorStatus?:string;
   evaluateButton?:React.ReactNode;
+  commentButton?:React.ReactNode;
 }

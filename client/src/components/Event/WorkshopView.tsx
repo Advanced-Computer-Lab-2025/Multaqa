@@ -35,6 +35,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   registrationPassed,
   professorStatus,
   evaluateButton,
+  commentButton,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -131,6 +132,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         </Tooltip>
         </Stack>
       ) : null}
+      commentButton={commentButton}
       registerButton={
         (user == "staff" || user == "student" || user == "ta" || user == "professor") && 
         !(datePassed || attended) && (
@@ -277,7 +279,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 color={background}
                 agenda={agenda}
                 userId={userInfo?._id}
-                createdBy={details['Created by']} 
+                createdBy={userInfo?._id===details["CreatedId"]?"you": details['Created by']} 
                 button={
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
                     !(datePassed || attended) && (
