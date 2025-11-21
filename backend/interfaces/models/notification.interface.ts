@@ -12,5 +12,6 @@ export interface INotification extends Document {
 	title: string;
 	message: string;
 	read: boolean;
+	delivered: boolean;
 	createdAt: Date;
 }

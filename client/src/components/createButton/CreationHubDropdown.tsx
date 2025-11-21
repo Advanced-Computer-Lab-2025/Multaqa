@@ -157,7 +157,7 @@ export default function CreationHubDropdown({
           sx={{
             position: "absolute",
             top: "calc(100% + 12px)",
-            right: 0,
+            left: 0,
             minWidth: layout.minWidth,
             maxWidth: layout.maxWidth,
             width: "max-content",
@@ -166,8 +166,8 @@ export default function CreationHubDropdown({
             border: `1px solid ${theme.palette.primary.light}`,
             boxShadow: "0 18px 40px rgba(24, 39, 75, 0.18)",
             backgroundColor: theme.palette.background.paper,
-            zIndex: 12,
-            transformOrigin: "top right",
+            zIndex: 1500,
+            transformOrigin: "top left",
             animation: `${bloomPanel} 520ms cubic-bezier(0.19, 1, 0.22, 1)` ,
             overflow: "visible",
             "&::before": {

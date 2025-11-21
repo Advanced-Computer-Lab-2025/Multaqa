@@ -19,16 +19,19 @@ export interface AuthenticatedRequest extends Request {
 
 export default function verifyJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   const header = req.headers["authorization"];
+  console.log ("Authorization Header", header);
   if (!header) {
     throw createError(401, "You are unauthorized for accessing this route, missing authorization header");
   }
 
   const token = header && header.split(" ")[1];
+  console.log ("Token", token);
   if (!token) {
     throw createError(401, "You are unauthorized for accessing this route, missing token");
   }
 
   const secret = process.env.ACCESS_TOKEN_SECRET;
+  console.log ("Secret", secret);
   if (!secret) {
     throw createError(
       500,
@@ -39,6 +42,7 @@ export default function verifyJWT(req: AuthenticatedRequest, res: Response, next
   try {
     const decoded = jwt.verify(token, secret) as { id: string; role: UserRole };
     req.user = decoded;
+    console.log ("Request.user", req.user);
     next();
   } catch (err) {
     throw createError(403, "Invalid or expired token");

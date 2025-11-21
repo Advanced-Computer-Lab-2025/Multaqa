@@ -37,7 +37,7 @@ export const getDateTimePickerStyles = (theme: Theme) => ({
   },
   neuBoxError: {
     border: `2px solid ${theme.palette.error.main}`,
-    borderRadius: "12px",
+    borderRadius: "48px",
     boxShadow: `inset 0 0 0 1px ${theme.palette.error.main}20`,
   },
   errorIcon: {

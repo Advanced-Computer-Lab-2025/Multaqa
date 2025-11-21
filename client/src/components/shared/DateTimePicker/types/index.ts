@@ -10,4 +10,5 @@ export interface DateTimePickerProps {
   minDate?: Date | string;
   containerType?: "outwards" | "inwards";
   touched?: boolean;
+  labelColor: string;
 }

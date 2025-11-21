@@ -10,6 +10,7 @@ const NotificationSchema = new Schema<INotification>({
   title: { type: String, required: true },
   message: { type: String, required: true },
   read: { type: Boolean, default: false },
+  delivered: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 

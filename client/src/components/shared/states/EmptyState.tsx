@@ -22,8 +22,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   imageAlt = "Empty state illustration",
   ctaLabel,
   onCtaClick,
-  width = 360,
-  height = 270,
+  width = 280,
+  height = 210,
 }) => {
   return (
     <Box sx={{ textAlign: "center", py: 8, gridColumn: "1 / -1" }}>

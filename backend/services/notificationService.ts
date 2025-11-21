@@ -17,10 +17,15 @@ export class NotificationService {
       type: notificationData.type,
       message: notificationData.message,
       read: false,
+      delivered: false,
+      title: notificationData.title,
+      role: notificationData.role,
+      adminRole: notificationData.adminRole,
+      staffPosition: notificationData.staffPosition,
       createdAt: new Date(),
     });
 
-    // 2. Emit the event based on type if user is online
+    // Emit the event based on type if user is online
     switch (notificationData.type) {
       case "WORKSHOP_REQUEST_SUBMITTED":
         eventBus.emit("notification:workshop:requestSubmitted", notification);
