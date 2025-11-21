@@ -180,12 +180,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
         key: "gym",
         label: "Gym Sessions",
         icon: Dumbbell,
@@ -219,12 +213,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
         key: "wallet",
         label: "Wallet",
         icon: Wallet, 
@@ -240,15 +228,9 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     tabs: [
       {
         key: "workshops",
-        label: "Workshops",
+        label: "My Workshops",
         icon: Calendar,
-        sections: [
-          { id: "my-workshops", label: "My Workshops" },
-          { id: "my-pending-workshops", label: "Pending" },
-          { id: "my-accepted-workshops", label: "Accepted" },
-          { id: "my-rejected-workshops", label: "Rejected" },
-          { id: "my-under-workshops", label: "To Review" },
-        ],
+        sections:[],
       },
       {
         key: "events",
@@ -260,11 +242,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "favorites", label: "My Favorites" },
         ],
       },
-      {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
+       {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
       },
       {
         key: "wallet",
@@ -293,13 +278,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "workshop-requests",
         label: "Workshop Requests",
         icon: FileText,
-        sections: [
-          { id: "all-requests", label: "All Requests" },
-          { id: "pending", label: "Pending" },
-          { id: "awating_review", label: "Awaiting Review" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
-        ],
+        sections: [],
       },
       {
         key: "vendors",
@@ -603,10 +582,11 @@ export default function EntityNavigation({
   return (
     <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
-      <TopNavigation companyName="Multaqa" header={headerProps} />
+      <TopNavigation companyName="Multaqa" header={headerProps}  currentUser={userData}
+            userRole={userRoleKey as UserRoleKey} />
 
       {/* Tabs Section - main navigation tabs */}
-      {tabLabels.length > 0 && (
+      {/* {tabLabels.length > 0 && (
         <div className="bg-white border-b border-gray-300">
           <div className="px-6">
             <Tabs
@@ -616,7 +596,7 @@ export default function EntityNavigation({
             />
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Sidebar and main content below */}
       <div className="flex flex-1 overflow-hidden min-h-0">
@@ -628,12 +608,12 @@ export default function EntityNavigation({
             sectionItems={tab ? sectionItems : []}
             onLogout={handleLogout}
             currentUser={userData}
-            userRole={userRoleKey as UserRoleKey}
+            userRole={userRoleKey as UserRoleKey} 
           />
         </div>
 
         {/* Flexible main content area */}
-        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full min-w-0">
+        <div className="flex-1 bg-[##c0d2f0] p-4 min-h-screen min-w-0">
           <div
             className="flex-1 bg-white min-h-0 overflow-auto"
             style={{
@@ -641,10 +621,21 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "83vh",
-              maxHeight: "83vh",
+              minHeight: "90vh",
+              maxHeight: "90vh",
             }}
           >
+          {tabLabels.length > 0 && (
+          <div className="bg-white border-b border-gray-300">
+           <div className="px-6">
+            <Tabs
+              tabs={tabLabels}
+              activeTab={activeTabIndex >= 0 ? activeTabIndex : 0}
+              onTabChange={handleTabChange}
+            />
+          </div>
+        </div>
+           )}
             {children}
           </div>
         </div>

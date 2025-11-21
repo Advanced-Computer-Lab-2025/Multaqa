@@ -272,7 +272,7 @@ export default function CreationHubDropdown({
                       sx={{
                         fontFamily:
                           "var(--font-poppins), system-ui, sans-serif",
-                        color: theme.palette.text.secondary,
+                        color:option.color,
                         lineHeight: 1.4,
                       }}
                     >

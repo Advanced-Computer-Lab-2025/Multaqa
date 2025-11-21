@@ -33,6 +33,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   attended,
   datePassed,
   registrationPassed,
+  professorStatus,
+  evaluateButton,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -85,7 +87,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
 
   return (
     <>
-    <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
+    <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={professorStatus=="approved"?details["Capacity"]:undefined} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} createdBy={details['Created by']} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
         <Stack direction="row" spacing={1}>
          {user ==="events-office" ?
           <Tooltip title ={"Restrict Workshop"}>
@@ -189,7 +191,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
             )}
           </>
         )
-      } expanded={expanded} location={details["Location"]} />
+      } expanded={expanded} location={details["Location"]} professorStatus={professorStatus} evaluateButton={evaluateButton}/>
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -274,7 +276,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 details={updatedDetails}
                 color={background}
                 agenda={agenda}
-                userId={userInfo._id}
+                userId={userInfo?._id}
+                createdBy={details['Created by']} 
                 button={
                   (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
                     !(datePassed || attended) && (
@@ -337,8 +340,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       )
                   )
                 }
-                sections={user=="vendor"?['general','agenda', 'details']:['general','agenda','details',
-                  'reviews']}
+                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus!=="approved"?['general','agenda','details']:['general','agenda','details',
+                  'reviews'])}
                 user={user?user:""}
                 attended ={attended}
                 eventId={id}
@@ -348,10 +351,10 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               open={paymentDrawerOpen}
               onClose={() => setPaymentDrawerOpen(false)}
               totalAmount={parseInt(details["Cost"])}
-              walletBalance={userInfo.walletBalance||0} 
+              walletBalance={userInfo?.walletBalance||0} 
               onPaymentSuccess={handlePaymentSuccess}
               eventId={id}
-              email={userInfo.email}
+              email={userInfo?.email}
             />
     </>
   );

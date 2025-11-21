@@ -24,7 +24,6 @@ import Create from "../tempPages/CreateConference/CreateConference";
 import { deleteEvent, frameData } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import CreationHubDropdown from "../createButton/CreationHubDropdown";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
@@ -76,11 +75,6 @@ type Event =
   | TripEvent;
 
 const getFilterGroups = (userRole: string): FilterGroup[] => [
-  {
-    id: "eventName",
-    title: "Event Name",
-    type: "text",
-  },
   {
     id: "professorName",
     title: "Professor Name",
@@ -177,8 +171,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       name: `${userInfo.firstName} ${userInfo.lastName}`,
       email: userInfo.email,
     };
-    setUserInfo(user);
-    setReady(true);
   };
   const handleRegistered = () => {
     setLoading(true);
@@ -634,20 +626,26 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           }}
         >
           {user !== "events-only"
-            ? registered
+            ? user==="events-office" ? "Manage Events":
+            registered
               ? " My Registered Events"
               : "Browse Events"
-            : "Manage Events"}
+            : "Create Events"}
         </Typography>
         <Typography
           variant="body2"
           sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
         >
-          {user !== "events-only"
-            ? registered
-              ? "Keep track of which events you have registered for"
-              : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
-            : "Keep track of and manage events you have created"}
+              {user !== "events-only"
+        ? (user === "events-office"
+          ? "Manage all events that are on the system"
+          : (registered
+            ? "Keep track of which events you have registered for"
+            : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+          )
+        )
+        : "Create and keep track of events you have created"
+      }
         </Typography>
       </Box>
 

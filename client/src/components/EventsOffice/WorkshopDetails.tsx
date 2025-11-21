@@ -4,43 +4,49 @@ import {
   Paper,
   Typography,
   TextField,
-  Button,
   Chip,
   Avatar,
-  Divider,
-  Card,
-  CardContent,
   Grid,
   IconButton,
+  Stack,
+  alpha,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import CustomSelectField from "../shared/input-fields/CustomSelectField";
-import { LocationOn, People, AttachMoney, MenuBook } from "@mui/icons-material";
-import { ArrowLeft, Calendar } from "lucide-react";
+import {
+  LocationOn,
+  People,
+  AttachMoney,
+  School,
+  CheckCircle,
+  Cancel,
+  HourglassEmpty,
+  CalendarMonth,
+  Person,
+} from "@mui/icons-material";
+import { ArrowLeft } from "lucide-react";
 import theme from "@/themes/lightTheme";
-import CustomButton from "../shared/Buttons/CustomButton";
-import CustomIcon from "../shared/Icons/CustomIcon";
-import NeumorphicBox from "../shared/containers/NeumorphicBox";
 import { CustomModal } from "../shared/modals";
 import { api } from "@/api";
 import { WorkshopViewProps } from "../Event/types";
+import { toast } from "react-toastify";
 
 interface WorkshopDetailsProps {
   workshop: WorkshopViewProps;
   setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
   eventsOfficeId: string;
 }
+
 interface CommentItem {
   id: number;
   commenter: string;
   text: string;
   timestamp: string;
 }
-// Define the type without 'id'
-type CommentWithoutId = Omit<CommentItem, 'id'>;
 
-function removeId(comments: CommentItem[]): CommentWithoutId[] {
-  return comments.map(({ id, ...rest }) => rest);
-}
+type CommentWithoutId = Omit<CommentItem, "id">;
 
 const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   workshop,
@@ -52,13 +58,9 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [statusFinalized, setStatusFinalized] = useState(false);
-  // start comments empty to avoid undefined errors
-  const [comments, setComments] = useState<CommentItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const professors = workshop.professors;
 
-  // Status options for CustomSelectField
   const statusOptions = [
     { label: "Awaiting Review", value: "awaiting_review" },
     { label: "Accept & Publish", value: "accept_publish" },
@@ -66,24 +68,6 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     { label: "N/A", value: "N/A" },
   ];
 
-  const handleAddComment = () => {
-    if (comment.trim() && (status === "awaiting_review" || status === "N/A")) {
-      const newComment: CommentItem = {
-        id: comments.length > 0 ? comments[comments.length - 1].id + 1 : 1,
-        commenter: eventsOfficeId,
-        text: comment,
-        timestamp: new Date().toISOString(),
-      };
-      setComments((prev) => [...prev, newComment]);
-      setComment("");
-    }
-  };
-
-  const handleDeleteComment = (commentId: number) => {
-    setComments((prev) => prev.filter((c: CommentItem) => c.id !== commentId));
-  };
-
-  // Map status value to readable label
   const getStatusLabel = (statusValue: string) => {
     switch (statusValue) {
       case "accept_publish":
@@ -97,31 +81,47 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     }
   };
 
-  const getStatusColor = (statusValue: string) => {
+  const getStatusConfig = (statusValue: string) => {
     switch (statusValue) {
       case "accept_publish":
-        return "success";
+        return {
+          color: theme.palette.success.main,
+          bgColor: alpha(theme.palette.success.main, 0.1),
+          borderColor: alpha(theme.palette.success.main, 0.3),
+          icon: <CheckCircle fontSize="small" />,
+        };
       case "reject":
-        return "error";
+        return {
+          color: theme.palette.error.main,
+          bgColor: alpha(theme.palette.error.main, 0.1),
+          borderColor: alpha(theme.palette.error.main, 0.3),
+          icon: <Cancel fontSize="small" />,
+        };
       case "awaiting_review":
-        return "warning";
+        return {
+          color: theme.palette.warning.main,
+          bgColor: alpha(theme.palette.warning.main, 0.1),
+          borderColor: alpha(theme.palette.warning.main, 0.3),
+          icon: <HourglassEmpty fontSize="small" />,
+        };
       default:
-        return "default";
+        return {
+          color: theme.palette.grey[600],
+          bgColor: alpha(theme.palette.grey[400], 0.1),
+          borderColor: alpha(theme.palette.grey[400], 0.3),
+          icon: <HourglassEmpty fontSize="small" />,
+        };
     }
   };
 
-  // When selecting a new status → open modal for confirmation
   const handleStatusChange = (value: string) => {
-    console.log(value);
     if (value !== "N/A") {
       setPendingStatus(value);
       setModalOpen(true);
-      console.log("true");
     } else {
       setStatus("N/A");
       setPendingStatus(null);
       setModalOpen(false);
-      console.log("false");
     }
   };
 
@@ -129,43 +129,46 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     approvalStatus: string;
     comments: CommentWithoutId[];
   }) => {
-    const professorId = workshop.details["Created By"];
-    console.log(professorId);
-    console.log(workshop.id);
-    console.log(payload.comments);
+    const professorId = workshop.details["CreatedId"];
+    console.log(payload);
+
     try {
-      console.log("Payload being sent:", payload);
-      const res = await api.patch(
+      await api.patch(
         `/workshops/${professorId}/${workshop.id}/status`,
         payload
       );
+      toast.success("Your evaluation has been recieved. Thank you !", {
+              position: "bottom-right",
+              autoClose: 3000,
+              theme: "colored",
+            });
     } catch (err: any) {
-      window.alert(err?.response?.data?.error || "API call failed");
+       toast.error(err?.response?.data?.error, {
+              position: "bottom-right",
+              autoClose: 3000,
+              theme: "colored",
+            });
+      setStatus("N/A");
+      setStatusFinalized(false);
+      setComment(""); // Clear comment field if the attempt failed
     } finally {
       setLoading(false);
     }
   };
-  // Confirm change
+
   const handleConfirmStatus = () => {
-    // Capture the pendingStatus value locally before we clear it
     const confirmed = pendingStatus;
 
     if (confirmed) {
       setStatus(confirmed);
       if (confirmed !== "N/A") {
-        setStatusFinalized(true); // hide UI for finalized status
+        setStatusFinalized(true);
       }
-      console.log(confirmed);
-      // if (confirmed !== "awaiting_review") {
-      //   setComments([]);
-      // }
-      // clear pending after we've captured and used it
       setPendingStatus(null);
     }
 
     setModalOpen(false);
 
-    // map the just-confirmed value to the API expected status
     const mapToApiStatus = (val: string | null | undefined) => {
       switch (val) {
         case "awaiting_review":
@@ -179,500 +182,420 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
       }
     };
 
+    const commentArray: CommentWithoutId[] =
+      comment.trim() && confirmed === "awaiting_review"
+        ? [
+            {
+              commenter: eventsOfficeId,
+              text: comment,
+              timestamp: new Date().toISOString(),
+            },
+          ]
+        : [];
+
     const payload = {
       approvalStatus: mapToApiStatus(confirmed),
-      comments: confirmed === "awaiting_review" ? removeId(comments) : [],
+      comments: commentArray,
     };
 
     handleCallApi(payload);
+    setComment("");
   };
 
-  // Cancel → revert to previous (do nothing)
   const handleCancelStatus = () => {
+    setStatus("N/A");
     setPendingStatus(null);
     setModalOpen(false);
   };
 
-  return (
-    <>
-      <Box sx={{ display: "flex", gap: 0, p: 0, flexDirection: "column" }}>
-        <Box
+  const statusConfig = getStatusConfig(status);
+
+  // Info Row Component
+  const InfoItem: React.FC<{
+    icon: React.ReactNode;
+    label: string;
+    value: string;
+    highlight?: boolean;
+  }> = ({ icon, label, value, highlight }) => (
+    <Box sx={{ mb: 2 }}>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+        <Box sx={{ color: theme.palette.grey[600], display: "flex" }}>
+          {icon}
+        </Box>
+        <Typography
+          variant="caption"
           sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0px 25px",
-            paddingTop: 2,
-            paddingRight: "40px",
+            color: theme.palette.grey[600],
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: 0.5,
           }}
         >
-          <IconButton
-            onClick={() => {
-              setEvaluating(false);
-            }}
-            sx={{
-              color: theme.palette.tertiary.main,
-              "&:hover": {
-                backgroundColor: theme.palette.secondary.main,
-                transform: "scale(1.05) rotate(-5deg)",
-              },
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              alignSelf: "start",
-              justifyContent: "start",
-            }}
-          >
-            <ArrowLeft size={20} />
-          </IconButton>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              mb: 0,
-              color: theme.palette.tertiary.main,
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-            }}
-          >
-            Your Evaluation Hub
-          </Typography>
+          {label}
+        </Typography>
+      </Stack>
+      <Typography
+        variant="body2"
+        sx={{
+          color: highlight ? theme.palette.error.main : theme.palette.text.primary,
+          fontWeight: highlight ? 600 : 500,
+          pl: 3.5,
+        }}
+      >
+        {value}
+      </Typography>
+    </Box>
+  );
 
-          <Box sx={{ textAlign: "center" }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mb: 0.5, display: "block" }}
-            >
-              Current Status
-            </Typography>
+  return (
+    <>
+      <Box sx={{ minHeight: "100vh", bgcolor: `${theme.palette.primary.main}25` }}>
+        {/* Header */}
+        <Box
+          sx={{
+            bgcolor: "#fff",
+            borderBottom: "1px solid #e5e7eb",
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Box
+            sx={{
+              maxWidth: "1200px",
+              mx: "auto",
+              px: 3,
+              py: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Stack direction="row" spacing={2} alignItems="center">
+              <IconButton
+                onClick={() => setEvaluating(false)}
+                size="small"
+                sx={{ bgcolor: "#f3f4f6" }}
+              >
+                <ArrowLeft size={20} />
+              </IconButton>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Workshop Evaluation
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Review and approve workshop details
+                </Typography>
+              </Box>
+            </Stack>
+
             <Chip
-              label={getStatusLabel(status || "N/A")}
-              color={getStatusColor(status || "N/A")}
-              sx={{ fontWeight: 600 }}
+              icon={statusConfig.icon}
+              label={getStatusLabel(status)}
+              sx={{
+                bgcolor: statusConfig.bgColor,
+                color: statusConfig.color,
+                fontWeight: 600,
+                border: `1px solid ${statusConfig.borderColor}`,
+              }}
             />
           </Box>
         </Box>
-        <Box sx={{ display: "flex", gap: 3, p: 4, maxHeight: "65vh" }}>
-          {/* Left Side - Workshop Details */}
+
+        {/* Main Content */}
+        <Box sx={{ maxWidth: "1200px", mx: "auto", p: 3 }}>
           <Paper
-            elevation={1}
+            elevation={0}
             sx={{
-              flex: 1,
               p: 4,
-              borderRadius: 3,
-              bgcolor: "#ffffff",
-              border: `1px solid ${theme.palette.tertiary.main}`,
-              overflowY: "auto",
+              borderRadius: 2,
+              border: "1px solid #e5e7eb",
+              mb: 3,
             }}
           >
-            {/* Header Section */}
-            <Box sx={{ mb: 4 }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 700,
-                  mb: 2,
-                  color: "#111827",
-                  fontFamily: "var(--font-jost), system-ui, sans-serif",
-                }}
-              >
-                {workshop.name}
-              </Typography>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                <Chip
-                  icon={<LocationOn />}
-                  label={workshop.details["Location"]}
-                  color="primary"
-                  variant="outlined"
-                />
-                <Chip
-                  icon={<People />}
-                  label={`Capacity: ${workshop.details["Capacity"]}`}
-                  color="primary"
-                  variant="outlined"
-                />
-              </Box>
-            </Box>
+            {/* Title */}
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, mb: 3, color: "#111827" }}
+            >
+              {workshop.name}
+            </Typography>
 
-            {/* Date & Time Section */}
-            <Card sx={{ mb: 3, bgcolor: "#eef2ff", boxShadow: "none" }}>
-              <CardContent>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-                >
-                  <Calendar color="primary" />
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Schedule
-                  </Typography>
+            {/* Two Column Layout */}
+            <Grid container spacing={4} sx={{ mb: 4 }}>
+              {/* Left Column */}
+              <Grid size={{xs:12, md:6}}>
+                <InfoItem
+                  icon={<CalendarMonth fontSize="small" />}
+                  label="Start"
+                  value={`${workshop.details["Start Date"]} • ${workshop.details["Start Time"]}`}
+                />
+                <InfoItem
+                  icon={<CalendarMonth fontSize="small" />}
+                  label="End"
+                  value={`${workshop.details["End Date"]} • ${workshop.details["End Time"]}`}
+                />
+                <InfoItem
+                  icon={<CalendarMonth fontSize="small" />}
+                  label="Registration Deadline"
+                  value={workshop.details["Registration Deadline"]}
+                  highlight
+                />
+                <InfoItem
+                  icon={<LocationOn fontSize="small" />}
+                  label="Location"
+                  value={workshop.details["Location"]}
+                />
+                <InfoItem
+                  icon={<People fontSize="small" />}
+                  label="Capacity"
+                  value={workshop.details["Capacity"]}
+                />
+              </Grid>
+
+              {/* Right Column */}
+                <Grid size={{xs:12, md:6}}>
+                <InfoItem
+                  icon={<AttachMoney fontSize="small" />}
+                  label="Budget"
+                  value={workshop.details["Required Budget"]}
+                />
+                <InfoItem
+                  icon={<AttachMoney fontSize="small" />}
+                  label="Funding Source"
+                  value={workshop.details["Funding Source"]}
+                />
+                <InfoItem
+                  icon={<School fontSize="small" />}
+                  label="Faculty"
+                  value={workshop.details["Faculty Responsible"]}
+                />
+                <Box sx={{ mb: 2 }}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                    sx={{ mb: 1 }}
+                  >
+                    <Person
+                      fontSize="small"
+                      sx={{ color: theme.palette.grey[600] }}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: theme.palette.grey[600],
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      Professors
+                    </Typography>
+                  </Stack>
+                  <Stack spacing={0.5} sx={{ pl: 3.5 }}>
+                    {professors.map((prof: string, idx: number) => (
+                      <Typography
+                        key={idx}
+                        variant="body2"
+                        sx={{ color: theme.palette.text.primary }}
+                      >
+                        • {prof}
+                      </Typography>
+                    ))}
+                  </Stack>
                 </Box>
-                <Grid container spacing={2}>
-                  <Grid sx={{ xs: "6" }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Start Date & Time
-                    </Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      {workshop.details["Start Date"]} at{" "}
-                      {workshop.details["Start Time"]}
-                    </Typography>
-                  </Grid>
-                  <Grid sx={{ xs: "6" }}>
-                    <Typography variant="caption" color="text.secondary">
-                      End Date & Time
-                    </Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      {workshop.details["End Date"]} at{" "}
-                      {workshop.details["End Time"]}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Divider sx={{ my: 2 }} />
-                <Typography variant="caption" color="text.secondary">
-                  Registration Deadline
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ fontWeight: 600, color: "error.main" }}
-                >
-                  {workshop.details["Registration Deadline"]}
-                </Typography>
-              </CardContent>
-            </Card>
+              </Grid>
+            </Grid>
 
             {/* Description Section */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+            <Box sx={{ mb: 3, pb: 3, borderBottom: "1px solid #f3f4f6" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: theme.palette.grey[600],
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                  display: "block",
+                  mb: 1,
+                }}
+              >
                 Description
               </Typography>
               <Typography
-                variant="body1"
-                sx={{ lineHeight: 1.8, color: "#374151" }}
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  lineHeight: 1.7,
+                }}
               >
                 {workshop.description}
               </Typography>
             </Box>
 
             {/* Agenda Section */}
-            <Card sx={{ mb: 4, bgcolor: "#f9fafb", boxShadow: "none" }}>
-              <CardContent>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-                >
-                  <MenuBook color="primary" />
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Full Agenda
-                  </Typography>
-                </Box>
-                <Typography
-                  component="pre"
-                  sx={{
-                    whiteSpace: "pre-wrap",
-                    fontFamily: "inherit",
-                    lineHeight: 1.8,
-                    color: "#374151",
-                    m: 0,
-                  }}
-                >
-                  {workshop.agenda}
-                </Typography>
-              </CardContent>
-            </Card>
-
-            {/* Faculty & Professors Section */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Academic Information
-              </Typography>
-              <Grid container spacing={3}>
-                <Grid sx={{ xs: "6" }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ mb: 1, display: "block" }}
-                  >
-                    Faculty Responsible
-                  </Typography>
-                  <Chip
-                    label={workshop.details["Faculty Responsible"]}
-                    color="secondary"
-                    sx={{ fontWeight: 600, fontSize: "0.95rem" }}
-                  />
-                </Grid>
-                <Grid sx={{ xs: "6" }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ mb: 1, display: "block" }}
-                  >
-                    Professors Participating
-                  </Typography>
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
-                  >
-                    {professors.map((prof: string, idx: number) => (
-                      <Box
-                        key={idx}
-                        sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: "primary.main",
-                            fontSize: "0.9rem",
-                          }}
-                        >
-                          {prof.charAt(0)}
-                        </Avatar>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {prof}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-
-            {/* Budget & Funding Section */}
-            <Card sx={{ mb: 4, bgcolor: "#ecfdf5", boxShadow: "none" }}>
-              <CardContent>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
-                >
-                  <AttachMoney color="success" />
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Budget & Funding
-                  </Typography>
-                </Box>
-                <Grid container spacing={2}>
-                  <Grid sx={{ xs: "6" }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Required Budget
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                      {workshop.details["Required Budget"]}
-                    </Typography>
-                  </Grid>
-                  <Grid sx={{ xs: "6" }}>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ mb: 1, display: "block" }}
-                    >
-                      Funding Source
-                    </Typography>
-                    <Chip
-                      label={workshop.details["Funding Source"]}
-                      color={
-                        workshop.details["Funding Source"] === "External"
-                          ? "info"
-                          : "success"
-                      }
-                      sx={{ fontWeight: 600 }}
-                    />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-
-            {/* Extra Resources Section */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Extra Required Resources
-              </Typography>
-              <Card
+            <Box sx={{ mb: 3, pb: 3, borderBottom: "1px solid #f3f4f6" }}>
+              <Typography
+                variant="caption"
                 sx={{
-                  bgcolor: "#fffbeb",
-                  border: "1px solid #fcd34d",
-                  boxShadow: "none",
+                  color: theme.palette.grey[600],
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                  display: "block",
+                  mb: 1,
                 }}
               >
-                <CardContent>
-                  <Typography
-                    variant="body1"
-                    sx={{ lineHeight: 1.8, color: "#374151" }}
-                  >
-                    {workshop.details["Extra Required Resources"]}
-                  </Typography>
-                </CardContent>
-              </Card>
+                Agenda
+              </Typography>
+              <Typography
+                component="pre"
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  lineHeight: 1.7,
+                  whiteSpace: "pre-wrap",
+                  fontFamily: "inherit",
+                  m: 0,
+                }}
+              >
+                {workshop.agenda}
+              </Typography>
+            </Box>
+
+            {/* Resources Section */}
+            <Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: theme.palette.grey[600],
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                  display: "block",
+                  mb: 1,
+                }}
+              >
+                Required Resources
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  lineHeight: 1.7,
+                }}
+              >
+                {workshop.details["Extra Required Resources"]}
+              </Typography>
             </Box>
           </Paper>
 
-          {/* Right Side - Comments & Status */}
-          <Paper
-            elevation={1}
-            sx={{
-              width: 400,
-              p: 3,
-              borderRadius: 3,
-              bgcolor: "#ffffff",
-              border: `1px solid ${theme.palette.secondary.dark}`,
-              display: "flex",
-              flexDirection: "column",
-              maxHeight: statusFinalized ? "20%" : "40%", // adjust depending on your header height
-              overflow: "auto", // hides any content that shouldn't overflow here
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-              Reviews & Comments
-            </Typography>
-
-            {/* Comments Section */}
-            <Box
+          {/* Evaluation Section */}
+          {!statusFinalized && (
+            <Paper
+              elevation={0}
               sx={{
-                flex: 1,
-                overflowY: "auto",
-                mb: 2,
-                minHeight: "30%",
-                pr: 1,
+                p: 3,
+                borderRadius: 2,
+                border: "1px solid #e5e7eb",
               }}
             >
-              {comments.map((c: CommentItem) => (
-                <Box key={c.id} sx={{ mb: 2 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      mb: 1,
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        {c.timestamp}
-                      </Typography>
-                    </Box>
-                    {(status === "awaiting_review" ||
-                      (status === "N/A" && !statusFinalized)) && (
-                      <CustomIcon
-                        icon="delete"
-                        size="small"
-                        onClick={() => handleDeleteComment(c.id)}
-                        sx={{
-                          cursor: "pointer",
-                          width: "24px",
-                          height: "24px",
-                        }}
-                      />
-                    )}
-                  </Box>
-                  <NeumorphicBox
-                    containerType="inwards"
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      width: "100%",
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: "text.primary" }}>
-                      {c.text}
-                    </Typography>
-                  </NeumorphicBox>
-                </Box>
-              ))}
-            </Box>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, mb: 2.5, color: "#111827" }}
+              >
+                Evaluation
+              </Typography>
 
-            <Divider sx={{ mb: 2 }} />
-
-            {/* Add Comment */}
-            {!statusFinalized && (
-              <>
-                {/* Add Comment */}
-                <Box
-                  sx={{
-                    mb: 4,
-                    display: "flex",
-                    flexDirection: "row",
-                    gap: "6px",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+              <Grid container spacing={2}>
+                    <Grid size={{xs:12, md:8}}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 500, mb: 0.5 }}
+                  >
+                    Comments
+                  </Typography>
                   <TextField
                     multiline
-                    rows={1}
+                    rows={3}
+                    fullWidth
                     placeholder={
                       status === "N/A" || status === "awaiting_review"
-                        ? "Add a comment..."
-                        : "Comments disabled when not awaiting review"
+                        ? "Add comments (saved for 'Awaiting Review' only)..."
+                        : "Comments only available for 'Awaiting Review'"
                     }
                     value={comment}
-                    onChange={(
-                      e: React.ChangeEvent<
-                        HTMLInputElement | HTMLTextAreaElement
-                      >
-                    ) => setComment(e.target.value)}
+                    onChange={(e) => setComment(e.target.value)}
                     disabled={status !== "awaiting_review" && status !== "N/A"}
                     sx={{
-                      mb: 1,
-                      width: "100%",
-                      mr: 3,
                       "& .MuiOutlinedInput-root": {
-                        "&.Mui-focused fieldset": {
-                          borderColor: `${theme.palette.tertiary.main}`,
-                          borderWidth: 2,
-                        },
+                        borderRadius: 1.5,
                       },
                     }}
                   />
-                  <CustomButton
-                    label="Add"
-                    variant="contained"
-                    color="tertiary"
-                    size="small"
-                    onClick={handleAddComment}
-                    disabled={status !== "awaiting_review" && status !== "N/A"}
-                  />
-                </Box>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 500, mb: 2, fontSize: "12px" }}
-                >
-                  Add <strong>all </strong>your comments before setting this
-                  workshops's status. Comments are only added in the case of an{" "}
-                  <strong>Awaiting Review</strong> Status.
-                </Typography>
+                </Grid>
 
-                {/* Status Dropdown */}
-                <Box sx={{ mb: 2 }}>
-                  <CustomSelectField
-                    label="Status"
-                    fieldType="single"
-                    options={statusOptions}
-                    value={status}
-                    onChange={(value) => handleStatusChange(value as string)}
-                    placeholder="Select status..."
-                    size="small"
-                    fullWidth={true}
-                    neumorphicBox={true}
-                    name={""}
-                  />
-                </Box>
-              </>
-            )}
+                <Grid size={{xs:12, md:4}}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 500, mb: 0.5 }}
+                  >
+                    Status
+                  </Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={status}
+                      onChange={(e) => handleStatusChange(e.target.value)}
+                      sx={{ borderRadius: 1.5 }}
+                    >
+                      {statusOptions.map((opt) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Paper>
+          )}
 
-            {/* Current Status Display */}
-            {statusFinalized && (
-              <Box sx={{ textAlign: "center" }}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ mb: 1, display: "block" }}
-                >
-                  Current Status
-                </Typography>
-                <Chip
-                  label={getStatusLabel(status || "N/A")}
-                  color={getStatusColor(status || "N/A")}
-                  sx={{ fontWeight: 600 }}
-                />
-              </Box>
-            )}
-          </Paper>
+          {/* Status Finalized */}
+          {statusFinalized && (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                border: "1px solid #e5e7eb",
+                textAlign: "center",
+                bgcolor: statusConfig.bgColor,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                Evaluation Completed
+              </Typography>
+              <Chip
+                icon={statusConfig.icon}
+                label={getStatusLabel(status)}
+                sx={{
+                  bgcolor: alpha(statusConfig.color, 0.2),
+                  color: statusConfig.color,
+                  fontWeight: 600,
+                  fontSize: "0.95rem",
+                  py: 2.5,
+                }}
+              />
+            </Paper>
+          )}
         </Box>
       </Box>
+
       {/* Confirmation Modal */}
       <CustomModal
-        title="Confirm Evaluation Status"
+        title="Confirm Status Change"
         modalType="warning"
         open={modalOpen}
         onClose={handleCancelStatus}
@@ -689,19 +612,18 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
           onClick: handleCancelStatus,
         }}
       >
-        <Typography
-          sx={{
-            mt: 2,
-            fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            textAlign: "center",
-          }}
-        >
-          Are you sure you want to set this workshop's status to{" "}
-          <strong>{getStatusLabel(pendingStatus || "N/A")}</strong>?
-          <br />
-          <br />
-          This action is <strong>irreversible</strong>.
-        </Typography>
+        <Box sx={{ mt: 2 }}>
+          <Typography>
+            Set status to{" "}
+            <strong>{getStatusLabel(pendingStatus || "N/A")}</strong>?
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ mt: 2, color: theme.palette.error.main, fontWeight: 500 }}
+          >
+            ⚠️ This action cannot be undone.
+          </Typography>
+        </Box>
       </CustomModal>
     </>
   );

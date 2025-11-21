@@ -43,11 +43,11 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const name = (userInfo.firstName+" "+userInfo.lastName);
+  const name = (userInfo?.firstName+" "+userInfo?.lastName);
 
   const initialValues = {
-    name: (userInfo.firstName+" "+userInfo.lastName),
-    email:  userInfo.email
+    name: (userInfo?.firstName+" "+userInfo?.lastName),
+    email:  userInfo?.email
   };
  const handleCallApi = async (payload: any) => {
   try {
@@ -199,7 +199,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
                 id={`email-${eventId}`}
                 label="Email"
                 fieldType="text"
-                placeholder={userInfo.email}
+                placeholder={userInfo?.email}
                 name="email"
                 value={values.email}
                 onChange={handleChange('email')}

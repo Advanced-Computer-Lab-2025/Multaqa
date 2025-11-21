@@ -4,7 +4,7 @@ import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
 import { populateMap } from "../utils/userPopulationMap";
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
@@ -67,14 +67,14 @@ export class UserService {
 
   async addEventToUser(
     id: string,
-    eventId: Schema.Types.ObjectId
+    eventId: Types.ObjectId
   ): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
       throw createError(404, "User not found");
     }
 
-    user.registeredEvents?.push(eventId);
+    user.registeredEvents?.push(eventId as unknown as mongoose.Schema.Types.ObjectId);
     await user.save();
     return user;
   }

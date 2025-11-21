@@ -501,7 +501,6 @@ export default function EntityCatchAllPage() {
     }
 
     if (tab === "workshop-requests") {
-      if (section === "all-requests") {
         return Evaluating && specificWorkshop ? (
           <WorkshopDetails
             workshop={specificWorkshop}
@@ -517,48 +516,6 @@ export default function EntityCatchAllPage() {
           />
         );
       }
-      if (section === "pending") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="pending"
-          />
-        );
-      } else if (section === "accepted") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="approved"
-          />
-        );
-      } else if (section === "rejected") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="rejected"
-          />
-        );
-      } else if (section === "awating_review") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="awaiting_review"
-          />
-        );
-      }
-    }
 
     // Events Office - Gym Management
     if (entity === "events-office" && tab === "gym") {
@@ -611,33 +568,7 @@ export default function EntityCatchAllPage() {
     }
 
     if (entity === "professor" && tab === "workshops") {
-      if (section === "my-workshops") {
         return <WorkshopList userId={userId} filter={"none"} userInfo={user} />;
-      }
-      if (section === "my-accepted-workshops") {
-        return (
-          <WorkshopList userId={userId} filter={"approved"} userInfo={user} />
-        );
-      }
-      if (section === "my-rejected-workshops") {
-        return (
-          <WorkshopList userId={userId} filter={"rejected"} userInfo={user} />
-        );
-      }
-      if (section === "my-under-workshops") {
-        return (
-          <WorkshopList
-            userId={userId}
-            filter={"awaiting_review"}
-            userInfo={user}
-          />
-        );
-      }
-      if (section === "my-pending-workshops") {
-        return (
-          <WorkshopList userId={userId} filter={"pending"} userInfo={user} />
-        );
-      }
     }
     // Default placeholder content
     return (

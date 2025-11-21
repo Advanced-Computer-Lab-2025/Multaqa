@@ -43,7 +43,6 @@ const TripView: React.FC<BazarViewProps> = ({
   const [restrictUsers, setRestrictUsers] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
-  
 
   const handlePaymentSuccess = (paymentDetails:any) => {
     console.log('Payment successful:', paymentDetails);
@@ -86,6 +85,8 @@ const TripView: React.FC<BazarViewProps> = ({
         color={background} 
         leftIcon={<IconComponent />} 
         eventType={"Trip"}
+        spotsLeft={ details['Spots Left'] }
+        totalSpots={details["Capacity"]} 
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={
           user === "admin" ? (
@@ -172,7 +173,7 @@ const TripView: React.FC<BazarViewProps> = ({
                 )
             )
           }
-        expanded={expanded} attended={attended} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+        expanded={expanded} attended={attended} location={details["Location"]} cost={details["Cost"]} />
     
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
