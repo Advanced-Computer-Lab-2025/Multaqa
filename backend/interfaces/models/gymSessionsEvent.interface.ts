@@ -2,14 +2,14 @@ import { GYM_SESSION_TYPES } from "../../constants/gymSessions.constants";
 import { IEvent } from "./event.interface";
 
 export interface IGymSessionCreationRequest {
-    time: string;
-    sessionType: GYM_SESSION_TYPES;
-    date: Date;
-    duration: number;
-    trainer: string;
-    capacity: number;
+  time: string;
+  sessionType: GYM_SESSION_TYPES;
+  date: Date;
+  duration: number;
+  trainer: string;
+  capacity: number;
 }
-   
+
 export interface IGymSessionEvent extends IEvent {
   trainer?: string | null;
   sessionType: GYM_SESSION_TYPES;
