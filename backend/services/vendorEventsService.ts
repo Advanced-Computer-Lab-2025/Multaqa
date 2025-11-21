@@ -492,6 +492,40 @@ export class VendorEventsService {
   }
 
   /**
+   * Get all vendors participating in GUC loyalty program
+   * @returns List of vendors with their loyalty program details
+   */
+  async getAllLoyaltyPartners(): Promise<
+    Array<{
+      vendorId: string;
+      companyName: string;
+      logo: any;
+      loyaltyProgram: {
+        discountRate: number;
+        promoCode: string;
+        termsAndConditions: string;
+      };
+    }>
+  > {
+    // Find all vendors that have a loyalty program (promoCode exists)
+    const vendors = await this.vendorRepo.findAll({
+      "loyaltyProgram.promoCode": { $exists: true, $ne: null },
+    });
+
+    // Map to return only necessary fields
+    return vendors.map((vendor) => ({
+      vendorId: (vendor as any)._id.toString(),
+      companyName: vendor.companyName,
+      logo: vendor.logo,
+      loyaltyProgram: {
+        discountRate: vendor.loyaltyProgram!.discountRate,
+        promoCode: vendor.loyaltyProgram!.promoCode,
+        termsAndConditions: vendor.loyaltyProgram!.termsAndConditions,
+      },
+    }));
+  }
+
+  /**
    * Apply to GUC loyalty program
    * @param vendorId - Vendor ID
    * @param loyaltyData - Discount rate, promo code, terms and conditions
