@@ -162,6 +162,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
   const registeredEvents = userInfo?.registeredEvents;
+  const requestedEvents = userInfo?.requestedEvents;
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {

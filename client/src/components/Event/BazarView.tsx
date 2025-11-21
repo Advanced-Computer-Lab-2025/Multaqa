@@ -27,7 +27,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   background,
   setRefresh,
   attended,
-  userInfo
+  userInfo,
+  requestedEvents,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
