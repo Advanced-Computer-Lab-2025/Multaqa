@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Box, Typography, Alert } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
+import { capitalizeName } from "../shared/input-fields/utils";
 import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
@@ -12,6 +13,8 @@ import { DateTimePicker } from "../shared/DateTimePicker";
 import { formatDuration } from "../shared/DateTimePicker/utils";
 import { GymSessionType, SESSION_LABEL } from "./types";
 import { createGymSession } from "./utils";
+import { modalFooterStyles } from "../shared/styles/index";
+import { color } from "storybook/internal/theming";
 
 interface CreateGymSessionProps {
   open: boolean;
@@ -82,13 +85,16 @@ export default function CreateGymSession({
       setIsSubmitting(true);
       setError(null);
       try {
+        const trainerName = values.trainer
+          ? capitalizeName(String(values.trainer), false)
+          : undefined;
         // Create gym session via API
         await createGymSession({
           startDateTime: values.startDateTime!,
           duration: parseInt(values.duration),
           type: values.type as GymSessionType,
           maxParticipants: parseInt(values.maxParticipants),
-          trainer: values.trainer || undefined,
+          trainer: trainerName || undefined,
         });
 
         console.log("✅ Gym session created successfully");
@@ -124,13 +130,14 @@ export default function CreateGymSession({
       borderColor={theme.palette.primary.main}
     >
       <form onSubmit={formik.handleSubmit}>
+       
         <Box sx={{ p: 4 }}>
           <Typography
             variant="h5"
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
               fontWeight: 700,
-              color: theme.palette.primary.main,
+              color: theme.palette.tertiary.main,
               textAlign: "center",
               mb: 3,
             }}
@@ -148,8 +155,18 @@ export default function CreateGymSession({
               {error}
             </Alert>
           )}
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    
+          <Box sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            gap: 3,
+            borderRadius: '6px',
+            borderColor:theme.palette.tertiary.main,
+            borderWidth:'1px',
+            padding: '32px', // No vertical padding on outer box
+            boxShadow: theme.shadows[5],
+            minHeight:'450px',
+            }}>
             {/* Session Type */}
             <CustomSelectField
               label="Session Type"
@@ -168,12 +185,10 @@ export default function CreateGymSession({
               required
               fullWidth
               size="small"
-            />
-
-            {/* Trainer Name (Optional) */}
+              />
             <CustomTextField
               label="Trainer Name (Optional)"
-              fieldType="text"
+              fieldType="name"
               name="trainer"
               value={formik.values.trainer}
               onChange={formik.handleChange}
@@ -189,7 +204,7 @@ export default function CreateGymSession({
               fullWidth
             />
 
-            {/* Start Date and Time */}
+          {/* Start Date and Time */}
             <DateTimePicker
               id="startDateTime"
               label="Start Date & Time"
@@ -209,6 +224,26 @@ export default function CreateGymSession({
               minDate={new Date()}
               containerType="inwards"
               touched={formik.touched.startDateTime}
+              labelColor={theme.palette.tertiary.main}
+            />
+
+            {/* Trainer Name (Optional) */}
+            <CustomTextField
+              label="Trainer Name (Optional)"
+              fieldType="text"
+              name="trainer"
+              value={formik.values.trainer}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
+              helperText={
+                formik.touched.trainer
+                  ? formik.errors.trainer
+                  : "Leave empty if trainer is not assigned yet"
+              }
+              placeholder="Enter trainer name"
+              neumorphicBox
+              fullWidth
             />
 
             {/* Duration */}
@@ -279,6 +314,8 @@ export default function CreateGymSession({
                 inputMode: "numeric",
               }}
             />
+
+          </Box>
           </Box>
 
           {/* Action Buttons */}
@@ -314,7 +351,6 @@ export default function CreateGymSession({
               }}
             />
           </Box>
-        </Box>
       </form>
     </CustomModalLayout>
   );

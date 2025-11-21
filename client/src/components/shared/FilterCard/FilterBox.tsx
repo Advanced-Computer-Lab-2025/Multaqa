@@ -15,7 +15,10 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
             case 'chip':
                 return renderChipGroup(group, currentFilters, onFilterChange);
             case 'text':
+                return renderInputOrSelect(group, currentFilters, onFilterChange);
             case 'select':
+                return renderInputOrSelect(group, currentFilters, onFilterChange);
+            case 'date':
                 return renderInputOrSelect(group, currentFilters, onFilterChange);
             default:
                 return <Typography color="error" variant="body2">Unsupported filter type: {group.type}</Typography>;
@@ -74,8 +77,8 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
                 ))}
             </Box>
             {/* Action Buttons */}
-            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'center', alignItems: 'center', gap:4 }}>
-                <CustomButton size="small" variant="contained" color="secondary" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px" }} onClick={() => {
+            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${theme.palette.divider}`, display: 'flex', justifyContent: 'end', alignItems: 'center', gap:4 }}>
+                <CustomButton size="small" variant="contained" color="tertiary" sx={{px: 1.5, fontWeight: 600, width:"w-fit", height:"28px", padding:"10px"}} onClick={() => {
                     if (onReset) {
                         onReset();
                         return;
@@ -94,6 +97,8 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
                             case 'range':
                                 onFilterChange(group.id, [group.min ?? 0, group.max ?? 100]);
                                 break;
+                            case 'date':
+
                             default:
                                 onFilterChange(group.id, null);
                         }
@@ -101,9 +106,9 @@ const FilterBox: React.FC<FilterBoxProps> = ({ filterGroups, onFilterChange, cur
                 }}>
                     Reset Filters
                 </CustomButton>
-               <CustomButton size="small" variant="contained" sx={{px: 1.5, width:"w-fit", height:"28px" ,fontWeight: 600, padding:"10px" }}>
+               {/* <CustomButton size="small" variant="contained" color="tertiary" sx={{px: 1.5, width:"w-fit", height:"28px" ,fontWeight: 600, padding:"10px" }}>
                     Apply Filters
-                </CustomButton>
+                </CustomButton> */}
             </Box>
         </FilterCardWrapper>
     );

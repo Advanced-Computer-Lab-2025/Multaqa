@@ -665,7 +665,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         return renderGeneral();
       case "details":
         return (
-          <EventTypeDetails type={eventType} details={details} color={color} />
+          <EventTypeDetails type={eventType} details={details} color={color} eventId={eventId} userRole={user}/>
         );
       case "reviews":
         return renderReviews();

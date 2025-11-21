@@ -6,6 +6,7 @@ import { BoothFormValues } from "../types";
 import type { UploadStatus } from "../../FileUpload/types";
 import { ErrorResponse } from "../../../../../../backend/interfaces/errors/errorResponse.interface";
 import { IFileInfo } from "../../../../../../backend/interfaces/fileData.interface";
+import { capitalizeName } from "../../input-fields/utils";
 
 export const validationSchema = Yup.object({
   boothAttendees: Yup.array()
@@ -43,7 +44,11 @@ export const submitBoothForm = async (
         index: number
       ) => ({
         ...attendee,
-        nationalId: attendeeIdStatuses[index] === "success" ? attendee.nationalId : null,
+        name: capitalizeName(String(attendee.name ?? ""), false),
+        nationalId:
+          attendeeIdStatuses[index] === "success"
+            ? attendee.nationalId
+            : null,
       })
     );
 
@@ -214,31 +219,31 @@ export const handleAccordionChange =
     panel: string,
     formik?: FormikProps<BoothFormValues>
   ) =>
-  (event: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpandedAccordions((prev) => {
-      const newSet = new Set(prev);
-      if (isExpanded) {
-        newSet.add(panel);
-        // When user opens a new accordion, close completed ones
-        if (formik) {
-          setTimeout(
-            () =>
-              autoCloseCompletedAccordions(
-                formik,
-                panel,
-                setExpandedAccordions
-              ),
-            0
-          );
+    (event: React.SyntheticEvent, isExpanded: boolean) => {
+      setExpandedAccordions((prev) => {
+        const newSet = new Set(prev);
+        if (isExpanded) {
+          newSet.add(panel);
+          // When user opens a new accordion, close completed ones
+          if (formik) {
+            setTimeout(
+              () =>
+                autoCloseCompletedAccordions(
+                  formik,
+                  panel,
+                  setExpandedAccordions
+                ),
+              0
+            );
+          }
+        } else {
+          newSet.delete(panel);
         }
-      } else {
-        newSet.delete(panel);
-      }
-      return newSet;
-    });
-    // Mark that user has manually interacted - disable auto-expansion
-    lastErrorStateRef.current = "USER_CONTROLLED";
-  };
+        return newSet;
+      });
+      // Mark that user has manually interacted - disable auto-expansion
+      lastErrorStateRef.current = "USER_CONTROLLED";
+    };
 
 export const checkAndExpandAccordionWithErrors = (
   formik: FormikProps<BoothFormValues>,

@@ -16,6 +16,7 @@ import {
   createBlurHandler,
   capitalizeName,
   getEmailDomain,
+  NAME_FORMATTING_NOTE,
 } from "./utils";
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
@@ -26,7 +27,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   stakeholderType = "staff",
   neumorphicBox = false,
   disableDynamicMorphing = true,
-  autoCapitalizeName = true,
+  autoCapitalizeName: autoCapitalizeNameProp = true,
   separateLabels = false,
   disableIcon = false,
   value,
@@ -36,6 +37,9 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [emailUsername, setEmailUsername] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+
+  const isNameField = fieldType === "name";
+  const autoCapitalizeName = isNameField ? false : autoCapitalizeNameProp;
 
   // Sync/normalize email value when stakeholderType or external value changes.
   // This prevents the domain from being accidentally merged into the editable value
@@ -164,6 +168,64 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     autoCapitalizeName
   );
 
+  const isErrorState = Boolean(props.error || props.isError);
+
+  const helperTextValue = props.helperText;
+  const hasHelperTextContent =
+    helperTextValue !== undefined &&
+    helperTextValue !== null &&
+    !(
+      typeof helperTextValue === "string" &&
+      helperTextValue.trim().length === 0
+    );
+
+  const shouldRenderNameNote = isNameField;
+
+  const helperTextForStandard =
+    (hasHelperTextContent || shouldRenderNameNote)
+      ? (
+          <>
+            {hasHelperTextContent && (
+              <span
+                style={{
+                  display: "block",
+                  color: isErrorState ? "#d32f2f" : "#6b7280",
+                }}
+              >
+                {helperTextValue}
+              </span>
+            )}
+            {shouldRenderNameNote && (
+              <span
+                style={{
+                  display: "block",
+                  color: "#6b7280",
+                  marginTop: hasHelperTextContent ? 4 : 0,
+                }}
+              >
+                {NAME_FORMATTING_NOTE}
+              </span>
+            )}
+          </>
+        )
+      : undefined;
+
+  const mergedInputProps = {
+    ...(props.inputProps || {}),
+    ...(fieldType === "numeric" && {
+      inputMode: "numeric" as const,
+    }),
+    ...(fieldType === "numeric-float" && {
+      inputMode: "decimal" as const,
+    }),
+    ...(fieldType === "phone" && { inputMode: "tel" as const }),
+  } as React.InputHTMLAttributes<HTMLInputElement> &
+    Record<string, unknown>;
+
+  if (isNameField) {
+    mergedInputProps.autoCapitalize = "off";
+  }
+
   // Get the display value for email fields
   const getDisplayValue = () => {
     return getEmailDisplayValue(
@@ -208,6 +270,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           stakeholderType={stakeholderType}
           separateLabels={separateLabels}
           disableIcon={disableIcon}
+          error={isErrorState}
         />
       ) : (
         <>
@@ -244,27 +307,20 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   onBlur={handleBlur}
                   // Don't show helperText inside the box
                   helperText=""
+                  error={isErrorState}
                   InputProps={{
                     endAdornment: getEndAdornment(),
                     ...InputProps,
                   }}
                   // Add inputMode attributes for better mobile keyboard support
-                  inputProps={{
-                    ...(fieldType === "numeric" && {
-                      inputMode: "numeric" as const,
-                    }),
-                    ...(fieldType === "numeric-float" && {
-                      inputMode: "decimal" as const,
-                    }),
-                    ...(fieldType === "phone" && { inputMode: "tel" as const }),
-                  }}
+                  inputProps={mergedInputProps}
                 />
               </NeumorphicBox>
               {/* Render error/helperText outside the neumorphic box */}
-              {props.error && props.helperText && (
-                <p
+              {hasHelperTextContent && (
+                <div
                   style={{
-                    color: "#d32f2f",
+                    color: isErrorState ? "#d32f2f" : "#6b7280",
                     fontSize: "0.75rem",
                     marginTop: "3px",
                     marginLeft: "14px",
@@ -273,8 +329,23 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                     lineHeight: 1.66,
                   }}
                 >
-                  {props.helperText}
-                </p>
+                  {helperTextValue}
+                </div>
+              )}
+              {shouldRenderNameNote && (
+                <div
+                  style={{
+                    color: "#6b7280",
+                    fontSize: "0.75rem",
+                    marginTop: hasHelperTextContent ? "2px" : "3px",
+                    marginLeft: "14px",
+                    marginRight: "14px",
+                    fontWeight: 400,
+                    lineHeight: 1.66,
+                  }}
+                >
+                  {NAME_FORMATTING_NOTE}
+                </div>
               )}
             </div>
           ) : (
@@ -293,20 +364,14 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
               onKeyPress={handleKeyPress}
               onFocus={handleFocus}
               onBlur={handleBlur}
+              helperText={helperTextForStandard}
+              error={isErrorState}
               InputProps={{
                 endAdornment: getEndAdornment(),
                 ...InputProps,
               }}
               // Add inputMode attributes for better mobile keyboard support
-              inputProps={{
-                ...(fieldType === "numeric" && {
-                  inputMode: "numeric" as const,
-                }),
-                ...(fieldType === "numeric-float" && {
-                  inputMode: "decimal" as const,
-                }),
-                ...(fieldType === "phone" && { inputMode: "tel" as const }),
-              }}
+              inputProps={mergedInputProps}
             />
           )}
         </>

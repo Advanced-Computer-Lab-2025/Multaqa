@@ -15,7 +15,9 @@ import { sendCommentDeletionWarningEmail } from "./emailService";
 import { UserService } from "./userService";
 import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
-import { bool } from "joi";
+import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
+import ExcelJS from "exceljs";
+import { VendorEventsService } from "./vendorEventsService";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -402,6 +404,11 @@ export class EventsService {
     console.log(userId);
     event.attendees?.push(userId);
     await event.save();
+
+    // Add event to user's registered events
+    const eventObjectId = event._id as mongoose.Schema.Types.ObjectId;
+    await this.userService.addEventToUser(userId, eventObjectId);
+
     return event;
   }
 
@@ -590,4 +597,107 @@ export class EventsService {
 
     return event.reviews;
   }
+
+  async exportEventUsersToXLXS(eventId: string): Promise<Buffer> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [
+        { path: "attendees", select: "firstName lastName " },
+        { path: "vendors.vendor", select: "companyName" }
+      ] as any[],
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if(event.type=== EVENT_TYPES.CONFERENCE  || event.type === EVENT_TYPES.GYM_SESSION ) {
+      throw createError(400, "Exporting attendees is not supported for this event type");
+    }
+
+    const workbook = new ExcelJS.Workbook();
+
+    const applyHeaderStyle = (cell: ExcelJS.Cell) => {
+        cell.font = { bold: true, size: 12, name: 'Calibri' };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FF000000' } } };
+    };
+
+    const applyVendorHeaderStyle = (cell: ExcelJS.Cell) => {
+        cell.font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FF0000FF' } }; // Blue text
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFCCCCFF' } }; // Light Blue fill
+    };
+
+   
+   if(event.type === EVENT_TYPES.PLATFORM_BOOTH ) {
+      const boothAttendees=event.RequestData.boothAttendees as IBoothAttendee[];
+      const attendees = boothAttendees.map(attendee => ({
+        Name: attendee.name,
+      }))
+      const worksheet = workbook.addWorksheet('Platform Booth Attendees');
+     
+      worksheet.columns = [
+        { header: 'Booth Attendee Name', key: 'name', width: 30 }, 
+      ];
+      const headerRow = worksheet.getRow(1);
+      applyHeaderStyle(headerRow.getCell(1));
+      
+      attendees.forEach(attendee => {
+       worksheet.addRow({ name: attendee.Name });
+      });
+       
+      }
+      else if(event.type === EVENT_TYPES.BAZAAR ) {
+        if (!event.vendors || event.vendors.length === 0) {
+        throw createError(404, "No vendors to export for this bazaar");
+      }
+      // Create worksheet for bazaar booth attendees
+      const worksheet = workbook.addWorksheet('Bazaar Booth Attendees');
+      worksheet.columns = [
+        { header: 'Vendor/Booth Attendee Name', key: 'Name', width: 40 }
+      ];
+      // Apply header style
+      const headerCell = worksheet.getRow(1).getCell(1);
+      headerCell.value = 'Vendor/Attendee Name';
+      applyHeaderStyle(headerCell);
+
+      // Populate rows with vendors and their attendees
+     event.vendors.forEach((vendorEntry: any) => {
+        const vendorName = vendorEntry.vendor?.companyName || 'Unknown Vendor';
+        
+        const vendorRow = worksheet.addRow({ Name: `VENDOR: ${vendorName}` });
+        applyVendorHeaderStyle(vendorRow.getCell(1));
+
+        const bazaarAttendees = vendorEntry.RequestData?.bazaarAttendees || [];
+        const attendees = bazaarAttendees.map((attendee: IBoothAttendee) => ({
+            name: attendee.name,
+        }));
+        attendees.forEach((attendee: IBoothAttendee) => {
+           worksheet.addRow({ Name: `  - ${attendee.name}` }); 
+        });
+
+        // Add an empty row for visual separation after the vendor group
+        worksheet.addRow([]);
+      });
+      }
+       else {
+     const attendees = event.attendees as any[];
+    const plainAttendees = attendees.map(attendee => attendee.toObject());
+    const worksheet = workbook.addWorksheet('Attendees');
+    worksheet.columns = [
+      { header: 'First Name', key: 'firstName', width: 20 },
+      { header: 'Last Name', key: 'lastName', width: 20 }
+    ];
+    const headerRow = worksheet.getRow(1);
+      headerRow.eachCell(cell => applyHeaderStyle(cell));
+
+      plainAttendees.forEach(attendee => {
+          worksheet.addRow({
+          firstName: attendee.firstName,
+          lastName: attendee.lastName,
+        });
+        
+      });
+    }
+        return await workbook.xlsx.writeBuffer() as any;
+      }
 }
