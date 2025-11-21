@@ -10,17 +10,19 @@ import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { sendCertificateOfAttendanceEmail } from "./emailService";
 import { CertificateService } from "./certificateService";
-import eventBus from "../utils/eventBus";
-import { StaffPosition } from "../constants/staffMember.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { NotificationService } from "./notificationService";
+import { INotification } from "../interfaces/models/notification.interface";
 
 export class WorkshopService {
   private staffRepo: GenericRepository<IStaffMember>;
   private workshopRepo: GenericRepository<IWorkshop>;
+  private notificationService: NotificationService;
 
   constructor() {
     this.staffRepo = new GenericRepository(StaffMember);
     this.workshopRepo = new GenericRepository(Workshop);
+    this.notificationService = new NotificationService();
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
@@ -41,13 +43,14 @@ export class WorkshopService {
     await professor.save();
     console.log(createdEvent);
 
-    eventBus.emit("notification:workshop:requestSubmitted", {
+    await this.notificationService.sendNotification({
       role: [ UserRole.ADMINISTRATION ],
       adminRole: [ AdministrationRoleType.EVENTS_OFFICE ],
+      type: "WORKSHOP_REQUEST_SUBMITTED",
       title: "New Workshop Request Submitted",
       message: `Professor ${professor.firstName} ${professor.lastName} has submitted a new workshop request titled "${createdEvent.eventName}".`,
       createdAt: new Date(),
-    });
+    } as INotification);
 
     return createdEvent;
   }
@@ -135,12 +138,13 @@ export class WorkshopService {
 
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
 
-    eventBus.emit("notification:workshop:statusChanged", {
-      user: professorId, // Notify the professor
+    await this.notificationService.sendNotification({
+      userId: professorId, // Notify the professor
+      type: "WORKSHOP_STATUS_CHANGED",
       title: "Workshop Request Status Updated",
       message: `Your workshop request titled "${workshop.eventName}" has been updated to status: ${finalStatus}.`,
       createdAt: new Date(),
-    });
+    } as INotification);
 
     return updatedWorkshop;
   }

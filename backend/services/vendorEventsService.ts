@@ -13,18 +13,19 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { sendApplicationStatusEmail } from "./emailService";
-import eventBus from "../utils/eventBus";
-import { admin } from "googleapis/build/src/apis/admin";
-import { AdministrationRoleType } from "../constants/administration.constants";
+import { INotification } from "../interfaces/models/notification.interface";
+import { NotificationService } from "./notificationService";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
+  private notificationService: NotificationService; 
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
+    this.notificationService = new NotificationService();
   }
 
   /**
@@ -97,13 +98,13 @@ export class VendorEventsService {
 
     await vendor.save();
 
-    eventBus.emit("notification:vendor:pendingRequest", {
-      role: [ UserRole.ADMINISTRATION ],
-      adminRole: [ AdministrationRoleType.EVENTS_OFFICE ],
+    await this.notificationService.sendNotification({
+      role: [ UserRole.ADMINISTRATION ], // Notify EventsOffice/Admin
+      type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for a platform booth event.`,
       createdAt: new Date(),
-    });
+    } as INotification);
     
     return {
       vendor,
@@ -162,12 +163,14 @@ export class VendorEventsService {
     await event.save();
     await vendor.save();
 
-    eventBus.emit("notification:vendor:pendingRequest", {
-      user: "EventsOffice", // Notify EventsOffice/Admin
+    await this.notificationService.sendNotification({
+      role: [ UserRole.ADMINISTRATION ], // Notify EventsOffice/Admin
+      type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for the bazaar event "${event.eventName}".`,
-      createdAt: new Date(),
-    });
+      createdAt: new Date()
+    } as INotification);
+
     return {
       vendor,
       event,

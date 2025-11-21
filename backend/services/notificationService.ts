@@ -10,40 +10,48 @@ export class NotificationService {
     this.notificationRepo = new GenericRepository(Notification);
   }
 
-  async sendNotification(userId: string, type: string, message: string): Promise<INotification> {
+  async sendNotification(notificationData: INotification): Promise<INotification> {
     // 1. Save to MongoDB to persist the notification and send it when user is online again
     const notification = await this.notificationRepo.create({
-      userId: userId,
-      type,
-      message,
+      userId: notificationData.userId,
+      type: notificationData.type,
+      message: notificationData.message,
       read: false,
       createdAt: new Date(),
     });
 
     // 2. Emit the event based on type if user is online
-    switch (type) {
-      case "WORKSHOP_REMINDER":
-        eventBus.emit("notification:workshop:reminder", notification);
+    switch (notificationData.type) {
+      case "WORKSHOP_REQUEST_SUBMITTED":
+        eventBus.emit("notification:workshop:requestSubmitted", notification);
         break;
-      case "NEW_MESSAGE":
-        eventBus.emit("notification:message", notification);
+      case "WORKSHOP_STATUS_CHANGED":
+        eventBus.emit("notification:workshop:statusChanged", notification);
         break;
-      case "SYSTEM_ALERT":
-        eventBus.emit("notification:system:alert", notification);
+      case "EVENT_NEW":
+        eventBus.emit("notification:event:new", notification);
         break;
-      case "FRIEND_REQUEST":
-        eventBus.emit("notification:friend:request", notification);
+      case "EVENT_REMINDER":
+        eventBus.emit("notification:event:reminder", notification);
         break;
-      case "FRIEND_ACCEPT":
-        eventBus.emit("notification:friend:accept", notification);
+      case "LOYALTY_NEW_PARTNER":
+        eventBus.emit("notification:loyalty:newPartner", notification);
         break;
-      case "ACHIEVEMENT":
-        eventBus.emit("notification:achievement", notification);
+      case "VENDOR_PENDING_REQUEST":
+        eventBus.emit("notification:vendor:pendingRequest", notification);
         break;
-      case "PROMOTION":
-        eventBus.emit("notification:promotion", notification);
+      case "NOTIFICATION_READ":
+        eventBus.emit("notification:read", notification);
+        break;
+      case "NOTIFICATION_DELETE":
+        eventBus.emit("notification:delete", notification);
+        break;
+      case "NOTIFICATION_UPDATE":
+        eventBus.emit("notification:update", notification);
         break;
       default:
+        console.warn(`No event bus handler for notification type: ${notificationData.type}`);
+        // Fallback for new generic notifications
         eventBus.emit("notification:new", notification);
     }
 
@@ -56,7 +64,7 @@ export class NotificationService {
       { read: true },
       { new: true }
     );
-    eventBus.emit("notification:read", notif); 
+    eventBus.emit("notification:read", notif);
     return notif;
   }
 

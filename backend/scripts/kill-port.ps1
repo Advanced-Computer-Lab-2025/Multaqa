@@ -2,7 +2,7 @@
 $port = $env:PORT
 if (-not $port) {
     # Default port if PORT env var not set
-    $port = 3000
+    $port = 4000
 }
 
 Write-Host "Checking for processes on port $port..." -ForegroundColor Yellow

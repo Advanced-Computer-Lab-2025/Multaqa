@@ -15,10 +15,11 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
-import eventBus from "../utils/eventBus";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { NotificationService } from "./notificationService";
+import { INotification } from "../interfaces/models/notification.interface";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -30,12 +31,14 @@ export class EventsService {
   private conferenceRepo: GenericRepository<IConference>;
   private stripe?: Stripe;
   private userService: UserService;
-
+  private notificationService: NotificationService;
+  
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
     this.conferenceRepo = new GenericRepository(Conference);
     this.userService = new UserService();
+    this.notificationService = new NotificationService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -227,16 +230,17 @@ export class EventsService {
         createdEvent = await this.eventRepo.create(mappedData);
       }
 
-      await this.ensureStripeProductForPricedEvent(createdEvent);
+      await this.ensureStripeProductForPricedEvent(createdEvent)
 
-      eventBus.emit("notification:event:new", {
+      await this.notificationService.sendNotification({
         role: [ UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.STAFF_MEMBER ],
-        StaffPosition: [ StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
+        staffPosition: [ StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
         adminRole: [ AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN ],
+        type: "EVENT_NEW",
         title: "New Event Added",
         message: `A new event titled "${createdEvent.eventName}" has been added. Check it out!`,
         createdAt: new Date(),
-      });
+      } as INotification);
 
       return createdEvent;
     } catch (err) {
