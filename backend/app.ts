@@ -47,6 +47,7 @@ import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import { WorkshopScheduler } from "./services/workshopSchedulerService";
 import { NotificationService } from "./services/notificationService";
+import { EventScheduler } from "./services/eventSchedulerService";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -112,8 +113,12 @@ async function startServer() {
     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
     // Start workshop scheduler
-    const scheduler = new WorkshopScheduler();
-    scheduler.start();
+    const workshopScheduler = new WorkshopScheduler();
+    workshopScheduler.start();
+
+    // Start event scheduler
+    const eventScheduler = new EventScheduler();
+    eventScheduler.start();
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);

@@ -2,7 +2,10 @@ import mongoose, { Schema } from "mongoose";
 import { INotification } from "../../interfaces/models/notification.interface";
 
 const NotificationSchema = new Schema<INotification>({
-  userId: { type: String, required: true },
+  userId: { type: String, required: false },
+  role: [{ type: String }],
+  adminRole: [{ type: String }],
+  staffPosition: [{ type: String }],
   type: { type: String, required: true },
   title: { type: String, required: true },
   message: { type: String, required: true },

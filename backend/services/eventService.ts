@@ -20,6 +20,8 @@ import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
 import { INotification } from "../interfaces/models/notification.interface";
+import cron from "node-cron";
+
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -687,5 +689,58 @@ export class EventsService {
       });
     }
     return await workbook.xlsx.writeBuffer() as any;
+  }
+
+  private async getEventsBetween(startDate: Date, endDate: Date) {
+    return await this.getEvents(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      startDate.toISOString(),
+      endDate.toISOString()
+    );
+  }
+
+  async checkUpcomingEvents() {
+    const now = new Date();
+    const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+    // Get events happening in 1 day (±30 minutes window)
+    const oneDayEvents = await this.getEventsBetween(
+      new Date(oneDayLater.getTime() - 30 * 60 * 1000),
+      new Date(oneDayLater.getTime() + 30 * 60 * 1000)
+    );
+
+    // Get events happening in 1 hour (±5 minutes window)
+    const oneHourEvents = await this.getEventsBetween(
+      new Date(oneHourLater.getTime() - 5 * 60 * 1000),
+      new Date(oneHourLater.getTime() + 5 * 60 * 1000)
+    );
+
+    // Send 1-day reminders
+    for (const event of oneDayEvents) {
+      await this.sendReminderToAttendees(event, "1 day");
+    }
+
+    // Send 1-hour reminders
+    for (const event of oneHourEvents) {
+      await this.sendReminderToAttendees(event, "1 hour");
+    }
+  }
+
+  private async sendReminderToAttendees(event: any, timeframe: string) {
+    const attendees = event.attendees || [];
+
+    for (const userId of attendees) {
+      await this.notificationService.sendNotification({
+        userId,
+        type: "EVENT_REMINDER",
+        title: `Event Reminder: ${event.title}`,
+        message: `The event "${event.title}" starts in ${timeframe}`,
+        createdAt: new Date(),
+      } as INotification);
+    }
   }
 }
