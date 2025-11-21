@@ -5,16 +5,17 @@ import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserService } from "../services/userService";
+import { INotification } from "../interfaces/models/notification.interface";
 
 // Helper function to send a socket notification
-function sendSocketNotification(notification: any) {
+function sendSocketNotification(typeNotification: string, notification: INotification) {
   if (!notification.userId && !notification.role && !notification.adminRole && !notification.staffPosition) {
     return;
   }
 
   if (notification.userId) {
     const sockets = OnlineUsersService.getUserSockets(notification.userId);
-    sockets.forEach((socketId) => io.to(socketId).emit("notification:new", notification));
+    sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
     return;
   }
 
@@ -105,7 +106,7 @@ function sendSocketNotification(notification: any) {
   
   usersToNotify.forEach((userId) => {
     const sockets = OnlineUsersService.getUserSockets(userId);
-    sockets.forEach((socketId) => io.to(socketId).emit("notification:new", notification));
+    sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
   });
   return;
 }
@@ -118,12 +119,12 @@ function sendSocketNotification(notification: any) {
 
 // When professors submit workshop requests -> notify EventsOffice
 eventBus.on("notification:workshop:requestSubmitted", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:workshop:requestSubmitted", notification);
 });
 
 // When a professor's workshop is accepted/rejected -> notify professor
 eventBus.on("notification:workshop:statusChanged", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:workshop:statusChanged", notification);
 });
 
 /**
@@ -134,12 +135,12 @@ eventBus.on("notification:workshop:statusChanged", (notification) => {
 
 // New events added -> notify everyone
 eventBus.on("notification:event:new", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:event:new", notification);
 });
 
 // Event reminders 1 day and 1 hour before -> notify attendees
 eventBus.on("notification:event:reminder", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:event:reminder", notification);
 });
 
 /**
@@ -148,7 +149,7 @@ eventBus.on("notification:event:reminder", (notification) => {
  * -------------------------------
  */
 eventBus.on("notification:loyalty:newPartner", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:loyalty:newPartner", notification);
 });
 
 /**
@@ -159,7 +160,7 @@ eventBus.on("notification:loyalty:newPartner", (notification) => {
 
 // Pending vendor requests -> notify EventsOffice/Admin
 eventBus.on("notification:vendor:pendingRequest", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:vendor:pendingRequest", notification);
 });
 
 
@@ -171,20 +172,20 @@ eventBus.on("notification:vendor:pendingRequest", (notification) => {
 
 // Mark notification as read
 eventBus.on("notification:read", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:read", notification);
 });
 
 // Delete notification
 eventBus.on("notification:delete", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:delete", notification);
 });
 
 // Update notification
 eventBus.on("notification:update", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:update", notification);
 });
 
 // Fallback for new generic notifications
 eventBus.on("notification:new", (notification) => {
-  sendSocketNotification(notification);
+  sendSocketNotification("notification:new", notification);
 });
