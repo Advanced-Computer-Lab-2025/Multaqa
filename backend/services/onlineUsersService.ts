@@ -1,7 +1,7 @@
 const onlineUsers: Record<string, string[]> = {};
 
 export class OnlineUsersService {
-  
+
   static getUserSockets(userId: string) {
     return onlineUsers[userId] || [];
   }

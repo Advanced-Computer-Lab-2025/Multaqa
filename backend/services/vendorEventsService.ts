@@ -19,7 +19,7 @@ import { NotificationService } from "./notificationService";
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
-  private notificationService: NotificationService; 
+  private notificationService: NotificationService;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
@@ -99,13 +99,13 @@ export class VendorEventsService {
     await vendor.save();
 
     await this.notificationService.sendNotification({
-      role: [ UserRole.ADMINISTRATION ], // Notify EventsOffice/Admin
+      role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
       type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for a platform booth event.`,
       createdAt: new Date(),
     } as INotification);
-    
+
     return {
       vendor,
       event,
@@ -164,7 +164,7 @@ export class VendorEventsService {
     await vendor.save();
 
     await this.notificationService.sendNotification({
-      role: [ UserRole.ADMINISTRATION ], // Notify EventsOffice/Admin
+      role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
       type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for the bazaar event "${event.eventName}".`,

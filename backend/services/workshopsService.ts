@@ -44,8 +44,8 @@ export class WorkshopService {
     console.log(createdEvent);
 
     await this.notificationService.sendNotification({
-      role: [ UserRole.ADMINISTRATION ],
-      adminRole: [ AdministrationRoleType.EVENTS_OFFICE ],
+      role: [UserRole.ADMINISTRATION],
+      adminRole: [AdministrationRoleType.EVENTS_OFFICE],
       type: "WORKSHOP_REQUEST_SUBMITTED",
       title: "New Workshop Request Submitted",
       message: `Professor ${professor.firstName} ${professor.lastName} has submitted a new workshop request titled "${createdEvent.eventName}".`,
