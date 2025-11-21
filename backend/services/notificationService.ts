@@ -58,7 +58,7 @@ export class NotificationService {
     return notification;
   }
 
-  async markAsRead(notificationId: string) {
+  static async markAsRead(notificationId: string) {
     const notif = await Notification.findByIdAndUpdate(
       notificationId,
       { read: true },

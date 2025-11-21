@@ -46,6 +46,7 @@ import "./config/cloudinary";
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import { WorkshopScheduler } from "./services/workshopSchedulerService";
+import { NotificationService } from "./services/notificationService";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -98,6 +99,9 @@ async function startServer() {
     io.on("connection", (socket) => {
       const userId = socket.data.userId;
       OnlineUsersService.addSocket(userId, socket.id);
+
+      // Listen for read notification event
+      socket.on("notification:read", NotificationService.markAsRead);
 
       socket.on("disconnect", () => {
         OnlineUsersService.removeSocket(userId, socket.id);
