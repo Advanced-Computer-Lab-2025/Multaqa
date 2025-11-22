@@ -77,11 +77,6 @@ type Event =
 
 const getFilterGroups = (userRole: string): FilterGroup[] => [
   {
-    id: "eventName",
-    title: "Event Name",
-    type: "text",
-  },
-  {
     id: "professorName",
     title: "Professor Name",
     type: "text",
@@ -97,6 +92,15 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
       { label: "Booth", value: EventType.BOOTH },
       { label: "Trip", value: EventType.TRIP },
     ],
+  },
+    {
+    id: "eventStatus",
+    title: "Event Status",
+    type: "chip",
+    options: [
+      {label:"Archived", value:"archived"},
+      {label:"Upcoming", value: "upcoming"}
+    ]
   },
   ...(userRole !== "vendor"
     ? [
@@ -171,15 +175,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     }
   }, [registered, refresh]);
 
-  const getUserData = () => {
-    const user = {
-      id: userInfo._id,
-      name: `${userInfo.firstName} ${userInfo.lastName}`,
-      email: userInfo.email,
-    };
-    setUserInfo(user);
-    setReady(true);
-  };
   const handleRegistered = () => {
     setLoading(true);
     const registeredEvents = userInfo.registeredEvents;
@@ -366,7 +361,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       filters.attendance &&
       (filters.attendance as string[]).includes("attended")
     ) {
-      filtered = filtered.filter((event) => event.attended === true);
+      filtered = filtered.filter((event) => userInfo.attendedEvents.includes(event.id));
     }
     // Apply Date Filter
     const dateFilterValue = filters.date;
@@ -394,27 +389,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       return isNaN(parsedDate) ? 0 : parsedDate; // Fallback to 0 if parsing fails
     };
 
-    switch (sortBy) {
-      case "start_asc":
-        filtered.sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateA - dateB;
-        });
-        break;
+switch (sortBy) {
+      case "start_asc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateA - dateB;
+        });
 
-      case "start_desc":
-        filtered.sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateB - dateA;
-        });
-        break;
-      default:
-        break;
-    }
+      case "start_desc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateB - dateA;
+        });
+
+      case "none": // Explicitly handle "none" or "default"
+      default:
+        // Return the filtered array without sorting
+        return filtered;
+    }
 
     return filtered;
   }, [searchQuery, filters, events, sortBy]);

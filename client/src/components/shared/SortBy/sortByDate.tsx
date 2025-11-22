@@ -79,10 +79,18 @@ const SortByDate: React.FC<SortByDateProps> = ({ value, onChange }) => {
 
   const toggleDropdown = () => setIsOpen((prev) => !prev);
 
-  const handleSelect = (option: string) => {
-    onChange(option);
-    setIsOpen(false);
-  };
+const handleSelect = (optionValue: string) => {
+    // 1. Check if the clicked option is already the active one
+    if (value === optionValue) {
+      // 2. If it is active, reset to the default sort value ("none")
+      onChange("none");
+    } else {
+      // 3. Otherwise, apply the new sort value
+      onChange(optionValue);
+    }
+    // 4. Close the dropdown
+    setIsOpen(false);
+  };
 
   // close dropdown on outside click
   useEffect(() => {
