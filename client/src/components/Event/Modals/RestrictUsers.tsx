@@ -3,7 +3,7 @@ import {api} from "../../../api";
 import { CustomModalLayout } from "@/components/shared/modals";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
-import { Box, Typography, Checkbox, FormControlLabel } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -25,42 +25,57 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   setRefresh,
 }) => {
    const [loading, setLoading] = useState(false);
-   const [error, setError] = useState<string | null>(null);  
+   const [error, setError] = useState<string | null>(null);
+
    const handleCallApi = async (payload:any) => {
           setLoading(true);
           setError(null);
           try {
-          // TODO: Replace with your API route
           const res = await api.patch("/events/" + eventId, payload);
           if (setRefresh) setRefresh((p) => !p);
           } catch (err: any) {
           setError(err?.message || "API call failed");
-          window.alert(err.response.data.error);
+          window.alert(err?.response?.data?.error || err?.message);
           } finally {
           setLoading(false);
           }
    };
 
-
+  // new allowed users values and order
   const options = [
-    { label: "student", value: "student" },
-    { label: "professor", value: "professor" },
-    { label: "TA", value: "ta" },
     { label: "staff", value: "staff" },
+    { label: "TA", value: "TA" },
+    { label: "professor", value: "professor" },
+    { label: "student", value: "student" },
+    { label: "vendor", value: "vendor" },
+    { label: "administration", value: "administration" },
   ];
 
+  // start with ALL options allowed so checkboxes are NOT checked in the UI (flip logic)
   const formik = useFormik({
-    initialValues: { allowedUsers: [] as string[] },
-    validationSchema: Yup.object({
-      allowedUsers: Yup.array().min(1, "Select at least one user type"),
-    }),
-    onSubmit: (values) => {
+    initialValues: { allowedUsers: options.map(o => o.value) as string[] },
+    onSubmit: async (values) => {
+      // call API with the allowedUsers array (server expects allowedUsers)
+      // await handleCallApi({ allowedUsers: values.allowedUsers });
+      // optional alert and close as before
+      alert(JSON.stringify(values.allowedUsers) + eventType);
       onClose();
-      alert(JSON.stringify(values.allowedUsers));
     },
   });
 
-  const allChecked = formik.values.allowedUsers.length === options.length;
+  // Flip logic: CustomCheckboxGroup 'selected' will represent the items the user CHOSE TO REMOVE.
+  // So checked state passed to the checkbox group is the inverse of allowedUsers.
+  const checkedValuesForComponent = options
+    .filter(o => !formik.values.allowedUsers.includes(o.value))
+    .map(o => o.value);
+
+  const handleCheckboxChange = (selectedValues: string[]) => {
+    // selectedValues are the ones chosen by the user to REMOVE
+    const newAllowed = options
+      .map(o => o.value)
+      .filter(v => !selectedValues.includes(v));
+    formik.setFieldValue("allowedUsers", newAllowed);
+  };
 
   return (
     <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[45vw]'>
@@ -70,35 +85,18 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
       <Box sx={{ p: 3, width: { xs: "90vw", sm: 560 } }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 , borderBottom:"2px solid #E0E0E0", pb:1}}>
           <Typography variant="body1" sx={{ fontWeight: 600 , mr:2}}>
-            Select which users can view this event:
+            Select which user types to restrict from viewing this {eventType}:
           </Typography>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={allChecked}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    formik.setFieldValue("allowedUsers", options.map((o) => o.value));
-                  } else {
-                    formik.setFieldValue("allowedUsers", []);
-                  }
-                }}
-                size="small"
-              />
-            }
-            label="Check all"
-          />
+          {/* removed "Check all" control as requested */}
         </Box>
 
         <Box sx={{ mb: 2 }}>
-          {/* use key to keep CustomCheckboxGroup in sync with formik values */}
+          {/* CustomCheckboxGroup expects selected values; we pass the inverted checkedValuesForComponent */}
           <CustomCheckboxGroup
             key={formik.values.allowedUsers.join(",")}
             label=""
-            options={options.map((o) => ({ ...o, checked: formik.values.allowedUsers.includes(o.value) }))}
-            onChange={(newSelected: string[]) => formik.setFieldValue("allowedUsers", newSelected)}
-            helperText={formik.touched.allowedUsers && formik.errors.allowedUsers ? String(formik.errors.allowedUsers) : undefined}
-            error={Boolean(formik.touched.allowedUsers && formik.errors.allowedUsers)}
+            options={options.map((o) => ({ ...o, checked: checkedValuesForComponent.includes(o.value) }))}
+            onChange={(newSelected: string[]) => handleCheckboxChange(newSelected)}
           />
         </Box>
       </Box>
@@ -108,6 +106,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
           variant="contained"
           onClick={() => formik.handleSubmit()}
           sx={{ width: 160, height: 44 }}
+          disabled={loading}
         />
         <CustomButton
           label="Cancel"
