@@ -17,7 +17,8 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
-import { VendorEventsService } from "./vendorEventsService";
+import { IPlatformBoothRequestData } from "../interfaces/models/platformBooth.interface";
+import { VendorRequest } from "../interfaces/models/vendor.interface";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
