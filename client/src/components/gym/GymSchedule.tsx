@@ -160,10 +160,32 @@ export default function GymSchedule({ month, sessions }: Props) {
     year: "numeric",
   });
 
-  const goPrev = () =>
-    setCurrent((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-  const goNext = () =>
-    setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  // Calculate max allowed month (current month + 1 month ahead)
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonthIndex = today.getMonth();
+  const selectedYear = current.getFullYear();
+  const selectedMonthIndex = current.getMonth();
+
+  // Calculate month as a comparable number (year * 12 + month)
+  const currentMonthNum = currentYear * 12 + currentMonthIndex;
+  const selectedMonthNum = selectedYear * 12 + selectedMonthIndex;
+  const maxAllowedMonthNum = currentMonthNum + 1;
+
+  // Check if we can navigate (can go back to current month, can go forward to next month)
+  const canGoPrev = selectedMonthNum > currentMonthNum;
+  const canGoNext = selectedMonthNum < maxAllowedMonthNum;
+
+  const goPrev = () => {
+    if (canGoPrev) {
+      setCurrent((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    }
+  };
+  const goNext = () => {
+    if (canGoNext) {
+      setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+    }
+  };
 
   type FilterKey = GymSessionType | "ALL";
   const filterChips: Array<{ key: FilterKey; label: string }> = [
@@ -207,6 +229,88 @@ export default function GymSchedule({ month, sessions }: Props) {
         >
           Browse sessions by month and filter by type.
         </Typography>
+      </Box>
+
+      {/* Month Pagination */}
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          justifyContent: "flex-end",
+          alignSelf: "flex-end",
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          alignSelf="flex-end"
+        >
+          <CustomButton
+            variant="contained"
+            onClick={goPrev}
+            disabled={!canGoPrev}
+            width="42px"
+            height="42px"
+            aria-label="Previous month"
+            sx={{
+              minWidth: "42px",
+              width: 42,
+              height: 42,
+              borderRadius: "999px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#fff",
+              color: "#000",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              opacity: !canGoPrev ? 0.5 : 1,
+              cursor: !canGoPrev ? "not-allowed" : "pointer",
+              "&:hover": {
+                backgroundColor: !canGoPrev ? "#fff" : "#f5f5f5",
+              },
+            }}
+          >
+            <ArrowBackIosNewIcon fontSize="small" sx={{ color: "#000" }} />
+          </CustomButton>
+
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+          >
+            {monthLabel}
+          </Typography>
+
+          <CustomButton
+            variant="contained"
+            onClick={goNext}
+            disabled={!canGoNext}
+            width="42px"
+            height="42px"
+            aria-label="Next month"
+            sx={{
+              minWidth: "42px",
+              width: 42,
+              height: 42,
+              borderRadius: "999px",
+              padding: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#fff",
+              color: "#000",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              opacity: !canGoNext ? 0.5 : 1,
+              cursor: !canGoNext ? "not-allowed" : "pointer",
+              "&:hover": {
+                backgroundColor: !canGoNext ? "#fff" : "#f5f5f5",
+              },
+            }}
+          >
+            <ArrowForwardIosIcon fontSize="small" sx={{ color: "#000" }} />
+          </CustomButton>
+        </Stack>
       </Box>
 
       {/* Filters and Date Switcher */}
@@ -262,67 +366,6 @@ export default function GymSchedule({ month, sessions }: Props) {
               />
             );
           })}
-        </Stack>
-
-        <Stack direction="row" spacing={2} alignItems="center">
-          <CustomButton
-            variant="contained"
-            onClick={goPrev}
-            width="42px"
-            height="42px"
-            aria-label="Previous month"
-            sx={{
-              minWidth: "42px",
-              width: 42,
-              height: 42,
-              borderRadius: "999px",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              "&:hover": {
-                backgroundColor: "#f5f5f5",
-              },
-            }}
-          >
-            <ArrowBackIosNewIcon fontSize="small" sx={{ color: "#000" }} />
-          </CustomButton>
-
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: theme.palette.text.primary }}
-          >
-            {monthLabel}
-          </Typography>
-
-          <CustomButton
-            variant="contained"
-            onClick={goNext}
-            width="42px"
-            height="42px"
-            aria-label="Next month"
-            sx={{
-              minWidth: "42px",
-              width: 42,
-              height: 42,
-              borderRadius: "999px",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              "&:hover": {
-                backgroundColor: "#f5f5f5",
-              },
-            }}
-          >
-            <ArrowForwardIosIcon fontSize="small" sx={{ color: "#000" }} />
-          </CustomButton>
         </Stack>
       </Box>
 
