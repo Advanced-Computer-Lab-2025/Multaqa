@@ -5,10 +5,10 @@ import {
   Alert,
   Box,
   Chip,
-  CircularProgress,
   Divider,
   Stack,
   Typography,
+  Skeleton, 
 } from "@mui/material";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -319,10 +319,74 @@ export default function VendorParticipationRequests() {
 
   const content = () => {
     if (loading) {
+      // Render Skeletons to mimic the VendorRequestCard structure
       return (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-          <CircularProgress size={32} />
-        </Box>
+        <Stack spacing={3}>
+          {/* Mimic group title */}
+          <Box>
+            <Skeleton width={200} height={24} sx={{ mb: 1.5 }} />
+            <Stack spacing={2.5}>
+              {[1, 2, 3].map((i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid #e5e7eb",
+                    background: "#ffffff",
+                    p: { xs: 2, sm: 3 },
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2.5,
+                  }}
+                >
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5}>
+                    {/* Avatar Skeleton */}
+                    <Skeleton variant="circular" width={56} height={56} sx={{ flexShrink: 0 }} />
+                    
+                    <Stack spacing={1} flex={1} minWidth={0}>
+                       {/* Name and Chips Skeleton */}
+                      <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={1} alignItems={{ md: "center" }}>
+                         <Skeleton variant="text" width="40%" height={32} />
+                         <Stack direction="row" spacing={1}>
+                            <Skeleton variant="rounded" width={80} height={24} />
+                            <Skeleton variant="rounded" width={80} height={24} />
+                         </Stack>
+                      </Box>
+                      {/* Location/Date Skeleton */}
+                      <Stack direction="row" spacing={2}>
+                        <Skeleton variant="text" width={120} />
+                        <Skeleton variant="text" width={100} />
+                      </Stack>
+                    </Stack>
+
+                    {/* Right Side Action Skeleton */}
+                    <Stack spacing={1.5} alignItems={{ xs: "stretch", sm: "flex-end" }} justifyContent="space-between">
+                        <Box textAlign={{ xs: "left", sm: "right" }}>
+                           <Skeleton variant="text" width={60} sx={{ ml: { sm: "auto" } }} />
+                           <Skeleton variant="text" width={140} sx={{ ml: { sm: "auto" } }} />
+                        </Box>
+                        <Stack direction="row" spacing={1}>
+                           <Skeleton variant="rounded" width={90} height={36} />
+                           <Skeleton variant="rounded" width={90} height={36} />
+                        </Stack>
+                    </Stack>
+                  </Stack>
+
+                  <Divider />
+
+                  {/* Bottom Section Skeleton */}
+                  <Stack spacing={1.5}>
+                    <Skeleton variant="text" width={100} />
+                    <Stack spacing={0.75}>
+                         <Skeleton variant="text" width="80%" />
+                         <Skeleton variant="text" width="60%" />
+                    </Stack>
+                  </Stack>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        </Stack>
       );
     }
 
