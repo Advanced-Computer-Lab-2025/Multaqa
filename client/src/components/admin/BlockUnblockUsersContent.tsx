@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CustomButton from "../shared/Buttons/CustomButton";
-import StatusChip from "../layout/StatusChip";
+import StatusChip from "../shared/StatusChip";
 import SecurityIcon from "@mui/icons-material/Security";
 import ManagementScreen from "./shared/ManagementScreen";
 import ManagementCard from "../shared/containers/ManagementCard";

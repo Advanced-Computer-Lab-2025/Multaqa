@@ -10,7 +10,7 @@ import { capitalizeName } from "../shared/input-fields/utils";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModalLayout } from "../shared/modals";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
-import StatusChip from "../layout/StatusChip";
+import StatusChip from "../shared/StatusChip";
 import ManagementScreen from "./shared/ManagementScreen";
 import { User } from "./types";
 import { userCreationSchema, handleCreateUser, fetchAllUsers } from "./utils";
