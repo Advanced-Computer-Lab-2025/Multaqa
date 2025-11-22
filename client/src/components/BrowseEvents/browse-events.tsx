@@ -683,6 +683,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           <CreationHubDropdown
             options={creationHubOptions}
             helperText="Choose what you would like to create"
+            dropdownSide="left"
           />
         )}
       </Box>

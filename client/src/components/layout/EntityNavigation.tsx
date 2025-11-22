@@ -19,7 +19,7 @@ import {
   // CreditCard,
   QrCode,
   Award,
-  Wallet
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserRoleKey } from "@/types";
@@ -158,8 +158,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -191,8 +191,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -215,8 +215,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -224,13 +224,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
     defaultTab: "workshops",
-    defaultSection: "",
+    defaultSection: "my-workshops",
     tabs: [
       {
         key: "workshops",
         label: "My Workshops",
         icon: Calendar,
-        sections:[],
+        sections: [{ id: "my-workshops", label: "My Workshops" }],
       },
       {
         key: "events",
@@ -242,7 +242,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "favorites", label: "My Favorites" },
         ],
       },
-       {
+      {
         key: "gym",
         label: "Gym Sessions",
         icon: Dumbbell,
@@ -254,8 +254,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -471,28 +471,34 @@ export default function EntityNavigation({
   const tab = segments[1] || "";
   const section = segments[2] || "";
 
-    // Track last valid route in sessionStorage
-    useEffect(() => {
-      // Get current path segments
-      if (typeof window !== "undefined" && user) {
-        const path = window.location.pathname;
-        // Only store if route is valid (matches a tab/section for the user's role)
-        const roleKey = getUserRoleKey(user);
-        const config = roleNavigationConfig[roleKey];
-        if (config) {
-          const segments = path.split("/").filter(Boolean);
-          // Find tab and section in path
-          const tab = segments[2] || "";
-          const section = segments[3] || "";
-          const validTab = config.tabs.find(t => t.key === tab);
-          const validSection = validTab && validTab.sections ? validTab.sections.find(s => s.id === section) : null;
-          // If valid tab/section, store route
-          if (validTab && (validSection || !validTab.sections || validTab.sections.length === 0)) {
-            sessionStorage.setItem("lastValidRoute", path);
-          }
+  // Track last valid route in sessionStorage
+  useEffect(() => {
+    // Get current path segments
+    if (typeof window !== "undefined" && user) {
+      const path = window.location.pathname;
+      // Only store if route is valid (matches a tab/section for the user's role)
+      const roleKey = getUserRoleKey(user);
+      const config = roleNavigationConfig[roleKey];
+      if (config) {
+        const segments = path.split("/").filter(Boolean);
+        // Find tab and section in path
+        const tab = segments[2] || "";
+        const section = segments[3] || "";
+        const validTab = config.tabs.find((t) => t.key === tab);
+        const validSection =
+          validTab && validTab.sections
+            ? validTab.sections.find((s) => s.id === section)
+            : null;
+        // If valid tab/section, store route
+        if (
+          validTab &&
+          (validSection || !validTab.sections || validTab.sections.length === 0)
+        ) {
+          sessionStorage.setItem("lastValidRoute", path);
         }
       }
-    }, [user]);
+    }
+  }, [user]);
   // Get role key from backend user
   const userRoleKeyUnformated = getUserRoleKey(user);
   const userRoleKey = userRoleKeyUnformated.toLowerCase();
@@ -505,8 +511,11 @@ export default function EntityNavigation({
     // Fallback: if tab or section is not found, redirect to not-found page
     const tabExists = tab === "" || config.tabs.some((t) => t.key === tab);
     const sectionExists =
-      tab === "" || section === "" ||
-      (config.tabs.find((t) => t.key === tab)?.sections || []).some((s) => s.id === section);
+      tab === "" ||
+      section === "" ||
+      (config.tabs.find((t) => t.key === tab)?.sections || []).some(
+        (s) => s.id === section
+      );
 
     if (!tabExists || !sectionExists) {
       router.replace("/not-found");
@@ -516,9 +525,12 @@ export default function EntityNavigation({
     if (
       segments.length === 1 &&
       stakeholder === userRoleKey &&
-      config.defaultTab && config.defaultSection
+      config.defaultTab
     ) {
-      router.replace(`/${userRoleKey}/${config.defaultTab}/${config.defaultSection}`);
+      const sectionPath = config.defaultSection
+        ? `/${config.defaultSection}`
+        : "";
+      router.replace(`/${userRoleKey}/${config.defaultTab}${sectionPath}`);
     }
   }, [segments, stakeholder, userRoleKey, config, tab, section, router]);
 
@@ -582,8 +594,12 @@ export default function EntityNavigation({
   return (
     <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
-      <TopNavigation companyName="Multaqa" header={headerProps}  currentUser={userData}
-            userRole={userRoleKey as UserRoleKey} />
+      <TopNavigation
+        companyName="Multaqa"
+        header={headerProps}
+        currentUser={userData}
+        userRole={userRoleKey as UserRoleKey}
+      />
 
       {/* Tabs Section - main navigation tabs */}
       {/* {tabLabels.length > 0 && (
@@ -608,7 +624,7 @@ export default function EntityNavigation({
             sectionItems={tab ? sectionItems : []}
             onLogout={handleLogout}
             currentUser={userData}
-            userRole={userRoleKey as UserRoleKey} 
+            userRole={userRoleKey as UserRoleKey}
           />
         </div>
 
@@ -625,17 +641,17 @@ export default function EntityNavigation({
               maxHeight: "90vh",
             }}
           >
-          {tabLabels.length > 0 && (
-          <div className="bg-white border-b border-gray-300">
-           <div className="px-6">
-            <Tabs
-              tabs={tabLabels}
-              activeTab={activeTabIndex >= 0 ? activeTabIndex : 0}
-              onTabChange={handleTabChange}
-            />
-          </div>
-        </div>
-           )}
+            {tabLabels.length > 0 && (
+              <div className="bg-white border-b border-gray-300">
+                <div className="px-6">
+                  <Tabs
+                    tabs={tabLabels}
+                    activeTab={activeTabIndex >= 0 ? activeTabIndex : 0}
+                    onTabChange={handleTabChange}
+                  />
+                </div>
+              </div>
+            )}
             {children}
           </div>
         </div>

@@ -82,7 +82,6 @@ const getInitials = (user?: CurrentUser, role?: string): string => {
   return roleInitials[role || ""] || "?";
 };
 
-
 // Generic roles that use initials (name-based)
 const GENERIC_ROLES = ["events-office", "admin", "vendor", "company"];
 
@@ -104,27 +103,24 @@ const getDisplayName = (user?: CurrentUser, role?: string): string => {
     // For personal roles (student, staff, ta, professor), try firstName or fall back to name
     displayName = user.firstName || user.name || "User";
   }
-  
+
   // Apply capitalization to the first letter of the resulting display name
   return capitalizeFirstLetter(displayName);
 };
-
 
 export default function TopNavigation({
   companyName = "Multaqa",
   header,
   currentUser,
-  userRole
+  userRole,
 }: TopNavigationProps) {
   const displayName = getDisplayName(currentUser, userRole);
   const initials = getInitials(currentUser, userRole);
   const roleLabel = getRoleLabel(userRole);
   return (
-    <div 
-  className="bg-white border-b border-gray-300 w-full">
+    <div className="bg-white border-b border-gray-300 w-full">
       {/* Company/App Bar with Back Button */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 bg-gradient-to-r from-[#f9fbfc] to-[#f0f4f8]">
-        
         {/* Left: Back Button (if applicable) */}
         {/* <div className="flex items-center gap-3">
           {header?.showBack && (
@@ -146,11 +142,11 @@ export default function TopNavigation({
           )}
         </div> */}
 
-       <div className="flex items-center justify-between w-full px-4">
+        <div className="flex items-center justify-between w-full px-4">
           <span className="text-2xl font-heading font-bold text-gray-800 tracking-wide">
             {companyName}
           </span>
-          
+
           {currentUser && (
             <div className="w-fit">
               <div
@@ -178,25 +174,25 @@ export default function TopNavigation({
                     )}
                   </div>
 
-                {/* User Info */}
-                <div className="flex-1 min-w-0">
-                  <h1
-                    className="font-bold font-heading tracking-wide"
-                    style={{
-                      color: "#3a4f99",
-                      margin: 0,
-                      fontSize: "0.9rem",
-                      letterSpacing: "0.5px",
-                    }}
-                  >
-                  Hi, {displayName} !
-                  </h1>
+                  {/* User Info */}
+                  <div className="flex-1 min-w-0">
+                    <h1
+                      className="font-bold font-heading tracking-wide"
+                      style={{
+                        color: "#3a4f99",
+                        margin: 0,
+                        fontSize: "0.9rem",
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      Hi, {displayName} !
+                    </h1>
+                  </div>
                 </div>
               </div>
             </div>
-         </div>
-  )}
-</div>
+          )}
+        </div>
 
         {/* Right: Placeholder for user menu (future) */}
         <div className="w-9" />

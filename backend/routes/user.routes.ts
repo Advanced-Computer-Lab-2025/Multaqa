@@ -91,9 +91,11 @@ async function registerForEvent(
       userId
     );
 
+    // TODO: Remove this after testing
     await userService.addEventToUser(
       userId,
       updatedEvent._id
+      // updatedEvent._id as mongoose.Types.ObjectId
     );
 
     res.json({

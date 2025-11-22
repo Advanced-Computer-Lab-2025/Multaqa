@@ -64,21 +64,19 @@ const getInitials = (user?: CurrentUser, role?: string): string => {
   return roleInitials[role || ""] || "?";
 };
 
-
 /**
  * Capitalizes the first letter of a given string and lowercases the rest.
  * Handles null/undefined input gracefully.
  */
 const capitalizeNamePart = (namePart?: string | null): string => {
   if (!namePart) return "";
-  
+
   // Convert to string, trim whitespace, and lowercase the rest of the string
   const str = String(namePart).trim().toLowerCase();
-  
+
   // Capitalize the first letter
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
-
 
 // Get display name based on role
 const getDisplayName = (user?: CurrentUser, role?: string): string => {
@@ -100,7 +98,7 @@ const getDisplayName = (user?: CurrentUser, role?: string): string => {
   // 2. Combine only the name parts that actually exist.
   //    The .filter(Boolean) handles empty strings returned by capitalizeNamePart(undefined)
   const nameParts = [capitalizedFirstName, capitalizedLastName].filter(Boolean);
-  
+
   // 3. Join the existing parts with a space.
   const fullName = nameParts.join(" ");
 
