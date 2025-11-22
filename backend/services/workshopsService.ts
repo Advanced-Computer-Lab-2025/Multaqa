@@ -45,7 +45,7 @@ export class WorkshopService {
 
       return createdEvent;
     }
-    throw createError(404, "Professor not found");
+    throw createError(404, "Profe ssor not found");
   }
 
   async updateWorkshop(
@@ -59,6 +59,17 @@ export class WorkshopService {
       throw createError(403, "You have no workshops to update");
     if (!professor.myWorkshops.some((id) => id.toString() === workshopId))
       throw createError(403, "You are not authorized to update this workshop");
+
+    const workshop = await this.workshopRepo.findById(workshopId);
+    if (!workshop) {
+      throw createError(404, "Workshop not found");
+    }
+
+    // If workshop is AWAITING_REVIEW, reset to PENDING and clear comments when professor makes edits
+    if (workshop.approvalStatus === Event_Request_Status.AWAITING_REVIEW) {
+      updateData.approvalStatus = Event_Request_Status.PENDING;
+      updateData.comments = [];
+    }
 
     const updatedWorkshop = await this.workshopRepo.update(
       workshopId,
@@ -106,22 +117,23 @@ export class WorkshopService {
       approvalStatus === Event_Request_Status.REJECTED
     ) {
       // APPROVED or REJECTED = final decision
-      // Ignore any comments in payload and clear all previous comments
+      // Clear all previous comments on final decision
       finalStatus = approvalStatus;
       finalComments = [];
     } else {
-      // For PENDING or AWAITING_REVIEW or no status:
+      // Events Office is requesting edits by adding comments
       const hasComments = Array.isArray(comments) && comments.length > 0;
 
-      if (hasComments) {
-        // If comments are provided, status becomes AWAITING_REVIEW (requesting edits)
-        finalStatus = Event_Request_Status.AWAITING_REVIEW;
-        finalComments = comments;
-      } else {
-        // No comments = default to PENDING
-        finalStatus = Event_Request_Status.PENDING;
-        finalComments = [];
+      if (!hasComments) {
+        throw createError(
+          400,
+          "Comments are required when requesting edits. Use APPROVED or REJECTED for final decisions."
+        );
       }
+
+      // Comments provided = status becomes AWAITING_REVIEW (requesting edits)
+      finalStatus = Event_Request_Status.AWAITING_REVIEW;
+      finalComments = comments;
     }
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, {
@@ -137,7 +149,7 @@ export class WorkshopService {
   // Calculate workshop end time based on eventEndDate and eventEndTime
   private calculateWorkshopEndTime(workshop: IWorkshop): Date {
     const endDate = new Date(workshop.eventEndDate);
-    const [hours, minutes] = workshop.eventEndTime.split(':').map(Number);
+    const [hours, minutes] = workshop.eventEndTime.split(":").map(Number);
     endDate.setHours(hours, minutes, 0, 0);
     return endDate;
   }
@@ -145,35 +157,40 @@ export class WorkshopService {
   // Check and process completed workshops, This runs periodically to check if any workshops have ended
   async processCompletedWorkshops(): Promise<void> {
     const now = new Date();
-    
+
     // Find all workshops that have ended but certificates haven't been sent
     const workshops = await this.workshopRepo.findAll({
       certificatesSent: false,
-      eventStartDate: { $lte: now }
+      eventStartDate: { $lte: now },
     });
 
     for (const workshop of workshops) {
       const endTime = this.calculateWorkshopEndTime(workshop);
-      
+
       // Check if workshop has ended
       if (now >= endTime) {
         try {
-          console.log(`Processing certificates for workshop: ${workshop.eventName}`);
-          
-          // Send certificates to all attendees
-          await this.sendCertificatesToAllAttendees(
-            workshop.id.toString()
+          console.log(
+            `Processing certificates for workshop: ${workshop.eventName}`
           );
-          
+
+          // Send certificates to all attendees
+          await this.sendCertificatesToAllAttendees(workshop.id.toString());
+
           // Mark certificates as sent
           await this.workshopRepo.update(workshop.id.toString(), {
             certificatesSent: true,
-            certificatesSentAt: new Date()
+            certificatesSentAt: new Date(),
           });
-          
-          console.log(`Certificates sent successfully for: ${workshop.eventName}`);
+
+          console.log(
+            `Certificates sent successfully for: ${workshop.eventName}`
+          );
         } catch (error) {
-          console.error(`Failed to send certificates for workshop ${workshop.id}:`, error);
+          console.error(
+            `Failed to send certificates for workshop ${workshop.id}:`,
+            error
+          );
         }
       }
     }
@@ -183,37 +200,37 @@ export class WorkshopService {
   async sendCertificatesForWorkshop(workshopId: string): Promise<void> {
     const workshop = await this.workshopRepo.findById(workshopId);
     if (!workshop) {
-      throw new Error('Workshop not found');
+      throw new Error("Workshop not found");
     }
 
-    if(workshop.certificatesSent) {
-      throw new Error('Certificates have already been sent for this workshop');
+    if (workshop.certificatesSent) {
+      throw new Error("Certificates have already been sent for this workshop");
     }
-    
+
     const now = new Date();
     const endTime = this.calculateWorkshopEndTime(workshop);
     if (now < endTime) {
-      throw new Error('Workshop has not ended yet');
+      throw new Error("Workshop has not ended yet");
     }
 
     await this.sendCertificatesToAllAttendees(workshopId);
-    
+
     await this.workshopRepo.update(workshopId, {
       certificatesSent: true,
-      certificatesSentAt: new Date()
+      certificatesSentAt: new Date(),
     });
   }
 
   // Send certificates to all attendees of a completed workshop
   async sendCertificatesToAllAttendees(workshopId: string): Promise<void> {
     const workshop = await this.workshopRepo.findById(workshopId, {
-      populate: ['attendees']
+      populate: ["attendees"],
     });
     if (!workshop) {
-      throw createError(404, 'Workshop not found');
+      throw createError(404, "Workshop not found");
     }
     if (!workshop.attendees || workshop.attendees.length === 0) {
-      throw createError(400, 'No attendees found for this workshop');
+      throw createError(400, "No attendees found for this workshop");
     }
 
     // Send certificates to all attendees
