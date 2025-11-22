@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Stack, Alert } from "@mui/material";
+import { Typography, Stack, Alert } from "@mui/material";
 import VendorItemCard from "./VendorItemCard";
 import { VendorParticipationItem } from "./types";
-import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
+import ContentWrapper from "../../shared/containers/ContentWrapper";
 
 const STATUS_MAP: Record<string, string> = {
   pending: "PENDING",
@@ -138,7 +138,7 @@ export default function VendorUpcomingParticipation() {
     <Stack spacing={1}>
       <Typography variant="body2" sx={{ color: "#1E1E1E" }}>
         {item.type === "BAZAAR"
-          ? "You’re accepted for this bazaar. Prepare your booth, inventory, and team."
+          ? "You're accepted for this bazaar. Prepare your booth, inventory, and team."
           : `Setup duration: ${item.setupDurationWeeks ?? 1} week(s). Coordinate with venue staff for access.`}
       </Typography>
       <Typography variant="body2" sx={{ color: "#6b7280" }}>
@@ -150,15 +150,10 @@ export default function VendorUpcomingParticipation() {
   // Shared presentation (type chips, location, date range) handled by VendorItemCard
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Box sx={{ mb: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
-       My Upcoming Participations
-      </Typography>
-        <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
-          Here are the bazaars or platform booths you’re participating in.
-        </Typography>
-      </Box>
+    <ContentWrapper
+      title="My Upcoming Participations"
+      description="Here are the bazaars or platform booths you&apos;re participating in."
+    >
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -176,6 +171,6 @@ export default function VendorUpcomingParticipation() {
           />
         ))}
       </Stack>
-    </Box>
+    </ContentWrapper>
   );
 }
