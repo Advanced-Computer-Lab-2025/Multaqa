@@ -71,10 +71,12 @@ function toNumber(value: unknown): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
-// Extended helper to map documents
-function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null {
+function mapRequest(
+  entry: RawVendorRequest
+): VendorParticipationRequest | null {
   const vendorRaw = entry.vendor ?? entry.vendor?.vendor;
-  const vendorObject = typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
+  const vendorObject =
+    typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
   const vendorId = ensureString(vendorObject?._id ?? vendorRaw);
   const vendorName =
     (vendorObject?.companyName as string | undefined) ??
@@ -108,14 +110,16 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const eventType = normalizeEventType(
     requestData?.eventType ?? eventRaw?.type ?? "unknown"
   );
-  const startDate = ensureString(eventRaw?.startDate ?? eventRaw?.eventStartDate);
+  const startDate = ensureString(
+    eventRaw?.startDate ?? eventRaw?.eventStartDate
+  );
   const endDate = ensureString(eventRaw?.endDate ?? eventRaw?.eventEndDate);
   const location = (eventRaw?.location as string | undefined) ?? undefined;
 
   const boothSize = requestData?.boothSize as string | undefined;
   const boothLocation = requestData?.boothLocation as string | undefined;
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
-  
+
   const collectArrays = (...candidates: unknown[]) =>
     candidates.filter(Array.isArray) as any[][];
 
@@ -135,14 +139,17 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const flattened = candidateArrays.flat();
 
   const parseContact = (val: any) => {
-    // Extract National ID if present
     let nationalIdUrl: string | undefined = undefined;
     if (val && typeof val === "object") {
-       if (val.nationalId && typeof val.nationalId === 'object' && 'url' in val.nationalId) {
-         nationalIdUrl = val.nationalId.url;
-       } else if (typeof val.nationalId === 'string') {
-         nationalIdUrl = val.nationalId;
-       }
+      if (
+        val.nationalId &&
+        typeof val.nationalId === "object" &&
+        "url" in val.nationalId
+      ) {
+        nationalIdUrl = val.nationalId.url;
+      } else if (typeof val.nationalId === "string") {
+        nationalIdUrl = val.nationalId;
+      }
     }
 
     if (typeof val === "string") {
@@ -162,15 +169,16 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
         (val.mail as string | undefined) ??
         (val.contactEmail as string | undefined) ??
         undefined;
-      
+
       if (name || email) return { name, email, nationalIdUrl };
     }
     return undefined;
   };
 
-  // Deduping logic needs to preserve nationalIdUrl if found
-  const deduped: { name?: string; email?: string; nationalIdUrl?: string }[] = [];
-  const seen = new Map<string, { name?: string; email?: string; nationalIdUrl?: string }>();
+  const seen = new Map<
+    string,
+    { name?: string; email?: string; nationalIdUrl?: string }
+  >();
 
   for (const item of flattened) {
     const contact = parseContact(item);
@@ -180,23 +188,24 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
       : contact.name
       ? `n:${contact.name.toLowerCase()}`
       : null;
-    
+
     if (!key) continue;
 
     if (seen.has(key)) {
-      // If we saw this person before, but the new entry has an ID and the old one didn't, update it
       const existing = seen.get(key);
       if (!existing?.nationalIdUrl && contact.nationalIdUrl) {
-         seen.set(key, { ...existing, nationalIdUrl: contact.nationalIdUrl });
+        seen.set(key, { ...existing, nationalIdUrl: contact.nationalIdUrl });
       }
     } else {
       seen.set(key, contact);
     }
   }
-  
+
   const attendees = Array.from(seen.values());
   const status = normalizeStatus(requestData?.status);
-  const submittedAt = ensureString(requestData?.submittedAt ?? requestData?.createdAt);
+  const submittedAt = ensureString(
+    requestData?.submittedAt ?? requestData?.createdAt
+  );
   const notes =
     (requestData?.notes as string | undefined) ??
     (requestData?.comment as string | undefined) ??
@@ -227,7 +236,7 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
     notes,
     taxCardUrl,
     raw: entry,
-  } as any; 
+  } as any;
 }
 
 export default function VendorParticipationRequests() {
@@ -237,7 +246,9 @@ export default function VendorParticipationRequests() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
-  const [responding, setResponding] = useState<Record<string, VendorRequestStatus | null>>({});
+  const [responding, setResponding] = useState<
+    Record<string, VendorRequestStatus | null>
+  >({});
   const [refresh, setRefresh] = useState(false);
 
   const fetchRequests = useCallback(async () => {
@@ -260,7 +271,10 @@ export default function VendorParticipationRequests() {
         });
       }
     } catch (err: any) {
-      const message = err?.response?.data?.message ?? err?.message ?? "Unable to load vendor requests.";
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Unable to load vendor requests.";
       setError(message);
       setRequests([]);
     } finally {
@@ -283,18 +297,29 @@ export default function VendorParticipationRequests() {
   }, [requests, statusFilter, typeFilter]);
 
   const groupedByDay = useMemo(() => {
-    const groups = new Map<string, { label: string; dateOrder: number; items: VendorParticipationRequest[] }>();
+    const groups = new Map<
+      string,
+      { label: string; dateOrder: number; items: VendorParticipationRequest[] }
+    >();
 
     filteredRequests.forEach((request) => {
       const dateValue = request.startDate ? new Date(request.startDate) : null;
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
-        ? new Date(dateValue!.getFullYear(), dateValue!.getMonth(), dateValue!.getDate()).toISOString()
+        ? new Date(
+            dateValue!.getFullYear(),
+            dateValue!.getMonth(),
+            dateValue!.getDate()
+          ).toISOString()
         : "unscheduled";
       const label = isValidDate
-        ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(dateValue!)
+        ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
+            dateValue!
+          )
         : "Date To Be Determined";
-      const dateOrder = isValidDate ? dateValue!.getTime() : Number.POSITIVE_INFINITY;
+      const dateOrder = isValidDate
+        ? dateValue!.getTime()
+        : Number.POSITIVE_INFINITY;
       const existing = groups.get(dayKey);
       if (existing) {
         existing.items.push(request);
@@ -303,11 +328,17 @@ export default function VendorParticipationRequests() {
       }
     });
 
-    const sorted = Array.from(groups.values()).sort((a, b) => a.dateOrder - b.dateOrder);
+    const sorted = Array.from(groups.values()).sort(
+      (a, b) => a.dateOrder - b.dateOrder
+    );
     sorted.forEach((group) => {
       group.items.sort((a, b) => {
-        const aTime = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
-        const bTime = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
+        const aTime = a.startDate
+          ? new Date(a.startDate).getTime()
+          : Number.MAX_SAFE_INTEGER;
+        const bTime = b.startDate
+          ? new Date(b.startDate).getTime()
+          : Number.MAX_SAFE_INTEGER;
         return aTime - bTime;
       });
     });
@@ -329,7 +360,7 @@ export default function VendorParticipationRequests() {
         { status },
         { headers: { "Content-Type": "application/json" } }
       );
-      
+
       setRequests((prev) =>
         prev.map((item) =>
           item.id === request.id
@@ -348,7 +379,10 @@ export default function VendorParticipationRequests() {
             : `${request.vendorName}'s request has been rejected.`,
       });
     } catch (err: any) {
-      const message = err?.response?.data?.message ?? err?.message ?? "Unable to update vendor request.";
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Unable to update vendor request.";
       setError(message);
     } finally {
       setResponding((prev) => ({ ...prev, [request.id]: null }));
@@ -369,45 +403,38 @@ export default function VendorParticipationRequests() {
                     borderRadius: 3,
                     border: "1px solid #e5e7eb",
                     background: "#ffffff",
-                    p: { xs: 2, sm: 3 },
+                    p: 3, // Match the new card padding
                     display: "flex",
-                    flexDirection: "column",
-                    gap: 2.5,
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5}>
-                    <Skeleton variant="circular" width={56} height={56} sx={{ flexShrink: 0 }} />
-                    <Stack spacing={1} flex={1} minWidth={0}>
-                      <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={1} alignItems={{ md: "center" }}>
-                         <Skeleton variant="text" width="40%" height={32} />
-                         <Stack direction="row" spacing={1}>
-                            <Skeleton variant="rounded" width={80} height={24} />
-                            <Skeleton variant="rounded" width={80} height={24} />
-                         </Stack>
-                      </Box>
-                      <Stack direction="row" spacing={2}>
-                        <Skeleton variant="text" width={120} />
-                        <Skeleton variant="text" width={100} />
+                  {/* Left Side: Avatar + Info */}
+                  <Stack
+                    direction="row"
+                    spacing={2.5}
+                    alignItems="center"
+                    width="100%"
+                  >
+                    <Skeleton
+                      variant="circular"
+                      width={56}
+                      height={56}
+                      sx={{ flexShrink: 0 }}
+                    />
+                    <Stack spacing={1} width="60%">
+                      <Skeleton variant="text" width="40%" height={32} />
+                      <Stack direction="row" spacing={1}>
+                        <Skeleton variant="rounded" width={120} height={24} />
+                        <Skeleton variant="rounded" width={80} height={24} />
                       </Stack>
                     </Stack>
-                    <Stack spacing={1.5} alignItems={{ xs: "stretch", sm: "flex-end" }} justifyContent="space-between">
-                        <Box textAlign={{ xs: "left", sm: "right" }}>
-                           <Skeleton variant="text" width={60} sx={{ ml: { sm: "auto" } }} />
-                           <Skeleton variant="text" width={140} sx={{ ml: { sm: "auto" } }} />
-                        </Box>
-                        <Stack direction="row" spacing={1}>
-                           <Skeleton variant="rounded" width={90} height={36} />
-                           <Skeleton variant="rounded" width={90} height={36} />
-                        </Stack>
-                    </Stack>
                   </Stack>
-                  <Divider />
-                  <Stack spacing={1.5}>
-                    <Skeleton variant="text" width={100} />
-                    <Stack spacing={0.75}>
-                         <Skeleton variant="text" width="80%" />
-                         <Skeleton variant="text" width="60%" />
-                    </Stack>
+
+                  {/* Right Side: Buttons/Status placeholder */}
+                  <Stack direction="row" spacing={1}>
+                    <Skeleton variant="rounded" width={90} height={36} />
+                    <Skeleton variant="rounded" width={90} height={36} />
                   </Stack>
                 </Box>
               ))}
@@ -467,7 +494,14 @@ export default function VendorParticipationRequests() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, height: "100%", display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        p: { xs: 2, md: 4 },
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Box
         sx={{
           mb: 3,
@@ -481,7 +515,11 @@ export default function VendorParticipationRequests() {
         <Box>
           <Typography
             variant="h5"
-            sx={{ fontFamily: "var(--font-jost)", fontWeight: 700, color: "#1E1E1E" }}
+            sx={{
+              fontFamily: "var(--font-jost)",
+              fontWeight: 700,
+              color: "#1E1E1E",
+            }}
           >
             Vendor Participation Requests
           </Typography>
