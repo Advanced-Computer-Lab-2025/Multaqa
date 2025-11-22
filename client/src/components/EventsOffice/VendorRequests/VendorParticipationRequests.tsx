@@ -10,11 +10,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { api } from "@/api";
 import VendorRequestCard from "./VendorRequestCard";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
+import EmptyState from "@/components/shared/states/EmptyState";
+import ErrorState from "@/components/shared/states/ErrorState";
 import {
   StatusFilter,
   TypeFilter,
@@ -360,22 +363,20 @@ export default function VendorParticipationRequests() {
 
     if (error) {
       return (
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error}
-        </Alert>
+        <ErrorState
+          title="Failed to load vendor requests"
+          description={error}
+          onCtaClick={fetchRequests}
+        />
       );
     }
 
     if (filteredRequests.length === 0) {
       return (
-        <Box sx={{ py: 6, textAlign: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "#4b5563" }}>
-            No vendor requests match the selected filters.
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#6b7280", mt: 1 }}>
-            Adjust your filters or refresh to check for new submissions.
-          </Typography>
-        </Box>
+        <EmptyState
+          title="No vendor requests match the selected filters"
+          description="Adjust your filters or refresh to check for new submissions."
+        />
       );
     }
 
@@ -453,28 +454,96 @@ export default function VendorParticipationRequests() {
           }}
         >
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            {statusFilters.map(({ key, label }) => (
-              <Chip
-                key={key}
-                label={label}
-                size="small"
-                variant={statusFilter === key ? "filled" : "outlined"}
-                color={statusFilter === key ? "primary" : "default"}
-                onClick={() => setStatusFilter(key)}
-              />
-            ))}
+            {statusFilters.map(({ key, label }) => {
+              const isActive = statusFilter === key;
+              // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)
+              const baseColor =
+                key === "ALL"
+                  ? "#6299d0" // Blue for All
+                  : key === "pending"
+                  ? "#f59e0b" // Orange/Amber for Pending
+                  : key === "approved"
+                  ? "#10b981" // Green for Approved
+                  : "#ef4444"; // Red for Rejected
+
+              return (
+                <Chip
+                  key={key}
+                  label={label}
+                  size="medium"
+                  onClick={() => setStatusFilter(key)}
+                  variant="outlined"
+                  sx={{
+                    fontFamily: "var(--font-poppins)",
+                    fontWeight: 700,
+                    letterSpacing: 0.2,
+                    borderRadius: "28px",
+                    px: 1.75,
+                    height: 28,
+                    borderWidth: isActive ? 3 : 1,
+                    borderColor: baseColor,
+                    color: baseColor,
+                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
+                    boxShadow: isActive
+                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
+                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
+                    transition:
+                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+                    transform: isActive ? "translateY(-1px)" : "none",
+                    "&:hover": {
+                      backgroundColor: alpha(baseColor, 0.16),
+                      borderWidth: isActive ? 3 : 2,
+                      transform: "translateY(-1px)",
+                    },
+                  }}
+                />
+              );
+            })}
           </Stack>
           <Stack direction="row" spacing={1} flexWrap="wrap">
-            {typeFilters.map(({ key, label }) => (
-              <Chip
-                key={key}
-                label={label}
-                size="small"
-                variant={typeFilter === key ? "filled" : "outlined"}
-                color={typeFilter === key ? "primary" : "default"}
-                onClick={() => setTypeFilter(key)}
-              />
-            ))}
+            {typeFilters.map(({ key, label }) => {
+              const isActive = typeFilter === key;
+              // Color coding: All (blue), Bazaar (purple), Platform Booth (blue)
+              const baseColor =
+                key === "ALL"
+                  ? "#6299d0" // Blue for All
+                  : key === "bazaar"
+                  ? "#5b21b6" // Purple for Bazaar (matches VendorRequestCard)
+                  : "#1d4ed8"; // Blue for Platform Booth (matches VendorRequestCard)
+
+              return (
+                <Chip
+                  key={key}
+                  label={label}
+                  size="medium"
+                  onClick={() => setTypeFilter(key)}
+                  variant="outlined"
+                  sx={{
+                    fontFamily: "var(--font-poppins)",
+                    fontWeight: 700,
+                    letterSpacing: 0.2,
+                    borderRadius: "28px",
+                    px: 1.75,
+                    height: 28,
+                    borderWidth: isActive ? 3 : 1,
+                    borderColor: baseColor,
+                    color: baseColor,
+                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
+                    boxShadow: isActive
+                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
+                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
+                    transition:
+                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+                    transform: isActive ? "translateY(-1px)" : "none",
+                    "&:hover": {
+                      backgroundColor: alpha(baseColor, 0.16),
+                      borderWidth: isActive ? 3 : 2,
+                      transform: "translateY(-1px)",
+                    },
+                  }}
+                />
+              );
+            })}
           </Stack>
         </Box>
 
