@@ -98,9 +98,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 borderColor: 'divider',
                 borderRadius: 2,
                 "&:hover": {
-                  backgroundColor: `${"#6b7280"}15`,
-                  borderColor: "#6b7280",
-                  color: "#6b7280",
+                  backgroundColor: "rgba(255, 0, 0, 0.1)",
+                  borderColor: "error.main",
+                  color: "error.main",
                 },
               }}
           >
