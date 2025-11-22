@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Stack, Chip, IconButton, Tooltip } from "@mui/material";
-import theme from "@/themes/lightTheme";
+import { Box, Stack, Chip, IconButton, Tooltip } from "@mui/material";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
 import WorkshopItemCard from "@/components/EventsOffice/WorkshopItemCard";
 import { api } from "@/api";
 import { frameData } from "@/components/BrowseEvents/utils";
 import { WorkshopViewProps } from "@/components/Event/types";
-import EventIcon from '@mui/icons-material/Event';
+import EventIcon from "@mui/icons-material/Event";
 import CreationHubDropdown from "@/components/createButton/CreationHubDropdown";
 import { EditIcon, TruckElectric } from "lucide-react";
 import { color } from "storybook/internal/theming";
@@ -21,6 +20,7 @@ import CustomButton from "../Buttons/CustomButton";
 import { CustomModalLayout } from "../modals";
 import CommentsModal from "./CommentsModal";
 import CommentsList from "./CommentsModal";
+import ContentWrapper from "../containers/ContentWrapper";
 
 interface WorkshopListProps {
   userId: string;
@@ -42,10 +42,16 @@ const mockComments = [
   },
 ];
 
-  const background =  "#9c27b0"; 
-  const WorkshopList: React.FC<WorkshopListProps> = ({ userId, filter, userInfo }) => {
+const background = "#9c27b0";
+const WorkshopList: React.FC<WorkshopListProps> = ({
+  userId,
+  filter,
+  userInfo,
+}) => {
   const [workshops, setWorkshops] = useState<WorkshopViewProps[]>([]);
-  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
+  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(
+    null
+  );
   const [creation, setCreation] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rawWorkshops, setRawWorkshops] = useState<any[]>([]);
@@ -74,49 +80,25 @@ const mockComments = [
     setLoading(true);
     const data = userInfo.myWorkshops;
     const result = frameData(data, userInfo);
-    
+
     // Filter based on selectedFilter
     const filteredResults = result.filter((item) => {
-      const matchesFilter = selectedFilter === "all" || item.details["Status"] === selectedFilter;
+      const matchesFilter =
+        selectedFilter === "all" || item.details["Status"] === selectedFilter;
       const isNotEmpty = item && item.id && item.name;
       return matchesFilter && isNotEmpty;
     });
-    
+
     setWorkshops(filteredResults);
     setRawWorkshops(result);
     setLoading(false);
   }, [userInfo, selectedFilter]);
 
-
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Box sx={{ mb: 2 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
-          sx={{
-            mb: 2,
-            textAlign: "left",
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-            color: theme.palette.tertiary.dark,
-          }}
-        >
-          Your Workshops
-        </Typography>
-
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#757575",
-            fontFamily: "var(--font-poppins)",
-            mb: 4,
-          }}
-        >
-          Here are all the workshops you have created. Thanks for your continuous effort!
-        </Typography>
-      </Box>
-
+    <ContentWrapper
+      title="Your Workshops"
+      description="Here are all the workshops you have created. Thanks for your continuous effort!"
+    >
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
         <CreationHubDropdown
           options={creationHubOptions}
@@ -127,37 +109,38 @@ const mockComments = [
       {/* Filter Pills */}
       <Box sx={{ mb: 3, display: "flex", gap: 1.5, flexWrap: "wrap" }}>
         {filterOptions.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={option.label}
-                  onClick={() => setSelectedFilter(option.value)}
-                  variant="outlined"
-                  size="medium"
-                  sx={{
-                    color: option.color,
-                    borderWidth:selectedFilter === option.value ? 2 : 1,
-                    borderColor: option.color,
-                    fontWeight: selectedFilter === option.value ? 600 : 500,
-                    fontSize: "0.875rem",
-                    px: 2,
-                    py: 0.5,
-                    height: "28px",
-                    transition: "all 0.1s ease",
-                    cursor: "pointer",
-                    "&:hover": {
-                      color: option.color,
-                      borderWidth:2,
-                    },
-                  }}
-                />
-              ))}
+          <Chip
+            key={option.value}
+            label={option.label}
+            onClick={() => setSelectedFilter(option.value)}
+            variant="outlined"
+            size="medium"
+            sx={{
+              color: option.color,
+              borderWidth: selectedFilter === option.value ? 2 : 1,
+              borderColor: option.color,
+              fontWeight: selectedFilter === option.value ? 600 : 500,
+              fontSize: "0.875rem",
+              px: 2,
+              py: 0.5,
+              height: "28px",
+              transition: "all 0.1s ease",
+              cursor: "pointer",
+              "&:hover": {
+                color: option.color,
+                borderWidth: 2,
+              },
+            }}
+          />
+        ))}
       </Box>
 
       <Stack spacing={2}>
-        {workshops && workshops.length > 0 &&
+        {workshops &&
+          workshops.length > 0 &&
           workshops.map((item, index) => (
             <React.Fragment key={item.id}>
-              <WorkshopView 
+              <WorkshopView
                 id={item.id}
                 background={"#9c27b0"}
                 icon={Diversity3Icon}
@@ -177,13 +160,13 @@ const mockComments = [
                   <CustomButton
                     size="small"
                     variant="contained"
-                    sx={{ 
+                    sx={{
                       borderRadius: 999,
                       backgroundColor: `${background}40`,
                       color: background,
                       borderColor: background,
                       fontWeight: 600,
-                      minWidth:"150px",
+                      minWidth: "150px",
                       px: 3,
                       textTransform: "none",
                       boxShadow: `0 4px 14px ${background}40`,
@@ -194,37 +177,44 @@ const mockComments = [
                         boxShadow: `0 6px 20px ${background}50`,
                       },
                     }}
-                    onClick={() => {setCommentModal(true)}}
+                    onClick={() => {
+                      setCommentModal(true);
+                    }}
                   >
                     View Comments
                   </CustomButton>
                 }
               />
-              
+
               <EditWorkshop
-                workshopId={item.id}  
-                open={editingWorkshopId === item.id} 
+                workshopId={item.id}
+                open={editingWorkshopId === item.id}
                 workshopName={item.name}
                 budget={parseInt(item.details["Required Budget"], 10)}
-                capacity={parseInt(item.details.Capacity, 10)}  
-                startDate={new Date(item.details["Start Date"])} 
-                endDate={new Date(item.details["End Date"])} 
-                registrationDeadline={new Date(item.details["Registration Deadline"])}
+                capacity={parseInt(item.details.Capacity, 10)}
+                startDate={new Date(item.details["Start Date"])}
+                endDate={new Date(item.details["End Date"])}
+                registrationDeadline={
+                  new Date(item.details["Registration Deadline"])
+                }
                 description={item.description}
                 agenda={item.agenda}
                 location={item.details.Location}
-                fundingSource={item.details["Funding Source"]} 
+                fundingSource={item.details["Funding Source"]}
                 creatingProfessor={item.details["Created By"]}
-                faculty={item.details["Faculty Responsible"]} 
+                faculty={item.details["Faculty Responsible"]}
                 extraResources={item.details["Extra Required Resources"]}
                 associatedProfs={rawWorkshops[index].associatedProfs}
-                onClose={() => { setEditingWorkshopId(null); window.location.reload(); }} 
+                onClose={() => {
+                  setEditingWorkshopId(null);
+                  window.location.reload();
+                }}
               />
             </React.Fragment>
           ))}
 
         {loading && <EventCardsListSkeleton />}
-        {!loading &&(!workshops || workshops.length === 0) &&
+        {!loading && (!workshops || workshops.length === 0) && (
           <Box
             sx={{
               height: "60vh",
@@ -236,18 +226,24 @@ const mockComments = [
           >
             No workshops to view here!
           </Box>
-        }
+        )}
       </Stack>
-       <CustomModalLayout open={commentModal} onClose={()=>setCommentModal(false) }>
-       <CommentsList comments={mockComments}/>
-        </CustomModalLayout>
-      <CreateWorkshop 
-        professors={[]} 
-        creatingProfessor={userId} 
-        open={creation} 
-        onClose={() => { setCreation(false); window.location.reload(); }}
+      <CustomModalLayout
+        open={commentModal}
+        onClose={() => setCommentModal(false)}
+      >
+        <CommentsList comments={mockComments} />
+      </CustomModalLayout>
+      <CreateWorkshop
+        professors={[]}
+        creatingProfessor={userId}
+        open={creation}
+        onClose={() => {
+          setCreation(false);
+          window.location.reload();
+        }}
       />
-    </Box>
+    </ContentWrapper>
   );
 };
 
