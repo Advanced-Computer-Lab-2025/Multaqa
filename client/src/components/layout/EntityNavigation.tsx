@@ -224,13 +224,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
     defaultTab: "workshops",
-    defaultSection: "my-workshops",
+    defaultSection: "",
     tabs: [
       {
         key: "workshops",
         label: "My Workshops",
         icon: Calendar,
-        sections: [{ id: "my-workshops", label: "My Workshops" }],
       },
       {
         key: "events",
@@ -255,7 +254,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "wallet",
         label: "Wallet",
         icon: Wallet,
-        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -510,12 +508,16 @@ export default function EntityNavigation({
   React.useEffect(() => {
     // Fallback: if tab or section is not found, redirect to not-found page
     const tabExists = tab === "" || config.tabs.some((t) => t.key === tab);
+    const currentTabForValidation = config.tabs.find((t) => t.key === tab);
+    const tabSections = currentTabForValidation?.sections || [];
+    const effectiveSections =
+      tabSections.length === 0
+        ? [{ id: "overview", label: "Overview" }]
+        : tabSections;
     const sectionExists =
       tab === "" ||
       section === "" ||
-      (config.tabs.find((t) => t.key === tab)?.sections || []).some(
-        (s) => s.id === section
-      );
+      effectiveSections.some((s) => s.id === section);
 
     if (!tabExists || !sectionExists) {
       router.replace("/not-found");
@@ -527,9 +529,12 @@ export default function EntityNavigation({
       stakeholder === userRoleKey &&
       config.defaultTab
     ) {
-      const sectionPath = config.defaultSection
-        ? `/${config.defaultSection}`
-        : "";
+      const defaultTab = config.tabs.find((t) => t.key === config.defaultTab);
+      const hasSections =
+        defaultTab?.sections && defaultTab.sections.length > 0;
+      const sectionToUse =
+        config.defaultSection || (hasSections ? "" : "overview");
+      const sectionPath = sectionToUse ? `/${sectionToUse}` : "";
       router.replace(`/${userRoleKey}/${config.defaultTab}${sectionPath}`);
     }
   }, [segments, stakeholder, userRoleKey, config, tab, section, router]);
@@ -543,7 +548,13 @@ export default function EntityNavigation({
 
   // Get sections for current tab
   const currentTab = tabItems.find((t) => t.key === tab);
-  const sectionItems = useMemo(() => currentTab?.sections || [], [currentTab]);
+  const sectionItems = useMemo(() => {
+    const sections = currentTab?.sections || [];
+    // Auto-assign default "Overview" section if no sections are defined
+    return sections.length === 0
+      ? [{ id: "overview", label: "Overview" }]
+      : sections;
+  }, [currentTab]);
 
   // // Debug logging
   // console.log("EntityNavigation state:", {
@@ -563,10 +574,11 @@ export default function EntityNavigation({
   // Navigation paths don't need locale either
   const handleTabChange = (index: number) => {
     const newTab = tabItems[index];
+    const hasSections = newTab?.sections && newTab.sections.length > 0;
     const sectionSeg =
-      newTab?.sections && newTab.sections.length > 0
+      hasSections && newTab.sections
         ? `/${newTab.sections[0].id}`
-        : "";
+        : "/overview";
 
     // No locale prefix needed - i18n router adds it
     const newPath = `/${userRoleKey}/${newTab.key}${sectionSeg}`;
