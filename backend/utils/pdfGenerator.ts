@@ -208,13 +208,16 @@ export class pdfGenerator {
 
   
 static buildQrCodePdfBuffer(
-    qrBuffer: Buffer,
+    qrCodeDataArray: any[], 
+    eventName: string
 ): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-        // Create a new PDF document with standard A4 size
+        const title = `Event QR Codes - ${eventName}`;
+
         const doc = new PDFDocument({
             size: 'A4',
-            margins: { top: 72, bottom: 72, left: 72, right: 72 }, // 1 inch margins
+            margins: { top: 72, bottom: 72, left: 72, right: 72 }, 
+            info: { Title: title } 
         });
 
         const buffers: Buffer[] = [];
@@ -222,28 +225,47 @@ static buildQrCodePdfBuffer(
         doc.on('end', () => resolve(Buffer.concat(buffers)));
         doc.on('error', reject);
 
-        
-        
-        // A4 dimensions (approx 595.28 x 841.89 points)
         const pageWidth = doc.page.width;
         const pageHeight = doc.page.height;
-
-        // Define a large size for the QR code (e.g., 300 points wide/high)
         const qrSize = 300; 
+        const margin = 72; // Consistent with doc margins
 
-        // Calculate position to center the image horizontally and vertically
-        const xPos = (pageWidth / 2) - (qrSize / 2);
-        const yPos = (pageHeight / 2) - (qrSize / 2);
+        // Loop through all QR codes to add them to the PDF
+        qrCodeDataArray.forEach((qrData, index) => {
+            
+            // If it's not the first QR code, start a new page
+            if (index > 0) {
+                doc.addPage();
+            }
 
-        // Add the QR code image to the PDF
-        doc.image(qrBuffer, xPos, yPos, {
-            fit: [qrSize, qrSize],
-            align: 'center',
-            valign: 'center'
+            // 1. Main PDF Title
+            doc.fontSize(24)
+               .font('Helvetica-Bold')
+               .fillColor('#4A5568')
+               .text(eventName, margin, margin);
+
+            // 2. Attendee Name (Title of this specific QR code/page)
+            doc.fontSize(16)
+               .font('Helvetica')
+               .fillColor('#718096')
+               .text(`Attendee: ${qrData.name}`, margin, margin + 40);
+
+            // 3. Calculate position to center the image horizontally
+            const xPos = (pageWidth / 2) - (qrSize / 2);
+            // Adjust Y position to be centered below the titles
+            const yPos = (pageHeight / 2) - (qrSize / 2) + 40; 
+
+            // 4. Add the QR code image to the PDF
+            doc.image(qrData.buffer, xPos, yPos, {
+                fit: [qrSize, qrSize],
+                align: 'center',
+                valign: 'center'
+            });
+
         });
 
         // Finalize the PDF
         doc.end();
     });
-}
+}   
 }

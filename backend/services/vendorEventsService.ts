@@ -567,7 +567,8 @@ export class VendorEventsService {
           (event.vendor as IVendor).companyName,
           (event.vendor as IUser).email,
           event.eventName,
-          event.location || "Unknown Location"
+          event.location || "Unknown Location",
+          event.RequestData.boothAttendees as IBoothAttendee[]
         );
 
         event.RequestData.QRCodeGenerated = true;
@@ -588,7 +589,8 @@ export class VendorEventsService {
             (vendorEntry.vendor as IVendor).companyName,
             (vendorEntry.vendor as IVendor).email,
             event.eventName,
-            event.location || "Unknown Location"
+            event.location || "Unknown Location",
+            vendorEntry.RequestData.boothAttendees as IBoothAttendee[]
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
@@ -607,14 +609,24 @@ export class VendorEventsService {
     companyName: string,
     email: string,
     eventName: string,
-    location: string
+    location: string,
+    attendees: IBoothAttendee[]
   ): Promise<void> {
-    const qrCodeBuffer = await generateQrCodeBuffer(
-      eventName,
-      location,
-      new Date().toISOString()
-    );
-    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeBuffer);
+    const qrCodeData: any[] = [];
+    for (const attendee of attendees) {
+        const qrCodeBuffer = await generateQrCodeBuffer( 
+            eventName,
+            location,
+            new Date().toISOString(),
+            attendee.name,
+            attendee.email
+        );
+        qrCodeData.push({
+            buffer: qrCodeBuffer,
+            name: `${attendee.name}`,
+        });
+    }
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData,eventName);
     console.log("Sending QR Code Email to:", email);
     await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
   }

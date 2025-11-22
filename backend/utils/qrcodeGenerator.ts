@@ -5,6 +5,7 @@ export async function generateQrCodeBuffer(
     eventName: string,
     location: string,
     eventDate: string,
+    attendeeName: string,
 ): Promise<Buffer> {
     const startDate = new Date(eventDate);
     
@@ -23,6 +24,9 @@ export async function generateQrCodeBuffer(
         `Location: ${location}`,
         `Date: ${formatDate}`, 
         "---",
+        `Attendee: ${attendeeName}`,
+        "---",
+        
     ];
     const text = payload.join('\n').trim();
    
