@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Box,
@@ -9,24 +9,56 @@ import {
   Stack,
   Typography,
   Tooltip,
+  IconButton,
 } from "@mui/material";
-import { CheckCircle, Clock, MapPin, Users, XCircle } from "lucide-react";
-import CustomButton from "@/components/shared/Buttons/CustomButton";
-import theme from "@/themes/lightTheme";
 import {
-  VendorParticipationRequest,
-  VendorRequestStatus,
-} from "./types";
+  CheckCircle,
+  Clock,
+  MapPin,
+  Users,
+  XCircle,
+  FileText,
+  Download,
+  IdCard,
+  Image as ImageIcon,
+} from "lucide-react";
+// --- IMPORT DOC VIEWER ---
+import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
 
-type Props = {
-  request: VendorParticipationRequest;
-  onRespond?: (status: Extract<VendorRequestStatus, "approved" | "rejected">) => void;
-  disabled?: boolean;
-  loadingStatus?: VendorRequestStatus | null;
-  setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import { CustomModal } from "@/components/shared/modals";
+import theme from "@/themes/lightTheme";
+import { VendorParticipationRequest, VendorRequestStatus } from "./types";
+
+// Extended type to support the mapped fields
+type ExtendedVendorRequest = VendorParticipationRequest & {
+  taxCardUrl?: string;
+  attendees?: Array<{
+    name?: string;
+    email?: string;
+    nationalIdUrl?: string;
+  }>;
 };
 
-const STATUS_CONFIG: Record<VendorRequestStatus, { label: string; color: "success" | "error" | "warning"; bg: string; fg: string }> = {
+type Props = {
+  request: ExtendedVendorRequest;
+  onRespond?: (
+    status: Extract<VendorRequestStatus, "approved" | "rejected">
+  ) => void;
+  disabled?: boolean;
+  loadingStatus?: VendorRequestStatus | null;
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const STATUS_CONFIG: Record<
+  VendorRequestStatus,
+  {
+    label: string;
+    color: "success" | "error" | "warning";
+    bg: string;
+    fg: string;
+  }
+> = {
   pending: {
     label: "Pending Review",
     color: "warning",
@@ -39,30 +71,16 @@ const STATUS_CONFIG: Record<VendorRequestStatus, { label: string; color: "succes
     bg: "#dcfce7",
     fg: "#166534",
   },
-  rejected: {
-    label: "Rejected",
-    color: "error",
-    bg: "#fee2e2",
-    fg: "#b91c1c",
-  },
+  rejected: { label: "Rejected", color: "error", bg: "#fee2e2", fg: "#b91c1c" },
 };
 
-const EVENT_TYPE_CONFIG: Record<string, { label: string; bg: string; fg: string }> = {
-  bazaar: {
-    label: "Bazaar",
-    bg: "#ede9fe",
-    fg: "#5b21b6",
-  },
-  platform_booth: {
-    label: "Platform Booth",
-    bg: "#dbeafe",
-    fg: "#1d4ed8",
-  },
-  unknown: {
-    label: "Other",
-    bg: "#e5e7eb",
-    fg: "#374151",
-  },
+const EVENT_TYPE_CONFIG: Record<
+  string,
+  { label: string; bg: string; fg: string }
+> = {
+  bazaar: { label: "Bazaar", bg: "#ede9fe", fg: "#5b21b6" },
+  platform_booth: { label: "Platform Booth", bg: "#dbeafe", fg: "#1d4ed8" },
+  unknown: { label: "Other", bg: "#e5e7eb", fg: "#374151" },
 };
 
 function formatDate(value?: string) {
@@ -90,58 +108,229 @@ export default function VendorRequestCard({
   onRespond,
   disabled = false,
   loadingStatus = null,
-  setRefresh
+  setRefresh,
 }: Props) {
+  const [viewDoc, setViewDoc] = useState<{ url: string; title: string } | null>(
+    null
+  );
+
   const statusConfig = STATUS_CONFIG[request.status] ?? STATUS_CONFIG.pending;
   const eventConfig =
     EVENT_TYPE_CONFIG[request.eventType] ?? EVENT_TYPE_CONFIG.unknown;
   const isPending = request.status === "pending";
   const attendees = request.attendees ?? [];
+  const hasDocuments = !!request.taxCardUrl || !!request.vendorLogo;
+
+  const handleViewDocument = (url: string, title: string) => {
+    setViewDoc({ url, title });
+  };
+
+  const handleCloseModal = () => {
+    setViewDoc(null);
+  };
+
+  const handleDownload = (url: string) => {
+    // Since files are Public, opening in a new tab is the most reliable way
+    // to let the browser handle the PDF download/viewing natively.
+    window.open(url, "_blank");
+  };
 
   return (
-    <Box
-      sx={{
-        borderRadius: 3,
-        border: "1px solid #e5e7eb",
-        background: "#ffffff",
-        boxShadow:
-          "0 12px 32px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8)",
-        p: { xs: 2, sm: 3 },
-        display: "flex",
-        flexDirection: "column",
-        gap: 2.5,
-      }}
-    >
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5}>
-        <Avatar
-          src={request.vendorLogo}
-          alt={request.vendorName}
-          sx={{
-            width: 56,
-            height: 56,
-            bgcolor: theme.palette.primary.light,
-            fontWeight: 700,
-            fontSize: "1.1rem",
-          }}
-        >
-          {initials(request.vendorName)}
-        </Avatar>
+    <>
+      <Box
+        sx={{
+          borderRadius: 3,
+          border: "1px solid #e5e7eb",
+          background: "#ffffff",
+          boxShadow:
+            "0 12px 32px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8)",
+          p: { xs: 2, sm: 3 },
+          display: "flex",
+          flexDirection: "column",
+          gap: 2.5,
+        }}
+      >
+        {/* --- Header Section --- */}
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5}>
+          <Avatar
+            src={request.vendorLogo}
+            alt={request.vendorName}
+            sx={{
+              width: 56,
+              height: 56,
+              bgcolor: theme.palette.primary.light,
+              fontWeight: 700,
+              fontSize: "1.1rem",
+            }}
+          >
+            {initials(request.vendorName)}
+          </Avatar>
 
-        <Stack spacing={1} flex={1} minWidth={0}>
-          <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={1} alignItems={{ md: "center" }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "#111827" }} noWrap>
-              {request.vendorName}
-            </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap">
-              <Chip
-                size="small"
-                label={eventConfig.label}
-                sx={{
-                  bgcolor: eventConfig.bg,
-                  color: eventConfig.fg,
-                  fontWeight: 600,
-                }}
-              />
+          <Stack spacing={1} flex={1} minWidth={0}>
+            <Box
+              display="flex"
+              flexDirection={{ xs: "column", md: "row" }}
+              gap={1}
+              alignItems={{ md: "center" }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: "#111827" }}
+                noWrap
+              >
+                {request.vendorName}
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                <Chip
+                  size="small"
+                  label={eventConfig.label}
+                  sx={{
+                    bgcolor: eventConfig.bg,
+                    color: eventConfig.fg,
+                    fontWeight: 600,
+                  }}
+                />
+                <Chip
+                  size="small"
+                  label={statusConfig.label}
+                  sx={{
+                    bgcolor: statusConfig.bg,
+                    color: statusConfig.fg,
+                    fontWeight: 600,
+                  }}
+                />
+                {request.boothSize && (
+                  <Chip
+                    size="small"
+                    label={`Booth: ${request.boothSize}`}
+                    sx={{
+                      bgcolor: "#f0f9ff",
+                      color: "#0c4a6e",
+                      fontWeight: 600,
+                    }}
+                  />
+                )}
+              </Stack>
+            </Box>
+
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={2}
+              color="#425466"
+              fontSize="0.95rem"
+            >
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Clock size={16} />
+                <Typography variant="body2">
+                  {formatDate(request.startDate)}
+                </Typography>
+                {request.endDate && (
+                  <Typography variant="body2">
+                    – {formatDate(request.endDate)}
+                  </Typography>
+                )}
+              </Stack>
+              {request.location && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <MapPin size={16} />
+                  <Typography variant="body2">{request.location}</Typography>
+                </Stack>
+              )}
+              {request.boothLocation && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    Booth Location:
+                  </Typography>
+                  <Typography variant="body2">
+                    {request.boothLocation}
+                  </Typography>
+                </Stack>
+              )}
+            </Stack>
+
+            {/* --- Vendor Documents Links --- */}
+            {hasDocuments && (
+              <Stack direction="row" spacing={1} mt={0.5} alignItems="center">
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#6b7280", fontWeight: 600 }}
+                >
+                  Docs:
+                </Typography>
+                {request.taxCardUrl && (
+                  <CustomButton
+                    variant="text"
+                    size="small"
+                    onClick={() =>
+                      handleViewDocument(request.taxCardUrl!, "Tax Card")
+                    }
+                    startIcon={<FileText size={14} />}
+                    sx={{ fontSize: "0.75rem", py: 0.5, minHeight: 0 }}
+                  >
+                    Tax Card
+                  </CustomButton>
+                )}
+                {request.vendorLogo && (
+                  <CustomButton
+                    variant="text"
+                    size="small"
+                    onClick={() =>
+                      handleViewDocument(request.vendorLogo!, "Vendor Logo")
+                    }
+                    startIcon={<ImageIcon size={14} />}
+                    sx={{ fontSize: "0.75rem", py: 0.5, minHeight: 0 }}
+                  >
+                    Logo
+                  </CustomButton>
+                )}
+              </Stack>
+            )}
+          </Stack>
+
+          <Stack
+            spacing={1.5}
+            alignItems={{ xs: "stretch", sm: "flex-end" }}
+            justifyContent="space-between"
+          >
+            <Box textAlign={{ xs: "left", sm: "right" }}>
+              <Typography variant="caption" sx={{ color: "#6b7280" }}>
+                Event
+              </Typography>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                {request.eventName}
+              </Typography>
+            </Box>
+
+            {isPending && onRespond ? (
+              <Stack direction="row" spacing={1}>
+                <CustomButton
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  disabled={disabled || loadingStatus === "approved"}
+                  onClick={() => {
+                    onRespond("rejected");
+                    setRefresh((prev) => !prev);
+                  }}
+                  startIcon={<XCircle size={16} />}
+                >
+                  Reject
+                </CustomButton>
+                <CustomButton
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  disabled={disabled || loadingStatus === "rejected"}
+                  onClick={() => {
+                    onRespond("approved");
+                    setRefresh((prev) => !prev);
+                  }}
+                  startIcon={<CheckCircle size={16} />}
+                >
+                  Approve
+                </CustomButton>
+              </Stack>
+            ) : (
               <Chip
                 size="small"
                 label={statusConfig.label}
@@ -151,146 +340,144 @@ export default function VendorRequestCard({
                   fontWeight: 600,
                 }}
               />
-              {request.boothSize ? (
-                <Chip
-                  size="small"
-                  label={`Booth: ${request.boothSize}`}
-                  sx={{
-                    bgcolor: "#f0f9ff",
-                    color: "#0c4a6e",
-                    fontWeight: 600,
-                  }}
-                />
-              ) : null}
-            </Stack>
-          </Box>
-
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2} color="#425466" fontSize="0.95rem">
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Clock size={16} />
-              <Typography variant="body2">{formatDate(request.startDate)}</Typography>
-              {request.endDate ? (
-                <Typography variant="body2">– {formatDate(request.endDate)}</Typography>
-              ) : null}
-            </Stack>
-            {request.location ? (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <MapPin size={16} />
-                <Typography variant="body2">{request.location}</Typography>
-              </Stack>
-            ) : null}
-            {request.boothLocation ? (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  Booth Location:
-                </Typography>
-                <Typography variant="body2">{request.boothLocation}</Typography>
-              </Stack>
-            ) : null}
+            )}
           </Stack>
         </Stack>
 
-        <Stack spacing={1.5} alignItems={{ xs: "stretch", sm: "flex-end" }} justifyContent="space-between">
-          <Box textAlign={{ xs: "left", sm: "right" }}>
-            <Typography variant="caption" sx={{ color: "#6b7280" }}>
-              Event
-            </Typography>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              {request.eventName}
-            </Typography>
-          </Box>
+        <Divider />
 
-          {isPending && onRespond ? (
-            <Stack direction="row" spacing={1}>
-              <CustomButton
-                variant="outlined"
-                color="error"
-                size="small"
-                disabled={disabled || loadingStatus === "approved"}
-                onClick={() => {onRespond("rejected"); setRefresh((prev)=>!prev)} }
-                startIcon={<XCircle size={16} />}
-              >
-                Reject
-              </CustomButton>
-              <CustomButton
-                variant="contained"
-                color="success"
-                size="small"
-                disabled={disabled || loadingStatus === "rejected"}
-                onClick={() => {onRespond("approved"); setRefresh((prev)=>!prev)} }
-                startIcon={<CheckCircle size={16} />}
-              >
-                Approve
-              </CustomButton>
+        {/* --- Attendees Section --- */}
+        <Stack spacing={1.5}>
+          {attendees.length > 0 && (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Users size={16} color="#1f2937" />
+              <Typography variant="subtitle2" sx={{ color: "#111827" }}>
+                Attendees
+              </Typography>
+            </Stack>
+          )}
+
+          {attendees.length > 0 ? (
+            <Stack spacing={0.75}>
+              {attendees.map((attendee, index) => (
+                <Stack
+                  key={`${attendee.email ?? attendee.name ?? index}`}
+                  direction="row"
+                  spacing={1}
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, color: "#1f2937" }}
+                    >
+                      {attendee.name ?? "Unnamed attendee"}
+                    </Typography>
+                    {attendee.nationalIdUrl && (
+                      <Tooltip title="View National ID">
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            handleViewDocument(
+                              attendee.nationalIdUrl!,
+                              `${attendee.name ?? "Attendee"}'s ID`
+                            )
+                          }
+                          sx={{ color: "#6299d0", p: 0.5 }}
+                        >
+                          <IdCard size={16} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Stack>
+                  {attendee.email && (
+                    <Tooltip title={attendee.email} placement="top">
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "#6b7280" }}
+                        noWrap
+                      >
+                        {attendee.email}
+                      </Typography>
+                    </Tooltip>
+                  )}
+                </Stack>
+              ))}
             </Stack>
           ) : (
-            <Chip
-              size="small"
-              label={statusConfig.label}
+            <Typography variant="body2" sx={{ color: "#6b7280" }}>
+              No attendees provided.
+            </Typography>
+          )}
+
+          {request.notes && (
+            <Box
               sx={{
-                bgcolor: statusConfig.bg,
-                color: statusConfig.fg,
-                fontWeight: 600,
+                mt: 1,
+                p: 1.5,
+                borderRadius: 2,
+                border: "1px dashed #cbd5f5",
+                bgcolor: "#f8fafc",
               }}
-            />
+            >
+              <Typography
+                variant="caption"
+                sx={{ color: "#1e293b", fontWeight: 600 }}
+              >
+                Notes
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#475569" }}>
+                {request.notes}
+              </Typography>
+            </Box>
           )}
         </Stack>
-      </Stack>
+      </Box>
 
-      <Divider />
+      {/* --- Document Viewer Modal --- */}
+      <CustomModal
+        open={!!viewDoc}
+        onClose={handleCloseModal}
+        title={viewDoc?.title || "View Document"}
+      >
+        <Stack spacing={2} alignItems="center" sx={{ p: 2, width: "100%" }}>
+          {/* React Doc Viewer Component */}
+          {viewDoc && (
+            <Box
+              sx={{
+                width: "100%",
+                height: "60vh",
+                overflow: "hidden",
+                border: "1px solid #e5e7eb",
+                borderRadius: 1,
+              }}
+            >
+              <DocViewer
+                documents={[{ uri: viewDoc.url, fileName: viewDoc.title }]}
+                pluginRenderers={DocViewerRenderers}
+                style={{ height: "100%", width: "100%" }}
+                config={{
+                  header: {
+                    disableHeader: true,
+                    disableFileName: true,
+                    retainURLParams: true,
+                  },
+                  pdfVerticalScrollByDefault: true,
+                }}
+              />
+            </Box>
+          )}
 
-      <Stack spacing={1.5}>
-        {attendees.length > 0 ? (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Users size={16} color="#1f2937" />
-            <Typography variant="subtitle2" sx={{ color: "#111827" }}>
-              Attendees
-            </Typography>
-          </Stack>
-        ) : null}
-
-        {attendees.length > 0 ? (
-          <Stack spacing={0.75}>
-            {attendees.map((attendee, index) => (
-              <Stack key={`${attendee.email ?? attendee.name ?? index}`} direction="row" spacing={1} justifyContent="space-between" alignItems="baseline">
-                <Typography variant="body2" sx={{ fontWeight: 500, color: "#1f2937" }}>
-                  {attendee.name ?? "Unnamed attendee"}
-                </Typography>
-                {attendee.email ? (
-                  <Tooltip title={attendee.email} placement="top">
-                    <Typography variant="caption" sx={{ color: "#6b7280" }} noWrap>
-                      {attendee.email}
-                    </Typography>
-                  </Tooltip>
-                ) : null}
-              </Stack>
-            ))}
-          </Stack>
-        ) : (
-          <Typography variant="body2" sx={{ color: "#6b7280" }}>
-            No attendees provided.
-          </Typography>
-        )}
-
-        {request.notes ? (
-          <Box
-            sx={{
-              mt: 1,
-              p: 1.5,
-              borderRadius: 2,
-              border: "1px dashed #cbd5f5",
-              bgcolor: "#f8fafc",
-            }}
+          <CustomButton
+            variant="contained"
+            onClick={() => viewDoc && handleDownload(viewDoc.url)}
+            startIcon={<Download size={18} />}
           >
-            <Typography variant="caption" sx={{ color: "#1e293b", fontWeight: 600 }}>
-              Notes
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#475569" }}>
-              {request.notes}
-            </Typography>
-          </Box>
-        ) : null}
-      </Stack>
-    </Box>
+            Download / Open Original
+          </CustomButton>
+        </Stack>
+      </CustomModal>
+    </>
   );
 }

@@ -8,7 +8,7 @@ import {
   Divider,
   Stack,
   Typography,
-  Skeleton, 
+  Skeleton,
 } from "@mui/material";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -71,6 +71,7 @@ function toNumber(value: unknown): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
+// Extended helper to map documents
 function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null {
   const vendorRaw = entry.vendor ?? entry.vendor?.vendor;
   const vendorObject = typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
@@ -80,7 +81,22 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
     (vendorObject?.name as string | undefined) ??
     "Unknown Vendor";
   const vendorRole = vendorObject?.role as string | undefined;
-  const vendorLogo = vendorObject?.logo as string | undefined;
+  const rawLogo = vendorObject?.logo;
+  let vendorLogo: string | undefined = undefined;
+
+  if (rawLogo && typeof rawLogo === "object" && "url" in rawLogo) {
+    vendorLogo = (rawLogo as any).url;
+  } else if (typeof rawLogo === "string") {
+    vendorLogo = rawLogo;
+  }
+
+  const rawTaxCard = vendorObject?.taxCard;
+  let taxCardUrl: string | undefined = undefined;
+  if (rawTaxCard && typeof rawTaxCard === "object" && "url" in rawTaxCard) {
+    taxCardUrl = (rawTaxCard as any).url;
+  } else if (typeof rawTaxCard === "string") {
+    taxCardUrl = rawTaxCard;
+  }
 
   const requestData = entry.RequestData ?? {};
   const eventRaw = entry.event ?? {};
@@ -99,10 +115,9 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const boothSize = requestData?.boothSize as string | undefined;
   const boothLocation = requestData?.boothLocation as string | undefined;
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
-  // Normalize attendees from multiple possible shapes/fields
+  
   const collectArrays = (...candidates: unknown[]) =>
-    candidates.filter(Array.isArray) as any[][
-      ];
+    candidates.filter(Array.isArray) as any[][];
 
   const candidateArrays = collectArrays(
     (requestData as any)?.bazaarAttendees,
@@ -120,13 +135,22 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const flattened = candidateArrays.flat();
 
   const parseContact = (val: any) => {
+    // Extract National ID if present
+    let nationalIdUrl: string | undefined = undefined;
+    if (val && typeof val === "object") {
+       if (val.nationalId && typeof val.nationalId === 'object' && 'url' in val.nationalId) {
+         nationalIdUrl = val.nationalId.url;
+       } else if (typeof val.nationalId === 'string') {
+         nationalIdUrl = val.nationalId;
+       }
+    }
+
     if (typeof val === "string") {
       const str = val.trim();
-      // Basic email detection in string
       if (str.includes("@")) {
-        return { name: undefined, email: str };
+        return { name: undefined, email: str, nationalIdUrl };
       }
-      return { name: str || undefined, email: undefined };
+      return { name: str || undefined, email: undefined, nationalIdUrl };
     }
     if (val && typeof val === "object") {
       const firstName = (val.firstName as string | undefined) ?? undefined;
@@ -138,13 +162,16 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
         (val.mail as string | undefined) ??
         (val.contactEmail as string | undefined) ??
         undefined;
-      if (name || email) return { name, email };
+      
+      if (name || email) return { name, email, nationalIdUrl };
     }
     return undefined;
   };
 
-  const deduped: { name?: string; email?: string }[] = [];
-  const seen = new Set<string>();
+  // Deduping logic needs to preserve nationalIdUrl if found
+  const deduped: { name?: string; email?: string; nationalIdUrl?: string }[] = [];
+  const seen = new Map<string, { name?: string; email?: string; nationalIdUrl?: string }>();
+
   for (const item of flattened) {
     const contact = parseContact(item);
     if (!contact) continue;
@@ -153,11 +180,21 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
       : contact.name
       ? `n:${contact.name.toLowerCase()}`
       : null;
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    deduped.push(contact);
+    
+    if (!key) continue;
+
+    if (seen.has(key)) {
+      // If we saw this person before, but the new entry has an ID and the old one didn't, update it
+      const existing = seen.get(key);
+      if (!existing?.nationalIdUrl && contact.nationalIdUrl) {
+         seen.set(key, { ...existing, nationalIdUrl: contact.nationalIdUrl });
+      }
+    } else {
+      seen.set(key, contact);
+    }
   }
-  const attendees = deduped;
+  
+  const attendees = Array.from(seen.values());
   const status = normalizeStatus(requestData?.status);
   const submittedAt = ensureString(requestData?.submittedAt ?? requestData?.createdAt);
   const notes =
@@ -188,8 +225,9 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
     attendees,
     submittedAt,
     notes,
+    taxCardUrl,
     raw: entry,
-  };
+  } as any; 
 }
 
 export default function VendorParticipationRequests() {
@@ -319,10 +357,8 @@ export default function VendorParticipationRequests() {
 
   const content = () => {
     if (loading) {
-      // Render Skeletons to mimic the VendorRequestCard structure
       return (
         <Stack spacing={3}>
-          {/* Mimic group title */}
           <Box>
             <Skeleton width={200} height={24} sx={{ mb: 1.5 }} />
             <Stack spacing={2.5}>
@@ -340,11 +376,8 @@ export default function VendorParticipationRequests() {
                   }}
                 >
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5}>
-                    {/* Avatar Skeleton */}
                     <Skeleton variant="circular" width={56} height={56} sx={{ flexShrink: 0 }} />
-                    
                     <Stack spacing={1} flex={1} minWidth={0}>
-                       {/* Name and Chips Skeleton */}
                       <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={1} alignItems={{ md: "center" }}>
                          <Skeleton variant="text" width="40%" height={32} />
                          <Stack direction="row" spacing={1}>
@@ -352,14 +385,11 @@ export default function VendorParticipationRequests() {
                             <Skeleton variant="rounded" width={80} height={24} />
                          </Stack>
                       </Box>
-                      {/* Location/Date Skeleton */}
                       <Stack direction="row" spacing={2}>
                         <Skeleton variant="text" width={120} />
                         <Skeleton variant="text" width={100} />
                       </Stack>
                     </Stack>
-
-                    {/* Right Side Action Skeleton */}
                     <Stack spacing={1.5} alignItems={{ xs: "stretch", sm: "flex-end" }} justifyContent="space-between">
                         <Box textAlign={{ xs: "left", sm: "right" }}>
                            <Skeleton variant="text" width={60} sx={{ ml: { sm: "auto" } }} />
@@ -371,10 +401,7 @@ export default function VendorParticipationRequests() {
                         </Stack>
                     </Stack>
                   </Stack>
-
                   <Divider />
-
-                  {/* Bottom Section Skeleton */}
                   <Stack spacing={1.5}>
                     <Skeleton variant="text" width={100} />
                     <Stack spacing={0.75}>
