@@ -1,7 +1,9 @@
 import React from 'react';
-import { Box, Typography, Avatar, Chip, Grid } from '@mui/material';
+import { Box, Typography, Avatar, Grid } from '@mui/material';
 import { User, TrendingUp } from 'lucide-react';
 import theme from '@/themes/lightTheme';
+import StatusChip from '../shared/StatusChip';
+import { capitalizeFullName } from '../shared/utils/nameUtils';
 
 interface WalletBalanceProps {
   currentBalance?: number;
@@ -20,7 +22,8 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
     return `${firstInitial}${lastInitial}` || 'U';
   };
   const active = userInfo.status == "active";
-  const fullName = userInfo?.firstName + " " + userInfo?.lastName;
+  const fullNameRaw = userInfo?.firstName + " " + userInfo?.lastName;
+  const fullName = capitalizeFullName(fullNameRaw);
 
   const monthTransactions = (transactions || []).reduce((acc: any, tx: any) => {
     const txDate = new Date(tx.date);
@@ -33,7 +36,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
   const isMonthPositive = parseFloat(monthTransactions) >= 0;
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+    <Box sx={{ width: '100%', mt: 2 }}>
       {/* Modern Card with Glassmorphism Effect */}
       <Box
         sx={{
@@ -109,27 +112,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
               </Box>
 
               {/* Status Badge */}
-              <Chip
-                label={active ? "Active" : "Blocked"}
-                icon={
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      bgcolor: active ? '#34d399' : "error.main",
-                      ml: 1,
-                    }}
-                  />
-                }
-                sx={{
-                  bgcolor: active ? 'rgba(16, 185, 129, 0.2)' : 'rgba(219, 48, 48, 0.2)',
-                  color: active ? '#34d399' : "error.main",
-                  fontWeight: 500,
-                  fontSize: '0.75rem',
-                  height: 28,
-                }}
-              />
+              <StatusChip active={active} />
             </Box>
 
             {/* Balance Section */}
