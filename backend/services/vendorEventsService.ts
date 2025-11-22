@@ -97,6 +97,7 @@ export class VendorEventsService {
       event: event._id as string,
       RequestData: data.value,
       status: applicationStatus,
+      QRCodeGenerated: false,
     });
 
     await vendor.save();
@@ -105,6 +106,7 @@ export class VendorEventsService {
       vendor,
       event,
       applicationStatus,
+      QRCodeGenerated: false,
     };
   }
 
@@ -163,6 +165,7 @@ export class VendorEventsService {
       vendor,
       event,
       applicationStatus,
+      QRCodeGenerated: false,
     };
   }
 
