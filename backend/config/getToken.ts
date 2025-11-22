@@ -3,8 +3,6 @@ import readline from "readline";
 import dotenv from "dotenv";
 dotenv.config();
 
-// To run in terminal: cd config && npx ts-node getToken.ts
-
 const SCOPES = ["https://www.googleapis.com/auth/gmail.send"];
 
 const oAuth2Client = new google.auth.OAuth2(
