@@ -6,6 +6,7 @@ export interface IRequestedEvent {
   event: string;
   RequestData: any;
   status: Event_Request_Status;
+  QRCodeGenerated?: boolean;
 }
 
 export interface VendorRequest {

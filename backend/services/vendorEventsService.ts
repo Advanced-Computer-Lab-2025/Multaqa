@@ -147,12 +147,13 @@ export class VendorEventsService {
       event: eventId,
       RequestData: data.value,
       status: applicationStatus,
+      QRCodeGenerated: false,
     });
 
     // Add vendor to bazaar's vendors list
     event.vendors?.push({
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus },
+      RequestData: { ...data.value, status: applicationStatus , QRCodeGenerated: false },
     });
 
     await event.save();
@@ -680,26 +681,29 @@ export class VendorEventsService {
         );
       }
     } else if (event.type === EVENT_TYPES.BAZAAR) {
+      let isNotEmpty:boolean = false;
       for (const vendorEntry of event.vendors || []) {
         if (
           vendorEntry.RequestData.status === "approved" &&
           vendorEntry.RequestData.QRCodeGenerated === false
         ) {
+          isNotEmpty = true;
           await this.generateAndSendQRCodes(
             (vendorEntry.vendor as IVendor).companyName,
             (vendorEntry.vendor as IVendor).email,
             event.eventName,
             event.location || "Unknown Location",
-            vendorEntry.RequestData.boothAttendees as IBoothAttendee[]
+            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[]
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
-        } else {
-          throw createError(
-            400,
-            "QR Codes have already been generated for all vendors in this bazaar event"
-          );
-        }
+        } 
+      }
+      if (!isNotEmpty) {
+        throw createError(
+          400,
+          "QR Codes have already been generated for all vendors in this bazaar event"
+        );
       }
     }
     await event.save();
@@ -712,6 +716,8 @@ export class VendorEventsService {
     location: string,
     attendees: IBoothAttendee[]
   ): Promise<void> {
+    // Ensure attendees is always an array
+    
     const qrCodeData: any[] = [];
     for (const attendee of attendees) {
         const qrCodeBuffer = await generateQrCodeBuffer( 
