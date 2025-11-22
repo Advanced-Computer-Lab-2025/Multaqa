@@ -13,14 +13,11 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
-import {
-  IBoothAttendee,
-  IPlatformBooth,
-} from "../interfaces/models/platformBooth.interface";
+import { IBoothAttendee, IPlatformBooth } from "../interfaces/models/platformBooth.interface";
 import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
 import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
-import { pdfGenerator } from "../utils/pdfGenerator";
 import { IUser } from "../interfaces/models/user.interface";
+import { pdfGenerator } from "../utils/pdfGenerator";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -437,7 +434,6 @@ export class VendorEventsService {
 
     const vendorRequest = vendor.requestedEvents[requestIndex];
 
-
     // For bazaar, log the vendor entry in the event
     if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
       const vendorInEvent = event.vendors.find(
@@ -496,5 +492,242 @@ export class VendorEventsService {
         throw createError(404, "Vendor not found in this platform booth event");
       }
     }
+  }
+
+  /**
+   * Get all vendors participating in GUC loyalty program
+   * @returns List of vendors with their loyalty program details
+   */
+  async getAllLoyaltyPartners(): Promise<
+    Array<{
+      vendorId: string;
+      companyName: string;
+      logo: any;
+      loyaltyProgram: {
+        discountRate: number;
+        promoCode: string;
+        termsAndConditions: string;
+      };
+    }>
+  > {
+    // Find all vendors that have a loyalty program (promoCode exists)
+    const vendors = await this.vendorRepo.findAll({
+      "loyaltyProgram.promoCode": { $exists: true, $ne: null },
+    });
+
+    // Map to return only necessary fields
+    return vendors.map((vendor) => ({
+      vendorId: (vendor as any)._id.toString(),
+      companyName: vendor.companyName,
+      logo: vendor.logo,
+      loyaltyProgram: {
+        discountRate: vendor.loyaltyProgram!.discountRate,
+        promoCode: vendor.loyaltyProgram!.promoCode,
+        termsAndConditions: vendor.loyaltyProgram!.termsAndConditions,
+      },
+    }));
+  }
+
+  /**
+   * Apply to GUC loyalty program
+   * @param vendorId - Vendor ID
+   * @param loyaltyData - Discount rate, promo code, terms and conditions
+   * @returns Updated vendor
+   */
+  async applyToLoyaltyProgram(
+    vendorId: string,
+    loyaltyData: {
+      discountRate: number;
+      promoCode: string;
+      termsAndConditions: string;
+    }
+  ): Promise<IVendor> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    // Check if vendor already has a loyalty program
+    if (vendor.loyaltyProgram && vendor.loyaltyProgram.promoCode) {
+      throw createError(400, "Vendor already has a loyalty program");
+    }
+
+    // Update only the loyaltyProgram field via the repository to keep data access constrained
+    const updatedVendor = await this.vendorRepo.update(vendorId, {
+      loyaltyProgram: {
+        discountRate: loyaltyData.discountRate,
+        promoCode: loyaltyData.promoCode.toUpperCase(),
+        termsAndConditions: loyaltyData.termsAndConditions,
+      },
+    });
+
+    if (!updatedVendor) {
+      throw createError(500, "Failed to update vendor loyalty program");
+    }
+
+    return updatedVendor;
+  }
+
+  /**
+   * Cancel vendor's loyalty program participation
+   * @param vendorId - Vendor ID
+   * @returns Updated vendor
+   */
+  async cancelLoyaltyProgram(vendorId: string): Promise<IVendor> {
+    const vendor = await this.vendorRepo.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    if (!vendor.loyaltyProgram || !vendor.loyaltyProgram.promoCode) {
+      throw createError(404, "No active loyalty program found to cancel");
+    }
+
+    // Remove loyalty program using findByIdAndUpdate to avoid validation issues
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { $unset: { loyaltyProgram: "" } },
+      { new: true, runValidators: false }
+    );
+
+    if (!updatedVendor) {
+      throw createError(500, "Failed to cancel loyalty program");
+    }
+
+    return updatedVendor;
+  }
+  async getEventsForQRCodeGeneration(): Promise<IEvent[]> {
+    const filter: any = {
+      type: { $in: [EVENT_TYPES.BAZAAR, EVENT_TYPES.PLATFORM_BOOTH] },
+    };
+    const events = await this.eventRepo.findAll(filter, {
+      populate: [
+        { path: "vendors.vendor", select: "companyName logo" },
+        { path: "vendor", select: "companyName logo" },
+      ] as any[],
+    });
+
+    const filteredEvents: IEvent[] = [];
+
+    for (const event of events) {
+      const eventData = event.toObject();
+
+      // Platform Booth Filtering
+      if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+        if (
+          eventData.RequestData &&
+          eventData.RequestData.status === "approved" &&
+          eventData.RequestData.QRCodeGenerated === false
+        ) {
+          filteredEvents.push(eventData as IEvent);
+        }
+      }
+      // Bazaar Filtering
+      else if (event.type === EVENT_TYPES.BAZAAR) {
+        const vendorsNeedingQR = (eventData.vendors || []).filter(
+          (vendor: VendorRequest) => {
+            return (
+              vendor.RequestData &&
+              vendor.RequestData.status === "approved" &&
+              vendor.RequestData.QRCodeGenerated === false
+            );
+          }
+        );
+
+        if (vendorsNeedingQR.length > 0) {
+          eventData.vendors = vendorsNeedingQR;
+
+          filteredEvents.push(eventData as IEvent);
+        }
+      }
+    }
+    if (filteredEvents.length === 0) {
+      throw createError(404, "No events found needing QR code generation");
+    }
+    return filteredEvents;
+  }
+
+  async generateVendorEventQRCodes(eventId: string): Promise<void> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [
+        { path: "vendors.vendor", select: "companyName logo email" },
+        { path: "vendor", select: "companyName logo email" },
+      ] as any[],
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      if (
+        event.RequestData.status === "approved" &&
+        event.RequestData.QRCodeGenerated === false
+      ) {
+        await this.generateAndSendQRCodes(
+          (event.vendor as IVendor).companyName,
+          (event.vendor as IUser).email,
+          event.eventName,
+          event.location || "Unknown Location",
+          event.RequestData.boothAttendees as IBoothAttendee[]
+        );
+
+        event.RequestData.QRCodeGenerated = true;
+        event.markModified("RequestData");
+      } else {
+        throw createError(
+          400,
+          "QR Code has already been generated for this platform booth event"
+        );
+      }
+    } else if (event.type === EVENT_TYPES.BAZAAR) {
+      for (const vendorEntry of event.vendors || []) {
+        if (
+          vendorEntry.RequestData.status === "approved" &&
+          vendorEntry.RequestData.QRCodeGenerated === false
+        ) {
+          await this.generateAndSendQRCodes(
+            (vendorEntry.vendor as IVendor).companyName,
+            (vendorEntry.vendor as IVendor).email,
+            event.eventName,
+            event.location || "Unknown Location",
+            vendorEntry.RequestData.boothAttendees as IBoothAttendee[]
+          );
+          vendorEntry.RequestData.QRCodeGenerated = true;
+          event.markModified("vendors");
+        } else {
+          throw createError(
+            400,
+            "QR Codes have already been generated for all vendors in this bazaar event"
+          );
+        }
+      }
+    }
+    await event.save();
+  }
+
+  private async generateAndSendQRCodes(
+    companyName: string,
+    email: string,
+    eventName: string,
+    location: string,
+    attendees: IBoothAttendee[]
+  ): Promise<void> {
+    const qrCodeData: any[] = [];
+    for (const attendee of attendees) {
+        const qrCodeBuffer = await generateQrCodeBuffer( 
+            eventName,
+            location,
+            new Date().toISOString(),
+            attendee.name,
+           
+        );
+        qrCodeData.push({
+            buffer: qrCodeBuffer,
+            name: `${attendee.name}`,
+        });
+    }
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData,eventName);
+    console.log("Sending QR Code Email to:", email);
+    await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
   }
 }
