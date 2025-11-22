@@ -1,10 +1,14 @@
 import React from 'react';
-import { Box, Typography, Grid as MuiGrid, Chip, CardContent, Avatar } from '@mui/material';
+import { Box, Typography, Grid as MuiGrid, Chip, CardContent, Avatar, Divider, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Clock, Group, Mail } from 'lucide-react';
 import { BazaarDetails as BazaarDetailsType } from '../types/eventDetails.types';
 import { SectionTitle, IconWrapper } from './shared/StyledComponents';
 import { CalendarToday, EventAvailable, AccessTime, LocationOn, AttachMoney, Person } from '@mui/icons-material';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
+import { useState } from 'react';
+import { handleGenerateQR } from '../utils/index';
 
 const Grid = styled(MuiGrid)``;
 
@@ -17,8 +21,12 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
   endTime,
   location,
   vendors,
+  userRole,
+  eventId
 }) => {
   console.log(vendors);
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const detailItems = [
       {
         icon: <CalendarToday color="primary" />,
@@ -115,8 +123,8 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
               </Box>
             </Grid>
           ))}
-          
-            <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Divider sx={{ width: '100%', mb: 3, mt: 5 }} />
+            <Grid container spacing={2} >
               <Grid size={{ xs:12 , md:12}}>
                 <Box sx={{ 
                   display: 'flex', 
@@ -126,20 +134,43 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
                 }}>
                  {(vendors.filter(vendor => vendor !== null).length>0)&&<Typography variant="h6" sx={{ 
                     color: 'text.primary', 
-                    fontWeight: 600
+                    fontWeight: 600,
+                    mb:3
                   }}>
                     Participating Vendors
                   </Typography>
                   }
-                  {vendors?.filter(vendor => vendor !== null).length > 0 && (
-                    <Chip 
-                      icon={<Person />}
-                      label={`${vendors.filter(vendor => vendor !== null).length} Vendor${vendors.filter(vendor => vendor !== null).length !== 1 ? 's' : ''}`}
-                      color="primary"
-                      variant="outlined"
-                      sx={{ fontWeight: 'medium' }}
-                    />
-                  )}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 ,mb:3}}>
+                    {vendors?.filter(vendor => vendor !== null).length > 0 && (
+                      <Chip 
+                        icon={<Person />}
+                        label={`${vendors.filter(vendor => vendor !== null).length} Vendor${vendors.filter(vendor => vendor !== null).length !== 1 ? 's' : ''}`}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontWeight: 'medium',
+                          height: 35
+                         }}
+                      />
+                    )}
+                    {vendors?.filter(vendor => vendor !== null).length > 0 &&
+                    userRole === "events-office" && (
+                      <Tooltip title="Generate QR code and email it to participating vendors" arrow>
+                        <span>
+                          <CustomButton
+                            onClick={() => handleGenerateQR(setIsGenerating, eventId)}
+                            variant="outlined"
+                            width="auto"
+                            startIcon={<QrCode2Icon/>}
+                            loading={isGenerating}
+                            disabled={isGenerating}
+                            sx={{paddingLeft:2, paddingRight:2}}
+                          >
+                            {isGenerating ? "Emailing QR Code..." : "Generate QR Code"}
+                          </CustomButton>
+                        </span>
+                      </Tooltip>
+                    )}
+                  </Box>
                 </Box>
               </Grid>
               
