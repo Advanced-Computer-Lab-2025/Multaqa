@@ -77,7 +77,7 @@ app.use("/payments", paymentRouter);
 app.use(errorHandler);
 app.use(notFoundHandler);
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+const MONGO_URI = process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 const PORT = process.env.PORT || 4000;
 
 async function startServer() {
@@ -102,7 +102,10 @@ async function startServer() {
       OnlineUsersService.addSocket(userId, socket.id);
 
       // Listen for read notification event
-      socket.on("notification:read", NotificationService.markAsRead);
+      socket.on("notification:read", async (payload: { notificationId: string }) => {
+        const { notificationId } = payload;
+        await NotificationService.markAsRead(notificationId);
+      });
 
       socket.on("disconnect", () => {
         OnlineUsersService.removeSocket(userId, socket.id);

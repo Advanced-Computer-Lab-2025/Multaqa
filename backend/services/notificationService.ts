@@ -69,8 +69,8 @@ export class NotificationService {
       { read: true },
       { new: true }
     );
+
     eventBus.emit("notification:read", notif);
     return notif;
   }
-
 }
