@@ -17,6 +17,7 @@ import {
 import { fetchGymSessions } from "./utils";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
+import ContentWrapper from "../shared/containers/ContentWrapper";
 
 // colors handled by `GymSessionCard`
 
@@ -199,38 +200,10 @@ export default function GymSchedule({ month, sessions }: Props) {
   ];
 
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 4 },
-        backgroundColor: "transparent",
-        minHeight: "100vh",
-        fontFamily: "var(--font-poppins), system-ui, sans-serif",
-      }}
+    <ContentWrapper
+      title="Gym Sessions"
+      description="Browse sessions by month and filter by type."
     >
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-            fontWeight: 700,
-            color: theme.palette.text.primary,
-            mb: 1,
-          }}
-        >
-          Gym Sessions
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#757575",
-            fontFamily: "var(--font-poppins), system-ui, sans-serif",
-          }}
-        >
-          Browse sessions by month and filter by type.
-        </Typography>
-      </Box>
-
       {/* Month Pagination */}
       <Box
         sx={{
@@ -469,6 +442,6 @@ export default function GymSchedule({ month, sessions }: Props) {
           ))
         )}
       </Stack>
-    </Box>
+    </ContentWrapper>
   );
 }
