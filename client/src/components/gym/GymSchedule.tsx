@@ -203,6 +203,7 @@ export default function GymSchedule({ month, sessions }: Props) {
     <ContentWrapper
       title="Gym Sessions"
       description="Browse sessions by month and filter by type."
+      headerMarginBottom={2}
     >
       {/* Month Pagination */}
       <Box
