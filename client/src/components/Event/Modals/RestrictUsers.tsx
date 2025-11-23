@@ -4,6 +4,7 @@ import { CustomModalLayout } from "@/components/shared/modals";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
 import { Box, Typography } from "@mui/material";
+import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -32,10 +33,32 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
           setError(null);
           try {
           const res = await api.patch("/events/" + eventId, payload);
+           // Success case
+          toast.success("Event Updated Successfully", {
+            position: "bottom-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
           if (setRefresh) setRefresh((p) => !p);
           } catch (err: any) {
           setError(err?.message || "API call failed");
-          window.alert(err?.response?.data?.error || err?.message);
+          toast.error(err?.message || "Updating Allowed Users Failed",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+          );
           } finally {
           setLoading(false);
           }
@@ -56,7 +79,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
     initialValues: { allowedUsers: options.map(o => o.value) as string[] },
     onSubmit: async (values) => {
       // call API with the allowedUsers array (server expects allowedUsers)
-      // await handleCallApi({ allowedUsers: values.allowedUsers });
+      // await handleCallApi({ allowedUsers: values.allowedUsers , type: eventType });
       // optional alert and close as before
       alert(JSON.stringify(values.allowedUsers) + eventType);
       onClose();
@@ -85,7 +108,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
       <Box sx={{ p: 3, width: { xs: "90vw", sm: 560 } }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 , borderBottom:"2px solid #E0E0E0", pb:1}}>
           <Typography variant="body1" sx={{ fontWeight: 600 , mr:2}}>
-            Select which user types to restrict from viewing this {eventType}:
+            Select which users to restrict from viewing this {eventType}:
           </Typography>
           {/* removed "Check all" control as requested */}
         </Box>
