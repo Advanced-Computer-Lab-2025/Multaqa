@@ -96,10 +96,19 @@ export class NotificationService {
     }
 
     const undeliveredNotifications = user.notifications.filter((notification) => !notification.delivered);
-    undeliveredNotifications.forEach(async (notification) => {
-      await NotificationService.sendNotification(notification);
+    for (const notification of undeliveredNotifications) {
+      const notificationData: Notification = {
+        userId: userId,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        read: notification.read,
+        delivered: notification.delivered,
+        createdAt: notification.createdAt
+      };
+      await NotificationService.sendNotification(notificationData);
       notification.delivered = true;
-    });
+    }
     await user.save();
 
     return undeliveredNotifications;
