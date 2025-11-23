@@ -3,6 +3,7 @@ import { IEvent } from "../../interfaces/models/event.interface";
 import { EVENT_TYPES } from "../../constants/events.constants";
 import "../stakeholder-schemas/userSchema";
 import { UserRole } from "../../constants/user.constants";
+import { StaffPosition } from "../../constants/staffMember.constants";
 
 // Base event schema
 const EventSchema = new Schema<IEvent>(
@@ -17,11 +18,16 @@ const EventSchema = new Schema<IEvent>(
       default: false,
     },
     attendees: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    allowedUsers: [{ type: String, enum: Object.values(UserRole) }],
+    allowedUsers: [
+      {
+        type: String,
+        enum: [...Object.values(UserRole), ...Object.values(StaffPosition)],
+      },
+    ],
     reviews: [
       {
-        reviewer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        rating: { type: Number, min: 1, max: 5},
+        reviewer: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        rating: { type: Number, min: 1, max: 5 },
         comment: { type: String },
         createdAt: { type: Date, default: Date.now },
       },
