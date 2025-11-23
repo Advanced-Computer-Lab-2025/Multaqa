@@ -13,6 +13,7 @@ export function validateUpdateConference(data: any) {
     eventStartTime: Joi.string().optional(),
     eventEndTime: Joi.string().optional(),
     description: Joi.string().optional(),
+    archived: Joi.boolean().optional(),
 
     // Conference-specific fields
     fullAgenda: Joi.string().optional(),
