@@ -38,7 +38,7 @@ export class WorkshopService {
     if (professor && professor.myWorkshops) {
       const createdEventId = createdEvent._id;
       professor.myWorkshops.push(
-        createdEventId as mongoose.Schema.Types.ObjectId
+        createdEventId as unknown as mongoose.Schema.Types.ObjectId
       );
       await professor.save();
       console.log(createdEvent);
@@ -88,98 +88,68 @@ export class WorkshopService {
     workshopId: string,
     updateData: Partial<IWorkshop>
   ): Promise<IWorkshop> {
-    try {
-      const { approvalStatus, comments } = updateData;
+    const { approvalStatus, comments } = updateData;
 
-      const workshop = await this.workshopRepo.findById(workshopId);
-      if (!workshop) throw createError(404, "Workshop not found");
+    const workshop = await this.workshopRepo.findById(workshopId);
+    if (!workshop) throw createError(404, "Workshop not found");
 
-      // Get the events office user to retrieve their name
-      const eventsOffice = await this.userRepo.findById(eventsOfficeId);
-      if (!eventsOffice) throw createError(404, "Events Office user not found");
+    // Get the events office user to retrieve their name
+    const eventsOffice = await this.userRepo.findById(eventsOfficeId);
+    if (!eventsOffice) throw createError(404, "Events Office user not found");
 
-      // Check if workshop is already approved or rejected - these are irreversible
-      if (
-        workshop.approvalStatus === Event_Request_Status.APPROVED ||
-        workshop.approvalStatus === Event_Request_Status.REJECTED
-      ) {
-        throw createError(
-          409,
-          "Cannot update workshop status - already finalized (approved/rejected)"
-        );
-      }
-
-      // Determine final status and comments based on the incoming approvalStatus:
-      let finalStatus: Event_Request_Status;
-      let finalComments: any[];
-
-      if (
-        approvalStatus === Event_Request_Status.APPROVED ||
-        approvalStatus === Event_Request_Status.REJECTED
-      ) {
-        // APPROVED or REJECTED = final decision
-        // Clear all previous comments on final decision
-        finalStatus = approvalStatus;
-        finalComments = [];
-      } else {
-        // Events Office is requesting edits by adding comments
-        const hasComments = Array.isArray(comments) && comments.length > 0;
-
-        if (!hasComments) {
-          throw createError(
-            400,
-            "Comments are required when requesting edits. Use APPROVED or REJECTED for final decisions."
-          );
-        }
-
-        // Validate comment structure
-        for (const comment of comments) {
-          if (!comment.id || !comment.text) {
-            throw createError(
-              400,
-              "Invalid comment format. Each comment must have an id and text field."
-            );
-          }
-        }
-
-        // Transform comments to replace commenter ID with events office name
-        const eventsOfficeName = (eventsOffice as any).name || "Events Office";
-        finalComments = comments.map((comment: any) => ({
-          id: comment.id,
-          commenter: eventsOfficeName, // Replace ID with name
-          timestamp: comment.timestamp || new Date(),
-          text: comment.text,
-        }));
-
-        // Comments provided = status becomes AWAITING_REVIEW (requesting edits)
-        finalStatus = Event_Request_Status.AWAITING_REVIEW;
-      }
-
-      const updatedWorkshop = await this.workshopRepo.update(workshopId, {
-        approvalStatus: finalStatus,
-        comments: finalComments,
-      });
-
-      if (!updatedWorkshop) throw createError(404, "Workshop not found");
-
-      return updatedWorkshop;
-    } catch (error: any) {
-      // Handle Mongoose CastError and ValidationError with sanitized messages
-      if (error.name === "CastError") {
-        throw createError(
-          400,
-          "Invalid data format provided. Please check your input and try again."
-        );
-      }
-      if (error.name === "ValidationError") {
-        throw createError(
-          400,
-          "Validation failed. Please ensure all required fields are provided correctly."
-        );
-      }
-      // Re-throw other errors (like createError errors)
-      throw error;
+    // Check if workshop is already approved or rejected - these are irreversible
+    if (
+      workshop.approvalStatus === Event_Request_Status.APPROVED ||
+      workshop.approvalStatus === Event_Request_Status.REJECTED
+    ) {
+      throw createError(
+        409,
+        "Cannot update workshop status - already finalized (approved/rejected)"
+      );
     }
+
+    // Determine final status and comments based on the incoming approvalStatus:
+    let finalStatus: Event_Request_Status;
+    let finalComments: any[];
+
+    if (
+      approvalStatus === Event_Request_Status.APPROVED ||
+      approvalStatus === Event_Request_Status.REJECTED
+    ) {
+      // APPROVED or REJECTED = final decision
+      // Clear all previous comments on final decision
+      finalStatus = approvalStatus;
+      finalComments = [];
+    } else {
+      // Events Office is requesting edits by adding comments
+      const hasComments = Array.isArray(comments) && comments.length > 0;
+
+      if (!hasComments) {
+        throw createError(
+          400,
+          "Comments are required when requesting edits. Use APPROVED or REJECTED for final decisions."
+        );
+      }
+
+      // Transform comments to replace commenter ID with events office name
+      const eventsOfficeName = (eventsOffice as any).name || "Events Office";
+      finalComments = comments.map((comment: any) => ({
+        ...comment,
+        commenter: eventsOfficeName, // Replace ID with name
+      }));
+
+      // Comments provided = status becomes AWAITING_REVIEW (requesting edits)
+      finalStatus = Event_Request_Status.AWAITING_REVIEW;
+    }
+
+    const updatedWorkshop = await this.workshopRepo.update(workshopId, {
+      approvalStatus: finalStatus,
+      comments: finalComments,
+    });
+
+    if (!updatedWorkshop) throw createError(404, "Workshop not found");
+
+    return updatedWorkshop;
   }
 
   // Calculate workshop end time based on eventEndDate and eventEndTime
