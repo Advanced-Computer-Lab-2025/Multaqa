@@ -5,7 +5,7 @@ import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban} from "lucide-react";
+import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban, Archive} from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -14,6 +14,7 @@ import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -38,6 +39,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
@@ -88,6 +90,26 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
         <Stack direction="row" spacing={1}>
          {user ==="events-office" ?
+          <>
+          <Tooltip title ={"Archive Workshop"}>
+            <IconButton
+              size="medium"
+              onClick={() => setArchive(true)}
+              sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  "&:hover": {
+                    backgroundColor: "#ff980015",
+                    borderColor: "warning.main",
+                    color: "warning.main",
+                  },
+                }}
+            >
+              <Archive size={18} />
+            </IconButton>
+          </Tooltip>
           <Tooltip title ={"Restrict Workshop"}>
           <IconButton
             size="medium"
@@ -107,6 +129,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
             <Ban size={18} />
           </IconButton>
         </Tooltip>
+        </>
         :<></>}  
         <Tooltip title="Delete Workshop">
           <IconButton
@@ -258,7 +281,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         eventId={id}
        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
       <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      
+      <ArchiveEvent setRefresh={setRefresh} eventId={id} eventType={"Workshop"} open={archive} onClose={() => setArchive(false)}/>
       <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
         
       <CustomModalLayout

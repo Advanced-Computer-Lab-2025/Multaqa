@@ -13,6 +13,7 @@ import EditConference from "../../components/tempPages/EditConference/EditConfer
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,
@@ -32,6 +33,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [edit, setEdit] = useState(false)
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -73,7 +75,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                      </IconButton>
                    </Tooltip>
           ) : ( user==="events-office"|| user==="events-only"?
-           <Utilities onRestrict={() => setRestrictUsers(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
+           <Utilities onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
         expanded={expanded} location={details["Location"]} />
 
 
@@ -157,6 +159,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventEndTime={details["End Time"]}
       />
       <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+        <ArchiveEvent setRefresh={setRefresh} eventId={id} eventType={"Conference"} open={archive} onClose={() => setArchive(false)}/>
        <CustomModalLayout
                     open={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}
