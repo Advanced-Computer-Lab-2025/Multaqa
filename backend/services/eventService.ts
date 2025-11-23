@@ -18,6 +18,7 @@ import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
 import { VendorEventsService } from "./vendorEventsService";
+import { UserRole } from "../constants/user.constants";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -160,7 +161,7 @@ export class EventsService {
 
     // filter events based on user role/position and allowedUsers list
     // Skip filtering for admin users
-    if (userRole && userRole !== "ADMINISTRATION") {
+    if (userRole && userRole !== UserRole.ADMINISTRATION) {
       events = events.filter((event: any) => {
         // If allowedUsers is not defined or empty, allow all users
         if (!event.allowedUsers || event.allowedUsers.length === 0) {
@@ -603,102 +604,117 @@ export class EventsService {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
         { path: "attendees", select: "firstName lastName " },
-        { path: "vendors.vendor", select: "companyName" }
+        { path: "vendors.vendor", select: "companyName" },
       ] as any[],
     });
     if (!event) {
       throw createError(404, "Event not found");
     }
 
-    if(event.type=== EVENT_TYPES.CONFERENCE  || event.type === EVENT_TYPES.GYM_SESSION ) {
-      throw createError(400, "Exporting attendees is not supported for this event type");
+    if (
+      event.type === EVENT_TYPES.CONFERENCE ||
+      event.type === EVENT_TYPES.GYM_SESSION
+    ) {
+      throw createError(
+        400,
+        "Exporting attendees is not supported for this event type"
+      );
     }
 
     const workbook = new ExcelJS.Workbook();
 
     const applyHeaderStyle = (cell: ExcelJS.Cell) => {
-        cell.font = { bold: true, size: 12, name: 'Calibri' };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        cell.border = { bottom: { style: 'thin', color: { argb: 'FF000000' } } };
+      cell.font = { bold: true, size: 12, name: "Calibri" };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = { bottom: { style: "thin", color: { argb: "FF000000" } } };
     };
 
     const applyVendorHeaderStyle = (cell: ExcelJS.Cell) => {
-        cell.font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FF0000FF' } }; // Blue text
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFCCCCFF' } }; // Light Blue fill
+      cell.font = {
+        bold: true,
+        size: 11,
+        name: "Calibri",
+        color: { argb: "FF0000FF" },
+      }; // Blue text
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFCCCCFF" },
+      }; // Light Blue fill
     };
 
-   
-   if(event.type === EVENT_TYPES.PLATFORM_BOOTH ) {
-      const boothAttendees=event.RequestData.boothAttendees as IBoothAttendee[];
-      const attendees = boothAttendees.map(attendee => ({
+    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      const boothAttendees = event.RequestData
+        .boothAttendees as IBoothAttendee[];
+      const attendees = boothAttendees.map((attendee) => ({
         Name: attendee.name,
-      }))
-      const worksheet = workbook.addWorksheet('Platform Booth Attendees');
-     
+      }));
+      const worksheet = workbook.addWorksheet("Platform Booth Attendees");
+
       worksheet.columns = [
-        { header: 'Booth Attendee Name', key: 'name', width: 30 }, 
+        { header: "Booth Attendee Name", key: "name", width: 30 },
       ];
       const headerRow = worksheet.getRow(1);
       applyHeaderStyle(headerRow.getCell(1));
-      
-      attendees.forEach(attendee => {
-       worksheet.addRow({ name: attendee.Name });
+
+      attendees.forEach((attendee) => {
+        worksheet.addRow({ name: attendee.Name });
       });
-       
-      }
-      else if(event.type === EVENT_TYPES.BAZAAR ) {
-        if (!event.vendors || event.vendors.length === 0) {
+    } else if (event.type === EVENT_TYPES.BAZAAR) {
+      if (!event.vendors || event.vendors.length === 0) {
         throw createError(404, "No vendors to export for this bazaar");
       }
       // Create worksheet for bazaar booth attendees
-      const worksheet = workbook.addWorksheet('Bazaar Booth Attendees');
+      const worksheet = workbook.addWorksheet("Bazaar Booth Attendees");
       worksheet.columns = [
-        { header: 'Vendor/Booth Attendee Name', key: 'Name', width: 40 }
+        { header: "Vendor/Booth Attendee Name", key: "Name", width: 40 },
       ];
       // Apply header style
       const headerCell = worksheet.getRow(1).getCell(1);
-      headerCell.value = 'Vendor/Attendee Name';
+      headerCell.value = "Vendor/Attendee Name";
       applyHeaderStyle(headerCell);
 
       // Populate rows with vendors and their attendees
-     event.vendors.forEach((vendorEntry: any) => {
-        const vendorName = vendorEntry.vendor?.companyName || 'Unknown Vendor';
-        
+      event.vendors.forEach((vendorEntry: any) => {
+        const vendorName = vendorEntry.vendor?.companyName || "Unknown Vendor";
+
         const vendorRow = worksheet.addRow({ Name: `VENDOR: ${vendorName}` });
         applyVendorHeaderStyle(vendorRow.getCell(1));
 
         const bazaarAttendees = vendorEntry.RequestData?.bazaarAttendees || [];
         const attendees = bazaarAttendees.map((attendee: IBoothAttendee) => ({
-            name: attendee.name,
+          name: attendee.name,
         }));
         attendees.forEach((attendee: IBoothAttendee) => {
-           worksheet.addRow({ Name: `  - ${attendee.name}` }); 
+          worksheet.addRow({ Name: `  - ${attendee.name}` });
         });
 
         // Add an empty row for visual separation after the vendor group
         worksheet.addRow([]);
       });
-      }
-       else {
-     const attendees = event.attendees as any[];
-    const plainAttendees = attendees.map(attendee => attendee.toObject());
-    const worksheet = workbook.addWorksheet('Attendees');
-    worksheet.columns = [
-      { header: 'First Name', key: 'firstName', width: 20 },
-      { header: 'Last Name', key: 'lastName', width: 20 }
-    ];
-    const headerRow = worksheet.getRow(1);
-      headerRow.eachCell(cell => applyHeaderStyle(cell));
+    } else {
+      const attendees = event.attendees as any[];
+      const plainAttendees = attendees.map((attendee) => attendee.toObject());
+      const worksheet = workbook.addWorksheet("Attendees");
+      worksheet.columns = [
+        { header: "First Name", key: "firstName", width: 20 },
+        { header: "Last Name", key: "lastName", width: 20 },
+      ];
+      const headerRow = worksheet.getRow(1);
+      headerRow.eachCell((cell) => applyHeaderStyle(cell));
 
-      plainAttendees.forEach(attendee => {
-          worksheet.addRow({
+      plainAttendees.forEach((attendee) => {
+        worksheet.addRow({
           firstName: attendee.firstName,
           lastName: attendee.lastName,
         });
-        
       });
     }
-        return await workbook.xlsx.writeBuffer() as any;
-      }
+    return (await workbook.xlsx.writeBuffer()) as any;
+  }
 }
