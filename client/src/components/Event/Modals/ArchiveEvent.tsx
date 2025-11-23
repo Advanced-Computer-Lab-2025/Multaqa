@@ -68,13 +68,13 @@ const ArchiveEvent = ({eventId, eventName, eventType, open, onClose, setRefresh}
         modalType='warning'
         borderColor='warning.main'
         buttonOption2={{
-          label: "Archive",
+          label: "Yes",
           variant: "contained",
             color: "warning",
-            onClick: onClose,
+            onClick: handleArchiveEvent,
         }}
         buttonOption1={{
-            label: "Cancel",
+            label: "No",
             variant: "outlined",
             color: "warning",
             onClick: onClose,
