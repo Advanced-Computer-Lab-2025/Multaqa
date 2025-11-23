@@ -520,10 +520,12 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
       case EventType.WORKSHOP:
+        console.log(event);
         return (
           <WorkshopView
             id={event.id}
@@ -545,6 +547,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
@@ -571,6 +574,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
@@ -597,6 +601,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
@@ -619,6 +624,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             userInfo={userInfo}
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
+            archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()

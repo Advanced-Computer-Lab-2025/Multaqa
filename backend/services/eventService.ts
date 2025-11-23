@@ -132,7 +132,7 @@ export class EventsService {
     };
 
     // Non-admin users should only see non-archived events
-    if (userRole !== "ADMINISTRATION") {
+    if (userRole !== UserRole.ADMINISTRATION) {
       filter.archived = { $ne: true };
     }
 

@@ -53,6 +53,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
   setEvaluating,
   eventsOfficeId,
 }) => {
+  console.log(workshop);
   const [status, setStatus] = useState("N/A");
   const [comment, setComment] = useState("");
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
@@ -129,13 +130,11 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     approvalStatus: string;
     comments: CommentWithoutId[];
   }) => {
-    const professorId = workshop.details["CreatedId"];
-    console.log(professorId);
     console.log(payload);
 
     try {
       await api.patch(
-        `/workshops/${professorId}/${workshop.id}/status`,
+        `/workshops/${workshop.id}/status`,
         payload
       );
       toast.success("Your evaluation has been recieved. Thank you !", {
@@ -198,7 +197,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
       approvalStatus: mapToApiStatus(confirmed),
       comments: commentArray,
     };
-
+    console.log(commentArray);
     handleCallApi(payload);
     setComment("");
   };

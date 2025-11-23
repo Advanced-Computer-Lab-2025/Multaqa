@@ -58,6 +58,17 @@ const getUserEntitySegment = (user: any): string => {
   return "student"; // ultimate fallback
 };
 
+const getEventsOfficeName = (user: any): string => {
+  if (!user) return "";
+
+  if (user.role === "administration") {
+    if (user.roleType === "eventsOffice") return String(user?.name);
+  }
+
+  return ""; // ultimate fallback
+};
+
+
 const SignedOutFallback = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
   const [showAction, setShowAction] = useState(false);
 
@@ -136,6 +147,7 @@ export default function EntityCatchAllPage() {
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
   const { user, isLoading } = useAuth();
   const userId = String(user?._id);
+  let eventOfficeName = getEventsOfficeName(user);
   const [countdown, setCountdown] = useState(3);
   // Track if login redirect should be shown
   const showLoginRedirect = !user && !isLoading;
@@ -509,7 +521,7 @@ export default function EntityCatchAllPage() {
         <WorkshopDetails
           workshop={specificWorkshop}
           setEvaluating={setEvaluating}
-          eventsOfficeId={userId}
+          eventsOfficeId={eventOfficeName}
         />
       ) : (
         <WorkshopRequests
