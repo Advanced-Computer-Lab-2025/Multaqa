@@ -66,7 +66,7 @@ app.use("/payments", paymentRouter);
 
 
 const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+  process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {
