@@ -234,7 +234,7 @@ export class EventsService {
       await this.ensureStripeProductForPricedEvent(createdEvent)
 
       await this.notificationService.sendNotification({
-        role: [UserRole.STAFF_MEMBER, UserRole.STUDENT, UserRole.STAFF_MEMBER],
+        role: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.ADMINISTRATION],
         staffPosition: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
         adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
         type: "EVENT_NEW",
@@ -736,10 +736,9 @@ export class EventsService {
       await this.notificationService.sendNotification({
         userId,
         type: "EVENT_REMINDER",
-        title: `Event Reminder: ${event.title}`,
-        message: `The event "${event.title}" starts in ${timeframe}`,
+        title: `Event Reminder: ${event.eventName}`,
+        message: `The event "${event.eventName}" starts in ${timeframe}`,
         createdAt: new Date(),
       } as Notification);
     }
-  }
-}
+  }}

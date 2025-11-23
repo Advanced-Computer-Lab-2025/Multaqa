@@ -104,24 +104,41 @@ async function startServer() {
       // The frontend sends: socket.emit("notification:read", { .. }), So the backend receives it:
       // This is user-initiated, unlike the others which are system-initiated events
       socket.on("notification:read", async (payload: { notificationId: string }) => {
-        await NotificationService.markAsRead(socket.data.userId, payload.notificationId);
+        try {
+          await NotificationService.markAsRead(socket.data.userId, payload.notificationId);
+        } catch (error) {
+          console.error("Error marking notification as read:", error);
+          socket.emit("error", { message: "Failed to mark notification as read" });
+        }
       });
 
       // Send undelievered notifications when user connects
       (async () => {
-        await NotificationService.sendUndeliveredNotifications(socket.data.userId);
+        try {
+          await NotificationService.sendUndeliveredNotifications(socket.data.userId);
+        } catch (error) {
+          console.error("Error sending undelivered notifications:", error);
+        }
       })();
 
       // Listen for delete notification event from the frontend
       socket.on("notification:delete", async (payload: { notificationId: string }) => {
-        await NotificationService.deleteNotification(socket.data.userId, payload.notificationId);
+        try {
+          await NotificationService.deleteNotification(socket.data.userId, payload.notificationId);
+        } catch (error) {
+          console.error("Error deleting notification:", error);
+          socket.emit("error", { message: "Failed to delete notification" });
+        }
       });
 
       socket.on("disconnect", () => {
-        OnlineUsersService.removeSocket(userId, socket.id);
+        try {
+          OnlineUsersService.removeSocket(userId, socket.id);
+        } catch (error) {
+          console.error("Error removing socket:", error);
+        }
       });
     });
-
     // Start server
     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

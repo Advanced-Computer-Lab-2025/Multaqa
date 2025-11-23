@@ -77,7 +77,7 @@ export class CourtService {
       // Get reserved slots for today
       const reservedSlots = (court.reservations || [])
         .filter(reservation => {
-          console.log('Reservation date from DB:', reservation.date);
+          // console.log('Reservation date from DB:', reservation.date);
 
           const resDate = new Date(reservation.date);
           const resYear = resDate.getFullYear();
@@ -85,7 +85,7 @@ export class CourtService {
           const resDay = String(resDate.getDate()).padStart(2, '0');
           const resDateString = `${resYear}-${resMonth}-${resDay}`;
 
-          console.log('Formatted reservation date:', resDateString);
+          // console.log('Formatted reservation date:', resDateString);
 
           return resDateString === todayString;
         })

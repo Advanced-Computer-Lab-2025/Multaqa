@@ -198,17 +198,17 @@ export class WorkshopService {
   async sendCertificatesForWorkshop(workshopId: string): Promise<void> {
     const workshop = await this.workshopRepo.findById(workshopId);
     if (!workshop) {
-      throw new Error('Workshop not found');
+      throw createError(404, 'Workshop not found');
     }
 
     if (workshop.certificatesSent) {
-      throw new Error('Certificates have already been sent for this workshop');
+      throw createError(409, 'Certificates have already been sent for this workshop');
     }
 
     const now = new Date();
     const endTime = this.calculateWorkshopEndTime(workshop);
     if (now < endTime) {
-      throw new Error('Workshop has not ended yet');
+      throw createError(400, 'Workshop has not ended yet');
     }
 
     await this.sendCertificatesToAllAttendees(workshopId);
