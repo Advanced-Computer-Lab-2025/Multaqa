@@ -70,10 +70,6 @@ export class GymSessionsService {
     if (!session) {
       throw createError(404, "Gym session not found");
     }
-    const deleted = await this.gymSessionRepo.delete(sessionId);
-    if (!deleted) {
-      throw createError(404, "Gym session not found");
-    }
     for (const attendee of session.attendees as any[]) {
       console.log("Notifying attendee", attendee.email);
       await sendGymSessionNotificationEmail({
@@ -90,6 +86,11 @@ export class GymSessionsService {
 
       });
     }
+    const deleted = await this.gymSessionRepo.delete(sessionId);
+    if (!deleted) {
+      throw createError(404, "Gym session not found");
+    }
+    
     return;
   }
 
