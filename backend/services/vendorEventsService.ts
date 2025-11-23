@@ -15,6 +15,7 @@ import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { sendApplicationStatusEmail } from "./emailService";
 import { Notification } from "./notificationService";
 import { NotificationService } from "./notificationService";
+import { AdministrationRoleType } from "../constants/administration.constants";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -100,6 +101,7 @@ export class VendorEventsService {
 
     await this.notificationService.sendNotification({
       role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
+      adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
       type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for a platform booth event.`,
@@ -165,6 +167,7 @@ export class VendorEventsService {
 
     await this.notificationService.sendNotification({
       role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
+      adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
       type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for the bazaar event "${event.eventName}".`,
