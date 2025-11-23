@@ -21,7 +21,7 @@ export interface Notification {
 
 export class NotificationService {
 
-  async sendNotification(notification: Notification) {
+  static async sendNotification(notification: Notification) {
 
     // Emit the event based on type if user is online
     switch (notification.type) {
@@ -96,8 +96,8 @@ export class NotificationService {
     }
 
     const undeliveredNotifications = user.notifications.filter((notification) => !notification.delivered);
-    undeliveredNotifications.forEach((notification) => {
-      eventBus.emit(notification.type, notification);
+    undeliveredNotifications.forEach(async (notification) => {
+      await NotificationService.sendNotification(notification);
       notification.delivered = true;
     });
     await user.save();

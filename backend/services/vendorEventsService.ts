@@ -20,13 +20,11 @@ import { AdministrationRoleType } from "../constants/administration.constants";
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
-  private notificationService: NotificationService;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
-    this.notificationService = new NotificationService();
   }
 
   /**
@@ -99,7 +97,7 @@ export class VendorEventsService {
 
     await vendor.save();
 
-    await this.notificationService.sendNotification({
+    await NotificationService.sendNotification({
       role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
       adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
       type: "VENDOR_PENDING_REQUEST",
@@ -165,7 +163,7 @@ export class VendorEventsService {
     await event.save();
     await vendor.save();
 
-    await this.notificationService.sendNotification({
+    await NotificationService.sendNotification({
       role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
       adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
       type: "VENDOR_PENDING_REQUEST",

@@ -32,14 +32,12 @@ export class EventsService {
   private conferenceRepo: GenericRepository<IConference>;
   private stripe?: Stripe;
   private userService: UserService;
-  private notificationService: NotificationService;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
     this.conferenceRepo = new GenericRepository(Conference);
     this.userService = new UserService();
-    this.notificationService = new NotificationService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -233,7 +231,7 @@ export class EventsService {
 
       await this.ensureStripeProductForPricedEvent(createdEvent)
 
-      await this.notificationService.sendNotification({
+      await NotificationService.sendNotification({
         role: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.ADMINISTRATION],
         staffPosition: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
         adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
@@ -733,7 +731,7 @@ export class EventsService {
     const attendees = event.attendees || [];
 
     for (const userId of attendees) {
-      await this.notificationService.sendNotification({
+      await NotificationService.sendNotification({
         userId,
         type: "EVENT_REMINDER",
         title: `Event Reminder: ${event.eventName}`,

@@ -17,12 +17,10 @@ import { Notification } from "./notificationService";
 export class WorkshopService {
   private staffRepo: GenericRepository<IStaffMember>;
   private workshopRepo: GenericRepository<IWorkshop>;
-  private notificationService: NotificationService;
 
   constructor() {
     this.staffRepo = new GenericRepository(StaffMember);
     this.workshopRepo = new GenericRepository(Workshop);
-    this.notificationService = new NotificationService();
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
@@ -43,7 +41,7 @@ export class WorkshopService {
     await professor.save();
     console.log(createdEvent);
 
-    await this.notificationService.sendNotification({
+    await NotificationService.sendNotification({
       role: [UserRole.ADMINISTRATION],
       adminRole: [AdministrationRoleType.EVENTS_OFFICE],
       type: "WORKSHOP_REQUEST_SUBMITTED",
@@ -138,7 +136,7 @@ export class WorkshopService {
 
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
 
-    await this.notificationService.sendNotification({
+    await NotificationService.sendNotification({
       userId: professorId, // Notify the professor
       type: "WORKSHOP_STATUS_CHANGED",
       title: "Workshop Request Status Updated",
