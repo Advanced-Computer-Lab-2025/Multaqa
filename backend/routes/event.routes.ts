@@ -328,18 +328,17 @@ async function exportEventUsers(req: Request, res: Response) {
       throw createError(400, "eventId is required");
     }
     const xlxsData = await eventsService.exportEventUsersToXLXS(eventId);
-    
- res.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      );
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="event-${eventId}-attendees.xlsx"`
-      );
-      // Send the Excel file as the response (Response must only contain the file data)
-       res.send(xlxsData);
 
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="event-${eventId}-attendees.xlsx"`
+    );
+    // Send the Excel file as the response (Response must only contain the file data)
+    res.send(xlxsData);
   } catch (err: any) {
     throw createError(
       err.status || 500,
@@ -385,12 +384,11 @@ router.post(
 router.get(
   "/workshops",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER],
+    userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [
       AdministrationRoleType.EVENTS_OFFICE,
       AdministrationRoleType.ADMIN,
     ],
-    staffPositions: [StaffPosition.PROFESSOR],
   }),
   findAllWorkshops
 );
@@ -494,7 +492,7 @@ router.get(
   "/export/:eventId/attendees",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   exportEventUsers
 );

@@ -217,7 +217,9 @@ export class EventsService {
   }
 
   async getAllWorkshops(): Promise<IEvent[]> {
-    const filter: any = { type: EVENT_TYPES.WORKSHOP };
+    const filter: any = {
+      type: EVENT_TYPES.WORKSHOP,
+    };
     return this.eventRepo.findAll(filter, {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
