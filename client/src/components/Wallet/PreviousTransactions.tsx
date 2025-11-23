@@ -85,13 +85,17 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                   Total: ${total}
                 </Typography>
 
-                <Typography variant="body2" color="text.secondary">
-                  Paid by card: ${card}
-                </Typography>
+                {!isRefund ?
+                <>
+                  <Typography variant="body2" color="text.secondary">
+                    Paid by card: ${card}
+                  </Typography>
 
-                <Typography variant="body2" color="text.secondary">
-                  Paid by wallet: ${wallet}
-                </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Paid by wallet: ${wallet}
+                  </Typography>
+                </>  
+                :<></>} 
 
                 <Typography variant="caption" color="textPrimary">
                   Date: {displayDate}

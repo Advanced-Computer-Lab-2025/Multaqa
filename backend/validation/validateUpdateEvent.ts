@@ -1,11 +1,21 @@
 import Joi from "joi";
 import { EVENT_TYPES } from "../constants/events.constants";
+import { UserRole } from "../constants/user.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
 
 // Event base schema
 const eventBaseSchema = Joi.object({
   type: Joi.string()
     .valid(...Object.values(EVENT_TYPES))
     .required(),
+  allowedUsers: Joi.array()
+    .items(
+      Joi.string().valid(
+        ...Object.values(UserRole),
+        ...Object.values(StaffPosition)
+      )
+    )
+    .optional(),
   eventName: Joi.string().optional(),
   eventStartDate: Joi.date().optional(),
   eventEndDate: Joi.date().optional(),
@@ -14,6 +24,7 @@ const eventBaseSchema = Joi.object({
   registrationDeadline: Joi.date().optional(),
   location: Joi.string().optional(),
   description: Joi.string().optional(),
+  archived: Joi.boolean().optional(),
 });
 
 // Bazaar event schema
