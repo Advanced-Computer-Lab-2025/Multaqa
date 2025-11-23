@@ -14,11 +14,41 @@ import BazarView from "../Event/BazarView";
 import BoothView from "../Event/BoothView";
 import TripView from "../Event/TripView";
 import { EventType } from "./types";
+import theme from "@/themes/lightTheme";
+import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
+import EventIcon from "@mui/icons-material/Event";
+import SellIcon from "@mui/icons-material/Sell";
+import Diversity3Icon from "@mui/icons-material/Diversity3";
 
 interface FavoritesListProps {
   userInfo: any;
   user: string;
 }
+
+const EventColor = [
+  {
+    color: "#6e8ae6", // Trips
+    icon: FlightTakeoffIcon, //indigo
+  },
+  {
+    icon: StorefrontIcon, //Booth
+    color: "#2196f3", // Blue
+  },
+  {
+    icon: EventIcon, //Conference
+    color: "#ff9800", // Orange
+  },
+  {
+    icon: SellIcon, //Bazaar
+    color: "#e91e63", // Pink
+  },
+  {
+    icon: Diversity3Icon, //workshop
+    color: "#9c27b0", // Purple
+  },
+];
 
 const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
   const [loading, setLoading] = useState(true);
@@ -78,8 +108,8 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             name={event.name}
             description={event.description}
             agenda={event.agenda}
-            icon={() => null}
-            background={"#6e8ae6"}
+            icon={EventColor[2].icon}
+            background={EventColor[2].color}
             user={user}
             userInfo={userInfo}
             attended={event.attended}
@@ -95,8 +125,8 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             description={event.description}
             professors={event.professors}
             agenda={event.agenda}
-            icon={() => null}
-            background={"#9c27b0"}
+            icon={EventColor[4].icon}
+            background={EventColor[4].color}
             user={user}
             userInfo={userInfo}
             attended={event.attended}
@@ -111,8 +141,8 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             name={event.name}
             description={event.description}
             vendors={event.vendors}
-            icon={() => null}
-            background={"#e91e63"}
+            icon={EventColor[3].icon}
+            background={EventColor[3].color}
             user={user}
             userInfo={userInfo}
             attended={event.attended}
@@ -127,8 +157,8 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             company={event.company}
             people={event.people}
             description={event.description}
-            icon={() => null}
-            background={"#2196f3"}
+            icon={EventColor[1].icon}
+            background={EventColor[1].color}
             user={user}
             userInfo={userInfo}
             attended={event.attended}
@@ -142,8 +172,8 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             details={event.details}
             name={event.name}
             description={event.description}
-            icon={() => null}
-            background={"#6e8ae6"}
+            icon={EventColor[0].icon}
+            background={EventColor[0].color}
             user={user}
             userInfo={userInfo}
             attended={event.attended}
@@ -161,23 +191,37 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             startTime={event.details?.["Start Time"]}
             endTime={event.details?.["End Time"]}
             color={"#6366F1"}
+            eventType={event.type}
           />
         );
     }
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          sx={{
+            mb: 2,
+            textAlign: "left",
+            fontFamily: "var(--font-jost), system-ui, sans-serif",
+            color: `${theme.palette.tertiary.dark}`,
+          }}
+        >
           My Favorites
         </Typography>
-        <Typography variant="body2" sx={{ color: "#757575" }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
+        >
           Events you marked as favorites are listed here.
         </Typography>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gap: 3 }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gap: 3, padding: "0px 40px" }}>
         {events.map((ev) => renderEvent(ev))}
       </Box>
     </Container>
