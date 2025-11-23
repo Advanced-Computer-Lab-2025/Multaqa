@@ -12,7 +12,7 @@ import { sendCertificateOfAttendanceEmail } from "./emailService";
 import { CertificateService } from "./certificateService";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
-import { INotification } from "../interfaces/models/notification.interface";
+import { Notification } from "./notificationService";
 
 export class WorkshopService {
   private staffRepo: GenericRepository<IStaffMember>;
@@ -50,7 +50,7 @@ export class WorkshopService {
       title: "New Workshop Request Submitted",
       message: `Professor ${professor.firstName} ${professor.lastName} has submitted a new workshop request titled "${createdEvent.eventName}".`,
       createdAt: new Date(),
-    } as INotification);
+    } as Notification);
 
     return createdEvent;
   }
@@ -144,7 +144,7 @@ export class WorkshopService {
       title: "Workshop Request Status Updated",
       message: `Your workshop request titled "${workshop.eventName}" has been updated to status: ${finalStatus}.`,
       createdAt: new Date(),
-    } as INotification);
+    } as Notification);
 
     return updatedWorkshop;
   }

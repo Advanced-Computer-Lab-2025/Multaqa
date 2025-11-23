@@ -18,6 +18,14 @@ const userSchema = new Schema<IUser>(
       required: true,
       enum: Object.values(UserRole),
     },
+    notifications: [{
+      type: { type: String, required: true },
+      title: { type: String, required: true },
+      message: { type: String, required: true },
+      read: { type: Boolean, default: false },
+      delivered: { type: Boolean, default: false },
+      createdAt: { type: Date, default: Date.now }
+    }],
     isVerified: { type: Boolean, default: false },
     registeredAt: { type: Date, default: Date.now },
     verifiedAt: { type: Date },

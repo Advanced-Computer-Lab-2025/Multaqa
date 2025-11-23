@@ -19,8 +19,7 @@ import { StaffPosition } from "../constants/staffMember.constants";
 import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
-import { INotification } from "../interfaces/models/notification.interface";
-import cron from "node-cron";
+import { Notification } from "./notificationService";
 
 const { Types } = require("mongoose");
 
@@ -242,7 +241,7 @@ export class EventsService {
         title: "New Event Added",
         message: `A new event titled "${createdEvent.eventName}" has been added. Check it out!`,
         createdAt: new Date(),
-      } as INotification);
+      } as Notification);
 
       return createdEvent;
     } catch (err) {
@@ -740,7 +739,7 @@ export class EventsService {
         title: `Event Reminder: ${event.title}`,
         message: `The event "${event.title}" starts in ${timeframe}`,
         createdAt: new Date(),
-      } as INotification);
+      } as Notification);
     }
   }
 }

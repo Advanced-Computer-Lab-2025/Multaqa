@@ -13,7 +13,7 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { sendApplicationStatusEmail } from "./emailService";
-import { INotification } from "../interfaces/models/notification.interface";
+import { Notification } from "./notificationService";
 import { NotificationService } from "./notificationService";
 
 export class VendorEventsService {
@@ -104,7 +104,7 @@ export class VendorEventsService {
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for a platform booth event.`,
       createdAt: new Date(),
-    } as INotification);
+    } as Notification);
 
     return {
       vendor,
@@ -169,7 +169,7 @@ export class VendorEventsService {
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for the bazaar event "${event.eventName}".`,
       createdAt: new Date()
-    } as INotification);
+    } as Notification);
 
     return {
       vendor,

@@ -5,16 +5,38 @@ import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserService } from "../services/userService";
-import { INotification } from "../interfaces/models/notification.interface";
+import { Notification } from "../services/notificationService";
+import GenericRepository from "../repos/genericRepo";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
+import { INotification, IUser } from "../interfaces/models/user.interface";
 
 // Helper function to send a socket notification
-function sendSocketNotification(typeNotification: string, notification: INotification) {
+async function sendSocketNotification(typeNotification: string, notification: Notification) {
   if (!notification.userId && !notification.role && !notification.adminRole && !notification.staffPosition) {
     return;
   }
 
+  const userRepo = new GenericRepository<IUser>(User);
+
+  // Notify specific user
   if (notification.userId) {
     const sockets = OnlineUsersService.getUserSockets(notification.userId);
+    const isOnline = sockets.length > 0;
+
+    // Add notification to user's notifications array
+    const user = await userRepo.findById(notification.userId);
+    if (user) {
+      user.notifications.push({
+        type: typeNotification,
+        title: notification.title || '',
+        message: notification.message || '',
+        read: false,
+        delivered: isOnline,
+        createdAt: new Date()
+      } as INotification);
+      await user.save();
+    }
+
     sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
     return;
   }
@@ -94,8 +116,24 @@ function sendSocketNotification(typeNotification: string, notification: INotific
     }
   }
 
-  usersToNotify.forEach((userId) => {
+  usersToNotify.forEach(async (userId) => {
     const sockets = OnlineUsersService.getUserSockets(userId);
+    const isOnline = sockets.length > 0;
+
+    // Add notification to user's notifications array
+    const user = await userRepo.findById(userId);
+    if (user) {
+      user.notifications.push({
+        type: typeNotification,
+        title: notification.title || '',
+        message: notification.message || '',
+        read: false,
+        delivered: isOnline,
+        createdAt: new Date()
+      } as INotification);
+      await user.save();
+    }
+
     sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
   });
   return;

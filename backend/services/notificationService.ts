@@ -1,32 +1,30 @@
-import { INotification } from "../interfaces/models/notification.interface";
-import { Notification } from "../schemas/misc/notification-schema";
-import GenericRepository from "../repos/genericRepo";
 import eventBus from "../utils/eventBus";
+import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { INotification } from "../interfaces/models/user.interface";
+import GenericRepository from "../repos/genericRepo";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
+
+export interface Notification {
+  userId?: string;
+  role?: UserRole[];
+  adminRole?: AdministrationRoleType[];
+  staffPosition?: StaffPosition[];
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  delivered: boolean;
+  createdAt: Date;
+}
 
 export class NotificationService {
-  private notificationRepo: GenericRepository<INotification>;
 
-  constructor() {
-    this.notificationRepo = new GenericRepository(Notification);
-  }
-
-  async sendNotification(notificationData: INotification): Promise<INotification> {
-    // 1. Save to MongoDB to persist the notification and send it when user is online again
-    const notification = await this.notificationRepo.create({
-      userId: notificationData.userId,
-      type: notificationData.type,
-      message: notificationData.message,
-      read: false,
-      delivered: false,
-      title: notificationData.title,
-      role: notificationData.role,
-      adminRole: notificationData.adminRole,
-      staffPosition: notificationData.staffPosition,
-      createdAt: new Date(),
-    });
+  async sendNotification(notification: Notification) {
 
     // Emit the event based on type if user is online
-    switch (notificationData.type) {
+    switch (notification.type) {
       case "WORKSHOP_REQUEST_SUBMITTED":
         eventBus.emit("notification:workshop:requestSubmitted", notification);
         break;
@@ -55,22 +53,27 @@ export class NotificationService {
         eventBus.emit("notification:update", notification);
         break;
       default:
-        console.warn(`No event bus handler for notification type: ${notificationData.type}`);
+        console.warn(`No event bus handler for notification type: ${notification.type}`);
         // Fallback for new generic notifications
         eventBus.emit("notification:new", notification);
     }
-
-    return notification;
   }
 
-  static async markAsRead(notificationId: string) {
-    const notif = await Notification.findByIdAndUpdate(
-      notificationId,
-      { read: true },
-      { new: true }
-    );
+  static async markAsRead(userId: string, notificationId: string) {
+    const userRepo = new GenericRepository(User);
+    const user = await userRepo.findById(userId);
 
-    eventBus.emit("notification:read", notif);
-    return notif;
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const notificationIndex = user.notifications?.findIndex((notification) => {
+      return (notification._id as any).toString() === notificationId.toString();
+    });
+    user.notifications[notificationIndex].read = true;
+    await user.save();
+
+    eventBus.emit("notification:read", { userId, notificationId });
+    return { userId, notificationId };
   }
 }

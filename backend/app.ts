@@ -102,9 +102,10 @@ async function startServer() {
       OnlineUsersService.addSocket(userId, socket.id);
 
       // Listen for read notification event
+      // The frontend sends: socket.emit("notification:read", { .. }), So the backend receives it:
+      // This is user-initiated, unlike the others which are system-initiated events
       socket.on("notification:read", async (payload: { notificationId: string }) => {
-        const { notificationId } = payload;
-        await NotificationService.markAsRead(notificationId);
+        await NotificationService.markAsRead(socket.data.userId, payload.notificationId);
       });
 
       socket.on("disconnect", () => {
