@@ -11,6 +11,7 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const gymSessionsService = new GymSessionsService();
 
@@ -119,6 +120,36 @@ async function cancelGymSession(
   }
 }
 
+async function registerUserToSession(
+  req: AuthenticatedRequest,
+  res: Response<CreateGymSessionResponse>
+) {
+  try {
+    const sessionId = req.params.sessionId;
+    const userId = req.user?.id;
+    if (!sessionId) {
+      throw createError(400, "Session ID is required");
+    }
+    if (!userId) {
+      throw createError(400, "User ID is required");
+    }
+    const updatedSession = await gymSessionsService.registerUserToSession(
+      sessionId,
+      userId
+    );
+    res.json({
+      success: true,
+      message: "User registered to gym session successfully",
+      data: updatedSession,
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error registering user to gym session"
+    );
+  }
+}
+
 const router = Router();
 router.get(
   "/",
@@ -162,6 +193,21 @@ router.delete(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   cancelGymSession
+);
+router.post(
+  "/:sessionId/register",
+  authorizeRoles({
+    userRoles: [
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+    ],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  registerUserToSession
 );
 
 export default router;
