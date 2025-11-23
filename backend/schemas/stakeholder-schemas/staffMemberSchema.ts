@@ -33,7 +33,17 @@ const staffMemberSchema = new Schema<IStaffMember>(
     ],
   },
   {
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        if (ret.myWorkshops) {
+          ret.myWorkshops = ret.myWorkshops.filter((workshop: any) => {
+            return !workshop?.archived;
+          });
+        }
+        return ret;
+      },
+    },
     toObject: { virtuals: true },
   }
 );
