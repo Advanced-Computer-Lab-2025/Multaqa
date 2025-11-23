@@ -1,10 +1,13 @@
 "use client";
 
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const MINIMUM_LOADING_TIME = 3000; // 3 seconds
 
@@ -62,8 +65,25 @@ export default function ClientProviders({
 
   return (
     <AuthProvider>
-      {/* ✅ Only wrap in ProtectedRoute when route is NOT public */}
-      {isPublic ? children : <ProtectedRoute>{children}</ProtectedRoute>}
+      <NotificationProvider>
+        {/* ✅ Only wrap in ProtectedRoute when route is NOT public */}
+        {isPublic ? children : <ProtectedRoute>{children}</ProtectedRoute>}
+        
+        {/* Toast Container for notifications */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          style={{ zIndex: 9999 }}
+        />
+      </NotificationProvider>
     </AuthProvider>
   );
 }

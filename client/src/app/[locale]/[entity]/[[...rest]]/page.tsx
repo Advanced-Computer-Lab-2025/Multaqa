@@ -28,6 +28,7 @@ import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
+import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -639,6 +640,13 @@ export default function EntityCatchAllPage() {
         );
       }
     }
+
+    // Notifications - Available for all entities
+    if (tab === "notifications") {
+      console.log("✅ Notifications tab accessed for entity:", entity);
+      return <NotificationsPageContent />;
+    }
+
     // Default placeholder content
     return (
       <div className="p-6 bg-white">

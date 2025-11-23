@@ -1,6 +1,7 @@
 import React from "react";
 import { IconButton } from "@mui/material";
 import { ArrowLeft } from "lucide-react";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 interface HeaderProps {
   title: string;
@@ -31,7 +32,7 @@ export default function TopNavigation({
   className="bg-white border-b border-gray-300 w-full">
       {/* Company/App Bar with Back Button */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 bg-gradient-to-r from-[#f9fbfc] to-[#f0f4f8]">
-        {/* Left: Back Button (if applicable) */}
+        {/* Left: Back Button */}
         <div className="flex items-center gap-3">
           {header?.showBack && (
             <IconButton
@@ -59,8 +60,10 @@ export default function TopNavigation({
           </span>
         </div>
 
-        {/* Right: Placeholder for user menu (future) */}
-        <div className="w-9" />
+        {/* Right: Notification Bell */}
+        <div className="flex items-center gap-3">
+          <NotificationBell />
+        </div>
       </div>
 
       {/* Tabs Section */}
