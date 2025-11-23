@@ -2,9 +2,9 @@ import eventBus from "../utils/eventBus";
 import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
-import { INotification } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
+import createError from "http-errors";
 
 export interface Notification {
   userId?: string;
@@ -75,5 +75,25 @@ export class NotificationService {
 
     eventBus.emit("notification:read", { userId, notificationId });
     return { userId, notificationId };
+  }
+
+  static async sendUndeliveredNotifications(userId: string) {
+    const userRepo = new GenericRepository(User);
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    if (!user.notifications || user.notifications.length === 0) {
+      return;
+    }
+    
+    const undeliveredNotifications = user.notifications.filter((notification) => !notification.delivered);
+    undeliveredNotifications.forEach((notification) => {
+      eventBus.emit(notification.type, notification);
+      notification.delivered = true;
+    });
+    await user.save();
   }
 }

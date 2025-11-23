@@ -95,8 +95,7 @@ async function startServer() {
     // Socket authentication
     io.use(authSocketMiddleware);
 
-    // Handle socket connections
-    // executed ONLY when a socket tries to connect.
+    // Handle socket connections -> executed ONLY when a socket tries to connect.
     io.on("connection", (socket) => {
       const userId = socket.data.userId;
       OnlineUsersService.addSocket(userId, socket.id);
@@ -107,6 +106,11 @@ async function startServer() {
       socket.on("notification:read", async (payload: { notificationId: string }) => {
         await NotificationService.markAsRead(socket.data.userId, payload.notificationId);
       });
+
+      // Send undelievered notifications when user connects
+      (async () => {
+        await NotificationService.sendUndeliveredNotifications(socket.data.userId);
+      })();
 
       socket.on("disconnect", () => {
         OnlineUsersService.removeSocket(userId, socket.id);
