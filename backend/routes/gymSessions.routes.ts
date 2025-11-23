@@ -151,6 +151,33 @@ async function registerUserToSession(
   }
 }
 
+async function getUserRegisteredSessions(
+  req: AuthenticatedRequest,
+  res: Response<GetAllGymSessionsResponse>
+) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(400, "User ID is required");
+    }
+    const sessions = await gymSessionsService.getUserRegisteredSessions(userId);
+    if (!sessions || sessions.length === 0) {
+      throw createError(404, "No registered gym sessions found for user");
+    }
+    res.json({
+      success: true,
+      data: sessions,
+      message: "User registered gym sessions retrieved successfully",
+    });
+
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving user registered gym sessions"
+    );
+  }
+}
+
 const router = Router();
 router.get(
   "/",
@@ -176,6 +203,22 @@ router.post(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   createGymSession
+);
+
+router.get(
+  "/registered",
+  authorizeRoles({
+    userRoles: [
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+    ],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  getUserRegisteredSessions
 );
 
 router.patch(

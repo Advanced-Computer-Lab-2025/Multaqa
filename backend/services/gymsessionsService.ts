@@ -174,5 +174,18 @@ export class GymSessionsService {
     await session.save();
     return session;
   }
+
+  async getUserRegisteredSessions(userId: string): Promise<IGymSessionEvent[]> {
+    return this.gymSessionRepo.findAll(
+      {
+        type: EVENT_TYPES.GYM_SESSION,
+        attendees: userId,
+      },
+      {
+        select:
+          " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity",
+      }
+    );
+  }
 }
   
