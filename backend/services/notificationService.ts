@@ -64,12 +64,17 @@ export class NotificationService {
     const user = await userRepo.findById(userId);
 
     if (!user) {
-      throw new Error("User not found");
+      throw createError(404, "User not found");
     }
 
     const notificationIndex = user.notifications?.findIndex((notification) => {
       return (notification._id as any).toString() === notificationId.toString();
     });
+
+    if (notificationIndex === -1 || notificationIndex === undefined) {
+      throw new Error("Notification not found");
+    }
+
     user.notifications[notificationIndex].read = true;
     await user.save();
 
@@ -89,7 +94,7 @@ export class NotificationService {
     if (!user.notifications || user.notifications.length === 0) {
       return;
     }
-    
+
     const undeliveredNotifications = user.notifications.filter((notification) => !notification.delivered);
     undeliveredNotifications.forEach((notification) => {
       eventBus.emit(notification.type, notification);
@@ -107,10 +112,13 @@ export class NotificationService {
       throw createError(404, "User not found");
     }
 
+    if (!user.notifications || user.notifications.length === 0) {
+      throw createError(404, "Notification not found");
+    }
+
     user.notifications = user.notifications.filter((notification) => {
       return (notification._id as any).toString() !== notificationId.toString();
-    });
-    await user.save();
+    }); await user.save();
 
     // Emit delete event to inform other tabs(sockets)
     eventBus.emit("notification:delete", { userId, notificationId });
