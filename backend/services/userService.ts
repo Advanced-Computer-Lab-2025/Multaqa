@@ -31,7 +31,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName verifiedAt updatedAt",
+          "firstName lastName name email role gucId position roleType status companyName registeredAt verifiedAt updatedAt",
       }
     );
 
@@ -180,6 +180,7 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, true, "admin decision");
     await user.save();
   }
@@ -193,6 +194,7 @@ export class UserService {
       throw createError(400, "User is already Active");
     }
     user.status = UserStatus.ACTIVE;
+    user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, false, "admin decision");
     await user.save();
   }

@@ -48,7 +48,16 @@ export default function BlockUnblockUsersContent() {
             fontSize: "12px",
           }}
         >
-          {user.role} • Created: {user.createdDate}
+          {user.role} • Registered:{" "}
+          {user.verifiedAt
+            ? new Date(user.verifiedAt).toLocaleDateString("en-GB")
+            : user.createdDate}
+          {user.status === "Blocked" && user.updatedAt && (
+            <>
+              {" "}
+              • Blocked: {new Date(user.updatedAt).toLocaleDateString("en-GB")}
+            </>
+          )}
         </Typography>
       }
       statusComponent={<StatusChip status={user.status} />}
