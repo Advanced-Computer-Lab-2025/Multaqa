@@ -181,8 +181,8 @@ const BazarView: React.FC<BazarViewProps> = ({
         registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
         onClose={()=> {setEdit(false)}}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"Bazaar" }open={archive} onClose={() => setArchive(false)}/>    
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}

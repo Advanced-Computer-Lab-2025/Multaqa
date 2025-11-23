@@ -214,7 +214,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                     eventId={id}
                     />
                   </CustomModalLayout>
-                  <ArchiveEvent setRefresh={setRefresh} eventId={id} eventName={company} eventType="Booth" open={archive} onClose={() => setArchive(false)}/>
+                  <ArchiveEvent setRefresh={setRefresh} eventId={id} eventName={company} eventType="platform_booth" open={archive} onClose={() => setArchive(false)}/>
     </>
   );
 };
