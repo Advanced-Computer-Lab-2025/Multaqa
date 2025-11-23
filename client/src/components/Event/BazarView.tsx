@@ -28,6 +28,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   background,
   setRefresh,
   attended,
+  archived,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -93,7 +94,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                    <Trash2 size={18} />
                  </IconButton>
                </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+      ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
       registerButton={!registered &&
         user == "vendor" && (
           <CustomButton
@@ -112,7 +113,7 @@ const BazarView: React.FC<BazarViewProps> = ({
               onClose={handleCloseModal}
               bazarId={id} />
           </CustomButton>
-        )} expanded={expanded} location={details["Location"]}  
+        )} expanded={expanded} archived={archived} location={details["Location"]}  
         />
 
       {/* Delete Confirmation Modal */}

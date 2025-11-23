@@ -35,6 +35,7 @@ const TripView: React.FC<BazarViewProps> = ({
   attended,
   datePassed,
   registrationPassed,
+  archived,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -76,7 +77,6 @@ const TripView: React.FC<BazarViewProps> = ({
     handleCloseDeleteModal();
   };
 
-
   return (
     <>
      <EventCard 
@@ -110,7 +110,7 @@ const TripView: React.FC<BazarViewProps> = ({
                         <Trash2 size={18} />
                       </IconButton>
                     </Tooltip>
-          ) : (user==="events-office" || user==="events-only"?<Utilities onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background}/>:null)
+          ) : (user==="events-office" || user==="events-only"?<Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background}/>:null)
         }
           registerButton={
             (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
@@ -174,7 +174,7 @@ const TripView: React.FC<BazarViewProps> = ({
                 )
             )
           }
-        expanded={expanded} attended={attended} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
     
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal

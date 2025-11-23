@@ -32,6 +32,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   setRefresh,
   userInfo,
   attended,
+  archived,
   datePassed,
   registrationPassed,
 }) => {
@@ -89,7 +90,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     <>
     <EventCard title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} cost ={details["Cost"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]} color={background} leftIcon={<IconComponent />} eventType={"Workshop"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={(user === "events-office" || user === "admin") ? (
         <Stack direction="row" spacing={1}>
-         {user ==="events-office" ?
+         {(user ==="events-office"  && !archived) ?
           <>
           <Tooltip title ={"Archive Workshop"}>
             <IconButton
@@ -212,7 +213,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
             )}
           </>
         )
-      } expanded={expanded} location={details["Location"]} />
+      } expanded={expanded} archived={archived} location={details["Location"]} />
 
       {/* Delete Confirmation Modal */}
       <CustomModal

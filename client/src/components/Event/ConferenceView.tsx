@@ -27,6 +27,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   onDelete,
   setRefresh,
   attended,
+  archived,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -75,8 +76,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                      </IconButton>
                    </Tooltip>
           ) : ( user==="events-office"|| user==="events-only"?
-           <Utilities onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
-        expanded={expanded} location={details["Location"]} />
+           <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
+        expanded={expanded} archived={archived} location={details["Location"]} />
 
 
       {/* Delete Confirmation Modal */}

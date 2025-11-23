@@ -8,6 +8,7 @@ interface EditDeleteIconsProps {
   onDelete?: () => void;
   onRestrict?: () => void;
   onArchive?: () => void;
+  archived?:boolean;
   color?: string; // optional custom color (default gray)
   event:string;
 }
@@ -17,6 +18,7 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
   onDelete,
   onRestrict,
   onArchive,
+  archived,
   color = "#6b7280",
   event
 }) => {
@@ -26,6 +28,7 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
   const archiveText = event?`Archive ${event}`:"Archive";
   return (
     <Stack direction="row" spacing={1}>
+      {!archived ? 
       <Tooltip title ={archiveText}>
         <IconButton
           size="medium"
@@ -45,6 +48,7 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
           <Archive size={18} />
         </IconButton>
       </Tooltip>
+      : <></>}
       <Tooltip title ={restrictText}>
         <IconButton
           size="medium"
