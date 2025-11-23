@@ -44,11 +44,13 @@ export class GymSessionsService {
     });
   }
 
-  async getAllGymSessions(): Promise<IGymSessionEvent[]> {
+  async getAllGymSessions(dateParam?: string): Promise<IGymSessionEvent[]> {
     const filter: any = { type: EVENT_TYPES.GYM_SESSION };
 
-    const date = new Date();
+    // Use provided date or default to today
+    const date = dateParam ? new Date(dateParam) : new Date();
 
+    // Get all sessions for the month of the provided/current date
     filter.eventStartDate = {
       $gte: new Date(date.getFullYear(), date.getMonth(), 1),
       $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),

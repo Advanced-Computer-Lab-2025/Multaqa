@@ -49,11 +49,14 @@ const combineDateTime = (dateStr: string, timeStr: string): string => {
 };
 
 // Fetch all gym sessions
-export const fetchGymSessions = async (): Promise<GymSession[]> => {
+export const fetchGymSessions = async (date?: Date): Promise<GymSession[]> => {
   try {
-    console.log("📋 Fetching gym sessions...");
+    console.log("📋 Fetching gym sessions...", date ? `for ${date.toISOString()}` : "");
 
-    const response = await api.get<GetAllGymSessionsResponse>("/gymsessions");
+    // Build query params
+    const params = date ? { date: date.toISOString() } : {};
+
+    const response = await api.get<GetAllGymSessionsResponse>("/gymsessions", { params });
     const sessions = response.data.data;
 
     console.log(`✅ Found ${sessions.length} gym session(s)`);
