@@ -73,6 +73,7 @@ export class NotificationService {
     user.notifications[notificationIndex].read = true;
     await user.save();
 
+    // Emit read event to inform other tabs(sockets)
     eventBus.emit("notification:read", { userId, notificationId });
     return { userId, notificationId };
   }
@@ -95,5 +96,25 @@ export class NotificationService {
       notification.delivered = true;
     });
     await user.save();
+
+    return undeliveredNotifications;
   }
+
+  static async deleteNotification(userId: string, notificationId: string) {
+    const userRepo = new GenericRepository(User);
+    const user = await userRepo.findById(userId);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    user.notifications = user.notifications.filter((notification) => {
+      return (notification._id as any).toString() !== notificationId.toString();
+    });
+    await user.save();
+
+    // Emit delete event to inform other tabs(sockets)
+    eventBus.emit("notification:delete", { userId, notificationId });
+    return { userId, notificationId };
+  }
+
 }

@@ -203,6 +203,11 @@ eventBus.on("notification:read", (notification) => {
   sendSocketNotification("notification:read", notification);
 });
 
+// Delete notification
+eventBus.on("notification:delete", (notification) => {
+  sendSocketNotification("notification:delete", notification);
+});
+
 // Fallback for new generic notifications
 eventBus.on("notification:new", (notification) => {
   sendSocketNotification("notification:new", notification);

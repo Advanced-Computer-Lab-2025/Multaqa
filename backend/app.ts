@@ -95,7 +95,7 @@ async function startServer() {
     // Socket authentication
     io.use(authSocketMiddleware);
 
-    // Handle socket connections -> executed ONLY when a socket tries to connect.
+    // Handle socket connections -> executed ONLY when a socket tries to connect and stays active as long as the tab is open.
     io.on("connection", (socket) => {
       const userId = socket.data.userId;
       OnlineUsersService.addSocket(userId, socket.id);
@@ -111,6 +111,11 @@ async function startServer() {
       (async () => {
         await NotificationService.sendUndeliveredNotifications(socket.data.userId);
       })();
+
+      // Listen for delete notification event from the frontend
+      socket.on("notification:delete", async (payload: { notificationId: string }) => {
+        await NotificationService.deleteNotification(socket.data.userId, payload.notificationId);
+      });
 
       socket.on("disconnect", () => {
         OnlineUsersService.removeSocket(userId, socket.id);
