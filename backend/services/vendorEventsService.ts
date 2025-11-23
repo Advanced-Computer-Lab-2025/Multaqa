@@ -16,6 +16,7 @@ import { sendApplicationStatusEmail } from "./emailService";
 import { Notification } from "./notificationService";
 import { NotificationService } from "./notificationService";
 import { AdministrationRoleType } from "../constants/administration.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -578,6 +579,15 @@ export class VendorEventsService {
     if (!updatedVendor) {
       throw createError(500, "Failed to update vendor loyalty program");
     }
+
+    await NotificationService.sendNotification({  
+      role: [UserRole.STUDENT, UserRole.STAFF_MEMBER], 
+      staffPosition: [StaffPosition.TA, StaffPosition.PROFESSOR, StaffPosition.STAFF],
+      type: "LOYALTY_NEW_PARTNER",
+      title: "New Loyalty Program Partner",
+      message: `Vendor "${vendor.companyName}" has joined the GUC loyalty program. Enjoy exclusive discounts with promo code "${loyaltyData.promoCode.toUpperCase()}".`,
+      createdAt: new Date(),
+    } as Notification);
 
     return updatedVendor;
   }
