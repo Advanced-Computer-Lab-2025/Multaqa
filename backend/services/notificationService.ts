@@ -5,13 +5,14 @@ import { StaffPosition } from "../constants/staffMember.constants";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
+import { NotificationType } from "../constants/user.constants";
 
 export interface Notification {
   userId?: string;
   role?: UserRole[];
   adminRole?: AdministrationRoleType[];
   staffPosition?: StaffPosition[];
-  type: string;
+  type: NotificationType;
   title: string;
   message: string;
   read: boolean;
@@ -42,15 +43,6 @@ export class NotificationService {
         break;
       case "VENDOR_PENDING_REQUEST":
         eventBus.emit("notification:vendor:pendingRequest", notification);
-        break;
-      case "NOTIFICATION_READ":
-        eventBus.emit("notification:read", notification);
-        break;
-      case "NOTIFICATION_DELETE":
-        eventBus.emit("notification:delete", notification);
-        break;
-      case "NOTIFICATION_UPDATE":
-        eventBus.emit("notification:update", notification);
         break;
       default:
         console.warn(`No event bus handler for notification type: ${notification.type}`);
