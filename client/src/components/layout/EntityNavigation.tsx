@@ -19,7 +19,7 @@ import {
   // CreditCard,
   QrCode,
   Award,
-  Wallet
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserRoleKey } from "@/types";
@@ -158,8 +158,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -180,12 +180,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
         key: "gym",
         label: "Gym Sessions",
         icon: Dumbbell,
@@ -197,8 +191,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -219,16 +213,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        sections: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
@@ -236,19 +224,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
     defaultTab: "workshops",
-    defaultSection: "my-workshops",
+    defaultSection: "",
     tabs: [
       {
         key: "workshops",
-        label: "Workshops",
+        label: "My Workshops",
         icon: Calendar,
-        sections: [
-          { id: "my-workshops", label: "My Workshops" },
-          { id: "my-pending-workshops", label: "Pending" },
-          { id: "my-accepted-workshops", label: "Accepted" },
-          { id: "my-rejected-workshops", label: "Rejected" },
-          { id: "my-under-workshops", label: "To Review" },
-        ],
       },
       {
         key: "events",
@@ -261,16 +242,18 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        sections: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
       },
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
       },
     ],
   },
@@ -293,13 +276,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "workshop-requests",
         label: "Workshop Requests",
         icon: FileText,
-        sections: [
-          { id: "all-requests", label: "All Requests" },
-          { id: "pending", label: "Pending" },
-          { id: "awating_review", label: "Awaiting Review" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
-        ],
+        sections: [],
       },
       {
         key: "vendors",
@@ -492,28 +469,34 @@ export default function EntityNavigation({
   const tab = segments[1] || "";
   const section = segments[2] || "";
 
-    // Track last valid route in sessionStorage
-    useEffect(() => {
-      // Get current path segments
-      if (typeof window !== "undefined" && user) {
-        const path = window.location.pathname;
-        // Only store if route is valid (matches a tab/section for the user's role)
-        const roleKey = getUserRoleKey(user);
-        const config = roleNavigationConfig[roleKey];
-        if (config) {
-          const segments = path.split("/").filter(Boolean);
-          // Find tab and section in path
-          const tab = segments[2] || "";
-          const section = segments[3] || "";
-          const validTab = config.tabs.find(t => t.key === tab);
-          const validSection = validTab && validTab.sections ? validTab.sections.find(s => s.id === section) : null;
-          // If valid tab/section, store route
-          if (validTab && (validSection || !validTab.sections || validTab.sections.length === 0)) {
-            sessionStorage.setItem("lastValidRoute", path);
-          }
+  // Track last valid route in sessionStorage
+  useEffect(() => {
+    // Get current path segments
+    if (typeof window !== "undefined" && user) {
+      const path = window.location.pathname;
+      // Only store if route is valid (matches a tab/section for the user's role)
+      const roleKey = getUserRoleKey(user);
+      const config = roleNavigationConfig[roleKey];
+      if (config) {
+        const segments = path.split("/").filter(Boolean);
+        // Find tab and section in path
+        const tab = segments[2] || "";
+        const section = segments[3] || "";
+        const validTab = config.tabs.find((t) => t.key === tab);
+        const validSection =
+          validTab && validTab.sections
+            ? validTab.sections.find((s) => s.id === section)
+            : null;
+        // If valid tab/section, store route
+        if (
+          validTab &&
+          (validSection || !validTab.sections || validTab.sections.length === 0)
+        ) {
+          sessionStorage.setItem("lastValidRoute", path);
         }
       }
-    }, [user]);
+    }
+  }, [user]);
   // Get role key from backend user
   const userRoleKeyUnformated = getUserRoleKey(user);
   const userRoleKey = userRoleKeyUnformated.toLowerCase();
@@ -525,9 +508,16 @@ export default function EntityNavigation({
   React.useEffect(() => {
     // Fallback: if tab or section is not found, redirect to not-found page
     const tabExists = tab === "" || config.tabs.some((t) => t.key === tab);
+    const currentTabForValidation = config.tabs.find((t) => t.key === tab);
+    const tabSections = currentTabForValidation?.sections || [];
+    const effectiveSections =
+      tabSections.length === 0
+        ? [{ id: "overview", label: "Overview" }]
+        : tabSections;
     const sectionExists =
-      tab === "" || section === "" ||
-      (config.tabs.find((t) => t.key === tab)?.sections || []).some((s) => s.id === section);
+      tab === "" ||
+      section === "" ||
+      effectiveSections.some((s) => s.id === section);
 
     if (!tabExists || !sectionExists) {
       router.replace("/not-found");
@@ -537,9 +527,15 @@ export default function EntityNavigation({
     if (
       segments.length === 1 &&
       stakeholder === userRoleKey &&
-      config.defaultTab && config.defaultSection
+      config.defaultTab
     ) {
-      router.replace(`/${userRoleKey}/${config.defaultTab}/${config.defaultSection}`);
+      const defaultTab = config.tabs.find((t) => t.key === config.defaultTab);
+      const hasSections =
+        defaultTab?.sections && defaultTab.sections.length > 0;
+      const sectionToUse =
+        config.defaultSection || (hasSections ? "" : "overview");
+      const sectionPath = sectionToUse ? `/${sectionToUse}` : "";
+      router.replace(`/${userRoleKey}/${config.defaultTab}${sectionPath}`);
     }
   }, [segments, stakeholder, userRoleKey, config, tab, section, router]);
 
@@ -552,7 +548,13 @@ export default function EntityNavigation({
 
   // Get sections for current tab
   const currentTab = tabItems.find((t) => t.key === tab);
-  const sectionItems = useMemo(() => currentTab?.sections || [], [currentTab]);
+  const sectionItems = useMemo(() => {
+    const sections = currentTab?.sections || [];
+    // Auto-assign default "Overview" section if no sections are defined
+    return sections.length === 0
+      ? [{ id: "overview", label: "Overview" }]
+      : sections;
+  }, [currentTab]);
 
   // // Debug logging
   // console.log("EntityNavigation state:", {
@@ -572,10 +574,11 @@ export default function EntityNavigation({
   // Navigation paths don't need locale either
   const handleTabChange = (index: number) => {
     const newTab = tabItems[index];
+    const hasSections = newTab?.sections && newTab.sections.length > 0;
     const sectionSeg =
-      newTab?.sections && newTab.sections.length > 0
+      hasSections && newTab.sections
         ? `/${newTab.sections[0].id}`
-        : "";
+        : "/overview";
 
     // No locale prefix needed - i18n router adds it
     const newPath = `/${userRoleKey}/${newTab.key}${sectionSeg}`;
@@ -603,10 +606,15 @@ export default function EntityNavigation({
   return (
     <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
-      <TopNavigation companyName="Multaqa" header={headerProps} />
+      <TopNavigation
+        companyName="Multaqa"
+        header={headerProps}
+        currentUser={userData}
+        userRole={userRoleKey as UserRoleKey}
+      />
 
       {/* Tabs Section - main navigation tabs */}
-      {tabLabels.length > 0 && (
+      {/* {tabLabels.length > 0 && (
         <div className="bg-white border-b border-gray-300">
           <div className="px-6">
             <Tabs
@@ -616,7 +624,7 @@ export default function EntityNavigation({
             />
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Sidebar and main content below */}
       <div className="flex flex-1 overflow-hidden min-h-0">
@@ -633,7 +641,7 @@ export default function EntityNavigation({
         </div>
 
         {/* Flexible main content area */}
-        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full min-w-0">
+        <div className="flex-1 bg-[##c0d2f0] p-4 min-h-screen min-w-0">
           <div
             className="flex-1 bg-white min-h-0 overflow-auto"
             style={{
@@ -641,10 +649,21 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "83vh",
-              maxHeight: "83vh",
+              minHeight: "90vh",
+              maxHeight: "90vh",
             }}
           >
+            {tabLabels.length > 0 && (
+              <div className="bg-white border-b border-gray-300">
+                <div className="px-6">
+                  <Tabs
+                    tabs={tabLabels}
+                    activeTab={activeTabIndex >= 0 ? activeTabIndex : 0}
+                    onTabChange={handleTabChange}
+                  />
+                </div>
+              </div>
+            )}
             {children}
           </div>
         </div>

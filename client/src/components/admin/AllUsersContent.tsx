@@ -10,7 +10,7 @@ import { capitalizeName } from "../shared/input-fields/utils";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomModalLayout } from "../shared/modals";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
-import StatusChip from "../layout/StatusChip";
+import StatusChip from "../shared/StatusChip";
 import ManagementScreen from "./shared/ManagementScreen";
 import { User } from "./types";
 import { userCreationSchema, handleCreateUser, fetchAllUsers } from "./utils";
@@ -88,7 +88,7 @@ export default function AllUsersContent() {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        minHeight: "200px",
+        minHeight: "220px",
         "&:hover": {
           borderColor: theme.palette.tertiary.main,
           boxShadow: "0 2px 8px rgba(58, 79, 153, 0.1)",
@@ -141,7 +141,10 @@ export default function AllUsersContent() {
               overflowWrap: "break-word",
             }}
           >
-            Created: {user.createdDate}
+            Registered:{" "}
+            {user.verifiedAt
+              ? new Date(user.verifiedAt).toLocaleDateString("en-GB")
+              : user.createdDate}
           </Typography>
         </Box>
         <Box

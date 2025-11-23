@@ -180,7 +180,6 @@ const BoothView: React.FC<BoothViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-
         <CustomModalLayout
                     open={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}

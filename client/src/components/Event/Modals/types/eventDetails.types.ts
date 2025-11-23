@@ -31,6 +31,12 @@ export interface WorkshopDetails extends BaseEventDetails {
   budget:string,
   professors:string[];
 }
+export interface VendorLogo {
+  url: string;
+  publicId: string;
+  originalName: string;
+  uploadedAt: string; // Typically an ISO 8601 string
+}
 
 interface Vendor {
   companyName: string;
@@ -38,7 +44,7 @@ interface Vendor {
   id?: string;
   _id?: string;
   role?: string;
-  logo?: string;
+  logo?: VendorLogo;
 }
 
 export interface BazaarDetails extends BaseEventDetails {

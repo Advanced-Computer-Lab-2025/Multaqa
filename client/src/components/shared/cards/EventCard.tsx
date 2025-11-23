@@ -21,11 +21,15 @@ interface EventCardProps {
   leftIcon?: React.ReactNode;
   utilities?: React.ReactNode;
   registerButton?: React.ReactNode;
+  evaluateButton?: React.ReactNode;
+  commentButton?: React.ReactNode;
   onExpandChange?: (expanded: boolean) => void;
   onOpenDetails?: () => void;
   expanded?: boolean;
   details?: Record<string, any>;
   attended?: boolean;
+  professorStatus?:string;
+  createdBy?:string;
   archived?: boolean;
 }
 
@@ -51,10 +55,14 @@ const EventCard: React.FC<EventCardProps> = ({
   expanded = false,
   details,
   attended = false,
+  commentButton,
+  evaluateButton,
+  professorStatus,
+  createdBy
   archived = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
-  const spots = spotsLeft&&parseInt(spotsLeft)||0;
+  const spots = spotsLeft && parseInt(spotsLeft)||0;
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleOpenModal = () => {
@@ -62,6 +70,21 @@ const EventCard: React.FC<EventCardProps> = ({
       onOpenDetails();
     }
   };
+
+const statusChip = (status: string) => {
+  if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" sx={{  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 24,}} />;
+  if (status === "awaiting_review") return <Chip size="small" label="Awaiting Review" color="info" variant="outlined"sx={{  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 24,}}/>;
+  if (status === "rejected") return <Chip size="small" label="Rejected" color="error" variant="outlined" sx={{   fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 24,}}/>;
+  return <Chip size="small" label="Accepted" color="success" variant="outlined" sx={{   fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 24,}} />;
+};
 
   const handleCopyLink = () => {
     if (link) {
@@ -114,6 +137,7 @@ const EventCard: React.FC<EventCardProps> = ({
           alignItems: 'flex-start',
           gap: 2,
           borderBottom: isExpanded ? `1px solid ${color}20` : 'none',
+          height: '100%',
         }}
       >
         {/* Left Icon */}
@@ -143,7 +167,7 @@ const EventCard: React.FC<EventCardProps> = ({
         )}
 
         {/* Content Section */}
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
           {/* Top Row - Event Type and Spots/Utilities */}
           <Box sx={{ 
             display: 'flex', 
@@ -160,7 +184,7 @@ const EventCard: React.FC<EventCardProps> = ({
                   color: color,
                   fontWeight: 600,
                   fontSize: '0.7rem',
-                  height: 20,
+                  height: 24,
                   border: `1px solid ${color}`,
                   '&:hover': {
                     backgroundColor: `${color}15`,
@@ -176,7 +200,7 @@ const EventCard: React.FC<EventCardProps> = ({
                     color: '#10b981',
                     fontWeight: 600,
                     fontSize: '0.7rem',
-                    height: 20,
+                    height: 24,
                     border: '1px solid #10b981',
                     '&:hover': {
                       backgroundColor: '#10b98115',
@@ -184,6 +208,7 @@ const EventCard: React.FC<EventCardProps> = ({
                   }}
                 />
               )}
+             {professorStatus && statusChip(professorStatus)}
               {archived && (
                 <Chip
                   label="Archived"
@@ -205,42 +230,78 @@ const EventCard: React.FC<EventCardProps> = ({
             {/* Utilities and Expand Button Group */}
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
-                {registerButton ? (
-                  spotsLeft !== undefined && totalSpots && (
+              {/* {registerButton && (
+                  spotsLeft&& totalSpots && (
                     <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        py: 0.5,
-                        px: 1.2,
-                        borderRadius: '20px',
-                        backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
-                        border: '1px solid',
-                        borderColor: spots > 0 ? `${color}30` : 'error.light',
-                        transition: 'all 0.2s ease',
-                      }}
+                       sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          py: 0.5,
+                          px: 1.2,
+                          borderRadius: '6px',
+                          backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
+                          border: '1px solid',
+                          borderColor: spots > 0 ? `${color}30` : 'error.light',
+                          transition: 'all 0.2s ease',
+                        }}
+
                     >
                       <Typography
-                        variant="caption"
-                        sx={{
-                          fontWeight: 600,
-                          color: spots > 0 ? color : 'error.main',
-                          fontSize: '0.75rem',
-                          lineHeight: 1,
-                        }}
+                     sx={{
+                            fontWeight: 600,
+                            color: spots > 3 ? color : 'error.main',
+                            fontSize: '0.9rem',
+                            lineHeight: 1,
+                          }}
                       >
                         {spots} {spots === 1 ? 'spot' : 'spots'} left
                       </Typography>
                     </Box>
                   )
-                ) : (
-                  utilities && (
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      {utilities}
+                )} */}
+                    {spotsLeft && totalSpots && ( 
+                    <Box
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        width: '100%',
+                        mt: .5,
+                      }}
+                    >
+                      <Box  sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          py: 0.5,
+                          px: 1.2,
+                          borderRadius: '6px',
+                          backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
+                          border: '1px solid',
+                          borderColor: spots > 0 ? `${color}30` : 'error.light',
+                          transition: 'all 0.2s ease',
+                        }}
+
+>
+                        <Typography
+                           sx={{
+                            fontWeight: 600,
+                            color: spots > 3 ? color : 'error.main',
+                            fontSize: '0.9rem',
+                            lineHeight: 1,
+                          }}
+                        >
+                          {spots} {spots === 1 ? 'spot' : 'spots'} left
+                        </Typography>
+                      </Box>
                     </Box>
                   )
-                )}
+                }
+                 {utilities &&(<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      {utilities}
+                    </Box>
+                  )}
                  <Tooltip title ={"More Info"}>
                 <Box
                   onClick={handleOpenModal}
@@ -302,7 +363,7 @@ const EventCard: React.FC<EventCardProps> = ({
           </Typography>
 
           {/* Date, Time, and Location Info */}
-         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}>
+         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8, flex: 1 }}>
             {startDate&&endDate&& <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Calendar size={16} color={color} />
               <Typography
@@ -433,51 +494,52 @@ const EventCard: React.FC<EventCardProps> = ({
                   </Typography>
                 </Box>
                   }
-                  {/* Spots left at the bottom */}
-                  {utilities && spotsLeft !== undefined && totalSpots && (
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        width: '100%',
-                        mt: .5,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          py: 0.5,
-                          px: 1.2,
-                          borderRadius: '6px',
-                          backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
-                          border: '1px solid',
-                          borderColor: spots > 0 ? `${color}30` : 'error.light',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: 600,
-                            color: spots > 3 ? color : 'error.main',
-                            fontSize: '0.9rem',
-                            lineHeight: 1,
-                          }}
-                        >
-                          {spots} {spots === 1 ? 'spot' : 'spots'} left
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
           </Box>
+          {createdBy&&
+           <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              alignItems: 'flex-end',
+              mt: 'auto',
+              pt: 1
+            }}><Typography
+                variant="body2"
+                sx={{ 
+                  color:{color},
+                  fontSize: '0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
+              >
+                created by {createdBy}
+              </Typography>
+                </Box>}
+          {/* Evaluate Button at Bottom Right */}
+          {evaluateButton && professorStatus && professorStatus=="pending"&&(
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              alignItems: 'flex-end',
+              mt: 'auto',
+              pt: 1
+            }}>
+              {evaluateButton}
+            </Box>
+          )}
+           {commentButton && professorStatus && professorStatus=="awaiting_review"&&(
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              alignItems: 'flex-end',
+              mt: 'auto',
+              pt: 1
+            }}>
+              {commentButton}
+            </Box>
+          )}
         </Box>
-
       </Box>
-
-
     </Box>
   );
 };

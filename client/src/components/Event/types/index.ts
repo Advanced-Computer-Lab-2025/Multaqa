@@ -6,7 +6,7 @@ type BasicProps = {
   onDelete?: () => void,
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
   id:string,
-  userInfo:any;
+  userInfo?:any;
   background:string,
   icon: SvgIconComponent;
   attended?:boolean;
@@ -51,4 +51,7 @@ export type WorkshopViewProps = BasicProps & {
   professors:string [],
   professorsId:string[],
   details: Record<string, string>,
+  professorStatus?:string;
+  evaluateButton?:React.ReactNode;
+  commentButton?:React.ReactNode;
 }
