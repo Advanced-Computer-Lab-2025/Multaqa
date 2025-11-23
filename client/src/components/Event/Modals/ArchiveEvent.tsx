@@ -57,7 +57,8 @@ const ArchiveEvent = ({eventId, eventName, eventType, open, onClose, setRefresh}
 
   const handleArchiveEvent = async () =>{
     // await handleCallApi({type:eventType.toLowerCase(), archived: "true"})
-    alert(eventName + "archived successfully");
+    alert(eventName + " archived successfully");
+    onClose();
   };
 
   return (

@@ -159,7 +159,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventEndTime={details["End Time"]}
       />
       <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-        <ArchiveEvent setRefresh={setRefresh} eventId={id} eventType={"Conference"} open={archive} onClose={() => setArchive(false)}/>
+        <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"Conference"} open={archive} onClose={() => setArchive(false)}/>
        <CustomModalLayout
                     open={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}

@@ -182,7 +182,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         onClose={()=> {setEdit(false)}}
       />
       <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh} eventId={id} eventType={"Bazaar" }open={archive} onClose={() => setArchive(false)}/>    
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"Bazaar" }open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
