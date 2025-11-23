@@ -77,8 +77,9 @@ app.use("/payments", paymentRouter);
 app.use(errorHandler);
 app.use(notFoundHandler);
 
-const MONGO_URI = process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 const PORT = process.env.PORT || 4000;
+const MONGO_URI =
+  process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {

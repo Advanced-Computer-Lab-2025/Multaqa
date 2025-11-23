@@ -35,6 +35,7 @@ export class AdministrationService {
       password: hashedPassword,
       registeredAt: new Date(),
       updatedAt: new Date(),
+      verifiedAt: new Date(),
       isVerified: true, // Admins are auto-verified
       role: UserRole.ADMINISTRATION,
       roleType: adminData.role == 'admin' ? AdministrationRoleType.ADMIN : AdministrationRoleType.EVENTS_OFFICE,

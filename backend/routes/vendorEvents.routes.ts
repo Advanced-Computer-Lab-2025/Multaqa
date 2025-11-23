@@ -17,6 +17,7 @@ import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
 import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
+import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -324,12 +325,99 @@ async function cancelEventParticipation(
   }
 }
 
+async function getAllLoyaltyPartners(req: Request, res: Response) {
+  try {
+    const partners = await vendorEventsService.getAllLoyaltyPartners();
+
+    res.json({
+      success: true,
+      message: "Loyalty partners retrieved successfully",
+      data: partners,
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving loyalty partners"
+    );
+  }
+}
+
+async function applyToLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    const { error, value } = loyaltyProgramSchema.validate(req.body);
+    if (error) {
+      throw createError(400, error.details[0].message);
+    }
+
+    const updatedVendor = await vendorEventsService.applyToLoyaltyProgram(
+      vendorId,
+      value
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Successfully applied to loyalty program",
+      data: {
+        loyaltyProgram: updatedVendor.loyaltyProgram,
+      },
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error applying to loyalty program"
+    );
+  }
+}
+
+async function cancelLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    await vendorEventsService.cancelLoyaltyProgram(vendorId);
+
+    res.json({
+      success: true,
+      message: "Successfully cancelled loyalty program participation",
+      data: null,
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error cancelling loyalty program"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
   "/",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   getVendorUpcomingEvents
+);
+
+router.get(
+  "/loyalty-partners",
+  authorizeRoles({
+    userRoles: [
+      UserRole.STUDENT,
+      UserRole.STAFF_MEMBER,
+      UserRole.ADMINISTRATION,
+    ],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+  }),
+  getAllLoyaltyPartners
 );
 
 router.get(
@@ -369,6 +457,12 @@ router.delete(
   cancelEventParticipation
 );
 
+router.delete(
+  "/loyalty-program",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  cancelLoyaltyProgram
+);
+
 // Two parameters with complex paths
 router.get(
   "/:eventId/vendor-requests/:vendorId",
@@ -392,6 +486,12 @@ router.patch(
     ],
   }),
   updateVendorRequest
+);
+
+router.post(
+  "/loyalty-program",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  applyToLoyaltyProgram
 );
 
 export default router;

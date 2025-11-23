@@ -1,5 +1,6 @@
 "use client";
-import CustomModalLayout from "../../../components/shared/modals/CustomModalLayout"; // 💡 Adjust path
+import { useTheme } from "@mui/material/styles";
+import CustomModalLayout from "../../../components/shared/modals/CustomModalLayout";
 import BazarForm from "../../../components/shared/BazarApplicationForm/BazarApplicationForm";
 
 interface BazarFormModalWrapperProps {
@@ -13,13 +14,15 @@ const BazarFormModalWrapper: React.FC<BazarFormModalWrapperProps> = ({
   onClose,
   bazarId
 }) => {
+  const theme = useTheme();
   const modalWidthClass = "w-[65vw] md:w-[55vw] lg:w-[45vw] xl:w-[45vw]";
+  
   return (
     <CustomModalLayout
       open={isOpen}
       onClose={onClose}
       width={modalWidthClass}
-      borderColor="theme.palette.primary.main"
+      borderColor={theme.palette.primary.main}  // Use actual color, not string
     >
       <BazarForm eventId={bazarId} />
     </CustomModalLayout>
