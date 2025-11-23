@@ -156,6 +156,8 @@ async function updateEvent(req: Request, res: Response<UpdateEventResponse>) {
         break;
       case "bazaar":
       case "trip":
+      case "workshop":
+      case "platform_booth":
         validationResult = validateUpdateEvent(req.body);
         break;
 
