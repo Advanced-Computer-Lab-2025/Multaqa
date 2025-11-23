@@ -1859,10 +1859,10 @@ const AuthForm = ({ currentView, userType }: any) => (
 ---
 */
 
-const homeTransition = { type: "spring", stiffness: 50, damping: 20 } as const;
+const homeTransition = { type: "spring", stiffness: 55, damping: 20 } as const;
 const authTransition = (delay: number) => ({
   type: "spring" as const,
-  stiffness: 45,
+  stiffness: 55,
   damping: 20,
   delay: delay,
 });
