@@ -280,8 +280,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         userInfo={userInfo}
         eventId={id}
        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"Workshop"} open={archive} onClose={() => setArchive(false)}/>
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)}/>
       <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
         
       <CustomModalLayout

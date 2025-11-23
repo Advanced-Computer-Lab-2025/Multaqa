@@ -38,8 +38,9 @@ const ArchiveEvent = ({eventId, eventName, eventType, open, onClose, setRefresh}
     if (setRefresh) setRefresh((p) => !p);
     } catch (err: any) {
     setError(err?.message || "API call failed");
-    toast.error("Event Archiving Failed",
-    {
+    toast.error(
+      "Event Archiving Failed",
+      {
         position: "bottom-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -48,7 +49,7 @@ const ArchiveEvent = ({eventId, eventName, eventType, open, onClose, setRefresh}
         draggable: true,
         progress: undefined,
         theme: "colored",
-    }
+      }
     );
     } finally {
     setLoading(false);
@@ -56,8 +57,7 @@ const ArchiveEvent = ({eventId, eventName, eventType, open, onClose, setRefresh}
   };
 
   const handleArchiveEvent = async () =>{
-    // await handleCallApi({type:eventType.toLowerCase(), archived: "true"})
-    alert(eventName + " archived successfully");
+    await handleCallApi({type:eventType, archived:"true"});
     onClose();
   };
 
