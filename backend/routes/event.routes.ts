@@ -18,8 +18,12 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { UserService } from "../services/userService";
-import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware"
-import { CreateReviewResponse, GetAllReviewsByEventResponse, UpdateReviewResponse } from "../interfaces/responses/reviewResponses.interface";
+import { applyRoleBasedFilters } from "../middleware/applyRoleBasedFilters.middleware";
+import {
+  CreateReviewResponse,
+  GetAllReviewsByEventResponse,
+  UpdateReviewResponse,
+} from "../interfaces/responses/reviewResponses.interface";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { userInfo } from "os";
 
@@ -28,13 +32,18 @@ const eventsService = new EventsService();
 async function findAll(req: Request, res: Response<GetEventsResponse>) {
   try {
     const { search, type, location, sort, startDate, endDate } = req.query;
+    const user = (req as any).user;
+    const userRole = user?.role;
+    const userPosition = user?.staffPosition;
     const events = await eventsService.getEvents(
       search as string,
       type as string,
       location as string,
       sort === "true",
       startDate as string,
-      endDate as string 
+      endDate as string,
+      userRole,
+      userPosition
     );
     if (!events || events.length === 0) {
       throw createError(404, "No events found");
@@ -188,7 +197,10 @@ async function deleteEvent(req: Request, res: Response<DeleteEventResponse>) {
   }
 }
 
-async function createReview(req: AuthenticatedRequest, res: Response<CreateReviewResponse>) {
+async function createReview(
+  req: AuthenticatedRequest,
+  res: Response<CreateReviewResponse>
+) {
   try {
     const eventId = req.params.eventId;
     const { comment, rating } = req.body;
@@ -197,24 +209,35 @@ async function createReview(req: AuthenticatedRequest, res: Response<CreateRevie
     }
 
     if (!comment && !rating) {
-      throw createError(400, "At least one of comment or rating must be provided");
+      throw createError(
+        400,
+        "At least one of comment or rating must be provided"
+      );
     }
 
-    const newReview = await eventsService.createReview(eventId, req.user.id, comment, rating);
+    const newReview = await eventsService.createReview(
+      eventId,
+      req.user.id,
+      comment,
+      rating
+    );
     res.status(201).json({
       success: true,
       data: newReview,
-      message: "Review created successfully"
+      message: "Review created successfully",
     });
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error creating review'
+      err.message || "Error creating review"
     );
   }
 }
 
-async function updateReview(req: AuthenticatedRequest, res: Response<UpdateReviewResponse>) {
+async function updateReview(
+  req: AuthenticatedRequest,
+  res: Response<UpdateReviewResponse>
+) {
   try {
     const eventId = req.params.eventId;
     const { comment, rating } = req.body;
@@ -223,24 +246,35 @@ async function updateReview(req: AuthenticatedRequest, res: Response<UpdateRevie
     }
 
     if (!comment && !rating) {
-      throw createError(400, "At least one of comment or rating must be provided");
+      throw createError(
+        400,
+        "At least one of comment or rating must be provided"
+      );
     }
 
-    const updatedReview = await eventsService.updateReview(eventId, req.user.id, comment, rating);
+    const updatedReview = await eventsService.updateReview(
+      eventId,
+      req.user.id,
+      comment,
+      rating
+    );
     res.status(200).json({
       success: true,
       data: updatedReview,
-      message: "Review updated successfully"
+      message: "Review updated successfully",
     });
   } catch (err: any) {
     throw createError(
       err.status || 500,
-      err.message || 'Error updating review'
+      err.message || "Error updating review"
     );
   }
 }
 
-async function deleteComment(req: AuthenticatedRequest, res: Response<DeleteReviewResponse>) {
+async function deleteComment(
+  req: AuthenticatedRequest,
+  res: Response<DeleteReviewResponse>
+) {
   try {
     const eventId = req.params.eventId;
     const userId = req.params.userId;
@@ -262,7 +296,10 @@ async function deleteComment(req: AuthenticatedRequest, res: Response<DeleteRevi
   }
 }
 
-async function getAllReviewsByEvent(req: Request, res: Response<GetAllReviewsByEventResponse>) {
+async function getAllReviewsByEvent(
+  req: Request,
+  res: Response<GetAllReviewsByEventResponse>
+) {
   try {
     const eventId = req.params.eventId;
     if (!eventId) {
@@ -270,11 +307,11 @@ async function getAllReviewsByEvent(req: Request, res: Response<GetAllReviewsByE
     }
 
     const reviews = await eventsService.getAllReviewsByEvent(eventId);
-    
+
     res.status(200).json({
       success: true,
       data: reviews,
-      message: "Reviews retrieved successfully"
+      message: "Reviews retrieved successfully",
     });
   } catch (err: any) {
     throw createError(
@@ -291,18 +328,17 @@ async function exportEventUsers(req: Request, res: Response) {
       throw createError(400, "eventId is required");
     }
     const xlxsData = await eventsService.exportEventUsersToXLXS(eventId);
-    
- res.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      );
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="event-${eventId}-attendees.xlsx"`
-      );
-      // Send the Excel file as the response (Response must only contain the file data)
-       res.send(xlxsData);
 
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="event-${eventId}-attendees.xlsx"`
+    );
+    // Send the Excel file as the response (Response must only contain the file data)
+    res.send(xlxsData);
   } catch (err: any) {
     throw createError(
       err.status || 500,
@@ -350,12 +386,11 @@ router.post(
 router.get(
   "/workshops",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER],
+    userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [
       AdministrationRoleType.EVENTS_OFFICE,
       AdministrationRoleType.ADMIN,
     ],
-    staffPositions: [StaffPosition.PROFESSOR],
   }),
   findAllWorkshops
 );
@@ -374,18 +409,29 @@ router.delete(
 
 router.post(
   "/:eventId/reviews",
-  authorizeRoles({ 
+  authorizeRoles({
     userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
-    staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] 
-  }), 
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
   createReview
 );
 
 router.get(
   "/:eventId/reviews",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION,UserRole.STUDENT, UserRole.STAFF_MEMBER],
-    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STUDENT,
+      UserRole.STAFF_MEMBER,
+    ],
+    adminRoles: [
+      AdministrationRoleType.ADMIN,
+      AdministrationRoleType.EVENTS_OFFICE,
+    ],
     staffPositions: [
       StaffPosition.PROFESSOR,
       StaffPosition.STAFF,
@@ -396,11 +442,15 @@ router.get(
 );
 
 router.patch(
-  "/:eventId/reviews", 
-  authorizeRoles({ 
-    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER], 
-    staffPositions: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA] 
-  }), 
+  "/:eventId/reviews",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
   updateReview
 );
 
@@ -447,7 +497,7 @@ router.get(
   "/export/:eventId/attendees",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   exportEventUsers
 );
