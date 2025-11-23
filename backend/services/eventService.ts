@@ -6,10 +6,8 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { Trip } from "../schemas/event-schemas/tripSchema";
 import { ITrip } from "../interfaces/models/trip.interface";
-import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
-import { IWorkshop } from "../interfaces/models/workshop.interface";
 import Stripe from "stripe";
 import { sendCommentDeletionWarningEmail } from "./emailService";
 import { UserService } from "./userService";
@@ -17,7 +15,12 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
-import { VendorEventsService } from "./vendorEventsService";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { NotificationService } from "./notificationService";
+import { Notification } from "./notificationService";
+
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -26,7 +29,6 @@ const STRIPE_MIN_AMOUNT_CENTS = 50;
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
   private tripRepo: GenericRepository<ITrip>;
-  private workshopRepo: GenericRepository<IWorkshop>;
   private conferenceRepo: GenericRepository<IConference>;
   private stripe?: Stripe;
   private userService: UserService;
@@ -34,7 +36,6 @@ export class EventsService {
   constructor() {
     this.eventRepo = new GenericRepository(Event);
     this.tripRepo = new GenericRepository(Trip);
-    this.workshopRepo = new GenericRepository(Workshop);
     this.conferenceRepo = new GenericRepository(Conference);
     this.userService = new UserService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
@@ -228,7 +229,17 @@ export class EventsService {
         createdEvent = await this.eventRepo.create(mappedData);
       }
 
-      await this.ensureStripeProductForPricedEvent(createdEvent);
+      await this.ensureStripeProductForPricedEvent(createdEvent)
+
+      await NotificationService.sendNotification({
+        role: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.ADMINISTRATION],
+        staffPosition: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
+        adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
+        type: "EVENT_NEW",
+        title: "New Event Added",
+        message: `A new event titled "${createdEvent.eventName}" has been added. Check it out!`,
+        createdAt: new Date(),
+      } as Notification);
 
       return createdEvent;
     } catch (err) {
@@ -581,8 +592,8 @@ export class EventsService {
     await sendCommentDeletionWarningEmail(
       user.email,
       (event.reviews[reviewIndex].reviewer as any).firstName +
-        " " +
-        (event.reviews[reviewIndex].reviewer as any).lastName,
+      " " +
+      (event.reviews[reviewIndex].reviewer as any).lastName,
       event.reviews[reviewIndex].comment || "No comment text",
       "Admin action",
       event.eventName,
@@ -719,8 +730,62 @@ export class EventsService {
           firstName: attendee.firstName,
           lastName: attendee.lastName,
         });
+
       });
     }
-    return (await workbook.xlsx.writeBuffer()) as any;
+    return await workbook.xlsx.writeBuffer() as any;
+  }
+
+  private async getEventsBetween(startDate: Date, endDate: Date) {
+    return await this.getEvents(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      startDate.toISOString(),
+      endDate.toISOString()
+    );
+  }
+
+  async checkUpcomingEvents() {
+    const now = new Date();
+    const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+    // Get events happening in 1 day (±30 minutes window)
+    const oneDayEvents = await this.getEventsBetween(
+      new Date(oneDayLater.getTime() - 30 * 60 * 1000),
+      new Date(oneDayLater.getTime() + 30 * 60 * 1000)
+    );
+
+    // Get events happening in 1 hour (±5 minutes window)
+    const oneHourEvents = await this.getEventsBetween(
+      new Date(oneHourLater.getTime() - 5 * 60 * 1000),
+      new Date(oneHourLater.getTime() + 5 * 60 * 1000)
+    );
+
+    // Send 1-day reminders
+    for (const event of oneDayEvents) {
+      await this.sendReminderToAttendees(event, "1 day");
+    }
+
+    // Send 1-hour reminders
+    for (const event of oneHourEvents) {
+      await this.sendReminderToAttendees(event, "1 hour");
+    }
+  }
+
+  private async sendReminderToAttendees(event: any, timeframe: string) {
+    const attendees = event.attendees || [];
+
+    for (const userId of attendees) {
+      await NotificationService.sendNotification({
+        userId,
+        type: "EVENT_REMINDER",
+        title: `Event Reminder: ${event.eventName}`,
+        message: `The event "${event.eventName}" starts in ${timeframe}`,
+        createdAt: new Date(),
+      } as Notification);
+    }
   }
 }
