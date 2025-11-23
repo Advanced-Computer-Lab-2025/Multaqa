@@ -323,7 +323,7 @@ export default function VendorParticipationRequests() {
         { status },
         { headers: { "Content-Type": "application/json" } }
       );
-
+      
       setRequests((prev) =>
         prev.map((item) =>
           item.id === request.id
@@ -416,44 +416,44 @@ export default function VendorParticipationRequests() {
         headerMarginBottom={3}
       >
         {/* Custom header section with Refresh button */}
-        <Box
-          sx={{
-            mb: 3,
+      <Box
+        sx={{
+          mb: 3,
             mt: -3,
-            display: "flex",
+          display: "flex",
             justifyContent: "flex-end",
           }}
-        >
-          <CustomButton
-            variant="outlined"
-            color="primary"
-            onClick={fetchRequests}
-            startIcon={<RefreshCw size={16} />}
           >
-            Refresh
-          </CustomButton>
-        </Box>
-
-        {feedback ? (
-          <Alert
-            severity={feedback.type}
-            sx={{ mb: 3, borderRadius: 2 }}
-            onClose={() => setFeedback(null)}
-          >
-            {feedback.message}
-          </Alert>
-        ) : null}
-
-        <Box
-          sx={{
-            mb: 2,
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            gap: 2,
-            justifyContent: "space-between",
-          }}
+        <CustomButton
+          variant="outlined"
+          color="primary"
+          onClick={fetchRequests}
+          startIcon={<RefreshCw size={16} />}
         >
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          Refresh
+        </CustomButton>
+      </Box>
+
+      {feedback ? (
+        <Alert
+          severity={feedback.type}
+          sx={{ mb: 3, borderRadius: 2 }}
+          onClose={() => setFeedback(null)}
+        >
+          {feedback.message}
+        </Alert>
+      ) : null}
+
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 2,
+          justifyContent: "space-between",
+        }}
+      >
+        <Stack direction="row" spacing={1} flexWrap="wrap">
             {statusFilters.map(({ key, label }) => {
               const isActive = statusFilter === key;
               // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)
@@ -467,11 +467,11 @@ export default function VendorParticipationRequests() {
                   : "#ef4444"; // Red for Rejected
 
               return (
-                <Chip
-                  key={key}
-                  label={label}
+            <Chip
+              key={key}
+              label={label}
                   size="medium"
-                  onClick={() => setStatusFilter(key)}
+              onClick={() => setStatusFilter(key)}
                   variant="outlined"
                   sx={{
                     fontFamily: "var(--font-poppins)",
@@ -496,11 +496,11 @@ export default function VendorParticipationRequests() {
                       transform: "translateY(-1px)",
                     },
                   }}
-                />
+            />
               );
             })}
-          </Stack>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+        </Stack>
+        <Stack direction="row" spacing={1} flexWrap="wrap">
             {typeFilters.map(({ key, label }) => {
               const isActive = typeFilter === key;
               // Color coding: All (blue), Bazaar (purple), Platform Booth (blue)
@@ -512,11 +512,11 @@ export default function VendorParticipationRequests() {
                   : "#1d4ed8"; // Blue for Platform Booth (matches VendorRequestCard)
 
               return (
-                <Chip
-                  key={key}
-                  label={label}
+            <Chip
+              key={key}
+              label={label}
                   size="medium"
-                  onClick={() => setTypeFilter(key)}
+              onClick={() => setTypeFilter(key)}
                   variant="outlined"
                   sx={{
                     fontFamily: "var(--font-poppins)",
@@ -541,15 +541,15 @@ export default function VendorParticipationRequests() {
                       transform: "translateY(-1px)",
                     },
                   }}
-                />
+            />
               );
             })}
-          </Stack>
-        </Box>
+        </Stack>
+      </Box>
 
-        <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3 }} />
 
-        <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>{content()}</Box>
+      <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>{content()}</Box>
       </ContentWrapper>
     </Box>
   );

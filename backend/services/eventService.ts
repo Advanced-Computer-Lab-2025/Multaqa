@@ -443,8 +443,8 @@ export class EventsService {
 
     // Add event to user's registered events
     // TODO: Remove this after testing
-    const eventObjectId = event._id;
-    // const eventObjectId = event._id as mongoose.Types.ObjectId;
+    // const eventObjectId = event._id;
+    const eventObjectId = event._id as mongoose.Types.ObjectId;
     await this.userService.addEventToUser(userId, eventObjectId);
 
     return event;
