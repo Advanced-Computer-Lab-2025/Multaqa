@@ -9,134 +9,115 @@ import { Notification } from "../services/notificationService";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { INotification, IUser } from "../interfaces/models/user.interface";
+import createError from "http-errors";
 
-// Helper function to send a socket notification
 async function sendSocketNotification(typeNotification: string, notification: Notification) {
-  if (!notification.userId && !notification.role && !notification.adminRole && !notification.staffPosition) {
-    return;
-  }
-
-  const userRepo = new GenericRepository<IUser>(User);
-
-  // Notify specific user
-  if (notification.userId) {
-    const sockets = OnlineUsersService.getUserSockets(notification.userId);
-    const isOnline = sockets.length > 0;
-
-    // Add notification to user's notifications array
-    const user = await userRepo.findById(notification.userId);
-    if (user) {
-      user.notifications.push({
-        type: typeNotification,
-        title: notification.title || '',
-        message: notification.message || '',
-        read: false,
-        delivered: isOnline,
-        createdAt: new Date()
-      } as INotification);
-      await user.save();
+  try {
+    if (!notification.userId && !notification.role && !notification.adminRole && !notification.staffPosition) {
+      return;
     }
 
-    sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
-    return;
-  }
+    const userRepo = new GenericRepository<IUser>(User);
 
-  // Notify by roles
-  let usersToNotify: string[] = [];
+    // Notify specific user
+    if (notification.userId) {
+      try {
+        const sockets = OnlineUsersService.getUserSockets(notification.userId);
+        const isOnline = sockets.length > 0;
 
-  const userService = new UserService();
-  if (notification.role) {
-    if (notification.role.includes(UserRole.ADMINISTRATION)) {
-      if (notification.adminRole) {
-        if (notification.adminRole.includes(AdministrationRoleType.EVENTS_OFFICE)) {
-          (async () => {
-            const eventsOfficeAdmins = await userService.getAllEventsOffice();
-            eventsOfficeAdmins.forEach((admin) => {
-              if (!usersToNotify.includes(String(admin._id))) {
-                usersToNotify.push(String(admin._id));
-              }
-            });
-          })();
+        // Add notification to user's notifications array
+        const user = await userRepo.findById(notification.userId);
+        if (user) {
+          user.notifications.push({
+            type: typeNotification,
+            title: notification.title || '',
+            message: notification.message || '',
+            read: false,
+            delivered: isOnline,
+            createdAt: new Date()
+          } as INotification);
+          await user.save();
         }
-        if (notification.adminRole.includes(AdministrationRoleType.ADMIN)) {
-          (async () => {
-            const allAdmins = await userService.getAllAdmins();
-            allAdmins.forEach((admin) => {
-              if (!usersToNotify.includes(String(admin._id))) {
-                usersToNotify.push(String(admin._id));
-              }
-            });
-          })();
-        }
+
+        sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
+        return;
+      } catch (error: any) {
+        throw createError(500, "Error sending socket notification to specific user:", error);
       }
     }
-    if (notification.role.includes(UserRole.STAFF_MEMBER)) {
-      if (notification.staffPosition) {
-        if (notification.staffPosition.includes(StaffPosition.PROFESSOR)) {
-          (async () => {
-            const professors = await userService.getAllProfessors();
-            professors.forEach((professor) => {
-              if (!usersToNotify.includes(String(professor._id))) {
-                usersToNotify.push(String(professor._id));
-              }
-            });
-          })();
-        }
-        if (notification.staffPosition.includes(StaffPosition.TA)) {
-          (async () => {
-            const tas = await userService.getAllTAs();
-            tas.forEach((ta) => {
-              if (!usersToNotify.includes(String(ta._id))) {
-                usersToNotify.push(String(ta._id));
-              }
-            });
-          })();
-        }
-        if (notification.staffPosition.includes(StaffPosition.STAFF)) {
-          (async () => {
-            const staffMembers = await userService.getAllStaff();
-            staffMembers.forEach((staff) => {
-              if (!usersToNotify.includes(String(staff._id))) {
-                usersToNotify.push(String(staff._id));
-              }
-            });
-          })();
-        }
-      }
-    }
-    if (notification.role.includes(UserRole.STUDENT)) {
-      (async () => {
-        const students = await userService.getAllStudents();
-        students.forEach((student) => {
-          if (!usersToNotify.includes(String(student._id))) {
-            usersToNotify.push(String(student._id));
+
+    // Notify by roles
+    const usersToNotifySet = new Set<string>();
+
+    const userService = new UserService();
+    if (notification.role) {
+      const promises: Promise<any[]>[] = [];
+
+      if (notification.role.includes(UserRole.ADMINISTRATION)) {
+        if (notification.adminRole) {
+          if (notification.adminRole.includes(AdministrationRoleType.EVENTS_OFFICE)) {
+            promises.push(userService.getAllEventsOffice());
           }
+          if (notification.adminRole.includes(AdministrationRoleType.ADMIN)) {
+            promises.push(userService.getAllAdmins());
+          }
+        }
+      }
+      if (notification.role.includes(UserRole.STAFF_MEMBER)) {
+        if (notification.staffPosition) {
+          if (notification.staffPosition.includes(StaffPosition.PROFESSOR)) {
+            promises.push(userService.getAllProfessors());
+          }
+          if (notification.staffPosition.includes(StaffPosition.TA)) {
+            promises.push(userService.getAllTAs());
+          }
+          if (notification.staffPosition.includes(StaffPosition.STAFF)) {
+            promises.push(userService.getAllStaff());
+          }
+        }
+      }
+      if (notification.role.includes(UserRole.STUDENT)) {
+        promises.push(userService.getAllStudents());
+      }
+
+      // Await all promises and collect user IDs
+      const results = await Promise.all(promises);
+      results.forEach((userArray) => {
+        userArray.forEach((user) => {
+          usersToNotifySet.add(String(user._id));
         });
-      })();
+      });
     }
+
+    // Convert Set to Array for iteration
+    const usersToNotify = Array.from(usersToNotifySet);
+
+    // Process notifications for all users
+    for (const userId of usersToNotify) {
+      const sockets = OnlineUsersService.getUserSockets(userId);
+      const isOnline = sockets.length > 0;
+
+      // Add notification to user's notifications array
+      const user = await userRepo.findById(userId);
+      if (user) {
+        user.notifications.push({
+          type: typeNotification,
+          title: notification.title || '',
+          message: notification.message || '',
+          read: false,
+          delivered: isOnline,
+          createdAt: new Date()
+        } as INotification);
+        await user.save();
+      }
+
+      sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
+    }
+    return;
+  } catch (error) {
+    console.error(`Failed to send socket notification [${typeNotification}]:`, error);
+    // Consider adding monitoring/alerting here
   }
-
-  usersToNotify.forEach(async (userId) => {
-    const sockets = OnlineUsersService.getUserSockets(userId);
-    const isOnline = sockets.length > 0;
-
-    // Add notification to user's notifications array
-    const user = await userRepo.findById(userId);
-    if (user) {
-      user.notifications.push({
-        type: typeNotification,
-        title: notification.title || '',
-        message: notification.message || '',
-        read: false,
-        delivered: isOnline,
-        createdAt: new Date()
-      } as INotification);
-      await user.save();
-    }
-
-    sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
-  });
-  return;
 }
 
 /**
