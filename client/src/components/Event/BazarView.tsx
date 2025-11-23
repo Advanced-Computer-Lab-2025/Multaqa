@@ -13,6 +13,7 @@ import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -27,6 +28,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   background,
   setRefresh,
   attended,
+  archived,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -34,6 +36,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
     const fid = f?._id?.$oid || f?._id || f;
@@ -96,7 +99,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                    <Trash2 size={18} />
                  </IconButton>
                </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities onRestrict={() => setRestrictUsers(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+      ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
       registerButton={!registered &&
         user == "vendor" && (
           <CustomButton
@@ -115,7 +118,7 @@ const BazarView: React.FC<BazarViewProps> = ({
               onClose={handleCloseModal}
               bazarId={id} />
           </CustomButton>
-        )} expanded={expanded} location={details["Location"]}  
+        )} expanded={expanded} archived={archived} location={details["Location"]}  
         />
 
       {/* Delete Confirmation Modal */}
@@ -184,7 +187,8 @@ const BazarView: React.FC<BazarViewProps> = ({
         registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
         onClose={()=> {setEdit(false)}}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}

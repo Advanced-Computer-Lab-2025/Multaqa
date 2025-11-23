@@ -1,8 +1,8 @@
-import { Schema, Document } from "mongoose";
+import { Schema, Document, Types } from "mongoose";
 import { COURT_TYPES, TIME_SLOTS } from "../../constants/court.constants";
 
 export interface IReservation {
-  userId: Schema.Types.ObjectId;
+  userId: Types.ObjectId
   date: Date;
   slot: TIME_SLOTS;
 }

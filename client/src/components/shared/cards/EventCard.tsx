@@ -31,6 +31,7 @@ interface EventCardProps {
   expanded?: boolean;
   details?: Record<string, any>;
   attended?: boolean;
+  archived?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -57,6 +58,7 @@ const EventCard: React.FC<EventCardProps> = ({
   attended = false,
   eventId,
   isFavorite = false,
+  archived = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = spotsLeft&&parseInt(spotsLeft)||0;
@@ -213,6 +215,20 @@ const EventCard: React.FC<EventCardProps> = ({
                     '&:hover': {
                       backgroundColor: '#10b98115',
                     },
+                  }}
+                />
+              )}
+              {archived && (
+                <Chip
+                  label="Archived"
+                  size="small"
+                  sx={{
+                    backgroundColor: theme.palette.warning.contrastText,
+                    color: theme.palette.warning.main,
+                    fontWeight: 600,
+                    fontSize: '0.7rem',
+                    height: 20,
+                    border: '1px solid '+theme.palette.warning.main,
                   }}
                 />
               )}

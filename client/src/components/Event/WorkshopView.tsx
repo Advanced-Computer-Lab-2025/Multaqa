@@ -5,7 +5,7 @@ import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban} from "lucide-react";
+import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban, Archive} from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -14,6 +14,7 @@ import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -31,6 +32,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   setRefresh,
   userInfo,
   attended,
+  archived,
   datePassed,
   registrationPassed,
 }) => {
@@ -38,6 +40,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [register, setRegister] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const updatedDetails = {...details,professors}
@@ -106,26 +109,47 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={(user === "events-office" || user === "admin") ? (
           <Stack direction="row" spacing={1}>
-            {user === "events-office" ? (
-              <Tooltip title={"Restrict Workshop"}>
-                <IconButton
-                  size="medium"
-                  onClick={() => setRestrictUsers(true)}
-                  sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: `#6b728015`,
-                      borderColor: "#6b7280",
-                      color: "#6b7280",
-                    },
-                  }}
-                >
-                  <Ban size={18} />
-                </IconButton>
-              </Tooltip>
+            {(user === "events-office" && !archived) ? (
+              <>
+                <Tooltip title={"Archive Workshop"}>
+                  <IconButton
+                    size="medium"
+                    onClick={() => setArchive(true)}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      "&:hover": {
+                        backgroundColor: "#ff980015",
+                        borderColor: "warning.main",
+                        color: "warning.main",
+                      },
+                    }}
+                  >
+                    <Archive size={18} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={"Restrict Workshop"}>
+                  <IconButton
+                    size="medium"
+                    onClick={() => setRestrictUsers(true)}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      "&:hover": {
+                        backgroundColor: `#6b728015`,
+                        borderColor: "#6b7280",
+                        color: "#6b7280",
+                      },
+                    }}
+                  >
+                    <Ban size={18} />
+                  </IconButton>
+                </Tooltip>
+              </>
             ) : null}
 
             <Tooltip title="Delete Workshop">
@@ -209,6 +233,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           )
         }
         expanded={expanded}
+        archived={archived}
         location={details["Location"]}
       />
 
@@ -278,8 +303,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         userInfo={userInfo}
         eventId={id}
        color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)}/>
       <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
         
       <CustomModalLayout
