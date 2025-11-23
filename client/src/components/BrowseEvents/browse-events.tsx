@@ -524,6 +524,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         );
       case EventType.WORKSHOP:
+        console.log(event);
         return (
           <WorkshopView
             id={event.id}

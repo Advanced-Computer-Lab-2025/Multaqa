@@ -30,7 +30,7 @@ export class WorkshopService {
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
-    data.createdBy = professorid as unknown as mongoose.Schema.Types.ObjectId;
+    data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.workshopRepo.create(mappedData);
@@ -84,7 +84,7 @@ export class WorkshopService {
   }
 
   async updateWorkshopStatus(
-    professorId: string,
+    eventsOfficeId: string,
     workshopId: string,
     updateData: Partial<IWorkshop>
   ): Promise<IWorkshop> {
@@ -93,9 +93,9 @@ export class WorkshopService {
     const workshop = await this.workshopRepo.findById(workshopId);
     if (!workshop) throw createError(404, "Workshop not found");
 
-    if (workshop && professorId != workshop?.createdBy.toString()) {
-      throw createError(403, "Not authorized to update this workshop status");
-    }
+    // Get the events office user to retrieve their name
+    const eventsOffice = await this.userRepo.findById(eventsOfficeId);
+    if (!eventsOffice) throw createError(404, "Events Office user not found");
 
     // Check if workshop is already approved or rejected - these are irreversible
     if (
@@ -131,9 +131,15 @@ export class WorkshopService {
         );
       }
 
+      // Transform comments to replace commenter ID with events office name
+      const eventsOfficeName = (eventsOffice as any).name || "Events Office";
+      finalComments = comments.map((comment: any) => ({
+        ...comment,
+        commenter: eventsOfficeName, // Replace ID with name
+      }));
+
       // Comments provided = status becomes AWAITING_REVIEW (requesting edits)
       finalStatus = Event_Request_Status.AWAITING_REVIEW;
-      finalComments = comments;
     }
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, {

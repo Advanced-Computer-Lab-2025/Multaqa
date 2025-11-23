@@ -22,41 +22,34 @@ import CommentsModal from "./CommentsModal";
 import CommentsList from "./CommentsModal";
 import ContentWrapper from "../containers/ContentWrapper";
 
+interface CommentItem {
+  commenter: string;
+  name:string;
+  text: string;
+  timestamp: string;
+}
+
+
 interface WorkshopListProps {
   userId: string;
   filter: string;
   userInfo: any;
 }
-const mockComments = [
-  {
-    id: 1,
-    commenter: "Dr. Sarah Johnson",
-    text: "Please provide more details about the technical requirements.",
-    timestamp: "2025-01-15T10:30:00Z",
-  },
-  {
-    id: 2,
-    commenter: "Events Office Admin",
-    text: "The budget seems reasonable.",
-    timestamp: "2025-01-16T14:22:00Z",
-  },
-];
 
 const background = "#9c27b0";
+
 const WorkshopList: React.FC<WorkshopListProps> = ({
   userId,
   filter,
   userInfo,
 }) => {
-  const [workshops, setWorkshops] = useState<WorkshopViewProps[]>([]);
-  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(
-    null
-  );
+  const [workshops, setWorkshops] = useState<any[]>([]);
   const [creation, setCreation] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rawWorkshops, setRawWorkshops] = useState<any[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [commentModal, setCommentModal] = useState<boolean>(false);
+  const [selectedWorkshopComments, setSelectedWorkshopComments] = useState<any[]>([]);
 
   const creationHubOptions = [
     {
@@ -93,6 +86,11 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
     setRawWorkshops(result);
     setLoading(false);
   }, [userInfo, selectedFilter]);
+
+  const handleViewComments = (comments: CommentItem[]) => {
+    setSelectedWorkshopComments(comments || []);
+    setCommentModal(true);
+  };
 
   return (
     <ContentWrapper
@@ -177,38 +175,11 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
                         boxShadow: `0 6px 20px ${background}50`,
                       },
                     }}
-                    onClick={() => {
-                      setCommentModal(true);
-                    }}
+                    onClick={() => handleViewComments(item.comments)}
                   >
                     View Comments
                   </CustomButton>
                 }
-              />
-
-              <EditWorkshop
-                workshopId={item.id}
-                open={editingWorkshopId === item.id}
-                workshopName={item.name}
-                budget={parseInt(item.details["Required Budget"], 10)}
-                capacity={parseInt(item.details.Capacity, 10)}
-                startDate={new Date(item.details["Start Date"])}
-                endDate={new Date(item.details["End Date"])}
-                registrationDeadline={
-                  new Date(item.details["Registration Deadline"])
-                }
-                description={item.description}
-                agenda={item.agenda}
-                location={item.details.Location}
-                fundingSource={item.details["Funding Source"]}
-                creatingProfessor={item.details["Created By"]}
-                faculty={item.details["Faculty Responsible"]}
-                extraResources={item.details["Extra Required Resources"]}
-                associatedProfs={rawWorkshops[index].associatedProfs}
-                onClose={() => {
-                  setEditingWorkshopId(null);
-                  window.location.reload();
-                }}
               />
             </React.Fragment>
           ))}
@@ -232,7 +203,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
         open={commentModal}
         onClose={() => setCommentModal(false)}
       >
-        <CommentsList comments={mockComments} />
+        <CommentsList comments={selectedWorkshopComments} />
       </CustomModalLayout>
       <CreateWorkshop
         professors={[]}

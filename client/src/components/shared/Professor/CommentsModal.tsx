@@ -10,7 +10,6 @@ import { ChatBubbleOutline } from "@mui/icons-material";
 import theme from "@/themes/lightTheme";
 
 interface CommentItem {
-  id: number;
   commenter: string;
   text: string;
   timestamp: string;
@@ -78,7 +77,7 @@ const CommentsList: React.FC<CommentsListProps> = ({ comments }) => {
     <Stack spacing={0} sx={{ maxHeight: "400px", overflowY: "auto" }}>
       {comments.map((comment, index) => (
         <Box
-          key={comment.id}
+          key={index}
           sx={{
             p: 3,
             borderBottom:
