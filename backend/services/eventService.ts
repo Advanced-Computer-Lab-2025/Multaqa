@@ -273,13 +273,45 @@ export class EventsService {
       throw createError(404, "Event not found");
     }
 
+    // Check if trying to archive an event that hasn't passed
+    if (
+      updateData.archived &&
+      updateData.archived === true &&
+      !event.isPassed
+    ) {
+      throw createError(400, "Cannot archive an event that has not passed yet");
+    }
+
     if (event.type === EVENT_TYPES.BAZAAR || event.type === EVENT_TYPES.TRIP) {
-      if (new Date(event.eventStartDate) < new Date()) {
-        // If the event has already started, prevent updates
+      const now = new Date();
+      const eventStarted = new Date(event.eventStartDate) < now;
+      const eventEnded = new Date(event.eventEndDate) < now;
+      const isOngoing = eventStarted && !eventEnded;
+
+      if (isOngoing) {
+        // Block all updates including archival while event is ongoing
         throw createError(
           400,
-          "Cannot update bazaars & trips that have already started"
+          "Cannot update bazaars & trips while they are ongoing"
         );
+      }
+
+      if (eventStarted) {
+        // After event starts (but has ended), only allow archival
+        const updateKeys = Object.keys(updateData).filter(
+          (key) => key !== "type"
+        );
+        const isOnlyArchiving =
+          updateKeys.length === 1 &&
+          updateKeys[0] === "archived" &&
+          updateData.archived === true;
+
+        if (!isOnlyArchiving) {
+          throw createError(
+            400,
+            "Cannot update bazaars & trips that have already ended"
+          );
+        }
       }
     }
     // If event has a price and its being changed, reflect that in Stripe before saving to DB

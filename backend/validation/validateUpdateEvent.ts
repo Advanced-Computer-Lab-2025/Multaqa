@@ -24,6 +24,7 @@ const eventBaseSchema = Joi.object({
   registrationDeadline: Joi.date().optional(),
   location: Joi.string().optional(),
   description: Joi.string().optional(),
+  archived: Joi.boolean().optional(),
 });
 
 // Bazaar event schema
