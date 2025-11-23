@@ -49,18 +49,19 @@ type RoleConfig = {
   headerTitle: string;
   icon: React.ReactNode;
   tabs: TabItem[];
+  sections: SectionItem[];
   defaultTab?: string;
   defaultSection?: string;
 };
 
-type TabItem = {
+type TabItem = { id: string; label: string };
+
+type SectionItem = {
   key: string;
   label: string;
   icon: React.ElementType;
-  sections?: SectionItem[];
+  tabs?: TabItem[];
 };
-
-type SectionItem = { id: string; label: string };
 
 // Helper: Map backend user to frontend role key for navigation config
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -605,11 +606,8 @@ export default function EntityNavigation({
   }, [segments, stakeholder, userRoleKey, config, section, tab, router]);
 
   // Get section configuration
-  const sectionItems: TabItem[] = config.sections;
+  const sectionItems: SectionItem[] = config.sections;
   const sectionKeys: string[] = sectionItems.map((s) => s.key);
-  const sectionLabels: string[] = sectionItems.map((s) => s.label);
-  const activeSectionIndex =
-    sectionKeys.length > 0 ? Math.max(0, sectionKeys.indexOf(section)) : -1;
 
   // Get tabs for current section
   const currentSection = sectionItems.find((s) => s.key === section);
@@ -724,10 +722,10 @@ export default function EntityNavigation({
               <div className="bg-white border-b border-gray-300">
                 <div className="px-6">
                   <Tabs
-                    tabs={tabItems.map((t) => t.label)}
+                    tabs={tabItems.map((t: TabItem) => t.label)}
                     activeTab={Math.max(
                       0,
-                      tabItems.findIndex((t) => t.id === tab)
+                      tabItems.findIndex((t: TabItem) => t.id === tab)
                     )}
                     onTabChange={(index) => handleTabClick(tabItems[index].id)}
                   />

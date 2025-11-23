@@ -42,7 +42,7 @@ const statusFilters: Array<{ key: StatusFilter; label: string }> = [
 ];
 
 const typeFilters: Array<{ key: TypeFilter; label: string }> = [
-  { key: "ALL", label: "All Types" },
+  { key: "ALL", label: "All" },
   { key: "bazaar", label: "Bazaars" },
   { key: "platform_booth", label: "Platform Booths" },
 ];
