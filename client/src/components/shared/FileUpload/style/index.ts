@@ -10,6 +10,11 @@ export const StyledWrapper = styled("div")<{
   max-width: ${
     typeof containerWidth === "number" ? `${containerWidth}px` : containerWidth
   };
+  max-height: ${
+    typeof containerWidth === "number"
+      ? `${containerWidth / 3}px`
+      : `calc(${containerWidth} / 3)`
+  };
   cursor: pointer;
 
   @keyframes borderDraw {
@@ -35,7 +40,7 @@ export const StyledWrapper = styled("div")<{
     border-radius: 15px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     
-    aspect-ratio: 1.6; 
+    aspect-ratio: 1.8; 
     width: 100%;
     
     position: relative;
@@ -138,7 +143,7 @@ export const StyledWrapper = styled("div")<{
 
   /* --- BUTTON --- */
   .custom-file-upload {
-    font-size: 1.1em;
+    font-size: clamp(0.7rem, 1vw + 0.3rem, 0.95rem);
     color: #000;
     text-align: center;
     background: rgba(255, 255, 255, 0.2);
@@ -147,9 +152,11 @@ export const StyledWrapper = styled("div")<{
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: background var(--transition) ease;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 10px 0;
+    padding: clamp(6px, 1.5vw, 10px) 0;
     position: relative;
     z-index: 10;
   }
@@ -228,8 +235,8 @@ export const StyledWrapper = styled("div")<{
   }
 
   .logo-icon {
-    width: 30%;
-    height: 45%;
+    width: 35%;
+    height: 50%;
     background: linear-gradient(135deg, ${
       theme.palette.primary.main
     }, #0a265fff);
@@ -245,7 +252,7 @@ export const StyledWrapper = styled("div")<{
   .logo-text {
     font-family: 'Arial', sans-serif;
     font-size: clamp(10px, 1.5vw, 14px);
-    font-weight: 700;
+    font-weight: 500;
     color: #0a265fff;
     letter-spacing: 2px;
   }

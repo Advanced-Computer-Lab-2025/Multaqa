@@ -2,7 +2,6 @@ import React from "react";
 import { Formik } from "formik";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
-import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useTheme } from "@mui/material/styles";
@@ -50,11 +49,8 @@ const LoginForm: React.FC = () => {
                     className={"text-4xl" + " font-bold"}
                     style={{ color: theme.palette.text.primary }}
                   >
-                    Multaqa
-                  </h1>
-                  <p style={{ color: theme.palette.text.secondary }}>
                     Log in to your account to continue
-                  </p>
+                  </h1>
                 </div>
 
                 {/* Common Fields */}
@@ -140,23 +136,6 @@ const LoginForm: React.FC = () => {
                       </span>
                     )}
                   </div>
-                </div>
-
-                {/* Login Link */}
-                <div className="mt-4 text-center">
-                  <p
-                    className="text-sm"
-                    style={{ color: theme.palette.text.primary }}
-                  >
-                    Don&apos;t have an account?{" "}
-                    <Link
-                      href="/register"
-                      className="font-medium hover:underline"
-                      style={{ color: theme.palette.primary.main }}
-                    >
-                      Create an account
-                    </Link>
-                  </p>
                 </div>
               </div>
             </Box>

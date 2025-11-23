@@ -56,7 +56,12 @@ const featureHighlights = [
   {
     icon: <PaletteIcon fontSize="large" />,
     title: "Curated Experiences",
-    copy: "Discover artful events tailored for every member of the GUC community.",
+    copy: (
+      <>
+        Discover artful events tailored for <br /> every member of the <br />{" "}
+        campus.
+      </>
+    ),
   },
   {
     icon: <ScheduleIcon fontSize="large" />,
@@ -998,41 +1003,15 @@ export default function HomePage() {
                     Vendor
                   </CustomButton>
                 </Stack>
-                <Typography
-                  sx={{
-                    ...menuSubLinkStyles(theme),
-                    mt: 3,
-                    color: theme.palette.text.primary,
-                    fontWeight: 400,
-                    display: "flex",
-                    gap: 0.5,
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  Already have an account?
-                  <Typography
-                    component={Link}
-                    href="/login"
-                    sx={{
-                      color: theme.palette.primary.main,
-                      fontWeight: 600,
-                      textDecoration: "none",
-                      "&:hover": {
-                        textDecoration: "underline",
-                      },
-                    }}
-                  >
-                    Login
-                  </Typography>
-                </Typography>
               </Stack>
+
               <Divider
                 sx={{
                   borderColor: alpha(theme.palette.text.primary, 0.1),
                   my: 1,
                 }}
               />
+
               <Stack spacing={1}>
                 <Typography
                   component={Link}
@@ -1154,7 +1133,7 @@ export default function HomePage() {
 
       {/* ================================================================
       === 
-      === HERO / AUTH ANIMATION SECTION (UPDATED: Centered & Compact)
+      === HERO / AUTH ANIMATION SECTION
       === 
       ================================================================
       */}
@@ -1163,7 +1142,7 @@ export default function HomePage() {
         sx={{
           position: "relative",
           overflow: "hidden",
-          // Force full viewport height, minus a little for visual balance
+          // Force full viewport height
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -1171,12 +1150,12 @@ export default function HomePage() {
         }}
       >
         <Container
-          maxWidth="lg" // TIGHTER WIDTH (was xl)
+          maxWidth="lg"
           sx={{
             position: "relative",
             display: "flex",
-            alignItems: "center", // VERTICAL CENTER internal items
-            // Adjust padding: Enough for mobile navbar, but 0 on desktop to let Flexbox center it
+            alignItems: "center",
+            // Adjust padding: Enough for mobile navbar, but 0 on desktop
             pt: { xs: 14, md: 0 },
             pb: { xs: 8, md: 0 },
             flexGrow: 1,
@@ -1189,7 +1168,6 @@ export default function HomePage() {
               inset: 0,
               zIndex: 0,
               pointerEvents: "none",
-              // Optional: constrain shapes to not bleed too far on ultra-wide screens
               left: "50%",
               transform: "translateX(-50%)",
               width: "100vw",
@@ -1208,7 +1186,6 @@ export default function HomePage() {
               width: "100%",
               display: "flex",
               alignItems: "center",
-              // Ensure content creates a row for side-by-side logic
               justifyContent: "space-between",
             }}
           >
@@ -1224,7 +1201,6 @@ export default function HomePage() {
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
-                    // On desktop, keep text slightly to the left for balance
                     justifyContent: "flex-start",
                   }}
                 >
@@ -1250,7 +1226,6 @@ export default function HomePage() {
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
-                    // Pushes form strictly to the RIGHT
                     justifyContent: "flex-end",
                   }}
                 >
@@ -1629,7 +1604,9 @@ const HeroContent = ({
         textAlign: { xs: "center", md: "left" },
       }}
     >
-      Artful events for every voice on campus.
+      Artful events for <br />
+      every voice on <br />
+      campus.
     </Typography>
     <Typography
       variant="body1"
@@ -1815,6 +1792,8 @@ const AuthForm = ({ currentView, userType }: any) => (
     sx={{
       width: "100%",
       maxWidth: 550,
+      // Shifted negative margin to pull it more to the right on desktop
+      mr: { md: -3 },
       mx: { xs: "auto", md: 0 },
     }}
   >
@@ -1837,6 +1816,7 @@ const AuthForm = ({ currentView, userType }: any) => (
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3 }}
+          style={{ paddingTop: "10px" }}
         >
           <RegistrationForm UserType={userType} />
         </motion.div>
@@ -1847,16 +1827,25 @@ const AuthForm = ({ currentView, userType }: any) => (
 
 /*
 ---
---- 3. Shapes Component (Matches Your Image / Old Grid Layout)
+--- 3. Shapes Component (Smoother Animation)
 ---
 */
 
-const homeTransition = { type: "spring", stiffness: 50, damping: 20 } as const;
+// Lower stiffness = slower, softer movement
+// Higher damping = less bounce/oscillation
+const homeTransition = {
+  type: "spring",
+  stiffness: 28,
+  damping: 30,
+  mass: 1.2,
+} as const;
+
 const authTransition = (delay: number) => ({
   type: "spring" as const,
-  stiffness: 45,
-  damping: 20,
-  delay: delay,
+  stiffness: 28,
+  damping: 30,
+  mass: 1.2,
+  delay: delay * 1.5, // Slightly longer stagger for elegance
 });
 
 const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
@@ -1865,18 +1854,18 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       position: "relative",
       width: "100%",
       height: "100%",
-      // Floating animations
+      // Smoother, slower floating animations
       "@keyframes floatSlow": {
         "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-10px)" },
+        "50%": { transform: "translateY(-12px)" }, // Reduced distance
       },
       "@keyframes floatMed": {
         "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(8px)" },
+        "50%": { transform: "translateY(10px)" },
       },
       "@keyframes floatFast": {
         "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-6px)" },
+        "50%": { transform: "translateY(-8px)" },
       },
     }}
   >
@@ -1887,25 +1876,26 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "20%",
-          left: "60%", // Home: Left side of the cluster
+          left: "50%",
           width: "120px",
-          height: "220px",
+          height: "250px",
           borderRadius: "999px",
           transition: homeTransition,
         },
         auth: {
-          top: "15%",
-          left: "5%",
-          width: "100px",
-          height: "180px",
+          top: "50%",
+          left: "20%",
+          width: "250px",
+          height: "120px",
           borderRadius: "999px",
           transition: authTransition(0.1),
         },
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#5696d8", // Matching image light blue
-        animation: "floatSlow 9s ease-in-out infinite",
+        bgcolor: "#5696d8",
+        // Increased duration to 14s for a drift effect
+        animation: "floatSlow 14s ease-in-out infinite",
       }}
     />
 
@@ -1915,28 +1905,29 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       animate={isHome ? "home" : "auth"}
       variants={{
         home: {
-          top: "25%",
-          left: "74%", // Home: Top Right
-          width: "230px",
+          top: "20%",
+          left: "70%",
+          width: "260px",
           height: "110px",
           borderRadius: "12px",
           rotate: 0,
           transition: homeTransition,
         },
         auth: {
-          top: "10%",
-          left: "25%",
-          width: "180px",
-          height: "100px",
+          top: "40%",
+          left: "0%",
+          width: "130px",
+          height: "260px",
           borderRadius: "12px",
-          rotate: 5, // Slight tilt in auth mode for variety
+          rotate: 5,
           transition: authTransition(0.2),
         },
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#502ba0", // Matching image purple
-        animation: "floatMed 11s ease-in-out infinite",
+        bgcolor: "#502ba0",
+        // Increased duration to 16s
+        animation: "floatMed 16s ease-in-out infinite",
         animationDelay: "0.5s",
       }}
     />
@@ -1947,28 +1938,29 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       animate={isHome ? "home" : "auth"}
       variants={{
         home: {
-          top: "48%",
-          left: "65%", // Home: Center
-          width: "80px",
+          top: "55%",
+          left: "60%",
+          width: "170px",
           height: "8px",
           borderRadius: "4px",
           rotate: 0,
           transition: homeTransition,
         },
         auth: {
-          top: "50%",
-          left: "15%",
-          width: "100px",
-          height: "8px",
+          top: "15%",
+          left: "20%",
+          width: "8px",
+          height: "160px",
           borderRadius: "4px",
-          rotate: -15,
-          transition: authTransition(0.3),
+          rotate: 0,
+          transition: authTransition(0.4),
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: theme.palette.common.black,
-        animation: "floatFast 8s ease-in-out infinite",
+        // Increased duration to 13s
+        animation: "floatFast 13s ease-in-out infinite",
         animationDelay: "1s",
       }}
     />
@@ -1979,19 +1971,19 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       animate={isHome ? "home" : "auth"}
       variants={{
         home: {
-          top: "58%",
-          left: "55%",
-          width: "100px",
-          height: "100px",
+          top: "62%",
+          left: "50%",
+          width: "130px",
+          height: "130px",
           borderRadius: "16px",
           rotate: 0,
           transition: homeTransition,
         },
         auth: {
-          top: "65%",
-          left: "8%",
-          width: "90px",
-          height: "90px",
+          top: "20%",
+          left: "35%",
+          width: "130px",
+          height: "130px",
           borderRadius: "16px",
           rotate: -10,
           transition: authTransition(0.15),
@@ -1999,8 +1991,9 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#243168", // Matching image dark blue
-        animation: "floatSlow 12s ease-in-out infinite",
+        bgcolor: "#243168",
+        // Increased duration to 18s
+        animation: "floatSlow 18s ease-in-out infinite",
         animationDelay: "0.2s",
       }}
     />
@@ -2012,18 +2005,18 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "45%",
-          left: "82%",
-          width: "100px",
-          height: "190px",
+          left: "85%",
+          width: "120px",
+          height: "210px",
           borderRadius: "999px",
           rotate: 0,
           transition: homeTransition,
         },
         auth: {
-          top: "35%",
-          left: "35%",
-          width: "90px",
-          height: "160px",
+          top: "10%",
+          left: "0%",
+          width: "120px",
+          height: "210px",
           borderRadius: "999px",
           rotate: 15,
           transition: authTransition(0.25),
@@ -2031,8 +2024,9 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#abcce8", // Matching image pale blue
-        animation: "floatMed 10s ease-in-out infinite",
+        bgcolor: "#abcce8",
+        // Increased duration to 15s
+        animation: "floatMed 15s ease-in-out infinite",
         animationDelay: "0.7s",
       }}
     />
@@ -2044,27 +2038,27 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "20%",
-          left: "94%",
-          width: "8px",
-          height: "140px",
+          left: "103%",
+          width: "10px",
+          height: "125px",
           borderRadius: "4px",
           rotate: 0,
           transition: homeTransition,
         },
         auth: {
-          top: "15%",
-          left: "2%",
-          width: "8px",
-          height: "160px",
-          borderRadius: "4px",
+          top: "75%",
+          left: "35%",
+          width: "90px",
+          height: "90px",
+          borderRadius: "50%",
           rotate: 0,
           transition: authTransition(0.4),
         },
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#3f4d9b", // Matching image indigo
-        animation: "floatSlow 14s ease-in-out infinite",
+        bgcolor: "#3f4d9b",
+        animation: "floatSlow 19s ease-in-out infinite",
       }}
     />
 
@@ -2075,7 +2069,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "45%",
-          left: "94%",
+          left: "105%",
           width: "8px",
           height: "200px",
           borderRadius: "4px",
@@ -2083,8 +2077,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           transition: homeTransition,
         },
         auth: {
-          top: "55%",
-          left: "2%",
+          top: "30%",
+          left: "-8%",
           width: "8px",
           height: "180px",
           borderRadius: "4px",
@@ -2095,7 +2089,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       sx={{
         position: "absolute",
         bgcolor: theme.palette.common.black,
-        animation: "floatSlow 13s ease-in-out infinite",
+        animation: "floatSlow 20s ease-in-out infinite",
         animationDelay: "0.5s",
       }}
     />
@@ -2107,7 +2101,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "75%",
-          left: "85%",
+          left: "75%",
           width: "110px",
           height: "110px",
           borderRadius: "50%",
@@ -2116,18 +2110,18 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
         },
         auth: {
           top: "80%",
-          left: "35%",
-          width: "90px",
+          left: "-10%",
+          width: "200px",
           height: "90px",
-          borderRadius: "50%",
+          borderRadius: "999px",
           scale: 1.1,
           transition: authTransition(0.3),
         },
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#e91e63", // Matching image pink
-        animation: "floatFast 9s ease-in-out infinite",
+        bgcolor: "#e91e63",
+        animation: "floatFast 12s ease-in-out infinite",
         animationDelay: "0.3s",
       }}
     />
@@ -2140,7 +2134,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
         home: { left: "60%", top: "20%" },
         auth: { left: "10%", top: "30%" },
       }}
-      transition={{ duration: 2, ease: "easeInOut" }}
+      // Slower tween for the background blur
+      transition={{ duration: 2.5, ease: "easeInOut" }}
       sx={{
         position: "absolute",
         width: "400px",

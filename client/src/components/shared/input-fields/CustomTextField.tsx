@@ -16,7 +16,6 @@ import {
   createBlurHandler,
   capitalizeName,
   getEmailDomain,
-  NAME_FORMATTING_NOTE,
 } from "./utils";
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
@@ -195,17 +194,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                 {helperTextValue}
               </span>
             )}
-            {shouldRenderNameNote && (
-              <span
-                style={{
-                  display: "block",
-                  color: "#6b7280",
-                  marginTop: hasHelperTextContent ? 4 : 0,
-                }}
-              >
-                {NAME_FORMATTING_NOTE}
-              </span>
-            )}
+           
           </>
         )
       : undefined;
@@ -332,21 +321,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   {helperTextValue}
                 </div>
               )}
-              {shouldRenderNameNote && (
-                <div
-                  style={{
-                    color: "#6b7280",
-                    fontSize: "0.75rem",
-                    marginTop: hasHelperTextContent ? "2px" : "3px",
-                    marginLeft: "14px",
-                    marginRight: "14px",
-                    fontWeight: 400,
-                    lineHeight: 1.66,
-                  }}
-                >
-                  {NAME_FORMATTING_NOTE}
-                </div>
-              )}
+             
             </div>
           ) : (
             <StyledTextField
