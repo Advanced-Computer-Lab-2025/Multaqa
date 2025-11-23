@@ -168,8 +168,9 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                       description={description}
                       eventType="Conference"
                       details={details}
+                      agenda={agenda}
                       color={background}
-                      sections={user=="vendor"?['general', 'details']:['general','details',
+                      sections={user=="vendor"?['general', 'agenda','details']:['general','details','agenda',
                         'reviews']}
                       user={user?user:""}
                       attended ={attended}

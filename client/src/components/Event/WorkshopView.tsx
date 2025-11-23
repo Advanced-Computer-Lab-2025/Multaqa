@@ -387,7 +387,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       )
                   )
                 }
-                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus!=="approved"?['general','agenda','details']:['general','agenda','details',
+                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:['general','agenda','details',
                   'reviews'])}
                 user={user?user:""}
                 attended ={attended}
