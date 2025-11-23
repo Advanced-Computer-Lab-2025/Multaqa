@@ -56,6 +56,7 @@ const featureHighlights = [
   {
     icon: <PaletteIcon fontSize="large" />,
     title: "Curated Experiences",
+    // Updated copy with line breaks and 'campus'
     copy: (
       <>
         Discover artful events tailored for <br /> every member of the <br />{" "}
@@ -74,7 +75,6 @@ const featureHighlights = [
     copy: "Stay in sync with what's happening across every faculty and venue.",
   },
 ];
-
 const faqItems = [
   {
     title: "How do I register for an event on Multaqa?",
@@ -1003,15 +1003,41 @@ export default function HomePage() {
                     Vendor
                   </CustomButton>
                 </Stack>
+                <Typography
+                  sx={{
+                    ...menuSubLinkStyles(theme),
+                    mt: 3,
+                    color: theme.palette.text.primary,
+                    fontWeight: 400,
+                    display: "flex",
+                    gap: 0.5,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  Already have an account?
+                  <Typography
+                    component={Link}
+                    href="/login"
+                    sx={{
+                      color: theme.palette.primary.main,
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Login
+                  </Typography>
+                </Typography>
               </Stack>
-
               <Divider
                 sx={{
                   borderColor: alpha(theme.palette.text.primary, 0.1),
                   my: 1,
                 }}
               />
-
               <Stack spacing={1}>
                 <Typography
                   component={Link}
@@ -1133,7 +1159,7 @@ export default function HomePage() {
 
       {/* ================================================================
       === 
-      === HERO / AUTH ANIMATION SECTION
+      === HERO / AUTH ANIMATION SECTION (UPDATED: Centered & Compact)
       === 
       ================================================================
       */}
@@ -1142,7 +1168,7 @@ export default function HomePage() {
         sx={{
           position: "relative",
           overflow: "hidden",
-          // Force full viewport height
+          // Force full viewport height, minus a little for visual balance
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -1150,12 +1176,12 @@ export default function HomePage() {
         }}
       >
         <Container
-          maxWidth="lg"
+          maxWidth="lg" // TIGHTER WIDTH (was xl)
           sx={{
             position: "relative",
             display: "flex",
-            alignItems: "center",
-            // Adjust padding: Enough for mobile navbar, but 0 on desktop
+            alignItems: "center", // VERTICAL CENTER internal items
+            // Adjust padding: Enough for mobile navbar, but 0 on desktop to let Flexbox center it
             pt: { xs: 14, md: 0 },
             pb: { xs: 8, md: 0 },
             flexGrow: 1,
@@ -1168,6 +1194,7 @@ export default function HomePage() {
               inset: 0,
               zIndex: 0,
               pointerEvents: "none",
+              // Optional: constrain shapes to not bleed too far on ultra-wide screens
               left: "50%",
               transform: "translateX(-50%)",
               width: "100vw",
@@ -1186,6 +1213,7 @@ export default function HomePage() {
               width: "100%",
               display: "flex",
               alignItems: "center",
+              // Ensure content creates a row for side-by-side logic
               justifyContent: "space-between",
             }}
           >
@@ -1201,6 +1229,7 @@ export default function HomePage() {
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
+                    // On desktop, keep text slightly to the left for balance
                     justifyContent: "flex-start",
                   }}
                 >
@@ -1227,6 +1256,7 @@ export default function HomePage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "flex-end",
+                    paddingLeft: "15%",
                   }}
                 >
                   <AuthForm currentView={currentView} userType={userType} />
@@ -1604,6 +1634,7 @@ const HeroContent = ({
         textAlign: { xs: "center", md: "left" },
       }}
     >
+      {/* ADDED LINE BREAKS HERE */}
       Artful events for <br />
       every voice on <br />
       campus.
@@ -1792,8 +1823,6 @@ const AuthForm = ({ currentView, userType }: any) => (
     sx={{
       width: "100%",
       maxWidth: 550,
-      // Shifted negative margin to pull it more to the right on desktop
-      mr: { md: -3 },
       mx: { xs: "auto", md: 0 },
     }}
   >
@@ -1816,7 +1845,6 @@ const AuthForm = ({ currentView, userType }: any) => (
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3 }}
-          style={{ paddingTop: "10px" }}
         >
           <RegistrationForm UserType={userType} />
         </motion.div>
@@ -1827,25 +1855,16 @@ const AuthForm = ({ currentView, userType }: any) => (
 
 /*
 ---
---- 3. Shapes Component (Smoother Animation)
+--- 3. Shapes Component (Matches Your Image / Old Grid Layout)
 ---
 */
 
-// Lower stiffness = slower, softer movement
-// Higher damping = less bounce/oscillation
-const homeTransition = {
-  type: "spring",
-  stiffness: 28,
-  damping: 30,
-  mass: 1.2,
-} as const;
-
+const homeTransition = { type: "spring", stiffness: 50, damping: 20 } as const;
 const authTransition = (delay: number) => ({
   type: "spring" as const,
-  stiffness: 28,
-  damping: 30,
-  mass: 1.2,
-  delay: delay * 1.5, // Slightly longer stagger for elegance
+  stiffness: 45,
+  damping: 20,
+  delay: delay,
 });
 
 const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
@@ -1854,18 +1873,18 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       position: "relative",
       width: "100%",
       height: "100%",
-      // Smoother, slower floating animations
+      // Floating animations
       "@keyframes floatSlow": {
         "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-12px)" }, // Reduced distance
+        "50%": { transform: "translateY(-10px)" },
       },
       "@keyframes floatMed": {
         "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(10px)" },
+        "50%": { transform: "translateY(8px)" },
       },
       "@keyframes floatFast": {
         "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-8px)" },
+        "50%": { transform: "translateY(-6px)" },
       },
     }}
   >
@@ -1876,7 +1895,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "20%",
-          left: "50%",
+          left: "50%", // Home: Left side of the cluster
           width: "120px",
           height: "250px",
           borderRadius: "999px",
@@ -1893,9 +1912,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#5696d8",
-        // Increased duration to 14s for a drift effect
-        animation: "floatSlow 14s ease-in-out infinite",
+        bgcolor: "#5696d8", // Matching image light blue
+        animation: "floatSlow 9s ease-in-out infinite",
       }}
     />
 
@@ -1906,7 +1924,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "20%",
-          left: "70%",
+          left: "70%", // Home: Top Right
           width: "260px",
           height: "110px",
           borderRadius: "12px",
@@ -1919,15 +1937,14 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "260px",
           borderRadius: "12px",
-          rotate: 5,
+          rotate: 5, // Slight tilt in auth mode for variety
           transition: authTransition(0.2),
         },
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#502ba0",
-        // Increased duration to 16s
-        animation: "floatMed 16s ease-in-out infinite",
+        bgcolor: "#502ba0", // Matching image purple
+        animation: "floatMed 11s ease-in-out infinite",
         animationDelay: "0.5s",
       }}
     />
@@ -1939,7 +1956,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       variants={{
         home: {
           top: "55%",
-          left: "60%",
+          left: "60%", // Home: Center
           width: "170px",
           height: "8px",
           borderRadius: "4px",
@@ -1959,8 +1976,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       sx={{
         position: "absolute",
         bgcolor: theme.palette.common.black,
-        // Increased duration to 13s
-        animation: "floatFast 13s ease-in-out infinite",
+        animation: "floatFast 8s ease-in-out infinite",
         animationDelay: "1s",
       }}
     />
@@ -1991,9 +2007,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#243168",
-        // Increased duration to 18s
-        animation: "floatSlow 18s ease-in-out infinite",
+        bgcolor: "#243168", // Matching image dark blue
+        animation: "floatSlow 12s ease-in-out infinite",
         animationDelay: "0.2s",
       }}
     />
@@ -2024,9 +2039,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#abcce8",
-        // Increased duration to 15s
-        animation: "floatMed 15s ease-in-out infinite",
+        bgcolor: "#abcce8", // Matching image pale blue
+        animation: "floatMed 10s ease-in-out infinite",
         animationDelay: "0.7s",
       }}
     />
@@ -2057,8 +2071,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#3f4d9b",
-        animation: "floatSlow 19s ease-in-out infinite",
+        bgcolor: "#3f4d9b", // Matching image indigo
+        animation: "floatSlow 14s ease-in-out infinite",
       }}
     />
 
@@ -2089,7 +2103,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       sx={{
         position: "absolute",
         bgcolor: theme.palette.common.black,
-        animation: "floatSlow 20s ease-in-out infinite",
+        animation: "floatSlow 13s ease-in-out infinite",
         animationDelay: "0.5s",
       }}
     />
@@ -2120,8 +2134,8 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       }}
       sx={{
         position: "absolute",
-        bgcolor: "#e91e63",
-        animation: "floatFast 12s ease-in-out infinite",
+        bgcolor: "#e91e63", // Matching image pink
+        animation: "floatFast 9s ease-in-out infinite",
         animationDelay: "0.3s",
       }}
     />
@@ -2134,8 +2148,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
         home: { left: "60%", top: "20%" },
         auth: { left: "10%", top: "30%" },
       }}
-      // Slower tween for the background blur
-      transition={{ duration: 2.5, ease: "easeInOut" }}
+      transition={{ duration: 2, ease: "easeInOut" }}
       sx={{
         position: "absolute",
         width: "400px",
