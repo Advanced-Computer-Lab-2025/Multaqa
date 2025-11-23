@@ -35,7 +35,6 @@ import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import HomeIcon from "@mui/icons-material/Home";
 
-// Create a MotionBox component for animating sx props
 const MotionBox = motion(Box);
 
 const consentStorageKey = "multaqa-consent-v1";
@@ -43,12 +42,12 @@ const consentStorageKey = "multaqa-consent-v1";
 const signUpOptions = [
   {
     label: "Join as University Member",
-    userType: "university-member", // Changed from href
+    userType: "university-member",
     description: "Access exclusive campus events and resources.",
   },
   {
     label: "Join as Vendor",
-    userType: "vendor", // Changed from href
+    userType: "vendor",
     description: "Collaborate with GUC events and bazaars.",
   },
 ];
@@ -136,7 +135,6 @@ export default function HomePage() {
     "home"
   );
 
-  // A helper boolean for state-based animations
   const isHome = currentView === "home";
 
   const handleLoginClick = () => {
@@ -160,28 +158,21 @@ export default function HomePage() {
     const handleScroll = () => {
       const currentY = window.scrollY;
       setIsScrolled(currentY > 24);
-
       if (currentY > lastScrollY.current && currentY > 120) {
         setShowNavbar(false);
       } else {
         setShowNavbar(true);
       }
-
       lastScrollY.current = currentY;
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
+    if (typeof document === "undefined") return;
     const originalOverflow = document.body.style.overflow;
     const originalPadding = document.body.style.paddingRight;
-
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
       document.body.style.paddingRight = "0px";
@@ -189,7 +180,6 @@ export default function HomePage() {
       document.body.style.overflow = originalOverflow;
       document.body.style.paddingRight = originalPadding;
     }
-
     return () => {
       document.body.style.overflow = originalOverflow;
       document.body.style.paddingRight = originalPadding;
@@ -197,9 +187,7 @@ export default function HomePage() {
   }, [isMenuOpen]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
     const storedConsent = window.localStorage.getItem(consentStorageKey);
     if (!storedConsent) {
       setIsConsentOpen(true);
@@ -212,9 +200,7 @@ export default function HomePage() {
       element?.focus?.();
       return;
     }
-
     previousFocusRef.current = document.activeElement;
-
     const dialog = dialogRef.current;
     const focusableSelectors =
       'a[href], button:not([disabled]), [tabindex="0"], [role="menuitem"]';
@@ -229,11 +215,7 @@ export default function HomePage() {
         setIsMenuOpen(false);
         return;
       }
-
-      if (event.key !== "Tab" || !dialog) {
-        return;
-      }
-
+      if (event.key !== "Tab" || !dialog) return;
       const focusable = Array.from(
         dialog.querySelectorAll<HTMLElement>(focusableSelectors)
       ).filter((el) => !el.hasAttribute("data-disabled"));
@@ -242,7 +224,6 @@ export default function HomePage() {
         event.preventDefault();
         return;
       }
-
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       const active = document.activeElement as HTMLElement;
@@ -257,34 +238,21 @@ export default function HomePage() {
         first.focus();
       }
     };
-
     setTimeout(setInitialFocus, 10);
     document.addEventListener("keydown", handleKeydown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeydown);
-    };
+    return () => document.removeEventListener("keydown", handleKeydown);
   }, [isMenuOpen]);
 
   useEffect(() => {
-    if (!isMobile || !showSignUpOptions) {
-      return;
-    }
-
+    if (!isMobile || !showSignUpOptions) return;
     const handleOutsideInteraction = (event: MouseEvent | TouchEvent) => {
-      if (!signUpHoverRef.current) {
-        return;
-      }
+      if (!signUpHoverRef.current) return;
       const target = event.target as Node | null;
-      if (target && signUpHoverRef.current.contains(target)) {
-        return;
-      }
+      if (target && signUpHoverRef.current.contains(target)) return;
       setShowSignUpOptions(false);
     };
-
     document.addEventListener("click", handleOutsideInteraction);
     document.addEventListener("touchstart", handleOutsideInteraction);
-
     return () => {
       document.removeEventListener("click", handleOutsideInteraction);
       document.removeEventListener("touchstart", handleOutsideInteraction);
@@ -295,10 +263,7 @@ export default function HomePage() {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(
         consentStorageKey,
-        JSON.stringify({
-          status,
-          updatedAt: new Date().toISOString(),
-        })
+        JSON.stringify({ status, updatedAt: new Date().toISOString() })
       );
     }
   };
@@ -315,9 +280,7 @@ export default function HomePage() {
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
   const openLocaleModal = () => setIsLocaleModalOpen(true);
-  const closeLocaleModal = () => {
-    setIsLocaleModalOpen(false);
-  };
+  const closeLocaleModal = () => setIsLocaleModalOpen(false);
 
   const locales = [
     {
@@ -352,6 +315,7 @@ export default function HomePage() {
         bgcolor: theme.palette.background.default,
       }}
     >
+      {/* Header */}
       <Box
         component="header"
         sx={{
@@ -562,6 +526,7 @@ export default function HomePage() {
         </Container>
       </Box>
 
+      {/* Locale Modal */}
       <CustomModalLayout
         open={isLocaleModalOpen}
         onClose={closeLocaleModal}
@@ -628,13 +593,13 @@ export default function HomePage() {
         </Stack>
       </CustomModalLayout>
 
+      {/* Consent Modal */}
       <CustomModalLayout
         open={isConsentOpen}
         onClose={handleDismissConsent}
         width="w-[90vw] sm:w-[540px]"
       >
         <Stack spacing={3.5} sx={{ px: { xs: 1, sm: 2 }, py: 1 }}>
-          {/* Header Section */}
           <Stack spacing={2} alignItems="center">
             <Typography
               component="h2"
@@ -662,7 +627,6 @@ export default function HomePage() {
             </Typography>
           </Stack>
 
-          {/* Policies List */}
           <Box
             sx={{
               backgroundColor: alpha(theme.palette.primary.main, 0.03),
@@ -682,9 +646,7 @@ export default function HomePage() {
                 "& li": {
                   mb: 1.25,
                   pl: 0.75,
-                  "&:last-child": {
-                    mb: 0,
-                  },
+                  "&:last-child": { mb: 0 },
                 },
                 "& li::marker": {
                   color: theme.palette.primary.main,
@@ -722,7 +684,6 @@ export default function HomePage() {
             </Box>
           </Box>
 
-          {/* Footer Note */}
           <Typography
             variant="body2"
             sx={{
@@ -737,7 +698,6 @@ export default function HomePage() {
             respect your choices and only store this preference in your browser.
           </Typography>
 
-          {/* Action Buttons */}
           <Stack direction="column" spacing={1.25} sx={{ pt: 0.5 }}>
             <CustomButton
               variant="contained"
@@ -771,6 +731,7 @@ export default function HomePage() {
         </Stack>
       </CustomModalLayout>
 
+      {/* Main Menu Overlay */}
       <Box
         ref={dialogRef}
         role="dialog"
@@ -1066,14 +1027,12 @@ export default function HomePage() {
                   </Typography>
                 </Typography>
               </Stack>
-
               <Divider
                 sx={{
                   borderColor: alpha(theme.palette.text.primary, 0.1),
                   my: 1,
                 }}
               />
-
               <Stack spacing={1}>
                 <Typography
                   component={Link}
@@ -1195,7 +1154,7 @@ export default function HomePage() {
 
       {/* ================================================================
       === 
-      === HERO / AUTH ANIMATION SECTION
+      === HERO / AUTH ANIMATION SECTION (UPDATED: Centered & Compact)
       === 
       ================================================================
       */}
@@ -1203,99 +1162,107 @@ export default function HomePage() {
         component="section"
         sx={{
           position: "relative",
-          overflow: "visible", // Changed to visible to show dropdown
+          overflow: "hidden",
+          // Force full viewport height, minus a little for visual balance
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center", // VERTICAL CENTER
         }}
       >
         <Container
-          maxWidth="xl" // Changed from lg to xl for wider container
+          maxWidth="lg" // TIGHTER WIDTH (was xl)
           sx={{
-            pt: { xs: 16, md: 18 },
-            pb: { xs: 10, md: 16 }, // Increased bottom padding
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "stretch", md: "center" }, // Use stretch
-            gap: { xs: 7, md: 6 }, // Increased gap
-            textAlign: { xs: "center", md: "left" },
             position: "relative",
-            minHeight: { md: "calc(600px + 45vh)" }, // Increased height to prevent cutoff
+            display: "flex",
+            alignItems: "center", // VERTICAL CENTER internal items
+            // Adjust padding: Enough for mobile navbar, but 0 on desktop to let Flexbox center it
+            pt: { xs: 14, md: 0 },
+            pb: { xs: 8, md: 0 },
+            flexGrow: 1,
           }}
         >
-          {/* ---
-          --- BLOCK 1: Hero Text / Auth Form (Swappable)
-          ---
-          AnimatePresence handles swapping the Hero Text with the Auth Form
-          */}
-          <AnimatePresence mode="wait">
-            {isHome ? (
-              <motion.div
-                key="hero"
-                initial={{ opacity: 0, x: "-50%" }}
-                animate={{ opacity: 1, x: "0%" }}
-                exit={{ opacity: 0, x: "-50%" }}
-                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-                style={{
-                  flex: 1,
-                  minWidth: 0, // Fix for flex shrinking
-                  // Handle mobile view
-                  display: isHome ? "block" : "none",
-                }}
-              >
-                <HeroContent
-                  theme={theme}
-                  isMobile={isMobile}
-                  handleLoginClick={handleLoginClick}
-                  handleRegisterClick={handleRegisterClick}
-                  signUpHoverRef={signUpHoverRef}
-                  signUpHoverTimeout={signUpHoverTimeout}
-                  showSignUpOptions={showSignUpOptions}
-                  setShowSignUpOptions={setShowSignUpOptions}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="auth"
-                initial={{ opacity: 0, x: "50%" }}
-                animate={{ opacity: 1, x: "0%" }}
-                exit={{ opacity: 0, x: "50%" }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.4, 0, 0.2, 1],
-                  delay: 0.4, // <-- DELAY ADDED
-                }}
-                style={{
-                  flex: 1.3, // Takes more space
-                  width: "100%", // Full width on mobile
-                  minWidth: 0,
-                  marginLeft: "auto", // Push to the right
-                  marginRight: "8%", // Add right margin
-                  // Handle mobile view
-                  display: isHome ? "none" : "block",
-                }}
-              >
-                <AuthForm currentView={currentView} userType={userType} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Shapes Layer (Background) */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              // Optional: constrain shapes to not bleed too far on ultra-wide screens
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100vw",
+              maxWidth: "100%",
+              height: "100%",
+            }}
+          >
+            <Shapes theme={theme} isHome={isHome} />
+          </Box>
 
-          {/* ---
-          --- BLOCK 2: Shapes (Persistent & Animated)
-          ---
-          This block is *always* rendered, but its sx props change.
-          The `layout` prop tells Framer to animate those changes.
-          */}
-          <Shapes theme={theme} isHome={isHome} />
+          {/* Content Layer (Foreground) */}
+          <Box
+            sx={{
+              position: "relative",
+              zIndex: 1,
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              // Ensure content creates a row for side-by-side logic
+              justifyContent: "space-between",
+            }}
+          >
+            <AnimatePresence mode="wait">
+              {isHome ? (
+                <motion.div
+                  key="hero"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.5 }}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    // On desktop, keep text slightly to the left for balance
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <HeroContent
+                    theme={theme}
+                    isMobile={isMobile}
+                    handleLoginClick={handleLoginClick}
+                    handleRegisterClick={handleRegisterClick}
+                    signUpHoverRef={signUpHoverRef}
+                    signUpHoverTimeout={signUpHoverTimeout}
+                    showSignUpOptions={showSignUpOptions}
+                    setShowSignUpOptions={setShowSignUpOptions}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="auth"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    // Pushes form strictly to the RIGHT
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <AuthForm currentView={currentView} userType={userType} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Box>
         </Container>
       </Box>
-      {/* ================================================================
-      === 
-      === END HERO / AUTH ANIMATION SECTION
-      === 
-      ================================================================
-      */}
 
-      {/* The rest of the page sections are only visible when on the home view
-      We wrap them in a Box that is hidden when currentView is not 'home'
-      */}
+      {/* Home Sections */}
       <Box sx={{ display: isHome ? "block" : "none" }}>
         <Box
           component="section"
@@ -1372,7 +1339,10 @@ export default function HomePage() {
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                    sx={{
+                      color: alpha(theme.palette.text.primary, 0.75),
+                      whiteSpace: "pre-line",
+                    }}
                   >
                     {feature.copy}
                   </Typography>
@@ -1520,18 +1490,9 @@ export default function HomePage() {
                 sx={{ width: { xs: "100%", md: "auto" } }}
               >
                 {[
-                  {
-                    icon: <InstagramIcon />,
-                    href: "https://instagram.com",
-                  },
-                  {
-                    icon: <LinkedInIcon />,
-                    href: "https://linkedin.com",
-                  },
-                  {
-                    icon: <XIcon />,
-                    href: "https://twitter.com",
-                  },
+                  { icon: <InstagramIcon />, href: "https://instagram.com" },
+                  { icon: <LinkedInIcon />, href: "https://linkedin.com" },
+                  { icon: <XIcon />, href: "https://twitter.com" },
                 ].map((social) => (
                   <IconButton
                     key={social.href}
@@ -1625,17 +1586,6 @@ export default function HomePage() {
   );
 }
 
-// ================================================================
-// ===
-// === HELPER COMPONENTS FOR THE HERO ANIMATION
-// ===
-// ================================================================
-
-/*
----
---- 1. Hero Content Component
----
-*/
 const HeroContent = ({
   theme,
   isMobile,
@@ -1645,14 +1595,14 @@ const HeroContent = ({
   signUpHoverTimeout,
   showSignUpOptions,
   setShowSignUpOptions,
-}) => (
+}: any) => (
   <Box
     sx={{
-      flex: { md: 1.1 }, // Slightly increased flex
+      flex: 1,
       position: "relative",
       zIndex: 1,
       width: "100%",
-      maxWidth: { xs: 560, md: "650px" }, // Increased max width
+      maxWidth: { xs: 560, md: "650px" },
     }}
   >
     <Typography
@@ -1711,7 +1661,7 @@ const HeroContent = ({
     >
       <CustomButton
         variant="contained"
-        onClick={handleLoginClick} // Use state handler
+        onClick={handleLoginClick}
         label="Login"
         sx={{
           width: { xs: "100%", sm: "160px" },
@@ -1730,9 +1680,7 @@ const HeroContent = ({
       <Box
         ref={signUpHoverRef}
         onMouseEnter={() => {
-          if (isMobile) {
-            return;
-          }
+          if (isMobile) return;
           if (signUpHoverTimeout.current) {
             clearTimeout(signUpHoverTimeout.current);
             signUpHoverTimeout.current = null;
@@ -1740,13 +1688,10 @@ const HeroContent = ({
           setShowSignUpOptions(true);
         }}
         onMouseLeave={(event) => {
-          if (isMobile) {
-            return;
-          }
+          if (isMobile) return;
           const nextTarget = event.relatedTarget as Node | null;
-          if (nextTarget && signUpHoverRef.current?.contains(nextTarget)) {
+          if (nextTarget && signUpHoverRef.current?.contains(nextTarget))
             return;
-          }
           if (signUpHoverTimeout.current) {
             clearTimeout(signUpHoverTimeout.current);
           }
@@ -1768,7 +1713,7 @@ const HeroContent = ({
           endIcon={<ArrowOutwardIcon />}
           onClick={() => {
             if (isMobile) {
-              setShowSignUpOptions((prev) => !prev);
+              setShowSignUpOptions((prev: boolean) => !prev);
             }
           }}
           aria-haspopup="true"
@@ -1783,9 +1728,7 @@ const HeroContent = ({
         <Paper
           elevation={8}
           onMouseEnter={() => {
-            if (isMobile) {
-              return;
-            }
+            if (isMobile) return;
             if (signUpHoverTimeout.current) {
               clearTimeout(signUpHoverTimeout.current);
               signUpHoverTimeout.current = null;
@@ -1793,13 +1736,10 @@ const HeroContent = ({
             setShowSignUpOptions(true);
           }}
           onMouseLeave={(event) => {
-            if (isMobile) {
-              return;
-            }
+            if (isMobile) return;
             const nextTarget = event.relatedTarget as Node | null;
-            if (nextTarget && signUpHoverRef.current?.contains(nextTarget)) {
+            if (nextTarget && signUpHoverRef.current?.contains(nextTarget))
               return;
-            }
             if (signUpHoverTimeout.current) {
               clearTimeout(signUpHoverTimeout.current);
             }
@@ -1830,7 +1770,7 @@ const HeroContent = ({
             {signUpOptions.map((option) => (
               <Box
                 key={option.label}
-                component="button" // Changed to button
+                component="button"
                 onClick={() => handleRegisterClick(option.userType)}
                 sx={{
                   borderRadius: 2,
@@ -1839,13 +1779,11 @@ const HeroContent = ({
                   color: theme.palette.text.primary,
                   textDecoration: "none",
                   transition: "background 0.2s ease",
-                  // Button reset styles
                   width: "100%",
                   textAlign: "left",
                   border: "none",
                   background: "transparent",
                   cursor: "pointer",
-                  // ---
                   "&:hover": {
                     background: alpha(theme.palette.primary.main, 0.35),
                   },
@@ -1872,17 +1810,12 @@ const HeroContent = ({
   </Box>
 );
 
-/*
----
---- 2. Auth Form Component
----
-*/
-const AuthForm = ({ currentView, userType }) => (
+const AuthForm = ({ currentView, userType }: any) => (
   <Box
     sx={{
       width: "100%",
-      maxWidth: 550, // Increased max width for the form
-      mx: { xs: "auto", md: "auto" }, // Center on both mobile and desktop
+      maxWidth: 550,
+      mx: { xs: "auto", md: 0 },
     }}
   >
     <AnimatePresence mode="wait">
@@ -1914,380 +1847,314 @@ const AuthForm = ({ currentView, userType }) => (
 
 /*
 ---
---- 3. Shapes Component (Animated with `layout` AND individual `variants`)
+--- 3. Shapes Component (Matches Your Image / Old Grid Layout)
 ---
 */
-// Define a standard transition for the "home" (return) animation
-const homeTransition = { type: "spring", stiffness: 80, damping: 20 } as const;
 
-// Define a function to create the "auth" (move) transition with a delay
+const homeTransition = { type: "spring", stiffness: 50, damping: 20 } as const;
 const authTransition = (delay: number) => ({
   type: "spring" as const,
-  stiffness: 80,
+  stiffness: 45,
   damping: 20,
   delay: delay,
 });
 
-const Shapes = ({ theme, isHome }) => (
-  <MotionBox
-    layout // <-- Animates the BOX's position and size
-    transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
+const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
+  <Box
     sx={{
-      // --- BASE STYLES ---
       position: "relative",
-      minHeight: { xs: 300, sm: 380, md: 420 },
       width: "100%",
-      maxWidth: { xs: 520, md: "100%" },
-      mx: { xs: "auto", md: 0 },
-
-      // --- STATE-BASED STYLES (for `layout` to animate) ---
-
-      // On mobile, hide it when not home
-      display: { xs: isHome ? "block" : "none", md: "block" },
-
-      // On desktop, change flex & order
-      flex: { md: isHome ? 1 : 0.8 },
-      order: { md: isHome ? 1 : -1 },
+      height: "100%",
+      // Floating animations
+      "@keyframes floatSlow": {
+        "0%, 100%": { transform: "translateY(0px)" },
+        "50%": { transform: "translateY(-10px)" },
+      },
+      "@keyframes floatMed": {
+        "0%, 100%": { transform: "translateY(0px)" },
+        "50%": { transform: "translateY(8px)" },
+      },
+      "@keyframes floatFast": {
+        "0%, 100%": { transform: "translateY(0px)" },
+        "50%": { transform: "translateY(-6px)" },
+      },
     }}
   >
-    <Box
+    {/* --- Shape 1: Tall Blue Pill (Top Left) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "20%",
+          left: "60%", // Home: Left side of the cluster
+          width: "120px",
+          height: "220px",
+          borderRadius: "999px",
+          transition: homeTransition,
+        },
+        auth: {
+          top: "15%",
+          left: "5%",
+          width: "100px",
+          height: "180px",
+          borderRadius: "999px",
+          transition: authTransition(0.1),
+        },
+      }}
       sx={{
         position: "absolute",
-        inset: 0,
-        borderRadius: 6,
-        background: `linear-gradient(135deg, ${alpha(
-          theme.palette.primary.main,
-          0.12
-        )}, ${alpha(theme.palette.tertiary.main, 0.25)})`,
-        filter: "blur(60px)",
-        zIndex: 0,
+        bgcolor: "#5696d8", // Matching image light blue
+        animation: "floatSlow 9s ease-in-out infinite",
       }}
     />
 
-    {/* This is the new positioning context.
-      We no longer use Grid. All shapes are positioned absolutely
-      inside this box.
-    */}
-    <Box
-      sx={{
-        position: "relative",
-        width: "100%",
-        height: { xs: 300, sm: 380, md: 420 },
+    {/* --- Shape 2: Wide Purple Rectangle (Top Right) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "25%",
+          left: "74%", // Home: Top Right
+          width: "230px",
+          height: "110px",
+          borderRadius: "12px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "10%",
+          left: "25%",
+          width: "180px",
+          height: "100px",
+          borderRadius: "12px",
+          rotate: 5, // Slight tilt in auth mode for variety
+          transition: authTransition(0.2),
+        },
       }}
-    >
-      {/* --- Shape 1 (was Col 1/span 2, Row 1/span 3) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "10%",
-            left: "5%",
-            width: "25%",
-            height: "40%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "5%",
-            left: "2%",
-            width: "32%",
-            height: "42%",
-            rotate: 22,
-            transition: authTransition(0.1),
-          },
-        }}
-        sx={{
-          position: "absolute",
+      sx={{
+        position: "absolute",
+        bgcolor: "#502ba0", // Matching image purple
+        animation: "floatMed 11s ease-in-out infinite",
+        animationDelay: "0.5s",
+      }}
+    />
+
+    {/* --- Shape 3: The Horizontal Line (Center) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "48%",
+          left: "65%", // Home: Center
+          width: "80px",
+          height: "8px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "50%",
+          left: "15%",
+          width: "100px",
+          height: "8px",
+          borderRadius: "4px",
+          rotate: -15,
+          transition: authTransition(0.3),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: theme.palette.common.black,
+        animation: "floatFast 8s ease-in-out infinite",
+        animationDelay: "1s",
+      }}
+    />
+
+    {/* --- Shape 4: Dark Blue Square (Bottom Left) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "58%",
+          left: "55%",
+          width: "100px",
+          height: "100px",
+          borderRadius: "16px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "65%",
+          left: "8%",
+          width: "90px",
+          height: "90px",
+          borderRadius: "16px",
+          rotate: -10,
+          transition: authTransition(0.15),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#243168", // Matching image dark blue
+        animation: "floatSlow 12s ease-in-out infinite",
+        animationDelay: "0.2s",
+      }}
+    />
+
+    {/* --- Shape 5: Light Blue Oval (Middle Right) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "45%",
+          left: "82%",
+          width: "100px",
+          height: "190px",
           borderRadius: "999px",
-          bgcolor: theme.palette.primary.main,
-          animation: "floatSlow 9s ease-in-out infinite",
-          animationDelay: "0s",
-          "@keyframes floatSlow": {
-            "0%, 100%": { transform: "translateY(0px)" },
-            "50%": { transform: "translateY(-8px)" },
-          },
-        }}
-      />
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "35%",
+          left: "35%",
+          width: "90px",
+          height: "160px",
+          borderRadius: "999px",
+          rotate: 15,
+          transition: authTransition(0.25),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#abcce8", // Matching image pale blue
+        animation: "floatMed 10s ease-in-out infinite",
+        animationDelay: "0.7s",
+      }}
+    />
 
-      {/* --- Shape 2 (was Col 3/span 3, Row 1/span 2) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "10%",
-            left: "33%",
-            width: "50%",
-            height: "25%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "48%",
-            left: "62%",
-            width: "52%",
-            height: "28%",
-            rotate: -18,
-            transition: authTransition(0.15),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          borderRadius: 2,
-          bgcolor: theme.palette.secondary.main,
-          animation: "floatMed 11s ease-in-out infinite",
-          animationDelay: "0.8s",
-          "@keyframes floatMed": {
-            "0%, 100%": { transform: "translateY(0px)" },
-            "50%": { transform: "translateY(12px)" },
-          },
-        }}
-      />
+    {/* --- Shape 6: Vertical Thin Line (Far Right) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "20%",
+          left: "94%",
+          width: "8px",
+          height: "140px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "15%",
+          left: "2%",
+          width: "8px",
+          height: "160px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: authTransition(0.4),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#3f4d9b", // Matching image indigo
+        animation: "floatSlow 14s ease-in-out infinite",
+      }}
+    />
 
-      {/* --- Shape 3 (was Col 6/span 1, Row 1/span 2) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "10%",
-            left: "85%",
-            width: "12%",
-            height: "25%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "12%",
-            left: "70%",
-            width: "18%",
-            height: "32%",
-            rotate: 35,
-            transition: authTransition(0.2),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          borderRadius: "20px",
-          bgcolor: theme.palette.tertiary.main,
-          animation: "floatFast 7.5s ease-in-out infinite",
-          animationDelay: "0.4s",
-          "@keyframes floatFast": {
-            "0%, 100%": { transform: "translateY(0px)" },
-            "50%": { transform: "translateY(-5px)" },
-          },
-        }}
-      />
+    {/* --- Shape 7: Vertical Thin Line Bottom (Far Right Bottom) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "45%",
+          left: "94%",
+          width: "8px",
+          height: "200px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "55%",
+          left: "2%",
+          width: "8px",
+          height: "180px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: authTransition(0.45),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: theme.palette.common.black,
+        animation: "floatSlow 13s ease-in-out infinite",
+        animationDelay: "0.5s",
+      }}
+    />
 
-      {/* --- Shape 4 (was Col 1/span 2, Row 4/span 2) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "55%",
-            left: "5%",
-            width: "25%",
-            height: "30%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "72%",
-            left: "8%",
-            width: "28%",
-            height: "35%",
-            rotate: -12,
-            transition: authTransition(0.1),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          borderRadius: 2,
-          bgcolor: theme.palette.tertiary.dark,
-          animation: "floatSlow 10s ease-in-out infinite",
-          animationDelay: "1.1s",
-        }}
-      />
-
-      {/* --- Shape 5 (was Col 4/span 2, Row 3/span 3) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "40%",
-            left: "50%",
-            width: "30%",
-            height: "45%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "22%",
-            left: "38%",
-            width: "38%",
-            height: "48%",
-            rotate: 28,
-            transition: authTransition(0.15),
-          },
-        }}
-        sx={{
-          position: "absolute",
+    {/* --- Shape 8: Pink Circle (Bottom Corner) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "75%",
+          left: "85%",
+          width: "110px",
+          height: "110px",
           borderRadius: "50%",
-          bgcolor: theme.palette.primary.light,
-          animation: "floatMed 12s ease-in-out infinite",
-          animationDelay: "0.2s",
-        }}
-      />
+          scale: 1,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "80%",
+          left: "35%",
+          width: "90px",
+          height: "90px",
+          borderRadius: "50%",
+          scale: 1.1,
+          transition: authTransition(0.3),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#e91e63", // Matching image pink
+        animation: "floatFast 9s ease-in-out infinite",
+        animationDelay: "0.3s",
+      }}
+    />
 
-      {/* --- Shape 6 (was Col 3/span 1, Row 4/span 3) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "55%",
-            left: "33%",
-            width: "12%",
-            height: "40%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "85%",
-            left: "82%",
-            width: "16%",
-            height: "42%",
-            rotate: -38,
-            transition: authTransition(0.2),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          bgcolor: theme.palette.tertiary.dark,
-          borderRadius: 1,
-          animation: "floatFast 8.5s ease-in-out infinite",
-          animationDelay: "1.6s",
-        }}
-      />
-
-      {/* --- Shape 7 (was Col 5/span 2, Row 5/span 2) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "70%",
-            left: "68%",
-            width: "28%",
-            height: "25%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "78%",
-            left: "52%",
-            width: "35%",
-            height: "30%",
-            rotate: 16,
-            transition: authTransition(0.1),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          borderRadius: "999px",
-          bgcolor: "#e91e63",
-          animation: "floatSlow 13s ease-in-out infinite",
-          animationDelay: "0.6s",
-        }}
-      />
-
-      {/* --- Shape 8 (was Col 2/span 2, Row 3/span 2) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "40%",
-            left: "20%",
-            width: "25%",
-            height: "6px",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "52%",
-            left: "14%",
-            width: "32%",
-            height: "8px",
-            rotate: -25,
-            transition: authTransition(0.15),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          bgcolor: theme.palette.common.black,
-          borderRadius: 3,
-          animation: "floatFast 9.5s ease-in-out infinite",
-          animationDelay: "1.3s",
-        }}
-      />
-
-      {/* --- Shape 9 (was Col 2/span 1, Row 6/span 1) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "85%",
-            left: "20%",
-            width: "10%",
-            height: "10%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "90%",
-            left: "42%",
-            width: "14%",
-            height: "14%",
-            rotate: 12,
-            transition: authTransition(0.2),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          borderRadius: 1,
-          bgcolor: theme.palette.tertiary.main,
-          animation: "floatMed 11.5s ease-in-out infinite",
-          animationDelay: "0.9s",
-        }}
-      />
-
-      {/* --- Shape 10 (was Col 6/span 1, Row 3/span 3) --- */}
-      <MotionBox
-        animate={isHome ? "home" : "auth"}
-        variants={{
-          home: {
-            top: "40%",
-            left: "85%",
-            width: "12px",
-            height: "45%",
-            rotate: 0,
-            transition: homeTransition,
-          },
-          auth: {
-            top: "35%",
-            left: "88%",
-            width: "18px",
-            height: "52%",
-            rotate: -52,
-            transition: authTransition(0.1),
-          },
-        }}
-        sx={{
-          position: "absolute",
-          bgcolor: theme.palette.text.primary,
-          borderRadius: 999,
-          animation: "floatFast 10.5s ease-in-out infinite",
-          animationDelay: "0.5s",
-        }}
-      />
-    </Box>
-  </MotionBox>
+    {/* --- Background Blur Blob (Subtle atmosphere) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: { left: "60%", top: "20%" },
+        auth: { left: "10%", top: "30%" },
+      }}
+      transition={{ duration: 2, ease: "easeInOut" }}
+      sx={{
+        position: "absolute",
+        width: "400px",
+        height: "400px",
+        borderRadius: "50%",
+        background: `radial-gradient(circle, ${alpha(
+          theme.palette.primary.light,
+          0.15
+        )} 0%, transparent 70%)`,
+        filter: "blur(60px)",
+        zIndex: -1,
+      }}
+    />
+  </Box>
 );
 const menuLinkStyles = (theme: Theme) => ({
   textDecoration: "none",
