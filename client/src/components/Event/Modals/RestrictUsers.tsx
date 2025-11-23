@@ -77,6 +77,16 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   // start with ALL options allowed so checkboxes are NOT checked in the UI (flip logic)
   const formik = useFormik({
     initialValues: { allowedUsers: options.map(o => o.value) as string[] },
+    validationSchema: Yup.object({
+      allowedUsers: Yup.array()
+        .test(
+          "not-all-restricted",
+          "allowedUsers is invalid — you cannot restrict all users",
+          function (value) {
+            return value && value.length > 0;
+          }
+        )
+    }),
     onSubmit: async (values) => {
       // call API with the allowedUsers array (server expects allowedUsers)
       // await handleCallApi({ allowedUsers: values.allowedUsers , type: eventType });
@@ -120,6 +130,8 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
             label=""
             options={options.map((o) => ({ ...o, checked: checkedValuesForComponent.includes(o.value) }))}
             onChange={(newSelected: string[]) => handleCheckboxChange(newSelected)}
+            helperText={formik.touched.allowedUsers && formik.errors.allowedUsers ? String(formik.errors.allowedUsers) : undefined}
+            error={Boolean(formik.touched.allowedUsers && formik.errors.allowedUsers)}
           />
         </Box>
       </Box>
