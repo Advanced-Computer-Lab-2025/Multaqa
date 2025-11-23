@@ -30,6 +30,7 @@ interface EventCardProps {
   attended?: boolean;
   professorStatus?:string;
   createdBy?:string;
+  archived?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -58,6 +59,7 @@ const EventCard: React.FC<EventCardProps> = ({
   evaluateButton,
   professorStatus,
   createdBy
+  archived = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = spotsLeft && parseInt(spotsLeft)||0;
@@ -207,6 +209,20 @@ const statusChip = (status: string) => {
                 />
               )}
              {professorStatus && statusChip(professorStatus)}
+              {archived && (
+                <Chip
+                  label="Archived"
+                  size="small"
+                  sx={{
+                    backgroundColor: theme.palette.warning.contrastText,
+                    color: theme.palette.warning.main,
+                    fontWeight: 600,
+                    fontSize: '0.7rem',
+                    height: 20,
+                    border: '1px solid '+theme.palette.warning.main,
+                  }}
+                />
+              )}
             </Box>
 
             

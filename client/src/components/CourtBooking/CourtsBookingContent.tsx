@@ -6,6 +6,7 @@ import { CourtSlot, CourtType } from "@/components/CourtBooking/types";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { api } from "@/api";
 import { CircularProgress, Box, Alert } from "@mui/material";
+import { toast } from "react-toastify";
 
 const courtTypeMap: Record<string, { name: string; colorKey: "primary" | "secondary" | "tertiary" | "warning" }> = {
   basketball: { name: "Basketball", colorKey: "warning" },
@@ -185,8 +186,49 @@ export default function CourtsBookingContent() {
     } catch (err) {
       console.error("Error loading court slots for date", err);
       setInlineError(
-        "We couldn't load that day’s slots. Please try another date or refresh."
+        "We couldn't load that day's slots. Please try another date or refresh."
       );
+    }
+  };
+
+  const handleReserve = async (slot: CourtSlot) => {
+    try {
+      setInlineError(null);
+      
+      await api.post(`/courts/${slot.courtTypeId}/reserve`, {
+        date: slot.day,
+        slot: `${slot.start}-${slot.end}`
+      });
+
+      // Update the slot status locally
+      setSlots((prev) =>
+        prev.map((s) =>
+          s.id === slot.id
+            ? { ...s, status: "yours" as const, reservedBy: "You" }
+            : s
+        )
+      );
+
+      toast.success("Court slot reserved successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    } catch (err: unknown) {
+      console.error("Error reserving court slot:", err);
+      
+      let message = "Failed to reserve court slot";
+      if (typeof err === "object" && err !== null) {
+        const maybeResponse = (err as { response?: { data?: { message?: string } } }).response;
+        if (maybeResponse?.data?.message) {
+          message = maybeResponse.data.message;
+        }
+      }
+      
+      toast.error(message, {
+        position: "bottom-right",
+        autoClose: 4000,
+      });
+      setInlineError(message);
     }
   };
 
@@ -230,6 +272,7 @@ export default function CourtsBookingContent() {
         currentUser="You"
         embedded
         onChangeCourtDate={handleChangeCourtDate}
+        onReserve={handleReserve}
       />
     </ContentWrapper>
   );
