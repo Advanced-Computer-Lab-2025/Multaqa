@@ -24,10 +24,7 @@ async function createGymSession(
     );
 
     if (error) {
-      const errorMessages = error.details
-        .map((detail) => detail.message)
-        .join("; ");
-      throw createError(400, errorMessages);
+      throw createError(400, "Validation error: ", error.message);
     }
 
     const newSession = await gymSessionsService.createGymSession(value);
@@ -69,6 +66,59 @@ async function getAllGymSessions(
   }
 }
 
+ async function editGymSession(
+  req: Request,
+  res: Response<CreateGymSessionResponse>
+) {
+  try {
+    const sessionId = req.params.sessionId;
+      if (!sessionId) {
+      throw createError(400, "Session ID is required");
+    }
+    const { value, error } = editGymSessionValidationSchema.validate(req.body);
+    if (error) {
+      throw createError(400, "Validation error: ", error.message);
+    }
+    const updatedSession = await gymSessionsService.editGymSession(
+      sessionId,
+      value
+    );
+
+    res.json({
+      success: true,
+      message: "Gym Session updated successfully",
+      data: updatedSession,
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error updating gym session"
+    );
+  }
+}
+
+async function cancelGymSession(
+  req: Request,
+  res: Response<{ success: boolean; message: string }>
+) {
+  try {
+    const sessionId = req.params.sessionId;
+     if (!sessionId) {
+      throw createError(400, "Session ID is required");
+    }
+    await gymSessionsService.cancelGymSession(sessionId);
+    res.json({
+      success: true,
+      message: "Gym Session cancelled successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error cancelling gym session"
+    );
+  }
+}
+
 const router = Router();
 router.get(
   "/",
@@ -94,6 +144,24 @@ router.post(
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
   }),
   createGymSession
+);
+
+router.patch(
+  "/:sessionId",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  editGymSession
+);
+
+router.delete(
+  "/:sessionId",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
+  }),
+  cancelGymSession
 );
 
 export default router;
