@@ -42,7 +42,7 @@ const statusFilters: Array<{ key: StatusFilter; label: string }> = [
 ];
 
 const typeFilters: Array<{ key: TypeFilter; label: string }> = [
-  { key: "ALL", label: "All Types" },
+  { key: "ALL", label: "All" },
   { key: "bazaar", label: "Bazaars" },
   { key: "platform_booth", label: "Platform Booths" },
 ];
@@ -416,44 +416,44 @@ export default function VendorParticipationRequests() {
         headerMarginBottom={3}
       >
         {/* Custom header section with Refresh button */}
-        <Box
-          sx={{
-            mb: 3,
+      <Box
+        sx={{
+          mb: 3,
             mt: -3,
-            display: "flex",
+          display: "flex",
             justifyContent: "flex-end",
           }}
-        >
-          <CustomButton
-            variant="outlined"
-            color="primary"
-            onClick={fetchRequests}
-            startIcon={<RefreshCw size={16} />}
           >
-            Refresh
-          </CustomButton>
-        </Box>
-
-        {feedback ? (
-          <Alert
-            severity={feedback.type}
-            sx={{ mb: 3, borderRadius: 2 }}
-            onClose={() => setFeedback(null)}
-          >
-            {feedback.message}
-          </Alert>
-        ) : null}
-
-        <Box
-          sx={{
-            mb: 2,
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            gap: 2,
-            justifyContent: "space-between",
-          }}
+        <CustomButton
+          variant="outlined"
+          color="primary"
+          onClick={fetchRequests}
+          startIcon={<RefreshCw size={16} />}
         >
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          Refresh
+        </CustomButton>
+      </Box>
+
+      {feedback ? (
+        <Alert
+          severity={feedback.type}
+          sx={{ mb: 3, borderRadius: 2 }}
+          onClose={() => setFeedback(null)}
+        >
+          {feedback.message}
+        </Alert>
+      ) : null}
+
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 2,
+          justifyContent: "space-between",
+        }}
+      >
+        <Stack direction="row" spacing={1} flexWrap="wrap">
             {statusFilters.map(({ key, label }) => {
               const isActive = statusFilter === key;
               // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)

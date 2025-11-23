@@ -30,7 +30,7 @@ export class WorkshopService {
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
-    data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
+    data.createdBy = professorid as unknown as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.workshopRepo.create(mappedData);
