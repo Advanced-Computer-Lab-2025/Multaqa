@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Box,
@@ -9,8 +9,11 @@ import {
   Stack,
   Typography,
   Tooltip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
-import { CheckCircle, Clock, MapPin, Users, XCircle } from "lucide-react";
+import { CheckCircle, Clock, MapPin, Users, XCircle, ChevronDown } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import theme from "@/themes/lightTheme";
 import {
@@ -97,6 +100,10 @@ export default function VendorRequestCard({
     EVENT_TYPE_CONFIG[request.eventType] ?? EVENT_TYPE_CONFIG.unknown;
   const isPending = request.status === "pending";
   const attendees = request.attendees ?? [];
+  const [expanded, setExpanded] = useState(false);
+  
+  const hasMultipleAttendees = attendees.length > 1;
+  const visibleAttendees = expanded ? attendees : attendees.slice(0, 1);
 
   return (
     <Box
@@ -241,35 +248,128 @@ export default function VendorRequestCard({
 
       <Stack spacing={1.5}>
         {attendees.length > 0 ? (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Users size={16} color="#1f2937" />
-            <Typography variant="subtitle2" sx={{ color: "#111827" }}>
-              Attendees
-            </Typography>
-          </Stack>
-        ) : null}
-
-        {attendees.length > 0 ? (
-          <Stack spacing={0.75}>
-            {attendees.map((attendee, index) => (
-              <Stack key={`${attendee.email ?? attendee.name ?? index}`} direction="row" spacing={1} justifyContent="space-between" alignItems="baseline">
-                <Typography variant="body2" sx={{ fontWeight: 500, color: "#1f2937" }}>
-                  {attendee.name ?? "Unnamed attendee"}
+          hasMultipleAttendees ? (
+            <Accordion
+              expanded={expanded}
+              onChange={(_, isExpanded) => setExpanded(isExpanded)}
+              sx={{
+                boxShadow: "none",
+                border: "none",
+                "&:before": { display: "none" },
+                "&.Mui-expanded": { margin: 0 },
+              }}
+              disableGutters
+            >
+              <AccordionSummary
+                expandIcon={
+                  <ChevronDown
+                    size={20}
+                    style={{
+                      transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 0.2s ease",
+                    }}
+                  />
+                }
+                sx={{
+                  padding: 0,
+                  minHeight: "unset",
+                  "&.Mui-expanded": { minHeight: "unset" },
+                  "& .MuiAccordionSummary-content": {
+                    margin: 0,
+                    "&.Mui-expanded": { margin: 0 },
+                  },
+                }}
+              >
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Users size={16} color="#1f2937" />
+                  <Typography variant="subtitle2" sx={{ color: "#111827" }}>
+                    Attendees ({attendees.length})
+                  </Typography>
+                </Stack>
+              </AccordionSummary>
+              <AccordionDetails sx={{ padding: 0, paddingTop: 1.5 }}>
+                <Stack spacing={0.75}>
+                  {visibleAttendees.map((attendee, index) => (
+                    <Stack
+                      key={`${attendee.email ?? attendee.name ?? index}`}
+                      direction="row"
+                      spacing={1}
+                      justifyContent="space-between"
+                      alignItems="baseline"
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 500, color: "#1f2937" }}
+                      >
+                        {attendee.name ?? "Unnamed attendee"}
+                      </Typography>
+                      {attendee.email ? (
+                        <Tooltip title={attendee.email} placement="top">
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "#6b7280" }}
+                            noWrap
+                          >
+                            {attendee.email}
+                          </Typography>
+                        </Tooltip>
+                      ) : null}
+                    </Stack>
+                  ))}
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+          ) : (
+            <Box>
+              <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
+                <Users size={16} color="#1f2937" />
+                <Typography variant="subtitle2" sx={{ color: "#111827" }}>
+                  Attendees
                 </Typography>
-                {attendee.email ? (
-                  <Tooltip title={attendee.email} placement="top">
-                    <Typography variant="caption" sx={{ color: "#6b7280" }} noWrap>
-                      {attendee.email}
-                    </Typography>
-                  </Tooltip>
-                ) : null}
               </Stack>
-            ))}
-          </Stack>
+              <Stack spacing={0.75}>
+                {attendees.map((attendee, index) => (
+                  <Stack
+                    key={`${attendee.email ?? attendee.name ?? index}`}
+                    direction="row"
+                    spacing={1}
+                    justifyContent="space-between"
+                    alignItems="baseline"
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 500, color: "#1f2937" }}
+                    >
+                      {attendee.name ?? "Unnamed attendee"}
+                    </Typography>
+                    {attendee.email ? (
+                      <Tooltip title={attendee.email} placement="top">
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "#6b7280" }}
+                          noWrap
+                        >
+                          {attendee.email}
+                        </Typography>
+                      </Tooltip>
+                    ) : null}
+                  </Stack>
+                ))}
+              </Stack>
+            </Box>
+          )
         ) : (
-          <Typography variant="body2" sx={{ color: "#6b7280" }}>
-            No attendees provided.
-          </Typography>
+          <Box>
+            <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+              <Users size={16} color="#6b7280" />
+              <Typography variant="subtitle2" sx={{ color: "#111827" }}>
+                Attendees
+              </Typography>
+            </Stack>
+            <Typography variant="body2" sx={{ color: "#6b7280" }}>
+              No attendees provided.
+            </Typography>
+          </Box>
         )}
 
         {request.notes ? (
