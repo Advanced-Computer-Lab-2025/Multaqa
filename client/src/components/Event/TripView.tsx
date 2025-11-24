@@ -93,6 +93,8 @@ const TripView: React.FC<BazarViewProps> = ({
         color={background} 
         leftIcon={<IconComponent />} 
         eventType={"Trip"}
+        spotsLeft={ details['Spots Left'] }
+        totalSpots={details["Capacity"]} 
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={
           user === "admin" ? (
@@ -179,7 +181,7 @@ const TripView: React.FC<BazarViewProps> = ({
                 )
             )
           }
-        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]} />
     
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
@@ -242,10 +244,10 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"trip"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
-      <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
-      <ArchiveEvent setRefresh={setRefresh} eventId={id} eventName={name} eventType={"trip"}open={archive} onClose={() => setArchive(false)}/>  
+      <EditTrip setRefresh={setRefresh!} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
+      <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
+      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+      <ArchiveEvent setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"}open={archive} onClose={() => setArchive(false)}/>  
       <RegisterEventModal open={register} onClose={() => { setRegister(false); } }
       eventType={"Trip"} userInfo={userInfo} eventId={id} color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
 

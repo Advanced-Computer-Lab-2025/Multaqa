@@ -16,7 +16,6 @@ import {
   BoothViewProps,
 } from "../Event/types";
 import CustomSearchBar from "../shared/Searchbar/CustomSearchBar";
-import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../tempPages/CreateConference/CreateConference";
@@ -24,7 +23,6 @@ import Create from "../tempPages/CreateConference/CreateConference";
 import { deleteEvent, frameData } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import CreationHubDropdown from "../createButton/CreationHubDropdown";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import EventIcon from "@mui/icons-material/Event";
@@ -39,6 +37,7 @@ import SortByDate from "@/components/shared/SortBy/sortByDate";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import ContentWrapper from "../shared/containers/ContentWrapper";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -76,11 +75,6 @@ type Event =
   | TripEvent;
 
 const getFilterGroups = (userRole: string): FilterGroup[] => [
-  {
-    id: "eventName",
-    title: "Event Name",
-    type: "text",
-  },
   {
     id: "professorName",
     title: "Professor Name",
@@ -177,8 +171,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       name: `${userInfo.firstName} ${userInfo.lastName}`,
       email: userInfo.email,
     };
-    setUserInfo(user);
-    setReady(true);
   };
   const handleRegistered = () => {
     setLoading(true);
@@ -488,6 +480,25 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     [setBazaar, setTrip, setConference]
   );
 
+  // Calculate title and description based on user role
+  const pageTitle =
+    user !== "events-only"
+      ? user === "events-office"
+        ? "Manage Events"
+        : registered
+        ? " My Registered Events"
+        : "Browse Events"
+      : "Create Events";
+
+  const pageDescription =
+    user !== "events-only"
+      ? user === "events-office"
+        ? "Manage all events that are on the system"
+        : registered
+        ? "Keep track of which events you have registered for"
+        : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+      : "Create and keep track of events you have created";
+
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
     //here you can check if attended should be set to true by cheking if it exists in the attended list of the current user
@@ -514,6 +525,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           />
         );
       case EventType.WORKSHOP:
+        console.log(event);
         return (
           <WorkshopView
             id={event.id}
@@ -626,110 +638,108 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   return (
     <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
-      <Box sx={{ mb: 2 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
+      <ContentWrapper
+        title={pageTitle}
+        description={pageDescription}
+        padding={{ xs: 0 }}
+        horizontalPadding={{ xs: 1 }}
+      >
+        {/* Search, Filter, and Sort Row */}
+        <Box
           sx={{
-            mb: 2,
-            textAlign: "left",
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-            color: `${theme.palette.tertiary.dark}`,
+            display: "flex",
+            gap: 2,
+            alignItems: "center",
+            mb: 6,
+            flexWrap: "wrap",
           }}
         >
-          {user !== "events-only"
-            ? registered
-              ? " My Registered Events"
-              : "Browse Events"
-            : "Manage Events"}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
-        >
-          {user !== "events-only"
-            ? registered
-              ? "Keep track of which events you have registered for"
-              : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
-            : "Keep track of and manage events you have created"}
-        </Typography>
-      </Box>
-
-      {/* Search, Filter, and Sort Row */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          alignItems: "center",
-          mb: 6,
-          flexWrap: "wrap",
-        }}
-      >
-        <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
-          <CustomSearchBar
-            width="64vw"
-            type="outwards"
-            icon
-            value={searchQuery}
-            onChange={handleSearchChange}
-            storageKey="browseEventsSearchHistory"
-            autoSaveDelay={2000}
-          />
+          <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
+            <CustomSearchBar
+              width="64vw"
+              type="outwards"
+              icon
+              value={searchQuery}
+              onChange={handleSearchChange}
+              storageKey="browseEventsSearchHistory"
+              autoSaveDelay={2000}
+            />
+          </Box>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <FilterPanel
+              filterGroups={getFilterGroups(user)}
+              onFilterChange={handleFilterChange}
+              currentFilters={filters}
+              onReset={handleResetFilters}
+            />
+          </LocalizationProvider>
+          <SortByDate value={sortBy} onChange={handleSortChange} />
+          {user === "events-only" && (
+            <CreationHubDropdown
+              options={creationHubOptions}
+              helperText="Choose what you would like to create"
+              dropdownSide="left"
+            />
+          )}
         </Box>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <FilterPanel
-            filterGroups={getFilterGroups(user)}
-            onFilterChange={handleFilterChange}
-            currentFilters={filters}
-            onReset={handleResetFilters}
-          />
-        </LocalizationProvider>
-        <SortByDate value={sortBy} onChange={handleSortChange} />
-        {user === "events-only" && (
-          <CreationHubDropdown
-            options={creationHubOptions}
-            helperText="Choose what you would like to create"
+
+        {/* Loading State */}
+        {loading && <EventCardsListSkeleton />}
+
+        {/* Error State */}
+        {error && (
+          <ErrorState
+            title={error}
+            description="Oops! Something has occurred on our end. Please try again"
+            imageAlt="Server error illustration"
           />
         )}
-      </Box>
 
-      {/* Loading State */}
-      {loading && <EventCardsListSkeleton />}
+        {/* Events Grid */}
+        {!loading && !error && (
+          <>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(1, 1fr)",
+                gap: 3,
+                padding: "0px 40px",
+              }}
+            >
+              {filteredEvents.map((event) => (
+                <Box key={event.id} sx={{display:"flex", justifyContent:'center', alignItems:"center", flexDirection:"column"}}>
+                  {renderEventComponent(event, registered)}
+                </Box>
+              ))}
 
-      {/* Error State */}
-      {error && (
-        <ErrorState
-          title={error}
-          description="Oops! Something has occurred on our end. Please try again"
-          imageAlt="Server error illustration"
-        />
-      )}
+              {/* No results message */}
+              {filteredEvents.length === 0 && events.length === 0 && (
+                <EmptyState
+                  title="No events available"
+                  description="There are no events in our archives yet. Check back later!"
+                  imageAlt="No events illustration"
+                />
+              )}
 
-      {/* Events Grid */}
-      {!loading && !error && (
-        <>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(1, 1fr)",
-              gap: 3,
-              padding: "0px 40px",
-            }}
-          >
-            {filteredEvents.map((event) => (
-              <Box key={event.id}>
-                {renderEventComponent(event, registered)}
+              {/* No results message */}
+              {filteredEvents.length === 0 && events.length > 0 && (
+                <EmptyState
+                  title="No events found"
+                  description="Try adjusting your search or filters"
+                  imageAlt="Empty search results illustration"
+                />
+              )}
+            </Box>
+
+            {/* Results counter */}
+            {events.length > 0 && (
+              <Box sx={{ mt: 2, textAlign: "center" }}>
+                <Typography variant="caption" color="text.secondary">
+                  {registered
+                    ? `Viewing ${filteredEvents.length} of ${events.length} events`
+                    : `Browsing ${filteredEvents.length} of ${events.length} events`}
+                </Typography>
               </Box>
-            ))}
-
-            {/* No results message */}
-            {filteredEvents.length === 0 && events.length === 0 && (
-              <EmptyState
-                title="No events available"
-                description="There are no events in our archives yet. Check back later!"
-                imageAlt="No events illustration"
-              />
             )}
 
             {/* No results message */}
@@ -740,46 +750,26 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
                 imageAlt="Empty search results illustration"
               />
             )}
-          </Box>
+          </>
+        )}
 
-          {/* Results counter */}
-          {events.length > 0 && (
-            <Box sx={{ mt: 2, textAlign: "center" }}>
-              <Typography variant="caption" color="text.secondary">
-                {registered
-                  ? `Viewing ${filteredEvents.length} of ${events.length} events`
-                  : `Browsing ${filteredEvents.length} of ${events.length} events`}
-              </Typography>
-            </Box>
-          )}
-
-          {/* No results message */}
-          {filteredEvents.length === 0 && events.length > 0 && (
-            <EmptyState
-              title="No events found"
-              description="Try adjusting your search or filters"
-              imageAlt="Empty search results illustration"
-            />
-          )}
-        </>
-      )}
-
-      <CreateTrip
-        open={createTrip}
-        onClose={() => setTrip(false)}
-        setRefresh={setRefresh}
-      />
-      <CreateBazaar
-        open={createBazaar}
-        onClose={() => setBazaar(false)}
-        setRefresh={setRefresh}
-      />
-      {/* Create Conference Form */}
-      <Create
-        open={createconference}
-        onClose={() => setConference(false)}
-        setRefresh={setRefresh}
-      />
+        <CreateTrip
+          open={createTrip}
+          onClose={() => setTrip(false)}
+          setRefresh={setRefresh}
+        />
+        <CreateBazaar
+          open={createBazaar}
+          onClose={() => setBazaar(false)}
+          setRefresh={setRefresh}
+        />
+        {/* Create Conference Form */}
+        <Create
+          open={createconference}
+          onClose={() => setConference(false)}
+          setRefresh={setRefresh}
+        />
+      </ContentWrapper>
     </Container>
   );
 };

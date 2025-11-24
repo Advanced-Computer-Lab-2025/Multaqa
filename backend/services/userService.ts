@@ -4,7 +4,7 @@ import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
 import { populateMap } from "../utils/userPopulationMap";
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
@@ -92,7 +92,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName verifiedAt updatedAt",
+          "firstName lastName name email role gucId position roleType status companyName registeredAt verifiedAt updatedAt",
       }
     );
 
@@ -129,16 +129,15 @@ export class UserService {
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
-  async addEventToUser(
-    id: string,
-    eventId: Schema.Types.ObjectId
-  ): Promise<IUser> {
+  async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
       throw createError(404, "User not found");
     }
 
-    user.registeredEvents?.push(eventId);
+    user.registeredEvents?.push(
+      eventId as unknown as mongoose.Schema.Types.ObjectId
+    );
     await user.save();
     return user;
   }
@@ -244,6 +243,7 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, true, "admin decision");
     await user.save();
   }
@@ -257,6 +257,7 @@ export class UserService {
       throw createError(400, "User is already Active");
     }
     user.status = UserStatus.ACTIVE;
+    user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, false, "admin decision");
     await user.save();
   }
