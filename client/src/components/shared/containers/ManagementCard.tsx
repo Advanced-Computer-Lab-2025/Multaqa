@@ -22,7 +22,7 @@ const ManagementCard: React.FC<Omit<ManagementCardProps, "id">> = ({
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        minHeight: "200px",
+        minHeight: "220px",
         "&:hover": {
           borderColor: hoverBorderColor,
           boxShadow: hoverBoxShadow,

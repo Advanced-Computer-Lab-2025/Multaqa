@@ -47,7 +47,25 @@ export class VendorEventsService {
 
     // Convert to plain object to avoid Mongoose document metadata
     const plainVendor = vendor.toObject();
-    return plainVendor.requestedEvents;
+
+    // Filter out archived events
+    const filteredRequestedEvents = plainVendor.requestedEvents.filter(
+      (reqEvent: any) => {
+        // If event is not populated or is just an ObjectId, keep it
+        if (
+          !reqEvent ||
+          !reqEvent.event ||
+          typeof reqEvent.event === "string" ||
+          !reqEvent.event._id
+        ) {
+          return true;
+        }
+        // If event is populated, filter out archived ones
+        return !reqEvent.event.archived;
+      }
+    );
+
+    return filteredRequestedEvents;
   }
 
   /**
@@ -91,7 +109,7 @@ export class VendorEventsService {
 
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
-      event: event._id as string,
+      event: event._id as unknown as string,
       RequestData: data.value,
       status: applicationStatus,
     });

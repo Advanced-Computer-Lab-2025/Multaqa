@@ -9,6 +9,8 @@ interface ContentWrapperProps {
   description?: string;
   children: React.ReactNode;
   padding?: { xs?: number; md?: number };
+  horizontalPadding?: { xs?: number; md?: number };
+  headerMarginBottom?: number;
 }
 
 /**
@@ -20,6 +22,8 @@ export default function ContentWrapper({
   description,
   children,
   padding = { xs: 2, md: 4 },
+  horizontalPadding,
+  headerMarginBottom = 4,
 }: ContentWrapperProps) {
   const theme = useTheme();
 
@@ -27,13 +31,14 @@ export default function ContentWrapper({
     <Box
       sx={{
         p: padding,
+        px: horizontalPadding,
         backgroundColor: "transparent",
         minHeight: "100vh",
         fontFamily: "var(--font-poppins), system-ui, sans-serif",
       }}
     >
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: headerMarginBottom }}>
         <Typography
           variant="h4"
           sx={{

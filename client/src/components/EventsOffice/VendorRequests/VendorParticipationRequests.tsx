@@ -10,10 +10,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { api } from "@/api";
 import VendorRequestCard from "./VendorRequestCard";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
+import EmptyState from "@/components/shared/states/EmptyState";
+import ErrorState from "@/components/shared/states/ErrorState";
 import {
   StatusFilter,
   TypeFilter,
@@ -38,7 +42,7 @@ const statusFilters: Array<{ key: StatusFilter; label: string }> = [
 ];
 
 const typeFilters: Array<{ key: TypeFilter; label: string }> = [
-  { key: "ALL", label: "All Types" },
+  { key: "ALL", label: "All" },
   { key: "bazaar", label: "Bazaars" },
   { key: "platform_booth", label: "Platform Booths" },
 ];
@@ -71,9 +75,12 @@ function toNumber(value: unknown): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
-function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null {
+function mapRequest(
+  entry: RawVendorRequest
+): VendorParticipationRequest | null {
   const vendorRaw = entry.vendor ?? entry.vendor?.vendor;
-  const vendorObject = typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
+  const vendorObject =
+    typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
   const vendorId = ensureString(vendorObject?._id ?? vendorRaw);
   const vendorName =
     (vendorObject?.companyName as string | undefined) ??
@@ -92,7 +99,9 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const eventType = normalizeEventType(
     requestData?.eventType ?? eventRaw?.type ?? "unknown"
   );
-  const startDate = ensureString(eventRaw?.startDate ?? eventRaw?.eventStartDate);
+  const startDate = ensureString(
+    eventRaw?.startDate ?? eventRaw?.eventStartDate
+  );
   const endDate = ensureString(eventRaw?.endDate ?? eventRaw?.eventEndDate);
   const location = (eventRaw?.location as string | undefined) ?? undefined;
 
@@ -101,8 +110,7 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
   // Normalize attendees from multiple possible shapes/fields
   const collectArrays = (...candidates: unknown[]) =>
-    candidates.filter(Array.isArray) as any[][
-      ];
+    candidates.filter(Array.isArray) as any[][];
 
   const candidateArrays = collectArrays(
     (requestData as any)?.bazaarAttendees,
@@ -159,7 +167,9 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   }
   const attendees = deduped;
   const status = normalizeStatus(requestData?.status);
-  const submittedAt = ensureString(requestData?.submittedAt ?? requestData?.createdAt);
+  const submittedAt = ensureString(
+    requestData?.submittedAt ?? requestData?.createdAt
+  );
   const notes =
     (requestData?.notes as string | undefined) ??
     (requestData?.comment as string | undefined) ??
@@ -199,7 +209,9 @@ export default function VendorParticipationRequests() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
-  const [responding, setResponding] = useState<Record<string, VendorRequestStatus | null>>({});
+  const [responding, setResponding] = useState<
+    Record<string, VendorRequestStatus | null>
+  >({});
   const [refresh, setRefresh] = useState(false);
 
   const fetchRequests = useCallback(async () => {
@@ -222,7 +234,10 @@ export default function VendorParticipationRequests() {
         });
       }
     } catch (err: any) {
-      const message = err?.response?.data?.message ?? err?.message ?? "Unable to load vendor requests.";
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Unable to load vendor requests.";
       setError(message);
       setRequests([]);
     } finally {
@@ -245,18 +260,29 @@ export default function VendorParticipationRequests() {
   }, [requests, statusFilter, typeFilter]);
 
   const groupedByDay = useMemo(() => {
-    const groups = new Map<string, { label: string; dateOrder: number; items: VendorParticipationRequest[] }>();
+    const groups = new Map<
+      string,
+      { label: string; dateOrder: number; items: VendorParticipationRequest[] }
+    >();
 
     filteredRequests.forEach((request) => {
       const dateValue = request.startDate ? new Date(request.startDate) : null;
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
-        ? new Date(dateValue!.getFullYear(), dateValue!.getMonth(), dateValue!.getDate()).toISOString()
+        ? new Date(
+            dateValue!.getFullYear(),
+            dateValue!.getMonth(),
+            dateValue!.getDate()
+          ).toISOString()
         : "unscheduled";
       const label = isValidDate
-        ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(dateValue!)
+        ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
+            dateValue!
+          )
         : "Date To Be Determined";
-      const dateOrder = isValidDate ? dateValue!.getTime() : Number.POSITIVE_INFINITY;
+      const dateOrder = isValidDate
+        ? dateValue!.getTime()
+        : Number.POSITIVE_INFINITY;
       const existing = groups.get(dayKey);
       if (existing) {
         existing.items.push(request);
@@ -265,11 +291,17 @@ export default function VendorParticipationRequests() {
       }
     });
 
-    const sorted = Array.from(groups.values()).sort((a, b) => a.dateOrder - b.dateOrder);
+    const sorted = Array.from(groups.values()).sort(
+      (a, b) => a.dateOrder - b.dateOrder
+    );
     sorted.forEach((group) => {
       group.items.sort((a, b) => {
-        const aTime = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
-        const bTime = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
+        const aTime = a.startDate
+          ? new Date(a.startDate).getTime()
+          : Number.MAX_SAFE_INTEGER;
+        const bTime = b.startDate
+          ? new Date(b.startDate).getTime()
+          : Number.MAX_SAFE_INTEGER;
         return aTime - bTime;
       });
     });
@@ -291,7 +323,7 @@ export default function VendorParticipationRequests() {
         { status },
         { headers: { "Content-Type": "application/json" } }
       );
-      
+
       setRequests((prev) =>
         prev.map((item) =>
           item.id === request.id
@@ -307,10 +339,13 @@ export default function VendorParticipationRequests() {
         message:
           status === "approved"
             ? `${request.vendorName} has been approved for ${request.eventName}.`
-            : `${request.vendorName}'s request has been rejected.`,
+            : `${request.vendorName}&apos;s request has been rejected.`,
       });
     } catch (err: any) {
-      const message = err?.response?.data?.message ?? err?.message ?? "Unable to update vendor request.";
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Unable to update vendor request.";
       setError(message);
     } finally {
       setResponding((prev) => ({ ...prev, [request.id]: null }));
@@ -328,22 +363,20 @@ export default function VendorParticipationRequests() {
 
     if (error) {
       return (
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error}
-        </Alert>
+        <ErrorState
+          title="Failed to load vendor requests"
+          description={error}
+          onCtaClick={fetchRequests}
+        />
       );
     }
 
     if (filteredRequests.length === 0) {
       return (
-        <Box sx={{ py: 6, textAlign: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "#4b5563" }}>
-            No vendor requests match the selected filters.
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#6b7280", mt: 1 }}>
-            Adjust your filters or refresh to check for new submissions.
-          </Typography>
-        </Box>
+        <EmptyState
+          title="No vendor requests match the selected filters"
+          description="Adjust your filters or refresh to check for new submissions."
+        />
       );
     }
 
@@ -376,32 +409,21 @@ export default function VendorParticipationRequests() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, height: "100%", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <ContentWrapper
+        title="Vendor Participation Requests"
+        description="Review pending vendor applications for bazaars and platform booths."
+        headerMarginBottom={3}
+      >
+        {/* Custom header section with Refresh button */}
       <Box
         sx={{
           mb: 3,
+            mt: -3,
           display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { md: "center" },
-          justifyContent: "space-between",
-          gap: 2,
-        }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{ fontFamily: "var(--font-jost)", fontWeight: 700, color: "#1E1E1E" }}
+            justifyContent: "flex-end",
+          }}
           >
-            Vendor Participation Requests
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#757575", fontFamily: "var(--font-poppins)" }}
-          >
-            Review pending vendor applications for bazaars and platform booths.
-          </Typography>
-        </Box>
-
         <CustomButton
           variant="outlined"
           color="primary"
@@ -432,34 +454,103 @@ export default function VendorParticipationRequests() {
         }}
       >
         <Stack direction="row" spacing={1} flexWrap="wrap">
-          {statusFilters.map(({ key, label }) => (
-            <Chip
-              key={key}
-              label={label}
-              size="small"
-              variant={statusFilter === key ? "filled" : "outlined"}
-              color={statusFilter === key ? "primary" : "default"}
-              onClick={() => setStatusFilter(key)}
-            />
-          ))}
-        </Stack>
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {typeFilters.map(({ key, label }) => (
-            <Chip
-              key={key}
-              label={label}
-              size="small"
-              variant={typeFilter === key ? "filled" : "outlined"}
-              color={typeFilter === key ? "primary" : "default"}
-              onClick={() => setTypeFilter(key)}
-            />
-          ))}
-        </Stack>
-      </Box>
+            {statusFilters.map(({ key, label }) => {
+              const isActive = statusFilter === key;
+              // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)
+              const baseColor =
+                key === "ALL"
+                  ? "#6299d0" // Blue for All
+                  : key === "pending"
+                  ? "#f59e0b" // Orange/Amber for Pending
+                  : key === "approved"
+                  ? "#10b981" // Green for Approved
+                  : "#ef4444"; // Red for Rejected
 
-      <Divider sx={{ mb: 3 }} />
+              return (
+                <Chip
+                  key={key}
+                  label={label}
+                  size="medium"
+                  onClick={() => setStatusFilter(key)}
+                  variant="outlined"
+                  sx={{
+                    fontFamily: "var(--font-poppins)",
+                    fontWeight: 700,
+                    letterSpacing: 0.2,
+                    borderRadius: "28px",
+                    px: 1.75,
+                    height: 28,
+                    borderWidth: isActive ? 3 : 1,
+                    borderColor: baseColor,
+                    color: baseColor,
+                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
+                    boxShadow: isActive
+                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
+                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
+                    transition:
+                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+                    transform: isActive ? "translateY(-1px)" : "none",
+                    "&:hover": {
+                      backgroundColor: alpha(baseColor, 0.16),
+                      borderWidth: isActive ? 3 : 2,
+                      transform: "translateY(-1px)",
+                    },
+                  }}
+                />
+              );
+            })}
+          </Stack>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            {typeFilters.map(({ key, label }) => {
+              const isActive = typeFilter === key;
+              // Color coding: All (blue), Bazaar (purple), Platform Booth (blue)
+              const baseColor =
+                key === "ALL"
+                  ? "#6299d0" // Blue for All
+                  : key === "bazaar"
+                  ? "#5b21b6" // Purple for Bazaar (matches VendorRequestCard)
+                  : "#1d4ed8"; // Blue for Platform Booth (matches VendorRequestCard)
 
-      <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>{content()}</Box>
+              return (
+                <Chip
+                  key={key}
+                  label={label}
+                  size="medium"
+                  onClick={() => setTypeFilter(key)}
+                  variant="outlined"
+                  sx={{
+                    fontFamily: "var(--font-poppins)",
+                    fontWeight: 700,
+                    letterSpacing: 0.2,
+                    borderRadius: "28px",
+                    px: 1.75,
+                    height: 28,
+                    borderWidth: isActive ? 3 : 1,
+                    borderColor: baseColor,
+                    color: baseColor,
+                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
+                    boxShadow: isActive
+                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
+                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
+                    transition:
+                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+                    transform: isActive ? "translateY(-1px)" : "none",
+                    "&:hover": {
+                      backgroundColor: alpha(baseColor, 0.16),
+                      borderWidth: isActive ? 3 : 2,
+                      transform: "translateY(-1px)",
+                    },
+                  }}
+                />
+              );
+            })}
+          </Stack>
+        </Box>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>{content()}</Box>
+      </ContentWrapper>
     </Box>
   );
 }

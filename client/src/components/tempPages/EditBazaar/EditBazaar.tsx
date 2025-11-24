@@ -120,7 +120,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     };
   return (
     <>
-     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
+     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
         <Box sx={{
             ...wrapperContainerStyles,    
         }}>
@@ -260,7 +260,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
@@ -310,7 +310,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
