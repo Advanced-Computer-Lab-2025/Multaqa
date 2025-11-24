@@ -227,7 +227,7 @@ const EditWorkshop = ({
         ...wrapperContainerStyles,    
         }}>
           <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
-          Create Workshop
+          Edit Workshop
           </Typography>
             <form onSubmit={handleSubmit}>
               <Box 
@@ -370,7 +370,7 @@ const EditWorkshop = ({
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
@@ -420,7 +420,7 @@ const EditWorkshop = ({
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },

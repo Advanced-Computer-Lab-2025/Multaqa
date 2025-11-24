@@ -144,7 +144,7 @@ const EventCreationStep2Details: React.FC<Step2Props> = ({
                 },
                           popper: {
                           disablePortal: true,
-                          placement: "right",
+                          placement: "left",
                           sx: {
                             zIndex: 1500,
                           },
