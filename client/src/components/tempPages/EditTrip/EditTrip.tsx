@@ -150,7 +150,7 @@ const EditTrip = ({tripId, tripName, location, price,
 
   return (
     <>
-     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
+     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
         <Box sx={{
             ...wrapperContainerStyles,    
         }}>

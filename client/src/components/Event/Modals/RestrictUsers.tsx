@@ -70,7 +70,6 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
     { label: "TA", value: "TA" },
     { label: "professor", value: "professor" },
     { label: "student", value: "student" },
-    { label: "vendor", value: "vendor" },
   ];
 
   // start with ALL options allowed so checkboxes are NOT checked in the UI (flip logic)
