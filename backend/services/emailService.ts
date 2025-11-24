@@ -116,25 +116,24 @@ export const sendCertificateOfAttendanceEmail = async (
   workshopName: string,
   certificateBuffer: Buffer
 ) => {
-
   const randomId = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-  const html = getCertificateOfAttendanceTemplate(
-    username,
-    workshopName,
-  );
+  const html = getCertificateOfAttendanceTemplate(username, workshopName);
   await sendEmail({
     to: userEmail,
     subject: "🎓 Your Certificate of Attendance - Multaqa",
     html,
-     attachments: [   
-    {
-      filename: `Certificate_${username.replace(/[^a-zA-Z0-9]/g, '_')}_${workshopName.replace(/[^a-zA-Z0-9]/g, '_')}_${randomId}.pdf`,
-      content: certificateBuffer,  
-      contentType: 'application/pdf',
-      disposition: 'attachment' 
-    }
-  ]
+    attachments: [
+      {
+        filename: `Certificate_${username.replace(
+          /[^a-zA-Z0-9]/g,
+          "_"
+        )}_${workshopName.replace(/[^a-zA-Z0-9]/g, "_")}_${randomId}.pdf`,
+        content: certificateBuffer,
+        contentType: "application/pdf",
+        disposition: "attachment",
+      },
+    ],
   });
 };
 
@@ -146,7 +145,8 @@ export const sendApplicationStatusEmail = async (
   applicationName: string,
   status: "accepted" | "rejected",
   rejectionReason: string | undefined,
-  nextSteps: string | undefined
+  nextSteps: string | undefined,
+  paymentDeadline?: Date
 ) => {
   const html = getApplicationStatusTemplate(
     username,
@@ -154,7 +154,8 @@ export const sendApplicationStatusEmail = async (
     applicationName,
     status,
     rejectionReason,
-    nextSteps
+    nextSteps,
+    paymentDeadline
   );
 
   const typeLabel = applicationType === "bazaar" ? "Bazaar" : "Booth";
@@ -197,9 +198,10 @@ export const sendGymSessionNotificationEmail = async (params: {
     params.newDetails
   );
 
-  const actionLabel = params.actionType === "cancelled" ? "Cancelled" : "Updated";
+  const actionLabel =
+    params.actionType === "cancelled" ? "Cancelled" : "Updated";
   const emoji = params.actionType === "cancelled" ? "❌" : "🔄";
-  
+
   await sendEmail({
     to: params.userEmail,
     subject: `${emoji} Gym Session ${actionLabel} - Multaqa`,

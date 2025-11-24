@@ -280,7 +280,7 @@ export class VendorEventsService {
   async respondToVendorRequest(
     eventId: string,
     vendorId: string,
-    reqBody: { status: "approved" | "rejected" }
+    reqBody: { status: "pending_payment" | "rejected" }
   ): Promise<void> {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
@@ -293,10 +293,10 @@ export class VendorEventsService {
     }
 
     const { status } = reqBody;
-    if (status !== "approved" && status !== "rejected") {
+    if (status !== "pending_payment" && status !== "rejected") {
       throw createError(
         400,
-        "Invalid status. Must be 'approved' or 'rejected'"
+        "Invalid status. Must be 'pending_payment' or 'rejected'"
       );
     }
 
@@ -309,8 +309,22 @@ export class VendorEventsService {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    vendor.requestedEvents[requestIndex].status =
-      status as Event_Request_Status;
+    // Map status to Event_Request_Status enum
+    const mappedStatus =
+      status === "pending_payment"
+        ? Event_Request_Status.PENDING_PAYMENT
+        : Event_Request_Status.REJECTED;
+
+    vendor.requestedEvents[requestIndex].status = mappedStatus;
+
+    // Set payment deadline if status is pending_payment (3 days from now)
+    if (status === "pending_payment") {
+      const paymentDeadline = new Date();
+      paymentDeadline.setDate(paymentDeadline.getDate() + 3);
+      (vendor.requestedEvents[requestIndex] as any).paymentDeadline =
+        paymentDeadline;
+    }
+
     vendor.markModified("requestedEvents");
     await vendor.save();
 
@@ -325,6 +339,15 @@ export class VendorEventsService {
       }
 
       event.vendors[vendorIndex].RequestData.status = status;
+
+      // Set payment deadline if status is pending_payment (3 days from now)
+      if (status === "pending_payment") {
+        const paymentDeadline = new Date();
+        paymentDeadline.setDate(paymentDeadline.getDate() + 3);
+        event.vendors[vendorIndex].RequestData.paymentDeadline =
+          paymentDeadline;
+      }
+
       event.markModified("vendors");
     } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (!event.vendor || event.vendor.toString() !== vendorId.toString()) {
@@ -338,26 +361,44 @@ export class VendorEventsService {
       event.RequestData.status = status;
       event.markModified("RequestData");
 
-      const { boothSetupDuration } = event.RequestData;
-      // Calculate start date: now + boothSetupDuration (in weeks)
-      const now = new Date();
-      event.eventStartDate = now;
-      event.eventEndDate = new Date(
-        now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
-      );
+      // Only update dates if status is pending_payment
+      if (status === "pending_payment") {
+        // Set payment deadline (3 days from now)
+        const paymentDeadline = new Date();
+        paymentDeadline.setDate(paymentDeadline.getDate() + 3);
+        event.RequestData.paymentDeadline = paymentDeadline;
+
+        const { boothSetupDuration } = event.RequestData;
+        // Calculate start date: now + boothSetupDuration (in weeks)
+        const now = new Date();
+        event.eventStartDate = now;
+        event.eventEndDate = new Date(
+          now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+        );
+      }
     } else {
       throw createError(400, "Invalid event type");
     }
 
     // Send application status email to vendor
+    const paymentDeadline =
+      status === "pending_payment"
+        ? (() => {
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + 3);
+            return deadline;
+          })()
+        : undefined;
+
     await sendApplicationStatusEmail(
       vendor.email,
       vendor.companyName,
       event.type === EVENT_TYPES.BAZAAR ? "bazaar" : "booth",
       event.eventName,
-      status === "approved" ? "accepted" : "rejected",
+      status === "pending_payment" ? "accepted" : "rejected",
       status === "rejected" ? event.RequestData?.rejectionReason : undefined,
-      status === "approved" ? event.RequestData?.nextSteps : undefined
+      status === "pending_payment" ? event.RequestData?.nextSteps : undefined,
+      paymentDeadline
     );
     await event.save();
   }

@@ -6,6 +6,8 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IEvent } from "../interfaces/models/event.interface";
 import { sendPaymentReceiptEmail } from "./emailService";
 import { IUser } from "../interfaces/models/user.interface";
+import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
+import { Event_Request_Status } from "../constants/user.constants";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 if (!stripeSecretKey) {
@@ -33,6 +35,13 @@ export interface CreateCheckoutSessionParams {
 export interface CreateCheckoutSessionResponse {
   sessionId: string;
   url: string | null;
+}
+
+export interface CreateVendorCheckoutParams {
+  eventId: string;
+  vendorId: string;
+  customerEmail?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export class PaymentService {
@@ -343,5 +352,121 @@ export class PaymentService {
       type: "refund",
       date: new Date(),
     });
+  }
+
+  /**
+   * Create a Stripe checkout session for vendor participation fee
+   * This is separate from event-based payments as vendors pay a participation fee
+   * calculated internally based on event-specific logic
+   * @param params - Vendor checkout parameters
+   * @returns Checkout session details
+   */
+  async createVendorParticipationCheckout(
+    params: CreateVendorCheckoutParams
+  ): Promise<CreateCheckoutSessionResponse> {
+    const { eventId, vendorId, customerEmail, metadata } = params;
+
+    // Fetch event to validate it exists
+    const event = await this.eventsService.getEventById(eventId);
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    // Validate that the vendor has applied to this event
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      throw createError(404, "Vendor not found");
+    }
+
+    // Check if vendor has a request for this event
+    const vendorRequest = vendor.requestedEvents.find(
+      (req) => req.event?.toString() === eventId.toString()
+    );
+
+    if (!vendorRequest) {
+      throw createError(
+        400,
+        "Vendor has not applied to this event. Please submit an application first."
+      );
+    }
+
+    // Validate that the request status is PENDING_PAYMENT
+    if (vendorRequest.status !== Event_Request_Status.PENDING_PAYMENT) {
+      throw createError(
+        400,
+        `Cannot process payment. Request status is ${vendorRequest.status}. Payment is only allowed when status is PENDING_PAYMENT.`
+      );
+    }
+
+    // Check if payment deadline has passed
+    const paymentDeadline = (vendorRequest as any).paymentDeadline;
+    if (paymentDeadline && new Date() > new Date(paymentDeadline)) {
+      throw createError(
+        400,
+        "Payment deadline has passed. Please contact support."
+      );
+    }
+
+    // TODO: Calculate participation fee based on event-specific logic
+    const participationFee: number = 100; // Replace with actual calculation logic
+
+    // Validate participation fee
+    if (!participationFee || participationFee <= 0) {
+      throw createError(400, "Invalid participation fee calculation");
+    }
+
+    // Build metadata
+    const sanitizedMetadata: Record<string, string> = {
+      eventId,
+      eventType: event.type,
+      vendorId,
+      paymentType: "vendor_participation",
+      participationFee: participationFee.toString(),
+    };
+
+    if (metadata && typeof metadata === "object") {
+      for (const [key, value] of Object.entries(metadata)) {
+        if (value === undefined || value === null) continue;
+        sanitizedMetadata[key] = String(value);
+      }
+    }
+
+    // Calculate amount in cents
+    const unitAmount = Math.round(participationFee * 100);
+    if (!Number.isInteger(unitAmount) || unitAmount <= 0) {
+      throw createError(500, "Invalid participation fee amount");
+    }
+
+    // Create line items using price_data (no product/price IDs needed)
+    const lineItems: any[] = [
+      {
+        price_data: {
+          currency: DEFAULT_CURRENCY,
+          unit_amount: unitAmount,
+          product_data: {
+            name: `Event Participation Fee`,
+            description: `Vendor participation fee for ${event.eventName}`,
+          },
+        },
+        quantity: 1,
+      },
+    ];
+
+    // Create Stripe session
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      currency: DEFAULT_CURRENCY,
+      customer_email: customerEmail,
+      line_items: lineItems,
+      success_url: DEFAULT_SUCCESS_URL,
+      cancel_url: DEFAULT_CANCEL_URL,
+      metadata: sanitizedMetadata,
+    });
+
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
   }
 }
