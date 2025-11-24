@@ -707,7 +707,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               }}
             >
               {filteredEvents.map((event) => (
-                <Box key={event.id}>
+                <Box key={event.id} sx={{display:"flex", justifyContent:'center', alignItems:"center", flexDirection:"column"}}>
                   {renderEventComponent(event, registered)}
                 </Box>
               ))}

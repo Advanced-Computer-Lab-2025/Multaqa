@@ -21,6 +21,7 @@ import { CustomModalLayout } from "../modals";
 import CommentsModal from "./CommentsModal";
 import CommentsList from "./CommentsModal";
 import ContentWrapper from "../containers/ContentWrapper";
+import EmptyState from "../states/EmptyState";
 
 interface CommentItem {
   commenter: string;
@@ -199,17 +200,10 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
 
         {loading && <EventCardsListSkeleton />}
         {!loading && (!workshops || workshops.length === 0) && (
-          <Box
-            sx={{
-              height: "60vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: "1.2rem",
-            }}
-          >
-            No workshops to view here!
-          </Box>
+          <EmptyState
+           title = "No workshops to view"
+           description = "Create your first workshop and spread some knowledge!"
+           />
         )}
       </Stack>
       <CustomModalLayout
