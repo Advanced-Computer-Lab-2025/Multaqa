@@ -345,21 +345,29 @@ const EventCard: React.FC<EventCardProps> = ({
                     </Box>
                 )}
                 <Tooltip title={fav ? "Remove from favorites" : "Add to favorites"}>
-                  <IconButton
-                    size="small"
+                  <Box
                     onClick={handleToggleFavorite}
                     sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      width: 36,
+                      height: 36,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      border: '1px solid',
+                      borderColor: fav ? '#F59E0B' : 'divider',
+                      borderRadius: 2,
                       ml: 1,
-                      borderRadius: 1,
-                      border: 1,
-                      borderColor: fav ? 'rgba(245,158,11,0.35)' : 'transparent',
-                      backgroundColor: fav ? 'rgba(245,158,11,0.08)' : 'transparent',
                       color: fav ? '#F59E0B' : 'inherit',
-                      transition: 'transform 160ms ease, background-color 160ms ease, border-color 160ms ease',
-                      transform: animateFav ? 'translateY(-6px)' : 'none',
                       '&:hover': {
-                        backgroundColor: fav ? 'rgba(245,158,11,0.12)' : 'rgba(0,0,0,0.04)',
+                        backgroundColor: fav ? 'rgba(245,158,11,0.12)' : `${color}15`,
+                        borderColor: fav ? '#F59E0B' : color,
+                        color: fav ? '#F59E0B' : color
                       },
+                      transform: animateFav ? 'translateY(-6px)' : 'none',
                       '@keyframes jump': {
                         '0%': { transform: 'translateY(0)' },
                         '30%': { transform: 'translateY(-8px)' },
@@ -369,8 +377,8 @@ const EventCard: React.FC<EventCardProps> = ({
                       animation: animateFav ? 'jump 360ms ease' : 'none',
                     }}
                   >
-                    {fav ? <BookmarkIcon fontSize="small" sx={{ color: '#F59E0B' }} /> : <BookmarkBorderIcon fontSize="small" />}
-                  </IconButton>
+                    {fav ? <BookmarkIcon sx={{ fontSize: 20, color: '#F59E0B' }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                  </Box>
                 </Tooltip>
                 <Tooltip title={"More Info"}>
                   <Box
