@@ -43,7 +43,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
   const registrationDeadline = event.registrationDeadline;
   const startDate = event.eventStartDate;
   const endDate = event.eventEndDate;
-  const attended = attendedEvents ? attendedEvents.includes(id) : false; 
+  const attended = attendedEvents ? attendedEvents.includes(id) : false;
+  const archived = event.archived; 
 
   switch (event.type?.toLowerCase()) {
     case "trip":
@@ -64,6 +65,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Spots Left": event.capacity - event.attendees.length,
         },
         attended,
+        archived,
       };
 
     case "workshop":
@@ -101,6 +103,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           Cost: `${event.price?.$numberInt || event.price} EGP `,
         },
         attended,
+        archived,
       };
 
     // You can add more cases:
@@ -122,6 +125,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           Link: event.websiteLink,
         },
         attended,
+        archived,
       };
     case "bazaar":
       return {
@@ -141,6 +145,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Vendor Count": event.vendors.length,
         },
         attended,
+        archived,
       };
     case "platform_booth":
       return {
@@ -155,6 +160,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Booth Size": event.RequestData.boothSize,
         },
         attended,
+        archived,
       };
 
     default:
@@ -165,6 +171,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         description: event.description,
         details: {},
         attended,
+        archived,
       };
   }
 }

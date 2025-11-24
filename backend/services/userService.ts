@@ -26,6 +26,67 @@ export class UserService {
     this.verificationService = new VerificationService();
   }
 
+  /**
+   * Filter out archived events from populated user fields
+   * @param user - Plain user object with potentially populated event fields
+   */
+  private filterArchivedEvents(user: any): void {
+    if (!user) return;
+
+    // Filter favorites (students and staff members)
+    if (user.favorites && Array.isArray(user.favorites)) {
+      user.favorites = user.favorites.filter((event: any) => {
+        // If it's just an ObjectId (not populated), keep it
+        if (!event || typeof event === "string" || !event._id) {
+          return true;
+        }
+        // If it's populated, filter out archived ones
+        return !event.archived;
+      });
+    }
+
+    // Filter registeredEvents (students and staff members)
+    if (user.registeredEvents && Array.isArray(user.registeredEvents)) {
+      user.registeredEvents = user.registeredEvents.filter((event: any) => {
+        // If it's just an ObjectId (not populated), keep it
+        if (!event || typeof event === "string" || !event._id) {
+          return true;
+        }
+        // If it's populated, filter out archived ones
+        return !event.archived;
+      });
+    }
+
+    // Filter myWorkshops (staff members/professors)
+    if (user.myWorkshops && Array.isArray(user.myWorkshops)) {
+      user.myWorkshops = user.myWorkshops.filter((workshop: any) => {
+        // If it's just an ObjectId (not populated), keep it
+        if (!workshop || typeof workshop === "string" || !workshop._id) {
+          return true;
+        }
+        // If it's populated, filter out archived ones
+        return !workshop.archived;
+      });
+    }
+
+    // Filter requestedEvents (vendors)
+    if (user.requestedEvents && Array.isArray(user.requestedEvents)) {
+      user.requestedEvents = user.requestedEvents.filter((reqEvent: any) => {
+        // If event is not populated, keep it
+        if (
+          !reqEvent ||
+          !reqEvent.event ||
+          typeof reqEvent.event === "string" ||
+          !reqEvent.event._id
+        ) {
+          return true;
+        }
+        // If event is populated, filter out archived ones
+        return !reqEvent.event.archived;
+      });
+    }
+  }
+
   async getAllUsers(): Promise<Omit<IUser, "password">[]> {
     const users = await this.userRepo.findAll(
       { isVerified: true },
@@ -60,21 +121,23 @@ export class UserService {
 
     const plainUser = populatedUser?.toObject();
 
+    // Remove archived events from populated fields
+    this.filterArchivedEvents(plainUser);
+
     // Remove password
     const { password, ...userWithoutPassword } = plainUser!;
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
-  async addEventToUser(
-    id: string,
-    eventId: Types.ObjectId
-  ): Promise<IUser> {
+  async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
       throw createError(404, "User not found");
     }
 
-    user.registeredEvents?.push(eventId as unknown as mongoose.Schema.Types.ObjectId);
+    user.registeredEvents?.push(
+      eventId as unknown as mongoose.Schema.Types.ObjectId
+    );
     await user.save();
     return user;
   }

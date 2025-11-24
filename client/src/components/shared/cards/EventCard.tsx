@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Typography, IconButton, Chip, Tooltip } from '@mui/material';
-import { ChevronDown, ChevronUp, Calendar, Clock, MapPin, Check, Copy, Wallet, ExternalLink} from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, Clock, MapPin, Check, Copy, Wallet, ExternalLink } from 'lucide-react';
 import theme from '@/themes/lightTheme';
 
 
@@ -10,11 +10,11 @@ interface EventCardProps {
   endDate: string;
   startTime: string;
   endTime: string;
-  location?:string;
-  duration?:string;
+  location?: string;
+  duration?: string;
   spotsLeft?: string;
-  link?:string;
-  cost?:string;
+  link?: string;
+  cost?: string;
   totalSpots?: string;
   color?: string;
   eventType: string;
@@ -28,8 +28,9 @@ interface EventCardProps {
   expanded?: boolean;
   details?: Record<string, any>;
   attended?: boolean;
-  professorStatus?:string;
-  createdBy?:string;
+  professorStatus?: string;
+  createdBy?: string;
+  archived?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -57,10 +58,11 @@ const EventCard: React.FC<EventCardProps> = ({
   commentButton,
   evaluateButton,
   professorStatus,
-  createdBy
+  createdBy,
+  archived = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
-  const spots = spotsLeft && parseInt(spotsLeft)||0;
+  const spots = spotsLeft && parseInt(spotsLeft) || 0;
   const [copySuccess, setCopySuccess] = useState(false);
 
   const handleOpenModal = () => {
@@ -69,20 +71,28 @@ const EventCard: React.FC<EventCardProps> = ({
     }
   };
 
-const statusChip = (status: string) => {
-  if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" sx={{  fontWeight: 600,
-                  fontSize: '0.7rem',
-                  height: 24,}} />;
-  if (status === "awaiting_review") return <Chip size="small" label="Awaiting Review" color="info" variant="outlined"sx={{  fontWeight: 600,
-                  fontSize: '0.7rem',
-                  height: 24,}}/>;
-  if (status === "rejected") return <Chip size="small" label="Rejected" color="error" variant="outlined" sx={{   fontWeight: 600,
-                  fontSize: '0.7rem',
-                  height: 24,}}/>;
-  return <Chip size="small" label="Accepted" color="success" variant="outlined" sx={{   fontWeight: 600,
-                  fontSize: '0.7rem',
-                  height: 24,}} />;
-};
+  const statusChip = (status: string) => {
+    if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" sx={{
+      fontWeight: 600,
+      fontSize: '0.7rem',
+      height: 24,
+    }} />;
+    if (status === "awaiting_review") return <Chip size="small" label="Awaiting Review" color="info" variant="outlined" sx={{
+      fontWeight: 600,
+      fontSize: '0.7rem',
+      height: 24,
+    }} />;
+    if (status === "rejected") return <Chip size="small" label="Rejected" color="error" variant="outlined" sx={{
+      fontWeight: 600,
+      fontSize: '0.7rem',
+      height: 24,
+    }} />;
+    return <Chip size="small" label="Accepted" color="success" variant="outlined" sx={{
+      fontWeight: 600,
+      fontSize: '0.7rem',
+      height: 24,
+    }} />;
+  };
 
   const handleCopyLink = () => {
     if (link) {
@@ -109,8 +119,8 @@ const statusChip = (status: string) => {
         overflow: 'hidden',
         transition: 'all 0.3s ease',
         position: 'relative',
-        minHeight:250,
-        maxHeight:250,
+        minHeight: 250,
+        maxHeight: 250,
         '&:hover': {
           borderColor: color,
           transform: 'translateY(-2px)',
@@ -167,11 +177,11 @@ const statusChip = (status: string) => {
         {/* Content Section */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
           {/* Top Row - Event Type and Spots/Utilities */}
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            mb: 1 
+            mb: 1
           }}>
             <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
               <Chip
@@ -206,15 +216,29 @@ const statusChip = (status: string) => {
                   }}
                 />
               )}
-             {professorStatus && statusChip(professorStatus)}
+              {professorStatus && statusChip(professorStatus)}
+              {archived && (
+                <Chip
+                  label="Archived"
+                  size="small"
+                  sx={{
+                    backgroundColor: theme.palette.warning.contrastText,
+                    color: theme.palette.warning.main,
+                    fontWeight: 600,
+                    fontSize: '0.7rem',
+                    height: 20,
+                    border: '1px solid ' + theme.palette.warning.main,
+                  }}
+                />
+              )}
             </Box>
 
-            
+
             {/* Show spots in top right if register button exists, show utilities if they exist */}
             {/* Utilities and Expand Button Group */}
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
-              {/* {registerButton && (
+                {/* {registerButton && (
                   spotsLeft&& totalSpots && (
                     <Box
                        sx={{
@@ -244,73 +268,73 @@ const statusChip = (status: string) => {
                     </Box>
                   )
                 )} */}
-                    {spotsLeft && totalSpots && ( 
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        width: '100%',
-                        mt: .5,
-                      }}
-                    >
-                      <Box  sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          py: 0.5,
-                          px: 1.2,
-                          borderRadius: '6px',
-                          backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
-                          border: '1px solid',
-                          borderColor: spots > 0 ? `${color}30` : 'error.light',
-                          transition: 'all 0.2s ease',
-                        }}
+                {spotsLeft && totalSpots && (
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      width: '100%',
+                      mt: .5,
+                    }}
+                  >
+                    <Box sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      py: 0.5,
+                      px: 1.2,
+                      borderRadius: '6px',
+                      backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
+                      border: '1px solid',
+                      borderColor: spots > 0 ? `${color}30` : 'error.light',
+                      transition: 'all 0.2s ease',
+                    }}
 
->
-                        <Typography
-                           sx={{
-                            fontWeight: 600,
-                            color: spots > 3 ? color : 'error.main',
-                            fontSize: '0.9rem',
-                            lineHeight: 1,
-                          }}
-                        >
-                          {spots} {spots === 1 ? 'spot' : 'spots'} left
-                        </Typography>
-                      </Box>
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          color: spots > 3 ? color : 'error.main',
+                          fontSize: '0.9rem',
+                          lineHeight: 1,
+                        }}
+                      >
+                        {spots} {spots === 1 ? 'spot' : 'spots'} left
+                      </Typography>
                     </Box>
-                  )
+                  </Box>
+                )
                 }
-                 {utilities &&(<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      {utilities}
-                    </Box>
-                  )}
-                 <Tooltip title ={"More Info"}>
-                <Box
-                  onClick={handleOpenModal}
-                  sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    width: 36,
-                    height: 36,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    '&:hover': {
-                      backgroundColor: `${color}15`,
-                      borderColor: color,
-                      color:color
-                    },
-                  }}
-                >
-                  <ExternalLink size={18} />
+                {utilities && (<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  {utilities}
                 </Box>
+                )}
+                <Tooltip title={"More Info"}>
+                  <Box
+                    onClick={handleOpenModal}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      width: 36,
+                      height: 36,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 2,
+                      '&:hover': {
+                        backgroundColor: `${color}15`,
+                        borderColor: color,
+                        color: color
+                      },
+                    }}
+                  >
+                    <ExternalLink size={18} />
+                  </Box>
                 </Tooltip>
               </Box>
               {details && (
@@ -347,8 +371,8 @@ const statusChip = (status: string) => {
           </Typography>
 
           {/* Date, Time, and Location Info */}
-         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8, flex: 1 }}>
-            {startDate&&endDate&& <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.8, flex: 1 }}>
+            {startDate && endDate && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Calendar size={16} color={color} />
               <Typography
                 variant="body2"
@@ -364,13 +388,13 @@ const statusChip = (status: string) => {
                 {startDate === endDate ? startDate : `${startDate} - ${endDate}`}
               </Typography>
             </Box>}
-            
-           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {startTime&&endTime&&<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {startTime && endTime && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Clock size={16} color={color} />
                 <Typography
                   variant="body2"
-                  sx={{ 
+                  sx={{
                     color: color,
                     fontSize: '0.875rem',
                     display: 'flex',
@@ -380,7 +404,7 @@ const statusChip = (status: string) => {
                 >
                   {`${startTime} - ${endTime}`}
                 </Typography>
-              </Box>} 
+              </Box>}
 
               {/* Show register button if it exists */}
               {!utilities && registerButton && (
@@ -389,13 +413,13 @@ const statusChip = (status: string) => {
                 </Box>
               )}
             </Box>
-            
+
             {/* Location Row */}
-           {location && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {location && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <MapPin size={16} color={color} />
               <Typography
                 variant="body2"
-                sx={{ 
+                sx={{
                   color: color,
                   fontSize: '0.875rem',
                   display: 'flex',
@@ -405,12 +429,12 @@ const statusChip = (status: string) => {
               >
                 {location}
               </Typography>
-            </Box>} 
-              {duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            </Box>}
+            {duration && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Clock size={16} color={color} />
               <Typography
                 variant="body2"
-                sx={{ 
+                sx={{
                   color: color,
                   fontSize: '0.875rem',
                   display: 'flex',
@@ -420,90 +444,90 @@ const statusChip = (status: string) => {
               >
                 {duration} weeks
               </Typography>
-            </Box>} 
+            </Box>}
 
-            {link&& <Box
-                    key="link"
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                      cursor: "pointer",
-                    }}
-                  >
-                      <IconButton
-                      size="small"
-                      onClick={handleCopyLink}
-                      sx={{
-                        padding: 0.25,
-                        "&:hover": {
-                          backgroundColor: theme.palette.primary.light + "20",
-                        },
-                      }}
-                    >
-                      {copySuccess ? (
-                        <Check size={14} color="green" />
-                      ) : (
-                        <Copy size={14} color="#6b7280" />
-                      )}
-                    </IconButton>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "text.primary",
-                        textDecoration: "underline",
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          color: color,
-                        },
-                      }}
-                      onClick={() => window.open(link, "_blank")}
-                    >
-                      {link}
-                    </Typography>
-                  </Box>}
-                  {cost&& <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>  
-                  <Wallet size={16} color={color} />
-                  <Typography
-                    variant="body2"
-                    sx={{ 
-                      color: color,
-                      fontSize: '0.875rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.5,
-                    }}
-                  >
-                    {cost}
-                  </Typography>
-                </Box>
-                  }
-          </Box>
-          {createdBy&&
-           <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end', 
-              alignItems: 'flex-end',
-              mt: 'auto',
-              pt: 1
-            }}><Typography
+            {link && <Box
+              key="link"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                cursor: "pointer",
+              }}
+            >
+              <IconButton
+                size="small"
+                onClick={handleCopyLink}
+                sx={{
+                  padding: 0.25,
+                  "&:hover": {
+                    backgroundColor: theme.palette.primary.light + "20",
+                  },
+                }}
+              >
+                {copySuccess ? (
+                  <Check size={14} color="green" />
+                ) : (
+                  <Copy size={14} color="#6b7280" />
+                )}
+              </IconButton>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.primary",
+                  textDecoration: "underline",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    color: color,
+                  },
+                }}
+                onClick={() => window.open(link, "_blank")}
+              >
+                {link}
+              </Typography>
+            </Box>}
+            {cost && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Wallet size={16} color={color} />
+              <Typography
                 variant="body2"
-                sx={{ 
-                  color:{color},
+                sx={{
+                  color: color,
                   fontSize: '0.875rem',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.5,
                 }}
               >
+                {cost}
+              </Typography>
+            </Box>
+            }
+          </Box>
+          {createdBy &&
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'flex-end',
+              mt: 'auto',
+              pt: 1
+            }}><Typography
+              variant="body2"
+              sx={{
+                color: { color },
+                fontSize: '0.875rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+              }}
+            >
                 created by {createdBy}
               </Typography>
-                </Box>}
+            </Box>}
           {/* Evaluate Button at Bottom Right */}
-          {evaluateButton && professorStatus && professorStatus=="pending"&&(
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end', 
+          {evaluateButton && professorStatus && professorStatus == "pending" && (
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
               alignItems: 'flex-end',
               mt: 'auto',
               pt: 1
@@ -511,10 +535,10 @@ const statusChip = (status: string) => {
               {evaluateButton}
             </Box>
           )}
-           {commentButton && professorStatus && professorStatus=="awaiting_review"&&(
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'flex-end', 
+          {commentButton && professorStatus && professorStatus == "awaiting_review" && (
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
               alignItems: 'flex-end',
               mt: 'auto',
               pt: 1

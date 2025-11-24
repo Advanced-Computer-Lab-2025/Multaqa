@@ -4,6 +4,7 @@ import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { CourtService } from "../services/courtService";
 import { Router, Request, Response } from "express";
 import createError from "http-errors";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 
 const courtService = new CourtService();
 
@@ -47,10 +48,33 @@ async function getCourtDayAvailableTimeSlots(req: Request, res: Response<any>) {
   }
 }
 
+async function reserveCourtSlot(req: AuthenticatedRequest, res: Response<any>) {
+  try {
+    const courtId = req.params.courtId as string;
+    const userId = req.user?.id;
+    const { date, slot } = req.body;
+    if (!date || !slot || !userId) {
+      throw createError(400, "Date, slot, and userId are required in the request body");
+    }
+    await courtService.reserveCourtSlot(courtId,userId, date, slot);
+
+    res.json({
+      success: true,
+      message: "Court slot reserved successfully"
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || 'Error reserving court slot'
+    );
+  }
+}
+
 const router = Router();
 
 router.get("/all", authorizeRoles({ userRoles: [UserRole.STUDENT] }), getCourtDayAvailableTimeSlots);
 router.get("/:courtId/available-slots", authorizeRoles({ userRoles: [UserRole.STUDENT] }), getDayAvailableTimeSlots);
+router.post("/:courtId/reserve", authorizeRoles({ userRoles: [UserRole.STUDENT] }), reserveCourtSlot);
 
 
 export default router;

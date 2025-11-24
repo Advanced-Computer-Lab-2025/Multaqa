@@ -13,6 +13,7 @@ import EditConference from "../../components/tempPages/EditConference/EditConfer
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,
@@ -26,12 +27,14 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   onDelete,
   setRefresh,
   attended,
+  archived,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [edit, setEdit] = useState(false)
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -73,8 +76,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
                      </IconButton>
                    </Tooltip>
           ) : ( user==="events-office"|| user==="events-only"?
-           <Utilities onRestrict={() => setRestrictUsers(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
-        expanded={expanded} location={details["Location"]} />
+           <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
+        expanded={expanded} archived={archived} location={details["Location"]} />
 
 
       {/* Delete Confirmation Modal */}
@@ -156,7 +159,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventStartTime={details["Start Time"]}
         eventEndTime={details["End Time"]}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+        <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)}/>
        <CustomModalLayout
                     open={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}

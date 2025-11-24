@@ -30,12 +30,25 @@ interface CommentItem {
   timestamp: string;
 }
 
-
 interface WorkshopListProps {
   userId: string;
   filter: string;
   userInfo: any;
 }
+const mockComments = [
+  {
+    id: 1,
+    commenter: "Dr. Sarah Johnson",
+    text: "Please provide more details about the technical requirements.",
+    timestamp: "2025-01-15T10:30:00Z",
+  },
+  {
+    id: 2,
+    commenter: "Events Office Admin",
+    text: "The budget seems reasonable.",
+    timestamp: "2025-01-16T14:22:00Z",
+  },
+];
 
 const background = "#9c27b0";
 

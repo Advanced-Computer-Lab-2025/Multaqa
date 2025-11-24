@@ -96,7 +96,8 @@ export default function GymSchedule({ month, sessions }: Props) {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchGymSessions();
+        // Pass current  date to fetch sessions for that date
+        const data = await fetchGymSessions(current);
         if (mounted) setFetched(data);
       } catch {
         if (mounted)
