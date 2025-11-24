@@ -262,8 +262,11 @@ const EventCard: React.FC<EventCardProps> = ({
                     color: theme.palette.warning.main,
                     fontWeight: 600,
                     fontSize: '0.7rem',
-                    height: 20,
+                    height: 24,
                     border: '1px solid ' + theme.palette.warning.main,
+                    '&:hover': {
+                      backgroundColor: theme.palette.warning.light + '15',
+                    },
                   }}
                 />
               )}
@@ -272,38 +275,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
             {/* Show spots in top right if register button exists, show utilities if they exist */}
             {/* Utilities and Expand Button Group */}
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
-                {/* {registerButton && (
-                  spotsLeft&& totalSpots && (
-                    <Box
-                       sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 0.5,
-                          py: 0.5,
-                          px: 1.2,
-                          borderRadius: '6px',
-                          backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
-                          border: '1px solid',
-                          borderColor: spots > 0 ? `${color}30` : 'error.light',
-                          transition: 'all 0.2s ease',
-                        }}
-
-                    >
-                      <Typography
-                     sx={{
-                            fontWeight: 600,
-                            color: spots > 3 ? color : 'error.main',
-                            fontSize: '0.9rem',
-                            lineHeight: 1,
-                          }}
-                      >
-                        {spots} {spots === 1 ? 'spot' : 'spots'} left
-                      </Typography>
-                    </Box>
-                  )
-                )} */}
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
                 {spotsLeft && totalSpots && (
                   <Box
                     sx={{
@@ -325,9 +297,7 @@ const EventCard: React.FC<EventCardProps> = ({
                       border: '1px solid',
                       borderColor: spots > 0 ? `${color}30` : 'error.light',
                       transition: 'all 0.2s ease',
-                    }}
-
-                    >
+                    }}>
                       <Typography
                         sx={{
                           fontWeight: 600,
@@ -342,9 +312,7 @@ const EventCard: React.FC<EventCardProps> = ({
                   </Box>
                 )}
                 {utilities && (
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                      {utilities}
-                    </Box>
+                    utilities
                 )}
                 <Tooltip title={fav ? "Remove from favorites" : "Add to favorites"}>
                   <Box
@@ -362,7 +330,6 @@ const EventCard: React.FC<EventCardProps> = ({
                       border: '1px solid',
                       borderColor: fav ? '#F59E0B' : 'divider',
                       borderRadius: 2,
-                      ml: 1,
                       color: fav ? '#F59E0B' : 'inherit',
                       '&:hover': {
                         backgroundColor: fav ? 'rgba(245,158,11,0.12)' : `${color}15`,
@@ -408,7 +375,6 @@ const EventCard: React.FC<EventCardProps> = ({
                     <ExternalLink size={18} />
                   </Box>
                 </Tooltip>
-              </Box>
               {details && (
                 <IconButton
                   size="small"

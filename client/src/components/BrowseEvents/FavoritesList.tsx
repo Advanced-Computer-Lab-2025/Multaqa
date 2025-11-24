@@ -81,14 +81,14 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
     const handleFavoritesUpdate = () => {
       // Small delay to ensure backend has updated
       setTimeout(() => {
-        setRefreshKey(prev => prev + 1);
+        setRefreshKey((prev) => prev + 1);
       }, 500);
     };
 
-    window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
-    
+    window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
+
     return () => {
-      window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
+      window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
     };
   }, []);
 
@@ -96,15 +96,15 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
   // This ensures View components correctly identify events as favorited
   const updatedUserInfo = useMemo(() => {
     if (!events || events.length === 0) return userInfo;
-    
+
     // Extract all event IDs from the favorites list
-    const favoriteIds = events.map(event => event.id).filter(Boolean);
-    
+    const favoriteIds = events.map((event) => event.id).filter(Boolean);
+
     // Create updated userInfo with all event IDs in favorites
     // Format matches what View components expect: { _id: id } or just the ID string
     return {
       ...userInfo,
-      favorites: favoriteIds.map(id => ({ _id: id }))
+      favorites: favoriteIds.map((id) => ({ _id: id })),
     };
   }, [events, userInfo]);
 
@@ -254,7 +254,14 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
         </Typography>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gap: 3, padding: "0px 40px" }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(1, 1fr)",
+          gap: 3,
+          padding: "0px 40px",
+        }}
+      >
         {events.map((ev) => renderEvent(ev))}
       </Box>
     </Container>
