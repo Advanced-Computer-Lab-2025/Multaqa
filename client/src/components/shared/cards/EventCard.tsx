@@ -133,6 +133,8 @@ const EventCard: React.FC<EventCardProps> = ({
       } else {
         await api.delete(`/users/favorites/${eventId}`);
       }
+      // Dispatch custom event to notify favorites list to refresh
+      window.dispatchEvent(new CustomEvent('favoritesUpdated', { detail: { eventId, added: !prev } }));
     } catch (err: any) {
       // revert on error
       setFav(prev);
