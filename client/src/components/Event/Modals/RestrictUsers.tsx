@@ -89,9 +89,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
     }),
     onSubmit: async (values) => {
       // call API with the allowedUsers array (server expects allowedUsers)
-      // await handleCallApi({ allowedUsers: values.allowedUsers , type: eventType });
-      // optional alert and close as before
-      alert(JSON.stringify(values.allowedUsers) + eventType);
+      await handleCallApi({ allowedUsers: values.allowedUsers , type: eventType });
       onClose();
     },
   });

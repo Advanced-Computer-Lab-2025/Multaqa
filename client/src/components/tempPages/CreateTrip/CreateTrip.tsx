@@ -275,7 +275,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
@@ -325,7 +325,7 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },

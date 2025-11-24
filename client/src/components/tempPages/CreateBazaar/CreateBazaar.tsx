@@ -244,7 +244,7 @@ onClose();
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
@@ -294,7 +294,7 @@ onClose();
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },

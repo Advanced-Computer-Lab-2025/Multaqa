@@ -260,7 +260,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
@@ -310,7 +310,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
