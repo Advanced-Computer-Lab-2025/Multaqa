@@ -1,6 +1,7 @@
 import React from "react";
 import { UserRoleKey } from "@/types";
 import Image from "next/image";
+import ScaledLogo from "../shared/MultaqaLogos/ScaledLogo";
 
 interface HeaderProps {
   title: string;
@@ -143,9 +144,10 @@ export default function TopNavigation({
         </div> */}
 
         <div className="flex items-center justify-between w-full px-4">
-          <span className="text-2xl font-heading font-bold text-gray-800 tracking-wide">
+          <ScaledLogo />
+          {/* <span className="text-2xl font-heading font-bold text-gray-800 tracking-wide">
             {companyName}
-          </span>
+          </span> */}
 
           {currentUser && (
             <div className="w-fit">
