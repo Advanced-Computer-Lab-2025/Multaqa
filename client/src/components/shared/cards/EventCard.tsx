@@ -609,23 +609,48 @@ const EventCard: React.FC<EventCardProps> = ({
               sx={{
                 display: "flex",
                 justifyContent: "flex-end",
-                alignItems: "flex-end",
+                alignItems: "center",
                 mt: "auto",
-                pt: 1,
+                pt: 1.5,
+                // Add padding on right to make room for spots left ribbon if it exists
+                pr: spotsLeft && totalSpots ? "120px" : 0,
               }}
             >
-              <Typography
-                variant="body2"
+              <Box
                 sx={{
-                  color: { color },
-                  fontSize: "0.875rem",
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
-                  gap: 0.5,
+                  gap: 0.75,
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: "6px",
+                  backgroundColor: `${color}08`,
+                  border: `1px solid ${color}20`,
                 }}
               >
-                created by {createdBy}
-              </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: color,
+                    fontSize: "0.7rem",
+                    fontWeight: 500,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Created by
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: color,
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  {createdBy}
+                </Typography>
+              </Box>
             </Box>
           )}
           {/* Evaluate Button at Bottom Right */}
