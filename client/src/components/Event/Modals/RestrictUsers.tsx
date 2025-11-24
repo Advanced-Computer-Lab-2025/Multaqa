@@ -47,7 +47,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
           if (setRefresh) setRefresh((p) => !p);
           } catch (err: any) {
           setError(err?.message || "API call failed");
-          toast.error(err?.message || "Updating Allowed Users Failed",
+          toast.error("Updating Allowed Users Failed",
           {
             position: "bottom-right",
             autoClose: 5000,
