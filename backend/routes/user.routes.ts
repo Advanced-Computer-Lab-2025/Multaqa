@@ -3,7 +3,7 @@ import { UserService } from "../services/userService";
 import createError from "http-errors";
 import { EventsService } from "../services/eventService";
 import { validateEventRegistration } from "../validation/validateEventRegistration";
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import {
   GetAllUsersResponse,
   GetUserByIdResponse,
@@ -91,9 +91,11 @@ async function registerForEvent(
       userId
     );
 
+    // TODO: Remove this after testing
     await userService.addEventToUser(
       userId,
-      updatedEvent._id as Schema.Types.ObjectId
+      // updatedEvent._id
+      updatedEvent._id as mongoose.Types.ObjectId
     );
 
     res.json({

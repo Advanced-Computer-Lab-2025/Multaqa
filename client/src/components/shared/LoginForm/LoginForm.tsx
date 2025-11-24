@@ -31,7 +31,7 @@ const LoginForm: React.FC = () => {
       student: "/student/events/browse-events",
       staff: "/staff/events/browse-events",
       TA: "/ta/events/browse-events",
-      professor: "/professor/workshops/my-workshops",
+      professor: "/professor/workshops/overview",
       eventsOffice: "/events-office/events/all-events",
       vendor: "/vendor/opportunities/available",
     };
@@ -83,9 +83,9 @@ const LoginForm: React.FC = () => {
           }, 1500);
         } catch (err) {
           console.log("Login error:", err);
-          
+
           toast.error(
-              err.response?.data?.error,
+            err.response?.data?.error,
             {
               position: "bottom-right",
               autoClose: 5000,

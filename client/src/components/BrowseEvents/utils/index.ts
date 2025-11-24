@@ -27,6 +27,15 @@ const cleanDateString = (isoDate: string | undefined): string => {
   // Splits the string at 'T' and returns the first element (the date part)
   return isoDate.split('T')[0]; 
 };
+const capitalizeNamePart = (namePart?: string | null): string => {
+  if (!namePart) return "";
+  
+  // Convert to string, trim whitespace, and lowercase the rest of the string
+  const str = String(namePart).trim().toLowerCase();
+  
+  // Capitalize the first letter
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 
 function transformEvent(event: any, attendedEvents?: string[]) {
@@ -60,6 +69,13 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       };
 
     case "workshop":
+      console.log(event);
+      const firstName =  capitalizeNamePart(event.createdBy.firstName);
+      const lastName = capitalizeNamePart(event.createdBy.lastName);
+      const nameParts = [firstName, lastName];
+      const nonEmptyNameParts = nameParts.filter(part => part);
+      const fullName = nonEmptyNameParts.join(' ');
+
       return {
         id,
         type: EventType.WORKSHOP,
@@ -67,6 +83,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         description: event.description,
         agenda: event.fullAgenda,
         professors: flattenName(event.associatedProfs),
+        comments:event.comments,
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
           "Start Date": cleanDateString(startDate),
@@ -78,6 +95,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
+          "CreatedId":event.createdBy.id,
+          "Created by" : fullName,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": event.capacity - event.attendees.length,

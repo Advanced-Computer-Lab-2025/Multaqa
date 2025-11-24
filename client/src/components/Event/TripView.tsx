@@ -46,7 +46,6 @@ const TripView: React.FC<BazarViewProps> = ({
   const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
-  
 
   const handlePaymentSuccess = (paymentDetails:any) => {
     console.log('Payment successful:', paymentDetails);
@@ -88,6 +87,8 @@ const TripView: React.FC<BazarViewProps> = ({
         color={background} 
         leftIcon={<IconComponent />} 
         eventType={"Trip"}
+        spotsLeft={ details['Spots Left'] }
+        totalSpots={details["Capacity"]} 
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={
           user === "admin" ? (

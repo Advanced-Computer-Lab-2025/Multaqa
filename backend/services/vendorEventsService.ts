@@ -109,7 +109,7 @@ export class VendorEventsService {
 
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
-      event: event._id as string,
+      event: event._id as unknown as string,
       RequestData: data.value,
       status: applicationStatus,
     });
