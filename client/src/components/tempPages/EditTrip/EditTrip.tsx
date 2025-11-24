@@ -289,7 +289,7 @@ const EditTrip = ({tripId, tripName, location, price,
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
@@ -339,7 +339,7 @@ const EditTrip = ({tripId, tripName, location, price,
                         },
                                     popper: {
                                     disablePortal: true,
-                                    placement: "right",
+                                    placement: "left",
                                     sx: {
                                     zIndex: 1500,
                                     },
