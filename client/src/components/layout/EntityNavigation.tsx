@@ -249,7 +249,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
     defaultTab: "",
-    defaultSection: "my-workshops",
+    defaultSection: "workshops",
     tabs: [
       { id: "browse-events", label: "Browse Events" },
       { id: "my-registered", label: "My Registered Events" },
@@ -262,6 +262,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "workshops",
         label: "My Workshops",
         icon: Calendar,
+        tabs: [],
       },
       {
         key: "events",
@@ -348,7 +349,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Dumbbell,
         tabs: [
           { id: "sessions-management", label: "Sessions Management" },
-          { id: "vendor-polls", label: "Create Vendor Polls" },
+          // { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
       { key: "archive", label: "Archive", icon: Archive, tabs: [] },

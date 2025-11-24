@@ -173,7 +173,7 @@ export default function EntityCatchAllPage() {
     vendor: { tab: "opportunities", section: "bazaars" },
     staff: { tab: "events", section: "browse-events" },
     ta: { tab: "events", section: "browse-events" },
-    professor: { tab: "workshops", section: "my-workshops" },
+    professor: { tab: "workshops", section: "overview" },
     "events-office": { tab: "events", section: "all-events" },
     admin: { tab: "users", section: "all-users" },
   };
