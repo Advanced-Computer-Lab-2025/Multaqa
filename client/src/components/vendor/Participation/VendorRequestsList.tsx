@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Stack, Chip, Alert } from "@mui/material";
+import { Typography, Stack, Chip, Alert } from "@mui/material";
 import VendorItemCard from "./VendorItemCard";
 import { VendorRequestItem } from "./types";
-import theme from "@/themes/lightTheme";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { Cancel } from "@mui/icons-material";
 import CancelApplicationVendor from "@/components/Event/Modals/CancelApplicationVendor";
+import ContentWrapper from "../../shared/containers/ContentWrapper";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
@@ -17,7 +17,10 @@ const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   rejected: "REJECTED",
 };
 
-const mapRequestedEventToVendorRequest = (item: any, vendorId: string): VendorRequestItem => {
+const mapRequestedEventToVendorRequest = (
+  item: any,
+  vendorId: string
+): VendorRequestItem => {
   const eventValue = item?.event;
   const event = eventValue && typeof eventValue === "object" ? eventValue : {};
   const eventId = typeof eventValue === "string" ? eventValue : event?._id;
@@ -26,18 +29,28 @@ const mapRequestedEventToVendorRequest = (item: any, vendorId: string): VendorRe
     : undefined;
 
   const requestData = item?.RequestData ?? vendorEntry?.RequestData ?? {};
-  const rawStatus = item?.status ?? requestData?.status ?? vendorEntry?.RequestData?.status ?? "pending";
+  const rawStatus =
+    item?.status ??
+    requestData?.status ??
+    vendorEntry?.RequestData?.status ??
+    "pending";
   const statusKey = String(rawStatus ?? "").toLowerCase();
   const status = STATUS_MAP[statusKey] ?? "PENDING";
 
-  const typeRaw = typeof event?.type === "string" ? event.type.toLowerCase() : "";
+  const typeRaw =
+    typeof event?.type === "string" ? event.type.toLowerCase() : "";
   const isBazaar = typeRaw === "bazaar";
 
-  const rawSubmittedAt = item?.createdAt ?? requestData?.submittedAt ?? event?.registrationDeadline;
-  const submittedAt = typeof rawSubmittedAt === "string" ? rawSubmittedAt : new Date().toISOString();
+  const rawSubmittedAt =
+    item?.createdAt ?? requestData?.submittedAt ?? event?.registrationDeadline;
+  const submittedAt =
+    typeof rawSubmittedAt === "string"
+      ? rawSubmittedAt
+      : new Date().toISOString();
 
   const rawStartDate = event?.eventStartDate;
-  const startDate = typeof rawStartDate === "string" ? rawStartDate : new Date().toISOString();
+  const startDate =
+    typeof rawStartDate === "string" ? rawStartDate : new Date().toISOString();
 
   const rawEndDate = event?.eventEndDate;
   const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
@@ -105,8 +118,12 @@ export default function VendorRequestsList() {
         const requestedEventsRaw = response.data?.data || [];
 
         const mapped = (requestedEventsRaw as any[])
-          .map((entry) => mapRequestedEventToVendorRequest(entry, vendorId as string))
-          .filter((item) => item.status === "PENDING" || item.status === "REJECTED");
+          .map((entry) =>
+            mapRequestedEventToVendorRequest(entry, vendorId as string)
+          )
+          .filter(
+            (item) => item.status === "PENDING" || item.status === "REJECTED"
+          );
 
         if (!cancelled) {
           const unique = new Map<string, VendorRequestItem>();
@@ -124,7 +141,10 @@ export default function VendorRequestsList() {
           setError(null);
           return;
         }
-        const message = err?.response?.data?.message ?? err?.message ?? "Something went wrong";
+        const message =
+          err?.response?.data?.message ??
+          err?.message ??
+          "Something went wrong";
         setError(message);
         setRequests([]);
       }
@@ -153,23 +173,24 @@ export default function VendorRequestsList() {
   );
 
   const statusChip = (status: VendorRequestItem["status"]) => {
-    if (status === "PENDING") return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
-    if (status === "REJECTED") return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
-    return <Chip size="small" label="Accepted" color="success" variant="outlined" />;
+    if (status === "PENDING")
+      return (
+        <Chip size="small" label="Pending" color="warning" variant="outlined" />
+      );
+    if (status === "REJECTED")
+      return (
+        <Chip size="small" label="Rejected" color="error" variant="outlined" />
+      );
+    return (
+      <Chip size="small" label="Accepted" color="success" variant="outlined" />
+    );
   };
 
-
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-       <Box sx={{ mb: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2, textAlign: 'left', fontFamily:"var(--font-jost), system-ui, sans-serif", color:`${theme.palette.tertiary.dark}`}}>
-           My Participation Requests
-      </Typography>
-        <Typography variant="body2" sx={{ color: "#757575", fontFamily: "var(--font-poppins)",  mb: 4 }}>
-        Review the status of your submissions for upcoming bazaars or booth setups.
-        </Typography>
-      </Box>
-
+    <ContentWrapper
+      title="My Participation Requests"
+      description="Review the status of your submissions for upcoming bazaars or booth setups."
+    >
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -207,6 +228,6 @@ export default function VendorRequestsList() {
           />
         ))}
       </Stack>
-    </Box>
+    </ContentWrapper>
   );
 }

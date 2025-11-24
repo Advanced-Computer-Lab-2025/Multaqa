@@ -17,6 +17,7 @@ import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const TripView: React.FC<BazarViewProps> = ({
   id,
@@ -34,6 +35,7 @@ const TripView: React.FC<BazarViewProps> = ({
   attended,
   datePassed,
   registrationPassed,
+  archived,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -41,9 +43,9 @@ const TripView: React.FC<BazarViewProps> = ({
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [edit, setEdit] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
-  
 
   const handlePaymentSuccess = (paymentDetails:any) => {
     console.log('Payment successful:', paymentDetails);
@@ -74,7 +76,6 @@ const TripView: React.FC<BazarViewProps> = ({
     handleCloseDeleteModal();
   };
 
-
   return (
     <>
      <EventCard 
@@ -86,6 +87,8 @@ const TripView: React.FC<BazarViewProps> = ({
         color={background} 
         leftIcon={<IconComponent />} 
         eventType={"Trip"}
+        spotsLeft={ details['Spots Left'] }
+        totalSpots={details["Capacity"]} 
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={
           user === "admin" ? (
@@ -108,7 +111,7 @@ const TripView: React.FC<BazarViewProps> = ({
                         <Trash2 size={18} />
                       </IconButton>
                     </Tooltip>
-          ) : (user==="events-office" || user==="events-only"?<Utilities onRestrict={() => setRestrictUsers(true)}onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background}/>:null)
+          ) : (user==="events-office" || user==="events-only"?<Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background}/>:null)
         }
           registerButton={
             (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
@@ -172,7 +175,7 @@ const TripView: React.FC<BazarViewProps> = ({
                 )
             )
           }
-        expanded={expanded} attended={attended} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
+        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]} spotsLeft={details["Spots Left"]}/>
     
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
@@ -236,8 +239,9 @@ const TripView: React.FC<BazarViewProps> = ({
         </Box>
       </CustomModal>
       <EditTrip setRefresh={setRefresh} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(details['Start Date'])} endDate={new Date (details['End Date'])} registrationDeadline={new Date(details['Registration Deadline'])} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={()=> {setEdit(false)}}/>
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Trip"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"trip"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
       <CancelRegistration setRefresh={setRefresh} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+      <ArchiveEvent setRefresh={setRefresh} eventId={id} eventName={name} eventType={"trip"}open={archive} onClose={() => setArchive(false)}/>  
       <RegisterEventModal open={register} onClose={() => { setRegister(false); } }
       eventType={"Trip"} userInfo={userInfo} eventId={id} color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
 

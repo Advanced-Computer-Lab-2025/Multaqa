@@ -143,7 +143,7 @@ props: DropdownStyleProps, border?: any): React.CSSProperties => {
     left: 0,
     right: 0,
     maxHeight: "250px",
-    width:"178px",
+    width:"200px",
     overflowY: "auto" as const,
     backgroundColor: theme.palette.background.default,
     border: `2px solid  ${theme.palette.tertiary.main}`,
