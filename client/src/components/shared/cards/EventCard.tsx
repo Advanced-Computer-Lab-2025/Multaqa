@@ -219,7 +219,7 @@ const EventCard: React.FC<EventCardProps> = ({
             alignItems: 'center',
             mb: 1
           }}>
-            <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center', flexWrap: 'wrap' }}>
               <Chip
                 label={eventType}
                 size="small"
@@ -272,48 +272,9 @@ const EventCard: React.FC<EventCardProps> = ({
               )}
             </Box>
 
-
-            {/* Show spots in top right if register button exists, show utilities if they exist */}
-            {/* Utilities and Expand Button Group */}
+            {/* Utilities and Action Buttons Group */}
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', ml: 'auto' }}>
-                {spotsLeft && totalSpots && (
-                  <Box
-                    sx={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      width: '100%',
-                      mt: .5,
-                    }}
-                  >
-                    <Box sx={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 0.5,
-                      py: 0.5,
-                      px: 1.2,
-                      borderRadius: '6px',
-                      backgroundColor: spots > 0 ? `${color}08` : 'error.lighter',
-                      border: '1px solid',
-                      borderColor: spots > 0 ? `${color}30` : 'error.light',
-                      transition: 'all 0.2s ease',
-                    }}>
-                      <Typography
-                        sx={{
-                          fontWeight: 600,
-                          color: spots > 3 ? color : 'error.main',
-                          fontSize: '0.9rem',
-                          lineHeight: 1,
-                        }}
-                      >
-                        {spots} {spots === 1 ? 'spot' : 'spots'} left
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-                {utilities && (
-                    utilities
-                )}
+                {utilities && utilities}
                 <Tooltip title={fav ? "Remove from favorites" : "Add to favorites"}>
                   <Box
                     onClick={handleToggleFavorite}
@@ -586,6 +547,37 @@ const EventCard: React.FC<EventCardProps> = ({
           )}
         </Box>
       </Box>
+      
+      {/* Spots Left Ribbon - Bottom Left */}
+      {spotsLeft && totalSpots && (
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.5,
+            py: 0.75,
+            px: 1.75,
+            backgroundColor: spots > 0 ? `${color}15` : 'error.lighter',
+            borderTopLeftRadius: '8px',
+            borderBottomRightRadius: '8px', // Matches card border radius (3 * 8px)
+            border: 'none',
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: 600,
+              color: spots > 3 ? color : 'error.main',
+              fontSize: '0.85rem',
+              lineHeight: 1.2,
+            }}
+          >
+            {spots} {spots === 1 ? 'spot' : 'spots'} left
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };
