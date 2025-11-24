@@ -259,7 +259,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
           display: "grid",
           gridTemplateColumns: "repeat(1, 1fr)",
           gap: 3,
-          padding: "0px 40px",
+          width: "100%",
         }}
       >
         {events.map((ev) => renderEvent(ev))}
