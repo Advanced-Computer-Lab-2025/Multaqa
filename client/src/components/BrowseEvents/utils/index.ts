@@ -83,6 +83,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         agenda: event.fullAgenda,
         professors: flattenName(event.associatedProfs),
         comments:event.comments,
+        attendees:event.attendees,
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
           "Start Date": cleanDateString(startDate),

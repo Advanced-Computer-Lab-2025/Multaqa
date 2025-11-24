@@ -25,6 +25,7 @@ import { api } from "../../../api";
 import { frameData } from "./utils/frameData";
 import { ReviewSkeletonList } from "./utils/ReviewSkeletonList";
 import { NoReviews } from "./utils/NoReviews";
+import { AttendeesList } from "./utils/Attendees";
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -104,6 +105,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   attended = false,
   eventId,
   userId,
+  attendees,
   createdBy
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
@@ -173,7 +175,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         ? [userReview, ...otherReviews]
         : otherReviews;
 
-      console.log(finalSortedReviews);
       setReviews(finalSortedReviews);
     } catch (err) {
       console.error(err);
@@ -365,6 +366,13 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       </Box>
     </Box>
   );
+
+  const renderAttendees = () => (
+   <AttendeesList 
+     attendees={attendees}
+   />
+  );
+
 
   const renderReviews = () => {
     const showAddReview =
@@ -672,6 +680,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
         return renderReviews();
       case "agenda":
         return renderAgenda();
+      case "attendees":
+        return renderAttendees();
       default:
         return null;
     }
@@ -682,6 +692,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     details: "Event Details",
     reviews: "Reviews & Comments",
     agenda: "Full Agenda",
+    attendees: "Attendees"
   };
 
   React.useEffect(() => {

@@ -41,6 +41,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   professorStatus,
   evaluateButton,
   commentButton,
+  attendees
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -411,11 +412,12 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       )
                   )
                 }
-                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:['general','agenda','details',
-                  'reviews'])}
+                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:(user=="professor"?['general','agenda','details','attendees',
+                  'reviews']:['general','agenda','details','reviews']))}
                 user={user?user:""}
                 attended ={attended}
                 eventId={id}
+                attendees={attendees}
               />
             </CustomModalLayout>
              <PaymentDrawer
