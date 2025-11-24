@@ -134,7 +134,7 @@ export class EventsService {
     };
 
     // Non-admin users should only see non-archived events
-    if (userRole !== "ADMINISTRATION") {
+    if (userRole !== UserRole.ADMINISTRATION) {
       filter.archived = { $ne: true };
     }
 
@@ -444,7 +444,9 @@ export class EventsService {
     await event.save();
 
     // Add event to user's registered events
-    const eventObjectId = event._id as mongoose.Schema.Types.ObjectId;
+    // TODO: Remove this after testing
+    // const eventObjectId = event._id;
+    const eventObjectId = event._id as mongoose.Types.ObjectId;
     await this.userService.addEventToUser(userId, eventObjectId);
 
     return event;

@@ -192,18 +192,26 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
                       }
                     }}
                   >
-                    <Avatar 
-                      sx={{ 
-                        mr: 2,
-                        bgcolor: stringToColor(vendor.companyName),
-                        width: 50,
-                        height: 50,
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {vendor.companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
-                    </Avatar>
+                   <Avatar 
+                // 💡 FIX: Check if vendor.logo exists AND if vendor.logo.url exists
+                src={vendor.logo?.url || undefined} 
+                sx={{ 
+                    mr: 2,
+                    // Apply color only if there's no logo URL (Avatar will show children)
+                    bgcolor: vendor.logo?.url ? 'transparent' : stringToColor(vendor.companyName),
+                    width: 50,
+                    height: 50,
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
+                    // Optional: Ensure the image content fits nicely
+                    '& img': {
+                        objectFit: 'contain', 
+                    }
+                }}
+            >
+                {/* Fallback initials displayed only if src (vendor.logo.url) is not provided */}
+                {!vendor.logo?.url && vendor.companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
+            </Avatar>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography 
                         variant="subtitle1" 

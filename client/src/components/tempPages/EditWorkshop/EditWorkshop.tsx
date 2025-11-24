@@ -171,9 +171,10 @@ const EditWorkshop = ({
                     autoClose:3000,
                     theme: "colored",
                 })
+      window.location.reload();
     } catch (err: any) {
         setError(err?.message || "API call failed");
-        window.alert(err.response.data.error);
+        toast.error(err.response.data.error);
         toast.error("Failed to edit workshop. Please try again.", {
         position:"bottom-right",
         autoClose:3000,

@@ -48,8 +48,8 @@ async function createWorkshop(
   } catch (err: any) {
     console.error("Error creating workshop:", err);
     throw createError(
-      err.status || 500, 
-      err.message || 'Error creating workshop'
+      err.status || 500,
+      err.message || "Error creating workshop"
     );
   }
 }
@@ -90,17 +90,22 @@ async function updateWorkshop(
     console.error("Error updating workshop:", err);
     throw createError(
       err.status || 500,
-      err.message || 'Error updating workshop'
+      err.message || "Error updating workshop"
     );
   }
 }
 
 async function updateWorkshopStatus(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response<UpdateWorkshopResponse>
 ) {
   try {
-    const { professorId, workshopId } = req.params;
+    const eventsOfficeId = req.user?.id;
+    if (!eventsOfficeId) {
+      throw createError(401, "Unauthorized: Events Office ID missing in token");
+    }
+
+    const { workshopId } = req.params;
     const { approvalStatus, comments } = req.body;
 
     const { error } = validateUpdateWorkshop({ approvalStatus, comments });
@@ -109,7 +114,7 @@ async function updateWorkshopStatus(
     }
 
     const updatedWorkshop = await workshopService.updateWorkshopStatus(
-      professorId,
+      eventsOfficeId,
       workshopId,
       { approvalStatus, comments }
     );
@@ -123,7 +128,7 @@ async function updateWorkshopStatus(
     console.error("Error updating workshop status:", err);
     throw createError(
       err.status || 500,
-      err.message || 'Error updating workshop status'
+      err.message || "Error updating workshop status"
     );
   }
 }
@@ -139,13 +144,13 @@ export async function sendCertificatesManually(
 
     res.status(200).json({
       success: true,
-      message: 'Certificates sent successfully'
+      message: "Certificates sent successfully",
     });
   } catch (error: any) {
-    console.error('Error sending certificates:', error);
+    console.error("Error sending certificates:", error);
     throw createError(
       error.status || 500,
-      error.message || 'Error sending certificates'
+      error.message || "Error sending certificates"
     );
   }
 }
@@ -153,7 +158,7 @@ export async function sendCertificatesManually(
 const router = Router();
 
 router.patch(
-  "/:professorId/:workshopId/status",
+  "/:workshopId/status",
   authorizeRoles({
     userRoles: [UserRole.ADMINISTRATION],
     adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
