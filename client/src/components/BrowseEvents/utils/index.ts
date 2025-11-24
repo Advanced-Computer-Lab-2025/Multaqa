@@ -75,7 +75,6 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       const nameParts = [firstName, lastName];
       const nonEmptyNameParts = nameParts.filter(part => part);
       const fullName = nonEmptyNameParts.join(' ');
-
       return {
         id,
         type: EventType.WORKSHOP,

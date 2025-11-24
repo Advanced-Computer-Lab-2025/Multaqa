@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Typography, IconButton, Chip, Tooltip } from '@mui/material';
-import { ChevronDown, ChevronUp, Calendar, Clock, MapPin, Check, Copy, Wallet, ExternalLink } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, Clock, MapPin, Check, Copy, Wallet, ExternalLink} from 'lucide-react';
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import { api } from '@/api';
 import theme from '@/themes/lightTheme';
 
 
@@ -21,6 +24,8 @@ interface EventCardProps {
   leftIcon?: React.ReactNode;
   utilities?: React.ReactNode;
   registerButton?: React.ReactNode;
+  eventId?: string;
+  isFavorite?: boolean;
   evaluateButton?: React.ReactNode;
   commentButton?: React.ReactNode;
   onExpandChange?: (expanded: boolean) => void;
@@ -55,6 +60,8 @@ const EventCard: React.FC<EventCardProps> = ({
   expanded = false,
   details,
   attended = false,
+  eventId,
+  isFavorite = false,
   commentButton,
   evaluateButton,
   professorStatus,
@@ -64,6 +71,8 @@ const EventCard: React.FC<EventCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = spotsLeft && parseInt(spotsLeft) || 0;
   const [copySuccess, setCopySuccess] = useState(false);
+  const [fav, setFav] = useState<boolean>(isFavorite);
+  const [animateFav, setAnimateFav] = useState<boolean>(false);
 
   const handleOpenModal = () => {
     if (onOpenDetails) {
@@ -106,6 +115,31 @@ const EventCard: React.FC<EventCardProps> = ({
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
     onExpandChange?.(newExpanded);
+  };
+
+  const handleToggleFavorite = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!eventId) return;
+    const prev = fav;
+    setFav(!prev);
+    // trigger jump animation only when adding to favorites
+    if (!prev) {
+      setAnimateFav(true);
+      window.setTimeout(() => setAnimateFav(false), 400);
+    }
+    try {
+      if (!prev) {
+        await api.post(`/users/favorites/${eventId}`);
+      } else {
+        await api.delete(`/users/favorites/${eventId}`);
+      }
+    } catch (err: any) {
+      // revert on error
+      setFav(prev);
+      setAnimateFav(false);
+      console.error("Failed to toggle favorite:", err);
+      window.alert(err?.response?.data?.error || "Failed to update favorites");
+    }
   };
 
   return (
@@ -304,12 +338,48 @@ const EventCard: React.FC<EventCardProps> = ({
                       </Typography>
                     </Box>
                   </Box>
-                )
-                }
-                {utilities && (<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  {utilities}
-                </Box>
                 )}
+                {utilities && (
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                      {utilities}
+                    </Box>
+                )}
+                <Tooltip title={fav ? "Remove from favorites" : "Add to favorites"}>
+                  <Box
+                    onClick={handleToggleFavorite}
+                    sx={{
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      width: 36,
+                      height: 36,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      border: '1px solid',
+                      borderColor: fav ? '#F59E0B' : 'divider',
+                      borderRadius: 2,
+                      ml: 1,
+                      color: fav ? '#F59E0B' : 'inherit',
+                      '&:hover': {
+                        backgroundColor: fav ? 'rgba(245,158,11,0.12)' : `${color}15`,
+                        borderColor: fav ? '#F59E0B' : color,
+                        color: fav ? '#F59E0B' : color
+                      },
+                      transform: animateFav ? 'translateY(-6px)' : 'none',
+                      '@keyframes jump': {
+                        '0%': { transform: 'translateY(0)' },
+                        '30%': { transform: 'translateY(-8px)' },
+                        '60%': { transform: 'translateY(0)' },
+                        '100%': { transform: 'translateY(0)' },
+                      },
+                      animation: animateFav ? 'jump 360ms ease' : 'none',
+                    }}
+                  >
+                    {fav ? <BookmarkIcon sx={{ fontSize: 20, color: '#F59E0B' }} /> : <BookmarkBorderIcon sx={{ fontSize: 20 }} />}
+                  </Box>
+                </Tooltip>
                 <Tooltip title={"More Info"}>
                   <Box
                     onClick={handleOpenModal}
