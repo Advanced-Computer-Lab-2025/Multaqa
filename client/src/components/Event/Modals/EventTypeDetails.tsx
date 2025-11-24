@@ -38,9 +38,9 @@ const EventTypeDetails: React.FC<EventTypeDetailsProps> = ({ type, details, colo
       case 'workshop':
         return <WorkshopDetails {...mappedDetails} />;
       case 'bazaar':
-        return <BazaarDetails {...mappedDetails} />;
+        return <BazaarDetails {...mappedDetails} userRole={userRole} eventId={eventId} />;
       case 'booth':
-        return <BoothDetails {...mappedDetails} />;
+        return <BoothDetails {...mappedDetails} userRole={userRole} eventId={eventId} />;
       case 'trip':
         return <TripDetails {...mappedDetails} />;
       default:

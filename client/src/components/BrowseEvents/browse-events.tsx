@@ -704,11 +704,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
                 display: "grid",
                 gridTemplateColumns: "repeat(1, 1fr)",
                 gap: 3,
-                padding: "0px 40px",
+                width: "100%",
               }}
             >
               {filteredEvents.map((event) => (
-                <Box key={event.id} sx={{display:"flex", justifyContent:'center', alignItems:"center", flexDirection:"column"}}>
+                <Box key={event.id} sx={{ width: "100%" }}>
                   {renderEventComponent(event, registered)}
                 </Box>
               ))}

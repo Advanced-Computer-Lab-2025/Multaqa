@@ -56,6 +56,8 @@ export interface BazaarDetails extends BaseEventDetails {
   location: string;
   vendors: Vendor[];
   vendorCount: string;
+  userRole?: string;
+  eventId: string;
 }
 
 export interface BoothDetails extends BaseEventDetails {
@@ -63,6 +65,8 @@ export interface BoothDetails extends BaseEventDetails {
   boothSize: string;
   location: string;
   people: { name: string; email: string }[] 
+  userRole?: string;
+  eventId: string;
 }
 
 export interface TripDetails extends BaseEventDetails {

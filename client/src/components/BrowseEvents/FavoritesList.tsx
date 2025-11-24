@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Container, Box, Typography } from "@mui/material";
 import { api } from "@/api";
 import { frameData } from "./utils";
@@ -54,26 +54,59 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [events, setEvents] = useState<any[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const fetchFavorites = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await api.get("/users/favorites");
+      const data = res.data.data || res.data; // backend returns in data.data sometimes
+      const framed = frameData(data, userInfo);
+      setEvents(framed);
+    } catch (err: any) {
+      console.error(err);
+      setError("Failed to load favorites. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  }, [userInfo]);
 
   useEffect(() => {
-    const fetchFavorites = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await api.get("/users/favorites");
-        const data = res.data.data || res.data; // backend returns in data.data sometimes
-        const framed = frameData(data, userInfo);
-        setEvents(framed);
-      } catch (err: any) {
-        console.error(err);
-        setError("Failed to load favorites. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
+    fetchFavorites();
+  }, [fetchFavorites, refreshKey]);
+
+  // Listen for custom event to refresh when favorites are toggled
+  useEffect(() => {
+    const handleFavoritesUpdate = () => {
+      // Small delay to ensure backend has updated
+      setTimeout(() => {
+        setRefreshKey((prev) => prev + 1);
+      }, 500);
     };
 
-    fetchFavorites();
-  }, [userInfo]);
+    window.addEventListener("favoritesUpdated", handleFavoritesUpdate);
+
+    return () => {
+      window.removeEventListener("favoritesUpdated", handleFavoritesUpdate);
+    };
+  }, []);
+
+  // Update userInfo to include all event IDs in favorites array
+  // This ensures View components correctly identify events as favorited
+  const updatedUserInfo = useMemo(() => {
+    if (!events || events.length === 0) return userInfo;
+
+    // Extract all event IDs from the favorites list
+    const favoriteIds = events.map((event) => event.id).filter(Boolean);
+
+    // Create updated userInfo with all event IDs in favorites
+    // Format matches what View components expect: { _id: id } or just the ID string
+    return {
+      ...userInfo,
+      favorites: favoriteIds.map((id) => ({ _id: id })),
+    };
+  }, [events, userInfo]);
 
   if (loading) return <div />; // let parent show loading skeleton if needed
   if (error)
@@ -111,7 +144,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             icon={EventColor[2].icon}
             background={EventColor[2].color}
             user={user}
-            userInfo={userInfo}
+            userInfo={updatedUserInfo}
             attended={event.attended}
           />
         );
@@ -124,11 +157,12 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             name={event.name}
             description={event.description}
             professors={event.professors}
+            professorsId={event.professorsId || []}
             agenda={event.agenda}
             icon={EventColor[4].icon}
             background={EventColor[4].color}
             user={user}
-            userInfo={userInfo}
+            userInfo={updatedUserInfo}
             attended={event.attended}
           />
         );
@@ -144,7 +178,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             icon={EventColor[3].icon}
             background={EventColor[3].color}
             user={user}
-            userInfo={userInfo}
+            userInfo={updatedUserInfo}
             attended={event.attended}
           />
         );
@@ -160,7 +194,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             icon={EventColor[1].icon}
             background={EventColor[1].color}
             user={user}
-            userInfo={userInfo}
+            userInfo={updatedUserInfo}
             attended={event.attended}
           />
         );
@@ -175,7 +209,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             icon={EventColor[0].icon}
             background={EventColor[0].color}
             user={user}
-            userInfo={userInfo}
+            userInfo={updatedUserInfo}
             attended={event.attended}
           />
         );
@@ -221,7 +255,14 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
         </Typography>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(1, 1fr)", gap: 3, padding: "0px 40px" }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(1, 1fr)",
+          gap: 3,
+          width: "100%",
+        }}
+      >
         {events.map((ev) => renderEvent(ev))}
       </Box>
     </Container>
