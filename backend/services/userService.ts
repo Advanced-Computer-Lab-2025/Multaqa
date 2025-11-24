@@ -129,16 +129,15 @@ export class UserService {
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
-  async addEventToUser(
-    id: string,
-    eventId: Types.ObjectId
-  ): Promise<IUser> {
+  async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
       throw createError(404, "User not found");
     }
 
-    user.registeredEvents?.push(eventId as unknown as mongoose.Schema.Types.ObjectId);
+    user.registeredEvents?.push(
+      eventId as unknown as mongoose.Schema.Types.ObjectId
+    );
     await user.save();
     return user;
   }
