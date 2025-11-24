@@ -436,9 +436,18 @@ router.get(
 router.get(
   "/professors",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER],
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+      UserRole.VENDOR,
+    ],
     adminRoles: [AdministrationRoleType.ADMIN],
-    staffPositions: [StaffPosition.PROFESSOR],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
   }),
   getAllProfessors
 );
