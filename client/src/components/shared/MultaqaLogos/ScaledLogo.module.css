@@ -9,6 +9,14 @@
   border-radius: 4px;
 }
 
+.logoNoContainer {
+  width: 200px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .scaledLogo {
   max-width: 100%;
   max-height: 100%;

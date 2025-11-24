@@ -2,17 +2,18 @@ import Image, { StaticImageData } from "next/image";
 import styles from "./ScaledLogo.module.css";
 
 interface ScaledLogoProps {
+  transparent?: boolean;
   image?: StaticImageData;
 }
 
-export default function ScaledLogo({ image }: ScaledLogoProps) {
+export default function ScaledLogo({ image, transparent = false }: ScaledLogoProps) {
   return (
-    <div className={styles.logoContainer}>
+    <div className={transparent ? styles.logoNoContainer : styles.logoContainer}>
       {image ? (
         <Image
           src={image}
           alt="Multaqa Logo"
-          className="w-full max-h-full object-contain py-1"
+          className={`w-full ${!transparent && "max-h-full object-contain py-1"}`}
         />
       ) : (
         <svg
