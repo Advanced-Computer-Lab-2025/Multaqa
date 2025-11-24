@@ -157,6 +157,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             name={event.name}
             description={event.description}
             professors={event.professors}
+            professorsId={event.professorsId || []}
             agenda={event.agenda}
             icon={EventColor[4].icon}
             background={EventColor[4].color}
