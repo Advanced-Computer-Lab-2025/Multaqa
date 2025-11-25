@@ -30,7 +30,11 @@ const workshopSchema = new Schema<IWorkshop>({
   fundingSource: { type: String, enum: Object.values(FUNDING_SOURCES) },
   extraRequiredResources: [{ type: String }],
   capacity: { type: Number, min: 1, default: 10 },
-  createdBy: { type: Schema.Types.ObjectId, ref: "staffMember", required: true },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: "staffMember",
+    required: true,
+  },
   price: { type: Number, required: true, min: 0 },
   approvalStatus: {
     type: String,
@@ -41,7 +45,7 @@ const workshopSchema = new Schema<IWorkshop>({
     type: [
       {
         id: { type: Number, required: true },
-        commenter: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        commenter: { type: String, required: true }, // Changed from ObjectId to String to store name
         timestamp: { type: Date, default: Date.now },
         text: { type: String, required: true },
       },
@@ -49,7 +53,7 @@ const workshopSchema = new Schema<IWorkshop>({
     default: [],
   },
   certificatesSent: { type: Boolean, default: false },
-  certificatesSentAt: { type: Date, default: null }
+  certificatesSentAt: { type: Date, default: null },
 });
 
 export const Workshop = Event.discriminator("workshop", workshopSchema);

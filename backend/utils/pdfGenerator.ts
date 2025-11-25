@@ -9,7 +9,7 @@ interface CertificateData {
 	issueDate?: Date;
 }
 
-export class CertificateService {
+export class pdfGenerator {
 
 	static generateCertificatePDF(data: CertificateData): Promise<Buffer> {
 		const { firstName, lastName, workshopName, startDate, endDate, issueDate = new Date() } = data;
@@ -184,25 +184,70 @@ export class CertificateService {
 					width: width
 				});
 
-			// Issue date
-			doc.fontSize(9)
-				.fillColor(colors.textSecondary)
-				.text(`Issued: ${issueDate.toLocaleDateString('en-US', {
-					year: 'numeric',
-					month: 'short',
-					day: 'numeric'
-				})}`, cardX + 50, cardY + cardHeight - 45);
+            doc.end();
+        });
+    }
 
-			// Footer - Multaqa info
-			doc.fontSize(8)
-				.font('Helvetica')
-				.fillColor(colors.textSecondary)
-				.text('© Multaqa - GUC Campus Events Platform', 0, height - 30, {
-					align: 'center',
-					width: width
-				});
+  
+static buildQrCodePdfBuffer(
+    qrCodeDataArray: any[], 
+    eventName: string
+): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+        const title = `Event QR Codes - ${eventName}`;
 
-			doc.end();
-		});
-	}
+        const doc = new PDFDocument({
+            size: 'A4',
+            margins: { top: 72, bottom: 72, left: 72, right: 72 }, 
+            info: { Title: title } 
+        });
+
+        const buffers: Buffer[] = [];
+        doc.on('data', (chunk) => buffers.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+        doc.on('error', reject);
+
+        const pageWidth = doc.page.width;
+        const pageHeight = doc.page.height;
+        const qrSize = 300; 
+        const margin = 72; // Consistent with doc margins
+
+        // Loop through all QR codes to add them to the PDF
+        qrCodeDataArray.forEach((qrData, index) => {
+            
+            // If it's not the first QR code, start a new page
+            if (index > 0) {
+                doc.addPage();
+            }
+
+            // 1. Main PDF Title
+            doc.fontSize(24)
+               .font('Helvetica-Bold')
+               .fillColor('#4A5568')
+               .text(eventName, margin, margin);
+
+            // 2. Attendee Name (Title of this specific QR code/page)
+            doc.fontSize(16)
+               .font('Helvetica')
+               .fillColor('#718096')
+               .text(`Attendee: ${qrData.name}`, margin, margin + 40);
+
+            // 3. Calculate position to center the image horizontally
+            const xPos = (pageWidth / 2) - (qrSize / 2);
+            // Adjust Y position to be centered below the titles
+            const yPos = (pageHeight / 2) - (qrSize / 2) + 40; 
+
+            // 4. Add the QR code image to the PDF
+            doc.image(qrData.buffer, xPos, yPos, {
+                fit: [qrSize, qrSize],
+                align: 'center',
+                valign: 'center'
+            });
+
+        });
+
+        // Finalize the PDF
+        doc.end();
+    });
+}   
 }

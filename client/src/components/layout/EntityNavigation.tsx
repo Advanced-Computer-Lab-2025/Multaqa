@@ -19,7 +19,7 @@ import {
   // CreditCard,
   QrCode,
   Award,
-  Wallet
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserRoleKey } from "@/types";
@@ -49,18 +49,19 @@ type RoleConfig = {
   headerTitle: string;
   icon: React.ReactNode;
   tabs: TabItem[];
+  sections: SectionItem[];
   defaultTab?: string;
   defaultSection?: string;
 };
 
-type TabItem = {
+type TabItem = { id: string; label: string };
+
+type SectionItem = {
   key: string;
   label: string;
   icon: React.ElementType;
-  sections?: SectionItem[];
+  tabs?: TabItem[];
 };
-
-type SectionItem = { id: string; label: string };
 
 // Helper: Map backend user to frontend role key for navigation config
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,14 +125,24 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   student: {
     headerTitle: "Student Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "events",
-    defaultSection: "browse-events",
+    defaultTab: "browse-events",
+    defaultSection: "events",
     tabs: [
+      { id: "browse-events", label: "Browse Events" },
+      { id: "my-registered", label: "My Registered Events" },
+      { id: "favorites", label: "My Favorites" },
+      { id: "reserve", label: "Reserve Courts" },
+      { id: "my-reserved", label: "My Reservations" },
+      { id: "browse-sessions", label: "Browse Sessions" },
+      { id: "my-sessions", label: "My Registered Sessions" },
+      { id: "overview", label: "Overview" },
+    ],
+    sections: [
       {
         key: "events",
         label: "Events",
         icon: Calendar,
-        sections: [
+        tabs: [
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
@@ -141,7 +152,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts",
         icon: Trophy,
-        sections: [
+        tabs: [
           { id: "reserve", label: "Reserve Courts" },
           { id: "my-reserved", label: "My Reservations" },
         ],
@@ -150,7 +161,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "gym",
         label: "Gym Sessions",
         icon: Dumbbell,
-        sections: [
+        tabs: [
           { id: "browse-sessions", label: "Browse Sessions" },
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
@@ -158,38 +169,40 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        tabs: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
   staff: {
     headerTitle: "Staff Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "events",
-    defaultSection: "browse-events",
+    defaultTab: "browse-events",
+    defaultSection: "events",
     tabs: [
+      { id: "browse-events", label: "Browse Events" },
+      { id: "my-registered", label: "My Registered Events" },
+      { id: "favorites", label: "My Favorites" },
+      { id: "browse-sessions", label: "Browse Sessions" },
+      { id: "my-sessions", label: "My Registered Sessions" },
+      { id: "overview", label: "Overview" },
+    ],
+    sections: [
       {
         key: "events",
         label: "Events",
         icon: Calendar,
-        sections: [
+        tabs: [
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
         key: "gym",
         label: "Gym Sessions",
         icon: Dumbbell,
-        sections: [
+        tabs: [
           { id: "browse-sessions", label: "Browse Sessions" },
           { id: "my-sessions", label: "My Registered Sessions" },
         ],
@@ -197,94 +210,109 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        tabs: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
   ta: {
     headerTitle: "TA Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "events",
-    defaultSection: "browse-events",
+    defaultTab: "browse-events",
+    defaultSection: "events",
     tabs: [
+      { id: "browse-events", label: "Browse Events" },
+      { id: "my-registered", label: "My Registered Events" },
+      { id: "favorites", label: "My Favorites" },
+      { id: "overview", label: "Overview" },
+    ],
+    sections: [
       {
         key: "events",
         label: "Events",
         icon: Calendar,
-        sections: [
+        tabs: [
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
-      },
-      {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
+        tabs: [{ id: "overview", label: "Overview" }],
       },
     ],
   },
   professor: {
     headerTitle: "Professor Portal",
     icon: <User size={32} className="text-[#6299d0]" />,
-    defaultTab: "workshops",
-    defaultSection: "my-workshops",
+    defaultTab: "",
+    defaultSection: "workshops",
     tabs: [
+      { id: "browse-events", label: "Browse Events" },
+      { id: "my-registered", label: "My Registered Events" },
+      { id: "favorites", label: "My Favorites" },
+      { id: "browse-sessions", label: "Browse Sessions" },
+      { id: "my-sessions", label: "My Registered Sessions" },
+    ],
+    sections: [
       {
         key: "workshops",
-        label: "Workshops",
+        label: "My Workshops",
         icon: Calendar,
-        sections: [
-          { id: "my-workshops", label: "My Workshops" },
-          { id: "my-pending-workshops", label: "Pending" },
-          { id: "my-accepted-workshops", label: "Accepted" },
-          { id: "my-rejected-workshops", label: "Rejected" },
-          { id: "my-under-workshops", label: "To Review" },
-        ],
+        tabs: [],
       },
       {
         key: "events",
         label: "Events",
         icon: Calendar,
-        sections: [
+        tabs: [
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
         ],
       },
       {
-        key: "courts",
-        label: "Courts Booking",
-        icon: Trophy,
-        sections: [{ id: "reserve", label: "Reserve Courts" }],
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        tabs: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
       },
       {
         key: "wallet",
         label: "Wallet",
-        icon: Wallet, 
-        sections: [{id: "overview", label: "Overview"}],
+        icon: Wallet,
       },
     ],
   },
   "events-office": {
     headerTitle: "Events Office",
     icon: <Calendar size={32} className="text-[#6299d0]" />,
-    defaultTab: "events",
-    defaultSection: "",
+    defaultTab: "",
+    defaultSection: "events",
     tabs: [
+      { id: "all-events", label: "All Events" },
+      { id: "my-creations", label: "Creation Hub" },
+      { id: "all-vendors", label: "All Vendors" },
+      { id: "participation-requests", label: "Participation Requests" },
+      { id: "loyalty-partners", label: "Loyalty Program Partners" },
+      { id: "documents", label: "View Documents" },
+      { id: "attendee-reports", label: "Attendee Reports" },
+      { id: "sales-reports", label: "Sales Reports" },
+      { id: "sessions-management", label: "Sessions Management" },
+      { id: "vendor-polls", label: "Create Vendor Polls" },
+    ],
+    sections: [
       {
         key: "events",
         label: "Events Management",
         icon: Calendar,
-        sections: [
+        tabs: [
           { id: "all-events", label: "All Events" },
           { id: "my-creations", label: "Creation Hub" },
         ],
@@ -293,19 +321,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "workshop-requests",
         label: "Workshop Requests",
         icon: FileText,
-        sections: [
-          { id: "all-requests", label: "All Requests" },
-          { id: "pending", label: "Pending" },
-          { id: "awating_review", label: "Awaiting Review" },
-          { id: "accepted", label: "Accepted" },
-          { id: "rejected", label: "Rejected" },
-        ],
+        tabs: [],
       },
       {
         key: "vendors",
         label: "Vendor Management",
         icon: Store,
-        sections: [
+        tabs: [
           { id: "all-vendors", label: "All Vendors" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
@@ -316,7 +338,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "reports",
         label: "Reports",
         icon: BarChart3,
-        sections: [
+        tabs: [
           { id: "attendee-reports", label: "Attendee Reports" },
           { id: "sales-reports", label: "Sales Reports" },
         ],
@@ -325,43 +347,54 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "gym",
         label: "Gym Management",
         icon: Dumbbell,
-        sections: [
+        tabs: [
           { id: "sessions-management", label: "Sessions Management" },
-          { id: "vendor-polls", label: "Create Vendor Polls" },
+          // { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
-      { key: "archive", label: "Archive", icon: Archive, sections: [] },
+      { key: "archive", label: "Archive", icon: Archive, tabs: [] },
       {
         key: "notifications",
         label: "Notifications",
         icon: ClipboardList,
-        sections: [],
+        tabs: [],
       },
     ],
   },
   admin: {
     headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
-    defaultTab: "users",
-    defaultSection: "",
+    defaultTab: "",
+    defaultSection: "users",
     tabs: [
+      { id: "all-events", label: "All Events" },
+      { id: "all-users", label: "All Users" },
+      { id: "block-users", label: "Block/Unblock Users" },
+      { id: "assign-roles", label: "Assign Roles" },
+      { id: "manage-eo-account", label: "Manage Accounts" },
+      { id: "all-vendors", label: "All Vendors" },
+      { id: "participation-requests", label: "Participation Requests" },
+      { id: "loyalty-partners", label: "Loyalty Program Partners" },
+      { id: "documents", label: "View Documents" },
+    ],
+    sections: [
       {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        sections: [],
+        tabs: [],
       },
       {
         key: "events",
         label: "Events Management",
         icon: Calendar,
-        sections: [{ id: "all-events", label: "All Events" }],
+        tabs: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "users",
         label: "User Management",
         icon: Users,
-        sections: [
+        tabs: [
           { id: "all-users", label: "All Users" },
           { id: "block-users", label: "Block/Unblock Users" },
         ],
@@ -370,19 +403,19 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "role-assignment",
         label: "Role Assignment",
         icon: ClipboardList,
-        sections: [{ id: "assign-roles", label: "Assign Roles" }],
+        tabs: [{ id: "assign-roles", label: "Assign Roles" }],
       },
       {
         key: "event-office",
         label: "Accounts Hub",
         icon: Calendar,
-        sections: [{ id: "manage-eo-account", label: "Manage Accounts" }],
+        tabs: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
       {
         key: "reports",
         label: "Vendor Management",
         icon: Store,
-        sections: [
+        tabs: [
           { id: "all-vendors", label: "All Vendors" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
@@ -394,26 +427,35 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   vendor: {
     headerTitle: "Vendor Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "opportunities",
-    defaultSection: "bazaars",
+    defaultTab: "bazaars",
+    defaultSection: "opportunities",
     tabs: [
+      { id: "bazaars", label: "Browse Bazaars" },
+      { id: "available", label: "My Participations" },
+      { id: "my-applications", label: "My Applications" },
+      { id: "apply-booth", label: "Booth Hub" },
+      { id: "program-status", label: "Program Status" },
+      { id: "discount-rates", label: "Discount Rates" },
+      { id: "partners", label: "View Partners" },
+    ],
+    sections: [
       {
         key: "opportunities",
         label: "Bazaars & Booths",
         icon: Store,
-        sections: [
+        tabs: [
           { id: "bazaars", label: "Browse Bazaars" },
           { id: "available", label: "My Participations" },
           { id: "my-applications", label: "My Applications" },
           { id: "apply-booth", label: "Booth Hub" },
         ],
       },
-      { key: "qr-codes", label: "QR Codes", icon: QrCode, sections: [] },
+      { key: "qr-codes", label: "QR Codes", icon: QrCode, tabs: [] },
       {
         key: "loyalty",
         label: "Loyalty Program",
         icon: Award,
-        sections: [
+        tabs: [
           { id: "program-status", label: "Program Status" },
           { id: "discount-rates", label: "Discount Rates" },
           { id: "partners", label: "View Partners" },
@@ -424,14 +466,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   company: {
     headerTitle: "Company Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "dashboard",
-    defaultSection: "",
-    tabs: [
+    defaultTab: "",
+    defaultSection: "dashboard",
+    tabs: [],
+    sections: [
       {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        sections: [],
+        tabs: [],
       },
     ],
   },
@@ -489,31 +532,37 @@ export default function EntityNavigation({
 
   // Detect stakeholder from path (first segment)
   const stakeholder = segments[0] || "";
-  const tab = segments[1] || "";
-  const section = segments[2] || "";
+  const section = segments[1] || "";
+  const tab = segments[2] || "";
 
-    // Track last valid route in sessionStorage
-    useEffect(() => {
-      // Get current path segments
-      if (typeof window !== "undefined" && user) {
-        const path = window.location.pathname;
-        // Only store if route is valid (matches a tab/section for the user's role)
-        const roleKey = getUserRoleKey(user);
-        const config = roleNavigationConfig[roleKey];
-        if (config) {
-          const segments = path.split("/").filter(Boolean);
-          // Find tab and section in path
-          const tab = segments[2] || "";
-          const section = segments[3] || "";
-          const validTab = config.tabs.find(t => t.key === tab);
-          const validSection = validTab && validTab.sections ? validTab.sections.find(s => s.id === section) : null;
-          // If valid tab/section, store route
-          if (validTab && (validSection || !validTab.sections || validTab.sections.length === 0)) {
-            sessionStorage.setItem("lastValidRoute", path);
-          }
+  // Track last valid route in sessionStorage
+  useEffect(() => {
+    // Get current path segments
+    if (typeof window !== "undefined" && user) {
+      const path = window.location.pathname;
+      // Only store if route is valid (matches a section/tab for the user's role)
+      const roleKey = getUserRoleKey(user);
+      const config = roleNavigationConfig[roleKey];
+      if (config) {
+        const segments = path.split("/").filter(Boolean);
+        // Find section and tab in path
+        const section = segments[2] || "";
+        const tab = segments[3] || "";
+        const validSection = config.sections.find((s) => s.key === section);
+        const validTab =
+          validSection && validSection.tabs
+            ? validSection.tabs.find((t) => t.id === tab)
+            : null;
+        // If valid section/tab, store route
+        if (
+          validSection &&
+          (validTab || !validSection.tabs || validSection.tabs.length === 0)
+        ) {
+          sessionStorage.setItem("lastValidRoute", path);
         }
       }
-    }, [user]);
+    }
+  }, [user]);
   // Get role key from backend user
   const userRoleKeyUnformated = getUserRoleKey(user);
   const userRoleKey = userRoleKeyUnformated.toLowerCase();
@@ -521,8 +570,9 @@ export default function EntityNavigation({
   const config: RoleConfig =
     roleNavigationConfig[userRoleKey] ?? roleNavigationConfig["student"];
 
-  // If only /stakeholder is visited, redirect to default tab/section
+  // If only /stakeholder is visited, redirect to default section/tab
   React.useEffect(() => {
+<<<<<<< HEAD
     // Special routes that are always valid (not in navigation config)
     const specialRoutes = ["notifications"];
     const isSpecialRoute = specialRoutes.includes(tab);
@@ -532,8 +582,23 @@ export default function EntityNavigation({
     const sectionExists =
       tab === "" || section === "" || isSpecialRoute ||
       (config.tabs.find((t) => t.key === tab)?.sections || []).some((s) => s.id === section);
+=======
+    // Fallback: if section or tab is not found, redirect to not-found page
+    const sectionExists =
+      section === "" || config.sections.some((s) => s.key === section);
+    const currentSectionForValidation = config.sections.find(
+      (s) => s.key === section
+    );
+    const sectionTabs = currentSectionForValidation?.tabs || [];
+    const effectiveTabs =
+      sectionTabs.length === 0
+        ? [{ id: "overview", label: "Overview" }]
+        : sectionTabs;
+    const tabExists =
+      section === "" || tab === "" || effectiveTabs.some((t) => t.id === tab);
+>>>>>>> main
 
-    if (!tabExists || !sectionExists) {
+    if (!sectionExists || !tabExists) {
       router.replace("/not-found");
       return;
     }
@@ -541,55 +606,61 @@ export default function EntityNavigation({
     if (
       segments.length === 1 &&
       stakeholder === userRoleKey &&
-      config.defaultTab && config.defaultSection
+      config.defaultSection
     ) {
-      router.replace(`/${userRoleKey}/${config.defaultTab}/${config.defaultSection}`);
+      const defaultSection = config.sections.find(
+        (s) => s.key === config.defaultSection
+      );
+      const hasTabs = defaultSection?.tabs && defaultSection.tabs.length > 0;
+      const tabToUse = config.defaultTab || (hasTabs ? "" : "overview");
+      const tabPath = tabToUse ? `/${tabToUse}` : "";
+      router.replace(`/${userRoleKey}/${config.defaultSection}${tabPath}`);
     }
-  }, [segments, stakeholder, userRoleKey, config, tab, section, router]);
+  }, [segments, stakeholder, userRoleKey, config, section, tab, router]);
 
-  // Get tab configuration
-  const tabItems: TabItem[] = config.tabs;
-  const tabKeys: string[] = tabItems.map((t) => t.key);
-  const tabLabels: string[] = tabItems.map((t) => t.label);
-  const activeTabIndex =
-    tabKeys.length > 0 ? Math.max(0, tabKeys.indexOf(tab)) : -1;
+  // Get section configuration
+  const sectionItems: SectionItem[] = config.sections;
+  const sectionKeys: string[] = sectionItems.map((s) => s.key);
 
-  // Get sections for current tab
-  const currentTab = tabItems.find((t) => t.key === tab);
-  const sectionItems = useMemo(() => currentTab?.sections || [], [currentTab]);
+  // Get tabs for current section
+  const currentSection = sectionItems.find((s) => s.key === section);
+  const tabItems = useMemo(() => {
+    const tabs = currentSection?.tabs || [];
+    // Auto-assign default "Overview" tab if no tabs are defined
+    return tabs.length === 0 ? [{ id: "overview", label: "Overview" }] : tabs;
+  }, [currentSection]);
 
   // // Debug logging
   // console.log("EntityNavigation state:", {
   //   pathname,
   //   // entity,
-  //   tab,
   //   section,
+  //   tab,
   //   userRoleKey,
-  //   currentTab: currentTab?.key,
-  //   sectionItemsCount: sectionItems.length,
-  //   sectionIds: sectionItems.map((s) => s.id),
-  //   tabKeys,
-  //   activeTabIndex,
-  //   tabFromIndex: tabKeys[activeTabIndex],
+  //   currentSection: currentSection?.key,
+  //   tabItemsCount: tabItems.length,
+  //   tabIds: tabItems.map((t) => t.id),
+  //   sectionKeys,
+  //   activeSectionIndex,
+  //   sectionFromIndex: sectionKeys[activeSectionIndex],
   // });
 
   // Navigation paths don't need locale either
-  const handleTabChange = (index: number) => {
-    const newTab = tabItems[index];
-    const sectionSeg =
-      newTab?.sections && newTab.sections.length > 0
-        ? `/${newTab.sections[0].id}`
-        : "";
+  const handleSectionChange = (index: number) => {
+    const newSection = sectionItems[index];
+    const hasTabs = newSection?.tabs && newSection.tabs.length > 0;
+    const tabSeg =
+      hasTabs && newSection.tabs ? `/${newSection.tabs[0].id}` : "/overview";
 
     // No locale prefix needed - i18n router adds it
-    const newPath = `/${userRoleKey}/${newTab.key}${sectionSeg}`;
+    const newPath = `/${userRoleKey}/${newSection.key}${tabSeg}`;
     router.push(newPath);
   };
 
-  const handleSectionClick = (id: string) => {
-    const tabSeg = tab ? `/${tab}` : "";
+  const handleTabClick = (id: string) => {
+    const sectionSeg = section ? `/${section}` : "";
     // No locale prefix needed
-    router.push(`/${userRoleKey}${tabSeg}/${id}`);
+    router.push(`/${userRoleKey}${sectionSeg}/${id}`);
   };
 
   const handleLogout = () => {
@@ -607,20 +678,25 @@ export default function EntityNavigation({
   return (
     <div className="flex flex-col h-screen bg-[#f9fbfc]">
       {/* Top Navigation - spans full width */}
-      <TopNavigation companyName="Multaqa" header={headerProps} />
+      <TopNavigation
+        companyName="Multaqa"
+        header={headerProps}
+        currentUser={userData}
+        userRole={userRoleKey as UserRoleKey}
+      />
 
       {/* Tabs Section - main navigation tabs */}
-      {tabLabels.length > 0 && (
+      {/* {sectionLabels.length > 0 && (
         <div className="bg-white border-b border-gray-300">
           <div className="px-6">
             <Tabs
-              tabs={tabLabels}
-              activeTab={activeTabIndex >= 0 ? activeTabIndex : 0}
-              onTabChange={handleTabChange}
+              tabs={sectionLabels}
+              activeTab={activeSectionIndex >= 0 ? activeSectionIndex : 0}
+              onTabChange={handleSectionChange}
             />
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Sidebar and main content below */}
       <div className="flex flex-1 overflow-hidden min-h-0">
@@ -628,8 +704,14 @@ export default function EntityNavigation({
         <div className="flex-shrink-0">
           <SidebarNavigation
             activeItem={section}
-            onItemClick={handleSectionClick}
-            sectionItems={tab ? sectionItems : []}
+            onItemClick={(key) => {
+              const index = sectionKeys.indexOf(key);
+              if (index >= 0) handleSectionChange(index);
+            }}
+            sectionItems={sectionItems.map((s) => ({
+              id: s.key,
+              label: s.label,
+            }))}
             onLogout={handleLogout}
             currentUser={userData}
             userRole={userRoleKey as UserRoleKey}
@@ -637,7 +719,7 @@ export default function EntityNavigation({
         </div>
 
         {/* Flexible main content area */}
-        <div className="flex-1 bg-[#f9fbfc] p-4 min-h-full min-w-0">
+        <div className="flex-1 bg-[##c0d2f0] p-4 min-h-screen min-w-0">
           <div
             className="flex-1 bg-white min-h-0 overflow-auto"
             style={{
@@ -645,10 +727,24 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "83vh",
-              maxHeight: "83vh",
+              minHeight: "90vh",
+              maxHeight: "90vh",
             }}
           >
+            {tabItems.length > 0 && (
+              <div className="bg-white border-b border-gray-300">
+                <div className="px-6">
+                  <Tabs
+                    tabs={tabItems.map((t: TabItem) => t.label)}
+                    activeTab={Math.max(
+                      0,
+                      tabItems.findIndex((t: TabItem) => t.id === tab)
+                    )}
+                    onTabChange={(index) => handleTabClick(tabItems[index].id)}
+                  />
+                </div>
+              </div>
+            )}
             {children}
           </div>
         </div>

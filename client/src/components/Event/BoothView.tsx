@@ -1,14 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton, Tooltip } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip, Stack } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import { BoothViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
-import { Trash2 } from "lucide-react";
+import { Trash2 , Ban, Archive} from "lucide-react";
 import { CustomModal, CustomModalLayout } from "../shared/modals";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
+import RestrictUsers from "./Modals/RestrictUsers";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const BoothView: React.FC<BoothViewProps> = ({
   company,
@@ -20,13 +22,21 @@ const BoothView: React.FC<BoothViewProps> = ({
   background,
   registered,
   onDelete,
+  setRefresh,
   attended ,
+  archived,
   id,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
+  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+    const fid = f?._id?.$oid || f?._id || f;
+    return String(fid) === String(id);
+  }));
   const updatedDetails={...details,people}
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -46,8 +56,51 @@ const BoothView: React.FC<BoothViewProps> = ({
 
   return (
     <>
-     <EventCard title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
+    <EventCard eventId={id} isFavorite={isFavorited} title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
          (user === "events-office" ||   user === "admin")? (
+         <Stack direction="row" spacing={1}>
+          {(user === "events-office" && !archived)?
+          <>
+           <Tooltip title ={"Archive Booth"}>
+            <IconButton
+              size="medium"
+              onClick={() => setArchive(true)}
+              sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  "&:hover": {
+                    backgroundColor: "#ff980015",
+                    borderColor: "warning.main",
+                    color: "warning.main",
+                  },
+                }}
+            >
+              <Archive size={18} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title ={"Restrict Booth"}>
+                    <IconButton
+                      size="medium"
+                      onClick={() => setRestrictUsers(true)}
+                      sx={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 2,
+                          "&:hover": {
+                            backgroundColor: "rgba(255, 0, 0, 0.1)",
+                            borderColor: "error.main",
+                            color: "error.main",
+                          },
+                        }}
+                    >
+                      <Ban size={18} />
+                    </IconButton>
+                  </Tooltip>
+            </>      
+          :<></>}  
          <Tooltip title="Delete Booth">
                   <IconButton
                     size="medium"
@@ -67,6 +120,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                     <Trash2 size={18} />
                   </IconButton>
                 </Tooltip>
+            </Stack>    
           ) : null
         }
           registerButton={
@@ -82,7 +136,7 @@ const BoothView: React.FC<BoothViewProps> = ({
               Apply
             </CustomButton>
           )
-        } expanded={expanded}/>
+        } expanded={expanded} archived={archived}/>
       {/* Delete Confirmation Modal */}
       <CustomModal
         open={eventToDelete}
@@ -153,7 +207,6 @@ const BoothView: React.FC<BoothViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-
         <CustomModalLayout
                     open={detailsModalOpen}
                     onClose={() => setDetailsModalOpen(false)}
@@ -188,6 +241,8 @@ const BoothView: React.FC<BoothViewProps> = ({
                     eventId={id}
                     />
                   </CustomModalLayout>
+                  <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={company} eventType={"platform_booth"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+                  <ArchiveEvent setRefresh={setRefresh} eventId={id} eventName={company} eventType="platform_booth" open={archive} onClose={() => setArchive(false)}/>
     </>
   );
 };

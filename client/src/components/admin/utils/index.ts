@@ -255,6 +255,9 @@ export const fetchAllUsers = async (): Promise<User[]> => {
       role: mapBackendRoleToFrontend(user.role, user.position, user.roleType) as UserRole,
       status: user.status === 'active' ? 'Active' : 'Blocked',
       createdDate: formatDate(user.registeredAt || user.createdAt || new Date().toISOString()),
+      registeredAt: user.registeredAt,
+      verifiedAt: user.verifiedAt,
+      updatedAt: user.updatedAt,
     }));
   } catch (error: unknown) {
     if (error instanceof AxiosError) {

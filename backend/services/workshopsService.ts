@@ -1,4 +1,5 @@
 import { IEvent } from "../interfaces/models/event.interface";
+import { Event } from "../schemas/event-schemas/eventSchema";
 import GenericRepository from "../repos/genericRepo";
 import createError from "http-errors";
 import { mapEventDataByType } from "../utils/mapEventDataByType";
@@ -9,22 +10,28 @@ import { Event_Request_Status, UserRole } from "../constants/user.constants";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { sendCertificateOfAttendanceEmail } from "./emailService";
-import { CertificateService } from "./certificateService";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
 import { Notification } from "./notificationService";
+import { pdfGenerator } from "../utils/pdfGenerator";
+import { IUser } from "../interfaces/models/user.interface";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
 
 export class WorkshopService {
+  private eventRepo: GenericRepository<IEvent>;
   private staffRepo: GenericRepository<IStaffMember>;
   private workshopRepo: GenericRepository<IWorkshop>;
+  private userRepo: GenericRepository<IUser>;
 
   constructor() {
+    this.eventRepo = new GenericRepository(Event);
     this.staffRepo = new GenericRepository(StaffMember);
     this.workshopRepo = new GenericRepository(Workshop);
+    this.userRepo = new GenericRepository(User);
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
-    data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
+    data.createdBy = professorid as unknown as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.workshopRepo.create(mappedData);
@@ -89,7 +96,7 @@ export class WorkshopService {
   }
 
   async updateWorkshopStatus(
-    professorId: string,
+    eventsOfficeId: string,
     workshopId: string,
     updateData: Partial<IWorkshop>
   ): Promise<IWorkshop> {
@@ -98,9 +105,9 @@ export class WorkshopService {
     const workshop = await this.workshopRepo.findById(workshopId);
     if (!workshop) throw createError(404, "Workshop not found");
 
-    if (workshop && professorId != workshop?.createdBy.toString()) {
-      throw createError(403, "Not authorized to update this workshop status");
-    }
+    // Get the events office user to retrieve their name
+    const eventsOffice = await this.userRepo.findById(eventsOfficeId);
+    if (!eventsOffice) throw createError(404, "Events Office user not found");
 
     // Check if workshop is already approved or rejected - these are irreversible
     if (
@@ -136,9 +143,15 @@ export class WorkshopService {
         );
       }
 
+      // Transform comments to replace commenter ID with events office name
+      const eventsOfficeName = (eventsOffice as any).name || "Events Office";
+      finalComments = comments.map((comment: any) => ({
+        ...comment,
+        commenter: eventsOfficeName, // Replace ID with name
+      }));
+
       // Comments provided = status becomes AWAITING_REVIEW (requesting edits)
       finalStatus = Event_Request_Status.AWAITING_REVIEW;
-      finalComments = comments;
     }
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, {
@@ -149,7 +162,7 @@ export class WorkshopService {
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
 
     await NotificationService.sendNotification({
-      userId: professorId, // Notify the professor
+      userId: workshop.createdBy, // Notify the professor
       type: "WORKSHOP_STATUS_CHANGED",
       title: "Workshop Request Status Updated",
       message: `Your workshop request titled "${workshop.eventName}" has been updated to status: ${finalStatus}.`,
@@ -249,14 +262,14 @@ export class WorkshopService {
     // Send certificates to all attendees
     const promises = workshop.attendees.map(async (attendee: any) => {
       if (attendee) {
-        const certificateBuffer =
-          await CertificateService.generateCertificatePDF({
-            firstName: attendee.firstName,
-            lastName: attendee.lastName,
-            workshopName: workshop.eventName,
-            startDate: workshop.eventStartDate,
-            endDate: workshop.eventEndDate,
-          });
+        const certificateBuffer = await pdfGenerator.generateCertificatePDF({
+          firstName: attendee.firstName,
+          lastName: attendee.lastName,
+          workshopName: workshop.eventName,
+          startDate: workshop.eventStartDate,
+          endDate: workshop.eventEndDate
+        });
+    
 
         await sendCertificateOfAttendanceEmail(
           attendee.email,

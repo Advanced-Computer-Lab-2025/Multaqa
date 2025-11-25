@@ -43,11 +43,11 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const name = (userInfo.firstName+" "+userInfo.lastName);
+  const name = (userInfo?.firstName+" "+userInfo?.lastName);
 
   const initialValues = {
-    name: (userInfo.firstName+" "+userInfo.lastName),
-    email:  userInfo.email
+    name: (userInfo?.firstName+" "+userInfo?.lastName),
+    email:  userInfo?.email
   };
  const handleCallApi = async (payload: any) => {
   try {
@@ -146,10 +146,11 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
       onClose={onClose}
       width="w-[90vw] sm:w-[80vw] md:w-[600px]"
       borderColor={color}
+      title={`Register for ${eventType}`}
     >
       <form onSubmit={handleSubmit}>
         <Box sx={{ p: 4 }}>
-          <Typography
+          {/* <Typography
             variant="h5"
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
@@ -160,7 +161,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
             }}
           >
             {`Register for ${eventType}`}
-          </Typography>
+          </Typography> */}
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                  <CustomTextField
@@ -199,7 +200,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
                 id={`email-${eventId}`}
                 label="Email"
                 fieldType="text"
-                placeholder={userInfo.email}
+                placeholder={userInfo?.email}
                 name="email"
                 value={values.email}
                 onChange={handleChange('email')}

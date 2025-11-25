@@ -7,13 +7,18 @@ import {
   Avatar,
   Chip,
   Divider,
-  Paper
+  Paper,
+  Tooltip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { MapPin, Users, Mail } from 'lucide-react';
+import { MapPin, Users, Mail, User } from 'lucide-react';
 import { BoothDetails as BoothDetailsType } from '../types/eventDetails.types';
 import { SectionTitle, IconWrapper } from './shared/StyledComponents';
 import { CalendarToday, EventAvailable, AccessTime, LocationOn, Person } from '@mui/icons-material';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
+import { useState } from 'react';
+import { handleGenerateQR } from '../utils/index';
 
 const Grid = styled(MuiGrid)``;
 
@@ -22,8 +27,12 @@ const BoothDetails: React.FC<BoothDetailsType> = ({
   location,
   boothSize,
   setupDuration,
-  people
+  people,
+  userRole,
+  eventId
 }) => {
+    const [isGenerating, setIsGenerating] = useState(false);
+  
   const detailItems = [
     {
       icon: <LocationOn sx={{ color: '#4CAF50' }} />,
@@ -124,34 +133,49 @@ const BoothDetails: React.FC<BoothDetailsType> = ({
             sx={{ 
               p: 3, 
               borderRadius: 3,
-              background: `${color}15`,
               border: `2px solid' ${color}`,
               borderColor: 'divider'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <Box 
-                sx={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  mr: 2
-                }}
-              >
-                <Users size={24} />
-              </Box>
-              <Box>
-                <Typography variant="h6" fontWeight="bold" color="primary">
-                  Booth Team
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {people.length} team member{people.length !== 1 ? 's' : ''} managing this booth
-                </Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              mb: 3
+            }}>
+              <Typography variant="h6" sx={{ 
+                color: 'text.primary', 
+                fontWeight: 600
+              }}>
+                Booth Team
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                {people.length > 0 && (
+                  <Chip 
+                    icon={<Person />}
+                    label={`${people.length} Team Member${people.length !== 1 ? 's' : ''}`}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ fontWeight: 'medium', height: 35 }}
+                  />
+                )}
+                {people.length > 0 && userRole === "events-office" && (
+                  <Tooltip title="Generate QR code and email it to the vendor" arrow>
+                    <span>
+                      <CustomButton
+                        onClick={() => handleGenerateQR(setIsGenerating, eventId)}
+                        variant="outlined"
+                        width="auto"
+                        startIcon={<QrCode2Icon/>}
+                        loading={isGenerating}
+                        disabled={isGenerating}
+                        sx={{paddingLeft:2, paddingRight:2}}
+                      >
+                        {isGenerating ? "Emailing QR Code..." : "Generate QR Code"}
+                      </CustomButton>
+                    </span>
+                  </Tooltip>
+                )}
               </Box>
             </Box>
 
@@ -219,19 +243,6 @@ const BoothDetails: React.FC<BoothDetailsType> = ({
                 </Grid>
               ))}
             </Grid>
-
-            {/* Team Summary Chip */}
-            {people.length > 0 && (
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
-                <Chip 
-                  icon={<Person />}
-                  label={`${people.length} Team Member${people.length !== 1 ? 's' : ''}`}
-                  color="primary"
-                  variant="outlined"
-                  sx={{ fontWeight: 'medium' }}
-                />
-              </Box>
-            )}
           </Paper>
         </Grid>
       </Grid>

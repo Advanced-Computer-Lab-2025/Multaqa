@@ -66,8 +66,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [setUser]);
 
   // Avoid calling /auth/me on public routes
-  const publicRoutes = ["/login", "/register", "/signup", "/en"];
-  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+  // Note: usePathname from next-intl strips the locale prefix
+  const publicRoutes = ["/login", "/register", "/signup", "/"];
+  const isPublic = publicRoutes.some((route) => {
+    if (route === "/") return pathname === "/";
+    return pathname.startsWith(route);
+  });
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -92,7 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem("token");
         await api
           .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => {});
+          .catch(() => { });
         setUser(null);
       } finally {
         setIsLoading(false);

@@ -18,6 +18,8 @@ import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
 import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
 import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
+import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
+import { GetEventsResponse } from "../interfaces/responses/eventResponses.interface";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -325,6 +327,44 @@ async function cancelEventParticipation(
   }
 }
 
+async function getEventsForQRCodeGeneration(req: Request, res: Response<GetEventsResponse>) {
+  try {
+    const events = await vendorEventsService.getEventsForQRCodeGeneration();
+    res.json({
+      success: true,
+      data: events,
+      message: "Events for QR code generation retrieved successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving events for QR code generation"
+    );
+  }
+}
+
+async function generateVendorEventQRCodes(
+  req: Request,
+  res: Response<{ success: boolean; message: string }>
+) {
+  const { eventId } = req.params
+  try {
+    if (!eventId ) {
+      throw createError(400, "Event ID and Vendor ID are required");
+    }
+    await vendorEventsService.generateVendorEventQRCodes(eventId);
+    res.status(200).json({
+      success: true,
+      message: "QR codes generated successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error generating QR codes"
+    );
+  }
+}
+
 async function getAllLoyaltyPartners(req: Request, res: Response) {
   try {
     const partners = await vendorEventsService.getAllLoyaltyPartners();
@@ -436,6 +476,24 @@ router.post(
   "/booth",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   applyToBooth
+);
+
+router.get(
+  "/QRcodes",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  getEventsForQRCodeGeneration
+);
+
+router.post(
+  "/:eventId/generateQRCodes",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  generateVendorEventQRCodes
 );
 
 router.post(
