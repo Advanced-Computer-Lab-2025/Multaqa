@@ -11,7 +11,7 @@ import {
   StyledModalHeader,
 } from "./styles/StyledModal";
 import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
-import { CustomModalLayoutProps } from "./types";
+import { CustomModalLayoutProps } from "./types"; // Assuming title will be added here
 import { createDelayedCloseHandler } from "./utils";
 import { useTheme, lighten } from "@mui/material/styles";
 
@@ -21,8 +21,9 @@ export default function CustomModalLayout({
   onClose,
   width,
   borderColor,
+  title,
 }: CustomModalLayoutProps) {
-  const transitionDuration = 650;
+  const transitionDuration = 200;
   const [isCloseActive, setIsCloseActive] = React.useState(false);
 
   const handleClose = React.useCallback(() => {
@@ -119,32 +120,60 @@ export default function CustomModalLayout({
     >
       <Fade in={open} timeout={transitionDuration}>
       <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
-          <StyledModalBox>
-            {/* Close Icon at the top right - Fixed header */}
-            <StyledModalHeader>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <AnimatedCloseButton
-                  open={isCloseActive}
-                  onClick={handleClose}
-                  appearance="neumorphic"
-                  lineColor={closeIconColor}
-                  neumorphicProps={{
-                    containerType: "inwards",
-                    width: "42px",
-                    height: "42px",
-                    padding: "2px",
-                  }}
-                  variant="closeOnly"
-                  ariaLabel="Close modal"
-                />
-              </div>
-            </StyledModalHeader>
+          {/* Use sx prop directly on StyledModalHeader for Flexbox layout */}
+          <StyledModalHeader 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', // Ensures maximum separation
+              alignItems: 'center', // Vertically centers them
+              paddingRight: '10px', // Adjusted to account for close button size if needed
+            }}
+          >
+            {/* Title on the left OR an empty spacer */}
+            {title ? (
+              <h2 
+                id="modal-title" 
+                style={{ 
+                  fontFamily: "var(--font-jost), system-ui, sans-serif",
+                  fontWeight: 700,
+                  margin: 0, 
+                  paddingLeft: '10px', 
+                  borderBottom: `4px solid ${baseBorderColor}`, // Thick underline with accent color
+                  paddingBottom: '4px', // Space between text and underline
+                  marginLeft: 2,
+                  fontSize: '1.5rem',
+                }}
+              >
+                {title}
+              </h2>
+            ) : (
+              // <--- ADDED: If no title, use an empty div to occupy the left side
+              <div style={{ paddingLeft: '10px' }}></div> 
+            )}
             
-            {/* Scrollable content area */}
-            <StyledModalContent>
-              {children}
-            </StyledModalContent>
-          </StyledModalBox>
+            {/* Close Icon on the right */}
+            <div>
+              <AnimatedCloseButton
+                open={isCloseActive}
+                onClick={handleClose}
+                appearance="neumorphic"
+                lineColor={closeIconColor}
+                neumorphicProps={{
+                  containerType: "inwards",
+                  width: "42px",
+                  height: "42px",
+                  padding: "2px",
+                }}
+                variant="closeOnly"
+                ariaLabel="Close modal"
+              />
+            </div>
+          </StyledModalHeader>
+            
+          {/* Scrollable content area */}
+          <StyledModalContent>
+            {children}
+          </StyledModalContent>
         </ModalCardWrapper>
       </Fade>
     </Modal>

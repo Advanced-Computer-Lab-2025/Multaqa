@@ -192,13 +192,13 @@ const CreateWorkshop = ({ professors, creatingProfessor, open, onClose, setRefre
 
   return (
     <>
-    <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
+    <CustomModalLayout open={open} title="Create Workshop" onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
       <Box sx={{
       ...wrapperContainerStyles,    
       }}>
-        <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
+        {/* <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
         Create Workshop
-        </Typography>
+        </Typography> */}
           <form onSubmit={handleSubmit}>
             <Box 
             sx={horizontalLayoutStyles(theme)}
