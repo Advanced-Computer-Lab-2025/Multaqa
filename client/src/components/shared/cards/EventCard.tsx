@@ -722,11 +722,11 @@ const EventCard: React.FC<EventCardProps> = ({
                     fontWeight: 600,
                   }}
                 >
-                  {createdBy}
+                  {(createdBy).toUpperCase()}
                   {professors.length > 0 && (
                     <>
                       {" & "}
-                      {professors.length === 1 ? "1 other" : `${professors.length} others`}
+                      {professors.length === 1 ? "1 OTHER" : `${professors.length} OTHERS`}
                     </>
                   )}
                 </Typography>

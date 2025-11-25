@@ -14,6 +14,7 @@ import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import { capitalizeNamePart } from "../BrowseEvents/utils";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,
@@ -72,7 +73,10 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
     });
 
     if (matchingProfessor) {
-      return `${matchingProfessor.firstName} ${matchingProfessor.lastName}`;
+      // Capitalize each part of the name properly
+      const firstName = (matchingProfessor.firstName).toUpperCase();
+      const lastName = (matchingProfessor.lastName).toUpperCase();
+      return `${firstName} ${lastName}`;
     }
 
     return undefined;
