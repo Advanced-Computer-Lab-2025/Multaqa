@@ -82,6 +82,7 @@ const mapRequestedEventToVendorRequest = (
     startDate,
     status,
     submittedAt,
+    eventId,
   };
 
   if (isBazaar && endDate) {
@@ -100,6 +101,12 @@ export default function VendorRequestsList() {
   const [error, setError] = useState<string | null>(null);
   const [requests, setRequests] = useState<VendorRequestItem[]>([]);
   const [cancelApplication, setCancelApplication] = useState(false);
+
+  // track which request (vendorEvent) was selected for cancellation
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  // toggle to trigger refetch after cancel
+  const [refreshToggle, setRefreshToggle] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -156,7 +163,8 @@ export default function VendorRequestsList() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+   // refetch when user or refreshToggle change
+  }, [user, refreshToggle]);
 
   const renderDetails = (item: VendorRequestItem) => (
     <Stack spacing={1}>
@@ -218,16 +226,27 @@ export default function VendorRequestsList() {
                       width: "fit-content",
                       fontSize: '0.5rem',
                     }}
-                    onClick={() => setCancelApplication(true)}
+                     onClick={() => {
+                      setSelectedEventId(item.eventId ?? null); // use mapped request id (vendorEvents._id)
+                      setCancelApplication(true);
+                    }}
                   >
                     Cancel Application
                   </CustomButton>
                 )}
-                <CancelApplicationVendor eventId={item.id} open={cancelApplication} onClose={() => setCancelApplication(false)} setRefresh={()=> true}/>
               </Stack>
             }
           />
         ))}
+         <CancelApplicationVendor
+          eventId={selectedEventId ?? ""}
+          open={cancelApplication}
+          onClose={() => {
+            setCancelApplication(false);
+            setSelectedEventId(null);
+          }}
+          setRefresh={setRefreshToggle}
+        />
       </Stack>
     </ContentWrapper>
   );

@@ -6,16 +6,17 @@ import React , {useState}from 'react'
 import { toast } from "react-toastify";
 
 interface CancelEventApplicationVendorProps {
-    eventId: string;
+    eventId?: string;
     open: boolean;
     onClose: () => void;
     setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const CancelApplicationVendor = ({eventId, open, onClose, setRefresh}: CancelEventApplicationVendorProps) => {
+const CancelApplicationVendor = ({eventId = "", open, onClose, setRefresh}: CancelEventApplicationVendorProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    console.log(eventId);
 
    const handleCallApi = async (eventId:string) => {
         setLoading(true);
@@ -24,7 +25,7 @@ const CancelApplicationVendor = ({eventId, open, onClose, setRefresh}: CancelEve
           // TODO: Replace with your API route
           const res = await api.delete("/vendorEvents/" + eventId + "/cancel");
           // Success case
-          toast.success("You have registered for this event successfully!", {
+          toast.success("You have cancelled your application successfully!", {
             position: "bottom-right",
             autoClose: 1500,
             hideProgressBar: false,
@@ -37,7 +38,7 @@ const CancelApplicationVendor = ({eventId, open, onClose, setRefresh}: CancelEve
           setRefresh((prev)=> !prev);
         } catch (err: any) {
           setError(err?.message || "API call failed");
-          toast.error(err?.message || "Failed to cancel application",
+          toast.error("Failed to cancel application",
                 {
                 position: "bottom-right",
                 autoClose: 5000,
@@ -56,8 +57,7 @@ const CancelApplicationVendor = ({eventId, open, onClose, setRefresh}: CancelEve
    
    const handleCancelApplication = async () => {
     // Logic to cancel application
-    console.log("Canceling application for event ID:", eventId);
-    // await handleCallApi(eventId);
+    await handleCallApi(eventId);
     onClose();
   }
 
