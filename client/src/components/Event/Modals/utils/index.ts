@@ -93,7 +93,7 @@ export const handleGenerateQR = async (
   setIsGenerating(true);
   try {
     // TODO: Replace with actual API endpoint
-    const response = await api.post(`/events/generate-qr/${eventId}`);
+    const response = await api.post(`/vendorEvents/${eventId}/generateQRCodes`);
 
     toast.success(
       response.data.message || "QR code generated and emailed successfully!",
