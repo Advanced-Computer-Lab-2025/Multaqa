@@ -10,6 +10,7 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { Cancel } from "@mui/icons-material";
 import CancelApplicationVendor from "@/components/Event/Modals/CancelApplicationVendor";
 import ContentWrapper from "../../shared/containers/ContentWrapper";
+import theme from "@/themes/lightTheme";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
