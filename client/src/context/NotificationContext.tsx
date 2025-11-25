@@ -127,7 +127,7 @@ export const NotificationProvider = ({
   // Setup socket connection and listeners
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      console.log("⏸️ User not authenticated, skipping socket connection");
+      console.log("⏸️ User not authenticated yet, skipping socket connection");
       return;
     }
 
