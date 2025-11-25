@@ -16,4 +16,5 @@ export interface VendorRequestItem extends VendorParticipationItem {
   status: VendorRequestStatus;
   submittedAt: string; // ISO
   notes?: string;
+  eventId?:string;
 }
