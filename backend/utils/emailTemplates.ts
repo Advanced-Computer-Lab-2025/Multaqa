@@ -452,6 +452,48 @@ export const getApplicationStatusTemplate = (
   `;
 };
 
+// External Visitor QR Email Template
+export const getExternalVisitorQREmailTemplate = (
+  companyName: string,
+  eventName: string,
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        
+        <div style="${baseStyles.headerSuccess}">
+          <h2 style="margin: 0; font-size: 22px;">&#x1F39F;&#xFE0F; Your Event Entry Pass</h2>
+        </div>
+
+        <div style="${baseStyles.content}">
+          
+          <p style="font-size: 16px; color: #333;">
+            Dear <strong>${companyName}</strong> Team,<br><br>
+            Thank you for registering to participate in <strong>${eventName}</strong>. We are delighted to welcome you to the event.
+          </p>
+
+          <div style="${baseStyles.successBox}">
+            <h3 style="margin: 0 0 15px 0; color: #16a34a; text-align: center;">Your Digital Pass is Attached</h3>
+            <p style="text-align: center; font-size: 14px; color: #333; margin: 10px 0;">
+              Your QR entry pass is included as a PDF attachment in this email.
+            </p>
+          </div>
+
+          <p style="font-size: 14px; color: #555; text-align: center;">
+            We look forward to having you at <strong>${eventName}</strong>.<br>
+            If you have any questions, please contact our support team.
+          </p>
+
+        </div>
+
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+
+      </div>
+    </div>
+  `;
+};
 export const getGymSessionNotificationTemplate = (
   username: string,
   sessionName: string,

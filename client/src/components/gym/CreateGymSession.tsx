@@ -128,11 +128,12 @@ export default function CreateGymSession({
       onClose={handleClose}
       width="w-[90vw] sm:w-[80vw] md:w-[700px]"
       borderColor={theme.palette.primary.main}
+      title="Create Gym Session"
     >
       <form onSubmit={formik.handleSubmit}>
        
         <Box sx={{ p: 4 }}>
-          <Typography
+          {/* <Typography
             variant="h5"
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
@@ -143,7 +144,7 @@ export default function CreateGymSession({
             }}
           >
             Create New Gym Session
-          </Typography>
+          </Typography> */}
 
           {/* Error Alert */}
           {error && (

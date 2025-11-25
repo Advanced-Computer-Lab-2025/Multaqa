@@ -146,10 +146,11 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
       onClose={onClose}
       width="w-[90vw] sm:w-[80vw] md:w-[600px]"
       borderColor={color}
+      title={`Register for ${eventType}`}
     >
       <form onSubmit={handleSubmit}>
         <Box sx={{ p: 4 }}>
-          <Typography
+          {/* <Typography
             variant="h5"
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
@@ -160,7 +161,7 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
             }}
           >
             {`Register for ${eventType}`}
-          </Typography>
+          </Typography> */}
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                  <CustomTextField

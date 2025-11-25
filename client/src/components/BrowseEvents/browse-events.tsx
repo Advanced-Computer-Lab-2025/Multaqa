@@ -38,6 +38,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import ContentWrapper from "../shared/containers/ContentWrapper";
+import theme from "@/themes/lightTheme";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -156,6 +157,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
   const registeredEvents = userInfo?.registeredEvents;
+  const requestedEvents = userInfo?.requestedEvents;
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {
@@ -703,11 +705,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
                 display: "grid",
                 gridTemplateColumns: "repeat(1, 1fr)",
                 gap: 3,
-                padding: "0px 40px",
+                width: "100%",
               }}
             >
               {filteredEvents.map((event) => (
-                <Box key={event.id} sx={{display:"flex", justifyContent:'center', alignItems:"center", flexDirection:"column"}}>
+                <Box key={event.id} sx={{ width: "100%" }}>
                   {renderEventComponent(event, registered)}
                 </Box>
               ))}
@@ -757,11 +759,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           open={createTrip}
           onClose={() => setTrip(false)}
           setRefresh={setRefresh}
+          color={theme.palette.tertiary.main}
         />
         <CreateBazaar
           open={createBazaar}
           onClose={() => setBazaar(false)}
           setRefresh={setRefresh}
+          color={theme.palette.tertiary.main}
         />
         {/* Create Conference Form */}
         <Create

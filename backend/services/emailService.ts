@@ -7,6 +7,7 @@ import {
   getPaymentReceiptTemplate,
   getCertificateOfAttendanceTemplate,
   getApplicationStatusTemplate,
+  getExternalVisitorQREmailTemplate,
   getGymSessionNotificationTemplate,
 } from "../utils/emailTemplates";
 
@@ -171,6 +172,27 @@ export const sendApplicationStatusEmail = async (
   });
 };
 
+export const sendQRCodeEmail = async (
+  email: string,
+  name: string,
+  eventName: string,
+  qrCodeBuffer: Buffer
+) => {
+  const html = getExternalVisitorQREmailTemplate(name, eventName);
+  await sendEmail({
+    to: email,
+    subject: `🎟️ Your QR Code for ${eventName} - Multaqa`,
+    html,
+    attachments: [
+      {
+        filename: `QR_Code_${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.png`,
+        content: qrCodeBuffer,
+        contentType: 'pdf',
+        disposition: 'attachment'
+      }
+    ]
+  });
+};
 // Send gym session notification email (cancelled or edited)
 export const sendGymSessionNotificationEmail = async (params: {
   userEmail: string;

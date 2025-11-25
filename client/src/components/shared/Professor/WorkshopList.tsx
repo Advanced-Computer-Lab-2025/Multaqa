@@ -218,7 +218,6 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
         open={creation}
         onClose={() => {
           setCreation(false);
-          window.location.reload();
         }}
       />
     </ContentWrapper>

@@ -6,4 +6,5 @@ export interface IApplicationResult {
   vendor?: IVendor; 
   event?: IEvent;
   applicationStatus: Event_Request_Status;
+  QRCodeGenerated: boolean;
 }

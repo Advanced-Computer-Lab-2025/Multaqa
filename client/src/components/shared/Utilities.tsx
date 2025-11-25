@@ -28,47 +28,8 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
   const archiveText = event?`Archive ${event}`:"Archive";
   return (
     <Stack direction="row" spacing={1}>
-      {!archived ? 
-      <Tooltip title ={archiveText}>
-        <IconButton
-          size="medium"
-          onClick={onArchive}
-          sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
-              "&:hover": {
-                backgroundColor: "#ff980015",
-                borderColor: "warning.main",
-                color: "warning.main",
-              },
-            }}
-        >
-          <Archive size={18} />
-        </IconButton>
-      </Tooltip>
-      : <></>}
-      <Tooltip title ={restrictText}>
-        <IconButton
-          size="medium"
-          onClick={onRestrict}
-          sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
-              "&:hover": {
-                backgroundColor: "rgba(255, 0, 0, 0.1)",
-                borderColor: "error.main",
-                color: "error.main",
-              },
-            }}
-        >
-          <Ban size={18} />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title ={editText}>
+      {/* Safe/Moderate Actions First */}
+      <Tooltip title={editText}>
         <IconButton
           size="medium"
           onClick={onEdit}
@@ -87,12 +48,32 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
           <EditIcon fontSize="small"/>
         </IconButton>
       </Tooltip>
-
-      <Tooltip title={deleteText}>
-      <IconButton
-              size="medium"
-              onClick={onDelete}
-              sx={{
+      {!archived && (
+        <Tooltip title={archiveText}>
+          <IconButton
+            size="medium"
+            onClick={onArchive}
+            sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: "#ff980015",
+                  borderColor: "warning.main",
+                  color: "warning.main",
+                },
+              }}
+          >
+            <Archive size={18} />
+          </IconButton>
+        </Tooltip>
+      )}
+      <Tooltip title={restrictText}>
+        <IconButton
+          size="medium"
+          onClick={onRestrict}
+          sx={{
               backgroundColor: "rgba(255, 255, 255, 0.9)",
               border: '1px solid',
               borderColor: 'divider',
@@ -103,9 +84,31 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
                 color: "error.main",
               },
             }}
-            >
-              <Trash2 size={18} />
-            </IconButton>
+        >
+          <Ban size={18} />
+        </IconButton>
+      </Tooltip>
+      
+      {/* Dangerous Action Last - Separated */}
+      <Tooltip title={deleteText}>
+        <IconButton
+          size="medium"
+          onClick={onDelete}
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 2,
+            ml: 0.5, // Extra spacing to separate dangerous action
+            "&:hover": {
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              borderColor: "error.main",
+              color: "error.main",
+            },
+          }}
+        >
+          <Trash2 size={18} />
+        </IconButton>
       </Tooltip>
     </Stack>
   );

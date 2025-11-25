@@ -33,4 +33,5 @@ export interface CustomModalLayoutProps {
   width?: string; // Optional Tailwind width classes with breakpoints (e.g., "w-[90vw] sm:w-[80vw] lg:w-[60vw]")
   /** Optional border color for the modal wrapper; defaults to theme.palette.tertiary.main */
   borderColor?: string;
+  title?:string;
 }
