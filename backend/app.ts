@@ -99,6 +99,15 @@ async function startServer() {
     // Handle socket connections -> executed ONLY when a socket tries to connect and stays active as long as the tab is open.
     io.on("connection", (socket) => {
       const userId = socket.data.userId;
+      
+      // Guard: Ensure userId exists (auth middleware should set this)
+      if (!userId) {
+        console.error("⚠️ Socket connection without userId - disconnecting");
+        socket.emit("error", { message: "Authentication failed: User ID not found" });
+        socket.disconnect(true);
+        return;
+      }
+
       OnlineUsersService.addSocket(userId, socket.id);
 
       // Listen for read notification event

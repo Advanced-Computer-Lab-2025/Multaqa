@@ -35,10 +35,22 @@ class SocketService {
 
     this.socket.on("connect_error", (error) => {
       console.error("❌ Socket connection error:", error.message);
+      
+      // Check if it's an authentication error
+      if (error.message.includes("Invalid") || error.message.includes("expired") || error.message.includes("unauthorized")) {
+        console.error("🔒 Authentication failed - token may be expired or invalid");
+        // The NotificationContext should handle re-authentication
+      }
     });
 
     this.socket.on("error", (error) => {
       console.error("❌ Socket error:", error);
+      
+      // Handle authentication errors
+      if (error.message?.includes("Authentication failed")) {
+        console.error("🔒 Server rejected connection - authentication issue");
+        this.disconnect();
+      }
     });
 
     return this.socket;
