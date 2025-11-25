@@ -3,10 +3,20 @@
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
 
 const MINIMUM_LOADING_TIME = 3000; // 3 seconds
+
+// Define routes that should NOT trigger loading when navigating between them
+const noLoadingRoutes = ["/", "/login", "/register"];
+
+const isNoLoadingRoute = (path: string) => {
+  return noLoadingRoutes.some(
+    (route) =>
+      path === route || path.endsWith(route) || path.endsWith(route + "/")
+  );
+};
 
 export default function ClientProviders({
   children,
@@ -16,6 +26,7 @@ export default function ClientProviders({
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingStartTime, setLoadingStartTime] = useState(Date.now());
+  const prevPathRef = useRef(pathname);
 
   // Define all public (unprotected) routes
   const publicRoutes = ["/", "/login", "/register", "/test-events", "/support"];
@@ -29,6 +40,26 @@ export default function ClientProviders({
     );
   });
 
+  // Handle navigation loading
+  useEffect(() => {
+    // Skip if path hasn't changed
+    if (prevPathRef.current === pathname) return;
+
+    const isPrevNoLoading = isNoLoadingRoute(prevPathRef.current);
+    const isCurrentNoLoading = isNoLoadingRoute(pathname);
+
+    // If transitioning between two no-loading routes, don't show loading screen
+    if (isPrevNoLoading && isCurrentNoLoading) {
+      prevPathRef.current = pathname;
+      return;
+    }
+
+    // Otherwise, show loading screen
+    setIsLoading(true);
+    setLoadingStartTime(Date.now());
+    prevPathRef.current = pathname;
+  }, [pathname]);
+
   // Handle initial mount loading
   useEffect(() => {
     const elapsed = Date.now() - loadingStartTime;
@@ -41,22 +72,8 @@ export default function ClientProviders({
     return () => clearTimeout(timer);
   }, [loadingStartTime]);
 
-  // Handle navigation loading - ONLY for public routes
-  useEffect(() => {
-    if (isPublic) {
-      setIsLoading(true);
-      setLoadingStartTime(Date.now());
-
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, MINIMUM_LOADING_TIME);
-
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, isPublic]);
-
-  // Show loading screen ONLY for public routes
-  if (isLoading && isPublic) {
+  // Show loading screen
+  if (isLoading) {
     return <LoadingBlocks />;
   }
 
