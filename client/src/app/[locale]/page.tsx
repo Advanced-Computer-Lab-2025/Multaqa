@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
+// REMOVED usePathname/useSearchParams imports to prevent auto-suspense
 import {
   alpha,
   Box,
@@ -56,7 +57,6 @@ const featureHighlights = [
   {
     icon: <PaletteIcon fontSize="large" />,
     title: "Curated Experiences",
-    // Updated copy with line breaks and 'campus'
     copy: (
       <>
         Discover artful events tailored for <br /> every member of the <br />{" "}
@@ -75,6 +75,7 @@ const featureHighlights = [
     copy: "Stay in sync with what's happening across every faculty and venue.",
   },
 ];
+
 const faqItems = [
   {
     title: "How do I register for an event on Multaqa?",
@@ -122,43 +123,118 @@ const socialLinks = [
 ];
 
 export default function HomePage() {
+  // We wrap in Suspense just in case, but we removed the hooks that cause the issue
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
+      <HomePageContent />
+    </Suspense>
+  );
+}
+
+function HomePageContent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // State
   const [showSignUpOptions, setShowSignUpOptions] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
+
+  // View State (Defaults to 'home' initially to avoid hydration mismatch)
+  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
+    "home"
+  );
+  const [userType, setUserType] = useState<string>("");
+
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
-  const [userType, setUserType] = useState<string>("");
-  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
-    "home"
-  );
 
   const isHome = currentView === "home";
 
-  const handleLoginClick = () => {
-    setCurrentView("login");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  // --- INITIALIZE FROM URL (CLIENT SIDE ONLY) ---
+  useEffect(() => {
+    // We do this inside useEffect so Next.js Router doesn't think we are depending on searchParams
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
 
-  const handleRegisterClick = (type: string) => {
+    if (path.endsWith("/login")) {
+      setCurrentView("login");
+    } else if (path.endsWith("/register")) {
+      setCurrentView("register");
+      setUserType(params.get("userType") || "");
+    } else {
+      setCurrentView("home");
+    }
+  }, []);
+
+  // --- HELPER TO UPDATE URL WITHOUT RELOAD ---
+  const handleViewChange = (
+    view: "home" | "login" | "register",
+    type: string = ""
+  ) => {
+    setCurrentView(view);
     setUserType(type);
-    setCurrentView("register");
+
+    let newPath = "/";
+    // Adjust based on your locale logic if needed
+    if (view === "login") newPath = "/login";
+    if (view === "register") newPath = "/register";
+
+    if (view === "register" && type) {
+      newPath += `?userType=${type}`;
+    }
+
+    // Push new state manually
+    window.history.pushState({ view, userType: type }, "", newPath);
+  };
+
+  // --- HANDLERS (With Event Prevention) ---
+  const handleLoginClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    handleViewChange("login");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleHomeClick = () => {
-    setCurrentView("home");
-    setUserType("");
+  const handleRegisterClick = (type: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    handleViewChange("register", type);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleHomeClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    handleViewChange("home");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // --- POPSTATE LISTENER (Browser Back Button) ---
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+
+      if (path.endsWith("/login")) {
+        setCurrentView("login");
+      } else if (path.endsWith("/register")) {
+        setCurrentView("register");
+        setUserType(params.get("userType") || "");
+      } else {
+        setCurrentView("home");
+        setUserType("");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // --- SCROLL LOGIC ---
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
@@ -354,13 +430,12 @@ export default function HomePage() {
             gap: 2,
           }}
         >
+          {/* LOGO: Changed component={Link} to div to prevent router hijacking */}
           <Typography
-            component={Link}
-            href="/"
+            component="div"
             onClick={(e) => {
               if (currentView !== "home") {
-                e.preventDefault();
-                handleHomeClick();
+                handleHomeClick(e);
               }
             }}
             variant="h6"
@@ -394,7 +469,7 @@ export default function HomePage() {
                   exit={{ opacity: 0, x: -20 }}
                 >
                   <IconButton
-                    onClick={handleHomeClick}
+                    onClick={(e) => handleHomeClick(e)}
                     aria-label="Go to home"
                     sx={{
                       height: 40,
@@ -484,7 +559,7 @@ export default function HomePage() {
               {currentView === "home" && (
                 <CustomButton
                   variant="contained"
-                  onClick={handleLoginClick}
+                  onClick={(e: any) => handleLoginClick(e)}
                   label="Login"
                   size="small"
                   sx={{
@@ -955,9 +1030,11 @@ export default function HomePage() {
                     Sign up as
                   </Typography>
                   <CustomButton
-                    component={Link}
-                    href="/register?userType=university-member"
                     variant="contained"
+                    onClick={(e: any) => {
+                      setIsMenuOpen(false);
+                      handleRegisterClick("university-member", e);
+                    }}
                     sx={{
                       width: "100%",
                       height: 58,
@@ -972,9 +1049,8 @@ export default function HomePage() {
                         borderColor: theme.palette.tertiary.dark,
                       },
                     }}
-                  >
-                    University Member
-                  </CustomButton>
+                    label="University Member"
+                  />
                 </Stack>
                 <Stack spacing={1}>
                   <Typography
@@ -988,10 +1064,12 @@ export default function HomePage() {
                     Sign up as
                   </Typography>
                   <CustomButton
-                    component={Link}
-                    href="/register?userType=vendor"
-                    color="primary"
                     variant="outlined"
+                    color="primary"
+                    onClick={(e: any) => {
+                      setIsMenuOpen(false);
+                      handleRegisterClick("vendor", e);
+                    }}
                     sx={{
                       width: "100%",
                       height: 58,
@@ -999,9 +1077,8 @@ export default function HomePage() {
                       fontWeight: 600,
                       letterSpacing: "0.04em",
                     }}
-                  >
-                    Vendor
-                  </CustomButton>
+                    label="Vendor"
+                  />
                 </Stack>
                 <Typography
                   sx={{
@@ -1017,12 +1094,20 @@ export default function HomePage() {
                 >
                   Already have an account?
                   <Typography
-                    component={Link}
-                    href="/login"
+                    component="button"
+                    onClick={(e) => {
+                      setIsMenuOpen(false);
+                      handleLoginClick(e);
+                    }}
                     sx={{
                       color: theme.palette.primary.main,
                       fontWeight: 600,
                       textDecoration: "none",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      p: 0,
                       "&:hover": {
                         textDecoration: "underline",
                       },
@@ -1669,7 +1754,7 @@ const HeroContent = ({
     >
       <CustomButton
         variant="contained"
-        onClick={handleLoginClick}
+        onClick={(e: any) => handleLoginClick(e)} // Pass event
         label="Login"
         sx={{
           width: { xs: "100%", sm: "160px" },
@@ -1719,7 +1804,7 @@ const HeroContent = ({
           color="primary"
           label="Sign Up"
           endIcon={<ArrowOutwardIcon />}
-          onClick={() => {
+          onClick={(e: any) => {
             if (isMobile) {
               setShowSignUpOptions((prev: boolean) => !prev);
             }
@@ -1779,7 +1864,7 @@ const HeroContent = ({
               <Box
                 key={option.label}
                 component="button"
-                onClick={() => handleRegisterClick(option.userType)}
+                onClick={(e) => handleRegisterClick(option.userType, e)} // Pass event
                 sx={{
                   borderRadius: 2,
                   p: 1.5,
@@ -2164,6 +2249,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     />
   </Box>
 );
+
 const menuLinkStyles = (theme: Theme) => ({
   textDecoration: "none",
   color: theme.palette.text.primary,
