@@ -44,6 +44,7 @@ interface EventCardProps {
   attended?: boolean;
   professorStatus?: string;
   createdBy?: string;
+  professors?: string[]; // Array of professor names for workshops
   archived?: boolean;
 }
 
@@ -75,6 +76,7 @@ const EventCard: React.FC<EventCardProps> = ({
   evaluateButton,
   professorStatus,
   createdBy,
+  professors = [],
   archived = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
@@ -636,6 +638,70 @@ const EventCard: React.FC<EventCardProps> = ({
                   border: `1px solid ${color}20`,
                 }}
               >
+                {/* Avatar icons for hosts */}
+                {professors.length > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mr: 0.5,
+                    }}
+                  >
+                    {/* Show up to 3 professor avatars */}
+                    {[createdBy, ...professors.slice(0, 3)].map((name, idx) => {
+                      const initials = name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2);
+                      return (
+                        <Box
+                          key={idx}
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: "50%",
+                            backgroundColor: color,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "0.5rem",
+                            fontWeight: 600,
+                            border: "1.5px solid white",
+                            marginLeft: idx > 0 ? "-6px" : 0,
+                            zIndex: professors.length - idx,
+                          }}
+                        >
+                          {initials}
+                        </Box>
+                      );
+                    })}
+                    {/* Show +X if more than 3 total hosts */}
+                    {professors.length > 3 && (
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: `${color}30`,
+                          color: color,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.5rem",
+                          fontWeight: 700,
+                          border: "1.5px solid white",
+                          marginLeft: "-6px",
+                          zIndex: 0,
+                        }}
+                      >
+                        +{professors.length - 3}
+                      </Box>
+                    )}
+                  </Box>
+                )}
                 <Typography
                   variant="caption"
                   sx={{
@@ -646,7 +712,7 @@ const EventCard: React.FC<EventCardProps> = ({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  Created by
+                  {eventType === "Conference" ? "Featuring" : "Hosted by"}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -657,6 +723,12 @@ const EventCard: React.FC<EventCardProps> = ({
                   }}
                 >
                   {createdBy}
+                  {professors.length > 0 && (
+                    <>
+                      {" & "}
+                      {professors.length === 1 ? "1 other" : `${professors.length} others`}
+                    </>
+                  )}
                 </Typography>
               </Box>
             </Box>

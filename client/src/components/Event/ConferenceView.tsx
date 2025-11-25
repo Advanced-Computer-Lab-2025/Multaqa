@@ -21,7 +21,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   name,
   description,
   agenda,
-  icon:IconComponent, 
+  cachedProfessors = [],
+  icon: IconComponent,
   background,
   user,
   onDelete,
@@ -36,7 +37,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   const [restrictUsers, setRestrictUsers] = useState(false);
   const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+  const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
     const fid = f?._id?.$oid || f?._id || f;
     return String(fid) === String(id);
   }));
@@ -56,31 +57,71 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
     handleCloseDeleteModal();
   };
 
+  // Helper function to check if agenda matches any professor name
+  const getProfessorFromAgenda = () => {
+    if (!agenda || !cachedProfessors || cachedProfessors.length === 0) {
+      return undefined;
+    }
+
+    const agendaLower = agenda.toLowerCase().trim();
+
+    // Check if agenda matches any professor's full name
+    const matchingProfessor = cachedProfessors.find((prof) => {
+      const fullName = `${prof.firstName} ${prof.lastName}`.toLowerCase().trim();
+      return agendaLower === fullName || agendaLower.includes(fullName) || fullName.includes(agendaLower);
+    });
+
+    if (matchingProfessor) {
+      return `${matchingProfessor.firstName} ${matchingProfessor.lastName}`;
+    }
+
+    return undefined;
+  };
+
+  const professorName = getProfessorFromAgenda();
+
 
   return (
     <>
-    <EventCard eventId={id} isFavorite={isFavorited} title={name} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} totalSpots={details["Capacity"]}  link={details["Link"]} color={background} leftIcon={<IconComponent />} eventType={"Conference"} spotsLeft={details["Spots Left"]}  onOpenDetails={() => setDetailsModalOpen(true)} utilities={ user === "admin" ? (
-            <Tooltip title="Delete Conference">
-                     <IconButton
-                       size="medium"
-                       onClick={handleOpenDeleteModal}
-                       sx={{
-                         backgroundColor: "rgba(255, 255, 255, 0.9)",
-                         border: '1px solid',
-                         borderColor: 'divider',
-                         borderRadius: 2,
-                         "&:hover": {
-                           backgroundColor: "rgba(255, 0, 0, 0.1)",
-                           borderColor: "error.main",
-                           color: "error.main",
-                         },
-                       }}
-                     >
-                       <Trash2 size={18} />
-                     </IconButton>
-                   </Tooltip>
-          ) : ( user==="events-office"|| user==="events-only"?
-           <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Conference"}  color={background}/> : null)} 
+      <EventCard
+        eventId={id}
+        isFavorite={isFavorited}
+        title={name}
+        attended={attended}
+        startDate={details["Start Date"]}
+        endDate={details["End Date"]}
+        startTime={details["Start Time"]}
+        endTime={details["End Time"]}
+        totalSpots={details["Capacity"]}
+        link={details["Link"]}
+        color={background}
+        leftIcon={<IconComponent />}
+        eventType={"Conference"}
+        spotsLeft={details["Spots Left"]}
+        createdBy={professorName}
+        onOpenDetails={() => setDetailsModalOpen(true)}
+        utilities={user === "admin" ? (
+          <Tooltip title="Delete Conference">
+            <IconButton
+              size="medium"
+              onClick={handleOpenDeleteModal}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: "rgba(255, 0, 0, 0.1)",
+                  borderColor: "error.main",
+                  color: "error.main",
+                },
+              }}
+            >
+              <Trash2 size={18} />
+            </IconButton>
+          </Tooltip>
+        ) : (user === "events-office" || user === "events-only" ?
+          <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); }} onDelete={handleOpenDeleteModal} event={"Conference"} color={background} /> : null)}
         expanded={expanded} archived={archived} location={details["Location"]} />
 
 
@@ -128,9 +169,8 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           >
             {details["Start Date"] === details["End Date"]
               ? details["Start Date"] || "TBD"
-              : `${details["Start Date"] || "TBD"} - ${
-                  details["End Date"] || "TBD"
-                }`}
+              : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"
+              }`}
           </Typography>
 
           <Typography
@@ -148,44 +188,44 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
       </CustomModal>
       <EditConference
         conferenceId={id}
-        open={edit} 
-        onClose={() => setEdit(false)} 
-        setRefresh={setRefresh} 
-        eventName= {name}
+        open={edit}
+        onClose={() => setEdit(false)}
+        setRefresh={setRefresh}
+        eventName={name}
         description={description}
-        eventStartDate = {details["Start Date"]} 
-        eventEndDate =  {details["End Date"]}
-        requiredBudget = {details["Required Budget"]}
-        fundingSource = {details["Funding Source"]}
-        websiteLink = {details["Link"]}
+        eventStartDate={details["Start Date"]}
+        eventEndDate={details["End Date"]}
+        requiredBudget={details["Required Budget"]}
+        fundingSource={details["Funding Source"]}
+        websiteLink={details["Link"]}
         agenda={agenda}
         extraRequiredResources={details["Extra Required Resources"]}
         eventStartTime={details["Start Time"]}
         eventEndTime={details["End Time"]}
       />
       <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-        <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)}/>
-       <CustomModalLayout
-                    open={detailsModalOpen}
-                    onClose={() => setDetailsModalOpen(false)}
-                    width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
-                    borderColor={background}
-                  >
-                    <EventDetails
-                      title={name}
-                      description={description}
-                      eventType="Conference"
-                      details={details}
-                      agenda={agenda}
-                      color={background}
-                      sections={user=="vendor"?['general', 'agenda','details']:['general','details','agenda',
-                        'reviews']}
-                      user={user?user:""}
-                      attended ={attended}
-                      eventId={id}
-                      userId={userInfo._id}
-                    />
-                  </CustomModalLayout>
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)} />
+      <CustomModalLayout
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+        borderColor={background}
+      >
+        <EventDetails
+          title={name}
+          description={description}
+          eventType="Conference"
+          details={details}
+          agenda={agenda}
+          color={background}
+          sections={user == "vendor" ? ['general', 'agenda', 'details'] : ['general', 'details', 'agenda',
+            'reviews']}
+          user={user ? user : ""}
+          attended={attended}
+          eventId={id}
+          userId={userInfo._id}
+        />
+      </CustomModalLayout>
     </>
   );
 };

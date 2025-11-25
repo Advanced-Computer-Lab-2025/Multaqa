@@ -6,7 +6,7 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import EditIcon from "@mui/icons-material/Edit";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban, Archive} from "lucide-react";
+import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle, Ban, Archive } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -49,19 +49,19 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [archive, setArchive] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const updatedDetails = {...details,professors}
+  const updatedDetails = { ...details, professors }
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   const [edit, setEdit] = useState(false);
-  
-  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+
+  const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
     const fid = f?._id?.$oid || f?._id || f;
     return String(fid) === String(id);
   }));
 
-   const handlePaymentSuccess = (paymentDetails:any) => {
+  const handlePaymentSuccess = (paymentDetails: any) => {
     console.log('Payment successful:', paymentDetails);
     setPaymentDrawerOpen(false);
-    
+
     // Handle successful payment - redirect, show confirmation, etc.
     alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
   };
@@ -109,12 +109,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         cost={details["Cost"]}
         startTime={details["Start Time"]}
         endTime={details["End Time"]}
-        totalSpots={professorStatus=="approved"?details["Capacity"]:undefined}
+        totalSpots={professorStatus == "approved" ? details["Capacity"] : undefined}
         color={background}
         leftIcon={<IconComponent />}
         eventType={"Workshop"}
         spotsLeft={details["Spots Left"]}
         createdBy={details['Created by']}
+        professors={professors}
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={(user === "events-office" || user === "admin") ? (
           <Stack direction="row" spacing={1}>
@@ -181,26 +182,26 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               </IconButton>
             </Tooltip>
           </Stack>
-        ) : user==="professor"? (
-            <Tooltip title ="Edit Workshop">
-              <IconButton
-                size="medium"
-                onClick={()=>setEdit(true)}
-                sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: `${background}15`,
-                      borderColor: background,
-                      color: background,
-                    },
-                  }}
-              >
-               <EditIcon fontSize="small"/>
-              </IconButton>
-            </Tooltip>
+        ) : user === "professor" ? (
+          <Tooltip title="Edit Workshop">
+            <IconButton
+              size="medium"
+              onClick={() => setEdit(true)}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: `${background}15`,
+                  borderColor: background,
+                  color: background,
+                },
+              }}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         ) : null}
         commentButton={commentButton}
         registerButton={
@@ -351,109 +352,109 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <RegisterEventModal 
+      <RegisterEventModal
         open={register}
-        onClose={() => { setRegister(false); } }
+        onClose={() => { setRegister(false); }}
         eventType={"Workshop"}
         userInfo={userInfo}
         eventId={id}
-       color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
+        color={background} paymentOpen={() => setPaymentDrawerOpen(true)} />
       <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)}/>
-      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+      <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)} />
+      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable} />
       <CustomModalLayout
-              open={detailsModalOpen}
-              onClose={() => setDetailsModalOpen(false)}
-              width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
-              borderColor={background}
-            >
-              <EventDetails
-                title={name}
-                description={description}
-                eventType="Workshop"
-                details={updatedDetails}
-                color={background}
-                agenda={agenda}
-                userId={userInfo?._id}
-                createdBy={userInfo?._id===details["CreatedId"]?"you": details['Created by']} 
-                button={
-                  (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-                    !(datePassed || attended) && (
-                        <>
-                          {registered || isRegisteredEvent ? (
-                            // User is registered - show cancel button
-                            <CustomButton
-                              size="small"
-                              variant="outlined"
-                              sx={{ 
-                                borderRadius: 999,
-                                backgroundColor: `${background}40`,
-                                color: background,
-                                borderColor: background,
-                                fontWeight: 600,
-                                px: 3,
-                                textTransform: "none",
-                                boxShadow: `0 4px 14px ${background}40`,
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  backgroundColor: `${background}50`,
-                                  transform: "translateY(-2px)",
-                                  boxShadow: `0 6px 20px ${background}50`,
-                                },
-                                width: 'fit-content'
-                              }}
-                              onClick={() => setCancelRegisteration(true)}
-                            >
-                              Cancel Registration
-                            </CustomButton>
-                          ) : (
-                            // User is not registered - show register button
-                           !(registrationPassed) && (
-                              <CustomButton
-                                size="small"
-                                variant="contained"
-                                sx={{ 
-                                  borderRadius: 999,
-                                  backgroundColor: `${background}40`,
-                                  color: background,
-                                  borderColor: background,
-                                  fontWeight: 600,
-                                  px: 3,
-                                  textTransform: "none",
-                                  boxShadow: `0 4px 14px ${background}40`,
-                                  transition: "all 0.3s ease",
-                                  "&:hover": {
-                                    backgroundColor: `${background}50`,
-                                    transform: "translateY(-2px)",
-                                    boxShadow: `0 6px 20px ${background}50`,
-                                  },
-                                }}
-                                onClick={() => setRegister(true)}
-                              >
-                                Register
-                              </CustomButton>
-                            )
-                          )}
-                        </>
-                      )
-                  )
-                }
-                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:['general','agenda','details',
-                  'reviews'])}
-                user={user?user:""}
-                attended ={attended}
-                eventId={id}
-              />
-            </CustomModalLayout>
-             <PaymentDrawer
-              open={paymentDrawerOpen}
-              onClose={() => setPaymentDrawerOpen(false)}
-              totalAmount={parseInt(details["Cost"])}
-              walletBalance={userInfo?.walletBalance||0} 
-              onPaymentSuccess={handlePaymentSuccess}
-              eventId={id}
-              email={userInfo?.email}
-            />
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+        borderColor={background}
+      >
+        <EventDetails
+          title={name}
+          description={description}
+          eventType="Workshop"
+          details={updatedDetails}
+          color={background}
+          agenda={agenda}
+          userId={userInfo?._id}
+          createdBy={userInfo?._id === details["CreatedId"] ? "you" : details['Created by']}
+          button={
+            (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
+              !(datePassed || attended) && (
+                <>
+                  {registered || isRegisteredEvent ? (
+                    // User is registered - show cancel button
+                    <CustomButton
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        borderRadius: 999,
+                        backgroundColor: `${background}40`,
+                        color: background,
+                        borderColor: background,
+                        fontWeight: 600,
+                        px: 3,
+                        textTransform: "none",
+                        boxShadow: `0 4px 14px ${background}40`,
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}50`,
+                          transform: "translateY(-2px)",
+                          boxShadow: `0 6px 20px ${background}50`,
+                        },
+                        width: 'fit-content'
+                      }}
+                      onClick={() => setCancelRegisteration(true)}
+                    >
+                      Cancel Registration
+                    </CustomButton>
+                  ) : (
+                    // User is not registered - show register button
+                    !(registrationPassed) && (
+                      <CustomButton
+                        size="small"
+                        variant="contained"
+                        sx={{
+                          borderRadius: 999,
+                          backgroundColor: `${background}40`,
+                          color: background,
+                          borderColor: background,
+                          fontWeight: 600,
+                          px: 3,
+                          textTransform: "none",
+                          boxShadow: `0 4px 14px ${background}40`,
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            backgroundColor: `${background}50`,
+                            transform: "translateY(-2px)",
+                            boxShadow: `0 6px 20px ${background}50`,
+                          },
+                        }}
+                        onClick={() => setRegister(true)}
+                      >
+                        Register
+                      </CustomButton>
+                    )
+                  )}
+                </>
+              )
+            )
+          }
+          sections={user == "vendor" ? ['general', 'agenda', 'details'] : (professorStatus == "pending" || professorStatus == "awaiting_review" || professorStatus == "rejected" ? ['general', 'agenda', 'details'] : ['general', 'agenda', 'details',
+            'reviews'])}
+          user={user ? user : ""}
+          attended={attended}
+          eventId={id}
+        />
+      </CustomModalLayout>
+      <PaymentDrawer
+        open={paymentDrawerOpen}
+        onClose={() => setPaymentDrawerOpen(false)}
+        totalAmount={parseInt(details["Cost"])}
+        walletBalance={userInfo?.walletBalance || 0}
+        onPaymentSuccess={handlePaymentSuccess}
+        eventId={id}
+        email={userInfo?.email}
+      />
     </>
   );
 };
