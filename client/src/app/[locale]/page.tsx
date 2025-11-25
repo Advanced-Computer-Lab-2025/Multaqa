@@ -1956,7 +1956,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 1: Tall Blue Pill (Top Left) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "20%",
@@ -1964,11 +1964,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "120px",
           height: "250px",
           borderRadius: "999px",
-          y: [0, -10, 0],
-          transition: {
-            ...homeTransition,
-            y: { duration: 9, repeat: Infinity, ease: "easeInOut" },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "50%",
@@ -1976,9 +1972,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "250px",
           height: "120px",
           borderRadius: "999px",
+          transition: authTransition(0.1),
+        },
+        float: {
           y: [0, -10, 0],
           transition: {
-            ...authTransition(0.1),
             y: { duration: 9, repeat: Infinity, ease: "easeInOut" },
           },
         },
@@ -1992,7 +1990,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 2: Wide Purple Rectangle (Top Right) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "20%",
@@ -2001,16 +1999,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "110px",
           borderRadius: "12px",
           rotate: 0,
-          y: [0, 8, 0],
-          transition: {
-            ...homeTransition,
-            y: {
-              duration: 11,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5,
-            },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "40%",
@@ -2019,9 +2008,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "260px",
           borderRadius: "12px",
           rotate: 0, // Slight tilt in auth mode for variety
+          transition: authTransition(0.2),
+        },
+        float: {
           y: [0, 8, 0],
           transition: {
-            ...authTransition(0.2),
             y: {
               duration: 11,
               repeat: Infinity,
@@ -2040,7 +2031,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 3: The Horizontal Line (Center) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "55%",
@@ -2049,11 +2040,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "8px",
           borderRadius: "4px",
           rotate: 0,
-          y: [0, -6, 0],
-          transition: {
-            ...homeTransition,
-            y: { duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "15%",
@@ -2062,9 +2049,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "160px",
           borderRadius: "4px",
           rotate: 0,
+          transition: authTransition(0.4),
+        },
+        float: {
           y: [0, -6, 0],
           transition: {
-            ...authTransition(0.4),
             y: { duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 },
           },
         },
@@ -2078,7 +2067,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 4: Dark Blue Square (Bottom Left) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "62%",
@@ -2087,16 +2076,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "130px",
           borderRadius: "16px",
           rotate: 0,
-          y: [0, -10, 0],
-          transition: {
-            ...homeTransition,
-            y: {
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.2,
-            },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "20%",
@@ -2105,9 +2085,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "130px",
           borderRadius: "16px",
           rotate: 0,
+          transition: authTransition(0.15),
+        },
+        float: {
           y: [0, -10, 0],
           transition: {
-            ...authTransition(0.15),
             y: {
               duration: 12,
               repeat: Infinity,
@@ -2126,7 +2108,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 5: Light Blue Oval (Middle Right) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "45%",
@@ -2135,16 +2117,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "210px",
           borderRadius: "999px",
           rotate: 0,
-          y: [0, 8, 0],
-          transition: {
-            ...homeTransition,
-            y: {
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.7,
-            },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "10%",
@@ -2153,9 +2126,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "210px",
           borderRadius: "999px",
           rotate: 0,
+          transition: authTransition(0.25),
+        },
+        float: {
           y: [0, 8, 0],
           transition: {
-            ...authTransition(0.25),
             y: {
               duration: 10,
               repeat: Infinity,
@@ -2174,7 +2149,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 6: Vertical Thin Line (Far Right) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "20%",
@@ -2183,11 +2158,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "125px",
           borderRadius: "4px",
           rotate: 0,
-          y: [0, -10, 0],
-          transition: {
-            ...homeTransition,
-            y: { duration: 14, repeat: Infinity, ease: "easeInOut" },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "75%",
@@ -2196,9 +2167,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "90px",
           borderRadius: "50%",
           rotate: 0,
+          transition: authTransition(0.4),
+        },
+        float: {
           y: [0, -10, 0],
           transition: {
-            ...authTransition(0.4),
             y: { duration: 14, repeat: Infinity, ease: "easeInOut" },
           },
         },
@@ -2212,7 +2185,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 7: Vertical Thin Line Bottom (Far Right Bottom) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "45%",
@@ -2221,16 +2194,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "200px",
           borderRadius: "4px",
           rotate: 0,
-          y: [0, -10, 0],
-          transition: {
-            ...homeTransition,
-            y: {
-              duration: 13,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5,
-            },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "30%",
@@ -2239,9 +2203,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "180px",
           borderRadius: "4px",
           rotate: 0,
+          transition: authTransition(0.45),
+        },
+        float: {
           y: [0, -10, 0],
           transition: {
-            ...authTransition(0.45),
             y: {
               duration: 13,
               repeat: Infinity,
@@ -2260,7 +2226,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
     {/* --- Shape 8: Pink Circle (Bottom Corner) --- */}
     <MotionBox
       initial={isHome ? "home" : "auth"}
-      animate={isHome ? "home" : "auth"}
+      animate={[isHome ? "home" : "auth", "float"]}
       variants={{
         home: {
           top: "75%",
@@ -2269,11 +2235,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "110px",
           borderRadius: "50%",
           scale: 1,
-          y: [0, -6, 0],
-          transition: {
-            ...homeTransition,
-            y: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.3 },
-          },
+          transition: homeTransition,
         },
         auth: {
           top: "80%",
@@ -2282,9 +2244,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "90px",
           borderRadius: "999px",
           scale: 1.1,
+          transition: authTransition(0.3),
+        },
+        float: {
           y: [0, -6, 0],
           transition: {
-            ...authTransition(0.3),
             y: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.3 },
           },
         },

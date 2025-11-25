@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import LoadingBlocks from "@/components/shared/LoadingBlocks";
 
-const MINIMUM_LOADING_TIME = 2000; // 3 seconds
+const MINIMUM_LOADING_TIME = 3000; // 3 seconds
 
 // Define routes that should NOT trigger loading when navigating between them
 const noLoadingRoutes = ["/", "/login", "/register"];
