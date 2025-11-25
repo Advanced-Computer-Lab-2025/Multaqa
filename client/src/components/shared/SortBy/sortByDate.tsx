@@ -31,7 +31,7 @@ const SORT_OPTIONS: SortOption[] = [
 // Styled button (same as Filter)
 const StyledSortButton = styled(Button)(({ theme }) => ({
   cursor: "pointer",
-  border:'none',
+  border: 'none',
   padding: "5px 12px",
   fontSize: "12px",
   height: "32px",
@@ -131,7 +131,12 @@ const SortByDate: React.FC<SortByDateProps> = ({ value, onChange }) => {
       {/* Custom dropdown menu */}
       <Box
         ref={dropdownRef}
-        style={{...getDropdownStyles({ isOpen }), borderColor:theme.palette.primary.dark}}
+        style={{
+          ...getDropdownStyles({ isOpen }),
+          borderColor: theme.palette.primary.dark,
+          right: 0,
+          left: "auto",
+        }}
       >
         {SORT_OPTIONS.filter((opt) => opt.value !== "none").map((option) => {
           const isSelected = value === option.value;
@@ -139,10 +144,10 @@ const SortByDate: React.FC<SortByDateProps> = ({ value, onChange }) => {
           const optionStyle = {
             ...getOptionStyles({ isSelected, isDisabled: false }),
             ...getOptionHoverStyles(isSelected, false, isHovered),
-          borderColor: theme.palette.primary.dark,
-        ...(isHovered || isSelected
-          ? { borderLeft: `3px solid ${theme.palette.primary.dark}` }
-          : {}),
+            borderColor: theme.palette.primary.dark,
+            ...(isHovered || isSelected
+              ? { borderLeft: `3px solid ${theme.palette.primary.dark}` }
+              : {}),
           };
 
           return (

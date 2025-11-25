@@ -710,19 +710,19 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         padding={{ xs: 0 }}
         horizontalPadding={{ xs: 1 }}
       >
-        {/* Search, Filter, and Sort Row */}
+        {/* Search and Filter Row */}
         <Box
           sx={{
             display: "flex",
             gap: 2,
             alignItems: "center",
             mb: 6,
-            flexWrap: "wrap",
+            flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
           }}
         >
-          <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
+          <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
             <CustomSearchBar
-              width="64vw"
+              width="100%"
               type="outwards"
               icon
               value={searchQuery}
@@ -737,8 +737,21 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}
+              matchSearchBar
             />
           </LocalizationProvider>
+        </Box>
+
+        {/* Sort By and Creation Hub Row */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            mb: 2,
+          }}
+        >
           <SortByDate value={sortBy} onChange={handleSortChange} />
           {user === "events-only" && (
             <CreationHubDropdown
