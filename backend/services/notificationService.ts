@@ -66,6 +66,7 @@ export class NotificationService {
       throw new Error("Notification not found");
     }
 
+    console.log("Marking notification as read:", { userId, notificationId });
     user.notifications[notificationIndex].read = true;
     await user.save();
 
@@ -116,9 +117,11 @@ export class NotificationService {
       throw createError(404, "Notification not found");
     }
 
+    console.log("Deleting notification:", { userId, notificationId });
     user.notifications = user.notifications.filter((notification) => {
       return (notification._id as any).toString() !== notificationId.toString();
-    }); await user.save();
+    }); 
+    await user.save();
 
     // Emit delete event to inform other tabs(sockets)
     eventBus.emit("notification:delete", { userId, notificationId });

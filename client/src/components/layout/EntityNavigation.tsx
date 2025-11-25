@@ -572,17 +572,17 @@ export default function EntityNavigation({
 
   // If only /stakeholder is visited, redirect to default section/tab
   React.useEffect(() => {
-<<<<<<< HEAD
-    // Special routes that are always valid (not in navigation config)
-    const specialRoutes = ["notifications"];
-    const isSpecialRoute = specialRoutes.includes(tab);
 
-    // Fallback: if tab or section is not found, redirect to not-found page
-    const tabExists = tab === "" || isSpecialRoute || config.tabs.some((t) => t.key === tab);
-    const sectionExists =
-      tab === "" || section === "" || isSpecialRoute ||
-      (config.tabs.find((t) => t.key === tab)?.sections || []).some((s) => s.id === section);
-=======
+    // // Special routes that are always valid (not in navigation config)
+    // const specialRoutes = ["notifications"];
+    // const isSpecialRoute = specialRoutes.includes(tab);
+
+    // // Fallback: if tab or section is not found, redirect to not-found page
+    // const tabExists = tab === "" || isSpecialRoute || config.tabs.some((t) => t.key === tab);
+    // const sectionExists =
+    //   tab === "" || section === "" || isSpecialRoute ||
+    //   (config.tabs.find((t) => t.key === tab)?.sections || []).some((s) => s.id === section);
+
     // Fallback: if section or tab is not found, redirect to not-found page
     const sectionExists =
       section === "" || config.sections.some((s) => s.key === section);
@@ -596,7 +596,6 @@ export default function EntityNavigation({
         : sectionTabs;
     const tabExists =
       section === "" || tab === "" || effectiveTabs.some((t) => t.id === tab);
->>>>>>> main
 
     if (!sectionExists || !tabExists) {
       router.replace("/not-found");

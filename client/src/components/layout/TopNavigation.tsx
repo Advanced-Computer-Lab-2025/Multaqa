@@ -1,14 +1,9 @@
 import React from "react";
-<<<<<<< HEAD
-import { IconButton } from "@mui/material";
-import { ArrowLeft } from "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
-=======
 import { UserRoleKey } from "@/types";
 import Image from "next/image";
 import ScaledLogo from "../shared/MultaqaLogos/ScaledLogo";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
->>>>>>> main
 
 interface HeaderProps {
   title: string;
@@ -129,13 +124,8 @@ export default function TopNavigation({
     <div className="bg-white border-b border-gray-300 w-full">
       {/* Company/App Bar with Back Button */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 bg-gradient-to-r from-[#f9fbfc] to-[#f0f4f8]">
-<<<<<<< HEAD
-        {/* Left: Back Button */}
-        <div className="flex items-center gap-3">
-=======
         {/* Left: Back Button (if applicable) */}
         {/* <div className="flex items-center gap-3">
->>>>>>> main
           {header?.showBack && (
             <IconButton
               onClick={header.onBack}
