@@ -27,7 +27,7 @@ const cleanDateString = (isoDate: string | undefined): string => {
   // Splits the string at 'T' and returns the first element (the date part)
   return isoDate.split('T')[0]; 
 };
-const capitalizeNamePart = (namePart?: string | null): string => {
+export const capitalizeNamePart = (namePart?: string | null): string => {
   if (!namePart) return "";
   
   // Convert to string, trim whitespace, and lowercase the rest of the string

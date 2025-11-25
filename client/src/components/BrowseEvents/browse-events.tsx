@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Box, Typography, Container } from "@mui/material";
 import FilterPanel from "../shared/FilterCard/FilterPanel";
-import { FilterGroup } from "../shared/FilterCard/types";
+import { FilterGroup, FilterOption } from "../shared/FilterCard/types";
 import ConferenceView from "../Event/ConferenceView";
 import WorkshopView from "../Event/WorkshopView";
 import BazarView from "../Event/BazarView";
@@ -20,7 +20,7 @@ import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../tempPages/CreateConference/CreateConference";
 
-import { deleteEvent, frameData } from "./utils";
+import { deleteEvent, frameData, capitalizeNamePart } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import CreationHubDropdown from "../createButton/CreationHubDropdown";
 import StorefrontIcon from "@mui/icons-material/Storefront";
@@ -74,11 +74,15 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-const getFilterGroups = (userRole: string): FilterGroup[] => [
+const getFilterGroups = (
+  userRole: string,
+  professorOptions: FilterOption[]
+): FilterGroup[] => [
   {
     id: "professorName",
     title: "Professor Name",
     type: "text",
+    options: professorOptions,
   },
   {
     id: "eventType",
@@ -155,6 +159,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
+  const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
   // Separate effect for loading events
   useEffect(() => {
@@ -164,6 +169,49 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       handleRegistered();
     }
   }, [registered, refresh]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProfessors = async () => {
+      try {
+        const response = await api.get("/users/professors");
+        const rawData = response?.data?.data ?? response?.data ?? [];
+        const formattedOptions: FilterOption[] = rawData
+          .map((prof: any) => {
+            const firstName = capitalizeNamePart(prof?.firstName);
+            const lastName = capitalizeNamePart(prof?.lastName);
+            const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
+            return fullName
+              ? {
+                  label: fullName,
+              value: fullName.toLowerCase(),
+                }
+              : null;
+          })
+          .filter(Boolean) as FilterOption[];
+
+        if (isMounted) {
+          const uniqueOptions = Array.from(
+            new Map(
+              formattedOptions.map((option) => [
+                option.value.toLowerCase(),
+                option,
+              ])
+            ).values()
+          ).sort((a, b) => a.label.localeCompare(b.label));
+          setProfessorOptions(uniqueOptions);
+        }
+      } catch (error) {
+        console.error("Failed to load professors", error);
+      }
+    };
+
+    fetchProfessors();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const getUserData = () => {
     const user = {
@@ -308,6 +356,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           const professors = (event as any).professors as string[] | undefined;
           const agendaText =
             (event.agenda as string | undefined)?.toLowerCase() || "";
+          const createdByDetail =
+            (event.details?.["Created by"] ||
+              event.details?.["Created By"] ||
+              "") ?? "";
+          const createdByText = createdByDetail
+            .toString()
+            .toLowerCase();
 
           return selectedProfessors.every((query) => {
             const lowerQuery = query.toLowerCase();
@@ -323,7 +378,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             // Check in agenda text
             const inAgenda = agendaText.includes(lowerQuery);
 
-            return inProfessors || inAgenda;
+            const inCreatedBy = createdByText.includes(lowerQuery);
+
+            return inProfessors || inAgenda || inCreatedBy;
           });
         }
         return false;
@@ -667,7 +724,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           </Box>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <FilterPanel
-              filterGroups={getFilterGroups(user)}
+              filterGroups={getFilterGroups(user, professorOptions)}
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}

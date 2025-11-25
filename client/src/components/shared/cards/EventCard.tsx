@@ -82,6 +82,10 @@ const EventCard: React.FC<EventCardProps> = ({
   const [copySuccess, setCopySuccess] = useState(false);
   const [fav, setFav] = useState<boolean>(isFavorite);
   const [animateFav, setAnimateFav] = useState<boolean>(false);
+  const normalizedTitle = title?.toLowerCase?.() ?? "";
+  const normalizedCreatedBy = createdBy?.toLowerCase?.() ?? "";
+  const normalizedLocation = location?.toLowerCase?.() ?? "";
+  const normalizedEventType = eventType?.toLowerCase?.() ?? "";
 
   const handleOpenModal = () => {
     if (onOpenDetails) {
@@ -220,6 +224,10 @@ const EventCard: React.FC<EventCardProps> = ({
           background: `linear-gradient(90deg, ${color}, ${color}90)`,
         },
       }}
+      data-title-normalized={normalizedTitle}
+      data-createdby-normalized={normalizedCreatedBy}
+      data-location-normalized={normalizedLocation}
+      data-eventtype-normalized={normalizedEventType}
     >
       {/* Header Section */}
       <Box
