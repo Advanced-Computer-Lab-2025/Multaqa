@@ -415,45 +415,27 @@ export default function VendorParticipationRequests() {
         description="Review pending vendor applications for bazaars and platform booths."
         headerMarginBottom={3}
       >
-        {/* Custom header section with Refresh button */}
-      <Box
-        sx={{
-          mb: 3,
-            mt: -3,
-          display: "flex",
-            justifyContent: "flex-end",
-          }}
+        {feedback ? (
+          <Alert
+            severity={feedback.type}
+            sx={{ mb: 3, borderRadius: 2 }}
+            onClose={() => setFeedback(null)}
           >
-        <CustomButton
-          variant="outlined"
-          color="primary"
-          onClick={fetchRequests}
-          startIcon={<RefreshCw size={16} />}
-        >
-          Refresh
-        </CustomButton>
-      </Box>
+            {feedback.message}
+          </Alert>
+        ) : null}
 
-      {feedback ? (
-        <Alert
-          severity={feedback.type}
-          sx={{ mb: 3, borderRadius: 2 }}
-          onClose={() => setFeedback(null)}
+        <Box
+          sx={{
+            mt: 2,
+            mb: 2,
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 2,
+            justifyContent: "space-between",
+          }}
         >
-          {feedback.message}
-        </Alert>
-      ) : null}
-
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 2,
-          justifyContent: "space-between",
-        }}
-      >
-        <Stack direction="row" spacing={1} flexWrap="wrap">
+          <Stack direction="row" spacing={1} flexWrap="wrap">
             {statusFilters.map(({ key, label }) => {
               const isActive = statusFilter === key;
               // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)
