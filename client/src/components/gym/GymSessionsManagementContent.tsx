@@ -25,14 +25,22 @@ import {
 import { useTheme } from "@mui/material/styles";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import CreateGymSession from "./CreateGymSession";
+import EditGymSession from "./EditGymSession";
+import CancelGymSession from "./CancelGymSession";
 import SessionTypeDropdown from "./SessionTypeDropdown";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
 import { fetchGymSessions } from "./utils";
+
+
 
 export default function GymSessionsManagementContent() {
   const theme = useTheme();
   const [sessions, setSessions] = useState<GymSession[]>([]);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [sessionToEdit, setSessionToEdit] = useState<GymSession | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [sessionToDelete, setSessionToDelete] = useState<GymSession | null>(null);
   const [selectedSessionType, setSelectedSessionType] = useState<
     GymSessionType | undefined
   >();
@@ -129,15 +137,33 @@ export default function GymSessionsManagementContent() {
     await loadGymSessions();
   };
 
-  const handleEditSession = (session: GymSession) => {
-    // TODO: Implement edit session modal/form
-    console.log("Edit session:", session);
-  };
+const handleEditSession = (session: GymSession) => {
+  // 1. Store the data of the session to be edited
+  setSessionToEdit(session);
+  // 2. Open the edit modal
+  setEditModalOpen(true);
+};
 
-  const handleDeleteSession = (session: GymSession) => {
-    // TODO: Implement delete confirmation modal
-    console.log("Delete session:", session);
-  };
+const handleCloseEditModal = () => {
+  // 1. Close the modal
+  setEditModalOpen(false);
+  // 2. Clear the session data
+  setSessionToEdit(null);
+};
+
+const handleDeleteSession = (session: GymSession) => {
+    // 1. Store the data of the session to be deleted
+    setSessionToDelete(session);
+    // 2. Open the delete modal
+    setDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    // 1. Close the modal
+    setDeleteModalOpen(false);
+    // 2. Clear the session data
+    setSessionToDelete(null);
+  };
 
   const handleViewSession = (session: GymSession) => {
     // TODO: Implement view session details modal
@@ -399,6 +425,39 @@ export default function GymSessionsManagementContent() {
         onSubmit={handleSubmitSession}
         preselectedType={selectedSessionType}
       />
+
+      {/* Edit Session Modal */}
+      {sessionToEdit && (
+          <EditGymSession
+              sessionId={sessionToEdit.id}
+              open={editModalOpen} // Ensure 'editModalOpen' state is defined
+              onClose={handleCloseEditModal} // Ensure 'handleCloseEditModal' handler is defined
+              setRefresh={loadGymSessions} // Uses your load function to refresh the list
+              // Data Mapping:
+              // Converts ISO string (session.start) to Date object
+              initialStartDateTime={new Date(sessionToEdit.start)}
+              // Calculates the duration in minutes from start and end times
+              initialDuration={calculateDuration(
+                  sessionToEdit.start, 
+                  sessionToEdit.end
+              )} 
+              initialType={sessionToEdit.type}
+              // Maps 'spotsTotal' to 'maxParticipants'
+              initialMaxParticipants={sessionToEdit.spotsTotal || 0} 
+              // Maps 'instructor' to 'trainer'
+              initialTrainer={sessionToEdit.instructor || ""} 
+          />
+      )}
+
+    {sessionToDelete && (
+        <CancelGymSession
+            sessionId={sessionToDelete.id}
+            open={deleteModalOpen}
+            onClose={handleCloseDeleteModal}
+            // Use your existing load function to refresh the table after deletion
+            setRefresh={loadGymSessions} 
+        />
+      )}
     </ContentWrapper>
   );
 }

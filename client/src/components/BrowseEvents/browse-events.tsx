@@ -93,15 +93,6 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
       { label: "Trip", value: EventType.TRIP },
     ],
   },
-    {
-    id: "eventStatus",
-    title: "Event Status",
-    type: "chip",
-    options: [
-      {label:"Archived", value:"archived"},
-      {label:"Upcoming", value: "upcoming"}
-    ]
-  },
   ...(userRole !== "vendor"
     ? [
         {
