@@ -38,6 +38,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import ContentWrapper from "../shared/containers/ContentWrapper";
+import theme from "@/themes/lightTheme";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -758,11 +759,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           open={createTrip}
           onClose={() => setTrip(false)}
           setRefresh={setRefresh}
+          color={theme.palette.tertiary.main}
         />
         <CreateBazaar
           open={createBazaar}
           onClose={() => setBazaar(false)}
           setRefresh={setRefresh}
+          color={theme.palette.tertiary.main}
         />
         {/* Create Conference Form */}
         <Create
