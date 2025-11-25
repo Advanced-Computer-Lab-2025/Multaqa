@@ -43,6 +43,9 @@ import "./schemas/event-schemas/conferenceEventSchema";
 import "./config/redisClient";
 import "./config/cloudinary";
 
+// Import event listeners to register them
+import "./utils/eventListeners";
+
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import { WorkshopScheduler } from "./services/workshopSchedulerService";

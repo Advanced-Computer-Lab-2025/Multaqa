@@ -29,7 +29,7 @@ async function sendSocketNotification(typeNotification: string, notification: No
         const user = await userRepo.findById(notification.userId);
         if (user) {
           user.notifications.push({
-            type: typeNotification,
+            type: notification.type,
             title: notification.title || '',
             message: notification.message || '',
             read: false,
@@ -101,7 +101,7 @@ async function sendSocketNotification(typeNotification: string, notification: No
       const user = await userRepo.findById(userId);
       if (user) {
         user.notifications.push({
-          type: typeNotification,
+          type: notification.type,
           title: notification.title || '',
           message: notification.message || '',
           read: false,

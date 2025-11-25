@@ -23,7 +23,6 @@ export interface Notification {
 export class NotificationService {
 
   static async sendNotification(notification: Notification) {
-
     // Emit the event based on type if user is online
     switch (notification.type) {
       case "WORKSHOP_REQUEST_SUBMITTED":
