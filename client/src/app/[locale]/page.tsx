@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, Suspense } from "react";
-// REMOVED usePathname/useSearchParams imports to prevent auto-suspense
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   alpha,
   Box,
@@ -134,6 +134,8 @@ export default function HomePage() {
 function HomePageContent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // State
   const [showSignUpOptions, setShowSignUpOptions] = useState(false);
@@ -143,11 +145,18 @@ function HomePageContent() {
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
 
-  // View State (Defaults to 'home' initially to avoid hydration mismatch)
+  // View State (Initialized from URL to prevent animation jump)
   const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
-    "home"
+    () => {
+      if (pathname?.endsWith("/login")) return "login";
+      if (pathname?.endsWith("/register")) return "register";
+      return "home";
+    }
   );
-  const [userType, setUserType] = useState<string>("");
+
+  const [userType, setUserType] = useState<string>(() => {
+    return searchParams?.get("userType") || "";
+  });
 
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
@@ -156,22 +165,6 @@ function HomePageContent() {
   const previousFocusRef = useRef<Element | null>(null);
 
   const isHome = currentView === "home";
-
-  // --- INITIALIZE FROM URL (CLIENT SIDE ONLY) ---
-  useEffect(() => {
-    // We do this inside useEffect so Next.js Router doesn't think we are depending on searchParams
-    const path = window.location.pathname;
-    const params = new URLSearchParams(window.location.search);
-
-    if (path.endsWith("/login")) {
-      setCurrentView("login");
-    } else if (path.endsWith("/register")) {
-      setCurrentView("register");
-      setUserType(params.get("userType") || "");
-    } else {
-      setCurrentView("home");
-    }
-  }, []);
 
   // --- HELPER TO UPDATE URL WITHOUT RELOAD ---
   const handleViewChange = (
@@ -2022,7 +2015,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "260px",
           borderRadius: "12px",
-          rotate: 5, // Slight tilt in auth mode for variety
+          rotate: 0, // Slight tilt in auth mode for variety
           transition: authTransition(0.2),
         },
       }}
@@ -2086,7 +2079,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "130px",
           borderRadius: "16px",
-          rotate: -10,
+          rotate: 0,
           transition: authTransition(0.15),
         },
       }}
@@ -2118,7 +2111,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "120px",
           height: "210px",
           borderRadius: "999px",
-          rotate: 15,
+          rotate: 0,
           transition: authTransition(0.25),
         },
       }}
