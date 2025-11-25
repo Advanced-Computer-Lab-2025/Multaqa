@@ -1951,19 +1951,6 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
       position: "relative",
       width: "100%",
       height: "100%",
-      // Floating animations
-      "@keyframes floatSlow": {
-        "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-10px)" },
-      },
-      "@keyframes floatMed": {
-        "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(8px)" },
-      },
-      "@keyframes floatFast": {
-        "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-6px)" },
-      },
     }}
   >
     {/* --- Shape 1: Tall Blue Pill (Top Left) --- */}
@@ -1977,7 +1964,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "120px",
           height: "250px",
           borderRadius: "999px",
-          transition: homeTransition,
+          y: [0, -10, 0],
+          transition: {
+            ...homeTransition,
+            y: { duration: 9, repeat: Infinity, ease: "easeInOut" },
+          },
         },
         auth: {
           top: "50%",
@@ -1985,13 +1976,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "250px",
           height: "120px",
           borderRadius: "999px",
-          transition: authTransition(0.1),
+          y: [0, -10, 0],
+          transition: {
+            ...authTransition(0.1),
+            y: { duration: 9, repeat: Infinity, ease: "easeInOut" },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: "#5696d8", // Matching image light blue
-        animation: "floatSlow 9s ease-in-out infinite",
       }}
     />
 
@@ -2007,7 +2001,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "110px",
           borderRadius: "12px",
           rotate: 0,
-          transition: homeTransition,
+          y: [0, 8, 0],
+          transition: {
+            ...homeTransition,
+            y: {
+              duration: 11,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            },
+          },
         },
         auth: {
           top: "40%",
@@ -2016,14 +2019,21 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "260px",
           borderRadius: "12px",
           rotate: 0, // Slight tilt in auth mode for variety
-          transition: authTransition(0.2),
+          y: [0, 8, 0],
+          transition: {
+            ...authTransition(0.2),
+            y: {
+              duration: 11,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: "#502ba0", // Matching image purple
-        animation: "floatMed 11s ease-in-out infinite",
-        animationDelay: "0.5s",
       }}
     />
 
@@ -2039,7 +2049,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "8px",
           borderRadius: "4px",
           rotate: 0,
-          transition: homeTransition,
+          y: [0, -6, 0],
+          transition: {
+            ...homeTransition,
+            y: { duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 },
+          },
         },
         auth: {
           top: "15%",
@@ -2048,14 +2062,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "160px",
           borderRadius: "4px",
           rotate: 0,
-          transition: authTransition(0.4),
+          y: [0, -6, 0],
+          transition: {
+            ...authTransition(0.4),
+            y: { duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: theme.palette.common.black,
-        animation: "floatFast 8s ease-in-out infinite",
-        animationDelay: "1s",
       }}
     />
 
@@ -2071,7 +2087,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "130px",
           borderRadius: "16px",
           rotate: 0,
-          transition: homeTransition,
+          y: [0, -10, 0],
+          transition: {
+            ...homeTransition,
+            y: {
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.2,
+            },
+          },
         },
         auth: {
           top: "20%",
@@ -2080,14 +2105,21 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "130px",
           borderRadius: "16px",
           rotate: 0,
-          transition: authTransition(0.15),
+          y: [0, -10, 0],
+          transition: {
+            ...authTransition(0.15),
+            y: {
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.2,
+            },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: "#243168", // Matching image dark blue
-        animation: "floatSlow 12s ease-in-out infinite",
-        animationDelay: "0.2s",
       }}
     />
 
@@ -2103,7 +2135,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "210px",
           borderRadius: "999px",
           rotate: 0,
-          transition: homeTransition,
+          y: [0, 8, 0],
+          transition: {
+            ...homeTransition,
+            y: {
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.7,
+            },
+          },
         },
         auth: {
           top: "10%",
@@ -2112,14 +2153,21 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "210px",
           borderRadius: "999px",
           rotate: 0,
-          transition: authTransition(0.25),
+          y: [0, 8, 0],
+          transition: {
+            ...authTransition(0.25),
+            y: {
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.7,
+            },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: "#abcce8", // Matching image pale blue
-        animation: "floatMed 10s ease-in-out infinite",
-        animationDelay: "0.7s",
       }}
     />
 
@@ -2135,7 +2183,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "125px",
           borderRadius: "4px",
           rotate: 0,
-          transition: homeTransition,
+          y: [0, -10, 0],
+          transition: {
+            ...homeTransition,
+            y: { duration: 14, repeat: Infinity, ease: "easeInOut" },
+          },
         },
         auth: {
           top: "75%",
@@ -2144,13 +2196,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "90px",
           borderRadius: "50%",
           rotate: 0,
-          transition: authTransition(0.4),
+          y: [0, -10, 0],
+          transition: {
+            ...authTransition(0.4),
+            y: { duration: 14, repeat: Infinity, ease: "easeInOut" },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: "#3f4d9b", // Matching image indigo
-        animation: "floatSlow 14s ease-in-out infinite",
       }}
     />
 
@@ -2166,7 +2221,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "200px",
           borderRadius: "4px",
           rotate: 0,
-          transition: homeTransition,
+          y: [0, -10, 0],
+          transition: {
+            ...homeTransition,
+            y: {
+              duration: 13,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            },
+          },
         },
         auth: {
           top: "30%",
@@ -2175,14 +2239,21 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "180px",
           borderRadius: "4px",
           rotate: 0,
-          transition: authTransition(0.45),
+          y: [0, -10, 0],
+          transition: {
+            ...authTransition(0.45),
+            y: {
+              duration: 13,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: theme.palette.common.black,
-        animation: "floatSlow 13s ease-in-out infinite",
-        animationDelay: "0.5s",
       }}
     />
 
@@ -2198,7 +2269,11 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "110px",
           borderRadius: "50%",
           scale: 1,
-          transition: homeTransition,
+          y: [0, -6, 0],
+          transition: {
+            ...homeTransition,
+            y: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.3 },
+          },
         },
         auth: {
           top: "80%",
@@ -2207,14 +2282,16 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           height: "90px",
           borderRadius: "999px",
           scale: 1.1,
-          transition: authTransition(0.3),
+          y: [0, -6, 0],
+          transition: {
+            ...authTransition(0.3),
+            y: { duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.3 },
+          },
         },
       }}
       sx={{
         position: "absolute",
         bgcolor: "#e91e63", // Matching image pink
-        animation: "floatFast 9s ease-in-out infinite",
-        animationDelay: "0.3s",
       }}
     />
 
