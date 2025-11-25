@@ -2,6 +2,7 @@ import { CustomModal } from '@/components/shared/modals'
 import { Box, Typography } from '@mui/material'
 import theme from "@/themes/lightTheme";
 import {api} from "../../../api";
+import { toast } from "react-toastify";
 import React , {useState}from 'react'
 
 interface CancelEventRegisterationProps {
@@ -25,10 +26,31 @@ const CancelRegistration = ({eventId, open, onClose, isRefundable=true , setRefr
         // TODO: Replace with your API route
         const res = await api.post("/payments/"+ eventId + "/refund");
         setResponse(res.data);
+        toast.success("Registration Cancelled Successfully", {
+          position: "bottom-right",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
         setRefresh((prev)=> !prev);
       } catch (err: any) {
         setError(err?.message || "API call failed");
-        window.alert(err.response.data.error);
+        toast.error("Failed to cancel registration",
+          {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          }
+        );
       } finally {
         setLoading(false);
       }

@@ -6,7 +6,11 @@ import VendorItemCard from "./VendorItemCard";
 import { VendorRequestItem } from "./types";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import { Cancel } from "@mui/icons-material";
+import CancelApplicationVendor from "@/components/Event/Modals/CancelApplicationVendor";
 import ContentWrapper from "../../shared/containers/ContentWrapper";
+import theme from "@/themes/lightTheme";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
@@ -78,6 +82,7 @@ const mapRequestedEventToVendorRequest = (
     startDate,
     status,
     submittedAt,
+    eventId,
   };
 
   if (isBazaar && endDate) {
@@ -95,6 +100,13 @@ export default function VendorRequestsList() {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [requests, setRequests] = useState<VendorRequestItem[]>([]);
+  const [cancelApplication, setCancelApplication] = useState(false);
+
+  // track which request (vendorEvent) was selected for cancellation
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  // toggle to trigger refetch after cancel
+  const [refreshToggle, setRefreshToggle] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,7 +163,8 @@ export default function VendorRequestsList() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+   // refetch when user or refreshToggle change
+  }, [user, refreshToggle]);
 
   const renderDetails = (item: VendorRequestItem) => (
     <Stack spacing={1}>
@@ -199,12 +212,41 @@ export default function VendorRequestsList() {
             item={item}
             details={renderDetails(item)}
             rightSlot={
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="column" spacing={5} alignItems="center">
                 {statusChip(item.status)}
+                {item.status === "PENDING" && (
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 999,
+                      backgroundColor: `${theme.palette.primary.main}10`,
+                      color: theme.palette.primary.main,
+                      borderColor: theme.palette.primary.main,
+                      width: "fit-content",
+                      fontSize: '0.5rem',
+                    }}
+                     onClick={() => {
+                      setSelectedEventId(item.eventId ?? null); // use mapped request id (vendorEvents._id)
+                      setCancelApplication(true);
+                    }}
+                  >
+                    Cancel Application
+                  </CustomButton>
+                )}
               </Stack>
             }
           />
         ))}
+         <CancelApplicationVendor
+          eventId={selectedEventId ?? ""}
+          open={cancelApplication}
+          onClose={() => {
+            setCancelApplication(false);
+            setSelectedEventId(null);
+          }}
+          setRefresh={setRefreshToggle}
+        />
       </Stack>
     </ContentWrapper>
   );
