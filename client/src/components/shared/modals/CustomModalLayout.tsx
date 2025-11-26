@@ -11,7 +11,7 @@ import {
   StyledModalHeader,
 } from "./styles/StyledModal";
 import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
-import { CustomModalLayoutProps } from "./types";
+import { CustomModalLayoutProps } from "./types"; // Assuming title will be added here
 import { createDelayedCloseHandler } from "./utils";
 import { useTheme, lighten } from "@mui/material/styles";
 
@@ -21,6 +21,7 @@ export default function CustomModalLayout({
   onClose,
   width,
   borderColor,
+  title,
 }: CustomModalLayoutProps) {
   const transitionDuration = 400;
   const [isCloseActive, setIsCloseActive] = React.useState(false);

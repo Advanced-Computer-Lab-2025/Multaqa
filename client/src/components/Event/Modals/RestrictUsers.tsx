@@ -107,10 +107,10 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   };
 
   return (
-    <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[45vw]'>
-      <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} color="primary.dark" className="text-center">
+    <CustomModalLayout title={`Restrict Users for ${eventName ?? ""}`} open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[45vw]'>
+      {/* <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} color="primary.dark" className="text-center">
           {`Restrict Users for ${eventName ?? ""}`}
-      </Typography>
+      </Typography> */}
       <Box sx={{ p: 3, width: { xs: "90vw", sm: 560 } }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 , borderBottom:"2px solid #E0E0E0", pb:1}}>
           <Typography variant="body1" sx={{ fontWeight: 600 , mr:2}}>

@@ -1,4 +1,4 @@
-import { CustomModal, CustomModalLayout } from '@/components/shared/modals'
+import { CustomModal } from '@/components/shared/modals'
 import { Box, Typography } from '@mui/material'
 import theme from "@/themes/lightTheme";
 import { api } from "../../../api";
