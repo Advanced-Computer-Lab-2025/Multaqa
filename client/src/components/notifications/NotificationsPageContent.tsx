@@ -1,13 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import { Typography, Box, Tabs, Tab, Stack } from "@mui/material";
+import { Typography, Box, Tabs, Tab, Stack, Pagination } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNotifications } from "@/context/NotificationContext";
 import NotificationItem from "./NotificationItem";
 
+const ITEMS_PER_PAGE = 10;
+
 export default function NotificationsPageContent() {
   const { notifications, markAsRead, markAsUnread, deleteNotification } = useNotifications();
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "read">("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Filter notifications based on active tab
   const filteredNotifications = notifications.filter((notification) => {
@@ -17,8 +20,20 @@ export default function NotificationsPageContent() {
     return true;
   });
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredNotifications.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedNotifications = filteredNotifications.slice(startIndex, endIndex);
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue as "all" | "unread" | "read");
+    setCurrentPage(1); // Reset to first page when changing tabs
+  };
+
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+    setCurrentPage(value);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -67,7 +82,7 @@ export default function NotificationsPageContent() {
           {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Notifications`}
         </Typography>
         <Typography variant="body2" sx={{ color: "#666" }}>
-          {`You have ${filteredNotifications.length} ${activeTab === "all" ? "" : activeTab} notification${filteredNotifications.length !== 1 ? "s" : ""}`}
+          {`Showing ${filteredNotifications.length === 0 ? 0 : startIndex + 1}-${Math.min(endIndex, filteredNotifications.length)} of ${filteredNotifications.length} ${activeTab === "all" ? "" : activeTab} notification${filteredNotifications.length !== 1 ? "s" : ""}`}
         </Typography>
       </Box>
 
@@ -105,18 +120,54 @@ export default function NotificationsPageContent() {
           </Typography>
         </Box>
       ) : (
-        <Stack spacing={2}>
-          {filteredNotifications.map((notification) => (
-            <NotificationItem
-              key={notification._id}
-              notification={notification}
-              onRead={markAsRead}
-              onUnread={markAsUnread}
-              onDelete={deleteNotification}
-              compact={false}
-            />
-          ))}
-        </Stack>
+        <>
+          <Stack spacing={2}>
+            {paginatedNotifications.map((notification) => (
+              <NotificationItem
+                key={notification._id}
+                notification={notification}
+                onRead={markAsRead}
+                onUnread={markAsUnread}
+                onDelete={deleteNotification}
+                compact={false}
+              />
+            ))}
+          </Stack>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mt: 4,
+                mb: 2,
+              }}
+            >
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+                size="large"
+                showFirstButton
+                showLastButton
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    color: "#666",
+                  },
+                  "& .Mui-selected": {
+                    backgroundColor: "#6299d0 !important",
+                    color: "#fff !important",
+                  },
+                  "& .MuiPaginationItem-root:hover": {
+                    backgroundColor: "rgba(98, 153, 208, 0.1)",
+                  },
+                }}
+              />
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
