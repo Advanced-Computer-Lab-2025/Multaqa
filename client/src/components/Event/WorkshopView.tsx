@@ -61,9 +61,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const handlePaymentSuccess = (paymentDetails: any) => {
     console.log('Payment successful:', paymentDetails);
     setPaymentDrawerOpen(false);
-
-    // Handle successful payment - redirect, show confirmation, etc.
-    alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
   };
   const startDate = new Date(details["Start Date"]);
   const now = new Date();

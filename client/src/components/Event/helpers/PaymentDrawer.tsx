@@ -153,6 +153,20 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
     try {
       const walletResponse = await api.patch(`/payments/${eventId}/wallet`);
       console.log(walletResponse);
+      
+      setTimeout(()=>{
+        // Show toast notification after the drawer closes with a delay of 1000ms
+        toast.success('Enjoy your event!', {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      }, 2500)
 
       // Set success state to show success UI inside drawer
       setPaymentSuccess(true);
