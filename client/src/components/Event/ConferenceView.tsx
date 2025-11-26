@@ -190,25 +190,31 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditConference
-        conferenceId={id}
-        open={edit}
-        onClose={() => setEdit(false)}
-        setRefresh={setRefresh}
-        eventName={name}
-        description={description}
-        eventStartDate={details["Start Date"]}
-        eventEndDate={details["End Date"]}
-        requiredBudget={details["Required Budget"]}
-        fundingSource={details["Funding Source"]}
-        websiteLink={details["Link"]}
-        agenda={agenda}
-        extraRequiredResources={details["Extra Required Resources"]}
-        eventStartTime={details["Start Time"]}
-        eventEndTime={details["End Time"]}
-      />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)} />
+      {setRefresh && (
+        <EditConference
+          conferenceId={id}
+          open={edit}
+          onClose={() => setEdit(false)}
+          setRefresh={setRefresh}
+          eventName={name}
+          description={description}
+          eventStartDate={details["Start Date"]}
+          eventEndDate={details["End Date"]}
+          requiredBudget={details["Required Budget"]}
+          fundingSource={details["Funding Source"]}
+          websiteLink={details["Link"]}
+          agenda={agenda}
+          extraRequiredResources={details["Extra Required Resources"]}
+          eventStartTime={details["Start Time"]}
+          eventEndTime={details["End Time"]}
+        />
+      )}
+      {setRefresh && (
+        <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      )}
+      {setRefresh && (
+        <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)} />
+      )}
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
