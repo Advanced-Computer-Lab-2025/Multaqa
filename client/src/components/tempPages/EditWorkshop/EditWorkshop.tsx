@@ -320,7 +320,7 @@ const EditWorkshop = ({
             requiredBudget: values.budget,
             extraRequiredResources: values.extraResources,
             capacity: values.capacity,
-            registrationDeadline: values.registrationDeadline.format("YYYY-MM-DD"),
+            registrationDeadline: values.registrationDeadline ? values.registrationDeadline.toISOString() : null,
             eventStartTime: values.startDate.format("HH:mm"),
             eventEndTime: values.endDate.format("HH:mm"),
             fundingSource: values.fundingSource,

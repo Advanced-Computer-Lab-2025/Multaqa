@@ -273,11 +273,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         workshopName={name}
         budget={parseInt(details["Required Budget"], 10)}
         capacity={parseInt(details["Capacity"], 10)}
-        startDate={new Date(details["Start Date"])}
-        endDate={new Date(details["End Date"])}
-        registrationDeadline={
-          new Date(details["Registration Deadline"])
-        }
+        startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)}
+        endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)}
+        registrationDeadline={new Date(details["Deadline"])}
         description={description}
         agenda={agenda}
         location={details["Location"]}

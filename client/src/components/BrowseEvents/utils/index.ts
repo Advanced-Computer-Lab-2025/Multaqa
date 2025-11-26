@@ -66,6 +66,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         },
         attended,
         archived,
+        registrationDeadline,
       };
 
     case "workshop":
@@ -97,6 +98,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
           "CreatedId": event.createdBy.id,
+          "Deadline": event.registrationDeadline,
           "Created by": fullName,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
@@ -128,6 +130,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         },
         attended,
         archived,
+        registrationDeadline,
       };
     case "bazaar":
       return {
@@ -148,6 +151,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         },
         attended,
         archived,
+        registrationDeadline,
       };
     case "platform_booth":
       return {
