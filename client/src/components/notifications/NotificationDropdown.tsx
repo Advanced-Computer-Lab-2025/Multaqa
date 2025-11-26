@@ -30,9 +30,16 @@ export default function NotificationDropdown({
   const { notifications, markAsRead, deleteNotification, markAllAsRead } =
     useNotifications();
 
-  // Show only recent 5 notifications in dropdown
-  const recentNotifications = notifications.slice(0, 5);
-  const hasNotifications = notifications.length > 0;
+  // Show only notifications from the last 24 hours
+  const now = new Date();
+  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  
+  const recentNotifications = notifications.filter((notification) => {
+    const notificationDate = new Date(notification.createdAt);
+    return notificationDate >= twentyFourHoursAgo;
+  });
+  
+  const hasNotifications = recentNotifications.length > 0;
 
   // Extract entity from current path (e.g., /en/professor/... -> professor)
   const getEntityFromPath = () => {
