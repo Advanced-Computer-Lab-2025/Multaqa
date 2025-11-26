@@ -4,13 +4,11 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
-  Chip,
   CircularProgress,
   Divider,
   Stack,
   Typography,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { api } from "@/api";
@@ -18,6 +16,8 @@ import VendorRequestCard from "./VendorRequestCard";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import EmptyState from "@/components/shared/states/EmptyState";
 import ErrorState from "@/components/shared/states/ErrorState";
+import FilterPanel from "@/components/shared/FilterCard/FilterPanel";
+import { FilterGroup } from "@/components/shared/FilterCard/types";
 import {
   StatusFilter,
   TypeFilter,
@@ -34,17 +34,29 @@ type RawVendorRequest = {
   event?: any;
 };
 
-const statusFilters: Array<{ key: StatusFilter; label: string }> = [
-  { key: "ALL", label: "All" },
-  { key: "pending", label: "Pending" },
-  { key: "approved", label: "Approved" },
-  { key: "rejected", label: "Rejected" },
-];
-
-const typeFilters: Array<{ key: TypeFilter; label: string }> = [
-  { key: "ALL", label: "All" },
-  { key: "bazaar", label: "Bazaars" },
-  { key: "platform_booth", label: "Platform Booths" },
+// Filter groups for FilterPanel
+const getFilterGroups = (): FilterGroup[] => [
+  {
+    id: "status",
+    title: "Status",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Pending", value: "pending" },
+      { label: "Approved", value: "approved" },
+      { label: "Rejected", value: "rejected" },
+    ],
+  },
+  {
+    id: "eventType",
+    title: "Event Type",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Bazaars", value: "bazaar" },
+      { label: "Platform Booths", value: "platform_booth" },
+    ],
+  },
 ];
 
 function ensureString(value: unknown): string | undefined {
@@ -159,8 +171,8 @@ function mapRequest(
     const key = contact.email
       ? `e:${contact.email.toLowerCase()}`
       : contact.name
-      ? `n:${contact.name.toLowerCase()}`
-      : null;
+        ? `n:${contact.name.toLowerCase()}`
+        : null;
     if (!key || seen.has(key)) continue;
     seen.add(key);
     deduped.push(contact);
@@ -207,8 +219,13 @@ export default function VendorParticipationRequests() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
+  const [filters, setFilters] = useState<{
+    status: string[];
+    eventType: string[];
+  }>({
+    status: ["pending"], // Default to pending
+    eventType: [], // All types
+  });
   const [responding, setResponding] = useState<
     Record<string, VendorRequestStatus | null>
   >({});
@@ -251,13 +268,21 @@ export default function VendorParticipationRequests() {
 
   const filteredRequests = useMemo(() => {
     return requests.filter((request) => {
+      // Status filter
       const statusMatch =
-        statusFilter === "ALL" || request.status === statusFilter;
+        filters.status.length === 0 ||
+        filters.status.includes("ALL") ||
+        filters.status.includes(request.status);
+
+      // Event type filter
       const typeMatch =
-        typeFilter === "ALL" || request.eventType === typeFilter;
+        filters.eventType.length === 0 ||
+        filters.eventType.includes("ALL") ||
+        filters.eventType.includes(request.eventType);
+
       return statusMatch && typeMatch;
     });
-  }, [requests, statusFilter, typeFilter]);
+  }, [requests, filters]);
 
   const groupedByDay = useMemo(() => {
     const groups = new Map<
@@ -270,15 +295,15 @@ export default function VendorParticipationRequests() {
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
         ? new Date(
-            dateValue!.getFullYear(),
-            dateValue!.getMonth(),
-            dateValue!.getDate()
-          ).toISOString()
+          dateValue!.getFullYear(),
+          dateValue!.getMonth(),
+          dateValue!.getDate()
+        ).toISOString()
         : "unscheduled";
       const label = isValidDate
         ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
-            dateValue!
-          )
+          dateValue!
+        )
         : "Date To Be Determined";
       const dateOrder = isValidDate
         ? dateValue!.getTime()
@@ -328,9 +353,9 @@ export default function VendorParticipationRequests() {
         prev.map((item) =>
           item.id === request.id
             ? {
-                ...item,
-                status,
-              }
+              ...item,
+              status,
+            }
             : item
         )
       );
@@ -351,6 +376,34 @@ export default function VendorParticipationRequests() {
       setResponding((prev) => ({ ...prev, [request.id]: null }));
     }
   };
+
+  const handleFilterChange = useCallback((groupId: string, value: any) => {
+    setFilters((prev) => {
+      const currentVal = prev[groupId as keyof typeof prev];
+
+      if (Array.isArray(currentVal)) {
+        if (currentVal.includes(value)) {
+          return {
+            ...prev,
+            [groupId]: currentVal.filter((v) => v !== value),
+          };
+        } else {
+          return {
+            ...prev,
+            [groupId]: [...currentVal, value],
+          };
+        }
+      }
+      return prev;
+    });
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setFilters({
+      status: ["pending"],
+      eventType: [],
+    });
+  }, []);
 
   const content = () => {
     if (loading) {
@@ -430,103 +483,16 @@ export default function VendorParticipationRequests() {
             mt: 2,
             mb: 2,
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            gap: 2,
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
+            alignItems: "center",
           }}
         >
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {statusFilters.map(({ key, label }) => {
-              const isActive = statusFilter === key;
-              // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)
-              const baseColor =
-                key === "ALL"
-                  ? "#6299d0" // Blue for All
-                  : key === "pending"
-                  ? "#f59e0b" // Orange/Amber for Pending
-                  : key === "approved"
-                  ? "#10b981" // Green for Approved
-                  : "#ef4444"; // Red for Rejected
-
-              return (
-                <Chip
-                  key={key}
-                  label={label}
-                  size="medium"
-                  onClick={() => setStatusFilter(key)}
-                  variant="outlined"
-                  sx={{
-                    fontFamily: "var(--font-poppins)",
-                    fontWeight: 700,
-                    letterSpacing: 0.2,
-                    borderRadius: "28px",
-                    px: 1.75,
-                    height: 28,
-                    borderWidth: isActive ? 3 : 1,
-                    borderColor: baseColor,
-                    color: baseColor,
-                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
-                    boxShadow: isActive
-                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
-                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
-                    transition:
-                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                    transform: isActive ? "translateY(-1px)" : "none",
-                    "&:hover": {
-                      backgroundColor: alpha(baseColor, 0.16),
-                      borderWidth: isActive ? 3 : 2,
-                      transform: "translateY(-1px)",
-                    },
-                  }}
-                />
-              );
-            })}
-          </Stack>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {typeFilters.map(({ key, label }) => {
-              const isActive = typeFilter === key;
-              // Color coding: All (blue), Bazaar (purple), Platform Booth (blue)
-              const baseColor =
-                key === "ALL"
-                  ? "#6299d0" // Blue for All
-                  : key === "bazaar"
-                  ? "#5b21b6" // Purple for Bazaar (matches VendorRequestCard)
-                  : "#1d4ed8"; // Blue for Platform Booth (matches VendorRequestCard)
-
-              return (
-                <Chip
-                  key={key}
-                  label={label}
-                  size="medium"
-                  onClick={() => setTypeFilter(key)}
-                  variant="outlined"
-                  sx={{
-                    fontFamily: "var(--font-poppins)",
-                    fontWeight: 700,
-                    letterSpacing: 0.2,
-                    borderRadius: "28px",
-                    px: 1.75,
-                    height: 28,
-                    borderWidth: isActive ? 3 : 1,
-                    borderColor: baseColor,
-                    color: baseColor,
-                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
-                    boxShadow: isActive
-                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
-                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
-                    transition:
-                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                    transform: isActive ? "translateY(-1px)" : "none",
-                    "&:hover": {
-                      backgroundColor: alpha(baseColor, 0.16),
-                      borderWidth: isActive ? 3 : 2,
-                      transform: "translateY(-1px)",
-                    },
-                  }}
-                />
-              );
-            })}
-          </Stack>
+          <FilterPanel
+            filterGroups={getFilterGroups()}
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+            onReset={handleResetFilters}
+          />
         </Box>
 
         <Divider sx={{ mb: 3 }} />

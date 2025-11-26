@@ -26,6 +26,7 @@ export interface EventDetailsProps {
   eventId: string; // Required for backend API calls
   userId?:string;
   createdBy?:string;
+  onParentClose?: () => void;
 }
 
 // Mock data for reviews

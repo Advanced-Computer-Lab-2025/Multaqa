@@ -20,6 +20,7 @@ interface CreationHubDropdownProps {
   buttonLabel?: string;
   helperText?: string;
   dropdownSide?: "left" | "right";
+  buttonTextColor?: string; // Optional text color for the button
 }
 
 export default function CreationHubDropdown({
@@ -27,6 +28,7 @@ export default function CreationHubDropdown({
   buttonLabel = "Create New",
   helperText = "Choose what you would like to create",
   dropdownSide = "right",
+  buttonTextColor,
 }: CreationHubDropdownProps) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -164,6 +166,7 @@ export default function CreationHubDropdown({
           px: 3,
           py: 1,
           whiteSpace: "nowrap",
+          ...(buttonTextColor && { color: `${buttonTextColor} !important` }),
           boxShadow: open
             ? `0 10px 30px ${theme.palette.primary.main}33`
             : undefined,

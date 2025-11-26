@@ -44,6 +44,7 @@ interface EventCardProps {
   attended?: boolean;
   professorStatus?: string;
   createdBy?: string;
+  professors?: string[]; // Array of professor names for workshops
   archived?: boolean;
 }
 
@@ -75,6 +76,7 @@ const EventCard: React.FC<EventCardProps> = ({
   evaluateButton,
   professorStatus,
   createdBy,
+  professors = [],
   archived = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
@@ -82,6 +84,10 @@ const EventCard: React.FC<EventCardProps> = ({
   const [copySuccess, setCopySuccess] = useState(false);
   const [fav, setFav] = useState<boolean>(isFavorite);
   const [animateFav, setAnimateFav] = useState<boolean>(false);
+  const normalizedTitle = title?.toLowerCase?.() ?? "";
+  const normalizedCreatedBy = createdBy?.toLowerCase?.() ?? "";
+  const normalizedLocation = location?.toLowerCase?.() ?? "";
+  const normalizedEventType = eventType?.toLowerCase?.() ?? "";
 
   const handleOpenModal = () => {
     if (onOpenDetails) {
@@ -220,6 +226,10 @@ const EventCard: React.FC<EventCardProps> = ({
           background: `linear-gradient(90deg, ${color}, ${color}90)`,
         },
       }}
+      data-title-normalized={normalizedTitle}
+      data-createdby-normalized={normalizedCreatedBy}
+      data-location-normalized={normalizedLocation}
+      data-eventtype-normalized={normalizedEventType}
     >
       {/* Header Section */}
       <Box
@@ -628,6 +638,70 @@ const EventCard: React.FC<EventCardProps> = ({
                   border: `1px solid ${color}20`,
                 }}
               >
+                {/* Avatar icons for hosts */}
+                {professors.length > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mr: 0.5,
+                    }}
+                  >
+                    {/* Show up to 3 professor avatars */}
+                    {[createdBy, ...professors.slice(0, 3)].map((name, idx) => {
+                      const initials = name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2);
+                      return (
+                        <Box
+                          key={idx}
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: "50%",
+                            backgroundColor: color,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "0.5rem",
+                            fontWeight: 600,
+                            border: "1.5px solid white",
+                            marginLeft: idx > 0 ? "-6px" : 0,
+                            zIndex: professors.length - idx,
+                          }}
+                        >
+                          {initials}
+                        </Box>
+                      );
+                    })}
+                    {/* Show +X if more than 3 total hosts */}
+                    {professors.length > 3 && (
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          backgroundColor: `${color}30`,
+                          color: color,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.5rem",
+                          fontWeight: 700,
+                          border: "1.5px solid white",
+                          marginLeft: "-6px",
+                          zIndex: 0,
+                        }}
+                      >
+                        +{professors.length - 3}
+                      </Box>
+                    )}
+                  </Box>
+                )}
                 <Typography
                   variant="caption"
                   sx={{
@@ -638,7 +712,7 @@ const EventCard: React.FC<EventCardProps> = ({
                     letterSpacing: "0.5px",
                   }}
                 >
-                  Created by
+                  {eventType === "Conference" ? "Featuring" : "Hosted by"}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -648,7 +722,13 @@ const EventCard: React.FC<EventCardProps> = ({
                     fontWeight: 600,
                   }}
                 >
-                  {createdBy}
+                  {(createdBy).toUpperCase()}
+                  {professors.length > 0 && (
+                    <>
+                      {" & "}
+                      {professors.length === 1 ? "1 OTHER" : `${professors.length} OTHERS`}
+                    </>
+                  )}
                 </Typography>
               </Box>
             </Box>
