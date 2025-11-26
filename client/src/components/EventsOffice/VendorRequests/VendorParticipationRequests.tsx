@@ -4,10 +4,11 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
-  CircularProgress,
+  Chip,
   Divider,
   Stack,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -99,7 +100,22 @@ function mapRequest(
     (vendorObject?.name as string | undefined) ??
     "Unknown Vendor";
   const vendorRole = vendorObject?.role as string | undefined;
-  const vendorLogo = vendorObject?.logo as string | undefined;
+  const rawLogo = vendorObject?.logo;
+  let vendorLogo: string | undefined = undefined;
+
+  if (rawLogo && typeof rawLogo === "object" && "url" in rawLogo) {
+    vendorLogo = (rawLogo as any).url;
+  } else if (typeof rawLogo === "string") {
+    vendorLogo = rawLogo;
+  }
+
+  const rawTaxCard = vendorObject?.taxCard;
+  let taxCardUrl: string | undefined = undefined;
+  if (rawTaxCard && typeof rawTaxCard === "object" && "url" in rawTaxCard) {
+    taxCardUrl = (rawTaxCard as any).url;
+  } else if (typeof rawTaxCard === "string") {
+    taxCardUrl = rawTaxCard;
+  }
 
   const requestData = entry.RequestData ?? {};
   const eventRaw = entry.event ?? {};
@@ -120,7 +136,7 @@ function mapRequest(
   const boothSize = requestData?.boothSize as string | undefined;
   const boothLocation = requestData?.boothLocation as string | undefined;
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
-  // Normalize attendees from multiple possible shapes/fields
+
   const collectArrays = (...candidates: unknown[]) =>
     candidates.filter(Array.isArray) as any[][];
 
@@ -140,13 +156,25 @@ function mapRequest(
   const flattened = candidateArrays.flat();
 
   const parseContact = (val: any) => {
+    let nationalIdUrl: string | undefined = undefined;
+    if (val && typeof val === "object") {
+      if (
+        val.nationalId &&
+        typeof val.nationalId === "object" &&
+        "url" in val.nationalId
+      ) {
+        nationalIdUrl = val.nationalId.url;
+      } else if (typeof val.nationalId === "string") {
+        nationalIdUrl = val.nationalId;
+      }
+    }
+
     if (typeof val === "string") {
       const str = val.trim();
-      // Basic email detection in string
       if (str.includes("@")) {
-        return { name: undefined, email: str };
+        return { name: undefined, email: str, nationalIdUrl };
       }
-      return { name: str || undefined, email: undefined };
+      return { name: str || undefined, email: undefined, nationalIdUrl };
     }
     if (val && typeof val === "object") {
       const firstName = (val.firstName as string | undefined) ?? undefined;
@@ -158,26 +186,39 @@ function mapRequest(
         (val.mail as string | undefined) ??
         (val.contactEmail as string | undefined) ??
         undefined;
-      if (name || email) return { name, email };
+
+      if (name || email) return { name, email, nationalIdUrl };
     }
     return undefined;
   };
 
-  const deduped: { name?: string; email?: string }[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<
+    string,
+    { name?: string; email?: string; nationalIdUrl?: string }
+  >();
+
   for (const item of flattened) {
     const contact = parseContact(item);
     if (!contact) continue;
     const key = contact.email
       ? `e:${contact.email.toLowerCase()}`
       : contact.name
-        ? `n:${contact.name.toLowerCase()}`
-        : null;
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    deduped.push(contact);
+      ? `n:${contact.name.toLowerCase()}`
+      : null;
+
+    if (!key) continue;
+
+    if (seen.has(key)) {
+      const existing = seen.get(key);
+      if (!existing?.nationalIdUrl && contact.nationalIdUrl) {
+        seen.set(key, { ...existing, nationalIdUrl: contact.nationalIdUrl });
+      }
+    } else {
+      seen.set(key, contact);
+    }
   }
-  const attendees = deduped;
+
+  const attendees = Array.from(seen.values());
   const status = normalizeStatus(requestData?.status);
   const submittedAt = ensureString(
     requestData?.submittedAt ?? requestData?.createdAt
@@ -210,8 +251,9 @@ function mapRequest(
     attendees,
     submittedAt,
     notes,
+    taxCardUrl,
     raw: entry,
-  };
+  } as any;
 }
 
 export default function VendorParticipationRequests() {
@@ -219,13 +261,8 @@ export default function VendorParticipationRequests() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
-  const [filters, setFilters] = useState<{
-    status: string[];
-    eventType: string[];
-  }>({
-    status: ["pending"], // Default to pending
-    eventType: [], // All types
-  });
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [responding, setResponding] = useState<
     Record<string, VendorRequestStatus | null>
   >({});
@@ -295,15 +332,15 @@ export default function VendorParticipationRequests() {
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
         ? new Date(
-          dateValue!.getFullYear(),
-          dateValue!.getMonth(),
-          dateValue!.getDate()
-        ).toISOString()
+            dateValue!.getFullYear(),
+            dateValue!.getMonth(),
+            dateValue!.getDate()
+          ).toISOString()
         : "unscheduled";
       const label = isValidDate
         ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
-          dateValue!
-        )
+            dateValue!
+          )
         : "Date To Be Determined";
       const dateOrder = isValidDate
         ? dateValue!.getTime()
@@ -408,9 +445,55 @@ export default function VendorParticipationRequests() {
   const content = () => {
     if (loading) {
       return (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-          <CircularProgress size={32} />
-        </Box>
+        <Stack spacing={3}>
+          <Box>
+            <Skeleton width={200} height={24} sx={{ mb: 1.5 }} />
+            <Stack spacing={2.5}>
+              {[1, 2, 3].map((i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid #e5e7eb",
+                    background: "#ffffff",
+                    p: 3, // Match the new card padding
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Left Side: Avatar + Info */}
+                  <Stack
+                    direction="row"
+                    spacing={2.5}
+                    alignItems="center"
+                    width="100%"
+                  >
+                    <Skeleton
+                      variant="circular"
+                      width={56}
+                      height={56}
+                      sx={{ flexShrink: 0 }}
+                    />
+                    <Stack spacing={1} width="60%">
+                      <Skeleton variant="text" width="40%" height={32} />
+                      <Stack direction="row" spacing={1}>
+                        <Skeleton variant="rounded" width={120} height={24} />
+                        <Skeleton variant="rounded" width={80} height={24} />
+                      </Stack>
+                    </Stack>
+                  </Stack>
+
+                  {/* Right Side: Buttons/Status placeholder */}
+                  <Stack direction="row" spacing={1}>
+                    <Skeleton variant="rounded" width={90} height={36} />
+                    <Skeleton variant="rounded" width={90} height={36} />
+                  </Stack>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        </Stack>
       );
     }
 
