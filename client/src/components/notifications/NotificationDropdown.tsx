@@ -12,7 +12,10 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import NotificationItem from "./NotificationItem";
-import { NotificationsNone as NotificationsNoneIcon } from "@mui/icons-material";
+import { 
+  NotificationsNone as NotificationsNoneIcon,
+  ChevronRight as ChevronRightIcon 
+} from "@mui/icons-material";
 
 interface NotificationDropdownProps {
   open: boolean;
@@ -172,29 +175,42 @@ export default function NotificationDropdown({
           <Divider />
           <Box
             sx={{
-              padding: 1,
+              padding: "12px 16px",
               display: "flex",
               justifyContent: "center",
               backgroundColor: "#f9fbfc",
             }}
           >
-            <Button
+            <Box
               onClick={handleViewAll}
-              size="small"
               sx={{
-                textTransform: "none",
-                color: "#6299d0",
-                fontWeight: 500,
-                fontSize: "0.75rem",
-                padding: "4px 12px",
-                minHeight: "28px",
-                "&:hover": {
-                  backgroundColor: alpha("#6299d0", 0.1),
-                },
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 0.25,
               }}
             >
-              View All
-            </Button>
+              <Typography
+                component="span"
+                sx={{
+                  textTransform: "none",
+                  color: "#2196F3",
+                  fontWeight: 400,
+                  fontSize: "0.875rem",
+                  "&:hover": {
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                See More
+              </Typography>
+              <ChevronRightIcon
+                sx={{
+                  color: "#2196F3",
+                  fontSize: "1.25rem",
+                }}
+              />
+            </Box>
           </Box>
         </>
       )}

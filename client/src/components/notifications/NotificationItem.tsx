@@ -88,13 +88,13 @@ export default function NotificationItem({
         gap: 2,
         padding: compact ? 1.5 : 2,
         borderRadius: 1,
-        backgroundColor: notification.read ? "#ffffff" : alpha("#6299d0", 0.05),
-        border: `1px solid ${notification.read ? "#e0e0e0" : alpha("#6299d0", 0.2)}`,
+        backgroundColor: notification.read ? "#ffffff" : alpha("#6299d0", 0.12),
+        border: `1px solid ${notification.read ? "#e0e0e0" : alpha("#6299d0", 0.35)}`,
         cursor: isTruncated || !notification.read ? "pointer" : "default",
         transition: "all 0.2s ease",
         "&:hover": {
-          backgroundColor: notification.read ? alpha("#6299d0", 0.03) : alpha("#6299d0", 0.08),
-          borderColor: alpha(color, 0.3),
+          backgroundColor: notification.read ? alpha("#6299d0", 0.08) : alpha("#6299d0", 0.1),
+          borderColor: alpha("#6299d0", 0.5),
           transform: isTruncated || !notification.read ? "translateX(4px)" : "none",
         },
       }}
