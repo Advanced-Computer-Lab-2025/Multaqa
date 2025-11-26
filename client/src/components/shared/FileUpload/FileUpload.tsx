@@ -77,7 +77,7 @@ const FileUpload: React.FC<UploadFieldProps> = ({
                 position: "absolute",
                 top: "50px",
                 left: "12px",
-                fontSize: "10px",
+                fontSize: "clamp(8px, 1.5vw, 10px)",
                 fontWeight: "bold",
                 color: "rgba(255, 255, 255, 0.9)",
                 letterSpacing: "0.5px",
@@ -151,14 +151,22 @@ const FileUpload: React.FC<UploadFieldProps> = ({
               {uploadStatus === "uploading" && "Uploading..."}
               {uploadStatus === "success" && (
                 <>
-                  <CheckCircleIcon sx={{ fontSize: 18, color: "#24ad51ff" }} />
+                  <CheckCircleIcon
+                    sx={{
+                      fontSize: "clamp(14px, 2vw, 18px)",
+                      color: "#24ad51ff",
+                    }}
+                  />
                   Uploaded
                 </>
               )}
               {uploadStatus === "error" && (
                 <>
                   <ErrorIcon
-                    sx={{ fontSize: 18, color: theme.palette.error.main }}
+                    sx={{
+                      fontSize: "clamp(14px, 2vw, 18px)",
+                      color: theme.palette.error.main,
+                    }}
                   />
                   Failed
                 </>
@@ -212,12 +220,20 @@ const FileUpload: React.FC<UploadFieldProps> = ({
                       }}
                     />
                   ) : (
-                    <InsertDriveFileIcon sx={{ color: "#24ad51ff" }} />
+                    <InsertDriveFileIcon
+                      sx={{
+                        fontSize: "clamp(24px, 3vw, 32px)",
+                        color: "#24ad51ff",
+                      }}
+                    />
                   )}
                   <CardContent sx={{ p: "0 !important", flex: 1 }}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <CheckCircleIcon
-                        sx={{ fontSize: 18, color: "#24ad51ff" }}
+                        sx={{
+                          fontSize: "clamp(14px, 2vw, 18px)",
+                          color: "#24ad51ff",
+                        }}
                       />
                       <Typography
                         variant="body2"
