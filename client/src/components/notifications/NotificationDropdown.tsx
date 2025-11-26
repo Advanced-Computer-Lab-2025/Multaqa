@@ -33,15 +33,9 @@ export default function NotificationDropdown({
   const { notifications, markAsRead, markAsUnread, deleteNotification, markAllAsRead } =
     useNotifications();
 
-  // Show only notifications from the last 24 hours
+  // Show only unread notifications
   const recentNotifications = React.useMemo(() => {
-    const now = new Date();
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    
-    return notifications.filter((notification) => {
-      const notificationDate = new Date(notification.createdAt);
-      return notificationDate >= twentyFourHoursAgo;
-    });
+    return notifications.filter((notification) => !notification.read);
   }, [notifications]);
   
   const hasNotifications = recentNotifications.length > 0;
