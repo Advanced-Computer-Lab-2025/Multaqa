@@ -107,7 +107,7 @@ export default function NotificationDropdown({
           <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
             Notifications
           </Typography>
-          {hasNotifications && (
+          {hasNotifications ? (
             <Typography
               onClick={handleMarkAllAsRead}
               sx={{
@@ -121,6 +121,21 @@ export default function NotificationDropdown({
               }}
             >
               Mark all as read
+            </Typography>
+          ) : (
+            <Typography
+              onClick={handleViewAll}
+              sx={{
+                fontSize: "0.875rem",
+                color: "#2196F3",
+                cursor: "pointer",
+                fontWeight: 400,
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+              }}
+            >
+              See history
             </Typography>
           )}
         </Box>
