@@ -2,11 +2,13 @@
 import * as React from 'react';
 import { useTheme, alpha } from '@mui/material/styles';
 import { Box, Theme, IconButton, InputBase, Select, Typography, TextField } from '@mui/material';
-import DatePicker  from "../../mui-lab/DatePicker";
 import Chip from '../../Chip/Chip';
 import {FilterGroup } from '../types';
 import ArrowDropDownIcon from '@mui/icons-material/Search';
 import SearchIcon from '@mui/icons-material/Search';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'; // Ensure this import is available
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'; // Or another adapter
+import dayjs, { Dayjs } from 'dayjs'; // Import dayjs or your preferred date library
 
 
 export const isSelected = (groupId: string, value: string | number, currentFilters: Record<string, any>): boolean => {
@@ -51,16 +53,16 @@ export const renderChipGroup = (group: FilterGroup, currentFilters: Record<strin
 
 export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<string, any>, onFilterChange: (groupId: string, value: any) => void) => {
     const theme = useTheme();
-
+    
     if (group.type === 'text') {
         const values: string[] = currentFilters[group.id] || [];
-        const options = group.options?.map(o => o.label) ?? [];
+        const options = group.options?.map(o => o.label) ?? []; // Suggestions pulled from options
 
-            const TextSelector: React.FC = () => {
-            const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-            const open = Boolean(anchorEl);
-            const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
-            const handleClose = () => setAnchorEl(null);
+        const TextSelector: React.FC = () => {
+            const [searchText, setSearchText] = React.useState('');
+            const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+            
+            // Re-define toggleOption for consistency, though it's mainly for deleting chips
             const toggleOption = (label: string) => {
                 const newValues = values.includes(label)
                     ? values.filter(v => v !== label)
@@ -68,24 +70,51 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
                 onFilterChange(group.id, newValues);
             };
 
-            const [searchText, setSearchText] = React.useState('');
-            const filteredOptions = options.filter(opt =>
-                opt.toLowerCase().includes(searchText.toLowerCase()) && !values.includes(opt)
-            );
+            // *** NEW CORE SUBMISSION FUNCTION ***
+            const handleSearchSubmit = () => {
+                const trimmedText = searchText.trim();
+                
+                if (trimmedText && !values.includes(trimmedText)) {
+                    // 1. Add the current search text as a new filter chip
+                    onFilterChange(group.id, [...values, trimmedText]); 
+                    // 2. Clear the input field after successful submission
+                    setSearchText(''); 
+                    setIsDropdownOpen(false);
+                }
+            };
+            // **********************************
+
+            const filteredOptions = options
+                .filter(opt =>
+                    opt.toLowerCase().includes(searchText.toLowerCase()) && !values.includes(opt)
+                );
+
+            const handleOptionSelect = (label: string) => {
+                toggleOption(label);
+                setSearchText('');
+                setIsDropdownOpen(false);
+            };
 
             return (
                 <Box sx={{ width: '100%' }}>
-                    {/* Top: search area with thin underline and right-side icon */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1,pb: 0.5 }}>
                         <InputBase
                             value={searchText}
-                            placeholder='Filter by Event name/ Professor'
+                            placeholder='Type to filter...'
                             onChange={(e) => setSearchText(e.target.value)}
+                            onFocus={() => setIsDropdownOpen(true)}
+                            onBlur={() => window.setTimeout(() => setIsDropdownOpen(false), 120)}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter' && searchText && filteredOptions.length > 0) {
+                                if (e.key === 'Enter') {
+                                    // FIX: Call the search submit function on Enter
+                                    handleSearchSubmit();
+                                    e.preventDefault(); // Prevent accidental form submission
+                                } else if (e.key === 'Tab' && filteredOptions.length > 0) {
+                                    // Optional: Keep old tab auto-select if needed
+                                    // You can remove this block if tab behavior is not required
                                     toggleOption(filteredOptions[0]);
                                     setSearchText('');
-                                    handleClose();
+                                    e.preventDefault(); 
                                 }
                             }}
                             sx={{
@@ -100,8 +129,9 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
 
                         <IconButton
                             size="small"
-                            onClick={handleOpen}
-                            aria-label={`Open ${group.title} options`}
+                            // FIX: Click on search icon now triggers the filter
+                            onClick={handleSearchSubmit} 
+                            aria-label={`Apply ${group.title} filter`}
                             sx={{
                                 p: 0.5,
                                 color: theme.palette.text.secondary,
@@ -112,7 +142,57 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
                         </IconButton>
                     </Box>
 
-                    {/* Bottom: selected chips (under the search area) */}
+                    {isDropdownOpen && (
+                        <Box
+                            sx={{
+                                mt: 0.5,
+                                borderRadius: 2,
+                                border: `1px solid ${theme.palette.divider}`,
+                                boxShadow: getLiftedShadowString(theme),
+                                maxHeight: 180,
+                                overflowY: 'auto',
+                                backgroundColor: theme.palette.background.paper,
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            {options.length === 0 ? (
+                                <Typography
+                                    variant="caption"
+                                    sx={{ display: 'block', py: 1, px: 1.5, color: theme.palette.text.secondary }}
+                                >
+                                    No options available
+                                </Typography>
+                            ) : filteredOptions.length === 0 ? (
+                                <Typography
+                                    variant="caption"
+                                    sx={{ display: 'block', py: 1, px: 1.5, color: theme.palette.text.secondary }}
+                                >
+                                    No matches found
+                                </Typography>
+                            ) : (
+                                filteredOptions.map((optionLabel) => (
+                                    <Box
+                                        key={optionLabel}
+                                        onClick={() => handleOptionSelect(optionLabel)}
+                                        sx={{
+                                            px: 1.5,
+                                            py: 0.75,
+                                            fontSize: '0.78rem',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s ease',
+                                            '&:hover': {
+                                                backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                            },
+                                        }}
+                                    >
+                                        {optionLabel}
+                                    </Box>
+                                ))
+                            )}
+                        </Box>
+                    )}
+
+                    {/* Bottom: selected chips (already correctly using 'values' state) */}
                     <Box sx={{ mt: 0.6, display: 'flex', flexWrap: 'wrap', gap: 0.45 }}>
                         {values.map((v, i) => (
                             <Chip
@@ -129,7 +209,6 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
         };
         return <TextSelector />;
     }
-    
         if (group.type === 'select' || group.type === 'sort') {
         const selectedValue = currentFilters[group.id] ?? (group.options?.[0]?.value ?? '');
         const selectedLabel = group.options?.find(o => o.value === selectedValue)?.label ?? '';
@@ -162,4 +241,60 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
             </Select>
         );
     }
+
+        if (group.type === 'date') {
+        // Filter value is the date, stored as a string or null
+        const selectedDateString = currentFilters[group.id];
+        
+        // Convert string state to Dayjs object for the DatePicker
+        const selectedDate: Dayjs | null = selectedDateString ? dayjs(selectedDateString) : null;
+
+        const handleDateChange = (newDate: Dayjs | null) => {
+            let valueToStore: string | null = null;
+
+            if (newDate && newDate.isValid()) {
+                // Store the date as an ISO string (e.g., 'YYYY-MM-DD') for comparison
+                valueToStore = newDate.format('YYYY-MM-DD'); 
+            }
+            // Update the parent state
+            onFilterChange(group.id, valueToStore); 
+        };
+
+        return (
+            // NOTE: You must have a LocalizationProvider wrapper higher up in your component tree
+            <DatePicker
+                label={group.title}
+                value={selectedDate}
+                onChange={handleDateChange}
+                slotProps={{
+                popper: {
+                    sx: {
+                        zIndex: 2000, 
+                    },
+                },
+                textField: { 
+                    fullWidth: true, 
+                    size: 'small',
+                    // Hides the floating label placeholder, ensuring only the value is shown
+                    label: null, 
+                    sx: {
+                         '& .MuiInputBase-root': {
+                            height: 32,
+                            backgroundColor: theme.palette.background.default,
+                            borderRadius: '20px',
+                            boxShadow: getLiftedShadowString(theme),
+                            fontFamily: "var(--font-poppins), system-ui, sans-serif", 
+                         },
+                         '& .MuiInputBase-input': {
+                            fontSize: '0.75rem',
+                            padding: '4px 14px',
+                            // Ensure font is applied directly to the input element
+                            fontFamily: "var(--font-poppins), system-ui, sans-serif",  
+                         }
+                    }
+                }
+            }}
+        />
+    );
+}
 };

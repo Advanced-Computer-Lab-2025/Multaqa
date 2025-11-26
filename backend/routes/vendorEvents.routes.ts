@@ -17,6 +17,9 @@ import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
 import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
+import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
+import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
+import { GetEventsResponse } from "../interfaces/responses/eventResponses.interface";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -324,12 +327,137 @@ async function cancelEventParticipation(
   }
 }
 
+async function getEventsForQRCodeGeneration(req: Request, res: Response<GetEventsResponse>) {
+  try {
+    const events = await vendorEventsService.getEventsForQRCodeGeneration();
+    res.json({
+      success: true,
+      data: events,
+      message: "Events for QR code generation retrieved successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving events for QR code generation"
+    );
+  }
+}
+
+async function generateVendorEventQRCodes(
+  req: Request,
+  res: Response<{ success: boolean; message: string }>
+) {
+  const { eventId } = req.params
+  try {
+    if (!eventId ) {
+      throw createError(400, "Event ID and Vendor ID are required");
+    }
+    await vendorEventsService.generateVendorEventQRCodes(eventId);
+    res.status(200).json({
+      success: true,
+      message: "QR codes generated successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error generating QR codes"
+    );
+  }
+}
+
+async function getAllLoyaltyPartners(req: Request, res: Response) {
+  try {
+    const partners = await vendorEventsService.getAllLoyaltyPartners();
+
+    res.json({
+      success: true,
+      message: "Loyalty partners retrieved successfully",
+      data: partners,
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving loyalty partners"
+    );
+  }
+}
+
+async function applyToLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    const { error, value } = loyaltyProgramSchema.validate(req.body);
+    if (error) {
+      throw createError(400, error.details[0].message);
+    }
+
+    const updatedVendor = await vendorEventsService.applyToLoyaltyProgram(
+      vendorId,
+      value
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Successfully applied to loyalty program",
+      data: {
+        loyaltyProgram: updatedVendor.loyaltyProgram,
+      },
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error applying to loyalty program"
+    );
+  }
+}
+
+async function cancelLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: Vendor ID missing in token");
+    }
+
+    await vendorEventsService.cancelLoyaltyProgram(vendorId);
+
+    res.json({
+      success: true,
+      message: "Successfully cancelled loyalty program participation",
+      data: null,
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error cancelling loyalty program"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
   "/",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   getVendorUpcomingEvents
+);
+
+router.get(
+  "/loyalty-partners",
+  authorizeRoles({
+    userRoles: [
+      UserRole.STUDENT,
+      UserRole.STAFF_MEMBER,
+      UserRole.ADMINISTRATION,
+    ],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE,
+      AdministrationRoleType.ADMIN,
+    ],
+  }),
+  getAllLoyaltyPartners
 );
 
 router.get(
@@ -350,6 +478,24 @@ router.post(
   applyToBooth
 );
 
+router.get(
+  "/QRcodes",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  getEventsForQRCodeGeneration
+);
+
+router.post(
+  "/:eventId/generateQRCodes",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.EVENTS_OFFICE]
+  }),
+  generateVendorEventQRCodes
+);
+
 router.post(
   "/:eventId/bazaar",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
@@ -367,6 +513,12 @@ router.delete(
   "/:eventId/cancel",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   cancelEventParticipation
+);
+
+router.delete(
+  "/loyalty-program",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  cancelLoyaltyProgram
 );
 
 // Two parameters with complex paths
@@ -392,6 +544,12 @@ router.patch(
     ],
   }),
   updateVendorRequest
+);
+
+router.post(
+  "/loyalty-program",
+  authorizeRoles({ userRoles: [UserRole.VENDOR] }),
+  applyToLoyaltyProgram
 );
 
 export default router;

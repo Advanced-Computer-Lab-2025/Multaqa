@@ -14,16 +14,17 @@ import {
   useTheme,
   alpha
 } from '@mui/material';
-import { 
-  CreditCard, 
-  AccountBalanceWallet, 
+import {
+  CreditCard,
+  AccountBalanceWallet,
   Close,
   CheckCircle,
   LockOutlined,
   ArrowForward
 } from '@mui/icons-material';
-import CustomButton from '@/components/shared/Buttons/CustomButton';
 import { api } from '@/api';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
+import { toast } from 'react-toastify';
 
 // Type definitions
 interface PaymentSuccessDetails {
@@ -40,8 +41,8 @@ interface PaymentDrawerProps {
   totalAmount: number;
   walletBalance: number;
   onPaymentSuccess: (paymentDetails: PaymentSuccessDetails) => void;
-  eventId:string,
-  email:string,
+  eventId: string,
+  email: string,
 }
 
 interface MockPaymentResponse {
@@ -50,27 +51,28 @@ interface MockPaymentResponse {
   error?: string;
 }
 
-const PaymentDrawer: React.FC<PaymentDrawerProps> = ({ 
-  open, 
-  onClose, 
-  totalAmount, 
-  walletBalance, 
+const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
+  open,
+  onClose,
+  totalAmount,
+  walletBalance,
   onPaymentSuccess,
-  eventId, 
+  eventId,
   email
 }) => {
   const theme = useTheme();
   const [useWallet, setUseWallet] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [paymentError, setPaymentError] = useState<string>('');
+  const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
 
   // Calculate amounts
   const walletCoverage = Math.min(walletBalance, totalAmount);
   const remainingAmount = totalAmount - walletCoverage;
   const needsStripePayment = remainingAmount > 0;
-  const totalDue = useWallet 
-  ? Math.max(totalAmount - walletCoverage, 0) 
-  : totalAmount;
+  const totalDue = useWallet
+    ? Math.max(totalAmount - walletCoverage, 0)
+    : totalAmount;
 
 
   // Color definitions based on your theme
@@ -110,6 +112,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
       setUseWallet(false);
       setIsProcessing(false);
       setPaymentError('');
+      setPaymentSuccess(false);
     }
   }, [open]);
 
@@ -122,13 +125,14 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
     setIsProcessing(true);
     setPaymentError('');
     const payload = {
-      customerEmail:email,
-      quantity:1,
-      metadata:''
+      customerEmail: email,
+      quantity: 1,
+      metadata: '',
+      amount: 0,
     }
-    
+
     try {
-      const stripeResponse = await api.post(`/payments/${eventId}`, payload); 
+      const stripeResponse = await api.post(`/payments/${eventId}`, payload);
       console.log(stripeResponse);
       window.location.href = stripeResponse.data.data.url;
     } catch (error) {
@@ -146,21 +150,59 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
 
     setIsProcessing(true);
     setPaymentError('');
-    
     try {
-      const walletResponse = await mockWalletPayment(totalAmount);
+      const walletResponse = await api.patch(`/payments/${eventId}/wallet`);
+      console.log(walletResponse);
       
-      if (walletResponse.success) {
+      setTimeout(()=>{
+        // Show toast notification after the drawer closes with a delay of 1000ms
+        toast.success('Enjoy your event!', {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      }, 2500)
+
+      // Set success state to show success UI inside drawer
+      setPaymentSuccess(true);
+      setIsProcessing(false);
+
+      // Wait to show success message, then call callback and close
+      setTimeout(() => {
         onPaymentSuccess({
           method: 'wallet',
           amount: totalAmount,
-          transactionId: walletResponse.transactionId
+          transactionId: walletResponse.data?.transactionId || `wallet_${Date.now()}`,
+          walletAmount: totalAmount,
         });
-      } else {
-        setPaymentError(walletResponse.error || 'Wallet payment failed');
-      }
-    } catch (error) {
+
+        // Close drawer after callback
+        setTimeout(() => {
+          onClose();
+        }, 300);
+      }, 2000); // Show success for 2 seconds
+
+    } catch (error: any) {
+      const message = error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Wallet payment failed. Please try again.";
       setPaymentError('Wallet payment failed');
+      toast.error(message, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -169,28 +211,16 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
   const handleCombinedPayment = async (): Promise<void> => {
     setIsProcessing(true);
     setPaymentError('');
-    
+    const payload = {
+      customerEmail: email,
+      quantity: 1,
+      metadata: '',
+      amount: totalAmount - remainingAmount,
+    }
     try {
-      const walletResponse = await mockWalletPayment(walletCoverage);
-      
-      if (!walletResponse.success) {
-        setPaymentError('Wallet payment failed');
-        return;
-      }
-
-      const stripeResponse = await mockStripePayment(remainingAmount);
-      
-      if (stripeResponse.success) {
-        onPaymentSuccess({
-          method: 'combined',
-          amount: totalAmount,
-          walletAmount: walletCoverage,
-          stripeAmount: remainingAmount,
-          transactionId: stripeResponse.transactionId
-        });
-      } else {
-        setPaymentError('Stripe payment failed');
-      }
+      const stripeResponse = await api.post(`/payments/${eventId}`, payload);
+      console.log(stripeResponse);
+      window.location.href = stripeResponse.data.data.url;
     } catch (error) {
       setPaymentError('Payment processing failed');
     } finally {
@@ -211,8 +241,8 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
   const canPayWithWallet = useWallet && walletBalance >= totalAmount;
   const canPayWithCombined = useWallet && needsStripePayment;
   const isPayButtonEnabled = !isProcessing && (
-    !useWallet || 
-    canPayWithWallet || 
+    !useWallet ||
+    canPayWithWallet ||
     canPayWithCombined
   );
 
@@ -245,7 +275,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
       open={open}
       onClose={onClose}
       sx={{
-        '& .MuiDrawer-paper': { 
+        '& .MuiDrawer-paper': {
           width: { xs: '100%', sm: 450 },
           boxSizing: 'border-box',
           background: 'linear-gradient(to bottom, #fafbfc 0%, #ffffff 100%)',
@@ -254,7 +284,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
     >
       <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Header with primary color gradient */}
-        <Box sx={{ 
+        <Box sx={{
           background: `linear-gradient(135deg, ${colors.tertiary.main} 0%, ${colors.primary.dark} 100%)`,
           p: 3,
           pb: 4,
@@ -281,9 +311,9 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
                 </Typography>
               </Box>
             </Box>
-            <IconButton 
+            <IconButton
               onClick={onClose}
-              sx={{ 
+              sx={{
                 color: colors.primary.contrastText,
                 bgcolor: alpha(colors.primary.contrastText, 0.15),
                 backdropFilter: 'blur(10px)',
@@ -301,306 +331,435 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
 
         {/* Content */}
         <Box sx={{ flex: 1, overflowY: 'auto', p: 3 }}>
-          {/* Payment Methods */}
-          <Typography 
-            variant="overline" 
-            sx={{ 
-              color: 'text.secondary', 
-              fontWeight: 700,
-              letterSpacing: 1.2,
-              fontSize: '0.7rem'
-            }}
-          >
-            Payment Methods
-          </Typography>
-
-          {/* Wallet Card */}
-          <Fade in={true} timeout={300}>
-            <Box 
-              onClick={() => setUseWallet(!useWallet)}
-              sx={{ 
-                mt: 2,
-                p: 2.5,
-                borderRadius: 3,
-                background: useWallet 
-                  ? `linear-gradient(135deg, ${colors.tertiary.main} 0%, ${alpha(colors.primary.main, 0.8)} 100%)` 
-                  : 'white',
-                border: useWallet ? 'none' : `2px solid ${alpha(theme.palette.divider, 0.5)}`,
-                cursor: 'pointer',
-                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: useWallet ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
-                boxShadow: useWallet 
-                  ? `0 12px 40px ${alpha(colors.primary.main, 0.35)}` 
-                  : `0 2px 12px ${alpha(theme.palette.common.black, 0.06)}`,
-                '&:hover': {
-                  transform: useWallet ? 'translateY(-4px) scale(1.02)' : 'translateY(-2px) scale(1)',
-                  boxShadow: useWallet 
-                    ? `0 16px 48px ${alpha(colors.primary.main, 0.4)}` 
-                    : `0 4px 20px ${alpha(theme.palette.common.black, 0.1)}`,
-                },
-                '&:active': {
-                  transform: 'scale(0.98)',
-                }
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    borderRadius: 2, 
-                    bgcolor: useWallet ? alpha('#ffffff', 0.2) : alpha(colors.tertiary.main, 0.1),
-                    display: 'flex',
-                    transition: 'all 0.3s ease'
-                  }}>
-                    <AccountBalanceWallet sx={{ 
-                      color: useWallet ? 'white' : colors.primary.main, 
-                      fontSize: 26
-                    }} />
-                  </Box>
-                  <Box>
-                    <Typography 
-                      variant="h6" 
-                      fontWeight="700"
-                      sx={{ 
-                        color: useWallet ? 'white' : 'text.primary',
-                        fontSize: '1.1rem',
-                        mb: 0.3
-                      }}
-                    >
-                      Wallet Balance
-                    </Typography>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: useWallet ? alpha('#ffffff', 0.85) : 'text.secondary',
-                        fontWeight: 500
-                      }}
-                    >
-                      EGP {walletBalance.toFixed(2)} available
-                    </Typography>
-                  </Box>
-                </Box>
-                <Switch
-                  checked={useWallet}
-                  onChange={handleWalletToggle}
-                  onClick={(e) => e.stopPropagation()}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: 'white',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: alpha('#ffffff', 0.5),
-                    },
-                  }}
-                />
-              </Box>
-              
-              <Slide direction="down" in={useWallet} mountOnEnter unmountOnExit>
-                <Box sx={{ 
-                  mt: 2, 
-                  pt: 2, 
-                  borderTop: useWallet ? `1px solid ${alpha('#ffffff', 0.2)}` : 'none',
-                  display: 'flex',
-                  gap: 1,
-                  flexWrap: 'wrap'
+          {paymentSuccess ? (
+            // Success UI
+            <Fade in={true} timeout={600}>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '400px',
+                textAlign: 'center'
+              }}>
+                {/* Success Icon with animation */}
+                <Box sx={{
+                  position: 'relative',
+                  mb: 3,
+                  animation: 'scaleIn 0.5s ease-out',
+                  '@keyframes scaleIn': {
+                    '0%': { transform: 'scale(0)', opacity: 0 },
+                    '50%': { transform: 'scale(1.1)' },
+                    '100%': { transform: 'scale(1)', opacity: 1 }
+                  }
                 }}>
-                  {walletCoverage > 0 && (
-                    <Chip
-                      icon={<CheckCircle sx={{ fontSize: 18 }} />}
-                      label={`Covers EGP ${walletCoverage.toFixed(2)}`}
-                      size="small"
-                      sx={{ 
-                        bgcolor: useWallet ? alpha('#ffffff', 0.25) : alpha(colors.success.main, 0.15),
-                        backdropFilter: 'blur(10px)',
-                        color: useWallet ? 'white' : colors.success.dark,
-                        fontWeight: 600,
-                        border: useWallet ? `1px solid ${alpha('#ffffff', 0.3)}` : `1px solid ${alpha(colors.success.main, 0.3)}`,
-                        '& .MuiChip-icon': { color: useWallet ? 'white' : colors.success.main },
-                        '& .MuiChip-label': { px: 1.5 }
-                      }}
-                    />
-                  )}
-                  {needsStripePayment && (
-                    <Chip
-                      label={`Remaining EGP ${remainingAmount.toFixed(2)}`}
-                      size="small"
-                      sx={{ 
-                        bgcolor: useWallet ? alpha('#ffffff', 0.25) : alpha(colors.error.main, 0.1),
-                        backdropFilter: 'blur(10px)',
-                        color: useWallet ? 'white' : colors.error.dark,
-                        fontWeight: 600,
-                        border: useWallet ? `1px solid ${alpha('#ffffff', 0.3)}` : `1px solid ${alpha(colors.error.main, 0.3)}`,
-                        '& .MuiChip-label': { px: 1.5 }
-                      }}
-                    />
-                  )}
-                </Box>
-              </Slide>
-            </Box>
-          </Fade>
-
-          {/* Stripe Card */}
-          <Fade in={true} timeout={500}>
-            <Box sx={{ 
-              mt: 2,
-              p: 2.5,
-              borderRadius: 3,
-              background: (useWallet && !needsStripePayment) 
-                ? theme.palette.action.disabledBackground 
-                : 'white',
-              border: `2px solid ${(useWallet && !needsStripePayment) 
-                ? theme.palette.action.disabledBackground :alpha(theme.palette.divider, 0.5)}`,
-              transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-              transform:'translateY(0) scale(1)',
-              boxShadow:  `0 2px 12px ${alpha(theme.palette.common.black, 0.06)}`,
-              '&:hover': {
-                  transform:(useWallet && !needsStripePayment) ?"":'translateY(-2px) scale(1)',
-                  boxShadow: (useWallet && !needsStripePayment) ?"": `0 4px 20px ${alpha(theme.palette.common.black, 0.1)}`,
-                },
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    borderRadius: 2, 
-                    bgcolor: alpha(colors.tertiary.main, 0.1),
+                  <Box sx={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: '50%',
+                    background: `linear-gradient(135deg, ${colors.success.main} 0%, ${colors.success.dark} 100%)`,
                     display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: `0 12px 40px ${alpha(colors.success.main, 0.4)}`,
+                    position: 'relative',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      inset: -10,
+                      borderRadius: '50%',
+                      background: `linear-gradient(135deg, ${alpha(colors.success.main, 0.2)} 0%, ${alpha(colors.success.dark, 0.2)} 100%)`,
+                      animation: 'pulse 2s ease-in-out infinite',
+                    },
+                    '@keyframes pulse': {
+                      '0%, 100%': { transform: 'scale(1)', opacity: 0.5 },
+                      '50%': { transform: 'scale(1.1)', opacity: 0.3 }
+                    }
                   }}>
-                    <CreditCard sx={{ color:`${(useWallet && !needsStripePayment)?theme.palette.action.disabledBackground :colors.tertiary.main}`, fontSize: 26 }} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h6" fontWeight="700" sx={{ fontSize: '1.1rem', mb: 0.3, color:`${(useWallet && !needsStripePayment)?theme.palette.grey[500]:"text.primary"}}` }}>
-                      Credit / Debit Card
-                    </Typography>
-                    <Typography variant="body2" color={(useWallet && !needsStripePayment)?theme.palette.grey[500]:"text.secondary"} fontWeight="500">
-                      {(useWallet && !needsStripePayment) 
-                        ? "Wallet covers full amount"
-                        : "Powered by Stripe"
-                      }
-                    </Typography>
+                    <CheckCircle sx={{ fontSize: 70, color: 'white' }} />
                   </Box>
                 </Box>
-                {!(useWallet && !needsStripePayment) && (
-                  <Chip 
-                    label="Secure" 
-                    size="small"
-                    sx={{
-                      bgcolor: alpha(colors.success.main, 0.15),
-                      color: colors.success.dark,
-                      fontWeight: 700,
-                      fontSize: '0.7rem',
-                      height: 24,
-                      '& .MuiChip-label': { px: 1.5 }
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
-          </Fade>
 
-          {/* Payment Summary */}
-          <Box sx={{ mt: 3 }}>
-            <Typography 
-              variant="overline" 
-              sx={{ 
-                color: 'text.secondary', 
-                fontWeight: 700,
-                letterSpacing: 1.2,
-                fontSize: '0.7rem'
-              }}
-            >
-              Payment Summary
-            </Typography>
-            
-            <Box sx={{ 
-              mt: 2,
-              p: 3,
-              borderRadius: 3,
-              background: `linear-gradient(135deg, ${alpha('#f5f7fa', 1)} 0%, ${alpha('#e4e9f2', 0.5)} 100%)`,
-              border: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
-              boxShadow: `0 4px 24px ${alpha(theme.palette.common.black, 0.06)}`
-            }}>
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                  <Typography variant="body2" color="text.secondary" fontWeight="600">
-                    Order Total
-                  </Typography>
-                  <Typography variant="body2" fontWeight="700">
-                    EGP {totalAmount.toFixed(2)}
-                  </Typography>
-                </Box>
-                
-                {useWallet && walletCoverage > 0 && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                    <Typography variant="body2" sx={{ color: colors.success.dark, fontWeight: 600 }}>
-                      ✓ Wallet Payment
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: colors.success.dark, fontWeight: 700 }}>
-                      - EGP {walletCoverage.toFixed(2)}
-                    </Typography>
-                  </Box>
-                )}
-                
-                {useWallet && needsStripePayment && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                    <Typography variant="body2" sx={{ color: colors.tertiary.main, fontWeight: 600 }}>
-                      Card Payment
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: colors.tertiary.main, fontWeight: 700 }}>
-                      EGP {remainingAmount.toFixed(2)}
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-              
-              <Divider sx={{ my: 2, borderColor: alpha(theme.palette.divider, 0.6) }} />
-              
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h6" fontWeight="800" sx={{ fontSize: '1.1rem' }}>
-                  Total Due
-                </Typography>
-                <Box sx={{ textAlign: 'right' }}>
+                {/* Success Message */}
                 <Typography
-                  variant="h5"
+                  variant="h4"
                   fontWeight="800"
                   sx={{
-                    background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.primary.dark} 100%)`,
+                    mb: 1.5,
+                    background: `linear-gradient(135deg, ${colors.success.main} 0%, ${colors.success.dark} 100%)`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text'
                   }}
                 >
-                  EGP {totalDue.toFixed(2)}
+                  Payment Successful!
                 </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight="600">
-                    Inclusive of all taxes
+
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  fontWeight="500"
+                  sx={{ mb: 4, maxWidth: 320 }}
+                >
+                  Your wallet payment has been processed successfully. You're all set!
+                </Typography>
+
+                {/* Payment Details Card */}
+                <Box sx={{
+                  width: '100%',
+                  maxWidth: 400,
+                  p: 3,
+                  borderRadius: 3,
+                  background: `linear-gradient(135deg, ${alpha(colors.success.main, 0.08)} 0%, ${alpha(colors.success.light, 0.05)} 100%)`,
+                  border: `2px solid ${alpha(colors.success.main, 0.2)}`,
+                  boxShadow: `0 4px 24px ${alpha(colors.success.main, 0.1)}`
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" fontWeight="600">
+                      Payment Method
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <AccountBalanceWallet sx={{ fontSize: 18, color: colors.success.main }} />
+                      <Typography variant="body2" fontWeight="700" color={colors.success.dark}>
+                        Wallet
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Divider sx={{ my: 2, borderColor: alpha(colors.success.main, 0.2) }} />
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary" fontWeight="600">
+                      Amount Paid
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="800"
+                      sx={{
+                        background: `linear-gradient(135deg, ${colors.success.main} 0%, ${colors.success.dark} 100%)`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}
+                    >
+                      EGP {totalAmount.toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Processing indicator */}
+                <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={16} sx={{ color: colors.success.main }} />
+                  <Typography variant="caption" color="text.secondary" fontWeight="500">
+                    Completing registration...
                   </Typography>
                 </Box>
               </Box>
-            </Box>
-          </Box>
-
-          {/* Error Message */}
-          {paymentError && (
-            <Fade in={true}>
-              <Alert 
-                severity="error" 
-                sx={{ 
-                  mt: 2, 
-                  borderRadius: 2.5,
-                  border: `1px solid ${alpha(colors.error.main, 0.3)}`,
-                  boxShadow: `0 4px 16px ${alpha(colors.error.main, 0.15)}`
+            </Fade>
+          ) : (
+            <>
+              {/* Payment Methods */}
+              <Typography
+                variant="overline"
+                sx={{
+                  color: 'text.secondary',
+                  fontWeight: 700,
+                  letterSpacing: 1.2,
+                  fontSize: '0.7rem'
                 }}
               >
-                {paymentError}
-              </Alert>
-            </Fade>
+                Payment Methods
+              </Typography>
+
+              {/* Wallet Card */}
+              <Fade in={true} timeout={300}>
+                <Box
+                  onClick={() => setUseWallet(!useWallet)}
+                  sx={{
+                    mt: 2,
+                    p: 2.5,
+                    borderRadius: 3,
+                    background: useWallet
+                      ? `linear-gradient(135deg, ${colors.tertiary.main} 0%, ${alpha(colors.primary.main, 0.8)} 100%)`
+                      : 'white',
+                    border: useWallet ? 'none' : `2px solid ${alpha(theme.palette.divider, 0.5)}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: useWallet ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
+                    boxShadow: useWallet
+                      ? `0 12px 40px ${alpha(colors.primary.main, 0.35)}`
+                      : `0 2px 12px ${alpha(theme.palette.common.black, 0.06)}`,
+                    '&:hover': {
+                      transform: useWallet ? 'translateY(-4px) scale(1.02)' : 'translateY(-2px) scale(1)',
+                      boxShadow: useWallet
+                        ? `0 16px 48px ${alpha(colors.primary.main, 0.4)}`
+                        : `0 4px 20px ${alpha(theme.palette.common.black, 0.1)}`,
+                    },
+                    '&:active': {
+                      transform: 'scale(0.98)',
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        bgcolor: useWallet ? alpha('#ffffff', 0.2) : alpha(colors.tertiary.main, 0.1),
+                        display: 'flex',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <AccountBalanceWallet sx={{
+                          color: useWallet ? 'white' : colors.primary.main,
+                          fontSize: 26
+                        }} />
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight="700"
+                          sx={{
+                            color: useWallet ? 'white' : 'text.primary',
+                            fontSize: '1.1rem',
+                            mb: 0.3
+                          }}
+                        >
+                          Wallet Balance
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: useWallet ? alpha('#ffffff', 0.85) : 'text.secondary',
+                            fontWeight: 500
+                          }}
+                        >
+                          EGP {walletBalance.toFixed(2)} available
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Switch
+                      checked={useWallet}
+                      onChange={handleWalletToggle}
+                      onClick={(e) => e.stopPropagation()}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'white',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: alpha('#ffffff', 0.5),
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  <Slide direction="down" in={useWallet} mountOnEnter unmountOnExit>
+                    <Box sx={{
+                      mt: 2,
+                      pt: 2,
+                      borderTop: useWallet ? `1px solid ${alpha('#ffffff', 0.2)}` : 'none',
+                      display: 'flex',
+                      gap: 1,
+                      flexWrap: 'wrap'
+                    }}>
+                      {walletCoverage > 0 && (
+                        <Chip
+                          icon={<CheckCircle sx={{ fontSize: 18 }} />}
+                          label={`Covers EGP ${walletCoverage.toFixed(2)}`}
+                          size="small"
+                          sx={{
+                            bgcolor: useWallet ? alpha('#ffffff', 0.25) : alpha(colors.success.main, 0.15),
+                            backdropFilter: 'blur(10px)',
+                            color: useWallet ? 'white' : colors.success.dark,
+                            fontWeight: 600,
+                            border: useWallet ? `1px solid ${alpha('#ffffff', 0.3)}` : `1px solid ${alpha(colors.success.main, 0.3)}`,
+                            '& .MuiChip-icon': { color: useWallet ? 'white' : colors.success.main },
+                            '& .MuiChip-label': { px: 1.5 }
+                          }}
+                        />
+                      )}
+                      {needsStripePayment && (
+                        <Chip
+                          label={`Remaining EGP ${remainingAmount.toFixed(2)}`}
+                          size="small"
+                          sx={{
+                            bgcolor: useWallet ? alpha('#ffffff', 0.25) : alpha(colors.error.main, 0.1),
+                            backdropFilter: 'blur(10px)',
+                            color: useWallet ? 'white' : colors.error.dark,
+                            fontWeight: 600,
+                            border: useWallet ? `1px solid ${alpha('#ffffff', 0.3)}` : `1px solid ${alpha(colors.error.main, 0.3)}`,
+                            '& .MuiChip-label': { px: 1.5 }
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Slide>
+                </Box>
+              </Fade>
+
+              {/* Stripe Card */}
+              <Fade in={true} timeout={500}>
+                <Box sx={{
+                  mt: 2,
+                  p: 2.5,
+                  borderRadius: 3,
+                  background: (useWallet && !needsStripePayment)
+                    ? theme.palette.action.disabledBackground
+                    : 'white',
+                  border: `2px solid ${(useWallet && !needsStripePayment)
+                    ? theme.palette.action.disabledBackground : alpha(theme.palette.divider, 0.5)}`,
+                  transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: 'translateY(0) scale(1)',
+                  boxShadow: `0 2px 12px ${alpha(theme.palette.common.black, 0.06)}`,
+                  '&:hover': {
+                    transform: (useWallet && !needsStripePayment) ? "" : 'translateY(-2px) scale(1)',
+                    boxShadow: (useWallet && !needsStripePayment) ? "" : `0 4px 20px ${alpha(theme.palette.common.black, 0.1)}`,
+                  },
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        bgcolor: alpha(colors.tertiary.main, 0.1),
+                        display: 'flex',
+                      }}>
+                        <CreditCard sx={{ color: `${(useWallet && !needsStripePayment) ? theme.palette.action.disabledBackground : colors.tertiary.main}`, fontSize: 26 }} />
+                      </Box>
+                      <Box>
+                        <Typography variant="h6" fontWeight="700" sx={{ fontSize: '1.1rem', mb: 0.3, color: `${(useWallet && !needsStripePayment) ? theme.palette.grey[500] : "text.primary"}}` }}>
+                          Credit / Debit Card
+                        </Typography>
+                        <Typography variant="body2" color={(useWallet && !needsStripePayment) ? theme.palette.grey[500] : "text.secondary"} fontWeight="500">
+                          {(useWallet && !needsStripePayment)
+                            ? "Wallet covers full amount"
+                            : "Powered by Stripe"
+                          }
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {!(useWallet && !needsStripePayment) && (
+                      <Chip
+                        label="Secure"
+                        size="small"
+                        sx={{
+                          bgcolor: alpha(colors.success.main, 0.15),
+                          color: colors.success.dark,
+                          fontWeight: 700,
+                          fontSize: '0.7rem',
+                          height: 24,
+                          '& .MuiChip-label': { px: 1.5 }
+                        }}
+                      />
+                    )}
+                  </Box>
+                </Box>
+              </Fade>
+
+              {/* Payment Summary */}
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="overline"
+                  sx={{
+                    color: 'text.secondary',
+                    fontWeight: 700,
+                    letterSpacing: 1.2,
+                    fontSize: '0.7rem'
+                  }}
+                >
+                  Payment Summary
+                </Typography>
+
+                <Box sx={{
+                  mt: 2,
+                  p: 3,
+                  borderRadius: 3,
+                  background: `linear-gradient(135deg, ${alpha('#f5f7fa', 1)} 0%, ${alpha('#e4e9f2', 0.5)} 100%)`,
+                  border: `1px solid ${alpha(theme.palette.divider, 0.3)}`,
+                  boxShadow: `0 4px 24px ${alpha(theme.palette.common.black, 0.06)}`
+                }}>
+                  <Box sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                      <Typography variant="body2" color="text.secondary" fontWeight="600">
+                        Order Total
+                      </Typography>
+                      <Typography variant="body2" fontWeight="700">
+                        EGP {totalAmount.toFixed(2)}
+                      </Typography>
+                    </Box>
+
+                    {useWallet && walletCoverage > 0 && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                        <Typography variant="body2" sx={{ color: colors.success.dark, fontWeight: 600 }}>
+                          ✓ Wallet Payment
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.success.dark, fontWeight: 700 }}>
+                          - EGP {walletCoverage.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {useWallet && needsStripePayment && (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                        <Typography variant="body2" sx={{ color: colors.tertiary.main, fontWeight: 600 }}>
+                          Card Payment
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.tertiary.main, fontWeight: 700 }}>
+                          EGP {remainingAmount.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+
+                  <Divider sx={{ my: 2, borderColor: alpha(theme.palette.divider, 0.6) }} />
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" fontWeight="800" sx={{ fontSize: '1.1rem' }}>
+                      Total Due
+                    </Typography>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography
+                        variant="h5"
+                        fontWeight="800"
+                        sx={{
+                          background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.primary.dark} 100%)`,
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text'
+                        }}
+                      >
+                        EGP {totalDue.toFixed(2)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" fontWeight="600">
+                        Inclusive of all taxes
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Error Message */}
+              {paymentError && (
+                <Fade in={true}>
+                  <Alert
+                    severity="error"
+                    sx={{
+                      mt: 2,
+                      borderRadius: 2.5,
+                      border: `1px solid ${alpha(colors.error.main, 0.3)}`,
+                      boxShadow: `0 4px 16px ${alpha(colors.error.main, 0.15)}`
+                    }}
+                  >
+                    {paymentError}
+                  </Alert>
+                </Fade>
+              )}
+            </>
           )}
         </Box>
 
         {/* Footer - Full width centered button */}
-        <Box sx={{ 
-          p: 3, 
+        <Box sx={{
+          p: 3,
           borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
           bgcolor: 'white',
           boxShadow: `0 -8px 32px ${alpha(theme.palette.common.black, 0.04)}`,
@@ -609,32 +768,18 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
           alignItems: 'center',
           width: '100%'
         }}>
-          <Box sx={{ width: '100%', maxWidth: '100%', display:"flex", justifyContent:"center", alignItems:"center" }}>
+          <Box sx={{ width: '100%', maxWidth: '100%', display: "flex", justifyContent: "center", alignItems: "center" }}>
             <CustomButton
               variant="contained"
               disabled={!isPayButtonEnabled}
               onClick={handlePayNow}
               color="tertiary"
-              sx={{ 
+              sx={{
                 py: 2,
                 fontSize: '1rem',
                 fontWeight: 700,
                 textTransform: 'none',
-                width:"100%"
-                // background: isPayButtonEnabled 
-                //   ? `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.primary.dark} 100%)`
-                //   : alpha(theme.palette.action.disabled, 0.5),
-                // boxShadow: isPayButtonEnabled 
-                //   ? `0 6px 24px ${alpha(colors.primary.main, 0.35)}`
-                //   : 'none',
-                // transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                // '&:hover': isPayButtonEnabled ? {
-                //   transform: 'translateY(-2px)',
-                //   boxShadow: `0 8px 32px ${alpha(colors.primary.main, 0.45)}`,
-                // } : {},
-                // '&:active': isPayButtonEnabled ? {
-                //   transform: 'translateY(0)',
-                // } : {},
+                width: "100%"
               }}
             >
               {isProcessing ? (
@@ -644,12 +789,12 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                    <span>
+                  <span>
                     {useWallet && totalDue === 0
                       ? "Pay from Wallet"
                       : useWallet && totalDue > 0
-                      ? "Pay Remaining via Stripe"
-                      : "Pay via Stripe"}
+                        ? "Pay Remaining via Stripe"
+                        : "Pay via Stripe"}
                   </span>
                   <ArrowForward sx={{ fontSize: 20 }} />
                 </Box>
@@ -657,8 +802,8 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
             </CustomButton>
           </Box>
 
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -669,10 +814,10 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
             }}
           >
             <LockOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography 
-              variant="caption" 
-              color="text.secondary" 
-              sx={{ 
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{
                 fontWeight: 500,
                 lineHeight: 1.5
               }}
@@ -680,8 +825,8 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
               {useWallet && walletBalance >= totalAmount
                 ? "Payment from wallet • Instant processing"
                 : useWallet && needsStripePayment
-                ? `Split: EGP ${walletCoverage.toFixed(2)} wallet + EGP ${remainingAmount.toFixed(2)} card`
-                : "Secure payment via Stripe • PCI DSS compliant"
+                  ? `Split: EGP ${walletCoverage.toFixed(2)} wallet + EGP ${remainingAmount.toFixed(2)} card`
+                  : "Secure payment via Stripe • PCI DSS compliant"
               }
             </Typography>
           </Box>

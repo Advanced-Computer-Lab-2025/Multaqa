@@ -19,12 +19,16 @@ interface CreationHubDropdownProps {
   options: CreationHubOption[];
   buttonLabel?: string;
   helperText?: string;
+  dropdownSide?: "left" | "right";
+  buttonTextColor?: string; // Optional text color for the button
 }
 
 export default function CreationHubDropdown({
   options,
   buttonLabel = "Create New",
   helperText = "Choose what you would like to create",
+  dropdownSide = "right",
+  buttonTextColor,
 }: CreationHubDropdownProps) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -80,11 +84,29 @@ export default function CreationHubDropdown({
       return { columns: "1fr", minWidth: 320, maxWidth: 400, gap: 2 };
     }
 
-    if (options.length <= 3) {
+    if (options.length === 1) {
       return {
-        columns: `repeat(${options.length}, minmax(140px, 1fr))`,
-        minWidth: 440,
-        maxWidth: 560,
+        columns: "1fr",
+        minWidth: 220,
+        maxWidth: 260,
+        gap: 2,
+      };
+    }
+
+    if (options.length === 2) {
+      return {
+        columns: "repeat(2, 1fr)",
+        minWidth: 340,
+        maxWidth: 400,
+        gap: 2,
+      };
+    }
+
+    if (options.length === 3) {
+      return {
+        columns: "repeat(3, 1fr)",
+        minWidth: 460,
+        maxWidth: 520,
         gap: 2,
       };
     }
@@ -144,6 +166,7 @@ export default function CreationHubDropdown({
           px: 3,
           py: 1,
           whiteSpace: "nowrap",
+          ...(buttonTextColor && { color: `${buttonTextColor} !important` }),
           boxShadow: open
             ? `0 10px 30px ${theme.palette.primary.main}33`
             : undefined,
@@ -157,7 +180,8 @@ export default function CreationHubDropdown({
           sx={{
             position: "absolute",
             top: "calc(100% + 12px)",
-            right: 0,
+            left: dropdownSide === "left" ? 0 : undefined,
+            right: dropdownSide === "right" ? 0 : undefined,
             minWidth: layout.minWidth,
             maxWidth: layout.maxWidth,
             width: "max-content",
@@ -166,9 +190,9 @@ export default function CreationHubDropdown({
             border: `1px solid ${theme.palette.primary.light}`,
             boxShadow: "0 18px 40px rgba(24, 39, 75, 0.18)",
             backgroundColor: theme.palette.background.paper,
-            zIndex: 12,
-            transformOrigin: "top right",
-            animation: `${bloomPanel} 520ms cubic-bezier(0.19, 1, 0.22, 1)` ,
+            zIndex: 1500,
+            transformOrigin: "top left",
+            animation: `${bloomPanel} 520ms cubic-bezier(0.19, 1, 0.22, 1)`,
             overflow: "visible",
             "&::before": {
               content: '""',
@@ -272,7 +296,7 @@ export default function CreationHubDropdown({
                       sx={{
                         fontFamily:
                           "var(--font-poppins), system-ui, sans-serif",
-                        color: theme.palette.text.secondary,
+                        color: option.color,
                         lineHeight: 1.4,
                       }}
                     >

@@ -181,11 +181,12 @@ const CustomSearchBar: React.FC<CustomSearchBarProps> = ({
         flexDirection: "row",
         gap: "20px",
         position: "relative",
+        width: "100%",
       }}
     >
       <NeumorphicBox
         containerType={type}
-        width="w-fit"
+        width="100%"
         borderRadius="50px"
         padding="2px"
       >

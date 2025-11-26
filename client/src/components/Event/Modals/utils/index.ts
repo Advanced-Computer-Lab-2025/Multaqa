@@ -7,12 +7,9 @@ export const handleExport = async (
 ) => {
   setIsExporting(true);
   try {
-    const response = await api.get(
-      `/events/export/event/${eventId}/attendees`,
-      {
-        responseType: "blob",
-      }
-    );
+    const response = await api.get(`/events/export/${eventId}/attendees`, {
+      responseType: "blob",
+    });
 
     // Create a URL for the blob
     const blob = new Blob([response.data], {
@@ -86,5 +83,50 @@ export const handleExport = async (
     });
   } finally {
     setIsExporting(false);
+  }
+};
+
+export const handleGenerateQR = async (
+  setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>,
+  eventId: string
+) => {
+  setIsGenerating(true);
+  try {
+    // TODO: Replace with actual API endpoint
+    const response = await api.post(`/vendorEvents/${eventId}/generateQRCodes`);
+
+    toast.success(
+      response.data.message || "QR code generated and emailed successfully!",
+      {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      }
+    );
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    const errorMessage =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to generate QR code. Please try again.";
+
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  } finally {
+    setIsGenerating(false);
   }
 };

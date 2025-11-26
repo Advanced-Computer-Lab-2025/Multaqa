@@ -11,7 +11,7 @@ interface TransactionsProps {
 const PreviousTransactions = ({transactions}:TransactionsProps) => {
 
    // Sort transactions by date in descending order (newest first)
-  const sortedTransactions = [...transactions].sort((a, b) => {
+  const sortedTransactions = [...(transactions || [])].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
@@ -30,6 +30,11 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
           const arrowColor = isRefund ? '#10B981' : '#EF4444';
           const amountColor = isRefund ? '#10B981' : '#EF4444';
           const amountPrefix = isRefund ? '+' : '-';
+
+          const total = Number(transaction.amount ?? 0).toFixed(2);
+          const card = Number(transaction.cardAmount ?? 0).toFixed(2);
+          const wallet = Number(transaction.walletAmount ?? 0).toFixed(2);
+          const displayDate = transaction.date ? new Date(transaction.date).toLocaleDateString() : '';
 
           return (
             <Paper
@@ -70,16 +75,30 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 )}
               </Box>
 
-              {/* Transaction Details */}
+              {/* Transaction Details - adjusted to new dummy fields */}
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle1" fontWeight="600">
-                  {transaction.event_name}
+                  {isRefund ? `Refund for ${transaction.eventName}` : `Payment for ${transaction.eventName}`}
                 </Typography>
-                <Typography variant="body2" color={isRefund?'#10B981':'#EF4444'} sx={{ textTransform: 'capitalize' }}>
-                  {transaction.type}
+
+                <Typography variant="body2" color="text.secondary">
+                  Total: ${total}
                 </Typography>
+
+                {!isRefund ?
+                <>
+                  <Typography variant="body2" color="text.secondary">
+                    Paid by card: ${card}
+                  </Typography>
+
+                  <Typography variant="body2" color="text.secondary">
+                    Paid by wallet: ${wallet}
+                  </Typography>
+                </>  
+                :<></>} 
+
                 <Typography variant="caption" color="textPrimary">
-                  {transaction.date}
+                  Date: {displayDate}
                 </Typography>
               </Box>
 
@@ -89,7 +108,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 fontWeight="bold"
                 sx={{ color: amountColor, minWidth: '80px', textAlign: 'right' }}
               >
-                {amountPrefix}${transaction.amount.toFixed(2)}
+                {amountPrefix}${Number(transaction.amount ?? 0).toFixed(2)}
               </Typography>
             </Paper>
           );

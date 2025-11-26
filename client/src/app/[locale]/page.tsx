@@ -35,6 +35,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import HomeIcon from "@mui/icons-material/Home";
+import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
+import ScaledLogo from "@/components/shared/MultaqaLogos/ScaledLogo";
 
 const MotionBox = motion(Box);
 
@@ -57,6 +59,7 @@ const featureHighlights = [
   {
     icon: <PaletteIcon fontSize="large" />,
     title: "Curated Experiences",
+    // Updated copy with line breaks and 'campus'
     copy: (
       <>
         Discover artful events tailored for <br /> every member of the <br />{" "}
@@ -75,7 +78,6 @@ const featureHighlights = [
     copy: "Stay in sync with what's happening across every faculty and venue.",
   },
 ];
-
 const faqItems = [
   {
     title: "How do I register for an event on Multaqa?",
@@ -163,6 +165,29 @@ function HomePageContent() {
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
+  const [userType, setUserType] = useState<string>("");
+  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
+    "home"
+  );
+
+  const isHome = currentView === "home";
+
+  const handleLoginClick = () => {
+    setCurrentView("login");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRegisterClick = (type: string) => {
+    setUserType(type);
+    setCurrentView("register");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleHomeClick = () => {
+    setCurrentView("home");
+    setUserType("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const isHome = currentView === "home";
 
@@ -443,6 +468,8 @@ function HomePageContent() {
           >
             MULTAQA
           </Typography>
+          
+          {/* <ScaledLogo image={multaqaLogo} transparent /> */}
 
           <Stack
             direction="row"
@@ -1378,6 +1405,67 @@ function HomePageContent() {
               experiences.
             </Typography>
 
+            <Box
+              sx={{
+                mt: { xs: 5, md: 6 },
+                maxWidth: 900,
+                mx: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2.5,
+                px: { xs: 1, md: 0 },
+              }}
+            >
+              {faqItems.map((faq) => (
+                <CustomAccordion key={faq.title} title={faq.title}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: alpha(theme.palette.text.primary, 0.75) }}
+                  >
+                    {faq.content}
+                  </Typography>
+                </CustomAccordion>
+              ))}
+            </Box>
+          </Container>
+        </Box>
+
+        <Box
+          component="footer"
+          sx={{
+            background: `linear-gradient(135deg, ${
+              theme.palette.primary.main
+            } 0%, ${alpha(theme.palette.tertiary.main, 0.7)} 100%)`,
+            color: theme.palette.common.white,
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `radial-gradient(circle at 30% 40%, ${alpha(
+                theme.palette.primary.light,
+                0.15
+              )}, transparent 60%)`,
+              pointerEvents: "none",
+            },
+          }}
+        >
+          <Container
+            maxWidth="lg"
+            sx={{
+              py: { xs: 6, md: 8 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              alignItems: { xs: "center", md: "stretch" },
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
             <Stack
               direction={{ xs: "column", md: "row" }}
               spacing={3}
@@ -2284,6 +2372,303 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
   </Box>
 );
 
+const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
+  <Box
+    sx={{
+      position: "relative",
+      width: "100%",
+      height: "100%",
+      // Floating animations
+      "@keyframes floatSlow": {
+        "0%, 100%": { transform: "translateY(0px)" },
+        "50%": { transform: "translateY(-10px)" },
+      },
+      "@keyframes floatMed": {
+        "0%, 100%": { transform: "translateY(0px)" },
+        "50%": { transform: "translateY(8px)" },
+      },
+      "@keyframes floatFast": {
+        "0%, 100%": { transform: "translateY(0px)" },
+        "50%": { transform: "translateY(-6px)" },
+      },
+    }}
+  >
+    {/* --- Shape 1: Tall Blue Pill (Top Left) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "20%",
+          left: "50%", // Home: Left side of the cluster
+          width: "120px",
+          height: "250px",
+          borderRadius: "999px",
+          transition: homeTransition,
+        },
+        auth: {
+          top: "50%",
+          left: "20%",
+          width: "250px",
+          height: "120px",
+          borderRadius: "999px",
+          transition: authTransition(0.1),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#5696d8", // Matching image light blue
+        animation: "floatSlow 9s ease-in-out infinite",
+      }}
+    />
+
+    {/* --- Shape 2: Wide Purple Rectangle (Top Right) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "20%",
+          left: "70%", // Home: Top Right
+          width: "260px",
+          height: "110px",
+          borderRadius: "12px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "40%",
+          left: "0%",
+          width: "130px",
+          height: "260px",
+          borderRadius: "12px",
+          rotate: 5, // Slight tilt in auth mode for variety
+          transition: authTransition(0.2),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#502ba0", // Matching image purple
+        animation: "floatMed 11s ease-in-out infinite",
+        animationDelay: "0.5s",
+      }}
+    />
+
+    {/* --- Shape 3: The Horizontal Line (Center) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "55%",
+          left: "60%", // Home: Center
+          width: "170px",
+          height: "8px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "15%",
+          left: "20%",
+          width: "8px",
+          height: "160px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: authTransition(0.4),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: theme.palette.common.black,
+        animation: "floatFast 8s ease-in-out infinite",
+        animationDelay: "1s",
+      }}
+    />
+
+    {/* --- Shape 4: Dark Blue Square (Bottom Left) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "62%",
+          left: "50%",
+          width: "130px",
+          height: "130px",
+          borderRadius: "16px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "20%",
+          left: "35%",
+          width: "130px",
+          height: "130px",
+          borderRadius: "16px",
+          rotate: -10,
+          transition: authTransition(0.15),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#243168", // Matching image dark blue
+        animation: "floatSlow 12s ease-in-out infinite",
+        animationDelay: "0.2s",
+      }}
+    />
+
+    {/* --- Shape 5: Light Blue Oval (Middle Right) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "45%",
+          left: "85%",
+          width: "120px",
+          height: "210px",
+          borderRadius: "999px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "10%",
+          left: "0%",
+          width: "120px",
+          height: "210px",
+          borderRadius: "999px",
+          rotate: 15,
+          transition: authTransition(0.25),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#abcce8", // Matching image pale blue
+        animation: "floatMed 10s ease-in-out infinite",
+        animationDelay: "0.7s",
+      }}
+    />
+
+    {/* --- Shape 6: Vertical Thin Line (Far Right) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "20%",
+          left: "103%",
+          width: "10px",
+          height: "125px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "75%",
+          left: "35%",
+          width: "90px",
+          height: "90px",
+          borderRadius: "50%",
+          rotate: 0,
+          transition: authTransition(0.4),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#3f4d9b", // Matching image indigo
+        animation: "floatSlow 14s ease-in-out infinite",
+      }}
+    />
+
+    {/* --- Shape 7: Vertical Thin Line Bottom (Far Right Bottom) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "45%",
+          left: "105%",
+          width: "8px",
+          height: "200px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "30%",
+          left: "-8%",
+          width: "8px",
+          height: "180px",
+          borderRadius: "4px",
+          rotate: 0,
+          transition: authTransition(0.45),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: theme.palette.common.black,
+        animation: "floatSlow 13s ease-in-out infinite",
+        animationDelay: "0.5s",
+      }}
+    />
+
+    {/* --- Shape 8: Pink Circle (Bottom Corner) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: {
+          top: "75%",
+          left: "75%",
+          width: "110px",
+          height: "110px",
+          borderRadius: "50%",
+          scale: 1,
+          transition: homeTransition,
+        },
+        auth: {
+          top: "80%",
+          left: "-10%",
+          width: "200px",
+          height: "90px",
+          borderRadius: "999px",
+          scale: 1.1,
+          transition: authTransition(0.3),
+        },
+      }}
+      sx={{
+        position: "absolute",
+        bgcolor: "#e91e63", // Matching image pink
+        animation: "floatFast 9s ease-in-out infinite",
+        animationDelay: "0.3s",
+      }}
+    />
+
+    {/* --- Background Blur Blob (Subtle atmosphere) --- */}
+    <MotionBox
+      initial={isHome ? "home" : "auth"}
+      animate={isHome ? "home" : "auth"}
+      variants={{
+        home: { left: "60%", top: "20%" },
+        auth: { left: "10%", top: "30%" },
+      }}
+      transition={{ duration: 2, ease: "easeInOut" }}
+      sx={{
+        position: "absolute",
+        width: "400px",
+        height: "400px",
+        borderRadius: "50%",
+        background: `radial-gradient(circle, ${alpha(
+          theme.palette.primary.light,
+          0.15
+        )} 0%, transparent 70%)`,
+        filter: "blur(60px)",
+        zIndex: -1,
+      }}
+    />
+  </Box>
+);
 const menuLinkStyles = (theme: Theme) => ({
   textDecoration: "none",
   color: theme.palette.text.primary,

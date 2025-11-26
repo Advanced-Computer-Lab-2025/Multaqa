@@ -7,6 +7,8 @@ import {
   getPaymentReceiptTemplate,
   getCertificateOfAttendanceTemplate,
   getApplicationStatusTemplate,
+  getExternalVisitorQREmailTemplate,
+  getGymSessionNotificationTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -165,6 +167,64 @@ export const sendApplicationStatusEmail = async (
   await sendEmail({
     to: userEmail,
     subject,
+    html,
+  });
+};
+
+export const sendQRCodeEmail = async (
+  email: string,
+  name: string,
+  eventName: string,
+  qrCodeBuffer: Buffer
+) => {
+  const html = getExternalVisitorQREmailTemplate(name, eventName);
+  await sendEmail({
+    to: email,
+    subject: `🎟️ Your QR Code for ${eventName} - Multaqa`,
+    html,
+    attachments: [
+      {
+        filename: `QR_Code_${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.png`,
+        content: qrCodeBuffer,
+        contentType: 'pdf',
+        disposition: 'attachment'
+      }
+    ]
+  });
+};
+// Send gym session notification email (cancelled or edited)
+export const sendGymSessionNotificationEmail = async (params: {
+  userEmail: string;
+  username: string;
+  sessionName: string;
+  actionType: "cancelled" | "edited";
+  oldDetails: {
+    date: Date;
+    time: string;
+    location: string;
+    instructor?: string;
+  };
+  newDetails?: {
+    date: Date;
+    time: string;
+    location: string;
+    instructor?: string;
+  };
+}) => {
+  const html = getGymSessionNotificationTemplate(
+    params.username,
+    params.sessionName,
+    params.actionType,
+    params.oldDetails,
+    params.newDetails
+  );
+
+  const actionLabel = params.actionType === "cancelled" ? "Cancelled" : "Updated";
+  const emoji = params.actionType === "cancelled" ? "❌" : "🔄";
+  
+  await sendEmail({
+    to: params.userEmail,
+    subject: `${emoji} Gym Session ${actionLabel} - Multaqa`,
     html,
   });
 };

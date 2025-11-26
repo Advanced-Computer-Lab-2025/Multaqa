@@ -6,11 +6,12 @@ import { CourtSlot, CourtType } from "@/components/CourtBooking/types";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import { api } from "@/api";
 import { CircularProgress, Box, Alert } from "@mui/material";
+import { toast } from "react-toastify";
 
-const courtTypeMap: Record<string, { name: string; colorKey: "primary" | "secondary" | "tertiary" }> = {
-  basketball: { name: "Basketball", colorKey: "primary" },
-  tennis: { name: "Tennis", colorKey: "tertiary" },
-  football: { name: "Football", colorKey: "secondary" },
+const courtTypeMap: Record<string, { name: string; colorKey: "primary" | "secondary" | "tertiary" | "warning" }> = {
+  basketball: { name: "Basketball", colorKey: "warning" },
+  tennis: { name: "Tennis", colorKey: "secondary" },
+  football: { name: "Football", colorKey: "tertiary" },
 };
 
 // All available time slots from backend constants
@@ -53,11 +54,58 @@ interface BackendResponse {
   message: string;
 }
 
+interface SingleCourtAvailabilityResponse {
+  success: boolean;
+  data: Availability;
+  message: string;
+}
+
+const toISODate = (value: string | Date) => {
+  const dateObj = new Date(value);
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getTodayISO = () => toISODate(new Date());
+
+const buildSlotsForCourt = (
+  court: Court,
+  availability: Availability,
+  dateISO: string
+): CourtSlot[] => {
+  return ALL_TIME_SLOTS.map((timeSlot) => {
+    const [start, end] = timeSlot.split("-");
+    const isReserved = availability.reservedSlots.includes(timeSlot);
+
+    let reservedBy: string | undefined;
+    if (isReserved) {
+      const reservation = court.reservations.find((res) => {
+        return toISODate(res.date) === dateISO && res.slot === timeSlot;
+      });
+      reservedBy = reservation?.userId;
+    }
+
+    return {
+      id: `${court._id}-${dateISO}-${timeSlot}`,
+      courtTypeId: court._id,
+      day: dateISO,
+      start,
+      end,
+      status: isReserved ? "reserved" : "available",
+      reservedBy,
+    };
+  });
+};
+
 export default function CourtsBookingContent() {
   const [courts, setCourts] = useState<CourtType[]>([]);
   const [slots, setSlots] = useState<CourtSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [courtDetails, setCourtDetails] = useState<Record<string, Court>>({});
 
   useEffect(() => {
     fetchCourts();
@@ -71,56 +119,27 @@ export default function CourtsBookingContent() {
       const response = await api.get<BackendResponse>("/courts/all");
       const courtsWithAvailability = response.data.data;
 
-      // Transform courts
-      const transformedCourts: CourtType[] = courtsWithAvailability.map((item) => ({
-        id: item.court._id,
-        name: courtTypeMap[item.court.type]?.name || item.court.type,
-        colorKey: courtTypeMap[item.court.type]?.colorKey || "primary",
-      }));
+      const transformedCourts: CourtType[] = courtsWithAvailability.map(
+        (item) => ({
+          id: item.court._id,
+          name: courtTypeMap[item.court.type]?.name || item.court.type,
+          colorKey: courtTypeMap[item.court.type]?.colorKey || "primary",
+        })
+      );
 
-      const allSlots: CourtSlot[] = [];
-
+      const detailsMap: Record<string, Court> = {};
       courtsWithAvailability.forEach((item) => {
-        const { court, availability, date } = item;
-        
-        // Use the date from backend response (already in YYYY-MM-DD format)
-        const dateISO = date;
-        
-        // Create slots using the backend-provided date
-        ALL_TIME_SLOTS.forEach((timeSlot) => {
-          const [start, end] = timeSlot.split("-");
-          const isReserved = availability.reservedSlots.includes(timeSlot);
-          
-          // Find the reservation details if it's reserved
-          let reservedBy: string | undefined;
-          if (isReserved) {
-            const reservation = court.reservations.find((res) => {
-              // Extract date from reservation (YYYY-MM-DD format)
-              const resDateObj = new Date(res.date);
-              const resYear = resDateObj.getFullYear();
-              const resMonth = String(resDateObj.getMonth() + 1).padStart(2, '0');
-              const resDay = String(resDateObj.getDate()).padStart(2, '0');
-              const resDateString = `${resYear}-${resMonth}-${resDay}`;
-              
-              return resDateString === dateISO && res.slot === timeSlot;
-            });
-            reservedBy = reservation?.userId;
-          }
-
-          allSlots.push({
-            id: `${court._id}-${dateISO}-${timeSlot}`,
-            courtTypeId: court._id,
-            day: dateISO,
-            start,
-            end,
-            status: isReserved ? "reserved" : "available",
-            reservedBy,
-          });
-        });
+        detailsMap[item.court._id] = item.court;
       });
 
+      const allSlots: CourtSlot[] = courtsWithAvailability.flatMap((item) =>
+        buildSlotsForCourt(item.court, item.availability, item.date)
+      );
+
       setCourts(transformedCourts);
+      setCourtDetails(detailsMap);
       setSlots(allSlots);
+      setInlineError(null);
     } catch (err: unknown) {
       console.error("Error fetching courts:", err);
 
@@ -135,6 +154,81 @@ export default function CourtsBookingContent() {
       setError(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChangeCourtDate = async (courtId: string, nextDate: string | null) => {
+    const court = courtDetails[courtId];
+    if (!court) {
+      console.warn("Unknown court id", courtId);
+      return;
+    }
+
+    const targetDate = nextDate ?? getTodayISO();
+
+    try {
+      setInlineError(null);
+      const response = await api.get<SingleCourtAvailabilityResponse>(
+        `/courts/${courtId}/available-slots`,
+        { params: { date: targetDate } }
+      );
+
+      const updatedSlots = buildSlotsForCourt(
+        court,
+        response.data.data,
+        targetDate
+      );
+
+      setSlots((prev) => {
+        const otherCourts = prev.filter((slot) => slot.courtTypeId !== courtId);
+        return [...otherCourts, ...updatedSlots];
+      });
+    } catch (err) {
+      console.error("Error loading court slots for date", err);
+      setInlineError(
+        "We couldn't load that day's slots. Please try another date or refresh."
+      );
+    }
+  };
+
+  const handleReserve = async (slot: CourtSlot) => {
+    try {
+      setInlineError(null);
+      
+      await api.post(`/courts/${slot.courtTypeId}/reserve`, {
+        date: slot.day,
+        slot: `${slot.start}-${slot.end}`
+      });
+
+      // Update the slot status locally
+      setSlots((prev) =>
+        prev.map((s) =>
+          s.id === slot.id
+            ? { ...s, status: "yours" as const, reservedBy: "You" }
+            : s
+        )
+      );
+
+      toast.success("Court slot reserved successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    } catch (err: unknown) {
+      console.error("Error reserving court slot:", err);
+      
+      let message = "Failed to reserve court slot";
+      if (typeof err === "object" && err !== null) {
+        const maybeResponse = (err as { response?: { data?: { message?: string } } }).response;
+        if (maybeResponse?.data?.message) {
+          message = maybeResponse.data.message;
+        }
+      }
+      
+      toast.error(message, {
+        position: "bottom-right",
+        autoClose: 4000,
+      });
+      setInlineError(message);
     }
   };
 
@@ -167,11 +261,18 @@ export default function CourtsBookingContent() {
       title="Reserve Courts"
       description="Pick a time slot from a court column. Slots are grouped by day. Click Reserve to book."
     >
+      {inlineError && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {inlineError}
+        </Alert>
+      )}
       <CourtBoard
         courts={courts}
         slots={slots}
         currentUser="You"
         embedded
+        onChangeCourtDate={handleChangeCourtDate}
+        onReserve={handleReserve}
       />
     </ContentWrapper>
   );

@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import {useFormik, Formik} from 'formik';
 
 
-import { CustomTextField } from '@/components/shared/input-fields';
-import { Box, Grid, TextField, Typography } from '@mui/material';
+import { CustomSelectField, CustomTextField } from '@/components/shared/input-fields';
+import { Box, Grid, TextField, Typography, Paper, CardContent, AccordionDetails, Tabs, Tab, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -16,17 +16,67 @@ import { themes } from 'storybook/internal/theming';
 
 import {tripSchema} from "./schemas/trip";
 
+import StyledAccordion from '@/components/shared/Accordion/StyledAccordion';
+import StyledAccordionSummary from '@/components/shared/Accordion/StyledAccordionSummary';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
+
 import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
+import RichTextField from '@/components/shared/TextField/TextField';
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
+import { toast } from 'react-toastify';
 
 
 interface CreateTripProps {
   open:boolean;
   onClose: () => void;
   setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+  color:string;
  }
 
-const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
+const accentColor = '#6e8ae6';
+
+const tertiaryInputStyles = {
+  '& .MuiInputLabel-root': {
+    color: theme.palette.grey[500],
+    '&.Mui-focused': { color: accentColor },
+  },
+  '& .MuiInputBase-input': {
+    color: '#000000',
+    '&::placeholder': {
+      color: theme.palette.grey[400],
+      opacity: 1,
+    },
+  },
+  '& .MuiInput-underline:before': {
+    borderBottomColor: theme.palette.grey[400],
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottomColor: accentColor,
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: accentColor,
+  },
+};
+
+// Shared Paper styles for all tabs
+const contentPaperStyles = {
+  p: { xs: 1, md: 3 },
+  borderRadius: '32px',
+  background: theme.palette.background.paper,
+  border:`1.5px solid ${accentColor}`,
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'auto',
+  boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+  transition: 'box-shadow 0.2s',
+
+};
+
+const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
   const handleCallApi = async (payload:any) => {
     setLoading(true);
     setError(null);
@@ -36,9 +86,19 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
       const res = await api.post("/events", payload);
       setResponse(res.data);
       setRefresh((prev)=> !prev);
+      toast.success("Trip created successfully", {
+                  position:"bottom-right",
+                  autoClose:3000,
+                  theme: "colored",
+              })
     } catch (err: any) {
       setError(err?.message || "API call failed");
       window.alert(err.response.data.error);
+      toast.error("Failed to create trip. Please try again.", {
+          position:"bottom-right",
+          autoClose:3000,
+          theme: "colored",
+          });
     } finally {
       setLoading(false);
     }
@@ -48,16 +108,22 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
     
-  const initialValues = {
-    tripName: '',
-    location: '',
-    price: 0,
-    description: '',
-    startDate: null,
-    endDate: null,
-    registrationDeadline: null,
-    capacity: 0,
-  };
+    const initialValues = {
+        tripName: '',
+        location: '',
+        price: 0,
+        description: '',
+        fullAgenda: '',
+        startDate: null,
+        endDate: null,
+        registrationDeadline: null,
+        capacity: 0,
+    };
+
+  const handleClose = () => {
+    onClose();
+    setActiveTab('general');
+    };
   
   const onSubmit = async (values: any, actions: any) => {
     onClose();
@@ -87,168 +153,370 @@ const CreateTrip = ({open, onClose, setRefresh}: CreateTripProps) => {
     validationSchema: tripSchema,
     onSubmit: onSubmit,
   });
+  
 
+    // Tab state for sections
+    const tabSections = [
+        { key: 'general', label: 'General Info', icon: <InfoOutlinedIcon /> },
+        { key: 'description', label: 'Description', icon: <DescriptionOutlinedIcon /> },
+        // { key: 'fullAgenda', label: 'Full Agenda', icon: <ListAltOutlinedIcon /> },
+    ];
+    const [activeTab, setActiveTab] = useState('general');
+    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+        setActiveTab(newValue);
+    };
+
+   
   return (
-    <>
-     <CustomModalLayout open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[70vw]'>
-        <form onSubmit={handleSubmit}>
-        <Typography variant='h4' color='primary' className='text-center mb-3'>Create trip</Typography>
-        <Grid container spacing={2}>
-                <Grid size={4}>
-                    <CustomTextField 
-                        name='tripName'
-                        id='tripName'
-                        label="Trip Name"    
-                        fieldType='text'
-                        placeholder='Enter Trip Name'
-                        value={values.tripName}
-                        onChange={handleChange}
-                        fullWidth
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
+    <CustomModalLayout open={open} borderColor={accentColor} title="Create Trip" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]">
+      <Box sx={{ 
+        background: '#fff',
+        borderRadius: '32px',
+        p: 3,
+        height: '600px',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        
+        <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            flex: 1,
+            gap: 3,
+            minHeight: 0,
+          }}>
+            {/* Sidebar - Fixed width */}
+           {/* Vertical Tabs on the left (Sidebar) */}
+                                      <Box
+                                        sx={{
+                                          width: '220px', 
+                                          flexShrink: 0,
+                                          background: theme.palette.background.paper,
+                                          borderRadius: '32px',
+                                          border:`2px solid ${accentColor}`,
+                                          p: 2,
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          alignItems: 'flex-start',
+                                          boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                                          transition: 'box-shadow 0.2s',
+                                          height: 'fit-content', 
+                                          alignSelf: 'flex-start', 
+                                        }}
+                                      >
+                                          <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => (
+                                                  <ListItem key={section.key} disablePadding>
+                                                      <ListItemButton
+                                                          selected={activeTab === section.key}
+                                                          onClick={() => setActiveTab(section.key)}
+                                                          sx={{
+                                                              borderRadius: '24px',
+                                                              mb: 1.5,
+                                                              px: 2.5,
+                                                              py: 1.5,
+                                                              fontWeight: 600,
+                                                              fontSize: '1.08rem',
+                                                              background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                                                              color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                              boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                                                              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                              '&:hover': {
+                                                                  background: 'rgba(110, 138, 230, 0.05)',
+                                                                  color: accentColor,
+                                                              },
+                                                          }}
+                                                      >
+                                                          <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                                                                color: accentColor
+                                                              }, }}>{section.icon}</ListItemIcon>
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700 }} />
+                                                      </ListItemButton>
+                                                  </ListItem>
+                                              ))}
+                                          </List>
+                                      </Box>
+          
+
+            {/* Content Area - Takes remaining space */}
+            <Box sx={{ 
+              flex: 1, 
+              display: 'flex', 
+              flexDirection: 'column',
+              minWidth: 0,
+            }}>
+              {/* General Info Tab */}
+              {activeTab === 'general' && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  <CustomTextField
+                                      name='tripName'
+                                      id='tripName'
+                                      label="Trip Name"
+                                      placeholder='Enter Trip Name'
+                                      value={values.tripName}
+                                      onChange={handleChange}
+                                      fullWidth
+                                      sx={{ mb: 2 }} fieldType={'text'}                  />
+                  {errors.tripName && touched.tripName && (
+                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: -1.5, mb: 1 }}>
+                      {errors.tripName}
+                    </Typography>
+                  )}
+
+                  <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          name="startDate"
+                          label="Start Date and Time"
+                          slotProps={{
+                            textField: {
+                              variant: "standard",
+                              fullWidth: true,
+                              InputLabelProps: {
+                                sx: {
+                                  color: theme.palette.grey[500],
+                                  '&.Mui-focused': { color: accentColor },
+                                },
+                              },
+                              sx: {
+                                color: accentColor,
+                                '& .MuiInput-underline:before': {
+                                  borderBottomColor: theme.palette.grey[400],
+                                },
+                                '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                  borderBottomColor: accentColor,
+                                },
+                                '& .MuiInput-underline:after': {
+                                  borderBottomColor: accentColor,
+                                },
+                              },
+                            },
+                          }}
+                          value={values.startDate}
+                          onChange={(value) => setFieldValue("startDate", value)}
+                        />
+                      </LocalizationProvider>
+                      {errors.startDate && touched.startDate && (
+                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem' }}>
+                          {errors.startDate}
+                        </Typography>
+                      )}
+                    </Box>
+                    
+                    <Box sx={{ flex: 1 }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          name="endDate"
+                          label="End Date and Time"
+                          slotProps={{
+                            textField: {
+                              variant: "standard",
+                              fullWidth: true,
+                              InputLabelProps: {
+                                sx: {
+                                  color: theme.palette.grey[500],
+                                  '&.Mui-focused': { color: accentColor },
+                                },
+                              },
+                              sx: {
+                                color: accentColor,
+                                '& .MuiInput-underline:before': {
+                                  borderBottomColor: theme.palette.grey[400],
+                                },
+                                '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                  borderBottomColor: accentColor,
+                                },
+                                '& .MuiInput-underline:after': {
+                                  borderBottomColor: accentColor,
+                                },
+                              },
+                            },
+                          }}
+                          value={values.endDate}
+                          onChange={(value) => setFieldValue("endDate", value)}
+                        />
+                      </LocalizationProvider>
+                      {errors.endDate && touched.endDate && (
+                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem' }}>
+                          {errors.endDate}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      name='registrationDeadline'
+                      label="Deadline to Register"
+                      slotProps={{
+                        textField: {
+                          variant: "standard",
+                          fullWidth: true,
+                          InputLabelProps: {
+                            sx: {
+                              color: theme.palette.grey[500],
+                              '&.Mui-focused': { color: accentColor },
+                            },
+                          },
+                          sx: {
+                            color: accentColor,
+                            '& .MuiInput-underline:before': {
+                              borderBottomColor: theme.palette.grey[400],
+                            },
+                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                              borderBottomColor: accentColor,
+                            },
+                            '& .MuiInput-underline:after': {
+                              borderBottomColor: accentColor,
+                            },
+                          },
+                        },
+                      }}
+                      value={values.registrationDeadline}
+                      onChange={(value) => setFieldValue('registrationDeadline', value)}
                     />
-                    {errors.tripName && touched.tripName ? <p style={{color:"#db3030"}}>{errors.tripName}</p> : <></>}
-                </Grid>    
-                <Grid size={4}>
-                    <CustomTextField
-                        name='location'
-                        id='location' 
-                        label="Location"   
-                        fieldType='text'
-                        placeholder='e.g. Berlin, Germany'
-                        value={values.location}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                        fullWidth
-                    />
-                    {errors.location && touched.location ? <p style={{color:"#db3030"}}>{errors.location}</p> : <></>}
-                </Grid>
-                <Grid size={4}>
-                    <TextField
+                  </LocalizationProvider>
+                  {errors.registrationDeadline && touched.registrationDeadline && (
+                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mb: 2 }}>
+                      {errors.registrationDeadline}
+                    </Typography>
+                  )}
+
+                  <Box sx={{ display: "flex", gap: 2, mt: 2, mb: 2 }}>
+                    <Box sx={{ flex: 1 }}>
+                      <TextField
                         name="price"
+                        id="price"
                         label="Price"
                         type="number"
                         fullWidth
-                        variant='standard'
-                        placeholder="Enter price"
-                        slotProps={{
-                            input: {
-                                startAdornment:(
-                                    <InputAdornment position="start">EGP</InputAdornment>
-                                )
-                            }
-                        }}
-                        sx={{marginTop: "6px"}}
+                        variant="standard"
+                        placeholder="Enter Price"
                         value={values.price}
                         onChange={handleChange}
-                    />
-                    {errors.price && touched.price ? <p style={{color:"#db3030"}}>{errors.price}</p> : <></>}
-                </Grid>
-                <Grid size={6}>
-                    <TextField
+                        sx={tertiaryInputStyles}
+                      />
+                      {errors.price && touched.price && (
+                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem' }}>
+                          {errors.price}
+                        </Typography>
+                      )}
+                    </Box>
+                    
+                    <Box sx={{ flex: 1 }}>
+                      <TextField
                         name="capacity"
+                        id="capacity"
                         label="Capacity"
                         type="number"
                         fullWidth
-                        variant='standard'
+                        variant="standard"
                         placeholder="Enter Capacity"
                         value={values.capacity}
                         onChange={handleChange}
-                    />
-                    {errors.capacity && touched.capacity ? <p style={{color:"#db3030"}}>{errors.capacity}</p> : <></>}
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                                name='startDate'
-                                label="Start Date and Time"
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,                              
-                                    },
-                                    popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'right',
-                                        sx: { zIndex: 1500 },
-                                    }
-                                }}
-                                value={values.startDate}
-                                onChange={(value) => setFieldValue('startDate', value)}
-                            />
-                            {errors.startDate && touched.startDate ? <p style={{color:"#db3030"}}>{errors.startDate}</p> : <></>}
-                    </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker 
-                                label="End Date and Time"
-                                name='endDate'
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard", // <-- this makes it look like standard TextField
-                                        fullWidth: true,
-                                    },
-                                    popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'left',
-                                        sx: { zIndex: 1500 },
-                                    }
-                                }}
-                                 value={values.endDate}
-                                onChange={(value) => setFieldValue('endDate', value)}
-                            />
-                            {errors.endDate && touched.endDate ? <p style={{color:"#db3030"}}>{errors.endDate}</p> : <></>}
-                    </LocalizationProvider>
-                </Grid>
-                <Grid size={6}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                                name='registrationDeadline'
-                                label="Deadline to Register"
-                                slotProps={{
-                                    textField: {
-                                        variant: "standard",
-                                        fullWidth:true // <-- this makes it look like standard TextField
-                                    },
-                                    popper: {
-                                        disablePortal: true, // <-- Add this line
-                                        placement: 'right',
-                                        sx: { zIndex: 1500 },
-                                    }                       
-                                }}
-                                 value={values.registrationDeadline}
-                                onChange={(value) => setFieldValue('registrationDeadline', value)}
-                            />
-                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-                    </LocalizationProvider>
-                </Grid>
-                <Grid size={12}>
-                    <CustomTextField 
-                        name='description'
-                        id='description'
-                        label="Short Description" 
-                        fullWidth   
-                        fieldType='text' 
-                        multiline 
-                        minRows={3} 
-                        neumorphicBox={true}
-                        value={values.description}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                </Grid>
-                { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-        </Grid>
-        <Box sx={{width:'100%', display:'flex', justifyContent:'end', mt:2}}> 
-            <CustomButton disabled={isSubmitting} label={isSubmitting ? "submitting":"Create Trip"} variant='contained' fullWidth type='submit'/>
-        </Box>
-        </form>
-        </CustomModalLayout>
-    </>
-  )
-}
+                        sx={tertiaryInputStyles}
+                      />
+                      {errors.capacity && touched.capacity && (
+                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem' }}>
+                          {errors.capacity}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
 
-export default CreateTrip
+                  <TextField
+                    name='location'
+                    id='location'
+                    label="Location"
+                    placeholder='Enter Trip Destination'
+                    type="text"
+                    variant="standard"
+                    value={values.location}
+                    onChange={handleChange}
+                    fullWidth
+                    sx={tertiaryInputStyles}
+                  />
+                  {errors.location && touched.location && (
+                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem' }}>
+                      {errors.location}
+                    </Typography>
+                  )}
+                </Paper>
+              )}
+
+              {/* Description Tab */}
+              {activeTab === 'description' && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  <TextField
+                    name="description"
+                    placeholder="Provide a short description of the trip"
+                    value={values.description}
+                    onChange={handleChange}
+                    fullWidth
+                    multiline
+                    rows={16}
+                    sx={{ 
+                        flex: 1,
+                        '& .MuiOutlinedInput-root': {
+                            height: '100%',
+                            alignItems: 'flex-start',
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: accentColor,
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: accentColor,
+                                borderWidth: '2px',
+                            },
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderRadius: '16px',
+                            borderColor: theme.palette.grey[300],
+                        },
+                        '& .MuiInputBase-input': {
+                            height: '100% !important',
+                            overflow: 'auto !important',
+                        }
+                    }}
+                  />
+                  {errors.description && touched.description && (
+                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 1 }}>
+                      {errors.description}
+                    </Typography>
+                  )}
+                </Paper>
+              )}
+
+              {/* Submit Button */}
+              <Box sx={{ mt: 2, textAlign: "right" }}>
+                <CustomButton 
+                              disabled={isSubmitting } 
+                              label={isSubmitting ? "Submitting" : 'Create'} 
+                              variant='contained' 
+                              color='tertiary' 
+                              type='submit' 
+                              sx={{ 
+                                px: 3, 
+                                width: "180px", 
+                                height: "40px", 
+                                fontWeight: 700, 
+                                fontSize: "16px", 
+                                borderRadius: '20px', 
+                                boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
+                                background: accentColor,
+                                '&:hover': {
+                                  background: '#5a7ae0',
+                                }
+                              }}
+                            />
+              </Box>
+            </Box>
+          </Box>
+        </form>
+      </Box>
+    </CustomModalLayout>
+  );
+};
+
+export default CreateTrip;

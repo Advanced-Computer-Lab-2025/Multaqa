@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
-  Chip,
   CircularProgress,
   Divider,
   Stack,
@@ -14,6 +13,11 @@ import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { api } from "@/api";
 import VendorRequestCard from "./VendorRequestCard";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
+import EmptyState from "@/components/shared/states/EmptyState";
+import ErrorState from "@/components/shared/states/ErrorState";
+import FilterPanel from "@/components/shared/FilterCard/FilterPanel";
+import { FilterGroup } from "@/components/shared/FilterCard/types";
 import {
   StatusFilter,
   TypeFilter,
@@ -30,17 +34,29 @@ type RawVendorRequest = {
   event?: any;
 };
 
-const statusFilters: Array<{ key: StatusFilter; label: string }> = [
-  { key: "ALL", label: "All" },
-  { key: "pending", label: "Pending" },
-  { key: "approved", label: "Approved" },
-  { key: "rejected", label: "Rejected" },
-];
-
-const typeFilters: Array<{ key: TypeFilter; label: string }> = [
-  { key: "ALL", label: "All Types" },
-  { key: "bazaar", label: "Bazaars" },
-  { key: "platform_booth", label: "Platform Booths" },
+// Filter groups for FilterPanel
+const getFilterGroups = (): FilterGroup[] => [
+  {
+    id: "status",
+    title: "Status",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Pending", value: "pending" },
+      { label: "Approved", value: "approved" },
+      { label: "Rejected", value: "rejected" },
+    ],
+  },
+  {
+    id: "eventType",
+    title: "Event Type",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Bazaars", value: "bazaar" },
+      { label: "Platform Booths", value: "platform_booth" },
+    ],
+  },
 ];
 
 function ensureString(value: unknown): string | undefined {
@@ -71,9 +87,12 @@ function toNumber(value: unknown): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
-function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null {
+function mapRequest(
+  entry: RawVendorRequest
+): VendorParticipationRequest | null {
   const vendorRaw = entry.vendor ?? entry.vendor?.vendor;
-  const vendorObject = typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
+  const vendorObject =
+    typeof vendorRaw === "object" && vendorRaw !== null ? vendorRaw : undefined;
   const vendorId = ensureString(vendorObject?._id ?? vendorRaw);
   const vendorName =
     (vendorObject?.companyName as string | undefined) ??
@@ -92,7 +111,9 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const eventType = normalizeEventType(
     requestData?.eventType ?? eventRaw?.type ?? "unknown"
   );
-  const startDate = ensureString(eventRaw?.startDate ?? eventRaw?.eventStartDate);
+  const startDate = ensureString(
+    eventRaw?.startDate ?? eventRaw?.eventStartDate
+  );
   const endDate = ensureString(eventRaw?.endDate ?? eventRaw?.eventEndDate);
   const location = (eventRaw?.location as string | undefined) ?? undefined;
 
@@ -101,8 +122,7 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
   // Normalize attendees from multiple possible shapes/fields
   const collectArrays = (...candidates: unknown[]) =>
-    candidates.filter(Array.isArray) as any[][
-      ];
+    candidates.filter(Array.isArray) as any[][];
 
   const candidateArrays = collectArrays(
     (requestData as any)?.bazaarAttendees,
@@ -151,15 +171,17 @@ function mapRequest(entry: RawVendorRequest): VendorParticipationRequest | null 
     const key = contact.email
       ? `e:${contact.email.toLowerCase()}`
       : contact.name
-      ? `n:${contact.name.toLowerCase()}`
-      : null;
+        ? `n:${contact.name.toLowerCase()}`
+        : null;
     if (!key || seen.has(key)) continue;
     seen.add(key);
     deduped.push(contact);
   }
   const attendees = deduped;
   const status = normalizeStatus(requestData?.status);
-  const submittedAt = ensureString(requestData?.submittedAt ?? requestData?.createdAt);
+  const submittedAt = ensureString(
+    requestData?.submittedAt ?? requestData?.createdAt
+  );
   const notes =
     (requestData?.notes as string | undefined) ??
     (requestData?.comment as string | undefined) ??
@@ -197,9 +219,16 @@ export default function VendorParticipationRequests() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
-  const [responding, setResponding] = useState<Record<string, VendorRequestStatus | null>>({});
+  const [filters, setFilters] = useState<{
+    status: string[];
+    eventType: string[];
+  }>({
+    status: ["pending"], // Default to pending
+    eventType: [], // All types
+  });
+  const [responding, setResponding] = useState<
+    Record<string, VendorRequestStatus | null>
+  >({});
   const [refresh, setRefresh] = useState(false);
 
   const fetchRequests = useCallback(async () => {
@@ -222,7 +251,10 @@ export default function VendorParticipationRequests() {
         });
       }
     } catch (err: any) {
-      const message = err?.response?.data?.message ?? err?.message ?? "Unable to load vendor requests.";
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Unable to load vendor requests.";
       setError(message);
       setRequests([]);
     } finally {
@@ -236,27 +268,46 @@ export default function VendorParticipationRequests() {
 
   const filteredRequests = useMemo(() => {
     return requests.filter((request) => {
+      // Status filter
       const statusMatch =
-        statusFilter === "ALL" || request.status === statusFilter;
+        filters.status.length === 0 ||
+        filters.status.includes("ALL") ||
+        filters.status.includes(request.status);
+
+      // Event type filter
       const typeMatch =
-        typeFilter === "ALL" || request.eventType === typeFilter;
+        filters.eventType.length === 0 ||
+        filters.eventType.includes("ALL") ||
+        filters.eventType.includes(request.eventType);
+
       return statusMatch && typeMatch;
     });
-  }, [requests, statusFilter, typeFilter]);
+  }, [requests, filters]);
 
   const groupedByDay = useMemo(() => {
-    const groups = new Map<string, { label: string; dateOrder: number; items: VendorParticipationRequest[] }>();
+    const groups = new Map<
+      string,
+      { label: string; dateOrder: number; items: VendorParticipationRequest[] }
+    >();
 
     filteredRequests.forEach((request) => {
       const dateValue = request.startDate ? new Date(request.startDate) : null;
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
-        ? new Date(dateValue!.getFullYear(), dateValue!.getMonth(), dateValue!.getDate()).toISOString()
+        ? new Date(
+          dateValue!.getFullYear(),
+          dateValue!.getMonth(),
+          dateValue!.getDate()
+        ).toISOString()
         : "unscheduled";
       const label = isValidDate
-        ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(dateValue!)
+        ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
+          dateValue!
+        )
         : "Date To Be Determined";
-      const dateOrder = isValidDate ? dateValue!.getTime() : Number.POSITIVE_INFINITY;
+      const dateOrder = isValidDate
+        ? dateValue!.getTime()
+        : Number.POSITIVE_INFINITY;
       const existing = groups.get(dayKey);
       if (existing) {
         existing.items.push(request);
@@ -265,11 +316,17 @@ export default function VendorParticipationRequests() {
       }
     });
 
-    const sorted = Array.from(groups.values()).sort((a, b) => a.dateOrder - b.dateOrder);
+    const sorted = Array.from(groups.values()).sort(
+      (a, b) => a.dateOrder - b.dateOrder
+    );
     sorted.forEach((group) => {
       group.items.sort((a, b) => {
-        const aTime = a.startDate ? new Date(a.startDate).getTime() : Number.MAX_SAFE_INTEGER;
-        const bTime = b.startDate ? new Date(b.startDate).getTime() : Number.MAX_SAFE_INTEGER;
+        const aTime = a.startDate
+          ? new Date(a.startDate).getTime()
+          : Number.MAX_SAFE_INTEGER;
+        const bTime = b.startDate
+          ? new Date(b.startDate).getTime()
+          : Number.MAX_SAFE_INTEGER;
         return aTime - bTime;
       });
     });
@@ -291,14 +348,14 @@ export default function VendorParticipationRequests() {
         { status },
         { headers: { "Content-Type": "application/json" } }
       );
-      
+
       setRequests((prev) =>
         prev.map((item) =>
           item.id === request.id
             ? {
-                ...item,
-                status,
-              }
+              ...item,
+              status,
+            }
             : item
         )
       );
@@ -307,15 +364,46 @@ export default function VendorParticipationRequests() {
         message:
           status === "approved"
             ? `${request.vendorName} has been approved for ${request.eventName}.`
-            : `${request.vendorName}'s request has been rejected.`,
+            : `${request.vendorName}&apos;s request has been rejected.`,
       });
     } catch (err: any) {
-      const message = err?.response?.data?.message ?? err?.message ?? "Unable to update vendor request.";
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Unable to update vendor request.";
       setError(message);
     } finally {
       setResponding((prev) => ({ ...prev, [request.id]: null }));
     }
   };
+
+  const handleFilterChange = useCallback((groupId: string, value: any) => {
+    setFilters((prev) => {
+      const currentVal = prev[groupId as keyof typeof prev];
+
+      if (Array.isArray(currentVal)) {
+        if (currentVal.includes(value)) {
+          return {
+            ...prev,
+            [groupId]: currentVal.filter((v) => v !== value),
+          };
+        } else {
+          return {
+            ...prev,
+            [groupId]: [...currentVal, value],
+          };
+        }
+      }
+      return prev;
+    });
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setFilters({
+      status: ["pending"],
+      eventType: [],
+    });
+  }, []);
 
   const content = () => {
     if (loading) {
@@ -328,22 +416,20 @@ export default function VendorParticipationRequests() {
 
     if (error) {
       return (
-        <Alert severity="error" sx={{ borderRadius: 2 }}>
-          {error}
-        </Alert>
+        <ErrorState
+          title="Failed to load vendor requests"
+          description={error}
+          onCtaClick={fetchRequests}
+        />
       );
     }
 
     if (filteredRequests.length === 0) {
       return (
-        <Box sx={{ py: 6, textAlign: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "#4b5563" }}>
-            No vendor requests match the selected filters.
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#6b7280", mt: 1 }}>
-            Adjust your filters or refresh to check for new submissions.
-          </Typography>
-        </Box>
+        <EmptyState
+          title="No vendor requests match the selected filters"
+          description="Adjust your filters or refresh to check for new submissions."
+        />
       );
     }
 
@@ -376,90 +462,43 @@ export default function VendorParticipationRequests() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box
-        sx={{
-          mb: 3,
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { md: "center" },
-          justifyContent: "space-between",
-          gap: 2,
-        }}
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <ContentWrapper
+        title="Vendor Participation Requests"
+        description="Review pending vendor applications for bazaars and platform booths."
+        headerMarginBottom={3}
       >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{ fontFamily: "var(--font-jost)", fontWeight: 700, color: "#1E1E1E" }}
+        {feedback ? (
+          <Alert
+            severity={feedback.type}
+            sx={{ mb: 3, borderRadius: 2 }}
+            onClose={() => setFeedback(null)}
           >
-            Vendor Participation Requests
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#757575", fontFamily: "var(--font-poppins)" }}
-          >
-            Review pending vendor applications for bazaars and platform booths.
-          </Typography>
+            {feedback.message}
+          </Alert>
+        ) : null}
+
+        <Box
+          sx={{
+            mt: 2,
+            mb: 2,
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <FilterPanel
+            filterGroups={getFilterGroups()}
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+            onReset={handleResetFilters}
+          />
         </Box>
 
-        <CustomButton
-          variant="outlined"
-          color="primary"
-          onClick={fetchRequests}
-          startIcon={<RefreshCw size={16} />}
-        >
-          Refresh
-        </CustomButton>
-      </Box>
+        <Divider sx={{ mb: 3 }} />
 
-      {feedback ? (
-        <Alert
-          severity={feedback.type}
-          sx={{ mb: 3, borderRadius: 2 }}
-          onClose={() => setFeedback(null)}
-        >
-          {feedback.message}
-        </Alert>
-      ) : null}
-
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 2,
-          justifyContent: "space-between",
-        }}
-      >
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {statusFilters.map(({ key, label }) => (
-            <Chip
-              key={key}
-              label={label}
-              size="small"
-              variant={statusFilter === key ? "filled" : "outlined"}
-              color={statusFilter === key ? "primary" : "default"}
-              onClick={() => setStatusFilter(key)}
-            />
-          ))}
-        </Stack>
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {typeFilters.map(({ key, label }) => (
-            <Chip
-              key={key}
-              label={label}
-              size="small"
-              variant={typeFilter === key ? "filled" : "outlined"}
-              color={typeFilter === key ? "primary" : "default"}
-              onClick={() => setTypeFilter(key)}
-            />
-          ))}
-        </Stack>
-      </Box>
-
-      <Divider sx={{ mb: 3 }} />
-
-      <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>{content()}</Box>
+        <Box sx={{ flex: 1, overflow: "auto", pr: 1 }}>{content()}</Box>
+      </ContentWrapper>
     </Box>
   );
 }

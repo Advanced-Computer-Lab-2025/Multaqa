@@ -2,7 +2,7 @@ import { api } from "@/api";
 import { EventType } from "../types";
 
 //eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const frameData = (data: any, userInfo:any) => {
+export const frameData = (data: any, userInfo: any) => {
   const res: any[] = [];
 
   for (const event of data) {
@@ -17,14 +17,24 @@ export const frameData = (data: any, userInfo:any) => {
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
   return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
 }
-const flattenVendors = (vendors: { RequestData: any; vendor: any}[]) => {
-  return vendors.map(vendor =>vendor.vendor);
+const flattenVendors = (vendors: { RequestData: any; vendor: any }[]) => {
+  console.log(vendors);
+  return vendors.map(vendor => vendor.vendor);
 }
 // Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
 const cleanDateString = (isoDate: string | undefined): string => {
   if (!isoDate) return '';
   // Splits the string at 'T' and returns the first element (the date part)
-  return isoDate.split('T')[0]; 
+  return isoDate.split('T')[0];
+};
+export const capitalizeNamePart = (namePart?: string | null): string => {
+  if (!namePart) return "";
+
+  // Convert to string, trim whitespace, and lowercase the rest of the string
+  const str = String(namePart).trim().toLowerCase();
+
+  // Capitalize the first letter
+  return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 
@@ -33,7 +43,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
   const registrationDeadline = event.registrationDeadline;
   const startDate = event.eventStartDate;
   const endDate = event.eventEndDate;
-  const attended = attendedEvents ? attendedEvents.includes(id) : false; 
+  const attended = attendedEvents ? attendedEvents.includes(id) : false;
+  const archived = event.archived;
 
   switch (event.type?.toLowerCase()) {
     case "trip":
@@ -54,9 +65,16 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Spots Left": event.capacity - event.attendees.length,
         },
         attended,
+        archived,
       };
 
     case "workshop":
+      console.log(event);
+      const firstName = capitalizeNamePart(event.createdBy.firstName);
+      const lastName = capitalizeNamePart(event.createdBy.lastName);
+      const nameParts = [firstName, lastName];
+      const nonEmptyNameParts = nameParts.filter(part => part);
+      const fullName = nonEmptyNameParts.join(' ');
       return {
         id,
         type: EventType.WORKSHOP,
@@ -64,6 +82,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         description: event.description,
         agenda: event.fullAgenda,
         professors: flattenName(event.associatedProfs),
+        professorsId: event.associatedProfs?.map((prof: any) => prof._id || prof) || [],
+        comments: event.comments,
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
           "Start Date": cleanDateString(startDate),
@@ -75,6 +95,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
+          "CreatedId": event.createdBy.id,
+          "Created by": fullName,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
           "Spots Left": event.capacity - event.attendees.length,
@@ -82,6 +104,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           Cost: `${event.price?.$numberInt || event.price} EGP `,
         },
         attended,
+        archived,
       };
 
     // You can add more cases:
@@ -100,10 +123,10 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
-          Location: event.location,
           Link: event.websiteLink,
         },
         attended,
+        archived,
       };
     case "bazaar":
       return {
@@ -123,6 +146,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Vendor Count": event.vendors.length,
         },
         attended,
+        archived,
       };
     case "platform_booth":
       return {
@@ -137,6 +161,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Booth Size": event.RequestData.boothSize,
         },
         attended,
+        archived,
       };
 
     default:
@@ -147,6 +172,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         description: event.description,
         details: {},
         attended,
+        archived,
       };
   }
 }

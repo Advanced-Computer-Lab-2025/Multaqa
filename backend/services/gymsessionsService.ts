@@ -6,6 +6,9 @@ import {
 } from "../interfaces/models/gymSessionsEvent.interface";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { UserRole } from "../constants/user.constants";
+import { sendGymSessionNotificationEmail } from "./emailService";
+import createError from "http-errors";
+import { IUser } from "../interfaces/models/user.interface";
 
 export class GymSessionsService {
   private gymSessionRepo: GenericRepository<IGymSessionEvent>;
@@ -29,13 +32,11 @@ export class GymSessionsService {
       eventStartDate: sessionDate,
       eventEndDate: sessionDate,
       eventStartTime: data.time,
+      location: "GUC Gym",
       eventEndTime: new Date(0, 0, 0, h, m + data.duration)
         .toTimeString()
         .slice(0, 5),
-      registrationDeadline: new Date(
-        sessionDate.getTime() - 24 * 60 * 60 * 1000
-      ), // 1 day before
-      location: "Gym",
+      registrationDeadline: sessionDate,
       description: data.trainer
         ? `${data.sessionType} class instructed by ${data.trainer}`
         : `${data.sessionType} class`,
@@ -44,11 +45,13 @@ export class GymSessionsService {
     });
   }
 
-  async getAllGymSessions(): Promise<IGymSessionEvent[]> {
+  async getAllGymSessions(dateParam?: string): Promise<IGymSessionEvent[]> {
     const filter: any = { type: EVENT_TYPES.GYM_SESSION };
 
-    const date = new Date();
+    // Use provided date or default to today
+    const date = dateParam ? new Date(dateParam) : new Date();
 
+    // Get all sessions for the month of the provided/current date
     filter.eventStartDate = {
       $gte: new Date(date.getFullYear(), date.getMonth(), 1),
       $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),
@@ -61,10 +64,143 @@ export class GymSessionsService {
   }
 
   async cancelGymSession(sessionId: string): Promise<void> {
+    const session = await this.gymSessionRepo.findById(sessionId,
+      { populate: "attendees" ,select:"email firstName lastName"}
+    );
+    if (!session) {
+      throw createError(404, "Gym session not found");
+    }
+    for (const attendee of session.attendees as any[]) {
+      console.log("Notifying attendee", attendee.email);
+      await sendGymSessionNotificationEmail({
+        userEmail: attendee.email,
+        username: `${attendee.firstName} ${attendee.lastName}`,
+        sessionName: session.eventName,
+        actionType: "cancelled",
+        oldDetails: {
+          date: new Date(session.eventStartDate),
+          time: session.eventStartTime,
+          location: session.location ,
+          instructor: session.trainer ?? undefined,
+        },
+
+      });
+    }
     const deleted = await this.gymSessionRepo.delete(sessionId);
     if (!deleted) {
-      throw new Error("Gym session not found");
+      throw createError(404, "Gym session not found");
     }
+    
     return;
   }
+
+  async editGymSession(
+    sessionId: string,
+    updateData: { date?: string; time?: string; duration?: number }
+  ): Promise<IGymSessionEvent> {
+    const session = await this.gymSessionRepo.findById(sessionId,
+      { populate: "attendees" ,select:"email firstName lastName"}
+    );
+    if (!session) {
+      throw createError(404, "Gym session not found");
+    }
+
+    // Update date if provided
+    if (updateData.date) {
+      const sessionDate = new Date(updateData.date);
+      session.eventStartDate = sessionDate;
+      session.eventEndDate = sessionDate;
+      session.registrationDeadline = new Date(
+        sessionDate.getTime() - 24 * 60 * 60 * 1000
+      );
+    }
+
+    // Update time and duration if provided
+    if (updateData.time) {
+      session.eventStartTime = updateData.time;
+    }
+
+    if (updateData.duration !== undefined) {
+      session.duration = updateData.duration;
+    }
+
+    // Recalculate end time if time or duration changed
+    if (updateData.time || updateData.duration !== undefined) {
+      const startTime = updateData.time || session.eventStartTime;
+      const duration =
+        updateData.duration !== undefined
+          ? updateData.duration
+          : session.duration;
+      const [h, m] = startTime.split(":").map(Number);
+      session.eventEndTime = new Date(0, 0, 0, h, m + duration)
+        .toTimeString()
+        .slice(0, 5);
+    }
+
+    await session.save();
+
+    for (const attendee of session.attendees as any[]) {
+      await sendGymSessionNotificationEmail({
+        userEmail: attendee.email,
+        username: `${attendee.firstName} ${attendee.lastName}`,
+        sessionName: session.eventName,
+        actionType: "edited",
+        oldDetails: {
+          date: new Date(session.eventStartDate),
+          time: session.eventStartTime,
+          location: session.location || "TBD", 
+          instructor: session.trainer ?? undefined,
+        },
+        newDetails: {
+          date: new Date(session.eventStartDate),
+          time: session.eventStartTime,
+          location: session.location || "TBD",  
+          instructor: session.trainer ?? undefined,
+        },
+      });
+    }
+
+    return session;
+  }
+
+  async registerUserToSession(
+    sessionId: string,
+    userId: string
+  ): Promise<IGymSessionEvent> {
+    const session = await this.gymSessionRepo.findById(sessionId);
+    if (!session) {
+      throw createError(404, "Gym session not found");
+    }
+    if(new Date(session.registrationDeadline) < new Date()) {
+      throw createError(400, "Session has already started or passed");
+    }
+    if (session.attendees.length >= session.capacity) {
+      throw createError(400, "Session is at full capacity");
+    }
+    const isAlreadyRegistered = session.attendees?.some((attendee: any) => {
+      const attendeeId = attendee._id || attendee;
+      return attendeeId.toString() === userId;
+    });
+    if (isAlreadyRegistered) {
+      throw createError(400, "User is already registered for this session");
+    }
+    console.log("Registering user", userId, "to session", sessionId);
+     session.attendees?.push(userId as any);
+    await session.save();
+    return session;
+  }
+
+  async getUserRegisteredSessions(userId: string): Promise<IGymSessionEvent[]> {
+    return this.gymSessionRepo.findAll(
+      {
+        type: EVENT_TYPES.GYM_SESSION,
+        attendees: userId,
+      },
+      {
+        select:
+          " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity",
+      }
+    );
+  }
 }
+  
