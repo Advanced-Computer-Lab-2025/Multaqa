@@ -131,11 +131,30 @@ const SortByDate: React.FC<SortByDateProps> = ({ value, onChange }) => {
       {/* Custom dropdown menu */}
       <Box
         ref={dropdownRef}
-        style={{
-          ...getDropdownStyles({ isOpen }),
-          borderColor: theme.palette.primary.dark,
+        sx={{
+          position: "absolute",
+          top: "calc(100% + 8px)",
           right: 0,
           left: "auto",
+          minWidth: "200px",
+          maxHeight: "250px",
+          overflowY: "auto",
+          backgroundColor: theme.palette.background.default,
+          border: `2px solid ${theme.palette.primary.dark}`,
+          borderRadius: "16px",
+          zIndex: 9999,
+          opacity: isOpen ? 1 : 0,
+          visibility: isOpen ? "visible" : "hidden",
+          transform: isOpen ? "translateY(0)" : "translateY(-10px)",
+          transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          display: "flex",
+          flexDirection: "column",
+          // Hide scrollbar
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
         }}
       >
         {SORT_OPTIONS.filter((opt) => opt.value !== "none").map((option) => {
