@@ -40,10 +40,10 @@ async function sendSocketNotification(typeNotification: string, notification: No
         }
 
         sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
-        return;
       } catch (error: any) {
         throw createError(500, "Error sending socket notification to specific user:", error);
       }
+      return;
     }
 
     // Notify by roles
@@ -116,7 +116,6 @@ async function sendSocketNotification(typeNotification: string, notification: No
     return;
   } catch (error) {
     console.error(`Failed to send socket notification [${typeNotification}]:`, error);
-    // Consider adding monitoring/alerting here
   }
 }
 

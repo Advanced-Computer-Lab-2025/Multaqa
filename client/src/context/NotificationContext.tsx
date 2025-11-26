@@ -13,6 +13,7 @@ import {
   NotificationContextType,
 } from "@/types/notifications";
 import { toast } from "react-toastify";
+import { api } from "@/api";
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
@@ -25,9 +26,39 @@ export const NotificationProvider = ({
 }) => {
   const { user, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<INotification[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Computed unread count
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Fetch notifications from API
+  const fetchNotifications = useCallback(async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      setIsLoading(true);
+      console.log("📥 Fetching notifications from API...");
+      
+      const response = await api.get("/users/notifications");
+      
+      if (response.data.success) {
+        const fetchedNotifications = response.data.data || [];
+        console.log(`✅ Fetched ${fetchedNotifications.length} notifications`);
+        
+        // Sort by newest first
+        const sortedNotifications = fetchedNotifications.sort(
+          (a: INotification, b: INotification) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
+        setNotifications(sortedNotifications);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching notifications:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   // Handler for marking notification as read
   const markAsRead = useCallback((notificationId: string) => {
@@ -124,6 +155,13 @@ export const NotificationProvider = ({
     []
   );
 
+  // Fetch notifications on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isAuthenticated, fetchNotifications]);
+
   // Setup socket connection and listeners
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -192,6 +230,8 @@ export const NotificationProvider = ({
         markAsRead,
         deleteNotification,
         markAllAsRead,
+        isLoading,
+        refetch: fetchNotifications,
       }}
     >
       {children}

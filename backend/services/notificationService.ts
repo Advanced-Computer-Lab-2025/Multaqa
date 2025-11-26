@@ -71,7 +71,7 @@ export class NotificationService {
     await user.save();
 
     // Emit read event to inform other tabs(sockets)
-    eventBus.emit("notification:read", { userId, notificationId });
+    eventBus.emit("notification:read", { userId, notification: user.notifications[notificationIndex] });
     return { userId, notificationId };
   }
 

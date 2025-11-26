@@ -26,6 +26,8 @@ export interface NotificationContextType {
   markAsRead: (notificationId: string) => void;
   deleteNotification: (notificationId: string) => void;
   markAllAsRead: () => void;
+  isLoading: boolean;
+  refetch: () => Promise<void>;
 }
 
 // Helper type guard to check if notification type is valid

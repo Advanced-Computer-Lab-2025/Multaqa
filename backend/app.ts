@@ -118,6 +118,7 @@ async function startServer() {
       // This is user-initiated, unlike the others which are system-initiated events
       socket.on("notification:read", async (payload: { notificationId: string }) => {
         try {
+          console.log("Marking notification as read:", { userId, notificationId: payload.notificationId });
           await NotificationService.markAsRead(socket.data.userId, payload.notificationId);
         } catch (error) {
           console.error("Error marking notification as read:", error);

@@ -67,6 +67,27 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
   }
 }
 
+async function getUserNotifications(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    const notifications = await userService.getUserNotifications(userId);
+    res.json({
+      success: true,
+      data: notifications,
+      message: "Notifications retrieved successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving notifications"
+    );
+  }
+}
+
 // this will come back in sprint 2 guys (Stripe API)
 async function registerForEvent(
   req: AuthenticatedRequest,
@@ -389,6 +410,25 @@ router.get(
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
   getAllUsers
+);
+
+router.get(
+  "/notifications",
+  authorizeRoles({
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+      UserRole.VENDOR,
+    ],
+    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  getUserNotifications
 );
 
 router.get(

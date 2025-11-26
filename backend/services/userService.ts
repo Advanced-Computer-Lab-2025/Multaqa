@@ -1,4 +1,4 @@
-import { IUser } from "../interfaces/models/user.interface";
+import { INotification, IUser } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
@@ -133,6 +133,15 @@ export class UserService {
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
+  async getUserNotifications(id: string): Promise<INotification[]> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    return user.notifications || [];
+  }
+  
   async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
