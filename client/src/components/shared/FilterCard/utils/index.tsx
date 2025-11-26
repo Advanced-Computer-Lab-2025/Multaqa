@@ -56,11 +56,11 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
     
     if (group.type === 'text') {
         const values: string[] = currentFilters[group.id] || [];
-        const options = group.options?.map(o => o.label) ?? []; // Still map options for suggestions
+        const options = group.options?.map(o => o.label) ?? []; // Suggestions pulled from options
 
         const TextSelector: React.FC = () => {
-            // ... (Anchor/Menu state is likely unused if you removed the dropdown) ...
             const [searchText, setSearchText] = React.useState('');
+            const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
             
             // Re-define toggleOption for consistency, though it's mainly for deleting chips
             const toggleOption = (label: string) => {
@@ -79,13 +79,21 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
                     onFilterChange(group.id, [...values, trimmedText]); 
                     // 2. Clear the input field after successful submission
                     setSearchText(''); 
+                    setIsDropdownOpen(false);
                 }
             };
             // **********************************
 
-            const filteredOptions = options.filter(opt =>
-                opt.toLowerCase().includes(searchText.toLowerCase()) && !values.includes(opt)
-            );
+            const filteredOptions = options
+                .filter(opt =>
+                    opt.toLowerCase().includes(searchText.toLowerCase()) && !values.includes(opt)
+                );
+
+            const handleOptionSelect = (label: string) => {
+                toggleOption(label);
+                setSearchText('');
+                setIsDropdownOpen(false);
+            };
 
             return (
                 <Box sx={{ width: '100%' }}>
@@ -94,6 +102,8 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
                             value={searchText}
                             placeholder='Type to filter...'
                             onChange={(e) => setSearchText(e.target.value)}
+                            onFocus={() => setIsDropdownOpen(true)}
+                            onBlur={() => window.setTimeout(() => setIsDropdownOpen(false), 120)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     // FIX: Call the search submit function on Enter
@@ -131,6 +141,56 @@ export const renderInputOrSelect = (group: FilterGroup, currentFilters: Record<s
                             <SearchIcon fontSize="small" sx={{ stroke: theme.palette.text.secondary, strokeWidth: 0.5 }}/>
                         </IconButton>
                     </Box>
+
+                    {isDropdownOpen && (
+                        <Box
+                            sx={{
+                                mt: 0.5,
+                                borderRadius: 2,
+                                border: `1px solid ${theme.palette.divider}`,
+                                boxShadow: getLiftedShadowString(theme),
+                                maxHeight: 180,
+                                overflowY: 'auto',
+                                backgroundColor: theme.palette.background.paper,
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                        >
+                            {options.length === 0 ? (
+                                <Typography
+                                    variant="caption"
+                                    sx={{ display: 'block', py: 1, px: 1.5, color: theme.palette.text.secondary }}
+                                >
+                                    No options available
+                                </Typography>
+                            ) : filteredOptions.length === 0 ? (
+                                <Typography
+                                    variant="caption"
+                                    sx={{ display: 'block', py: 1, px: 1.5, color: theme.palette.text.secondary }}
+                                >
+                                    No matches found
+                                </Typography>
+                            ) : (
+                                filteredOptions.map((optionLabel) => (
+                                    <Box
+                                        key={optionLabel}
+                                        onClick={() => handleOptionSelect(optionLabel)}
+                                        sx={{
+                                            px: 1.5,
+                                            py: 0.75,
+                                            fontSize: '0.78rem',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s ease',
+                                            '&:hover': {
+                                                backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                            },
+                                        }}
+                                    >
+                                        {optionLabel}
+                                    </Box>
+                                ))
+                            )}
+                        </Box>
+                    )}
 
                     {/* Bottom: selected chips (already correctly using 'values' state) */}
                     <Box sx={{ mt: 0.6, display: 'flex', flexWrap: 'wrap', gap: 0.45 }}>

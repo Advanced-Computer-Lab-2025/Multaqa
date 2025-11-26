@@ -1,152 +1,47 @@
 import React from "react";
 import { Formik } from "formik";
-import NeumorphicBox from "../containers/NeumorphicBox";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
-import { Link } from "@/i18n/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTheme } from "@mui/material/styles";
-import * as Yup from "yup";
 import { useAuth } from "../../../context/AuthContext";
-import { toast } from "react-toastify";
 import { useRouter } from "@/i18n/navigation";
-import { useLocale } from "next-intl";
+import {
+  handleLoginSubmit,
+  getRedirectPath,
+  getValidationSchema,
+} from "./utils";
 
 const LoginForm: React.FC = () => {
   const theme = useTheme();
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const initialValues = {
     email: "",
     password: "",
   };
 
-  const getRedirectPath = (role: string) => {
-    // DON'T include locale - i18n router adds it automatically
-    // useRouter() from @/i18n/navigation handles locale prefixing
-    const roleRedirects: Record<string, string> = {
-      admin: "/admin/users/all-users",
-      student: "/student/events/browse-events",
-      staff: "/staff/events/browse-events",
-      TA: "/ta/events/browse-events",
-      professor: "/professor/workshops/my-workshops",
-      eventsOffice: "/events-office/events/all-events",
-      vendor: "/vendor/opportunities/available",
-    };
-
-    return roleRedirects[role] || "/student/events/browse-events";
-  };
-
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={Yup.object({
-        email: Yup.string()
-          .email("Please enter a valid email address.")
-          .required("Please enter your email address."),
-        password: Yup.string().required("Please enter your password."),
-      })}
-      onSubmit={async (values, { setSubmitting, resetForm }) => {
-        try {
-          const response = await login(values);
-          resetForm();
-
-          // Get user info from login response
-          let userRole;
-          if (response?.user?.role === "administration") {
-            userRole = response?.user?.roleType;
-          } else if (response?.user?.role === "staffMember") {
-            userRole = response?.user?.position;
-          } else {
-            userRole = response?.user?.role;
-          }
-          console.log("Logged in user role:", userRole);
-
-          toast.success("Login successful! Redirecting...", {
-            position: "bottom-right",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
-
-          // Short delay for toast to be visible before redirect
-          setTimeout(() => {
-            const redirectPath = getRedirectPath(String(userRole));
-            console.log("Redirecting to:", redirectPath);
-            router.push(redirectPath!);
-          }, 1500);
-        } catch (err) {
-          console.log("Login error:", err);
-          
-          toast.error(
-              err.response?.data?.error,
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-            }
-          );
-        } finally {
-          setSubmitting(false);
-        }
-      }}
+      validationSchema={getValidationSchema()}
+      onSubmit={(values, formikBag) =>
+        handleLoginSubmit(values, formikBag, login, router, getRedirectPath)
+      }
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
-          <NeumorphicBox
-            containerType="outwards"
-            width={"550px"}
-            borderRadius="20px"
-            padding={"1px"}
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "550px",
+              mx: "auto",
+              px: { xs: 2, sm: 3 },
+              py: { xs: 3, sm: 4 },
+            }}
           >
-            <Box sx={{ position: "relative" }}>
-              <Link
-                href="/"
-                style={{
-                  position: "absolute",
-                  top: "16px",
-                  left: "16px",
-                  textDecoration: "none",
-                  color: theme.palette.primary.main,
-                  cursor: "pointer",
-                  zIndex: 10,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "4px",
-                  borderRadius: "50%",
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <ArrowBackIcon
-                  fontSize="large"
-                  sx={{
-                    "&:hover": {
-                      color: theme.palette.primary.dark,
-                    },
-                  }}
-                />
-              </Link>
-            </Box>
-
-            <Box
-              sx={{
-                border: `2px solid ${theme.palette.primary.main}`,
-                borderRadius: "20px",
-                padding: "30px",
-              }}
-            >
+            <Box>
               <div className="flex flex-col items-center justify-center gap-10">
                 {/* Header */}
                 <div className="text-center mb-6">
@@ -154,11 +49,8 @@ const LoginForm: React.FC = () => {
                     className={"text-4xl" + " font-bold"}
                     style={{ color: theme.palette.text.primary }}
                   >
-                    Multaqa
-                  </h1>
-                  <p style={{ color: theme.palette.text.secondary }}>
                     Log in to your account to continue
-                  </p>
+                  </h1>
                 </div>
 
                 {/* Common Fields */}
@@ -245,26 +137,9 @@ const LoginForm: React.FC = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Login Link */}
-                <div className="mt-4 text-center">
-                  <p
-                    className="text-sm"
-                    style={{ color: theme.palette.text.primary }}
-                  >
-                    Don&apos;t have an account?{" "}
-                    <Link
-                      href="/register"
-                      className="font-medium hover:underline"
-                      style={{ color: theme.palette.primary.main }}
-                    >
-                      Create an account
-                    </Link>
-                  </p>
-                </div>
               </div>
             </Box>
-          </NeumorphicBox>
+          </Box>
         </form>
       )}
     </Formik>

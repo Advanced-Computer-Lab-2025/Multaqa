@@ -5,19 +5,20 @@ type BasicProps = {
   registered?: boolean,
   onDelete?: () => void,
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
-  id:string,
-  userInfo:any;
-  background:string,
+  id: string,
+  userInfo?: any;
+  background: string,
   icon: SvgIconComponent;
-  attended?:boolean;
-  isRegisteredEvent?:boolean;
-  datePassed?:boolean;
-  registrationPassed?:boolean;
+  attended?: boolean;
+  isRegisteredEvent?: boolean;
+  datePassed?: boolean;
+  registrationPassed?: boolean;
+  archived?: boolean;
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;
   name: string;
-  vendors?:any;
+  vendors?: any;
   description: string;
 };
 
@@ -25,7 +26,7 @@ export type BazarViewProps = BasicProps & {
 export type BoothViewProps = BasicProps & {
   company: string,
   people?: { name: string; email: string }[];
-  description:string,
+  description: string,
   details: Record<string, string>,
 }
 
@@ -36,6 +37,7 @@ export type ConferenceViewProps = BasicProps & {
   name: string,
   description: string,
   agenda: string,
+  cachedProfessors?: { firstName: string, lastName: string }[],
   details: Record<string, string>,
 }
 
@@ -47,7 +49,10 @@ export type WorkshopViewProps = BasicProps & {
   name: string,
   description: string,
   agenda: string,
-  professors:string [],
-  professorsId:string[],
+  professors: string[],
+  professorsId: string[],
   details: Record<string, string>,
+  professorStatus?: string;
+  evaluateButton?: React.ReactNode;
+  commentButton?: React.ReactNode;
 }

@@ -1,77 +1,108 @@
-import React, { useState ,useEffect} from 'react'
-import {useFormik, Formik} from 'formik'
-
-import { Chip, Grid, InputAdornment, TextField, Typography, Box } from '@mui/material'
-import { CustomSelectField, CustomTextField } from '@/components/shared/input-fields'
-
+import React, { useState, useEffect } from 'react';
+import { useFormik } from 'formik';
+import { Box, Typography, useTheme, Paper, List, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Chip, IconButton } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import CustomIcon from '@/components/shared/Icons/CustomIcon';
-
-import {workshopSchema} from "../CreateWorkshop/schemas/workshop";
-import dayjs from 'dayjs';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import AddIcon from '@mui/icons-material/Add';
+import { CustomSelectField, CustomTextField } from '@/components/shared/input-fields';
+import { detailTitleStyles } from '@/components/shared/styles';
+import { api } from "../../../api";
 import CustomButton from '@/components/shared/Buttons/CustomButton';
-
-import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
-import { wrapperContainerStyles, horizontalLayoutStyles,step1BoxStyles, step2BoxStyles, modalFormStyles,modalHeaderStyles, detailTitleStyles, modalFooterStyles } from '../../shared/styles';
-import RichTextField from '../../shared/TextField/TextField';
-import theme from '@/themes/lightTheme';
-import { Edit } from 'lucide-react';
+import { workshopSchema } from "../CreateWorkshop/schemas/workshop";
+import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
 
-
 interface ProfessorOption {
-  label: string;
-  value: string; // ideally, the professor _id
+    label: string;
+    value: string;
 }
+
+interface Professor {
+    _id: string;
+    firstName: string;
+    lastName: string;
+}
+
+// Create tertiaryInputStyles as a function that accepts color
+const createTertiaryInputStyles = (accentColor: string, theme: any) => ({
+    '& .MuiInputLabel-root': {
+        color: theme.palette.grey[500],
+        '&.Mui-focused': { color: accentColor },
+    },
+    '& .MuiInputBase-input': {
+        color: '#000000',
+        '&::placeholder': {
+            color: theme.palette.grey[400],
+            opacity: 1,
+        },
+    },
+    '& .MuiInput-underline:before': {
+        borderBottomColor: theme.palette.grey[400],
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+        borderBottomColor: accentColor,
+    },
+    '& .MuiInput-underline:after': {
+        borderBottomColor: accentColor,
+    },
+});
+
+// Create contentPaperStyles as a function that accepts color
+const createContentPaperStyles = (accentColor: string, theme: any) => ({
+    p: { xs: 1, md: 3 },
+    borderRadius: '32px',
+    background: theme.palette.background.paper,
+    border: `1.5px solid ${theme.palette.grey[300]}`,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    boxShadow: `0 4px 24px 0 ${accentColor}14`,
+    transition: 'box-shadow 0.2s',
+});
 
 interface EditWorkshopProps {
-  workshopId:string;
-  workshopName?: string;
-  budget?: number;
-  capacity?: number;
-  startDate: Date | null;
-  endDate: Date | null;
-  registrationDeadline: Date | null;  
-  description?: string;
-  agenda?: string;
-  location?: string;
-  faculty?: string;
-  fundingSource?: string;
-  extraResources?: string[];
-  creatingProfessor:string;
-  associatedProfs?:string[];
-  open:boolean;
-  onClose: () => void;
-  setRefresh?:React.Dispatch<React.SetStateAction<boolean>>;
+    workshopId: string;
+    workshopName?: string;
+    budget?: number;
+    capacity?: number;
+    startDate: Date | null;
+    endDate: Date | null;
+    registrationDeadline: Date | null;
+    description?: string;
+    agenda?: string;
+    location?: string;
+    faculty?: string;
+    fundingSource?: string;
+    extraResources?: string[];
+    creatingProfessor: string;
+    associatedProfs?: string[];
+    open: boolean;
+    onClose: () => void;
+    setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const tertiaryInputStyles = {
-  '& .MuiInputLabel-root': {
-    color: theme.palette.tertiary.main,
-    '&.Mui-focused': {
-      color: theme.palette.tertiary.main,
-    },
-  },
-  '& .MuiInputBase-input': {
-    color: '#000000', // user-entered text is black
-    '&::placeholder': {
-      color:theme.palette.grey[400], // placeholder text color
-      opacity: 1,
-    },
-  },
-  '& .MuiInput-underline:before': {
-    borderBottomColor: theme.palette.tertiary.main,
-  },
-  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-    borderBottomColor: theme.palette.tertiary.main,
-  },
-  '& .MuiInput-underline:after': {
-    borderBottomColor: theme.palette.tertiary.main,
-  },
-};
+interface WorkshopFormValues {
+    workshopName: string;
+    budget: number;
+    capacity: number;
+    startDate: dayjs.Dayjs | null;
+    endDate: dayjs.Dayjs | null;
+    registrationDeadline: dayjs.Dayjs | null;
+    description: string;
+    agenda: string;
+    professors: ProfessorOption[];
+    location: string;
+    faculty: string;
+    fundingSource: string;
+    extraResources: string[];
+}
 
 const EditWorkshop = ({
     workshopId,
@@ -84,536 +115,732 @@ const EditWorkshop = ({
     description = "",
     agenda = "",
     location = "",
-    faculty,
+    faculty = "",
     fundingSource = "",
     extraResources = [],
     creatingProfessor,
     associatedProfs,
-    open, 
+    open,
     setRefresh,
     onClose
-  }: EditWorkshopProps) => {
-  const [selectedProf, setSelectedProf] = useState<string>("");
-  const [resourceInput, setResourceInput] = useState<string>("");
-  const [loadingProfessors, setLoadingProfessors] = useState(true);
-  const [availableProfessors, setAvailableProfessors] = useState<ProfessorOption[]>([]);
+}: EditWorkshopProps) => {
+    const theme = useTheme();
+    const [selectedProf, setSelectedProf] = useState<string>("");
+    const [resourceInput, setResourceInput] = useState<string>("");
+    const [loadingProfessors, setLoadingProfessors] = useState(true);
+    const [availableProfessors, setAvailableProfessors] = useState<ProfessorOption[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [response, setResponse] = useState<any[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
-  const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
+    // Use tertiary color as accent
+    const accentColor = theme.palette.tertiary.main;
 
-  useEffect(() => {
-    handleLoadProfessors();
-  }, []);
+    // Create styles with the accent color
+    const tertiaryInputStyles = createTertiaryInputStyles(accentColor, theme);
+    const contentPaperStyles = createContentPaperStyles(accentColor, theme);
 
-  useEffect(() => {
-    if (associatedProfs &&availableProfessors.length > 0 && associatedProfs.length > 0) {
-      const matchingProfs = availableProfessors.filter(prof =>
-        associatedProfs.includes(prof.value)
-      );
-      setFieldValue('professors', matchingProfs);
-    }
-  }, [availableProfessors, associatedProfs]);
+    // Tab sections for sidebar (4 tabs for workshop)
+    const tabSections = [
+        { key: 'general', label: 'General', icon: <InfoOutlinedIcon /> },
+        { key: 'description', label: 'Description', icon: <DescriptionOutlinedIcon /> },
+        { key: 'fullAgenda', label: 'Full Agenda', icon: <CalendarTodayOutlinedIcon /> },
+        { key: 'organization', label: 'Organization', icon: <GroupsOutlinedIcon /> },
+    ];
+    const [activeTab, setActiveTab] = useState('general');
 
-     const handleClose = () => {
-    onClose();
-    };
+    useEffect(() => {
+        handleLoadProfessors();
+    }, []);
 
-
-  const handleLoadProfessors = async () => {
-      setLoading(true);
-      setError(null);
-      setResponse([]);
-      try {
-        setLoadingProfessors(true);
-        const res = await api.get("/users/professors");
-        const options = res.data.data
-          .filter((prof: any) => prof._id !== creatingProfessor)
-          .map((prof: any) => ({
-            label: `${prof.firstName} ${prof.lastName}`,
-            value: prof._id, // use ID, not name
+    useEffect(() => {
+        if (associatedProfs && availableProfessors.length > 0 && associatedProfs.length > 0) {
+            const matchingProfs = availableProfessors.filter(prof =>
+                associatedProfs.includes(prof.value)
+            );
+            setFieldValue('professors', matchingProfs);
         }
-        ))
-        setAvailableProfessors(options);
-      } catch (err: any) {
-          setError(err?.message || "API call failed");
-      } finally {
-          setLoadingProfessors(false);
-      }
+    }, [availableProfessors, associatedProfs]);
+
+    const handleClose = () => {
+        onClose();
+        setActiveTab('general');
     };
 
-  const initialValues ={
-      workshopName,
-      budget,
-      capacity,
-      startDate: startDate? dayjs(startDate) : null,
-      endDate: endDate ? dayjs(endDate) : null,
-      registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
-      description,
-      agenda,
-      professors: [] as ProfessorOption[],
-      location,
-      faculty,
-      fundingSource,
-      extraResources,
-  };
+    const handleLoadProfessors = async () => {
+        setLoading(true);
+        setError(null);
+        setResponse([]);
+        try {
+            setLoadingProfessors(true);
+            const res = await api.get("/users/professors");
+            const options = (res.data.data as Professor[])
+                .filter((prof: Professor) => prof._id !== creatingProfessor)
+                .map((prof: Professor) => ({
+                    label: `${prof.firstName} ${prof.lastName}`,
+                    value: prof._id,
+                }));
+            setAvailableProfessors(options);
+        } catch (err: any) {
+            setError(err?.message || "API call failed");
+        } finally {
+            setLoadingProfessors(false);
+        }
+    };
 
-  const handleCallApi = async (payload:any) => {
-    setLoading(true);
-    setError(null);
-    setResponse([]);
-    try {
-        // TODO: Replace with your API route
-        const res = await api.patch("/workshops/" + workshopId, payload);
-        setResponse(res.data);
-        toast.success("Workshop edited successfully", {
-                    position:"bottom-right",
-                    autoClose:3000,
+    const initialValues: WorkshopFormValues = {
+        workshopName,
+        budget,
+        capacity,
+        startDate: startDate ? dayjs(startDate) : null,
+        endDate: endDate ? dayjs(endDate) : null,
+        registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
+        description,
+        agenda,
+        professors: [] as ProfessorOption[],
+        location,
+        faculty,
+        fundingSource,
+        extraResources,
+    };
+
+    const handleCallApi = async (payload: any) => {
+        setLoading(true);
+        setError(null);
+        setResponse([]);
+        try {
+            const res = await api.patch("/workshops/" + workshopId, payload);
+            setResponse(res.data);
+            toast.success("Workshop edited successfully", {
+                position: "bottom-right",
+                autoClose: 3000,
+                theme: "colored",
+            });
+            if (setRefresh) setRefresh((prev) => !prev);
+        } catch (err: any) {
+            setError(err?.message || "API call failed");
+            toast.error(err.response?.data?.error || "Failed to edit workshop. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Function to check for errors across tabs
+    const getFirstErrorTab = (errors: any): 'general' | 'description' | 'fullAgenda' | 'organization' | null => {
+        const generalFields = ['workshopName', 'startDate', 'endDate', 'registrationDeadline', 'budget', 'capacity', 'location', 'faculty'];
+        const descriptionField = 'description';
+        const fullAgendaField = 'agenda';
+        const organizationFields = ['fundingSource', 'professors', 'extraResources'];
+
+        // Check General tab
+        for (const field of generalFields) {
+            if (errors[field]) {
+                return 'general';
+            }
+        }
+
+        // Check Description tab
+        if (errors[descriptionField]) {
+            return 'description';
+        }
+
+        // Check Full Agenda tab
+        if (errors[fullAgendaField]) {
+            return 'fullAgenda';
+        }
+
+        // Check Organization tab
+        for (const field of organizationFields) {
+            if (errors[field]) {
+                return 'organization';
+            }
+        }
+
+        return null;
+    };
+
+    const onSubmit = async (values: WorkshopFormValues, actions: any) => {
+        // Manually run validation before proceeding
+        const validationErrors = await actions.validateForm();
+
+        if (Object.keys(validationErrors).length > 0) {
+            const errorTab = getFirstErrorTab(validationErrors);
+
+            if (errorTab) {
+                setActiveTab(errorTab);
+                toast.error("Please fill out all required fields.", {
+                    position: "bottom-right",
+                    autoClose: 3000,
                     theme: "colored",
-                })
-    } catch (err: any) {
-        setError(err?.message || "API call failed");
-        window.alert(err.response.data.error);
-        toast.error("Failed to edit workshop. Please try again.", {
-        position:"bottom-right",
-        autoClose:3000,
-        theme: "colored",
-        });
-    } finally {
-        setLoading(false);
-    }
-  };
+                });
+            }
+            return;
+        }
 
-  const onSubmit = async (values: any, actions: any) => {
-    const payload ={
-      type: "workshop",
-      eventName: values.workshopName,
-      location: values.location,
-      eventStartDate: values.startDate.format("YYYY-MM-DD"),
-      eventEndDate: values.endDate.format("YYYY-MM-DD"), 
-      description: values.description,
-      fullAgenda:values.agenda,
-      associatedFaculty:values.faculty,
-      associatedProfs:values.professors.map((p: { label: string; value: string }) => p.value),
-      requiredBudget:values.budget,
-      extraRequiredResources:values.extraResources,
-      capacity:values.capacity,
-      registrationDeadline:values.registrationDeadline.format("YYYY-MM-DD"),
-      eventStartTime:values.startDate.format("HH:mm"),
-      eventEndTime:values.endDate.format("HH:mm"),
-      fundingSource:values.fundingSource,
-      price:5,
+        // Check if dates are available before formatting
+        if (!values.startDate || !values.endDate || !values.registrationDeadline) {
+            toast.error("Please fill in all date fields.", {
+                position: "bottom-right",
+                autoClose: 3000,
+                theme: "colored",
+            });
+            return;
+        }
+
+        const payload = {
+            type: "workshop",
+            eventName: values.workshopName,
+            location: values.location,
+            eventStartDate: values.startDate.format("YYYY-MM-DD"),
+            eventEndDate: values.endDate.format("YYYY-MM-DD"),
+            description: values.description,
+            fullAgenda: values.agenda,
+            associatedFaculty: values.faculty,
+            associatedProfs: values.professors.map((p: ProfessorOption) => p.value),
+            requiredBudget: values.budget,
+            extraRequiredResources: values.extraResources,
+            capacity: values.capacity,
+            registrationDeadline: values.registrationDeadline.format("YYYY-MM-DD"),
+            eventStartTime: values.startDate.format("HH:mm"),
+            eventEndTime: values.endDate.format("HH:mm"),
+            fundingSource: values.fundingSource,
+            price: 5,
+        };
+        actions.resetForm();
+        await handleCallApi(payload);
+        onClose();
     };
-    actions.resetForm();
-    handleCallApi(payload);
-    onClose();
-  };
 
-  const {handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
-    initialValues,
-    validationSchema: workshopSchema,
-    onSubmit: onSubmit,
-  });
+    const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched } = useFormik({
+        initialValues,
+        validationSchema: workshopSchema,
+        onSubmit: onSubmit,
+        validateOnChange: true,
+        validateOnBlur: true,
+    });
 
-  const handleDescriptionChange = (htmlContent: string) => {
-      setFieldValue('description', htmlContent);
-    };
-  
     return (
-      <>
-      <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
-        <Box sx={{
-        ...wrapperContainerStyles,    
-        }}>
-          <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
-          Create Workshop
-          </Typography>
-            <form onSubmit={handleSubmit}>
-              <Box 
-              sx={horizontalLayoutStyles(theme)}
-              >
-              <Box sx={{...step1BoxStyles(theme),width:'400px',height:'560px'}}>
-                <Box sx={modalHeaderStyles}>
-                    <Typography sx={detailTitleStyles(theme)}>
-                      General Information
-                    </Typography>      
-                  </Box>
-                <Box sx={modalFormStyles}>
-                    <CustomTextField
-                          name='workshopName'
-                          id='workshopName'
-                          label="Workshop Name" 
-                          fullWidth 
-                          placeholder='Enter Workshop Name' 
-                          fieldType="text"
-                          autoCapitalize='off'
-                          autoCapitalizeName={false}
-                          value={values.workshopName}
-                          onChange={handleChange}
-                          sx={{mt:2}}
-                      />
-                      { errors.workshopName && touched.workshopName ? <p style={{color:"#db3030"}}>{errors.workshopName}</p> : <></>}
-                    <Box sx={{ mt: 3 }}>
-                      <RichTextField
-                          label="Description" 
-                          value={values.description}
-                          placeholder="Provide a short description of the trip"
-                          onChange={handleDescriptionChange}
-                      />
-                      { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-                    </Box>
-                    <Box sx={{ mt: 3 }}>
-                        <RichTextField
-                            label="Full Agenda" 
-                            value={values.agenda}
-                            placeholder="Provide the full agenda of the workshop"
-                            onChange={(htmlContent: string) => setFieldValue('agenda', htmlContent)}
-                        />
-                        { errors.agenda && touched.agenda ? <p style={{color:"#db3030"}}>{errors.agenda}</p> : <></>}
-                    </Box>
-  
-                </Box>
-              </Box>
-              <Box sx={{...step2BoxStyles(theme),width:'580px',height:'580px'}}>
-                      <Box sx={modalHeaderStyles}>
-                          <Typography sx={detailTitleStyles(theme)}>
-                              Workshop Details
-                          </Typography>      
-                      </Box>
-<Box sx={modalFormStyles}>
-                        <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom: "12px" }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                        name="startDate"
-                        label="Start Date and Time"
-                        slotProps={{
-                        textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                            InputLabelProps: {
-                            sx: {
-                                color: theme.palette.tertiary.main,
-                                '&.Mui-focused': {
-                                color: theme.palette.tertiary.main,
-                                },
-                            },
-                            },
-                            sx: {
-                            // Input text color
-                            color: theme.palette.tertiary.main,
-                            // Underline (before focus)
-                            '& .MuiInput-underline:before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (on hover)
-                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (after focus)
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            },
-                        },
-                        popper: {
-                            disablePortal: true,
-                            placement: "right",
-                            sx: {
-                            zIndex: 1500,
-                            },
-                        },
-                        }}
-                        value={values.startDate}
-                        onChange={(value) => setFieldValue("startDate", value)}
-                    />
-                    </LocalizationProvider>
-                            {errors.startDate && touched.startDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
-                            )}
+        <CustomModalLayout open={open} borderColor={accentColor} title="Edit Workshop" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[70vw]">
+            <Box sx={{
+                background: '#fff',
+                borderRadius: '32px',
+                p: 3,
+                height: '600px',
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flex: 1,
+                        gap: 3,
+                        minHeight: 0,
+                    }}>
+                        {/* Sidebar Navigation */}
+                        <Box
+                            sx={{
+                                width: '220px',
+                                flexShrink: 0,
+                                background: theme.palette.background.paper,
+                                borderRadius: '32px',
+                                border: `1.5px solid ${theme.palette.grey[300]}`,
+                                p: 2,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-start',
+                                boxShadow: `0 4px 24px 0 ${accentColor}14`,
+                                transition: 'box-shadow 0.2s',
+                                height: 'fit-content',
+                                alignSelf: 'flex-start',
+                            }}
+                        >
+                            <List sx={{ width: '100%', height: '100%' }}>
+                                {tabSections.map((section) => (
+                                    <ListItem key={section.key} disablePadding>
+                                        <ListItemButton
+                                            selected={activeTab === section.key}
+                                            onClick={() => setActiveTab(section.key)}
+                                            sx={{
+                                                borderRadius: '24px',
+                                                mb: 1.5,
+                                                px: 2.5,
+                                                py: 1.5,
+                                                fontWeight: 600,
+                                                fontSize: '1.08rem',
+                                                background: activeTab === section.key ? `${accentColor}14` : 'transparent',
+                                                color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                boxShadow: activeTab === section.key ? `0 2px 8px 0 ${accentColor}20` : 'none',
+                                                transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                '&:hover': {
+                                                    background: `${accentColor}0A`,
+                                                    color: accentColor,
+                                                },
+                                            }}
+                                        >
+                                            <ListItemIcon sx={{
+                                                minWidth: 36,
+                                                color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                '&:hover': { color: accentColor }
+                                            }}>
+                                                {section.icon}
+                                            </ListItemIcon>
+                                            <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
                         </Box>
-        
-                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                                label="End Date and Time"
-                                name="endDate"
-                                slotProps={{
-                        textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                            InputLabelProps: {
-                            sx: {
-                                color: theme.palette.tertiary.main,
-                                '&.Mui-focused': {
-                                color: theme.palette.tertiary.main,
-                                },
-                            },
-                            },
-                            sx: {
-                            // Input text color
-                            color: theme.palette.tertiary.main,
-                            // Underline (before focus)
-                            '& .MuiInput-underline:before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (on hover)
-                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (after focus)
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            },
-                        },
-                                    popper: {
-                                    disablePortal: true,
-                                    placement: "right",
-                                    sx: {
-                                    zIndex: 1500,
-                                    },
-                                },
-                                }}
-                                value={values.endDate}
-                                onChange={(value) => setFieldValue("endDate", value)}
-                            />
-                            </LocalizationProvider>
-                            {errors.endDate && touched.endDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
-                            )}
-                        </Box>
-                        </Box>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                            name='registrationDeadline'
-                            label="Deadline to Register"
-                            slotProps={{
-                            textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                            InputLabelProps: {
-                            sx: {
-                                color: theme.palette.tertiary.main,
-                                '&.Mui-focused': {
-                                color: theme.palette.tertiary.main,
-                                },
-                            },
-                            },
-                            sx: {
-                            // Input text color
-                            color: theme.palette.tertiary.main,
-                            // Underline (before focus)
-                            '& .MuiInput-underline:before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (on hover)
-                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (after focus)
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            },
-                        },
-                                    popper: {
-                                    disablePortal: true,
-                                    placement: "right",
-                                    sx: {
-                                    zIndex: 1500,
-                                    },
-                                },
-                                }}
-                                value={values.registrationDeadline}
-                                onChange={(value) => setFieldValue('registrationDeadline', value)}
-                            />
-                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-                    </LocalizationProvider>
-<Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom:"18px" }}>
-  <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-    <TextField
-      name="budget"
-      id="budget"
-      label="Budget"
-      type="number"
-      fullWidth
-      variant="standard"
-      placeholder="Enter Budget"
-      value={values.budget}
-      onChange={handleChange}
-      sx={{ ...tertiaryInputStyles }}
-    />
-    {errors.budget && touched.budget ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.budget}</p> : <></>}
-  </Box>
 
-  <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-    <TextField
-      name="capacity"
-      id="capacity"
-      label="Capacity"
-      type="number"
-      fullWidth
-      variant="standard"
-      placeholder="Enter Capacity"
-      value={values.capacity}
-      onChange={handleChange}
-      sx={{ ...tertiaryInputStyles }}
-    />
-    {errors.capacity && touched.capacity ? <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.capacity}</p> : <></>}
-  </Box>
-</Box>
-  <Box sx={{ display: "flex", gap: 2, marginTop: "20px", marginBottom: "16px" }}>
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-      <CustomSelectField
-      label="Funding"
-      fieldType="single"
-      options={[
-        { label: 'GUC', value: 'GUC' },
-        { label: 'External', value: 'External' },
-      ]}
-      value={values.fundingSource}
-      onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)} name={''}            />
-    {errors.fundingSource && touched.fundingSource && (<p style={{ color: "#db3030" }}>{errors.fundingSource}</p>)}    
-    </Box>
-    
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-      <CustomSelectField
-        label="Location"
-        fieldType="single"
-        options={[
-          { label: "GUC Cairo", value: "GUC Cairo" },
-          { label: "GUC Berlin", value: "GUC Berlin" },
-        ]}
-        value={values.location}
-        onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} name={""}
-      />
-      {errors.location && touched.location && (
-        <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.location}</p>
-      )}
-    </Box>
-  
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-      <CustomSelectField
-        label="Faculty"
-        fieldType="single"
-        options={[
-          { label: "MET", value: "MET" },
-          { label: "IET", value: "IET" },
-          { label: "EMS", value: "EMS" },
-          { label: "Management", value: "MNGT" },
-          { label: "Applied Arts", value: "AA" },
-          { label: "Architecture", value: "ARCH" },
-          { label: "Law", value: "LAW" },
-          { label: "DMET", value: "DMET" },
-        ]}
-        value={values.faculty}
-        onChange={(e: any) => setFieldValue("faculty", e.target ? e.target.value : e)}
-        name={""}
-      />
-      {errors.faculty && touched.faculty && (
-        <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.faculty}</p>
-      )}
-    </Box>
-  </Box>
-              <Typography sx={{...detailTitleStyles(theme), mb:"6px"}}> Participating Professors </Typography> 
-               <CustomSelectField
-                label="Participating Professors"
-                fieldType="single"
-                options={availableProfessors}
-                value={selectedProf}
-                onChange={(e: any) => {
-                  const val = e.target ? e.target.value : e;
-                  setSelectedProf(val);
-                  // Find the selected option object and add it to formik values.professors if not already present
-                  const opt = availableProfessors.find((o) => o.value === val);
-                  if (opt) {
-                    const already = values.professors.some((p: any) => p.value === opt.value);
-                    if (!already) {
-                      setFieldValue('professors', [...values.professors, opt]);
-                    }
-                  }
-                  // clear the select state so the UI can be used to add another
-                  setSelectedProf('');
-                }}
-                name={''}
-              />
-              {errors.professors && touched.professors ? <p style={{color:"#db3030"}}>{errors.professors.toString()}</p> : <></>} 
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: '8px', marginBottom: '12px' }}>
-                  {values.professors.map((prof) => (
-                    <Chip
-                      key={prof.value}
-                      label={prof.label}
-                      onDelete={() =>
-                        setFieldValue(
-                          'professors',
-                          values.professors.filter((p) => p.value !== prof.value)
-                        )
-                      }
-                      color="primary"
-                      variant="outlined"
-                      sx={{m:0.5}}
-                    />
-                ))}
-              </Box>
-            <Typography sx={detailTitleStyles(theme)}> Extra Resources </Typography>
-            <Box sx={{display:"flex", gap:1, marginTop: "6px",marginBottom:"12px", alignItems: "center" }}>
-                    <CustomTextField 
-                label='Extra Resources'
-                name='extraResources'
-                id = 'extraResources' 
-                fieldType='text' 
-                neumorphicBox
-                value={resourceInput}
-                onChange={(e: any) => setResourceInput(e.target.value)}
-                placeholder="e.g., Lab Equipment"
-                autoCapitalize='off'
-                autoCapitalizeName={false}
-              />
-              <CustomIcon
-                icon="add"
-                size="small"
-                containerType="outwards"
-                onClick={() => {
-                  const trimmed = resourceInput.trim();
-                  if (trimmed && !values.extraResources.includes(trimmed)) {
-                    setFieldValue("extraResources", [...values.extraResources, trimmed]);
-                    setResourceInput("");
-                  }
-                }}
-              />
-             </Box> 
-            
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
-                {values.extraResources.map((res) => (
-                  <Chip
-                    key={res}
-                    label={res}
-                    onDelete={() =>
-                      setFieldValue(
-                        "extraResources",
-                        values.extraResources.filter((r) => r !== res)
-                      )
-                    }
-                    color="primary"
-                    variant="outlined"
-                    sx={{ m: 0.5 }}
-                  />
-                ))}
-              </Box>
-              </Box>
-         </Box>
-      </Box>
-          <Box sx={modalFooterStyles}>
-            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
-            <CustomButton color='tertiary' disabled={isSubmitting} label={isSubmitting ? "submitting":"Edit"} variant='contained' fullWidth type='submit' sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
-        </Box>
-        </form>  
-        </Box>
-        </CustomModalLayout>     
-      </>
-    )
-  }
-  
-  export default EditWorkshop;
-  
+                        {/* Content Area */}
+                        <Box sx={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            minHeight: 0,
+                            height: '100%',
+                        }}>
+                            {/* General Tab */}
+                            {activeTab === 'general' && (
+                                <Paper elevation={0} sx={contentPaperStyles}>
+                                    <CustomTextField
+                                        name='workshopName'
+                                        id='workshopName'
+                                        label="Workshop Name"
+                                        fullWidth
+                                        placeholder='Enter Workshop Name'
+                                        fieldType="text"
+                                        value={values.workshopName}
+                                        onChange={handleChange}
+                                        autoCapitalize='off'
+                                        autoCapitalizeName={false}
+                                        sx={{ mt: 1, mb: 2 }}
+                                    />
+                                    {errors.workshopName && touched.workshopName ?
+                                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: -1.5, mb: 1 }}>{errors.workshopName}</Typography>
+                                        : <></>}
+
+                                    {/* Date/Time Pickers section */}
+                                    <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}>
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimePicker
+                                                    name="startDate"
+                                                    label="Start Date and Time"
+                                                    slotProps={{
+                                                        textField: {
+                                                            variant: "standard",
+                                                            fullWidth: true,
+                                                            sx: tertiaryInputStyles,
+                                                            InputLabelProps: {
+                                                                sx: {
+                                                                    color: theme.palette.grey[500],
+                                                                    '&.Mui-focused': {
+                                                                        color: accentColor,
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                    }}
+                                                    value={values.startDate}
+                                                    onChange={(value) => setFieldValue("startDate", value)}
+                                                />
+                                            </LocalizationProvider>
+                                            {errors.startDate && touched.startDate && (
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.startDate}</Typography>
+                                            )}
+                                        </Box>
+
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DateTimePicker
+                                                    label="End Date and Time"
+                                                    name="endDate"
+                                                    slotProps={{
+                                                        textField: {
+                                                            variant: "standard",
+                                                            fullWidth: true,
+                                                            sx: tertiaryInputStyles,
+                                                            InputLabelProps: {
+                                                                sx: {
+                                                                    color: theme.palette.grey[500],
+                                                                    '&.Mui-focused': {
+                                                                        color: accentColor,
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                    }}
+                                                    value={values.endDate}
+                                                    onChange={(value) => setFieldValue("endDate", value)}
+                                                />
+                                            </LocalizationProvider>
+                                            {errors.endDate && touched.endDate && (
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.endDate}</Typography>
+                                            )}
+                                        </Box>
+                                    </Box>
+
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DateTimePicker
+                                            name='registrationDeadline'
+                                            label="Deadline to Register"
+                                            slotProps={{
+                                                textField: {
+                                                    variant: "standard",
+                                                    fullWidth: true,
+                                                    sx: tertiaryInputStyles,
+                                                    InputLabelProps: {
+                                                        sx: {
+                                                            color: theme.palette.grey[500],
+                                                            '&.Mui-focused': {
+                                                                color: accentColor,
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            }}
+                                            value={values.registrationDeadline}
+                                            onChange={(value) => setFieldValue('registrationDeadline', value)}
+                                        />
+                                        {errors.registrationDeadline && touched.registrationDeadline ?
+                                            <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5, mb: 2 }}>{errors.registrationDeadline}</Typography>
+                                            : <Box sx={{ mb: 2 }} />}
+                                    </LocalizationProvider>
+
+                                    {/* Budget and Capacity */}
+                                    <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}>
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <TextField
+                                                name="budget"
+                                                id="budget"
+                                                label="Budget"
+                                                type="number"
+                                                fullWidth
+                                                variant="standard"
+                                                placeholder="Enter Budget"
+                                                value={values.budget}
+                                                onChange={handleChange}
+                                                sx={tertiaryInputStyles}
+                                            />
+                                            {errors.budget && touched.budget ?
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.budget}</Typography>
+                                                : <></>}
+                                        </Box>
+
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <TextField
+                                                name="capacity"
+                                                id="capacity"
+                                                label="Capacity"
+                                                type="number"
+                                                fullWidth
+                                                variant="standard"
+                                                placeholder="Enter Capacity"
+                                                value={values.capacity}
+                                                onChange={handleChange}
+                                                sx={tertiaryInputStyles}
+                                            />
+                                            {errors.capacity && touched.capacity ?
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.capacity}</Typography>
+                                                : <></>}
+                                        </Box>
+                                    </Box>
+
+                                    {/* Location and Faculty */}
+                                    <Box sx={{ display: "flex", gap: 2, marginTop: "16px", marginBottom: "16px" }}>
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <CustomSelectField
+                                                label="Location"
+                                                fieldType="single"
+                                                options={[
+                                                    { label: "GUC Cairo", value: "GUC Cairo" },
+                                                    { label: "GUC Berlin", value: "GUC Berlin" },
+                                                ]}
+                                                value={values.location}
+                                                onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)}
+                                                name="location"
+                                            />
+                                            {errors.location && touched.location && (
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.location}</Typography>
+                                            )}
+                                        </Box>
+
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <CustomSelectField
+                                                label="Faculty"
+                                                fieldType="single"
+                                                options={[
+                                                    { label: "MET", value: "MET" },
+                                                    { label: "IET", value: "IET" },
+                                                    { label: "EMS", value: "EMS" },
+                                                    { label: "Management", value: "MNGT" },
+                                                    { label: "Applied Arts", value: "AA" },
+                                                    { label: "Architecture", value: "ARCH" },
+                                                    { label: "Law", value: "LAW" },
+                                                    { label: "DMET", value: "DMET" },
+                                                ]}
+                                                value={values.faculty}
+                                                onChange={(e: any) => setFieldValue("faculty", e.target ? e.target.value : e)}
+                                                name="faculty"
+                                            />
+                                            {errors.faculty && touched.faculty && (
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.faculty}</Typography>
+                                            )}
+                                        </Box>
+                                    </Box>
+                                </Paper>
+                            )}
+
+                            {/* Description Tab */}
+                            {activeTab === 'description' && (
+                                <Paper elevation={0} sx={contentPaperStyles}>
+                                    <TextField
+                                        name="description"
+                                        placeholder="Provide a short description of the workshop"
+                                        value={values.description}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        multiline
+                                        rows={16}
+                                        sx={{
+                                            flex: 1,
+                                            '& .MuiOutlinedInput-root': {
+                                                height: '100%',
+                                                alignItems: 'flex-start',
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: accentColor,
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: accentColor,
+                                                    borderWidth: '2px',
+                                                },
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderRadius: '16px',
+                                                borderColor: theme.palette.grey[300],
+                                            },
+                                            '& .MuiInputBase-input': {
+                                                height: '100% !important',
+                                                overflow: 'auto !important',
+                                            }
+                                        }}
+                                    />
+                                    {errors.description && touched.description && (
+                                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 1 }}>
+                                            {errors.description}
+                                        </Typography>
+                                    )}
+                                </Paper>
+                            )}
+
+                            {/* Full Agenda Tab */}
+                            {activeTab === 'fullAgenda' && (
+                                <Paper elevation={0} sx={contentPaperStyles}>
+                                    <TextField
+                                        name="agenda"
+                                        placeholder="Provide the full agenda of the workshop"
+                                        value={values.agenda}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        multiline
+                                        rows={16}
+                                        sx={{
+                                            flex: 1,
+                                            '& .MuiOutlinedInput-root': {
+                                                height: '100%',
+                                                alignItems: 'flex-start',
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: accentColor,
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: accentColor,
+                                                    borderWidth: '2px',
+                                                },
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderRadius: '16px',
+                                                borderColor: theme.palette.grey[300],
+                                            },
+                                            '& .MuiInputBase-input': {
+                                                height: '100% !important',
+                                                overflow: 'auto !important',
+                                            }
+                                        }}
+                                    />
+                                    {errors.agenda && touched.agenda && (
+                                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 1 }}>
+                                            {errors.agenda}
+                                        </Typography>
+                                    )}
+                                </Paper>
+                            )}
+
+                            {/* Organization Tab */}
+                            {activeTab === 'organization' && (
+                                <Paper elevation={0} sx={contentPaperStyles}>
+                                    <Box sx={{ display: "flex", flexDirection: "column", marginBottom: "16px" }}>
+                                        <CustomSelectField
+                                            label="Funding"
+                                            fieldType="single"
+                                            options={[
+                                                { label: 'GUC', value: 'GUC' },
+                                                { label: 'External', value: 'External' },
+                                            ]}
+                                            value={values.fundingSource}
+                                            onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
+                                            name="fundingSource"
+                                        />
+                                        {errors.fundingSource && touched.fundingSource && (
+                                            <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.fundingSource}</Typography>
+                                        )}
+                                    </Box>
+
+                                    <Typography sx={{ ...detailTitleStyles(theme), fontSize: '16px', mb: 1 }}>Participating Professors</Typography>
+                                    <CustomSelectField
+                                        label="Participating Professors"
+                                        fieldType="single"
+                                        options={availableProfessors}
+                                        value={selectedProf}
+                                        onChange={(e: any) => {
+                                            const val = e.target ? e.target.value : e;
+                                            setSelectedProf(val);
+                                            const opt = availableProfessors.find((o) => o.value === val);
+                                            if (opt) {
+                                                const already = values.professors.some((p: any) => p.value === opt.value);
+                                                if (!already) {
+                                                    setFieldValue('professors', [...values.professors, opt]);
+                                                }
+                                            }
+                                            setSelectedProf('');
+                                        }}
+                                        name="professors"
+                                    />
+                                    {errors.professors && touched.professors ?
+                                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.professors.toString()}</Typography>
+                                        : <></>}
+
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: '8px', marginBottom: '16px' }}>
+                                        {values.professors.map((prof) => (
+                                            <Chip
+                                                key={prof.value}
+                                                label={prof.label}
+                                                onDelete={() =>
+                                                    setFieldValue(
+                                                        'professors',
+                                                        values.professors.filter((p) => p.value !== prof.value)
+                                                    )
+                                                }
+                                                sx={{
+                                                    m: 0.5,
+                                                    borderColor: accentColor,
+                                                    color: accentColor,
+                                                    '& .MuiChip-deleteIcon': {
+                                                        color: accentColor,
+                                                        '&:hover': {
+                                                            color: `${accentColor}CC`,
+                                                        }
+                                                    }
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        ))}
+                                    </Box>
+
+                                    <Typography sx={{ ...detailTitleStyles(theme), fontSize: '16px', mb: 1 }}>Extra Required Resources</Typography>
+                                    <Box sx={{ display: "flex", gap: 1, marginBottom: "12px", alignItems: "center" }}>
+                                        <CustomTextField
+                                            label='Extra Required Resources'
+                                            name='extraResources'
+                                            id='extraResources'
+                                            fieldType='text'
+                                            value={resourceInput}
+                                            onChange={(e: any) => setResourceInput(e.target.value)}
+                                            placeholder="e.g., Lab Equipment"
+                                            autoCapitalize='off'
+                                            autoCapitalizeName={false}
+                                            fullWidth
+                                        />
+                                        <IconButton
+                                            onClick={() => {
+                                                const trimmed = resourceInput.trim();
+                                                if (trimmed && !values.extraResources.includes(trimmed)) {
+                                                    setFieldValue("extraResources", [...values.extraResources, trimmed]);
+                                                    setResourceInput("");
+                                                }
+                                            }}
+                                            sx={{
+                                                backgroundColor: accentColor,
+                                                color: 'white',
+                                                width: '40px',
+                                                height: '40px',
+                                                '&:hover': {
+                                                    backgroundColor: `${accentColor}E6`,
+                                                }
+                                            }}
+                                        >
+                                            <AddIcon />
+                                        </IconButton>
+                                    </Box>
+
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
+                                        {values.extraResources.map((res) => (
+                                            <Chip
+                                                key={res}
+                                                label={res}
+                                                onDelete={() =>
+                                                    setFieldValue(
+                                                        "extraResources",
+                                                        values.extraResources.filter((r) => r !== res)
+                                                    )
+                                                }
+                                                sx={{
+                                                    m: 0.5,
+                                                    borderColor: accentColor,
+                                                    color: accentColor,
+                                                    '& .MuiChip-deleteIcon': {
+                                                        color: accentColor,
+                                                        '&:hover': {
+                                                            color: `${accentColor}CC`,
+                                                        }
+                                                    }
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        ))}
+                                    </Box>
+                                </Paper>
+                            )}
+
+                            {/* Submit Button */}
+                            <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                                <CustomButton
+                                    disabled={isSubmitting}
+                                    label={isSubmitting ? "Editing..." : 'Edit'}
+                                    variant='contained'
+                                    color='tertiary'
+                                    type='submit'
+                                    sx={{
+                                        px: 3,
+                                        width: "180px",
+                                        height: "40px",
+                                        fontWeight: 700,
+                                        fontSize: "16px",
+                                        borderRadius: '20px',
+                                        boxShadow: `0 2px 8px 0 ${accentColor}20`,
+                                        background: accentColor,
+                                        '&:hover': {
+                                            background: `${accentColor}E6`,
+                                        }
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    </Box>
+                </form>
+            </Box>
+        </CustomModalLayout>
+    );
+};
+
+export default EditWorkshop;

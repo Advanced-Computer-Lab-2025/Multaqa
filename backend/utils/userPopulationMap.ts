@@ -7,7 +7,20 @@ export const populateMap: Record<string, any[] | undefined> = {
   staffMember: [
     { path: "favorites", model: "Event" },
     { path: "registeredEvents", model: "Event" },
-    { path: "myWorkshops", model: "workshop" }, // Note: workshop is lowercase as it's the discriminator key
+    {
+      path: "myWorkshops",
+      model: "workshop",
+      populate: [
+        {
+          path: "attendees",
+          select: "firstName lastName email",
+        },
+        {
+          path: "associatedProfs",
+          select: "firstName lastName email",
+        },
+      ],
+    },
   ],
   administration: [], // No referenced fields to populate
   vendor: [{ path: "requestedEvents.event", model: "Event" }], // Populate the event inside requestedEvents array

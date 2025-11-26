@@ -21,6 +21,7 @@ const autoRefreshEndpoints = [
   "/payments/:eventId/refund",
   "/vendorEvents/:eventId/bazaar",
   "/vendorEvents/:eventId/vendor-requests/:vendorId",
+  "/vendorEvents/:eventId/cancel",
   "/vendorEvents/booth",
   "/workshops/:workshopId",
   "/workshops",

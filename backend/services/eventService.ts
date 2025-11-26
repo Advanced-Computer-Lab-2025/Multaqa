@@ -17,7 +17,10 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
+import { IPlatformBoothRequestData } from "../interfaces/models/platformBooth.interface";
+import { VendorRequest } from "../interfaces/models/vendor.interface";
 import { VendorEventsService } from "./vendorEventsService";
+import { UserRole } from "../constants/user.constants";
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
@@ -108,7 +111,9 @@ export class EventsService {
     location?: string,
     sort?: boolean,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    userRole?: string,
+    userPosition?: string
   ) {
     const filter: any = {
       type: { $ne: EVENT_TYPES.GYM_SESSION },
@@ -127,6 +132,12 @@ export class EventsService {
         },
       ],
     };
+
+    // Non-admin users should only see non-archived events
+    if (userRole !== UserRole.ADMINISTRATION) {
+      filter.archived = { $ne: true };
+    }
+
     if (type) filter.type = { $regex: new RegExp(`^${type}$`, "i") };
     if (location) filter.location = { $regex: new RegExp(location, "i") };
 
@@ -149,6 +160,23 @@ export class EventsService {
       }
       return event;
     });
+
+    // filter events based on user role/position and allowedUsers list
+    // Skip filtering for admin users
+    if (userRole && userRole !== UserRole.ADMINISTRATION) {
+      events = events.filter((event: any) => {
+        // If allowedUsers is not defined or empty, allow all users
+        if (!event.allowedUsers || event.allowedUsers.length === 0) {
+          return true;
+        }
+        // Check if user's role OR position is in the allowedUsers list
+        const hasRoleAccess = event.allowedUsers.includes(userRole);
+        const hasPositionAccess = userPosition
+          ? event.allowedUsers.includes(userPosition)
+          : false;
+        return hasRoleAccess || hasPositionAccess;
+      });
+    }
 
     if (sort) {
       events = events.sort((a: any, b: any) => {
@@ -191,7 +219,9 @@ export class EventsService {
   }
 
   async getAllWorkshops(): Promise<IEvent[]> {
-    const filter: any = { type: EVENT_TYPES.WORKSHOP };
+    const filter: any = {
+      type: EVENT_TYPES.WORKSHOP,
+    };
     return this.eventRepo.findAll(filter, {
       populate: [
         { path: "associatedProfs", select: "firstName lastName email" },
@@ -414,7 +444,9 @@ export class EventsService {
     await event.save();
 
     // Add event to user's registered events
-    const eventObjectId = event._id as mongoose.Schema.Types.ObjectId;
+    // TODO: Remove this after testing
+    // const eventObjectId = event._id;
+    const eventObjectId = event._id as mongoose.Types.ObjectId;
     await this.userService.addEventToUser(userId, eventObjectId);
 
     return event;

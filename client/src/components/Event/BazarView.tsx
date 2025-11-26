@@ -13,6 +13,8 @@ import EditBazaar from "../tempPages/EditBazaar/EditBazaar";
 import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
+import CancelApplicationVendor from "./Modals/CancelApplicationVendor";
+import ArchiveEvent from "./Modals/ArchiveEvent";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -27,15 +29,31 @@ const BazarView: React.FC<BazarViewProps> = ({
   background,
   setRefresh,
   attended,
+  archived,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [cancelApplication, setCancelApplication] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
+  const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+    const fid = f?._id?.$oid || f?._id || f;
+    return String(fid) === String(id);
+  }));
   const updatedDetails = {...details, vendors};
+
+  // find request for this event — the requestedEvents items contain an `event` object
+  const requestForThisEvent = (userInfo?.requestedEvents || []).find((r: any) => {
+    const ev = r?.event;
+    const evId = ev?._id ?? ev?.id ?? ev;
+    return String(evId) === String(id);
+  });
+  const isRequested = Boolean(requestForThisEvent);
+  const requestStatus = requestForThisEvent?.status; // 'pending' | 'approved' etc.
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -61,7 +79,8 @@ const BazarView: React.FC<BazarViewProps> = ({
 
   return (
     <>
-     <EventCard 
+      <EventCard 
+        eventId={id} isFavorite={isFavorited}
         title={name} 
         startDate={details["Start Date"]} 
         endDate={details["End Date"]} 
@@ -91,28 +110,51 @@ const BazarView: React.FC<BazarViewProps> = ({
                    <Trash2 size={18} />
                  </IconButton>
                </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities onRestrict={() => setRestrictUsers(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
-      registerButton={!registered &&
-        user == "vendor" && (
-          <CustomButton
-            size="small"
-            variant="contained"
-            // color="secondary"
-            sx={{
-              borderRadius: 999, backgroundColor: `${background}20`,
-              color: background, borderColor: background
-            }}
-            onClick={handleOpenModal}
-          >
-            Apply
-            <BazarFormModalWrapper
-              isOpen={isModalOpen}
-              onClose={handleCloseModal}
-              bazarId={id} />
-          </CustomButton>
-        )} expanded={expanded} location={details["Location"]}  
+      ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+     registerButton={ user == "vendor" &&
+          (
+            // if not requested -> show Apply
+            !isRequested ? (
+              <CustomButton
+                size="small"
+                variant="contained"
+                sx={{
+                  borderRadius: 999,
+                  backgroundColor: `${background}20`,
+                  color: background,
+                  borderColor: background,
+                }}
+                onClick={handleOpenModal}
+              >
+                Apply
+                <BazarFormModalWrapper
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  bazarId={id} 
+                />
+              </CustomButton>
+            ) :(
+              // if requested and NOT approved -> show Cancel Application
+              requestStatus !== "approved" ? (
+                <CustomButton
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 999,
+                    backgroundColor: `${background}10`,
+                    color: background,
+                    borderColor: background,
+                    width: "fit-content",
+                  }}
+                  onClick={() => setCancelApplication(true)}
+                >
+                  Cancel Application
+                </CustomButton>
+              ) : null // if approved, render nothing
+            )
+          )
+        } expanded={expanded} archived={archived} location={details["Location"]}  
         />
-
       {/* Delete Confirmation Modal */}
       <CustomModal
         open={eventToDelete}
@@ -177,9 +219,10 @@ const BazarView: React.FC<BazarViewProps> = ({
         startDate={new Date(details['Start Date'])} 
         endDate={new Date (details['End Date'])} 
         registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
-        onClose={()=> {setEdit(false)}}
+        onClose={()=> {setEdit(false)}} color={theme.palette.tertiary.main}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"Bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
@@ -193,24 +236,47 @@ const BazarView: React.FC<BazarViewProps> = ({
           details={updatedDetails}
           color={background}
           userId={userInfo._id}
-          button={
-          !registered &&
-          user == "vendor" && (
-            <CustomButton
-              size="small"
-              variant="contained"
-             // color="secondary"
-              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
-              color:background, borderColor:background}}
-              onClick={handleOpenModal}
-            >
-              Apply
-              <BazarFormModalWrapper
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                bazarId={id}
-              />
-            </CustomButton>
+          button={ user == "vendor" &&
+          (
+            // if not requested -> show Apply
+            !isRequested ? (
+              <CustomButton
+                size="small"
+                variant="contained"
+                sx={{
+                  borderRadius: 999,
+                  backgroundColor: `${background}20`,
+                  color: background,
+                  borderColor: background,
+                }}
+                onClick={handleOpenModal}
+              >
+                Apply
+                <BazarFormModalWrapper
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  bazarId={id} 
+                />
+              </CustomButton>
+            ) :(
+              // if requested and NOT approved -> show Cancel Application
+              requestStatus !== "approved" ? (
+                <CustomButton
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 999,
+                    backgroundColor: `${background}10`,
+                    color: background,
+                    borderColor: background,
+                    width: "fit-content",
+                  }}
+                  onClick={() => setCancelApplication(true)}
+                >
+                  Cancel Application
+                </CustomButton>
+              ) : null // if approved, render nothing
+            )
           )
         }
         sections={user=="vendor"?['general', 'details']:['general','details',
@@ -220,6 +286,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         eventId={id}
         />
       </CustomModalLayout>
+      <CancelApplicationVendor eventId={id} open={cancelApplication} onClose={() => setCancelApplication(false)} setRefresh={setRefresh}/>
     </>
   );
 };

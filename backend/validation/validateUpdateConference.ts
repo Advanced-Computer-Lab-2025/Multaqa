@@ -1,4 +1,6 @@
 import Joi from "joi";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { UserRole } from "../constants/user.constants";
 
 export function validateUpdateConference(data: any) {
   const schema = Joi.object({
@@ -13,6 +15,15 @@ export function validateUpdateConference(data: any) {
     eventStartTime: Joi.string().optional(),
     eventEndTime: Joi.string().optional(),
     description: Joi.string().optional(),
+    archived: Joi.boolean().optional(),
+    allowedUsers: Joi.array()
+      .items(
+        Joi.string().valid(
+          ...Object.values(UserRole),
+          ...Object.values(StaffPosition)
+        )
+      )
+      .optional(),
 
     // Conference-specific fields
     fullAgenda: Joi.string().optional(),
