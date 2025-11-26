@@ -65,11 +65,12 @@ export const NotificationProvider = ({
     console.log("📖 Marking notification as read:", notificationId);
 
     // Optimistically update local state
-    setNotifications((prev) =>
-      prev.map((n) =>
+    setNotifications((prev) => {
+      const updated = prev.map((n) =>
         n._id === notificationId ? { ...n, read: true } : n
-      )
-    );
+      );
+      return updated;
+    });
 
     // Emit to backend
     socketService.emit("notification:read", { notificationId });

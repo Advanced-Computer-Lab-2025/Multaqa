@@ -31,14 +31,16 @@ export default function NotificationDropdown({
     useNotifications();
 
   // Show only notifications from the last 24 hours
-  const now = new Date();
-  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-  const recentNotifications = notifications.filter((notification) => {
-    const notificationDate = new Date(notification.createdAt);
-    return notificationDate >= twentyFourHoursAgo;
-  });
-
+  const recentNotifications = React.useMemo(() => {
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    return notifications.filter((notification) => {
+      const notificationDate = new Date(notification.createdAt);
+      return notificationDate >= twentyFourHoursAgo;
+    });
+  }, [notifications]);
+  
   const hasNotifications = recentNotifications.length > 0;
 
   // Extract locale and entity from current path (e.g., /en/professor/... -> en, professor)
@@ -103,20 +105,20 @@ export default function NotificationDropdown({
             Notifications
           </Typography>
           {hasNotifications && (
-            <Button
-              size="small"
+            <Typography
               onClick={handleMarkAllAsRead}
               sx={{
-                fontSize: "0.75rem",
-                textTransform: "none",
-                color: "#6299d0",
+                fontSize: "0.875rem",
+                color: "#2196F3",
+                cursor: "pointer",
+                fontWeight: 400,
                 "&:hover": {
-                  backgroundColor: alpha("#6299d0", 0.1),
+                  textDecoration: "underline",
                 },
               }}
             >
               Mark all as read
-            </Button>
+            </Typography>
           )}
         </Box>
       </Box>
@@ -152,7 +154,7 @@ export default function NotificationDropdown({
           <Stack spacing={1}>
             {recentNotifications.map((notification) => (
               <NotificationItem
-                key={notification._id}
+                key={`${notification._id}-${notification.read}`}
                 notification={notification}
                 onRead={markAsRead}
                 onUnread={markAsUnread}
