@@ -133,6 +133,26 @@ const EditWorkshop = ({
     const [response, setResponse] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+        // --- Normalizations added ---
+    // Ensure associatedProfs is a string[] of professor ids
+    const normalizedAssociatedProfs: string[] =
+        (associatedProfs || [])
+            .map((p: any) => (typeof p === 'string' ? p : (p?.value ?? p?._id ?? '')))
+            .filter(Boolean);
+
+    // Ensure extraResources is always a string[] (flatten / remove falsy)
+    const normalizedExtraResources: string[] = (() => {
+        if (!extraResources) return [];
+        if (Array.isArray(extraResources)) {
+            return extraResources.flat().filter((r) => typeof r === 'string' && r.trim() !== '');
+        }
+        if (typeof extraResources === 'string' && extraResources.trim() !== '') {
+            return [extraResources];
+        }
+        return [];
+    })();
+    // --- end added ---
+
     // Use tertiary color as accent
     const accentColor = theme.palette.tertiary.main;
 
@@ -154,9 +174,9 @@ const EditWorkshop = ({
     }, []);
 
     useEffect(() => {
-        if (associatedProfs && availableProfessors.length > 0 && associatedProfs.length > 0) {
+        if (normalizedAssociatedProfs.length > 0 && availableProfessors.length > 0) {
             const matchingProfs = availableProfessors.filter(prof =>
-                associatedProfs.includes(prof.value)
+                normalizedAssociatedProfs.includes(prof.value)
             );
             setFieldValue('professors', matchingProfs);
         }
@@ -201,7 +221,7 @@ const EditWorkshop = ({
         location,
         faculty,
         fundingSource,
-        extraResources,
+        extraResources: normalizedExtraResources,
     };
 
     const handleCallApi = async (payload: any) => {
@@ -721,29 +741,29 @@ const EditWorkshop = ({
                                         : <></>}
 
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: '8px', marginBottom: '16px' }}>
-                                        {values.professors.map((prof) => (
-                                            <Chip
-                                                key={prof.value}
-                                                label={prof.label}
-                                                onDelete={() =>
-                                                    setFieldValue(
-                                                        'professors',
-                                                        values.professors.filter((p) => p.value !== prof.value)
-                                                    )
-                                                }
-                                                sx={{
-                                                    m: 0.5,
-                                                    borderColor: accentColor,
-                                                    color: accentColor,
-                                                    '& .MuiChip-deleteIcon': {
-                                                        color: accentColor,
-                                                        '&:hover': {
-                                                            color: `${accentColor}CC`,
-                                                        }
-                                                    }
-                                                }}
-                                                variant="outlined"
-                                            />
+                                        { (values.professors || []).filter(Boolean).map((prof) => (
+                                             <Chip
+                                                 key={prof.value}
+                                                 label={prof.label}
+                                                 onDelete={() =>
+                                                     setFieldValue(
+                                                         'professors',
+                                                         values.professors.filter((p) => p.value !== prof.value)
+                                                     )
+                                                 }
+                                                 sx={{
+                                                     m: 0.5,
+                                                     borderColor: accentColor,
+                                                     color: accentColor,
+                                                     '& .MuiChip-deleteIcon': {
+                                                         color: accentColor,
+                                                         '&:hover': {
+                                                             color: `${accentColor}CC`,
+                                                         }
+                                                     }
+                                                 }}
+                                                 variant="outlined"
+                                             />
                                         ))}
                                     </Box>
 
@@ -763,9 +783,9 @@ const EditWorkshop = ({
                                         />
                                         <IconButton
                                             onClick={() => {
-                                                const trimmed = resourceInput.trim();
-                                                if (trimmed && !values.extraResources.includes(trimmed)) {
-                                                    setFieldValue("extraResources", [...values.extraResources, trimmed]);
+                                                const trimmed = String(resourceInput || '').trim();
+                                                if (trimmed && !(values.extraResources || []).includes(trimmed)) {
+                                                    setFieldValue("extraResources", [...(values.extraResources || []), trimmed]);
                                                     setResourceInput("");
                                                 }
                                             }}
@@ -784,14 +804,14 @@ const EditWorkshop = ({
                                     </Box>
 
                                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
-                                        {values.extraResources.map((res) => (
+                                        {(values.extraResources || []).filter(Boolean).map((res) => (
                                             <Chip
                                                 key={res}
                                                 label={res}
                                                 onDelete={() =>
                                                     setFieldValue(
                                                         "extraResources",
-                                                        values.extraResources.filter((r) => r !== res)
+                                                        (values.extraResources || []).filter((r) => r !== res)
                                                     )
                                                 }
                                                 sx={{
