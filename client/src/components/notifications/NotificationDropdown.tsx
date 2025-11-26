@@ -33,12 +33,12 @@ export default function NotificationDropdown({
   // Show only notifications from the last 24 hours
   const now = new Date();
   const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  
+
   const recentNotifications = notifications.filter((notification) => {
     const notificationDate = new Date(notification.createdAt);
     return notificationDate >= twentyFourHoursAgo;
   });
-  
+
   const hasNotifications = recentNotifications.length > 0;
 
   // Extract locale and entity from current path (e.g., /en/professor/... -> en, professor)
@@ -170,7 +170,7 @@ export default function NotificationDropdown({
           <Divider />
           <Box
             sx={{
-              padding: 1.5,
+              padding: 1,
               display: "flex",
               justifyContent: "center",
               backgroundColor: "#f9fbfc",
@@ -178,17 +178,20 @@ export default function NotificationDropdown({
           >
             <Button
               onClick={handleViewAll}
-              fullWidth
+              size="small"
               sx={{
                 textTransform: "none",
                 color: "#6299d0",
-                fontWeight: 600,
+                fontWeight: 500,
+                fontSize: "0.75rem",
+                padding: "4px 12px",
+                minHeight: "28px",
                 "&:hover": {
                   backgroundColor: alpha("#6299d0", 0.1),
                 },
               }}
             >
-              View All Notifications
+              View All
             </Button>
           </Box>
         </>

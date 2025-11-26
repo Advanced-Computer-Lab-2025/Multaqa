@@ -257,7 +257,9 @@ export default function EntityCatchAllPage() {
         return;
       }
       // If too many segments (e.g., /en/professor/workshops/my-workshops/asd)
-      if (segments.length > 3) {
+      // BUT exclude notifications tab which can have /locale/entity/notifications or /locale/entity/notifications/id
+      const isNotificationsRoute = segments[2] === "notifications";
+      if (segments.length > 3 && !isNotificationsRoute) {
         setRedirecting(true);
         // Only keep up to /locale/entity/tab/section
         const validBase = `/${segments[0]}/${segments[1]}/${segments[2]}`;
