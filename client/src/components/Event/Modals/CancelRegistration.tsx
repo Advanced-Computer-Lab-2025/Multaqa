@@ -73,25 +73,23 @@ const CancelRegistration = ({ eventId, open, onClose, isRefundable = true, setRe
       title="Cancel Registration"
       modalType='error'
       borderColor={theme.palette.error.main}
-      buttonOption2={isRefundable ? {
+      buttonOption1={isRefundable ? {
         label: "Yes",
         variant: "contained",
         color: "error",
         onClick: handleCancelRegistration,
-      } : undefined}
-      buttonOption1={isRefundable ? {
+      } : {
+        label: "Close",
+        variant: "contained",
+        color: "error",
+        onClick: onClose,
+      }}
+      buttonOption2={isRefundable ? {
         label: "No",
         variant: "outlined",
         color: "error",
         onClick: onClose,
-      } :
-        {
-          label: "Close",
-          variant: "contained",
-          color: "error",
-          onClick: onClose,
-        }
-      }
+      } : undefined}
     >
       {isRefundable ?
         <Box sx={{ textAlign: "center", mt: 2 }}>
