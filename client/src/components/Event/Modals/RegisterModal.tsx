@@ -18,6 +18,7 @@ interface RegisterEventModalProps {
   eventId: string;
   color:string;
   paymentOpen:() => void;
+  onParentClose?: () => void; // ADD THIS: Callback to close parent modal
 }
 
 const validationSchema = Yup.object({
@@ -38,7 +39,8 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
   eventType,
   eventId,
   color,
-  paymentOpen
+  paymentOpen,
+  onParentClose // ADD THIS
 }) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
@@ -49,82 +51,92 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
     name: (userInfo?.firstName+" "+userInfo?.lastName),
     email:  userInfo?.email
   };
- const handleCallApi = async (payload: any) => {
-  try {
-    setLoading(true);
-    console.log("Payload being sent:", payload); 
-    
-    const res = await api.post(`/users/register/${eventId}`, payload);
-    
-    // Success case
-    toast.success("You have registered for this event successfully!", {
-      position: "bottom-right",
-      autoClose: 1500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-    });
-    
-    return res;
-    
-  } catch (err: any) {
-    console.log("Registration error:", err);
-    
-    // Handle 409 Conflict (Already registered)
-    if (err.response?.status === 409) {
-      toast.error("You have already registered for this event!",
-        {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        }
-      );
-    } else {
-      // Handle other errors
-      toast.error(
-        err.response?.data?.error || "Registration failed. Please try again.",
-        {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        }
-      );
+  
+  const handleCallApi = async (payload: any) => {
+    try {
+      setLoading(true);
+      console.log("Payload being sent:", payload); 
+      
+      const res = await api.post(`/users/register/${eventId}`, payload);
+      
+      // Success case
+      toast.success("You have registered for this event successfully!", {
+        position: "bottom-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      
+      return res;
+      
+    } catch (err: any) {
+      console.log("Registration error:", err);
+      
+      // Handle 409 Conflict (Already registered)
+      if (err.response?.status === 409) {
+        toast.error("You have already registered for this event!",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+      } else {
+        // Handle other errors
+        toast.error(
+          err.response?.data?.error || "Registration failed. Please try again.",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+      }
+      
+      throw err; // Re-throw to handle in onSubmit
+      
+    } finally {
+      setLoading(false);
     }
-    
-    throw err; // Re-throw to handle in onSubmit
-    
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const onSubmit = async (values: any, actions: any) => {
     const payload = {
       name: capitalizeName(String(values.name ?? ""), false),
       email: values.email,
     };
+    
     paymentOpen();
     //await handleCallApi(payload); 
 
     actions.resetForm();
-      setTimeout(() => {
-           onClose()
-     }, 400);
-   
+    
+    setTimeout(() => {
+      onClose(); // Close RegisterEventModal
+      
+      // Close parent modal after a slight delay
+      if (onParentClose) {
+        setTimeout(() => {
+          onParentClose();
+        }, 100);
+      }
+    }, 400);
   };
+  
   const {
     handleSubmit,
     values,
@@ -146,10 +158,11 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
       onClose={onClose}
       width="w-[90vw] sm:w-[80vw] md:w-[600px]"
       borderColor={color}
+      title={`Register for ${eventType}`}
     >
       <form onSubmit={handleSubmit}>
         <Box sx={{ p: 4 }}>
-          <Typography
+          {/* <Typography
             variant="h5"
             sx={{
               fontFamily: "var(--font-jost), system-ui, sans-serif",
@@ -160,73 +173,72 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
             }}
           >
             {`Register for ${eventType}`}
-          </Typography>
+          </Typography> */}
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                 <CustomTextField
-                id={`name-${eventId}`}
-                label="Name"
-                fieldType="name"
-                placeholder={name}
-                name="name"
-                value={values.name}
-                onChange={handleChange('name')}
-                onBlur={handleBlur}
-                neumorphicBox
-                required
-                fullWidth
-                 sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': {
-                        borderColor: color, // Your variable name
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: color, // Your variable name
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: color, // Your variable name
-                      '&.Mui-focused': {
-                        color:color, // Your variable name
-                      },
-                    },
-                  }}
-              />
+            <CustomTextField
+              id={`name-${eventId}`}
+              label="Name"
+              fieldType="name"
+              placeholder={name}
+              name="name"
+              value={values.name}
+              onChange={handleChange('name')}
+              onBlur={handleBlur}
+              neumorphicBox
+              required
+              fullWidth
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: color,
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: color,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: color,
+                  '&.Mui-focused': {
+                    color:color,
+                  },
+                },
+              }}
+            />
 
-               {errors.name && touched.name ? <p style={{color:"#db3030"}}>{errors.name}</p> : <></>}
+            {errors.name && touched.name ? <p style={{color:"#db3030"}}>{errors.name}</p> : <></>}
 
-              <CustomTextField
-                id={`email-${eventId}`}
-                label="Email"
-                fieldType="text"
-                placeholder={userInfo?.email}
-                name="email"
-                value={values.email}
-                onChange={handleChange('email')}
-                onBlur={handleBlur}
-                required
-                neumorphicBox
-                fullWidth
-                sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': {
-                        borderColor: color, // Your variable name
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: color, // Your variable name
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: color, // Your variable name
-                      '&.Mui-focused': {
-                        color:color, // Your variable name
-                      },
-                    },
-                  }}
-              />
+            <CustomTextField
+              id={`email-${eventId}`}
+              label="Email"
+              fieldType="text"
+              placeholder={userInfo?.email}
+              name="email"
+              value={values.email}
+              onChange={handleChange('email')}
+              onBlur={handleBlur}
+              required
+              neumorphicBox
+              fullWidth
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: color,
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: color,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: color,
+                  '&.Mui-focused': {
+                    color:color,
+                  },
+                },
+              }}
+            />
 
-              {errors.email && touched.email ? <p style={{color:"#db3030"}}>{errors.email}</p> : <></>}
-
+            {errors.email && touched.email ? <p style={{color:"#db3030"}}>{errors.email}</p> : <></>}
           </Box>
 
           <Box
@@ -244,11 +256,13 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
               type="submit"
               variant="contained"
               color="primary"
-               sx={{
-                  width: "160px",
-                  borderRadius: 999, backgroundColor: `${color}40`,
-                  color: color, borderColor: color
-                }}
+              sx={{
+                width: "160px",
+                borderRadius: 999, 
+                backgroundColor: `${color}40`,
+                color: color, 
+                borderColor: color
+              }}
             />
           </Box>
         </Box>

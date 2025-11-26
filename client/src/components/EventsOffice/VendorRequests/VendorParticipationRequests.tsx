@@ -5,12 +5,11 @@ import {
   Alert,
   Box,
   Chip,
-  CircularProgress,
   Divider,
   Stack,
   Typography,
+  Skeleton,
 } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { RefreshCw } from "lucide-react";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { api } from "@/api";
@@ -18,6 +17,8 @@ import VendorRequestCard from "./VendorRequestCard";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import EmptyState from "@/components/shared/states/EmptyState";
 import ErrorState from "@/components/shared/states/ErrorState";
+import FilterPanel from "@/components/shared/FilterCard/FilterPanel";
+import { FilterGroup } from "@/components/shared/FilterCard/types";
 import {
   StatusFilter,
   TypeFilter,
@@ -34,17 +35,29 @@ type RawVendorRequest = {
   event?: any;
 };
 
-const statusFilters: Array<{ key: StatusFilter; label: string }> = [
-  { key: "ALL", label: "All" },
-  { key: "pending", label: "Pending" },
-  { key: "approved", label: "Approved" },
-  { key: "rejected", label: "Rejected" },
-];
-
-const typeFilters: Array<{ key: TypeFilter; label: string }> = [
-  { key: "ALL", label: "All" },
-  { key: "bazaar", label: "Bazaars" },
-  { key: "platform_booth", label: "Platform Booths" },
+// Filter groups for FilterPanel
+const getFilterGroups = (): FilterGroup[] => [
+  {
+    id: "status",
+    title: "Status",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Pending", value: "pending" },
+      { label: "Approved", value: "approved" },
+      { label: "Rejected", value: "rejected" },
+    ],
+  },
+  {
+    id: "eventType",
+    title: "Event Type",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Bazaars", value: "bazaar" },
+      { label: "Platform Booths", value: "platform_booth" },
+    ],
+  },
 ];
 
 function ensureString(value: unknown): string | undefined {
@@ -87,7 +100,22 @@ function mapRequest(
     (vendorObject?.name as string | undefined) ??
     "Unknown Vendor";
   const vendorRole = vendorObject?.role as string | undefined;
-  const vendorLogo = vendorObject?.logo as string | undefined;
+  const rawLogo = vendorObject?.logo;
+  let vendorLogo: string | undefined = undefined;
+
+  if (rawLogo && typeof rawLogo === "object" && "url" in rawLogo) {
+    vendorLogo = (rawLogo as any).url;
+  } else if (typeof rawLogo === "string") {
+    vendorLogo = rawLogo;
+  }
+
+  const rawTaxCard = vendorObject?.taxCard;
+  let taxCardUrl: string | undefined = undefined;
+  if (rawTaxCard && typeof rawTaxCard === "object" && "url" in rawTaxCard) {
+    taxCardUrl = (rawTaxCard as any).url;
+  } else if (typeof rawTaxCard === "string") {
+    taxCardUrl = rawTaxCard;
+  }
 
   const requestData = entry.RequestData ?? {};
   const eventRaw = entry.event ?? {};
@@ -108,7 +136,7 @@ function mapRequest(
   const boothSize = requestData?.boothSize as string | undefined;
   const boothLocation = requestData?.boothLocation as string | undefined;
   const boothSetupDurationWeeks = toNumber(requestData?.boothSetupDuration);
-  // Normalize attendees from multiple possible shapes/fields
+
   const collectArrays = (...candidates: unknown[]) =>
     candidates.filter(Array.isArray) as any[][];
 
@@ -128,13 +156,25 @@ function mapRequest(
   const flattened = candidateArrays.flat();
 
   const parseContact = (val: any) => {
+    let nationalIdUrl: string | undefined = undefined;
+    if (val && typeof val === "object") {
+      if (
+        val.nationalId &&
+        typeof val.nationalId === "object" &&
+        "url" in val.nationalId
+      ) {
+        nationalIdUrl = val.nationalId.url;
+      } else if (typeof val.nationalId === "string") {
+        nationalIdUrl = val.nationalId;
+      }
+    }
+
     if (typeof val === "string") {
       const str = val.trim();
-      // Basic email detection in string
       if (str.includes("@")) {
-        return { name: undefined, email: str };
+        return { name: undefined, email: str, nationalIdUrl };
       }
-      return { name: str || undefined, email: undefined };
+      return { name: str || undefined, email: undefined, nationalIdUrl };
     }
     if (val && typeof val === "object") {
       const firstName = (val.firstName as string | undefined) ?? undefined;
@@ -146,26 +186,39 @@ function mapRequest(
         (val.mail as string | undefined) ??
         (val.contactEmail as string | undefined) ??
         undefined;
-      if (name || email) return { name, email };
+
+      if (name || email) return { name, email, nationalIdUrl };
     }
     return undefined;
   };
 
-  const deduped: { name?: string; email?: string }[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<
+    string,
+    { name?: string; email?: string; nationalIdUrl?: string }
+  >();
+
   for (const item of flattened) {
     const contact = parseContact(item);
     if (!contact) continue;
     const key = contact.email
       ? `e:${contact.email.toLowerCase()}`
       : contact.name
-      ? `n:${contact.name.toLowerCase()}`
-      : null;
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    deduped.push(contact);
+        ? `n:${contact.name.toLowerCase()}`
+        : null;
+
+    if (!key) continue;
+
+    if (seen.has(key)) {
+      const existing = seen.get(key);
+      if (!existing?.nationalIdUrl && contact.nationalIdUrl) {
+        seen.set(key, { ...existing, nationalIdUrl: contact.nationalIdUrl });
+      }
+    } else {
+      seen.set(key, contact);
+    }
   }
-  const attendees = deduped;
+
+  const attendees = Array.from(seen.values());
   const status = normalizeStatus(requestData?.status);
   const submittedAt = ensureString(
     requestData?.submittedAt ?? requestData?.createdAt
@@ -198,8 +251,9 @@ function mapRequest(
     attendees,
     submittedAt,
     notes,
+    taxCardUrl,
     raw: entry,
-  };
+  } as any;
 }
 
 export default function VendorParticipationRequests() {
@@ -213,6 +267,14 @@ export default function VendorParticipationRequests() {
     Record<string, VendorRequestStatus | null>
   >({});
   const [refresh, setRefresh] = useState(false);
+
+  const [filters, setFilters] = useState<{
+    status: string[];
+    eventType: string[];
+  }>({
+    status: ["pending"],
+    eventType: [],
+  });
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -251,13 +313,21 @@ export default function VendorParticipationRequests() {
 
   const filteredRequests = useMemo(() => {
     return requests.filter((request) => {
+      // Status filter
       const statusMatch =
-        statusFilter === "ALL" || request.status === statusFilter;
+        filters.status.length === 0 ||
+        filters.status.includes("ALL") ||
+        filters.status.includes(request.status);
+
+      // Event type filter
       const typeMatch =
-        typeFilter === "ALL" || request.eventType === typeFilter;
+        filters.eventType.length === 0 ||
+        filters.eventType.includes("ALL") ||
+        filters.eventType.includes(request.eventType);
+
       return statusMatch && typeMatch;
     });
-  }, [requests, statusFilter, typeFilter]);
+  }, [requests, filters]);
 
   const groupedByDay = useMemo(() => {
     const groups = new Map<
@@ -270,15 +340,15 @@ export default function VendorParticipationRequests() {
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
         ? new Date(
-            dateValue!.getFullYear(),
-            dateValue!.getMonth(),
-            dateValue!.getDate()
-          ).toISOString()
+          dateValue!.getFullYear(),
+          dateValue!.getMonth(),
+          dateValue!.getDate()
+        ).toISOString()
         : "unscheduled";
       const label = isValidDate
         ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
-            dateValue!
-          )
+          dateValue!
+        )
         : "Date To Be Determined";
       const dateOrder = isValidDate
         ? dateValue!.getTime()
@@ -328,9 +398,9 @@ export default function VendorParticipationRequests() {
         prev.map((item) =>
           item.id === request.id
             ? {
-                ...item,
-                status,
-              }
+              ...item,
+              status,
+            }
             : item
         )
       );
@@ -352,12 +422,86 @@ export default function VendorParticipationRequests() {
     }
   };
 
+  const handleFilterChange = useCallback((groupId: string, value: any) => {
+    setFilters((prev) => {
+      const currentVal = prev[groupId as keyof typeof prev];
+
+      if (Array.isArray(currentVal)) {
+        if (currentVal.includes(value)) {
+          return {
+            ...prev,
+            [groupId]: currentVal.filter((v) => v !== value),
+          };
+        } else {
+          return {
+            ...prev,
+            [groupId]: [...currentVal, value],
+          };
+        }
+      }
+      return prev;
+    });
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setFilters({
+      status: ["pending"],
+      eventType: [],
+    });
+  }, []);
+
   const content = () => {
     if (loading) {
       return (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-          <CircularProgress size={32} />
-        </Box>
+        <Stack spacing={3}>
+          <Box>
+            <Skeleton width={200} height={24} sx={{ mb: 1.5 }} />
+            <Stack spacing={2.5}>
+              {[1, 2, 3].map((i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid #e5e7eb",
+                    background: "#ffffff",
+                    p: 3, // Match the new card padding
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Left Side: Avatar + Info */}
+                  <Stack
+                    direction="row"
+                    spacing={2.5}
+                    alignItems="center"
+                    width="100%"
+                  >
+                    <Skeleton
+                      variant="circular"
+                      width={56}
+                      height={56}
+                      sx={{ flexShrink: 0 }}
+                    />
+                    <Stack spacing={1} width="60%">
+                      <Skeleton variant="text" width="40%" height={32} />
+                      <Stack direction="row" spacing={1}>
+                        <Skeleton variant="rounded" width={120} height={24} />
+                        <Skeleton variant="rounded" width={80} height={24} />
+                      </Stack>
+                    </Stack>
+                  </Stack>
+
+                  {/* Right Side: Buttons/Status placeholder */}
+                  <Stack direction="row" spacing={1}>
+                    <Skeleton variant="rounded" width={90} height={36} />
+                    <Skeleton variant="rounded" width={90} height={36} />
+                  </Stack>
+                </Box>
+              ))}
+            </Stack>
+          </Box>
+        </Stack>
       );
     }
 
@@ -415,136 +559,31 @@ export default function VendorParticipationRequests() {
         description="Review pending vendor applications for bazaars and platform booths."
         headerMarginBottom={3}
       >
-        {/* Custom header section with Refresh button */}
-      <Box
-        sx={{
-          mb: 3,
-            mt: -3,
-          display: "flex",
-            justifyContent: "flex-end",
-          }}
+        {feedback ? (
+          <Alert
+            severity={feedback.type}
+            sx={{ mb: 3, borderRadius: 2 }}
+            onClose={() => setFeedback(null)}
           >
-        <CustomButton
-          variant="outlined"
-          color="primary"
-          onClick={fetchRequests}
-          startIcon={<RefreshCw size={16} />}
+            {feedback.message}
+          </Alert>
+        ) : null}
+
+        <Box
+          sx={{
+            mt: 2,
+            mb: 2,
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
         >
-          Refresh
-        </CustomButton>
-      </Box>
-
-      {feedback ? (
-        <Alert
-          severity={feedback.type}
-          sx={{ mb: 3, borderRadius: 2 }}
-          onClose={() => setFeedback(null)}
-        >
-          {feedback.message}
-        </Alert>
-      ) : null}
-
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 2,
-          justifyContent: "space-between",
-        }}
-      >
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-            {statusFilters.map(({ key, label }) => {
-              const isActive = statusFilter === key;
-              // Color coding: All (blue), Pending (orange), Approved (green), Rejected (red)
-              const baseColor =
-                key === "ALL"
-                  ? "#6299d0" // Blue for All
-                  : key === "pending"
-                  ? "#f59e0b" // Orange/Amber for Pending
-                  : key === "approved"
-                  ? "#10b981" // Green for Approved
-                  : "#ef4444"; // Red for Rejected
-
-              return (
-                <Chip
-                  key={key}
-                  label={label}
-                  size="medium"
-                  onClick={() => setStatusFilter(key)}
-                  variant="outlined"
-                  sx={{
-                    fontFamily: "var(--font-poppins)",
-                    fontWeight: 700,
-                    letterSpacing: 0.2,
-                    borderRadius: "28px",
-                    px: 1.75,
-                    height: 28,
-                    borderWidth: isActive ? 3 : 1,
-                    borderColor: baseColor,
-                    color: baseColor,
-                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
-                    boxShadow: isActive
-                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
-                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
-                    transition:
-                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                    transform: isActive ? "translateY(-1px)" : "none",
-                    "&:hover": {
-                      backgroundColor: alpha(baseColor, 0.16),
-                      borderWidth: isActive ? 3 : 2,
-                      transform: "translateY(-1px)",
-                    },
-                  }}
-                />
-              );
-            })}
-          </Stack>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            {typeFilters.map(({ key, label }) => {
-              const isActive = typeFilter === key;
-              // Color coding: All (blue), Bazaar (purple), Platform Booth (blue)
-              const baseColor =
-                key === "ALL"
-                  ? "#6299d0" // Blue for All
-                  : key === "bazaar"
-                  ? "#5b21b6" // Purple for Bazaar (matches VendorRequestCard)
-                  : "#1d4ed8"; // Blue for Platform Booth (matches VendorRequestCard)
-
-              return (
-                <Chip
-                  key={key}
-                  label={label}
-                  size="medium"
-                  onClick={() => setTypeFilter(key)}
-                  variant="outlined"
-                  sx={{
-                    fontFamily: "var(--font-poppins)",
-                    fontWeight: 700,
-                    letterSpacing: 0.2,
-                    borderRadius: "28px",
-                    px: 1.75,
-                    height: 28,
-                    borderWidth: isActive ? 3 : 1,
-                    borderColor: baseColor,
-                    color: baseColor,
-                    backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
-                    boxShadow: isActive
-                      ? `0 6px 16px ${alpha(baseColor, 0.28)}`
-                      : `0 1px 3px ${alpha(baseColor, 0.18)}`,
-                    transition:
-                      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                    transform: isActive ? "translateY(-1px)" : "none",
-                    "&:hover": {
-                      backgroundColor: alpha(baseColor, 0.16),
-                      borderWidth: isActive ? 3 : 2,
-                      transform: "translateY(-1px)",
-                    },
-                  }}
-                />
-              );
-            })}
-          </Stack>
+          <FilterPanel
+            filterGroups={getFilterGroups()}
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+            onReset={handleResetFilters}
+          />
         </Box>
 
         <Divider sx={{ mb: 3 }} />

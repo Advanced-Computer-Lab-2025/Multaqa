@@ -106,7 +106,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   eventId,
   userId,
   attendees,
-  createdBy
+  createdBy,
+  onParentClose
 }) => {
   const [activeTab, setActiveTab] = useState<EventSection>(sections[0]);
   const [newRating, setNewRating] = useState(0);

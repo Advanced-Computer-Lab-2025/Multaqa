@@ -17,6 +17,8 @@ import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
 import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import ExcelJS from "exceljs";
+import { IPlatformBoothRequestData } from "../interfaces/models/platformBooth.interface";
+import { VendorRequest } from "../interfaces/models/vendor.interface";
 import { VendorEventsService } from "./vendorEventsService";
 import { UserRole } from "../constants/user.constants";
 const { Types } = require("mongoose");

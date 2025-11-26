@@ -13,8 +13,11 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
-import { IPlatformBooth } from "../interfaces/models/platformBooth.interface";
-import { sendApplicationStatusEmail } from "./emailService";
+import { IBoothAttendee, IPlatformBooth } from "../interfaces/models/platformBooth.interface";
+import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
+import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
+import { IUser } from "../interfaces/models/user.interface";
+import { pdfGenerator } from "../utils/pdfGenerator";
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
@@ -112,6 +115,7 @@ export class VendorEventsService {
       event: event._id as unknown as string,
       RequestData: data.value,
       status: applicationStatus,
+      QRCodeGenerated: false,
     });
 
     await vendor.save();
@@ -120,6 +124,7 @@ export class VendorEventsService {
       vendor,
       event,
       applicationStatus,
+      QRCodeGenerated: false,
     };
   }
 
@@ -162,12 +167,13 @@ export class VendorEventsService {
       event: eventId,
       RequestData: data.value,
       status: applicationStatus,
+      QRCodeGenerated: false,
     });
 
     // Add vendor to bazaar's vendors list
     event.vendors?.push({
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus },
+      RequestData: { ...data.value, status: applicationStatus , QRCodeGenerated: false },
     });
 
     await event.save();
@@ -177,6 +183,7 @@ export class VendorEventsService {
       vendor,
       event,
       applicationStatus,
+      QRCodeGenerated: false,
     };
   }
 
@@ -610,5 +617,144 @@ export class VendorEventsService {
     }
 
     return updatedVendor;
+  }
+  async getEventsForQRCodeGeneration(): Promise<IEvent[]> {
+    const filter: any = {
+      type: { $in: [EVENT_TYPES.BAZAAR, EVENT_TYPES.PLATFORM_BOOTH] },
+    };
+    const events = await this.eventRepo.findAll(filter, {
+      populate: [
+        { path: "vendors.vendor", select: "companyName logo" },
+        { path: "vendor", select: "companyName logo" },
+      ] as any[],
+    });
+
+    const filteredEvents: IEvent[] = [];
+
+    for (const event of events) {
+      const eventData = event.toObject();
+
+      // Platform Booth Filtering
+      if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+        if (
+          eventData.RequestData &&
+          eventData.RequestData.status === "approved" &&
+          eventData.RequestData.QRCodeGenerated === false
+        ) {
+          filteredEvents.push(eventData as IEvent);
+        }
+      }
+      // Bazaar Filtering
+      else if (event.type === EVENT_TYPES.BAZAAR) {
+        const vendorsNeedingQR = (eventData.vendors || []).filter(
+          (vendor: VendorRequest) => {
+            return (
+              vendor.RequestData &&
+              vendor.RequestData.status === "approved" &&
+              vendor.RequestData.QRCodeGenerated === false
+            );
+          }
+        );
+
+        if (vendorsNeedingQR.length > 0) {
+          eventData.vendors = vendorsNeedingQR;
+
+          filteredEvents.push(eventData as IEvent);
+        }
+      }
+    }
+    if (filteredEvents.length === 0) {
+      throw createError(404, "No events found needing QR code generation");
+    }
+    return filteredEvents;
+  }
+
+  async generateVendorEventQRCodes(eventId: string): Promise<void> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [
+        { path: "vendors.vendor", select: "companyName logo email" },
+        { path: "vendor", select: "companyName logo email" },
+      ] as any[],
+    });
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      if (
+        event.RequestData.status === "approved" &&
+        event.RequestData.QRCodeGenerated === false
+      ) {
+        await this.generateAndSendQRCodes(
+          (event.vendor as IVendor).companyName,
+          (event.vendor as IUser).email,
+          event.eventName,
+          event.location || "Unknown Location",
+          event.RequestData.boothAttendees as IBoothAttendee[]
+        );
+
+        event.RequestData.QRCodeGenerated = true;
+        event.markModified("RequestData");
+      } else {
+        throw createError(
+          400,
+          "QR Code has already been generated for this platform booth event"
+        );
+      }
+    } else if (event.type === EVENT_TYPES.BAZAAR) {
+      let isNotEmpty:boolean = false;
+      for (const vendorEntry of event.vendors || []) {
+        if (
+          vendorEntry.RequestData.status === "approved" &&
+          vendorEntry.RequestData.QRCodeGenerated === false
+        ) {
+          isNotEmpty = true;
+          await this.generateAndSendQRCodes(
+            (vendorEntry.vendor as IVendor).companyName,
+            (vendorEntry.vendor as IVendor).email,
+            event.eventName,
+            event.location || "Unknown Location",
+            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[]
+          );
+          vendorEntry.RequestData.QRCodeGenerated = true;
+          event.markModified("vendors");
+        } 
+      }
+      if (!isNotEmpty) {
+        throw createError(
+          400,
+          "QR Codes have already been generated for all vendors in this bazaar event"
+        );
+      }
+    }
+    await event.save();
+  }
+
+  private async generateAndSendQRCodes(
+    companyName: string,
+    email: string,
+    eventName: string,
+    location: string,
+    attendees: IBoothAttendee[]
+  ): Promise<void> {
+    // Ensure attendees is always an array
+    
+    const qrCodeData: any[] = [];
+    for (const attendee of attendees) {
+        const qrCodeBuffer = await generateQrCodeBuffer( 
+            eventName,
+            location,
+            new Date().toISOString(),
+            attendee.name,
+           
+        );
+        qrCodeData.push({
+            buffer: qrCodeBuffer,
+            name: `${attendee.name}`,
+        });
+    }
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData,eventName);
+    console.log("Sending QR Code Email to:", email);
+    await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
   }
 }

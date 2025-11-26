@@ -35,6 +35,7 @@ export interface EventDetailsProps {
   userId?:string;
   createdBy?:string;
   attendees:AttendeesArray;
+  onParentClose?: () => void;
 }
 
 // Mock data for reviews

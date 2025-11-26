@@ -11,7 +11,7 @@ import {
   StyledModalHeader,
 } from "./styles/StyledModal";
 import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
-import { CustomModalLayoutProps } from "./types";
+import { CustomModalLayoutProps } from "./types"; // Assuming title will be added here
 import { createDelayedCloseHandler } from "./utils";
 import { useTheme, lighten } from "@mui/material/styles";
 
@@ -21,8 +21,9 @@ export default function CustomModalLayout({
   onClose,
   width,
   borderColor,
+  title,
 }: CustomModalLayoutProps) {
-  const transitionDuration = 650;
+  const transitionDuration = 300;
   const [isCloseActive, setIsCloseActive] = React.useState(false);
 
   const handleClose = React.useCallback(() => {
@@ -59,17 +60,17 @@ export default function CustomModalLayout({
   // Parse width prop to create sx overrides
   const getWidthSx = () => {
     if (!width) return {};
-    
+
     // Extract breakpoint-specific widths from the width string
     const sxOverrides: Record<string, unknown> = {};
-    
+
     // Match patterns like w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[60vw], xl:w-[50vw]
     const baseWidth = width.match(/(?:^|\s)w-\[([^\]]+)\]/);
     const smWidth = width.match(/sm:w-\[([^\]]+)\]/);
     const mdWidth = width.match(/md:w-\[([^\]]+)\]/);
     const lgWidth = width.match(/lg:w-\[([^\]]+)\]/);
     const xlWidth = width.match(/xl:w-\[([^\]]+)\]/);
-    
+
     if (baseWidth) {
       sxOverrides.width = baseWidth[1];
       sxOverrides.maxWidth = baseWidth[1];
@@ -98,7 +99,7 @@ export default function CustomModalLayout({
         maxWidth: xlWidth[1],
       };
     }
-    
+
     return sxOverrides;
   };
 
@@ -118,7 +119,7 @@ export default function CustomModalLayout({
       disableAutoFocus
     >
       <Fade in={open} timeout={transitionDuration}>
-      <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
+        <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
             {/* Close Icon at the top right - Fixed header */}
             <StyledModalHeader>
@@ -139,7 +140,7 @@ export default function CustomModalLayout({
                 />
               </div>
             </StyledModalHeader>
-            
+
             {/* Scrollable content area */}
             <StyledModalContent>
               {children}

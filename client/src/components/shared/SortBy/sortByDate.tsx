@@ -31,7 +31,7 @@ const SORT_OPTIONS: SortOption[] = [
 // Styled button (same as Filter)
 const StyledSortButton = styled(Button)(({ theme }) => ({
   cursor: "pointer",
-  border:'none',
+  border: 'none',
   padding: "5px 12px",
   fontSize: "12px",
   height: "32px",
@@ -131,7 +131,31 @@ const SortByDate: React.FC<SortByDateProps> = ({ value, onChange }) => {
       {/* Custom dropdown menu */}
       <Box
         ref={dropdownRef}
-        style={{...getDropdownStyles({ isOpen }), borderColor:theme.palette.primary.dark}}
+        sx={{
+          position: "absolute",
+          top: "calc(100% + 8px)",
+          right: 0,
+          left: "auto",
+          minWidth: "200px",
+          maxHeight: "250px",
+          overflowY: "auto",
+          backgroundColor: theme.palette.background.default,
+          border: `2px solid ${theme.palette.primary.dark}`,
+          borderRadius: "16px",
+          zIndex: 9999,
+          opacity: isOpen ? 1 : 0,
+          visibility: isOpen ? "visible" : "hidden",
+          transform: isOpen ? "translateY(0)" : "translateY(-10px)",
+          transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          display: "flex",
+          flexDirection: "column",
+          // Hide scrollbar
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        }}
       >
         {SORT_OPTIONS.filter((opt) => opt.value !== "none").map((option) => {
           const isSelected = value === option.value;
@@ -139,10 +163,10 @@ const SortByDate: React.FC<SortByDateProps> = ({ value, onChange }) => {
           const optionStyle = {
             ...getOptionStyles({ isSelected, isDisabled: false }),
             ...getOptionHoverStyles(isSelected, false, isHovered),
-          borderColor: theme.palette.primary.dark,
-        ...(isHovered || isSelected
-          ? { borderLeft: `3px solid ${theme.palette.primary.dark}` }
-          : {}),
+            borderColor: theme.palette.primary.dark,
+            ...(isHovered || isSelected
+              ? { borderLeft: `3px solid ${theme.palette.primary.dark}` }
+              : {}),
           };
 
           return (

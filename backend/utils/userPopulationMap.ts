@@ -10,10 +10,16 @@ export const populateMap: Record<string, any[] | undefined> = {
     {
       path: "myWorkshops",
       model: "workshop",
-      populate: {
-        path: "attendees",
-        select: "firstName lastName email",
-      },
+      populate: [
+        {
+          path: "attendees",
+          select: "firstName lastName email",
+        },
+        {
+          path: "associatedProfs",
+          select: "firstName lastName email",
+        },
+      ],
     },
   ],
   administration: [], // No referenced fields to populate
