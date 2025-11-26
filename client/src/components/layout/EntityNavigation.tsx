@@ -575,11 +575,11 @@ export default function EntityNavigation({
 
     // Special routes that are always valid (not in navigation config)
     const specialRoutes = ["notifications"];
-    const isSpecialRoute = specialRoutes.includes(tab);
+    const isSpecialRoute = specialRoutes.includes(tab) || specialRoutes.includes(section);
 
     // Fallback: if section or tab is not found, redirect to not-found page
     const sectionExists =
-      section === "" || isSpecialRoute ||config.sections.some((s) => s.key === section);
+      section === "" || isSpecialRoute || config.sections.some((s) => s.key === section);
     const currentSectionForValidation = config.sections.find(
       (s) => s.key === section
     );
