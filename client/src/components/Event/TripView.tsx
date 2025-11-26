@@ -248,7 +248,7 @@ const TripView: React.FC<BazarViewProps> = ({
       <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />  
       <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
       <ArchiveEvent setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"}open={archive} onClose={() => setArchive(false)}/>  
-      <RegisterEventModal open={register} onClose={() => { setRegister(false); } }
+      <RegisterEventModal open={register} onClose={() => { setRegister(false); }} onParentClose={() => setDetailsModalOpen(false)}
       eventType={"Trip"} userInfo={userInfo} eventId={id} color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
 
 
@@ -264,6 +264,7 @@ const TripView: React.FC<BazarViewProps> = ({
           eventType="Trip"
           details={details}
           color={background}
+          onParentClose={() => setDetailsModalOpen(false)}
           button={
             (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
               !(datePassed || attended) && (

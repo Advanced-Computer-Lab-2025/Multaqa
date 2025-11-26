@@ -355,6 +355,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
       <RegisterEventModal
         open={register}
         onClose={() => { setRegister(false); }}
+        onParentClose={() => setDetailsModalOpen(false)}
         eventType={"Workshop"}
         userInfo={userInfo}
         eventId={id}
