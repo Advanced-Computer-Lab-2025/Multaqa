@@ -13,13 +13,12 @@ import {
   Grid,
   Paper,
   alpha,
+  AccordionDetails
 } from "@mui/material";
-import AccordionDetails from "@mui/material/AccordionDetails";
 import {
   CheckCircle,
   Clock,
   MapPin,
-  Users,
   XCircle,
   FileText,
   Download,
@@ -29,6 +28,7 @@ import {
   Building,
   CalendarDays,
   Eye,
+  Users,
 } from "lucide-react";
 
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -100,14 +100,14 @@ const downloadFile = async (url: string, desiredName: string) => {
   try {
     const response = await fetch(url);
     const blob = await response.blob();
-    
+
     let extension = blob.type.split('/')[1];
     if (!extension || extension === 'plain') {
-        extension = url.split('.').pop()?.split('?')[0] || 'file';
+      extension = url.split('.').pop()?.split('?')[0] || 'file';
     }
-    
+
     const fileName = `${desiredName}.${extension}`;
-    
+
     const blobUrl = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = blobUrl;
@@ -134,10 +134,6 @@ export default function VendorRequestCard({
   const eventConfig = EVENT_TYPE_CONFIG[request.eventType] ?? EVENT_TYPE_CONFIG.unknown;
   const isPending = request.status === "pending";
   const attendees = request.attendees ?? [];
-  const [expanded, setExpanded] = useState(false);
-  
-  const hasMultipleAttendees = attendees.length > 1;
-  const visibleAttendees = expanded ? attendees : attendees.slice(0, 1);
 
   const handleViewDocument = (url: string, title: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -790,11 +786,11 @@ export default function VendorRequestCard({
                   alt={viewDoc.title}
                   style={{
                     maxWidth: "100%",
-                    maxHeight: "60vh", 
-                    width: "auto", 
-                    height: "auto", 
+                    maxHeight: "60vh",
+                    width: "auto",
+                    height: "auto",
                     objectFit: "contain",
-                    display: "block", 
+                    display: "block",
                     border: "3px solid #e5e7eb",
                     borderRadius: "10%",
                   }}
@@ -805,7 +801,7 @@ export default function VendorRequestCard({
                   title={viewDoc.title}
                   style={{
                     width: "100%",
-                    height: "100%", 
+                    height: "100%",
                     border: "none",
                   }}
                 />
@@ -819,143 +815,12 @@ export default function VendorRequestCard({
                   handleDownloadClick(viewDoc.url, viewDoc.title, e)
                 }
                 startIcon={<Download size={18} />}
-                sx={{width:"auto"}}
+                sx={{ width: "auto" }}
               >
                 Download {isImageUrl(viewDoc.url) ? "Image" : "Document"}
               </CustomButton>
             </Box>
           </Stack>
-            />
-          )}
-        </Stack>
-      </Stack>
-
-      <Divider />
-
-      <Stack spacing={1.5}>
-        {attendees.length > 0 ? (
-          hasMultipleAttendees ? (
-            <Accordion
-              expanded={expanded}
-              onChange={(_, isExpanded) => setExpanded(isExpanded)}
-              sx={{
-                boxShadow: "none",
-                border: "none",
-                "&:before": { display: "none" },
-                "&.Mui-expanded": { margin: 0 },
-              }}
-              disableGutters
-            >
-              <AccordionSummary
-                expandIcon={
-                  <ChevronDown
-                    size={20}
-                    style={{
-                      transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                      transition: "transform 0.2s ease",
-                    }}
-                  />
-                }
-                sx={{
-                  padding: 0,
-                  minHeight: "unset",
-                  "&.Mui-expanded": { minHeight: "unset" },
-                  "& .MuiAccordionSummary-content": {
-                    margin: 0,
-                    "&.Mui-expanded": { margin: 0 },
-                  },
-                }}
-              >
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Users size={16} color="#1f2937" />
-                  <Typography variant="subtitle2" sx={{ color: "#111827" }}>
-                    Attendees ({attendees.length})
-                  </Typography>
-                </Stack>
-              </AccordionSummary>
-              <AccordionDetails sx={{ padding: 0, paddingTop: 1.5 }}>
-                <Stack spacing={0.75}>
-                  {visibleAttendees.map((attendee, index) => (
-                    <Stack
-                      key={`${attendee.email ?? attendee.name ?? index}`}
-                      direction="row"
-                      spacing={1}
-                      justifyContent="space-between"
-                      alignItems="baseline"
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 500, color: "#1f2937" }}
-                      >
-                        {attendee.name ?? "Unnamed attendee"}
-                      </Typography>
-                      {attendee.email ? (
-                        <Tooltip title={attendee.email} placement="top">
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "#6b7280" }}
-                            noWrap
-                          >
-                            {attendee.email}
-                          </Typography>
-                        </Tooltip>
-                      ) : null}
-                    </Stack>
-                  ))}
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-          ) : (
-            <Box>
-              <Stack direction="row" spacing={1} alignItems="center" mb={1.5}>
-                <Users size={16} color="#1f2937" />
-                <Typography variant="subtitle2" sx={{ color: "#111827" }}>
-                  Attendees
-                </Typography>
-              </Stack>
-              <Stack spacing={0.75}>
-                {attendees.map((attendee, index) => (
-                  <Stack
-                    key={`${attendee.email ?? attendee.name ?? index}`}
-                    direction="row"
-                    spacing={1}
-                    justifyContent="space-between"
-                    alignItems="baseline"
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 500, color: "#1f2937" }}
-                    >
-                      {attendee.name ?? "Unnamed attendee"}
-                    </Typography>
-                    {attendee.email ? (
-                      <Tooltip title={attendee.email} placement="top">
-                        <Typography
-                          variant="caption"
-                          sx={{ color: "#6b7280" }}
-                          noWrap
-                        >
-                          {attendee.email}
-                        </Typography>
-                      </Tooltip>
-                    ) : null}
-                  </Stack>
-                ))}
-              </Stack>
-            </Box>
-          )
-        ) : (
-          <Box>
-            <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-              <Users size={16} color="#6b7280" />
-              <Typography variant="subtitle2" sx={{ color: "#111827" }}>
-                Attendees
-              </Typography>
-            </Stack>
-            <Typography variant="body2" sx={{ color: "#6b7280" }}>
-              No attendees provided.
-            </Typography>
-          </Box>
         )}
       </CustomModalLayout>
     </>

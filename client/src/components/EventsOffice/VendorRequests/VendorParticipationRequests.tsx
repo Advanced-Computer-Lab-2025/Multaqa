@@ -203,8 +203,8 @@ function mapRequest(
     const key = contact.email
       ? `e:${contact.email.toLowerCase()}`
       : contact.name
-      ? `n:${contact.name.toLowerCase()}`
-      : null;
+        ? `n:${contact.name.toLowerCase()}`
+        : null;
 
     if (!key) continue;
 
@@ -267,6 +267,14 @@ export default function VendorParticipationRequests() {
     Record<string, VendorRequestStatus | null>
   >({});
   const [refresh, setRefresh] = useState(false);
+
+  const [filters, setFilters] = useState<{
+    status: string[];
+    eventType: string[];
+  }>({
+    status: ["pending"],
+    eventType: [],
+  });
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -332,15 +340,15 @@ export default function VendorParticipationRequests() {
       const isValidDate = dateValue && !Number.isNaN(dateValue.getTime());
       const dayKey = isValidDate
         ? new Date(
-            dateValue!.getFullYear(),
-            dateValue!.getMonth(),
-            dateValue!.getDate()
-          ).toISOString()
+          dateValue!.getFullYear(),
+          dateValue!.getMonth(),
+          dateValue!.getDate()
+        ).toISOString()
         : "unscheduled";
       const label = isValidDate
         ? new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(
-            dateValue!
-          )
+          dateValue!
+        )
         : "Date To Be Determined";
       const dateOrder = isValidDate
         ? dateValue!.getTime()
