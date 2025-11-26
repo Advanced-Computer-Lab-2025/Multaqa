@@ -10,7 +10,6 @@ export const StyledButton = styled(Button)<ButtonProps>(({ theme, color }) => ({
   padding: "5px 10px",
   fontSize: "14px",
   height: "40px",
-  color: "#fff",
   borderWidth: "2px",
   borderStyle: "solid",
   borderColor: resolveButtonPalette(theme, color).dark,
