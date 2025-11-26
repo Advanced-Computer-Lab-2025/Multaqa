@@ -37,15 +37,9 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [minWidthFromContent, setMinWidthFromContent] = useState<number>(0);
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-  });
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
-  const portalRoot = useRef<HTMLDivElement | null>(null);
 
   // Get the display value for select fields
   const getDisplayValue = () => {
@@ -56,27 +50,6 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
   const hasValue =
     displayedValue &&
     (Array.isArray(displayedValue) ? displayedValue.length > 0 : true);
-
-  // Create portal container on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      portalRoot.current = document.createElement("div");
-      portalRoot.current.style.position = "absolute";
-      portalRoot.current.style.top = "0";
-      portalRoot.current.style.left = "0";
-      portalRoot.current.style.width = "100%";
-      portalRoot.current.style.height = "0";
-      portalRoot.current.style.zIndex = "99999";
-      portalRoot.current.style.pointerEvents = "none";
-      document.body.appendChild(portalRoot.current);
-
-      return () => {
-        if (portalRoot.current) {
-          document.body.removeChild(portalRoot.current);
-        }
-      };
-    }
-  }, []);
 
   // Calculate minimum width based on longest option
   useEffect(() => {
@@ -98,52 +71,6 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
       setMinWidthFromContent(totalWidth);
     }
   }, [options, size]);
-
-  // Update dropdown position - using pageY/pageX for absolute positioning
-  const updatePosition = () => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft =
-        window.pageXOffset || document.documentElement.scrollLeft;
-
-      setDropdownPosition({
-        top: rect.bottom + scrollTop + 8,
-        left: rect.left + scrollLeft,
-        width: rect.width,
-      });
-    }
-  };
-
-  // Update position on open and when scrolling/resizing
-  useEffect(() => {
-    if (isOpen) {
-      updatePosition();
-      window.addEventListener("scroll", updatePosition, true);
-      window.addEventListener("resize", updatePosition);
-
-      return () => {
-        window.removeEventListener("scroll", updatePosition, true);
-        window.removeEventListener("resize", updatePosition);
-      };
-    }
-  }, [isOpen]);
-
-  // Render dropdown in portal
-  useEffect(() => {
-    if (portalRoot.current && dropdownRef.current) {
-      if (isOpen) {
-        portalRoot.current.appendChild(dropdownRef.current);
-        portalRoot.current.style.pointerEvents = "auto";
-      } else {
-        if (portalRoot.current.contains(dropdownRef.current)) {
-          portalRoot.current.removeChild(dropdownRef.current);
-        }
-        portalRoot.current.style.pointerEvents = "none";
-      }
-    }
-  }, [isOpen]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -171,22 +98,6 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
   const toggleDropdown = () => {
     if (!disabled) {
       const willBeOpen = !isOpen;
-
-      // Calculate position BEFORE opening
-      if (willBeOpen && containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const scrollTop =
-          window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft =
-          window.pageXOffset || document.documentElement.scrollLeft;
-
-        setDropdownPosition({
-          top: rect.bottom + scrollTop + 8,
-          left: rect.left + scrollLeft,
-          width: rect.width,
-        });
-      }
-
       setIsOpen(willBeOpen);
       setIsFocused(willBeOpen);
       if (willBeOpen && onFocus) {
@@ -268,8 +179,8 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
                 color: isError
                   ? "#d32f2f"
                   : isFocused || hasValue
-                  ? theme.palette.tertiary.main
-                  : "#999",
+                    ? theme.palette.tertiary.main
+                    : "#999",
                 transition: "color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
               }}
             >
@@ -308,11 +219,11 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
         >
           {hasValue
             ? formatSelectDisplayText(
-                displayedValue,
-                options,
-                fieldType,
-                placeholder
-              )
+              displayedValue,
+              options,
+              fieldType,
+              placeholder
+            )
             : ""}
         </span>
 
@@ -330,17 +241,16 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
         }}
       />
 
-      {/* Dropdown rendered separately and moved to portal via useEffect */}
+      {/* Dropdown with simple relative/absolute positioning */}
       <div
         ref={dropdownRef}
         style={{
           ...dropdownStyles,
           position: "absolute",
-          top: `${dropdownPosition.top}px`,
-          left: `${dropdownPosition.left}px`,
-          width: `${dropdownPosition.width}px`,
-          pointerEvents: "auto",
-          willChange: "transform",
+          top: "calc(100% + 8px)",
+          left: 0,
+          right: 0,
+          zIndex: 9999,
         }}
       >
         {options.map((option) => {
