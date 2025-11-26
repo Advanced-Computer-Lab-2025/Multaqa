@@ -50,7 +50,7 @@ export class NotificationService {
     }
   }
 
-  static async markAsRead(userId: string, notificationId: string) {
+  static async changeReadStatus(userId: string, notificationId: string, read: boolean) {
     const userRepo = new GenericRepository(User);
     const user = await userRepo.findById(userId);
 
@@ -67,11 +67,12 @@ export class NotificationService {
     }
 
     console.log("Marking notification as read:", { userId, notificationId });
-    user.notifications[notificationIndex].read = true;
+    user.notifications[notificationIndex].read = read;
     await user.save();
 
-    // Emit read event to inform other tabs(sockets)
-    eventBus.emit("notification:read", { userId, notification: user.notifications[notificationIndex] });
+    // Emit read/unread event to inform other tabs(sockets)
+    const eventName = read ? "notification:read" : "notification:unread";
+    eventBus.emit(eventName, { userId, notification: user.notifications[notificationIndex] });
     return { userId, notificationId };
   }
 

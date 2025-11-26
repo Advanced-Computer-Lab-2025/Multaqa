@@ -119,10 +119,20 @@ async function startServer() {
       socket.on("notification:read", async (payload: { notificationId: string }) => {
         try {
           console.log("Marking notification as read:", { userId, notificationId: payload.notificationId });
-          await NotificationService.markAsRead(socket.data.userId, payload.notificationId);
+          await NotificationService.changeReadStatus(socket.data.userId, payload.notificationId, true);
         } catch (error) {
           console.error("Error marking notification as read:", error);
           socket.emit("error", { message: "Failed to mark notification as read" });
+        }
+      });
+
+      socket.on("notification:unread", async (payload: { notificationId: string }) => {
+        try {
+          console.log("Marking notification as unread:", { userId, notificationId: payload.notificationId });
+          await NotificationService.changeReadStatus(socket.data.userId, payload.notificationId, false);
+        } catch (error) {
+          console.error("Error marking notification as unread:", error);
+          socket.emit("error", { message: "Failed to mark notification as unread" });
         }
       });
 

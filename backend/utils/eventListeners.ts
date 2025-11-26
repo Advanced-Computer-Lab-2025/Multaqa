@@ -183,6 +183,11 @@ eventBus.on("notification:read", (notification) => {
   sendSocketNotification("notification:read", notification);
 });
 
+// Mark notification as unread
+eventBus.on("notification:unread", (notification) => {
+  sendSocketNotification("notification:unread", notification);
+});
+
 // Delete notification
 eventBus.on("notification:delete", (notification) => {
   sendSocketNotification("notification:delete", notification);
