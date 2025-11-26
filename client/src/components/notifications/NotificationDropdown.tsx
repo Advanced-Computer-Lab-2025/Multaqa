@@ -27,7 +27,7 @@ export default function NotificationDropdown({
 }: NotificationDropdownProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { notifications, markAsRead, deleteNotification, markAllAsRead } =
+  const { notifications, markAsRead, markAsUnread, deleteNotification, markAllAsRead } =
     useNotifications();
 
   // Show only notifications from the last 24 hours
@@ -41,16 +41,18 @@ export default function NotificationDropdown({
   
   const hasNotifications = recentNotifications.length > 0;
 
-  // Extract entity from current path (e.g., /en/professor/... -> professor)
-  const getEntityFromPath = () => {
+  // Extract locale and entity from current path (e.g., /en/professor/... -> en, professor)
+  const getLocaleAndEntity = () => {
     const segments = pathname?.split("/").filter(Boolean) || [];
     // Path structure: [locale, entity, ...]
-    return segments[1] || "student"; // fallback to student if not found
+    const locale = segments[0] || "en"; // fallback to en if not found
+    const entity = segments[1] || "student"; // fallback to student if not found
+    return { locale, entity };
   };
 
   const handleViewAll = () => {
-    const entity = getEntityFromPath();
-    router.push(`/${entity}/notifications`);
+    const { locale, entity } = getLocaleAndEntity();
+    router.push(`/${locale}/${entity}/notifications`);
     onClose();
   };
 
@@ -153,6 +155,7 @@ export default function NotificationDropdown({
                 key={notification._id}
                 notification={notification}
                 onRead={markAsRead}
+                onUnread={markAsUnread}
                 onDelete={deleteNotification}
                 compact
               />

@@ -1,21 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { Typography, Box, Tabs, Tab } from "@mui/material";
+import { Typography, Box, Tabs, Tab, Stack } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNotifications } from "@/context/NotificationContext";
-import ManagementScreen from "@/components/admin/shared/ManagementScreen";
-import ManagementCard from "@/components/shared/containers/ManagementCard";
-import { INotification } from "@/types/notifications";
-import {
-  formatRelativeTime,
-  getNotificationIcon,
-  getNotificationColor,
-} from "./utils";
-import { IconButton, alpha } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import NotificationItem from "./NotificationItem";
 
 export default function NotificationsPageContent() {
-  const { notifications, markAsRead, deleteNotification } = useNotifications();
+  const { notifications, markAsRead, markAsUnread, deleteNotification } = useNotifications();
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "read">("all");
 
   // Filter notifications based on active tab
@@ -30,102 +21,23 @@ export default function NotificationsPageContent() {
     setActiveTab(newValue as "all" | "unread" | "read");
   };
 
-  const handleNotificationClick = (notification: INotification) => {
-    if (!notification.read && notification._id) {
-      markAsRead(notification._id);
-    }
-  };
-
-  const renderNotificationCard = (notification: INotification) => {
-    const Icon = getNotificationIcon(notification.type);
-    const color = getNotificationColor(notification.type);
-
-    return (
-      <ManagementCard
-        key={notification._id}
-        name={notification.title}
-        email=""
-        details={
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#666",
-                marginBottom: 1,
-              }}
-            >
-              {notification.message}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#999",
-                fontSize: "0.75rem",
-              }}
-            >
-              {formatRelativeTime(notification.createdAt)}
-            </Typography>
-          </Box>
-        }
-        statusComponent={
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              padding: "4px 12px",
-              borderRadius: 1,
-              backgroundColor: alpha(color, 0.1),
-            }}
-          >
-            <Icon sx={{ fontSize: 18, color }} />
-            <Typography
-              variant="caption"
-              sx={{
-                color,
-                fontWeight: 600,
-                fontSize: "0.75rem",
-              }}
-            >
-              {notification.read ? "Read" : "Unread"}
-            </Typography>
-          </Box>
-        }
-        actions={
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              if (notification._id) {
-                deleteNotification(notification._id);
-              }
-            }}
-            size="small"
-            sx={{
-              color: "#999",
-              "&:hover": {
-                color: "#f44336",
-                backgroundColor: alpha("#f44336", 0.1),
-              },
-            }}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        }
-        hoverBorderColor={color}
-        hoverBoxShadow={`0 2px 8px ${alpha(color, 0.2)}`}
-        onClick={() => handleNotificationClick(notification)}
-        sx={{
-          cursor: notification.read ? "default" : "pointer",
-          backgroundColor: notification.read ? "transparent" : alpha(color, 0.02),
-        }}
-      />
-    );
-  };
-
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
+      {/* Page Header */}
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+          <NotificationsIcon sx={{ fontSize: 32, color: "#6299d0" }} />
+          <Typography variant="h4" sx={{ fontWeight: 600, color: "#333" }}>
+            Notifications
+          </Typography>
+        </Box>
+        <Typography variant="body2" sx={{ color: "#666", ml: 6 }}>
+          View and manage all your notifications
+        </Typography>
+      </Box>
+
       {/* Tabs for filtering */}
-      <Box sx={{ borderBottom: 1, borderColor: "divider", marginBottom: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
@@ -149,31 +61,63 @@ export default function NotificationsPageContent() {
         </Tabs>
       </Box>
 
-      <ManagementScreen
-        pageTitle="Notifications"
-        pageSubtitle="View and manage all your notifications"
-        boxTitle={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Notifications`}
-        boxSubtitle={`You have ${filteredNotifications.length} ${activeTab === "all" ? "" : activeTab} notification${filteredNotifications.length !== 1 ? "s" : ""}`}
-        boxIcon={<NotificationsIcon fontSize="small" />}
-        borderColor="#6299d0"
-        items={filteredNotifications}
-        renderItem={renderNotificationCard}
-        noItemsMessage={
-          activeTab === "all"
-            ? "No Notifications"
-            : activeTab === "unread"
-            ? "No Unread Notifications"
-            : "No Read Notifications"
-        }
-        noItemsSubtitle={
-          activeTab === "all"
-            ? "You don't have any notifications yet."
-            : activeTab === "unread"
-            ? "You're all caught up! No unread notifications."
-            : "You haven't read any notifications yet."
-        }
-      />
+      {/* Notifications Count */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "#333" }}>
+          {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Notifications`}
+        </Typography>
+        <Typography variant="body2" sx={{ color: "#666" }}>
+          {`You have ${filteredNotifications.length} ${activeTab === "all" ? "" : activeTab} notification${filteredNotifications.length !== 1 ? "s" : ""}`}
+        </Typography>
+      </Box>
+
+      {/* Notifications List */}
+      {filteredNotifications.length === 0 ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 8,
+            textAlign: "center",
+          }}
+        >
+          <NotificationsIcon
+            sx={{ fontSize: 80, color: "#ccc", marginBottom: 2 }}
+          />
+          <Typography
+            variant="h6"
+            sx={{ color: "#666", fontWeight: 500, marginBottom: 0.5 }}
+          >
+            {activeTab === "all"
+              ? "No Notifications"
+              : activeTab === "unread"
+                ? "No Unread Notifications"
+                : "No Read Notifications"}
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#999" }}>
+            {activeTab === "all"
+              ? "You don't have any notifications yet."
+              : activeTab === "unread"
+                ? "You're all caught up! No unread notifications."
+                : "You haven't read any notifications yet."}
+          </Typography>
+        </Box>
+      ) : (
+        <Stack spacing={2}>
+          {filteredNotifications.map((notification) => (
+            <NotificationItem
+              key={notification._id}
+              notification={notification}
+              onRead={markAsRead}
+              onUnread={markAsUnread}
+              onDelete={deleteNotification}
+              compact={false}
+            />
+          ))}
+        </Stack>
+      )}
     </Box>
   );
 }
-

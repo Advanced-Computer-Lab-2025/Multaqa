@@ -38,19 +38,19 @@ export const NotificationProvider = ({
     try {
       setIsLoading(true);
       console.log("📥 Fetching notifications from API...");
-      
+
       const response = await api.get("/users/notifications");
-      
+
       if (response.data.success) {
         const fetchedNotifications = response.data.data || [];
         console.log(`✅ Fetched ${fetchedNotifications.length} notifications`);
-        
+
         // Sort by newest first
         const sortedNotifications = fetchedNotifications.sort(
-          (a: INotification, b: INotification) => 
+          (a: INotification, b: INotification) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        
+
         setNotifications(sortedNotifications);
       }
     } catch (error) {
@@ -63,7 +63,7 @@ export const NotificationProvider = ({
   // Handler for marking notification as read
   const markAsRead = useCallback((notificationId: string) => {
     console.log("📖 Marking notification as read:", notificationId);
-    
+
     // Optimistically update local state
     setNotifications((prev) =>
       prev.map((n) =>
@@ -75,10 +75,25 @@ export const NotificationProvider = ({
     socketService.emit("notification:read", { notificationId });
   }, []);
 
+  // Handler for marking notification as unread
+  const markAsUnread = useCallback((notificationId: string) => {
+    console.log("📭 Marking notification as unread:", notificationId);
+
+    // Optimistically update local state
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n._id === notificationId ? { ...n, read: false } : n
+      )
+    );
+
+    // Emit to backend
+    socketService.emit("notification:unread", { notificationId });
+  }, []);
+
   // Handler for deleting notification
   const deleteNotification = useCallback((notificationId: string) => {
     console.log("🗑️ Deleting notification:", notificationId);
-    
+
     // Optimistically update local state
     setNotifications((prev) => prev.filter((n) => n._id !== notificationId));
 
@@ -89,9 +104,9 @@ export const NotificationProvider = ({
   // Handler for marking all as read
   const markAllAsRead = useCallback(() => {
     console.log("📖 Marking all notifications as read");
-    
+
     const unreadNotifications = notifications.filter((n) => !n.read);
-    
+
     // Optimistically update local state
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
 
@@ -106,7 +121,7 @@ export const NotificationProvider = ({
   // Handle incoming notifications
   const handleNewNotification = useCallback((notification: INotification) => {
     console.log("🔔 New notification received:", notification);
-    
+
     // Add notification to state (sort by newest first)
     setNotifications((prev) => [notification, ...prev]);
 
@@ -133,10 +148,24 @@ export const NotificationProvider = ({
   const handleNotificationRead = useCallback(
     (data: { userId: string; notificationId: string }) => {
       console.log("📖 Notification read event received:", data);
-      
+
       setNotifications((prev) =>
         prev.map((n) =>
           n._id === data.notificationId ? { ...n, read: true } : n
+        )
+      );
+    },
+    []
+  );
+
+  // Handle notification unread event from backend (sync across tabs)
+  const handleNotificationUnread = useCallback(
+    (data: { userId: string; notificationId: string }) => {
+      console.log("📭 Notification unread event received:", data);
+
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === data.notificationId ? { ...n, read: false } : n
         )
       );
     },
@@ -147,7 +176,7 @@ export const NotificationProvider = ({
   const handleNotificationDelete = useCallback(
     (data: { userId: string; notificationId: string }) => {
       console.log("🗑️ Notification delete event received:", data);
-      
+
       setNotifications((prev) =>
         prev.filter((n) => n._id !== data.notificationId)
       );
@@ -197,8 +226,9 @@ export const NotificationProvider = ({
       handleNewNotification
     );
 
-    // Listen to read/delete events for cross-tab sync
+    // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
+    socketService.on("notification:unread", handleNotificationUnread);
     socketService.on("notification:delete", handleNotificationDelete);
 
     // Cleanup on unmount
@@ -211,6 +241,7 @@ export const NotificationProvider = ({
       socketService.off("notification:loyalty:newPartner");
       socketService.off("notification:vendor:pendingRequest");
       socketService.off("notification:read");
+      socketService.off("notification:unread");
       socketService.off("notification:delete");
       socketService.disconnect();
     };
@@ -219,6 +250,7 @@ export const NotificationProvider = ({
     user,
     handleNewNotification,
     handleNotificationRead,
+    handleNotificationUnread,
     handleNotificationDelete,
   ]);
 
@@ -228,6 +260,7 @@ export const NotificationProvider = ({
         notifications,
         unreadCount,
         markAsRead,
+        markAsUnread,
         deleteNotification,
         markAllAsRead,
         isLoading,

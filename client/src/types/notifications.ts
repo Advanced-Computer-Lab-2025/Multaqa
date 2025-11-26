@@ -24,6 +24,7 @@ export interface NotificationContextType {
   notifications: INotification[];
   unreadCount: number;
   markAsRead: (notificationId: string) => void;
+  markAsUnread: (notificationId: string) => void;
   deleteNotification: (notificationId: string) => void;
   markAllAsRead: () => void;
   isLoading: boolean;

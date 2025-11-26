@@ -104,4 +104,11 @@ export const truncateMessage = (message: string, maxLength: number = 100): strin
   return message.substring(0, maxLength) + "...";
 };
 
+/**
+ * Check if notification message is truncated
+ */
+export const isNotificationTruncated = (message: string, maxLength: number = 100): boolean => {
+  return message.length > maxLength;
+};
+
 
