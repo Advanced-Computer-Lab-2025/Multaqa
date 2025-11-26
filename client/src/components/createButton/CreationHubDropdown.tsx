@@ -166,7 +166,7 @@ export default function CreationHubDropdown({
           px: 3,
           py: 1,
           whiteSpace: "nowrap",
-          ...(buttonTextColor && { color: buttonTextColor }),
+          ...(buttonTextColor && { color: `${buttonTextColor} !important` }),
           boxShadow: open
             ? `0 10px 30px ${theme.palette.primary.main}33`
             : undefined,
