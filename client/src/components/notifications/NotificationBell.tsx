@@ -6,11 +6,17 @@ import { useNotifications } from "@/context/NotificationContext";
 import NotificationDropdown from "./NotificationDropdown";
 
 export default function NotificationBell() {
-  const { unreadCount } = useNotifications();
+  const { unreadCount, markAllAsRead, notifications } = useNotifications();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    
+    // Mark all unread notifications as read when opening the dropdown
+    const hasUnreadNotifications = notifications.some(n => !n.read);
+    if (hasUnreadNotifications) {
+      markAllAsRead();
+    }
   };
 
   const handleClose = () => {
