@@ -23,7 +23,7 @@ export default function CustomModalLayout({
   borderColor,
   title,
 }: CustomModalLayoutProps) {
-  const transitionDuration = 400;
+  const transitionDuration = 300;
   const [isCloseActive, setIsCloseActive] = React.useState(false);
 
   const handleClose = React.useCallback(() => {
