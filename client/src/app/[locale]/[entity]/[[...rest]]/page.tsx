@@ -29,6 +29,7 @@ import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
+import LoyaltyProgram from "@/components/shared/LoyaltyProgram/LoyaltyProgram";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,7 +69,6 @@ const getEventsOfficeName = (user: any): string => {
 
   return ""; // ultimate fallback
 };
-
 
 const SignedOutFallback = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
   const [showAction, setShowAction] = useState(false);
@@ -336,6 +336,21 @@ export default function EntityCatchAllPage() {
             user={"vendor"}
             userInfo={user}
             userID={userId}
+          />
+        );
+      }
+    }
+
+    // Vendor - Loyalty Program
+    if (entity === "vendor" && tab === "loyalty") {
+      if (section === "program-status") {
+        return (
+          <LoyaltyProgram
+            isSubscribed={!!user?.loyaltyProgram}
+            discountRate={user?.loyaltyProgram?.discountRate}
+            promoCode={user?.loyaltyProgram?.promoCode}
+            termsAndConditions={user?.loyaltyProgram?.termsAndConditions}
+            onStatusChange={() => window.location.reload()}
           />
         );
       }
