@@ -37,6 +37,7 @@ interface CreateTripProps {
   color: string;
 }
 
+<<<<<<< HEAD
 
 const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
   const handleCallApi = async (payload:any) => {
@@ -106,6 +107,8 @@ const contentPaperStyles = {
 };
 <<<<<<< fix/critical-ui-changes
 
+=======
+>>>>>>> 11f3aa90 (merge: hatem's to salma's)
 const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
   const handleCallApi = async (payload: any) => {
     setLoading(true);
@@ -134,8 +137,50 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
     }
   };
 
+<<<<<<< HEAD
 =======
 >>>>>>> main
+=======
+  const accentColor = color;
+
+  const tertiaryInputStyles = {
+    '& .MuiInputLabel-root': {
+      color: theme.palette.grey[500],
+      '&.Mui-focused': { color: accentColor },
+    },
+    '& .MuiInputBase-input': {
+      color: '#000000',
+      '&::placeholder': {
+        color: theme.palette.grey[400],
+        opacity: 1,
+      },
+    },
+    '& .MuiInput-underline:before': {
+      borderBottomColor: theme.palette.grey[400],
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottomColor: accentColor,
+    },
+    '& .MuiInput-underline:after': {
+      borderBottomColor: accentColor,
+    },
+  };
+
+  // Shared Paper styles for all tabs
+  const contentPaperStyles = {
+    p: { xs: 1, md: 3 },
+    borderRadius: '32px',
+    background: theme.palette.background.paper,
+    border: `1.5px solid ${theme.palette.grey[300]}`,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    boxShadow: `0 4px 24px 0 ${accentColor}14`,
+    transition: 'box-shadow 0.2s',
+  };
+
+>>>>>>> 11f3aa90 (merge: hatem's to salma's)
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -199,6 +244,19 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
     setActiveTab(newValue);
   };
 
+  // Check if tabs have errors
+  const generalHasErrors = !!(
+    (errors.tripName && touched.tripName) ||
+    (errors.startDate && touched.startDate) ||
+    (errors.endDate && touched.endDate) ||
+    (errors.registrationDeadline && touched.registrationDeadline) ||
+    (errors.price && touched.price) ||
+    (errors.capacity && touched.capacity) ||
+    (errors.location && touched.location)
+  );
+
+  const descriptionHasErrors = !!(errors.description && touched.description);
+
 
 =======
     // Check if tabs have errors
@@ -244,49 +302,62 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
                 flexShrink: 0,
                 background: theme.palette.background.paper,
                 borderRadius: '32px',
-                border: `2px solid ${accentColor}`,
+                border: `1.5px solid ${theme.palette.grey[300]}`,
                 p: 2,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-start',
-                boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                boxShadow: `0 4px 24px 0 ${accentColor}14`,
                 transition: 'box-shadow 0.2s',
                 height: 'fit-content',
                 alignSelf: 'flex-start',
               }}
             >
               <List sx={{ width: '100%', height: '100%' }}>
-                {tabSections.map((section) => (
-                  <ListItem key={section.key} disablePadding>
-                    <ListItemButton
-                      selected={activeTab === section.key}
-                      onClick={() => setActiveTab(section.key)}
-                      sx={{
-                        borderRadius: '24px',
-                        mb: 1.5,
-                        px: 2.5,
-                        py: 1.5,
-                        fontWeight: 600,
-                        fontSize: '1.08rem',
-                        background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
-                        color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                        boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
-                        transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-                        '&:hover': {
-                          background: 'rgba(110, 138, 230, 0.05)',
-                          color: accentColor,
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{
-                        minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
-                          color: accentColor
-                        },
-                      }}>{section.icon}</ListItemIcon>
-                      <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                {tabSections.map((section) => {
+                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+
+                  return (
+                    <ListItem key={section.key} disablePadding>
+                      <ListItemButton
+                        selected={activeTab === section.key}
+                        onClick={() => setActiveTab(section.key)}
+                        sx={{
+                          borderRadius: '24px',
+                          mb: 1.5,
+                          px: 2.5,
+                          py: 1.5,
+                          fontWeight: 600,
+                          fontSize: '1.08rem',
+                          background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                          color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                          boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                          transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                          '&:hover': {
+                            background: 'rgba(110, 138, 230, 0.05)',
+                            color: accentColor,
+                          },
+                        }}
+                      >
+                        <ListItemIcon sx={{
+                          minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                            color: accentColor
+                          },
+                        }}>{section.icon}</ListItemIcon>
+                        <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
+                        {hasError && (
+                          <ErrorOutlineIcon
+                            sx={{
+                              color: '#db3030',
+                              fontSize: '20px',
+                              ml: 'auto'
+                            }}
+                          />
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
               </List>
             </Box>
 
@@ -624,10 +695,10 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
                     fontWeight: 700,
                     fontSize: "16px",
                     borderRadius: '20px',
-                    boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
+                    boxShadow: `0 2px 8px 0 ${accentColor}20`,
                     background: accentColor,
                     '&:hover': {
-                      background: '#5a7ae0',
+                      background: `${accentColor}E6`,
                     }
                   }}
                 />
