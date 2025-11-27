@@ -131,7 +131,7 @@ export default function CreateGymSession({
       title="Create Gym Session"
     >
       <form onSubmit={formik.handleSubmit}>
-       
+
         <Box sx={{ p: 4 }}>
           {/* <Typography
             variant="h5"
@@ -156,18 +156,18 @@ export default function CreateGymSession({
               {error}
             </Alert>
           )}
-    
-          <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column", 
+
+          <Box sx={{
+            display: "flex",
+            flexDirection: "column",
             gap: 3,
             borderRadius: '6px',
-            borderColor:theme.palette.tertiary.main,
-            borderWidth:'1px',
+            borderColor: theme.palette.tertiary.main,
+            borderWidth: '1px',
             padding: '32px', // No vertical padding on outer box
             boxShadow: theme.shadows[5],
-            minHeight:'450px',
-            }}>
+            minHeight: '450px',
+          }}>
             {/* Session Type */}
             <CustomSelectField
               label="Session Type"
@@ -186,7 +186,8 @@ export default function CreateGymSession({
               required
               fullWidth
               size="small"
-              />
+              usePortalPositioning={true}
+            />
             <CustomTextField
               label="Trainer Name (Optional)"
               fieldType="name"
@@ -205,7 +206,7 @@ export default function CreateGymSession({
               fullWidth
             />
 
-          {/* Start Date and Time */}
+            {/* Start Date and Time */}
             <DateTimePicker
               id="startDateTime"
               label="Start Date & Time"
@@ -266,8 +267,8 @@ export default function CreateGymSession({
                 formik.touched.duration
                   ? formik.errors.duration
                   : formik.values.duration
-                  ? `Duration: ${formatDuration(formik.values.duration)}`
-                  : "Enter duration in minutes (10-180 min)"
+                    ? `Duration: ${formatDuration(formik.values.duration)}`
+                    : "Enter duration in minutes (10-180 min)"
               }
               placeholder="Enter duration in minutes"
               neumorphicBox
@@ -317,41 +318,41 @@ export default function CreateGymSession({
             />
 
           </Box>
-          </Box>
+        </Box>
 
-          {/* Action Buttons */}
-          <Box
+        {/* Action Buttons */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 2,
+            mt: 4,
+          }}
+        >
+          <CustomButton
+            label="Cancel"
+            variant="outlined"
+            color="primary"
+            onClick={handleClose}
+            disabled={isSubmitting}
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 2,
-              mt: 4,
+              width: "160px",
+              height: "44px",
             }}
-          >
-            <CustomButton
-              label="Cancel"
-              variant="outlined"
-              color="primary"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              sx={{
-                width: "160px",
-                height: "44px",
-              }}
-            />
-            <CustomButton
-              label={isSubmitting ? "Creating..." : "Create Session"}
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={!(formik.isValid && formik.dirty) || isSubmitting}
-              sx={{
-                width: "160px",
-                height: "44px",
-                fontWeight: 700,
-              }}
-            />
-          </Box>
+          />
+          <CustomButton
+            label={isSubmitting ? "Creating..." : "Create Session"}
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={!(formik.isValid && formik.dirty) || isSubmitting}
+            sx={{
+              width: "160px",
+              height: "44px",
+              fontWeight: 700,
+            }}
+          />
+        </Box>
       </form>
     </CustomModalLayout>
   );
