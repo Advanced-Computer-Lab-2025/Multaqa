@@ -1,4 +1,4 @@
-import { IUser } from "../interfaces/models/user.interface";
+import { INotification, IUser } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
@@ -9,20 +9,24 @@ import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
-import { VerificationService } from "./verificationService";
 import {
   sendBlockUnblockEmail,
   sendStaffRoleAssignmentEmail,
 } from "./emailService";
+import { IAdministration } from "../interfaces/models/administration.interface";
+import { Administration } from "../schemas/stakeholder-schemas/administrationSchema";
+import { VerificationService } from "./verificationService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
   private staffMemberRepo: GenericRepository<IStaffMember>;
+  private administrationRepo: GenericRepository<IAdministration>;
   private verificationService: VerificationService;
 
   constructor() {
     this.userRepo = new GenericRepository(User);
     this.staffMemberRepo = new GenericRepository(StaffMember);
+    this.administrationRepo = new GenericRepository(Administration);
     this.verificationService = new VerificationService();
   }
 
@@ -129,6 +133,15 @@ export class UserService {
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
+  async getUserNotifications(id: string): Promise<INotification[]> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    return user.notifications || [];
+  }
+  
   async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
@@ -262,7 +275,7 @@ export class UserService {
     await user.save();
   }
 
-  async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
+  async getAllUnAssignedStaffMembers(): Promise<Omit<IStaffMember, "password">[]> {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.UNKNOWN,
     });
@@ -272,21 +285,71 @@ export class UserService {
   }
 
   async getAllTAs(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.TA,
-    });
+    const staffMembers = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.TA, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status myWorkshops",
+      }
+    );
 
     // Convert Mongoose documents to plain objects
     return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllStaff(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.STAFF,
-    });
+    const staffMembers = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.STAFF, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status myWorkshops",
+      }
+    );
 
     // Convert Mongoose documents to plain objects
     return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async getAllProfessors(): Promise<IStaffMember[]> {
+    const professors = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.PROFESSOR, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status myWorkshops",
+      }
+    );
+
+    return professors.map((prof) => prof.toObject());
+  }
+
+  async getAllStudents(): Promise<IStudent[]> {
+    const students = await this.userRepo.findAll(
+      { role: "student", isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId status registeredEvents walletBalance",
+      }
+    );
+
+    return students.map((student) => student.toObject());
+  }
+
+  async getAllAdmins(): Promise<IAdministration[]> {
+    const admins = await this.administrationRepo.findAll(
+      { role: "administration", isVerified: true },
+      { select: "firstName lastName name email role gucId roleType status" }
+    );
+
+    return admins.map((admin) => admin.toObject());
+  }
+
+  async getAllEventsOffice(): Promise<IAdministration[]> {
+    const eventsOffice = await this.administrationRepo.findAll(
+      { roleType: "eventsOffice", isVerified: true },
+      { select: "firstName lastName name email role gucId roleType status" }
+    );
+
+    return eventsOffice.map((admin) => admin.toObject());
   }
 
   async assignRoleAndSendVerification(
@@ -333,17 +396,6 @@ export class UserService {
       : user;
 
     return userWithoutPassword as Omit<IStaffMember, "password">;
-  }
-
-  async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
-    const professors = await this.staffMemberRepo.findAll(
-      { position: StaffPosition.PROFESSOR, isVerified: true },
-      {
-        select:
-          "firstName lastName name email role gucId position roleType status myWorkshops",
-      }
-    );
-    return professors.map((prof) => prof.toObject());
   }
 
   /**

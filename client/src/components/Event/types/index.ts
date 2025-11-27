@@ -20,6 +20,7 @@ export type BazarViewProps = BasicProps & {
   name: string;
   vendors?: any;
   description: string;
+  registrationDeadline?: any;
 };
 
 //names and emails of a max of 5 individuals attending, duration of booth set up, location of booth setup, booth size 
@@ -44,6 +45,14 @@ export type ConferenceViewProps = BasicProps & {
 //create workshops by adding the workshop name, location (GUC Cairo or GUC Berlin), start and end dates and times, short description, full agenda, faculty responsible (MET, IET, etc..), professor(s) participating, required budget, funding source (external or GUC), extra required resources, capacity, registeration deadline
 
 //details => start date, end date, start time, end time, location ,faculty responsible , professors participating , required budget, funding source, extra required resources, capacity, registration deadline
+type Attendee = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  _id: string;
+};
+
+type AttendeesArray = Attendee[];
 
 export type WorkshopViewProps = BasicProps & {
   name: string,
@@ -52,7 +61,9 @@ export type WorkshopViewProps = BasicProps & {
   professors: string[],
   professorsId: string[],
   details: Record<string, string>,
-  professorStatus?: string;
-  evaluateButton?: React.ReactNode;
-  commentButton?: React.ReactNode;
+  professorStatus?:string;
+  evaluateButton?:React.ReactNode;
+  commentButton?:React.ReactNode;
+  attendees: AttendeesArray;
+  registrationDeadline?: any;
 }

@@ -18,5 +18,4 @@ export interface IStudent extends IUser {
   transactions?: ITransaction[];
   favorites?: Schema.Types.ObjectId[];
   registeredEvents?: Schema.Types.ObjectId[];
-  // TODO: Filter registeredEvents by (date < today) to get attended ones
 }

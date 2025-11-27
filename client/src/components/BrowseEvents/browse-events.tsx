@@ -646,6 +646,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            registrationDeadline={event.registrationDeadline}
           />
         );
       case EventType.BOOTH:
@@ -696,6 +697,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            registrationDeadline={event.registrationDeadline}
           />
         );
       default:

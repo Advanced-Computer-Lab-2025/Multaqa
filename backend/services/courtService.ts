@@ -14,7 +14,7 @@ export class CourtService {
   }
 
   async getDayAvailableTimeSlots(courtId: string, date: string): Promise<IAvailableSlots> {
-    
+
     // Validate date format
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(date)) {
@@ -83,7 +83,7 @@ async getAllCourtsAvailability(date?: string): Promise<Array<{ court: ICourt; av
     throw createError(404, 'No courts found');
   }
 
-  const allTimeSlots = Object.values(TIME_SLOTS);
+    const allTimeSlots = Object.values(TIME_SLOTS);
 
   // Map each court to include its availability for the specified date
   const courtsWithAvailability = courts.map(court => {
@@ -100,17 +100,17 @@ async getAllCourtsAvailability(date?: string): Promise<Array<{ court: ICourt; av
       })
       .map(reservation => reservation.slot as TIME_SLOTS);
 
-    // Get available slots by excluding reserved slots
-    const availableSlots = allTimeSlots.filter(
-      (slot: TIME_SLOTS) => !reservedSlots.includes(slot)
-    );
+      // Get available slots by excluding reserved slots
+      const availableSlots = allTimeSlots.filter(
+        (slot: TIME_SLOTS) => !reservedSlots.includes(slot)
+      );
 
-    const availability: IAvailableSlots = {
-      availableSlots,
-      reservedSlots,
-      totalAvailable: availableSlots.length,
-      totalReserved: reservedSlots.length
-    };
+      const availability: IAvailableSlots = {
+        availableSlots,
+        reservedSlots,
+        totalAvailable: availableSlots.length,
+        totalReserved: reservedSlots.length
+      };
 
     return {
       court,

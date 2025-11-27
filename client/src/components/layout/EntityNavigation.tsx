@@ -568,9 +568,14 @@ export default function EntityNavigation({
 
   // If only /stakeholder is visited, redirect to default section/tab
   React.useEffect(() => {
+
+    // Special routes that are always valid (not in navigation config)
+    const specialRoutes = ["notifications"];
+    const isSpecialRoute = specialRoutes.includes(tab) || specialRoutes.includes(section);
+
     // Fallback: if section or tab is not found, redirect to not-found page
     const sectionExists =
-      section === "" || config.sections.some((s) => s.key === section);
+      section === "" || isSpecialRoute || config.sections.some((s) => s.key === section);
     const currentSectionForValidation = config.sections.find(
       (s) => s.key === section
     );
@@ -580,7 +585,7 @@ export default function EntityNavigation({
         ? [{ id: "overview", label: "Overview" }]
         : sectionTabs;
     const tabExists =
-      section === "" || tab === "" || effectiveTabs.some((t) => t.id === tab);
+      section === "" || tab === "" || isSpecialRoute || effectiveTabs.some((t) => t.id === tab);
 
     if (!sectionExists || !tabExists) {
       router.replace("/not-found");

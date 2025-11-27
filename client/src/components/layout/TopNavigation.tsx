@@ -1,4 +1,5 @@
 import React from "react";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { UserRoleKey } from "@/types";
 import Image from "next/image";
 import ScaledLogo from "../shared/MultaqaLogos/ScaledLogo";
@@ -197,8 +198,10 @@ export default function TopNavigation({
           )}
         </div>
 
-        {/* Right: Placeholder for user menu (future) */}
-        <div className="w-9" />
+        {/* Right: Notification Bell */}
+        <div className="flex items-center gap-3">
+          <NotificationBell />
+        </div>
       </div>
 
       {/* Tabs Section */}
