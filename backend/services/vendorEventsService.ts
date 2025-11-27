@@ -192,6 +192,7 @@ export class VendorEventsService {
         ...data.value,
         status: applicationStatus,
         QRCodeGenerated: false,
+        hasPaid: false,
       },
     });
 
@@ -385,6 +386,7 @@ export class VendorEventsService {
         paymentDeadline.setDate(paymentDeadline.getDate() + 3);
         event.vendors[vendorIndex].RequestData.paymentDeadline =
           paymentDeadline;
+        event.vendors[vendorIndex].RequestData.hasPaid = false;
       }
 
       event.markModified("vendors");
@@ -406,6 +408,7 @@ export class VendorEventsService {
         const paymentDeadline = new Date();
         paymentDeadline.setDate(paymentDeadline.getDate() + 3);
         event.RequestData.paymentDeadline = paymentDeadline;
+        event.RequestData.hasPaid = false;
 
         const { boothSetupDuration } = event.RequestData;
         // Calculate start date: now + boothSetupDuration (in weeks)
@@ -527,24 +530,23 @@ export class VendorEventsService {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    const vendorRequest = vendor.requestedEvents[requestIndex];
-
-    // For bazaar, log the vendor entry in the event
+    // Check if the vendor has already paid by checking event's RequestData
+    let hasPaid = false;
     if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
       const vendorInEvent = event.vendors.find(
         (ve) => ve.vendor?.toString() === vendorId.toString()
       );
-      if (vendorInEvent) {
-        console.log(
-          "Bazaar Vendor Entry Status:",
-          vendorInEvent.RequestData?.status
-        );
+      if (vendorInEvent?.RequestData?.hasPaid === true) {
+        hasPaid = true;
+      }
+    } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      if (event.RequestData?.hasPaid === true) {
+        hasPaid = true;
       }
     }
-    console.log("===================================");
 
     // Check if the vendor has already paid
-    if ((vendorRequest as any).hasPaid === true) {
+    if (hasPaid) {
       throw createError(
         400,
         "Cannot cancel - payment has already been completed for this event"
