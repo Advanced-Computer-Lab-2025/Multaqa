@@ -101,11 +101,13 @@ export default function CreateGymSession({
           maxParticipants: parseInt(values.maxParticipants),
           trainer: trainerName || undefined,
         });
-        toast.success("Gym session created successfully",{
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
+        
+        toast.success("Gym session created successfully", {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        
         console.log("✅ Gym session created successfully");
 
         // Notify parent to refresh data
@@ -114,15 +116,18 @@ export default function CreateGymSession({
         }
 
         formik.resetForm();
+        setActiveTab('general');
         onClose();
-      } catch (err:any) {
+      } catch (err: any) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create gym session";
-            toast.error(err?.response?.data?.error, {
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
+        
+        toast.error(err?.response?.data?.error || errorMessage, {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        
         setError(errorMessage);
         console.error("Error creating session:", err);
       } finally {
@@ -134,6 +139,7 @@ export default function CreateGymSession({
   const handleClose = () => {
     formik.resetForm();
     setActiveTab('general');
+    setError(null);
     onClose();
   };
 
@@ -160,12 +166,12 @@ export default function CreateGymSession({
     p: { xs: 1, md: 3 },
     borderRadius: '32px',
     background: theme.palette.background.paper,
-    border: `1.5px solid ${accentColor}`,
+    border: `1.5px solid ${theme.palette.grey[300]}`,
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+    boxShadow: `0 4px 24px 0 ${accentColor}14`,
     transition: 'box-shadow 0.2s',
   };
 
@@ -181,7 +187,7 @@ export default function CreateGymSession({
         background: '#fff',
         borderRadius: '32px',
         p: 3,
-        height: '450px',
+        height: '600px',
         display: 'flex',
         flexDirection: 'column'
       }}>
@@ -212,12 +218,12 @@ export default function CreateGymSession({
                 flexShrink: 0,
                 background: theme.palette.background.paper,
                 borderRadius: '32px',
-                border: `2px solid ${accentColor}`,
+                border: `1.5px solid ${theme.palette.grey[300]}`,
                 p: 2,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-start',
-                boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                boxShadow: `0 4px 24px 0 ${accentColor}14`,
                 transition: 'box-shadow 0.2s',
                 height: 'fit-content', 
                 alignSelf: 'flex-start', 
@@ -278,7 +284,7 @@ export default function CreateGymSession({
               flex: 1, 
               display: 'flex', 
               flexDirection: 'column',
-              minWidth: 0,
+              minHeight: 0,
             }}>
               {/* General Info Tab */}
               {activeTab === 'general' && (
@@ -300,6 +306,7 @@ export default function CreateGymSession({
                       required
                       fullWidth
                       size="small"
+                      usePortalPositioning={true}
                     />
                   </Box>
 
@@ -440,10 +447,10 @@ export default function CreateGymSession({
                     fontWeight: 700, 
                     fontSize: "16px", 
                     borderRadius: '20px', 
-                    boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
+                    boxShadow: `0 2px 8px 0 ${accentColor}20`,
                     background: accentColor,
                     '&:hover': {
-                      background: '#5a7ae0',
+                      background: `${accentColor}E6`,
                     }
                   }}
                 />

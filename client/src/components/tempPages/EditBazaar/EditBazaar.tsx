@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 import { bazaarSchema } from "../CreateBazaar/schemas/bazaar";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { CustomModalLayout } from '@/components/shared/modals';
 import { api } from '@/api';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -208,6 +209,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     validateOnBlur: true,
   });
 
+<<<<<<< HEAD
  // Check if tabs have errors
     const generalHasErrors = !!(
         (errors.bazaarName && touched.bazaarName) ||
@@ -220,6 +222,19 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
 
     const descriptionHasErrors = !!(errors.description && touched.description);
   
+=======
+  // Check if tabs have errors
+  const generalHasErrors = !!(
+    (errors.bazaarName && touched.bazaarName) ||
+    (errors.startDate && touched.startDate) ||
+    (errors.endDate && touched.endDate) ||
+    (errors.registrationDeadline && touched.registrationDeadline) ||
+    (errors.location && touched.location)
+  );
+
+  const descriptionHasErrors = !!(errors.description && touched.description);
+
+>>>>>>> 11f3aa90 (merge: hatem's to salma's)
   const handleDescriptionChange = (htmlContent: string) => {
     setFieldValue('description', htmlContent);
   };
@@ -307,6 +322,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                                              </Box>
                  
 
+<<<<<<< HEAD
                     {/* Section Content on the right - Takes remaining width and all available height */}
                     <Box sx={{ 
                       flex: 1, 
@@ -386,6 +402,80 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                                         <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mb: 2 }}>{errors.registrationDeadline}</Typography> 
                                     : <></>}
                                 </LocalizationProvider>
+=======
+        <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            flex: 1, // Allows this container to grow and take all available space
+            gap: 3,
+            minHeight: 0, // Important for flex container with nested scrolling content
+          }}>
+            <Box
+              sx={{
+                width: '220px',
+                flexShrink: 0,
+                background: theme.palette.background.paper,
+                borderRadius: '32px',
+                border: `1.5px solid ${theme.palette.grey[300]}`,
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                boxShadow: `0 4px 24px 0 ${accentColor}14`,
+                transition: 'box-shadow 0.2s',
+                height: 'fit-content',
+                alignSelf: 'flex-start',
+              }}
+            >
+              <List sx={{ width: '100%', height: '100%' }}>
+                {tabSections.map((section) => {
+                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+
+                  return (
+                    <ListItem key={section.key} disablePadding>
+                      <ListItemButton
+                        selected={activeTab === section.key}
+                        onClick={() => setActiveTab(section.key)}
+                        sx={{
+                          borderRadius: '24px',
+                          mb: 1.5,
+                          px: 2.5,
+                          py: 1.5,
+                          fontWeight: 600,
+                          fontSize: '1.08rem',
+                          background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                          color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                          boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                          transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                          '&:hover': {
+                            background: 'rgba(110, 138, 230, 0.05)',
+                            color: accentColor,
+                          },
+                        }}
+                      >
+                        <ListItemIcon sx={{
+                          minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                            color: accentColor
+                          },
+                        }}>{section.icon}</ListItemIcon>
+                        <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
+                        {hasError && (
+                          <ErrorOutlineIcon
+                            sx={{
+                              color: '#db3030',
+                              fontSize: '20px',
+                              ml: 'auto'
+                            }}
+                          />
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+>>>>>>> 11f3aa90 (merge: hatem's to salma's)
 
                                 <Box sx={{ display: "flex", flexDirection: "column", flex: 1, marginTop: "24px" }}>
                                     <CustomSelectField
@@ -472,9 +562,135 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                             />
                         </Box>
                     </Box>
+<<<<<<< HEAD
                 </Box>
             </form>
         </Box>
+=======
+
+                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          label="End Date and Time"
+                          name="endDate"
+                          slotProps={{
+                            textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                          }}
+                          value={values.endDate}
+                          onChange={(value) => setFieldValue("endDate", value)}
+                        />
+                      </LocalizationProvider>
+                      {errors.endDate && touched.endDate && (
+                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.endDate}</Typography>
+                      )}
+                    </Box>
+                  </Box>
+
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      name='registrationDeadline'
+                      label="Deadline to Register"
+                      slotProps={{
+                        textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                      }}
+                      value={values.registrationDeadline}
+                      onChange={(value) => setFieldValue('registrationDeadline', value)}
+                    />
+                    {errors.registrationDeadline && touched.registrationDeadline ?
+                      <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mb: 2 }}>{errors.registrationDeadline}</Typography>
+                      : <></>}
+                  </LocalizationProvider>
+
+                  <Box sx={{ display: "flex", flexDirection: "column", flex: 1, marginTop: "24px" }}>
+                    <CustomSelectField
+                      label="Location"
+                      fieldType="single"
+                      options={[
+                        { label: "GUC Cairo", value: "GUC Cairo" },
+                        { label: "GUC Berlin", value: "GUC Berlin" },
+                      ]}
+                      value={values.location}
+                      onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)}
+                      name="location"
+                      usePortalPositioning={true}
+                    />
+                    {errors.location && touched.location && (
+                      <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.location}</Typography>
+                    )}
+                  </Box>
+                </Paper>
+              )}
+
+              {/* Description Tab */}
+              {activeTab === 'description' && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  <TextField
+                    name="description"
+                    placeholder="Provide a short description of the bazaar"
+                    value={values.description}
+                    onChange={handleChange}
+                    fullWidth
+                    multiline
+                    rows={16}
+                    sx={{
+                      flex: 1,
+                      '& .MuiOutlinedInput-root': {
+                        height: '100%',
+                        alignItems: 'flex-start',
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: accentColor,
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: accentColor,
+                          borderWidth: '2px',
+                        },
+                      },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderRadius: '16px',
+                        borderColor: theme.palette.grey[300],
+                      },
+                      '& .MuiInputBase-input': {
+                        height: '100% !important',
+                        overflow: 'auto !important',
+                      }
+                    }}
+                  />
+                  {errors.description && touched.description && (
+                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 1 }}>
+                      {errors.description}
+                    </Typography>
+                  )}
+                </Paper>
+              )}
+
+              {/* Submit Button */}
+              <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <CustomButton
+                  disabled={isSubmitting}
+                  label={isSubmitting ? "Submitting" : 'Edit'}
+                  variant='contained'
+                  color='tertiary'
+                  type='submit'
+                  sx={{
+                    px: 3,
+                    width: "180px",
+                    height: "40px",
+                    fontWeight: 700,
+                    fontSize: "16px",
+                    borderRadius: '20px',
+                    boxShadow: `0 2px 8px 0 ${accentColor}20`,
+                    background: accentColor,
+                    '&:hover': {
+                      background: `${accentColor}E6`,
+                    }
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </form>
+      </Box>
+>>>>>>> 11f3aa90 (merge: hatem's to salma's)
     </CustomModalLayout>
   )
 }
