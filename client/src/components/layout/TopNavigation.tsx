@@ -149,25 +149,21 @@ export default function TopNavigation({
 
         <div className="flex items-center justify-between w-full px-4">
           <Box
-            onClick={(e) => {
-              if (currentView !== "home") {
-                handleHomeClick(e);
-              }
-            }}
             sx={{
               cursor: "pointer",
               display: "flex",
               justifyContent: "flex-start",
               alignItems: "center",
-              gap: 2,
+              gap: 1.5,
             }}
           >
             <ScaledLogo
               image={multaqaIcon}
               transparent
               iconOnly
+              small
             />
-            <Typography variant="h5" sx={{ fontWeight: 800, fontFamily: "var(--font-jost)", textTransform: "uppercase" }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: "var(--font-jost)", textTransform: "uppercase" }}>
               Multaqa
             </Typography>
           </Box>

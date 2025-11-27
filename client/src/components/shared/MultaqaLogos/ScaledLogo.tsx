@@ -5,13 +5,14 @@ interface ScaledLogoProps {
   transparent?: boolean;
   image?: StaticImageData;
   iconOnly?: boolean;
+  small?: boolean;
 }
 
-export default function ScaledLogo({ image, transparent = false, iconOnly = false }: ScaledLogoProps) {
+export default function ScaledLogo({ image, transparent = false, iconOnly = false, small = false }: ScaledLogoProps) {
   return (
     <div className={`${transparent ? styles.logoNoContainer : styles.logoContainer} ${iconOnly ? styles.autoWidth : ""}`}>
       {iconOnly ? (
-        image && <Image src={image} alt="Multaqa Logo" className={`w-10 ${!transparent && "max-h-full object-contain py-1"}`} />
+        image && <Image src={image} alt="Multaqa Logo" className={`${small ? "w-8" : "w-10"} ${!transparent && "max-h-full object-contain py-1"}`} />
       ) : (
         <>
           {image ? (
