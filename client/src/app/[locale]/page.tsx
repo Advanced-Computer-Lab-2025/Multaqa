@@ -426,27 +426,20 @@ function HomePageContent() {
           }}
         >
           {/* LOGO: Changed component={Link} to div to prevent router hijacking */}
-          <Typography
-            component="div"
+          <Box
             onClick={(e) => {
               if (currentView !== "home") {
                 handleHomeClick(e);
               }
             }}
-            variant="h6"
             sx={{
-              textDecoration: "none",
-              color: theme.palette.text.primary,
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
             }}
           >
-            MULTAQA
-          </Typography>
-
-          {/* <ScaledLogo image={multaqaLogo} transparent /> */}
+            <ScaledLogo image={multaqaLogo} transparent />
+          </Box>
 
           <Stack
             direction="row"
