@@ -21,6 +21,7 @@ import StyledAccordionSummary from '@/components/shared/Accordion/StyledAccordio
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 import { api } from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
@@ -36,7 +37,35 @@ interface CreateTripProps {
   color: string;
 }
 
-const accentColor = '#6e8ae6';
+
+const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
+  const handleCallApi = async (payload:any) => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+      // TODO: Replace with your API route
+      const res = await api.post("/events", payload);
+      setResponse(res.data);
+      setRefresh((prev)=> !prev);
+      toast.success("Trip created successfully", {
+                  position:"bottom-right",
+                  autoClose:3000,
+                  theme: "colored",
+              })
+    } catch (err: any) {
+      setError(err?.message || "API call failed");
+      window.alert(err.response.data.error);
+      toast.error("Failed to create trip. Please try again.", {
+          position:"bottom-right",
+          autoClose:3000,
+          theme: "colored",
+          });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const accentColor = color;
 
 const tertiaryInputStyles = {
   '& .MuiInputLabel-root': {
@@ -75,6 +104,7 @@ const contentPaperStyles = {
   transition: 'box-shadow 0.2s',
 
 };
+<<<<<<< fix/critical-ui-changes
 
 const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
   const handleCallApi = async (payload: any) => {
@@ -104,6 +134,8 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
     }
   };
 
+=======
+>>>>>>> main
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -154,6 +186,7 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
     onSubmit: onSubmit,
   });
 
+<<<<<<< fix/critical-ui-changes
 
   // Tab state for sections
   const tabSections = [
@@ -167,6 +200,22 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
   };
 
 
+=======
+    // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.tripName && touched.tripName) ||
+        (errors.startDate && touched.startDate) ||
+        (errors.endDate && touched.endDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.price && touched.price) ||
+        (errors.capacity && touched.capacity) ||
+        (errors.location && touched.location)
+    );
+
+    const descriptionHasErrors = !!(errors.description && touched.description);
+
+   
+>>>>>>> main
   return (
     <CustomModalLayout open={open} borderColor={accentColor} title="Create Trip" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]">
       <Box sx={{
@@ -187,6 +236,7 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
             minHeight: 0,
           }}>
             {/* Sidebar - Fixed width */}
+<<<<<<< fix/critical-ui-changes
             {/* Vertical Tabs on the left (Sidebar) */}
             <Box
               sx={{
@@ -240,6 +290,71 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
               </List>
             </Box>
 
+=======
+           {/* Vertical Tabs on the left (Sidebar) */}
+                                      <Box
+                                        sx={{
+                                          width: '250px', 
+                                          flexShrink: 0,
+                                          background: theme.palette.background.paper,
+                                          borderRadius: '32px',
+                                          border:`2px solid ${accentColor}`,
+                                          p: 2,
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          alignItems: 'flex-start',
+                                          boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                                          transition: 'box-shadow 0.2s',
+                                          height: 'fit-content', 
+                                          alignSelf: 'flex-start', 
+                                        }}
+                                      >
+                                          <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+                                                  
+                                                  return (
+                                                  <ListItem key={section.key} disablePadding>
+                                                      <ListItemButton
+                                                          selected={activeTab === section.key}
+                                                          onClick={() => setActiveTab(section.key)}
+                                                          sx={{
+                                                              borderRadius: '24px',
+                                                              mb: 1.5,
+                                                              px: 2.5,
+                                                              py: 1.5,
+                                                              fontWeight: 600,
+                                                              fontSize: '1.08rem',
+                                                              background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                                                              color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                              boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                                                              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                              '&:hover': {
+                                                                  background: 'rgba(110, 138, 230, 0.05)',
+                                                                  color: accentColor,
+                                                              },
+                                                          }}
+                                                      >
+                                                          <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                                                                color: accentColor
+                                                              }, }}>{section.icon}</ListItemIcon>
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700, mr:2 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: 'auto'
+                                                                  }} 
+                                                              />
+                                                          )}
+                                                      </ListItemButton>
+                                                  </ListItem>
+                                              )})}
+                                          </List>
+                                      </Box>
+          
+>>>>>>> main
 
             {/* Content Area - Takes remaining space */}
             <Box sx={{

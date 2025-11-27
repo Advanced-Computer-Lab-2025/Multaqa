@@ -18,6 +18,7 @@ import CustomButton from '../../shared/Buttons/CustomButton';
 import { CustomModalLayout } from '../../shared/modals';
 import { validationSchema } from './schemas/conference';
 import { toast } from 'react-toastify';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 const initialFormData: EventFormData = {
     eventName: '',
@@ -33,16 +34,16 @@ const initialFormData: EventFormData = {
     registrationDeadline: ''
 }
 
-// Create tertiaryInputStyles as a function that accepts color
+// Create tertiaryInputStyles as a function that accepts accentColor
 const createTertiaryInputStyles = (accentColor: string, theme: any) => ({
     '& .MuiInputLabel-root': {
-        color: theme.palette.grey[500],
-        '&.Mui-focused': { color: accentColor },
+        accentColor: theme.palette.grey[500],
+        '&.Mui-focused': { accentColor: accentColor },
     },
     '& .MuiInputBase-input': {
-        color: '#000000',
+        accentColor: '#000000',
         '&::placeholder': {
-            color: theme.palette.grey[400],
+            accentColor: theme.palette.grey[400],
             opacity: 1,
         },
     },
@@ -57,36 +58,34 @@ const createTertiaryInputStyles = (accentColor: string, theme: any) => ({
     },
 });
 
-// Create contentPaperStyles as a function that accepts color
+// Create contentPaperStyles as a function that accepts accentColor
 const createContentPaperStyles = (accentColor: string, theme: any) => ({
     p: { xs: 1, md: 3 },
     borderRadius: '32px',
     background: theme.palette.background.paper,
-    border: `1.5px solid ${theme.palette.grey[300]}`,
+    border:`2px solid ${accentColor}`,
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
     boxShadow: `0 4px 24px 0 ${accentColor}14`,
-    transition: 'box-shadow 0.2s',
+    transition: 'box-shadow 0.2s',                     
 });
 
 interface CreateConferenceProps {
     open: boolean;
     onClose: () => void;
     setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+    color:string
 }
 
-const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) => {
+const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, color }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
-
-    // Use tertiary color as accent
-    const accentColor = theme.palette.tertiary.main;
-
-    // Create styles with the accent color
+    const accentColor= color;
+    // // Create styles with the accent accentColor
     const tertiaryInputStyles = createTertiaryInputStyles(accentColor, theme);
     const contentPaperStyles = createContentPaperStyles(accentColor, theme);
 
@@ -125,49 +124,7 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
         }
     };
 
-    // Function to check for errors across tabs
-    const getFirstErrorTab = (errors: any): 'general' | 'description' | 'fullAgenda' | null => {
-        const generalFields = ['eventName', 'eventStartDate', 'eventEndDate', 'websiteLink', 'requiredBudget', 'fundingSource', 'extraRequiredResources'];
-        const descriptionField = 'description';
-        const fullAgendaField = 'fullAgenda';
-
-        // Check General tab
-        for (const field of generalFields) {
-            if (errors[field]) {
-                return 'general';
-            }
-        }
-
-        // Check Description tab
-        if (errors[descriptionField]) {
-            return 'description';
-        }
-
-        // Check Full Agenda tab
-        if (errors[fullAgendaField]) {
-            return 'fullAgenda';
-        }
-
-        return null;
-    };
-
     const onSubmit = async (values: any, actions: any) => {
-        // Manually run validation before proceeding
-        const validationErrors = await actions.validateForm();
-
-        if (Object.keys(validationErrors).length > 0) {
-            const errorTab = getFirstErrorTab(validationErrors);
-
-            if (errorTab) {
-                setActiveTab(errorTab);
-                toast.error("Please fill out all required fields.", {
-                    position: "bottom-right",
-                    autoClose: 3000,
-                    theme: "colored",
-                });
-            }
-            return;
-        }
 
         onClose();
         const startDateObj = values.eventStartDate;
@@ -200,6 +157,20 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
     });
 
     const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched } = formik;
+    
+     // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.eventName && touched.eventName) ||
+        (errors.eventStartDate && touched.eventStartDate) ||
+        (errors.eventEndDate && touched.eventEndDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.websiteLink && touched.websiteLink) ||
+        (errors.requiredBudget && touched.requiredBudget) ||
+        (errors.location && touched.location)||  (errors.fundingSource && touched.fundingSource)||  (errors.extraRequiredResources && touched.extraRequiredResources)
+    );
+
+    const descriptionHasErrors = !!(errors.description && touched.description);
+    const agendaHasErrors = !!(errors.fullAgenda && touched.fullAgenda);
 
     const handleClose = () => {
         onClose();
@@ -212,7 +183,7 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
                 background: '#fff',
                 borderRadius: '32px',
                 p: 3,
-                height: '600px',
+                height: '650px',
                 display: 'flex',
                 flexDirection: 'column'
             }}>
@@ -224,61 +195,67 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
                         gap: 3,
                         minHeight: 0,
                     }}>
-                        {/* Sidebar Navigation */}
-                        <Box
-                            sx={{
-                                width: '220px',
-                                flexShrink: 0,
-                                background: theme.palette.background.paper,
-                                borderRadius: '32px',
-                                border: `1.5px solid ${theme.palette.grey[300]}`,
-                                p: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'flex-start',
-                                boxShadow: `0 4px 24px 0 ${accentColor}14`,
-                                transition: 'box-shadow 0.2s',
-                                height: 'fit-content',
-                                alignSelf: 'flex-start',
-                            }}
-                        >
-                            <List sx={{ width: '100%', height: '100%' }}>
-                                {tabSections.map((section) => (
-                                    <ListItem key={section.key} disablePadding>
-                                        <ListItemButton
-                                            selected={activeTab === section.key}
-                                            onClick={() => setActiveTab(section.key)}
-                                            sx={{
-                                                borderRadius: '24px',
-                                                mb: 1.5,
-                                                px: 2.5,
-                                                py: 1.5,
-                                                fontWeight: 600,
-                                                fontSize: '1.08rem',
-                                                background: activeTab === section.key ? `${accentColor}14` : 'transparent',
-                                                color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                                                boxShadow: activeTab === section.key ? `0 2px 8px 0 ${accentColor}20` : 'none',
-                                                transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-                                                '&:hover': {
-                                                    background: `${accentColor}0A`,
-                                                    color: accentColor,
-                                                },
-                                            }}
-                                        >
-                                            <ListItemIcon sx={{
-                                                minWidth: 36,
-                                                color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                                                '&:hover': { color: accentColor }
-                                            }}>
-                                                {section.icon}
-                                            </ListItemIcon>
-                                            <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </Box>
-
+                                   <Box
+                                        sx={{
+                                          width: '250px', 
+                                          flexShrink: 0,
+                                          background: theme.palette.background.paper,
+                                          borderRadius: '32px',
+                                          border:`2px solid ${accentColor}`,
+                                          p: 2,
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          alignItems: 'flex-start',
+                                          boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                                          transition: 'box-shadow 0.2s',
+                                          height: 'fit-content', 
+                                          alignSelf: 'flex-start', 
+                                        }}
+                                      >
+                                          <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : section.key === 'fullAgenda' ? agendaHasErrors : false;
+                                                  
+                                                  return (
+                                                  <ListItem key={section.key} disablePadding>
+                                                      <ListItemButton
+                                                          selected={activeTab === section.key}
+                                                          onClick={() => setActiveTab(section.key)}
+                                                          sx={{
+                                                              borderRadius: '24px',
+                                                              mb: 1.5,
+                                                              px: 2.5,
+                                                              py: 1.5,
+                                                              fontWeight: 600,
+                                                              fontSize: '1.08rem',
+                                                              background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                                                              color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                              boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                                                              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                              '&:hover': {
+                                                                  background: 'rgba(110, 138, 230, 0.05)',
+                                                                  color: accentColor,
+                                                              },
+                                                          }}
+                                                      >
+                                                          <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                                                                color: accentColor
+                                                              }, }}>{section.icon}</ListItemIcon>
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700, mr:2 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: 'auto'
+                                                                  }} 
+                                                              />
+                                                          )}
+                                                      </ListItemButton>
+                                                  </ListItem>
+                                              )})}
+                                          </List>
+                                      </Box>
                         {/* Content Area */}
                         <Box sx={{
                             flex: 1,
@@ -353,7 +330,7 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
                                                                 sx: {
                                                                     color: theme.palette.grey[500],
                                                                     '&.Mui-focused': {
-                                                                        color: accentColor,
+                                                                       color: accentColor,
                                                                     },
                                                                 },
                                                             },
@@ -424,10 +401,10 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
                                         )}
                                     </Box>
 
-                                    <Typography sx={{ ...detailTitleStyles(theme), fontSize: '16px', mb: 1 }}>Extra Resources</Typography>
+                                    <Typography sx={{ ...detailTitleStyles(theme), fontSize: '16px', mb: 1 }}>Extra Required Resources</Typography>
                                     <Box sx={{ display: "flex", gap: 1, marginBottom: "12px", alignItems: "center" }}>
                                         <CustomTextField
-                                            label='Extra Resources'
+                                            label='Extra Required Resources'
                                             name='extraResources'
                                             id='extraResources'
                                             fieldType='text'
@@ -461,31 +438,31 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh }) 
                                     </Box>
 
                                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
-                                        {values.extraRequiredResources.map((res) => (
-                                            <Chip
-                                                key={res}
-                                                label={res}
-                                                onDelete={() =>
-                                                    setFieldValue(
-                                                        "extraRequiredResources",
-                                                        values.extraRequiredResources.filter((r) => r !== res)
-                                                    )
-                                                }
-                                                sx={{
-                                                    m: 0.5,
-                                                    borderColor: accentColor,
+                                    {values.extraRequiredResources.map((res: string) => (
+                                        <Chip
+                                            key={res}
+                                            label={res}
+                                            onDelete={() =>
+                                                setFieldValue(
+                                                    "extraRequiredResources",
+                                                    values.extraRequiredResources.filter((r: string) => r !== res)
+                                                )
+                                            }
+                                            sx={{
+                                                m: 0.5,
+                                                borderColor: accentColor,
+                                                color: accentColor,
+                                                '& .MuiChip-deleteIcon': {
                                                     color: accentColor,
-                                                    '& .MuiChip-deleteIcon': {
-                                                        color: accentColor,
-                                                        '&:hover': {
-                                                            color: `${accentColor}CC`,
-                                                        }
+                                                    '&:hover': {
+                                                        color: `${accentColor}CC`,
                                                     }
-                                                }}
-                                                variant="outlined"
-                                            />
-                                        ))}
-                                    </Box>
+                                                }
+                                            }}
+                                            variant="outlined"
+                                        />
+                                    ))}
+                                </Box>
                                 </Paper>
                             )}
 

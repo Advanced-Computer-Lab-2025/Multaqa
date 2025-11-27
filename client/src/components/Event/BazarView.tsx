@@ -119,12 +119,19 @@ const BazarView: React.FC<BazarViewProps> = ({
               <CustomButton
                 size="small"
                 variant="contained"
-                sx={{
-                  borderRadius: 999,
-                  backgroundColor: `${background}20`,
-                  color: background,
-                  borderColor: background,
-                }}
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
+                      color: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
                 onClick={handleOpenModal}
               >
                 Apply
@@ -140,13 +147,19 @@ const BazarView: React.FC<BazarViewProps> = ({
                 <CustomButton
                   size="small"
                   variant="outlined"
-                  sx={{
-                    borderRadius: 999,
-                    backgroundColor: `${background}10`,
-                    color: background,
-                    borderColor: background,
-                    width: "fit-content",
-                  }}
+             sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
                   onClick={() => setCancelApplication(true)}
                 >
                   Cancel Application
@@ -244,12 +257,19 @@ const BazarView: React.FC<BazarViewProps> = ({
               <CustomButton
                 size="small"
                 variant="contained"
-                sx={{
-                  borderRadius: 999,
-                  backgroundColor: `${background}20`,
-                  color: background,
-                  borderColor: background,
-                }}
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
+                       color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
                 onClick={handleOpenModal}
               >
                 Apply
@@ -265,13 +285,20 @@ const BazarView: React.FC<BazarViewProps> = ({
                 <CustomButton
                   size="small"
                   variant="outlined"
-                  sx={{
-                    borderRadius: 999,
-                    backgroundColor: `${background}10`,
-                    color: background,
-                    borderColor: background,
-                    width: "fit-content",
-                  }}
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                        width: 'fit-content'
+                    }}
                   onClick={() => setCancelApplication(true)}
                 >
                   Cancel Application
