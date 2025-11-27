@@ -23,7 +23,7 @@ export const getValidationSchema = () =>
     promoCode: Yup.string().required("Promo code is required"),
     termsAndConditions: Yup.string().required(
       "Terms and conditions are required"
-    ),
+    ).min(20, "Terms and conditions must be at least 20 characters long"),
     agreedToTerms: Yup.boolean()
       .oneOf([true], "You must agree to the terms and conditions")
       .required("You must agree to the terms and conditions"),

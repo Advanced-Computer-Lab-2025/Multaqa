@@ -96,9 +96,9 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
                 label="Promo Code"
                 fieldType="text"
                 neumorphicBox
+                autoCapitalizeName={false} // Explicitly disable auto-capitalization
                 onChange={(e) => {
-                  const valueWithoutSpaces = e.target.value.replace(/\s+/g, "");
-                  formik.setFieldValue("promoCode", valueWithoutSpaces);
+                  formik.setFieldValue("promoCode", e.target.value); // Removed transformation to lowercase
                 }}
                 onBlur={() => {
                   formik.setFieldTouched("promoCode", true);
@@ -129,9 +129,9 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
                 rows={4}
                 neumorphicBox
                 borderRadius="20px"
-                autoCapitalize="false"
+                autoCapitalizeName={false} // Explicitly disable auto-capitalization
                 onChange={(e) => {
-                  formik.setFieldValue("termsAndConditions", e.target.value);
+                  formik.setFieldValue("termsAndConditions", e.target.value); // Removed transformation to lowercase
                 }}
                 onBlur={() => {
                   formik.setFieldTouched("termsAndConditions", true);

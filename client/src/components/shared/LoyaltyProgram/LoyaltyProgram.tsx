@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
 import CustomButton from "../Buttons/CustomButton";
 import { CustomModalLayout, CustomModal } from "../modals";
 import LoyaltyProgramForm from "./LoyaltyProgramForm";
@@ -47,35 +47,51 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
 
   if (isSubscribed) {
     return (
-      <Box className="w-full p-6 md:p-6">
-        <Box className="flex items-center gap-4 mb-10 text-center">
+      <Box sx={{ width: "100%", p: { xs: 3, md: 6 } }}>
+        {/* Header - Centered */}
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 8 }}>
           <Typography
             variant="h4"
             component="h2"
-            className="font-bold"
             color="primary"
             sx={{
               fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              mb: 4,
+              fontWeight: "medium",
+              textAlign: "center",
             }}
           >
             My Loyalty Program Participation
           </Typography>
         </Box>
 
-        <Box className="mb-12">
+        {/* Program Details Section */}
+        <Box>
           <Typography
             variant="h6"
-            className="mb-6 font-semibold flex items-center gap-2"
             color="textPrimary"
+            sx={{
+              mb: 4,
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
           >
-            <InfoOutlinedIcon color="action" fontSize="medium" /> Program Details
+            <InfoOutlinedIcon color="action" fontSize="medium" /> Program
+            Details
           </Typography>
-          <Box className="flex flex-wrap gap-6 justify-center">
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 4,
+              justifyContent: "center",
+            }}
+          >
             <NeumorphicBox
               containerType="outwards"
               sx={{
-                p: 4,
+                p: 3,
                 borderRadius: 4,
                 minWidth: "280px",
                 maxWidth: "350px",
@@ -91,20 +107,40 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
                 },
               }}
             >
-              <Box className="mb-4 p-3 rounded-full bg-gray-50">
-                <PercentIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  mb: 3,
+                  py: 2,
+                  px: 3,
+                }}
+              >
+                <Typography
+                  color={theme.palette.primary.main}
+                  sx={{ fontSize: 45 }}
+                >
+                  {discountRate}
+                </Typography>
+                <PercentIcon
+                  sx={{
+                    fontSize: 48,
+                    color: theme.palette.primary.main,
+                    mt: 1,
+                  }}
+                />
               </Box>
-              <Typography variant="h6" className="font-bold mb-2">
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "medium", mb: 2, color: "#6b7280" }}
+              >
                 Discount Rate
-              </Typography>
-              <Typography variant="body1" className="text-gray-600">
-                {discountRate}%
               </Typography>
             </NeumorphicBox>
             <NeumorphicBox
               containerType="outwards"
               sx={{
-                p: 4,
+                p: 3,
                 borderRadius: 4,
                 minWidth: "280px",
                 maxWidth: "350px",
@@ -120,41 +156,77 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
                 },
               }}
             >
-              <Box className="mb-4 p-3 rounded-full bg-gray-50">
-                <ConfirmationNumberIcon sx={{ fontSize: 40, color: theme.palette.secondary.main }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  mb: 3,
+                  py: 2,
+                  px: 3,
+                }}
+              >
+                <ConfirmationNumberIcon
+                  sx={{
+                    fontSize: 48,
+                    color: theme.palette.secondary.main,
+                    mt: 1,
+                    mr: 1,
+                  }}
+                />
+                <Typography
+                  color={theme.palette.secondary.main}
+                  sx={{ fontSize: 35,mt:1 }}
+                >
+                  {promoCode}
+                </Typography>
               </Box>
-              <Typography variant="h6" className="font-bold mb-2">
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "medium", color: "#6b7280" }}
+              >
                 Promo Code
-              </Typography>
-              <Typography variant="body1" className="text-gray-600">
-                {promoCode}
               </Typography>
             </NeumorphicBox>
           </Box>
         </Box>
 
-        <Box className="mb-12">
+        <Divider sx={{ my: 8, opacity: 1 }} />
+
+        {/* Terms and Conditions Section */}
+        <Box>
           <Typography
             variant="h6"
-            className="mb-6 font-semibold flex items-center gap-2"
             color="textPrimary"
+            sx={{
+              mb: 4,
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
           >
-            <DescriptionIcon color="action" fontSize="medium" /> Terms and Conditions
+            <DescriptionIcon color="action" fontSize="medium" /> Terms and
+            Conditions
           </Typography>
           <NeumorphicBox
             containerType="inwards"
-            sx={{ p: 4, borderRadius: 4, bgcolor: "rgba(0,0,0,0.02)" }}
+            sx={{ p: 3, borderRadius: 4, bgcolor: "rgba(0,0,0,0.02)" }}
           >
             <Typography
               variant="body2"
-              className="whitespace-pre-wrap text-gray-700 leading-relaxed"
+              sx={{
+                whiteSpace: "pre-wrap",
+                color: "#6b7280",
+                lineHeight: 1.8,
+              }}
             >
               {termsAndConditions}
             </Typography>
           </NeumorphicBox>
         </Box>
 
-        <Box className="flex justify-end mt-8">
+        {/* Cancel Button */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 6 }}>
           <CustomButton
             type="button"
             variant="outlined"
@@ -186,8 +258,8 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
           }}
         >
           <Typography>
-            Are you sure you want to cancel your participation in the GUC Loyalty Program? This
-            action cannot be undone.
+            Are you sure you want to cancel your participation in the GUC
+            Loyalty Program? This action cannot be undone.
           </Typography>
         </CustomModal>
       </Box>
@@ -195,16 +267,16 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
   }
 
   return (
-    <Box className="w-full p-8">
+    <Box sx={{ width: "100%", p: { xs: 3, md: 8 } }}>
       {/* Hero Section */}
-      <Box className="mb-20 text-center">
+      <Box sx={{ mb: 10, textAlign: "center" }}>
         <Typography
           variant="h4"
           component="h3"
-          className="font-bold mb-8"
           color="primary"
           sx={{
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
+            fontWeight: "bold",
             mb: 4,
           }}
         >
@@ -212,8 +284,10 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
         </Typography>
         <Typography
           variant="h6"
-          className="max-w-4xl leading-relaxed text-gray-600"
           sx={{
+            maxWidth: "900px",
+            lineHeight: 1.8,
+            color: "#4b5563",
             textAlign: "center",
             marginLeft: "auto",
             marginRight: "auto",
@@ -226,43 +300,51 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
       </Box>
 
       {/* Benefits Section */}
-      <Box className="mb-20">
+      <Box sx={{ mb: 10 }}>
         <Typography
           variant="h4"
-          className="mb-10 font-bold text-center"
           color="textPrimary"
           sx={{
+            mb: 6,
+            fontWeight: "bold",
+            textAlign: "center",
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
-            mb: 4,
           }}
         >
           Why Join Us?
         </Typography>
-        <Box className="flex flex-wrap gap-8 justify-center">
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 4,
+            justifyContent: "center",
+          }}
+        >
           {[
             {
               title: "Increase Visibility",
               desc: "Showcase your brand to thousands of potential customers within the GUC campus.",
               icon: StorefrontIcon,
-              color: "#2196f3", // Blue
+              color: "#2196f3",
             },
             {
               title: "Boost Sales",
               desc: "Drive more traffic to your business with exclusive offers and promotions.",
               icon: SellIcon,
-              color: "#e91e63", // Pink
+              color: "#e91e63",
             },
             {
               title: "Build Relationships",
               desc: "Foster long-term loyalty with the GUC community through consistent engagement.",
               icon: Diversity3Icon,
-              color: "#9c27b0", // Purple
+              color: "#9c27b0",
             },
             {
               title: "Exclusive Marketing",
               desc: "Gain access to exclusive marketing channels and events at GUC.",
               icon: EventIcon,
-              color: "#ff9800", // Orange
+              color: "#ff9800",
             },
           ].map((benefit, index) => {
             const Icon = benefit.icon;
@@ -271,7 +353,8 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
                 key={index}
                 containerType="outwards"
                 sx={{
-                  p: 4,
+                  px: 4,
+                  py: 2,
                   borderRadius: 4,
                   minWidth: "280px",
                   maxWidth: "350px",
@@ -287,13 +370,20 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
                   },
                 }}
               >
-                <Box className="mb-4 p-3 rounded-full bg-gray-50">
+                <Box
+                  sx={{
+                    mb: 3,
+                    p: 3,
+                    borderRadius: "50%",
+                    bgcolor: "rgba(0,0,0,0.03)",
+                  }}
+                >
                   <Icon sx={{ fontSize: 40, color: benefit.color }} />
                 </Box>
-                <Typography variant="h6" className="font-bold mb-2">
+                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
                   {benefit.title}
                 </Typography>
-                <Typography variant="body1" className="text-gray-600">
+                <Typography variant="body1" sx={{ color: "#6b7280" }}>
                   {benefit.desc}
                 </Typography>
               </NeumorphicBox>
@@ -302,28 +392,43 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
         </Box>
       </Box>
 
+      <Divider sx={{ my: 8, opacity: 1 }} />
+
       {/* Terms Section */}
-      <Box className="mb-16">
+      <Box sx={{ mb: 8 }}>
         <Typography
           variant="h5"
-          className="mb-6 font-bold flex items-center gap-2"
           color="textPrimary"
           sx={{
+            mb: 4,
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
             fontFamily: "var(--font-poppins), system-ui, sans-serif",
           }}
         >
-          <DescriptionIcon fontSize="medium" color="action" /> Terms and
+          <DescriptionIcon fontSize="medium" color="action" /> GUC Terms and
           Conditions
         </Typography>
         <NeumorphicBox containerType="inwards" sx={{ p: 4, borderRadius: 3 }}>
-          <Box className="flex flex-col gap-3">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {LOYALTY_PROGRAM_TERMS.map((term, index) => (
-              <Box key={index} className="flex items-start gap-2">
+              <Box
+                key={index}
+                sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}
+              >
                 <Box
-                  className="mt-2 w-2 h-2 rounded-full flex-shrink-0"
-                  sx={{ bgcolor: theme.palette.primary.main }}
+                  sx={{
+                    mt: 1.5,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    bgcolor: theme.palette.primary.main,
+                  }}
                 />
-                <Typography variant="body1" className="text-gray-700">
+                <Typography variant="body1" sx={{ color: "#374151" }}>
                   {term}
                 </Typography>
               </Box>
@@ -333,8 +438,20 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
       </Box>
 
       {/* CTA Section */}
-      <Box className="flex flex-col items-center justify-center mt-8 mb-6">
-        <Typography variant="h6" className="mb-10 font-medium text-gray-600">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          mt: 8,
+          mb: 6,
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ mb: 2, fontWeight: 500, color: "#4b5563" }}
+        >
           Ready to grow your business with GUC?
         </Typography>
         <CustomButton
@@ -344,7 +461,7 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
           height="50px"
           label="Apply Now"
           onClick={handleOpenModal}
-          sx={{ fontSize: "1.1rem", fontWeight: "bold",mt: 2 }}
+          sx={{ fontSize: "1.1rem", fontWeight: "bold", mt: 2 }}
         />
       </Box>
 
