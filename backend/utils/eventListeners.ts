@@ -11,6 +11,19 @@ import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { INotification, IUser } from "../interfaces/models/user.interface";
 import createError from "http-errors";
 
+// Helper function to broadcast events to all user's sockets (for sync events like read/unread/delete)
+function broadcastToUserSockets(userId: string, eventName: string, data: any) {
+  try {
+    const sockets = OnlineUsersService.getUserSockets(userId);
+    console.log(`📡 Broadcasting ${eventName} to ${sockets.length} socket(s) for user ${userId}`, data);
+    sockets.forEach((socketId) => {
+      io.to(socketId).emit(eventName, data);
+    });
+  } catch (error) {
+    console.error(`Failed to broadcast ${eventName} to user ${userId}:`, error);
+  }
+}
+
 async function sendSocketNotification(typeNotification: string, notification: Notification) {
   try {
     if (!notification.userId && !notification.role && !notification.adminRole && !notification.staffPosition) {
@@ -37,9 +50,16 @@ async function sendSocketNotification(typeNotification: string, notification: No
             createdAt: new Date()
           } as INotification);
           await user.save();
+          
+          // Get the newly created notification with its _id
+          const newNotification = user.notifications[user.notifications.length - 1];
+          const notificationWithId = {
+            ...notification,
+            _id: (newNotification._id as any)?.toString(),
+          };
+          
+          sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
         }
-
-        sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
       } catch (error: any) {
         throw createError(500, "Error sending socket notification to specific user:", error);
       }
@@ -109,9 +129,16 @@ async function sendSocketNotification(typeNotification: string, notification: No
           createdAt: new Date()
         } as INotification);
         await user.save();
+        
+        // Get the newly created notification with its _id
+        const newNotification = user.notifications[user.notifications.length - 1];
+        const notificationWithId = {
+          ...notification,
+          _id: (newNotification._id as any)?.toString(),
+        };
+        
+        sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
       }
-
-      sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notification));
     }
     return;
   } catch (error) {
@@ -178,19 +205,24 @@ eventBus.on("notification:vendor:pendingRequest", (notification) => {
  * -------------------------------
  */
 
-// Mark notification as read
-eventBus.on("notification:read", (notification) => {
-  sendSocketNotification("notification:read", notification);
+// Mark notification as read - broadcast to all user's sockets for cross-tab sync
+eventBus.on("notification:read", (data: { userId: string; notification: any }) => {
+  const { userId, notification } = data;
+  const notificationId = (notification._id as any)?.toString();
+  broadcastToUserSockets(userId, "notification:read", { userId, notificationId });
 });
 
-// Mark notification as unread
-eventBus.on("notification:unread", (notification) => {
-  sendSocketNotification("notification:unread", notification);
+// Mark notification as unread - broadcast to all user's sockets for cross-tab sync
+eventBus.on("notification:unread", (data: { userId: string; notification: any }) => {
+  const { userId, notification } = data;
+  const notificationId = (notification._id as any)?.toString();
+  broadcastToUserSockets(userId, "notification:unread", { userId, notificationId });
 });
 
-// Delete notification
-eventBus.on("notification:delete", (notification) => {
-  sendSocketNotification("notification:delete", notification);
+// Delete notification - broadcast to all user's sockets for cross-tab sync
+eventBus.on("notification:delete", (data: { userId: string; notificationId: string }) => {
+  const { userId, notificationId } = data;
+  broadcastToUserSockets(userId, "notification:delete", { userId, notificationId });
 });
 
 // Fallback for new generic notifications

@@ -62,6 +62,10 @@ export default function NotificationItem({
   };
 
   const handleToggleRead = (e: React.MouseEvent) => {
+    console.log("🔘 Toggle read button clicked", {
+      notificationId: notification._id,
+      currentReadStatus: notification.read
+    });
     e.stopPropagation();
     if (notification._id) {
       if (notification.read) {
@@ -69,13 +73,18 @@ export default function NotificationItem({
       } else {
         onRead(notification._id);
       }
+    } else {
+      console.log("⚠️ No notification ID found");
     }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
+    console.log("🗑️ Delete button clicked", { notificationId: notification._id });
     e.stopPropagation();
     if (notification._id) {
       onDelete(notification._id);
+    } else {
+      console.log("⚠️ No notification ID found");
     }
   };
 

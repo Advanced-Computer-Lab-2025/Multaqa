@@ -8,6 +8,7 @@ import createError from "http-errors";
 import { NotificationType } from "../constants/user.constants";
 
 export interface Notification {
+  _id?: string;
   userId?: string;
   role?: UserRole[];
   adminRole?: AdministrationRoleType[];

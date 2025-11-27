@@ -124,7 +124,7 @@ export default function NotificationsPageContent() {
           <Stack spacing={2}>
             {paginatedNotifications.map((notification) => (
               <NotificationItem
-                key={notification._id}
+                key={`${notification._id}-${notification.read}`}
                 notification={notification}
                 onRead={markAsRead}
                 onUnread={markAsUnread}
