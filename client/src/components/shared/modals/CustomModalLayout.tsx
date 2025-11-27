@@ -121,9 +121,47 @@ export default function CustomModalLayout({
       <Fade in={open} timeout={transitionDuration}>
         <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
-            {/* Close Icon at the top right - Fixed header */}
+            {/* Header with Title and Close Icon - Fixed header */}
             <StyledModalHeader>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                width: '100%'
+              }}>
+                {title && (
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <h2 style={{
+                      margin: 0,
+                      fontSize: '1.5rem',
+                      fontWeight: 700,
+                      color: baseBorderColor,
+                      fontFamily: 'var(--font-jost), system-ui, sans-serif',
+                      letterSpacing: '0.02em',
+                      paddingBottom: '8px',
+                    }}>
+                      {title}
+                    </h2>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        height: '3px',
+                        width: '40%',
+                        background: `linear-gradient(135deg, ${baseBorderColor}, ${closeIconColor})`,
+                        borderRadius: '2px',
+                        transition: 'width 0.3s ease-in-out',
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.width = '100%';
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.width = '40%';
+                      }}
+                    />
+                  </div>
+                )}
                 <AnimatedCloseButton
                   open={isCloseActive}
                   onClick={handleClose}
