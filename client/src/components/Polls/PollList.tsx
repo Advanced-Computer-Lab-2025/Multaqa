@@ -17,14 +17,6 @@ interface PollListProps {
 
 const DAY_IN_MS = 86_400_000;
 
-const VOTABLE_DEMO_POLLS = new Set([
-  "poll-1",
-  "poll-2",
-  "test-poll-1",
-  "test-poll-2",
-  "test-poll-3",
-]);
-
 const createMockPolls = (): Poll[] => {
   const now = Date.now();
 
@@ -185,32 +177,31 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
           display: "grid",
           gap: 2,
           gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, minmax(0, 1fr))",
+            xs: "repeat(auto-fill, minmax(240px, 1fr))",
+            sm: "repeat(auto-fill, minmax(260px, 1fr))",
             md: "repeat(3, minmax(0, 1fr))",
           },
+          alignItems: "stretch",
         }}
       >
-        {polls.map((poll) => {
-          const shouldForceReadOnly =
-            isEventsOffice &&
-            !usingMockData &&
-            !VOTABLE_DEMO_POLLS.has(poll.id);
-
-          return (
-            <Box key={poll.id}>
-              <PollCard poll={poll} readOnly={shouldForceReadOnly} />
-            </Box>
-          );
-        })}
+        {polls.map((poll) => (
+          <Box key={poll.id} sx={{ display: "flex" }}>
+            <PollCard poll={poll} readOnly={isEventsOffice} />
+          </Box>
+        ))}
       </Box>
     );
 
   const body = (
-    <Box>
+    <Box sx={{ maxWidth: 1100, mx: "auto" }}>
       {error && (
         <Alert severity="warning" sx={{ mb: 2 }}>
           {error}
+        </Alert>
+      )}
+      {isEventsOffice && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Events Office users can monitor poll progress but cannot cast votes.
         </Alert>
       )}
       {usingMockData && (
