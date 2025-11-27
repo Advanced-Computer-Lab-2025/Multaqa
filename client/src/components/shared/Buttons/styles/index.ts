@@ -31,6 +31,11 @@ export const StyledButton = styled(Button)<ButtonProps>(({ theme, color }) => ({
   textTransform: "none",
   letterSpacing: "0.5px",
   fontWeight: 900,
+
+  "&.MuiButton-contained": {
+    color: "#fff", // Pure white text for contained buttons
+  },
+
   boxShadow: `
    -3px -3px 10px 0 #fffff7,
    5px 5px 10px 0 rgba(153, 153, 142, 0.6)

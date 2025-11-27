@@ -5,6 +5,8 @@ export type VendorEventKind = "bazaar" | "platform_booth" | "unknown";
 export interface VendorContact {
   name?: string;
   email?: string;
+  nationalIdUrl?: string;
+  taxCardUrl?: string;
 }
 
 export interface VendorParticipationRequest {

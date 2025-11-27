@@ -1,29 +1,94 @@
-import { IUser } from "../interfaces/models/user.interface";
+import { INotification, IUser } from "../interfaces/models/user.interface";
 import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import createError from "http-errors";
 import { UserStatus } from "../constants/user.constants";
 import { populateMap } from "../utils/userPopulationMap";
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { StaffPosition } from "../constants/staffMember.constants";
-import { VerificationService } from "./verificationService";
 import {
   sendBlockUnblockEmail,
   sendStaffRoleAssignmentEmail,
 } from "./emailService";
+import { IAdministration } from "../interfaces/models/administration.interface";
+import { Administration } from "../schemas/stakeholder-schemas/administrationSchema";
+import { VerificationService } from "./verificationService";
 
 export class UserService {
   private userRepo: GenericRepository<IUser>;
   private staffMemberRepo: GenericRepository<IStaffMember>;
+  private administrationRepo: GenericRepository<IAdministration>;
   private verificationService: VerificationService;
 
   constructor() {
     this.userRepo = new GenericRepository(User);
     this.staffMemberRepo = new GenericRepository(StaffMember);
+    this.administrationRepo = new GenericRepository(Administration);
     this.verificationService = new VerificationService();
+  }
+
+  /**
+   * Filter out archived events from populated user fields
+   * @param user - Plain user object with potentially populated event fields
+   */
+  private filterArchivedEvents(user: any): void {
+    if (!user) return;
+
+    // Filter favorites (students and staff members)
+    if (user.favorites && Array.isArray(user.favorites)) {
+      user.favorites = user.favorites.filter((event: any) => {
+        // If it's just an ObjectId (not populated), keep it
+        if (!event || typeof event === "string" || !event._id) {
+          return true;
+        }
+        // If it's populated, filter out archived ones
+        return !event.archived;
+      });
+    }
+
+    // Filter registeredEvents (students and staff members)
+    if (user.registeredEvents && Array.isArray(user.registeredEvents)) {
+      user.registeredEvents = user.registeredEvents.filter((event: any) => {
+        // If it's just an ObjectId (not populated), keep it
+        if (!event || typeof event === "string" || !event._id) {
+          return true;
+        }
+        // If it's populated, filter out archived ones
+        return !event.archived;
+      });
+    }
+
+    // Filter myWorkshops (staff members/professors)
+    if (user.myWorkshops && Array.isArray(user.myWorkshops)) {
+      user.myWorkshops = user.myWorkshops.filter((workshop: any) => {
+        // If it's just an ObjectId (not populated), keep it
+        if (!workshop || typeof workshop === "string" || !workshop._id) {
+          return true;
+        }
+        // If it's populated, filter out archived ones
+        return !workshop.archived;
+      });
+    }
+
+    // Filter requestedEvents (vendors)
+    if (user.requestedEvents && Array.isArray(user.requestedEvents)) {
+      user.requestedEvents = user.requestedEvents.filter((reqEvent: any) => {
+        // If event is not populated, keep it
+        if (
+          !reqEvent ||
+          !reqEvent.event ||
+          typeof reqEvent.event === "string" ||
+          !reqEvent.event._id
+        ) {
+          return true;
+        }
+        // If event is populated, filter out archived ones
+        return !reqEvent.event.archived;
+      });
+    }
   }
 
   async getAllUsers(): Promise<Omit<IUser, "password">[]> {
@@ -31,7 +96,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName verifiedAt updatedAt",
+          "firstName lastName name email role gucId position roleType status companyName registeredAt verifiedAt updatedAt",
       }
     );
 
@@ -60,21 +125,32 @@ export class UserService {
 
     const plainUser = populatedUser?.toObject();
 
+    // Remove archived events from populated fields
+    this.filterArchivedEvents(plainUser);
+
     // Remove password
     const { password, ...userWithoutPassword } = plainUser!;
     return userWithoutPassword as Omit<IUser, "password">;
   }
 
-  async addEventToUser(
-    id: string,
-    eventId: Schema.Types.ObjectId
-  ): Promise<IUser> {
+  async getUserNotifications(id: string): Promise<INotification[]> {
+    const user = await this.userRepo.findById(id);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+
+    return user.notifications || [];
+  }
+  
+  async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
       throw createError(404, "User not found");
     }
 
-    user.registeredEvents?.push(eventId);
+    user.registeredEvents?.push(
+      eventId as unknown as mongoose.Schema.Types.ObjectId
+    );
     await user.save();
     return user;
   }
@@ -180,6 +256,7 @@ export class UserService {
       throw createError(400, "User is already blocked");
     }
     user.status = UserStatus.BLOCKED;
+    user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, true, "admin decision");
     await user.save();
   }
@@ -193,11 +270,12 @@ export class UserService {
       throw createError(400, "User is already Active");
     }
     user.status = UserStatus.ACTIVE;
+    user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, false, "admin decision");
     await user.save();
   }
 
-  async getAllUnAssignedStaffMembers(): Promise<IStaffMember[]> {
+  async getAllUnAssignedStaffMembers(): Promise<Omit<IStaffMember, "password">[]> {
     const staffMembers = await this.staffMemberRepo.findAll({
       position: StaffPosition.UNKNOWN,
     });
@@ -207,21 +285,71 @@ export class UserService {
   }
 
   async getAllTAs(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.TA,
-    });
+    const staffMembers = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.TA, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status myWorkshops",
+      }
+    );
 
     // Convert Mongoose documents to plain objects
     return staffMembers.map((staff) => staff.toObject());
   }
 
   async getAllStaff(): Promise<IStaffMember[]> {
-    const staffMembers = await this.staffMemberRepo.findAll({
-      position: StaffPosition.STAFF,
-    });
+    const staffMembers = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.STAFF, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status myWorkshops",
+      }
+    );
 
     // Convert Mongoose documents to plain objects
     return staffMembers.map((staff) => staff.toObject());
+  }
+
+  async getAllProfessors(): Promise<IStaffMember[]> {
+    const professors = await this.staffMemberRepo.findAll(
+      { position: StaffPosition.PROFESSOR, isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId position roleType status myWorkshops",
+      }
+    );
+
+    return professors.map((prof) => prof.toObject());
+  }
+
+  async getAllStudents(): Promise<IStudent[]> {
+    const students = await this.userRepo.findAll(
+      { role: "student", isVerified: true },
+      {
+        select:
+          "firstName lastName name email role gucId status registeredEvents walletBalance",
+      }
+    );
+
+    return students.map((student) => student.toObject());
+  }
+
+  async getAllAdmins(): Promise<IAdministration[]> {
+    const admins = await this.administrationRepo.findAll(
+      { role: "administration", isVerified: true },
+      { select: "firstName lastName name email role gucId roleType status" }
+    );
+
+    return admins.map((admin) => admin.toObject());
+  }
+
+  async getAllEventsOffice(): Promise<IAdministration[]> {
+    const eventsOffice = await this.administrationRepo.findAll(
+      { roleType: "eventsOffice", isVerified: true },
+      { select: "firstName lastName name email role gucId roleType status" }
+    );
+
+    return eventsOffice.map((admin) => admin.toObject());
   }
 
   async assignRoleAndSendVerification(
@@ -268,17 +396,6 @@ export class UserService {
       : user;
 
     return userWithoutPassword as Omit<IStaffMember, "password">;
-  }
-
-  async getAllProfessors(): Promise<Omit<IStaffMember, "password">[]> {
-    const professors = await this.staffMemberRepo.findAll(
-      { position: StaffPosition.PROFESSOR, isVerified: true },
-      {
-        select:
-          "firstName lastName name email role gucId position roleType status myWorkshops",
-      }
-    );
-    return professors.map((prof) => prof.toObject());
   }
 
   /**

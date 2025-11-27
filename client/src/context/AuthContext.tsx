@@ -66,8 +66,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [setUser]);
 
   // Avoid calling /auth/me on public routes
-  const publicRoutes = ["/login", "/register", "/signup", "/en"];
-  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+  // Note: usePathname from next-intl strips the locale prefix
+  const publicRoutes = ["/login", "/register", "/signup", "/"];
+  const isPublic = publicRoutes.some((route) => {
+    if (route === "/") return pathname === "/";
+    return pathname.startsWith(route);
+  });
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -81,7 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const response = await api.get<MeResponse>("/auth/me");
         if (response.data?.user) {
           setUser(response.data.user);
-          console.log("✅ User loaded:", user);
+          console.log("✅ User loaded:", response.data.user);
         } else {
           throw new Error("Invalid /auth/me response");
         }
@@ -92,7 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem("token");
         await api
           .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => {});
+          .catch(() => { });
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -157,13 +161,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = useCallback(async () => {
     localStorage.removeItem("token");
     setUser(null);
-    router.replace("/login");
+
+    // Check if we are on a public route
+    // If we are on a protected route, the ProtectedRoute component will handle the redirect
+    // preventing a double-redirect race condition.
+    const publicRoutesList = [
+      "/",
+      "/login",
+      "/register",
+      "/signup",
+      "/test-events",
+      "/support",
+    ];
+    const isCurrentPublic = publicRoutesList.some(
+      (route) =>
+        pathname === route ||
+        pathname.endsWith(route) ||
+        pathname.endsWith(route + "/")
+    );
+
+    if (isCurrentPublic) {
+      router.replace("/login");
+    }
+
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
     } catch (error) {
       console.error("Failed to clear refreshToken on server:", error);
     }
-  }, [router]);
+  }, [router, pathname]);
 
   return (
     <AuthContext.Provider

@@ -18,6 +18,9 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   createdDate: string;
+  registeredAt?: string; // ISO date string from backend
+  verifiedAt?: string; // ISO date string from backend
+  updatedAt?: string; // ISO date string from backend
 }
 
 export interface Applicant {

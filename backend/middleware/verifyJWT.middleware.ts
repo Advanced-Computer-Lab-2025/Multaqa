@@ -1,4 +1,4 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
@@ -19,19 +19,16 @@ export interface AuthenticatedRequest extends Request {
 
 export default function verifyJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   const header = req.headers["authorization"];
-  console.log ("Authorization Header", header);
   if (!header) {
     throw createError(401, "You are unauthorized for accessing this route, missing authorization header");
   }
 
   const token = header && header.split(" ")[1];
-  console.log ("Token", token);
   if (!token) {
     throw createError(401, "You are unauthorized for accessing this route, missing token");
   }
 
   const secret = process.env.ACCESS_TOKEN_SECRET;
-  console.log ("Secret", secret);
   if (!secret) {
     throw createError(
       500,

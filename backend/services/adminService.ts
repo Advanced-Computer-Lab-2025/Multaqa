@@ -4,7 +4,7 @@ import { CreateAdminRequest } from '../interfaces/authRequests.interface';
 import { UserRole, UserStatus } from '../constants/user.constants';
 import GenericRepository from '../repos/genericRepo';
 import { Administration } from '../schemas/stakeholder-schemas/administrationSchema';
-import createError from 'http-errors'; 
+import createError from 'http-errors';
 import { AdministrationRoleType } from '../constants/administration.constants';
 import { IUser } from '../interfaces/models/user.interface';
 import { User } from '../schemas/stakeholder-schemas/userSchema';
@@ -18,7 +18,7 @@ export class AdministrationService {
     this.userRepo = new GenericRepository<IUser>(User);
   }
 
-  async createAdminAccount(adminData: CreateAdminRequest): Promise< Omit<IAdministration, 'password'> > {
+  async createAdminAccount(adminData: CreateAdminRequest): Promise<Omit<IAdministration, 'password'>> {
     // Check if user already exists
     const existingUser = await this.userRepo.findOne({ email: adminData.email });
     if (existingUser) {
@@ -80,7 +80,7 @@ export class AdministrationService {
         select: 'name email roleType status registeredAt isVerified',
       }
     );
-    
+
     // Convert Mongoose documents to plain objects
     return admins.map(admin => admin.toObject());
   }

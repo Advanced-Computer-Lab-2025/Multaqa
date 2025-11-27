@@ -1,20 +1,21 @@
 import { IEvent } from "../interfaces/models/event.interface";
-import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
+import GenericRepository from "../repos/genericRepo";
 import createError from "http-errors";
 import { mapEventDataByType } from "../utils/mapEventDataByType";
 import { StaffMember } from "../schemas/stakeholder-schemas/staffMemberSchema";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import mongoose from "mongoose";
-import { Event_Request_Status } from "../constants/user.constants";
+import { Event_Request_Status, UserRole } from "../constants/user.constants";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
-import { EVENT_TYPES } from "../constants/events.constants";
-import cron from "node-cron";
 import { sendCertificateOfAttendanceEmail } from "./emailService";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { NotificationService } from "./notificationService";
+import { Notification } from "./notificationService";
+import { pdfGenerator } from "../utils/pdfGenerator";
 import { IUser } from "../interfaces/models/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
-import { CertificateService } from "./certificateService";
 
 export class WorkshopService {
   private eventRepo: GenericRepository<IEvent>;
@@ -30,22 +31,33 @@ export class WorkshopService {
   }
 
   async createWorkshop(data: any, professorid: any): Promise<IEvent> {
-    data.createdBy = professorid as mongoose.Schema.Types.ObjectId;
+    data.createdBy = professorid as unknown as mongoose.Schema.Types.ObjectId;
     data.approvalStatus = Event_Request_Status.PENDING;
     const mappedData = mapEventDataByType(data.type, data);
     const createdEvent = await this.workshopRepo.create(mappedData);
     const professor = await this.staffRepo.findById(professorid);
-    if (professor && professor.myWorkshops) {
-      const createdEventId = createdEvent._id;
-      professor.myWorkshops.push(
-        createdEventId as mongoose.Schema.Types.ObjectId
-      );
-      await professor.save();
-      console.log(createdEvent);
 
-      return createdEvent;
+    if (!professor || !professor.myWorkshops) {
+      throw createError(404, "Professor not found");
     }
-    throw createError(404, "Profe ssor not found");
+
+    const createdEventId = createdEvent._id;
+    professor.myWorkshops.push(
+      createdEventId as mongoose.Schema.Types.ObjectId
+    );
+    await professor.save();
+    console.log(createdEvent);
+
+    await NotificationService.sendNotification({
+      role: [UserRole.ADMINISTRATION],
+      adminRole: [AdministrationRoleType.EVENTS_OFFICE],
+      type: "WORKSHOP_REQUEST_SUBMITTED",
+      title: "New Workshop Request Submitted",
+      message: `Professor ${professor.firstName} ${professor.lastName} has submitted a new workshop request titled "${createdEvent.eventName}".`,
+      createdAt: new Date(),
+    } as Notification);
+
+    return createdEvent;
   }
 
   async updateWorkshop(
@@ -84,7 +96,7 @@ export class WorkshopService {
   }
 
   async updateWorkshopStatus(
-    professorId: string,
+    eventsOfficeId: string,
     workshopId: string,
     updateData: Partial<IWorkshop>
   ): Promise<IWorkshop> {
@@ -93,9 +105,9 @@ export class WorkshopService {
     const workshop = await this.workshopRepo.findById(workshopId);
     if (!workshop) throw createError(404, "Workshop not found");
 
-    if (workshop && professorId != workshop?.createdBy.toString()) {
-      throw createError(403, "Not authorized to update this workshop status");
-    }
+    // Get the events office user to retrieve their name
+    const eventsOffice = await this.userRepo.findById(eventsOfficeId);
+    if (!eventsOffice) throw createError(404, "Events Office user not found");
 
     // Check if workshop is already approved or rejected - these are irreversible
     if (
@@ -131,9 +143,15 @@ export class WorkshopService {
         );
       }
 
+      // Transform comments to replace commenter ID with events office name
+      const eventsOfficeName = (eventsOffice as any).name || "Events Office";
+      finalComments = comments.map((comment: any) => ({
+        ...comment,
+        commenter: eventsOfficeName, // Replace ID with name
+      }));
+
       // Comments provided = status becomes AWAITING_REVIEW (requesting edits)
       finalStatus = Event_Request_Status.AWAITING_REVIEW;
-      finalComments = comments;
     }
 
     const updatedWorkshop = await this.workshopRepo.update(workshopId, {
@@ -142,6 +160,14 @@ export class WorkshopService {
     });
 
     if (!updatedWorkshop) throw createError(404, "Workshop not found");
+
+    await NotificationService.sendNotification({
+      userId: workshop.createdBy, // Notify the professor
+      type: "WORKSHOP_STATUS_CHANGED",
+      title: "Workshop Request Status Updated",
+      message: `Your workshop request titled "${workshop.eventName}" has been updated to status: ${finalStatus}.`,
+      createdAt: new Date(),
+    } as Notification);
 
     return updatedWorkshop;
   }
@@ -200,17 +226,17 @@ export class WorkshopService {
   async sendCertificatesForWorkshop(workshopId: string): Promise<void> {
     const workshop = await this.workshopRepo.findById(workshopId);
     if (!workshop) {
-      throw new Error("Workshop not found");
+      throw createError(404, "Workshop not found");
     }
 
     if (workshop.certificatesSent) {
-      throw new Error("Certificates have already been sent for this workshop");
+      throw createError(409, "Certificates have already been sent for this workshop");
     }
 
     const now = new Date();
     const endTime = this.calculateWorkshopEndTime(workshop);
     if (now < endTime) {
-      throw new Error("Workshop has not ended yet");
+      throw createError(400, 'Workshop has not ended yet');
     }
 
     await this.sendCertificatesToAllAttendees(workshopId);
@@ -236,14 +262,14 @@ export class WorkshopService {
     // Send certificates to all attendees
     const promises = workshop.attendees.map(async (attendee: any) => {
       if (attendee) {
-        const certificateBuffer =
-          await CertificateService.generateCertificatePDF({
-            firstName: attendee.firstName,
-            lastName: attendee.lastName,
-            workshopName: workshop.eventName,
-            startDate: workshop.eventStartDate,
-            endDate: workshop.eventEndDate,
-          });
+        const certificateBuffer = await pdfGenerator.generateCertificatePDF({
+          firstName: attendee.firstName,
+          lastName: attendee.lastName,
+          workshopName: workshop.eventName,
+          startDate: workshop.eventStartDate,
+          endDate: workshop.eventEndDate
+        });
+    
 
         await sendCertificateOfAttendanceEmail(
           attendee.email,

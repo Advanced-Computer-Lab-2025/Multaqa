@@ -10,7 +10,7 @@ export class VerificationService {
   constructor() {
     this.userRepo = new GenericRepository<IUser>(User);
   }
-  
+
   generateVerificationToken(user: IUser): string {
     return jwt.sign({ id: user.id }, process.env.VERIFICATION_TOKEN_SECRET! as Secret, {
       expiresIn: process.env.VERIFICATION_TOKEN_EXPIRES
@@ -25,7 +25,7 @@ export class VerificationService {
 
       const payload = jwt.verify(token, process.env.VERIFICATION_TOKEN_SECRET) as JwtPayload;
       const user = await this.userRepo.findById(payload.id);
-      if (!user) 
+      if (!user)
         throw createError(404, "User not found");
 
       user.isVerified = true;

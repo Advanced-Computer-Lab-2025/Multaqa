@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import {useFormik, Formik} from 'formik';
+import { useFormik } from 'formik';
+import dayjs from 'dayjs';
 
-import { Grid, Typography , Box,  Collapse, IconButton} from '@mui/material';
+import { Grid, Typography, Box, Paper, List, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField } from '@mui/material';
 import { CustomSelectField, CustomTextField } from '../../shared/input-fields';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -9,14 +10,53 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import RichTextField from '../../shared/TextField/TextField';
 import theme from '@/themes/lightTheme';
-import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles,horizontalLayoutStyles,step1BoxStyles,step2BoxStyles,modalHeaderStyles,modalFormStyles} from '@/components/shared/styles';
-
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles, horizontalLayoutStyles, step1BoxStyles, step2BoxStyles, modalHeaderStyles, modalFormStyles } from '@/components/shared/styles';
 
 import { bazaarSchema } from "./schemas/bazaar";
 
-import {api} from "../../../api";
+import { api } from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
 import { toast } from 'react-toastify';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+
+// Create tertiaryInputStyles as a function that accepts color
+const createTertiaryInputStyles = (accentColor: string) => ({
+  '& .MuiInputLabel-root': {
+    color: theme.palette.grey[500],
+    '&.Mui-focused': { color: accentColor },
+  },
+  '& .MuiInputBase-input': {
+    color: '#000000',
+    '&::placeholder': {
+      color: theme.palette.grey[400],
+      opacity: 1,
+    },
+  },
+  '& .MuiInput-underline:before': {
+    borderBottomColor: theme.palette.grey[400],
+  },
+  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+    borderBottomColor: accentColor,
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: accentColor,
+  },
+});
+
+// Create contentPaperStyles as a function that accepts color
+const createContentPaperStyles = (accentColor: string) => ({
+  p: { xs: 1, md: 3 },
+  borderRadius: '32px',
+  background: theme.palette.background.paper,
+  border: `1.5px solid ${theme.palette.grey[300]}`,
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'auto',
+  boxShadow: `0 4px 24px 0 ${accentColor}14`,
+  transition: 'box-shadow 0.2s',
+});
 
 const initialValues = {
     bazaarName: '',
@@ -31,14 +71,30 @@ interface CreateBazaarProps {
     open:boolean;
     onClose: () => void;
     setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+    color: string;
  }
 
-const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
+const CreateBazaar = ({open, onClose, setRefresh, color}: CreateBazaarProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-    const handleCallApi = async (payload:any) => {    
+  // Use the color prop as accent color, fallback to theme if not provided
+  const accentColor = color || theme.palette.primary.main;
+
+  // Create styles with the accent color
+  const tertiaryInputStyles = createTertiaryInputStyles(accentColor);
+  const contentPaperStyles = createContentPaperStyles(accentColor);
+
+  // Updated Tab state for sections (2 tabs now)
+  const tabSections = [
+    { key: 'general', label: 'General Info', icon: <InfoOutlinedIcon /> },
+    { key: 'description', label: 'Description', icon: <DescriptionOutlinedIcon /> },
+  ];
+  const [activeTab, setActiveTab] = useState('general');
+
+
+  const handleCallApi = async (payload:any) => {    
     setLoading(true);
     setError(null);
     setResponse([]);
@@ -63,8 +119,48 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
         setLoading(false);
     }
     };
+    
+    // Updated function to check for errors across 2 tabs
+    const getFirstErrorTab = (errors: any): 'general' | 'description' | null => {
+        // Tab 1: General Info fields (Includes all details fields now)
+        const generalFields = ['bazaarName', 'location', 'startDate', 'endDate', 'registrationDeadline'];
+        
+        // Tab 2: Description field
+        const descriptionField = 'description';
+
+        // 1. Check General Info tab
+        for (const field of generalFields) {
+          if (errors[field]) {
+            return 'general';
+          }
+        }
+        
+        // 2. Check Description tab
+        if (errors[descriptionField]) {
+          return 'description';
+        }
+
+        return null;
+    };
 
   const onSubmit = async (values: any, actions: any) => {
+    // Manually run validation before proceeding
+    const validationErrors = await actions.validateForm();
+    
+    if (Object.keys(validationErrors).length > 0) {
+      const errorTab = getFirstErrorTab(validationErrors);
+      
+      if (errorTab) {
+        setActiveTab(errorTab);
+        toast.error("Please fill out all required fields.", {
+            position: "bottom-right",
+            autoClose: 3000,
+            theme: "colored",
+        });
+      }
+      return; // Stop submission if there are validation errors
+    }
+
     onClose();
     const startDateObj = values.startDate; // dayjs object
     const endDateObj = values.endDate;
@@ -85,13 +181,12 @@ const CreateBazaar = ({open, onClose, setRefresh}: CreateBazaarProps) => {
     handleCallApi(payload);
   };
 
-  const [infoOpen, setInfoOpen] = useState(true);
-  const [scheduleOpen, setScheduleOpen] = useState(false);
-
   const {handleSubmit, values,isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
     initialValues,
     validationSchema: bazaarSchema,
     onSubmit: onSubmit,
+    validateOnChange: true, 
+    validateOnBlur: true,
   });
 
 const handleDescriptionChange = (htmlContent: string) => {
@@ -100,245 +195,250 @@ const handleDescriptionChange = (htmlContent: string) => {
 
 const handleClose = () => {
 onClose();
+setActiveTab('general');
 };
 
   return (
-    <>
-     <CustomModalLayout open={open} onClose={onClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
-        <Box sx={{
-            ...wrapperContainerStyles,    
+    <CustomModalLayout open={open} borderColor={accentColor} title="Create Bazaar" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]">
+        {/* Outer Box matching CreateTrip's structure for consistent sizing */}
+        <Box sx={{ 
+          background: '#fff',
+          borderRadius: '32px',
+          p: 3,
+          height: '600px', // Fixed height for consistent modal size
+          display: 'flex',
+          flexDirection: 'column'
         }}>
-        <Typography sx={{...detailTitleStyles(theme),fontSize: '26px', fontWeight:[950], alignSelf: 'flex-start', paddingLeft:'26px'}}>
-        Create Bazaar
-        </Typography>  
-        <form onSubmit={handleSubmit}>
-            <Box 
-                sx={horizontalLayoutStyles(theme)}
-                >
-                    <Box sx={{...step1BoxStyles(theme)}}>
-                        <Box sx={modalHeaderStyles}>
-                            <Typography sx={detailTitleStyles(theme)}>
-                                General Information
-                            </Typography>      
-                        </Box>
-                        <Box sx={modalFormStyles}>
-                    <CustomTextField 
-                        name='bazaarName'
-                        id='bazaarName'
-                        label="Bazaar Name" 
-                        fullWidth 
-                        margin="normal" 
-                        placeholder='Enter Bazaar Name' 
-                        fieldType="text"
-                        value={values.bazaarName}
-                        onChange={handleChange}
-                        autoCapitalize='off'
-                        autoCapitalizeName={false}
-                    />
-                    { errors.bazaarName && touched.bazaarName ? <p style={{color:"#db3030"}}>{errors.bazaarName}</p> : <></>}
-                        <Box sx={{ mt: 3 }}>
-                            <RichTextField
-                                label="Description" 
-                                value={values.description}
-                                onChange={handleDescriptionChange}
-                                placeholder="Provide a short description of the trip"
-                            />
-                        </Box>
-                    { errors.description && touched.description ? <p style={{color:"#db3030"}}>{errors.description}</p> : <></>}
-                
-              </Box>
-            </Box>
+            
+            <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flex: 1, // Allows this container to grow and take all available space
+                    gap: 3,
+                    minHeight: 0, // Important for flex container with nested scrolling content
+                }}>
+                                             <Box
+                                               sx={{
+                                                 width: '220px', 
+                                                 flexShrink: 0,
+                                                 background: theme.palette.background.paper,
+                                                 borderRadius: '32px',
+                                                 border: `1.5px solid ${theme.palette.grey[300]}`,
+                                                 p: 2,
+                                                 display: 'flex',
+                                                 flexDirection: 'column',
+                                                 alignItems: 'flex-start',
+                                                 boxShadow: `0 4px 24px 0 ${accentColor}14`,
+                                                 transition: 'box-shadow 0.2s',
+                                                 height: 'fit-content', 
+                                                 alignSelf: 'flex-start', 
+                                               }}
+                                             >
+                                                 <List sx={{ width: '100%', height: '100%' }}>
+                                                     {tabSections.map((section) => (
+                                                         <ListItem key={section.key} disablePadding>
+                                                             <ListItemButton
+                                                                 selected={activeTab === section.key}
+                                                                 onClick={() => setActiveTab(section.key)}
+                                                                 sx={{
+                                                                     borderRadius: '24px',
+                                                                     mb: 1.5,
+                                                                     px: 2.5,
+                                                                     py: 1.5,
+                                                                     fontWeight: 600,
+                                                                     fontSize: '1.08rem',
+                                                                     background: activeTab === section.key ? `${accentColor}14` : 'transparent',
+                                                                     color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                                     boxShadow: activeTab === section.key ? `0 2px 8px 0 ${accentColor}20` : 'none',
+                                                                     transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                                     '&:hover': {
+                                                                         background: `${accentColor}0A`,
+                                                                         color: accentColor,
+                                                                     },
+                                                                 }}
+                                                             >
+                                                                 <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary,  '&:hover': {
+                                                                color: accentColor
+                                                              } }}>{section.icon}</ListItemIcon>
+                                                                 <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700}} />
+                                                             </ListItemButton>
+                                                         </ListItem>
+                                                     ))}
+                                                 </List>
+                                             </Box>
+                 
 
-            <Box sx={{...step2BoxStyles(theme)}}>
-                <Box sx={modalHeaderStyles}>
-                    <Typography sx={detailTitleStyles(theme)}>
-                        Bazaar Details
-                    </Typography>      
+                    {/* Section Content on the right - Takes remaining width and all available height */}
+                    <Box sx={{ 
+                      flex: 1, 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      minHeight: 0, 
+                      height: '100%', 
+                    }}>
+                        {/* General Info Tab (All fields except description) */}
+                        {activeTab === 'general' && (
+                            <Paper elevation={0} sx={contentPaperStyles}>
+                                <CustomTextField 
+                                    name='bazaarName'
+                                    id='bazaarName'
+                                    label="Bazaar Name" 
+                                    fullWidth 
+                                    placeholder='Enter Bazaar Name' 
+                                    fieldType="text"
+                                    value={values.bazaarName}
+                                    onChange={handleChange}
+                                    autoCapitalize='off'
+                                    autoCapitalizeName={false}
+                                    sx={{ mt: 1, mb: 2 }}
+                                />
+                                { errors.bazaarName && touched.bazaarName ? 
+                                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: -1.5, mb: 1 }}>{errors.bazaarName}</Typography> 
+                                : <></>}
+                                
+                                {/* Date/Time Pickers section */}
+                                <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}> 
+                                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DateTimePicker
+                                                name="startDate"
+                                                label="Start Date and Time"
+                                                slotProps={{
+                                                    textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                                                }}
+                                                value={values.startDate}
+                                                onChange={(value) => setFieldValue("startDate", value)}
+                                            />
+                                        </LocalizationProvider>
+                                        {errors.startDate && touched.startDate && (
+                                            <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.startDate}</Typography>
+                                        )}
+                                    </Box>
+                    
+                                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DateTimePicker
+                                                label="End Date and Time"
+                                                name="endDate"
+                                                slotProps={{
+                                                    textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                                                }}
+                                                value={values.endDate}
+                                                onChange={(value) => setFieldValue("endDate", value)}
+                                            />
+                                        </LocalizationProvider>
+                                        {errors.endDate && touched.endDate && (
+                                            <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.endDate}</Typography>
+                                        )}
+                                    </Box>
+                                </Box>
+                                
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker
+                                        name='registrationDeadline'
+                                        label="Deadline to Register"
+                                        slotProps={{
+                                            textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                                        }}
+                                        value={values.registrationDeadline}
+                                        onChange={(value) => setFieldValue('registrationDeadline', value)}
+                                    />
+                                    {errors.registrationDeadline && touched.registrationDeadline ? 
+                                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mb: 2 }}>{errors.registrationDeadline}</Typography> 
+                                    : <></>}
+                                </LocalizationProvider>
+
+                                <Box sx={{ display: "flex", flexDirection: "column", flex: 1, marginTop: "24px" }}>
+                                    <CustomSelectField
+                                      label="Location"
+                                      fieldType="single"
+                                      options={[
+                                        { label: "GUC Cairo", value: "GUC Cairo" },
+                                        { label: "GUC Berlin", value: "GUC Berlin" },
+                                      ]}
+                                      value={values.location}
+                                      onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} 
+                                      name="location"
+                                    />
+                                    {errors.location && touched.location && (
+                                        <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.location}</Typography>
+                                    )}
+                                </Box>
+                            </Paper>
+                        )}
+
+                         {/* Description Tab */}
+                                    {activeTab === 'description' && (
+                                      <Paper elevation={0} sx={contentPaperStyles}>
+                                        <TextField
+                                          name="description"
+                                          placeholder="Provide a short description of the trip"
+                                          value={values.description}
+                                          onChange={handleChange}
+                                          fullWidth
+                                          multiline
+                                          rows={16}
+                                          sx={{ 
+                                              flex: 1,
+                                              '& .MuiOutlinedInput-root': {
+                                                  height: '100%',
+                                                  alignItems: 'flex-start',
+                                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                      borderColor: accentColor,
+                                                  },
+                                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                      borderColor: accentColor,
+                                                      borderWidth: '2px',
+                                                  },
+                                              },
+                                              '& .MuiOutlinedInput-notchedOutline': {
+                                                  borderRadius: '16px',
+                                                  borderColor: theme.palette.grey[300],
+                                              },
+                                              '& .MuiInputBase-input': {
+                                                  height: '100% !important',
+                                                  overflow: 'auto !important',
+                                              }
+                                          }}
+                                        />
+                                        {errors.description && touched.description && (
+                                          <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 1 }}>
+                                            {errors.description}
+                                          </Typography>
+                                        )}
+                                      </Paper>
+                                    )}
+                      
+                        {/* Submit Button */}
+                        <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                            <CustomButton 
+                              disabled={isSubmitting } 
+                              label={isSubmitting ? "Submitting" : 'Create'} 
+                              variant='contained' 
+                              color='tertiary' 
+                              type='submit' 
+                              sx={{ 
+                                px: 3, 
+                                width: "180px", 
+                                height: "40px", 
+                                fontWeight: 700, 
+                                fontSize: "16px", 
+                                borderRadius: '20px', 
+                                boxShadow: `0 2px 8px 0 ${accentColor}20`,
+                                background: accentColor,
+                                '&:hover': {
+                                  background: `${accentColor}E6`,
+                                }
+                              }}
+                            />
+                        </Box>
+                    </Box>
                 </Box>
-                <Box sx={modalFormStyles}>
-                        <Box sx={{ display: "flex", gap: 1, marginTop: "12px", marginBottom: "12px" }}>
-                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
-                        name="startDate"
-                        label="Start Date and Time"
-                        slotProps={{
-                        textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                            InputLabelProps: {
-                            sx: {
-                                color: theme.palette.grey[500],
-                                '&.Mui-focused': {
-                                color: theme.palette.tertiary.main,
-                                },
-                            },
-                            },
-                            sx: {
-                            // Input text color
-                            color: theme.palette.tertiary.main,
-                            // Underline (before focus)
-                            '& .MuiInput-underline:before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (on hover)
-                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (after focus)
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            },
-                        },
-                        popper: {
-                            disablePortal: true,
-                            placement: "right",
-                            sx: {
-                            zIndex: 1500,
-                            },
-                        },
-                        }}
-                        value={values.startDate}
-                        onChange={(value) => setFieldValue("startDate", value)}
-                    />
-                    </LocalizationProvider>
-                            {errors.startDate && touched.startDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.startDate}</p>
-                            )}
-                        </Box>
-        
-                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                                label="End Date and Time"
-                                name="endDate"
-                                slotProps={{
-                        textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                            InputLabelProps: {
-                            sx: {
-                                color: theme.palette.grey[500],
-                                '&.Mui-focused': {
-                                color: theme.palette.tertiary.main,
-                                },
-                            },
-                            },
-                            sx: {
-                            // Input text color
-                            color: theme.palette.tertiary.main,
-                            // Underline (before focus)
-                            '& .MuiInput-underline:before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (on hover)
-                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (after focus)
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            },
-                        },
-                                    popper: {
-                                    disablePortal: true,
-                                    placement: "right",
-                                    sx: {
-                                    zIndex: 1500,
-                                    },
-                                },
-                                }}
-                                value={values.endDate}
-                                onChange={(value) => setFieldValue("endDate", value)}
-                            />
-                            </LocalizationProvider>
-                            {errors.endDate && touched.endDate && (
-                            <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.endDate}</p>
-                            )}
-                        </Box>
-                        </Box>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DateTimePicker
-                            name='registrationDeadline'
-                            label="Deadline to Register"
-                            slotProps={{
-                            textField: {
-                            variant: "standard",
-                            fullWidth: true,
-                            InputLabelProps: {
-                            sx: {
-                                color: theme.palette.grey[500],
-                                '&.Mui-focused': {
-                                color: theme.palette.tertiary.main,
-                                },
-                            },
-                            },
-                            sx: {
-                            // Input text color
-                            color: theme.palette.tertiary.main,
-                            // Underline (before focus)
-                            '& .MuiInput-underline:before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (on hover)
-                            '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            // Underline (after focus)
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: theme.palette.tertiary.main,
-                            },
-                            },
-                        },
-                                    popper: {
-                                    disablePortal: true,
-                                    placement: "right",
-                                    sx: {
-                                    zIndex: 1500,
-                                    },
-                                },
-                                }}
-                                value={values.registrationDeadline}
-                                onChange={(value) => setFieldValue('registrationDeadline', value)}
-                            />
-                            {errors.registrationDeadline && touched.registrationDeadline ? <p style={{color:"#db3030"}}>{errors.registrationDeadline}</p> : <></>}
-                    </LocalizationProvider>
-  <Box sx={{ display: "flex", flexDirection: "column", flex: 1, marginTop: "24px" }}>
-    <CustomSelectField
-      label="Location"
-      fieldType="single"
-      options={[
-        { label: "GUC Cairo", value: "GUC Cairo" },
-        { label: "GUC Berlin", value: "GUC Berlin" },
-      ]}
-      value={values.location}
-      onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} name={""}
-    />
-    {errors.location && touched.location && (
-      <p style={{ color: "#db3030", marginTop: "4px" }}>{errors.location}</p>
-    )}
-  </Box>
-            </Box>
-            </Box>
-            </Box>
-        <Box sx={modalFooterStyles}> 
-        
-            <CustomButton label="Cancel" variant="outlined" color="primary" onClick={handleClose} disabled={isSubmitting} sx={{ width: "150px", height: "32px", }} />
-            <CustomButton disabled={isSubmitting } label={isSubmitting ? "submitting" : 'Create'} variant='contained' color='tertiary' fullWidth  type='submit' sx={{px: 1.5, width:"150px", height:"32px" ,fontWeight: 600, padding:"12px", fontSize:"14px"}}/>
+            </form>
         </Box>
-        </form>
-        </Box>
-        </CustomModalLayout>
-    </>
+    </CustomModalLayout>
   )
 }
 
-export default CreateBazaar
-
-
-
-
-
-
+export default CreateBazaar;

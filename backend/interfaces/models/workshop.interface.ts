@@ -11,7 +11,8 @@ export interface IWorkshop extends IEvent {
   extraRequiredResources?: string[];
   capacity?: number;
   comments?: Array<{
-    commenter: string; // ObjectId as string
+    id: number;
+    commenter: string; // Events Office name as string
     timestamp: Date;
     text: string;
   }>;

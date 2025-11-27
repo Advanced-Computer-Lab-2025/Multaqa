@@ -3,7 +3,7 @@ import { UserService } from "../services/userService";
 import createError from "http-errors";
 import { EventsService } from "../services/eventService";
 import { validateEventRegistration } from "../validation/validateEventRegistration";
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import {
   GetAllUsersResponse,
   GetUserByIdResponse,
@@ -67,6 +67,27 @@ async function getUserById(req: Request, res: Response<GetUserByIdResponse>) {
   }
 }
 
+async function getUserNotifications(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw createError(401, "Unauthorized: missing user in token");
+    }
+
+    const notifications = await userService.getUserNotifications(userId);
+    res.json({
+      success: true,
+      data: notifications,
+      message: "Notifications retrieved successfully",
+    });
+  } catch (err: any) {
+    throw createError(
+      err.status || 500,
+      err.message || "Error retrieving notifications"
+    );
+  }
+}
+
 // this will come back in sprint 2 guys (Stripe API)
 async function registerForEvent(
   req: AuthenticatedRequest,
@@ -91,9 +112,11 @@ async function registerForEvent(
       userId
     );
 
+    // TODO: Remove this after testing
     await userService.addEventToUser(
       userId,
-      updatedEvent._id as Schema.Types.ObjectId
+      // updatedEvent._id
+      updatedEvent._id as mongoose.Types.ObjectId
     );
 
     res.json({
@@ -390,6 +413,25 @@ router.get(
 );
 
 router.get(
+  "/notifications",
+  authorizeRoles({
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+      UserRole.VENDOR,
+    ],
+    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
+  }),
+  getUserNotifications
+);
+
+router.get(
   "/favorites",
   authorizeRoles({
     userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
@@ -434,9 +476,18 @@ router.get(
 router.get(
   "/professors",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION, UserRole.STAFF_MEMBER],
+    userRoles: [
+      UserRole.ADMINISTRATION,
+      UserRole.STAFF_MEMBER,
+      UserRole.STUDENT,
+      UserRole.VENDOR,
+    ],
     adminRoles: [AdministrationRoleType.ADMIN],
-    staffPositions: [StaffPosition.PROFESSOR],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
   }),
   getAllProfessors
 );

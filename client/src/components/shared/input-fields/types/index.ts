@@ -148,6 +148,9 @@ export interface CustomSelectFieldV2Props {
   // Neumorphic styling props
   neumorphicBox?: boolean;
   disableDynamicMorphing?: boolean;
+
+  // Positioning props
+  usePortalPositioning?: boolean; // Use portal-based positioning (old behavior) - default: false
 }
 
 export interface SelectFieldV2StyleProps {

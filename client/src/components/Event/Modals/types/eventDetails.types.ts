@@ -31,6 +31,12 @@ export interface WorkshopDetails extends BaseEventDetails {
   budget:string,
   professors:string[];
 }
+export interface VendorLogo {
+  url: string;
+  publicId: string;
+  originalName: string;
+  uploadedAt: string; // Typically an ISO 8601 string
+}
 
 interface Vendor {
   companyName: string;
@@ -38,7 +44,7 @@ interface Vendor {
   id?: string;
   _id?: string;
   role?: string;
-  logo?: string;
+  logo?: VendorLogo;
 }
 
 export interface BazaarDetails extends BaseEventDetails {
@@ -50,6 +56,8 @@ export interface BazaarDetails extends BaseEventDetails {
   location: string;
   vendors: Vendor[];
   vendorCount: string;
+  userRole?: string;
+  eventId: string;
 }
 
 export interface BoothDetails extends BaseEventDetails {
@@ -57,6 +65,8 @@ export interface BoothDetails extends BaseEventDetails {
   boothSize: string;
   location: string;
   people: { name: string; email: string }[] 
+  userRole?: string;
+  eventId: string;
 }
 
 export interface TripDetails extends BaseEventDetails {

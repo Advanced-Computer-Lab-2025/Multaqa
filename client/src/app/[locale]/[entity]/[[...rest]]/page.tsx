@@ -12,6 +12,7 @@ import ManageEventOfficeAccountContent from "@/components/admin/ManageEventOffic
 import AllUsersContent from "@/components/admin/AllUsersContent";
 import BlockUnblockUsersContent from "@/components/admin/BlockUnblockUsersContent";
 import BrowseEventsContent from "@/components/BrowseEvents/browse-events";
+import FavoritesList from "@/components/BrowseEvents/FavoritesList";
 import CourtsBookingContent from "@/components/CourtBooking/CourtsBookingContent";
 import VendorRequestsList from "@/components/vendor/Participation/VendorRequestsList";
 import VendorUpcomingParticipation from "@/components/vendor/Participation/VendorUpcomingParticipation";
@@ -28,6 +29,7 @@ import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
+import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,11 +60,18 @@ const getUserEntitySegment = (user: any): string => {
   return "student"; // ultimate fallback
 };
 
-const SignedOutFallback = ({
-  onGoToLogin,
-}: {
-  onGoToLogin: () => void;
-}) => {
+const getEventsOfficeName = (user: any): string => {
+  if (!user) return "";
+
+  if (user.role === "administration") {
+    if (user.roleType === "eventsOffice") return String(user?.name);
+  }
+
+  return ""; // ultimate fallback
+};
+
+
+const SignedOutFallback = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
   const [showAction, setShowAction] = useState(false);
 
   useEffect(() => {
@@ -84,10 +93,12 @@ const SignedOutFallback = ({
           />
         </div>
 
-        <h1 className="text-2xl font-semibold text-gray-900">Redirecting to sign in</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Redirecting to sign in
+        </h1>
         <p className="mt-3 text-sm text-gray-600">
-          We safely closed your session. Hang tight while we guide you back to the
-          login screen.
+          We safely closed your session. Hang tight while we guide you back to
+          the login screen.
         </p>
 
         <CustomButton
@@ -131,13 +142,16 @@ export default function EntityCatchAllPage() {
   const pathname = usePathname() || "";
   const router = useRouter();
   const entityFromUrl = params.entity ?? "";
-  const segments = pathname.split("/").filter(Boolean);
-  const tab = segments[1] || "";
-  const section = segments[2] || "";
+  // Use params.rest for tab and section instead of parsing pathname manually
+  const restSegments = params.rest || [];
+  const tab = restSegments[0] || "";
+  const section = restSegments[1] || "";
+
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
   const { user, isLoading } = useAuth();
   const userId = String(user?._id);
+  let eventOfficeName = getEventsOfficeName(user);
   const [countdown, setCountdown] = useState(3);
   // Track if login redirect should be shown
   const showLoginRedirect = !user && !isLoading;
@@ -163,7 +177,7 @@ export default function EntityCatchAllPage() {
     vendor: { tab: "opportunities", section: "bazaars" },
     staff: { tab: "events", section: "browse-events" },
     ta: { tab: "events", section: "browse-events" },
-    professor: { tab: "workshops", section: "my-workshops" },
+    professor: { tab: "workshops", section: "overview" },
     "events-office": { tab: "events", section: "all-events" },
     admin: { tab: "users", section: "all-users" },
   };
@@ -192,11 +206,13 @@ export default function EntityCatchAllPage() {
     if (user.role === "student") roleKey = "student";
     else if (user.role === "vendor") roleKey = "vendor";
     else if (user.role === "staffMember") {
-      if ("position" in user && user.position === "professor") roleKey = "professor";
+      if ("position" in user && user.position === "professor")
+        roleKey = "professor";
       else if ("position" in user && user.position === "TA") roleKey = "ta";
       else roleKey = "staff";
     } else if (user.role === "administration") {
-      if ("roleType" in user && user.roleType === "eventsOffice") roleKey = "events-office";
+      if ("roleType" in user && user.roleType === "eventsOffice")
+        roleKey = "events-office";
       else roleKey = "admin";
     }
     return roleMap[roleKey] || roleMap["student"];
@@ -206,9 +222,11 @@ export default function EntityCatchAllPage() {
   useEffect(() => {
     if (showLoginRedirect) {
       // If route is invalid for public user, redirect to last valid public route
-      const lastValidPublicRoute = sessionStorage.getItem("lastValidPublicRoute") || "/";
+      const lastValidPublicRoute =
+        sessionStorage.getItem("lastValidPublicRoute") || "/";
       // If current route is not valid (e.g., too many segments, or not a known public route)
-      if (segments.length > 3 || pathname.match(/\/404|\/error/)) {
+      // Check rest segments length instead of pathname segments
+      if (restSegments.length > 2 || pathname.match(/\/404|\/error/)) {
         router.replace(lastValidPublicRoute);
         return;
       }
@@ -229,7 +247,7 @@ export default function EntityCatchAllPage() {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [showLoginRedirect, countdown, router, pathname, segments]);
+  }, [showLoginRedirect, countdown, router, pathname, restSegments]);
 
   // Route validation and redirect effect
   useEffect(() => {
@@ -241,11 +259,19 @@ export default function EntityCatchAllPage() {
         router.replace(newPath);
         return;
       }
+
       // If too many segments (e.g., /en/professor/workshops/my-workshops/asd)
-      if (segments.length > 3) {
+      // Check rest segments length > 2 (tab + section)
+      // BUT exclude notifications tab which can have notifications/id (length 2)
+      // Actually notifications/id is length 2, so it's fine.
+      // But if notifications/id/extra -> length 3 -> redirect.
+      // So restSegments.length > 2 is the correct check for most cases.
+
+      if (restSegments.length > 2) {
         setRedirecting(true);
         // Only keep up to /locale/entity/tab/section
-        const validBase = `/${segments[0]}/${segments[1]}/${segments[2]}`;
+        // Construct valid base using entity and first 2 rest segments
+        const validBase = `/${correctEntitySegment}/${restSegments[0]}/${restSegments[1]}`;
         router.replace(validBase);
         return;
       }
@@ -254,7 +280,7 @@ export default function EntityCatchAllPage() {
       setRedirecting(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, segments]);
+  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, restSegments]);
 
   // Show loading state for initial load only
   if (isLoading) {
@@ -358,9 +384,12 @@ export default function EntityCatchAllPage() {
       }
     }
 
-    if(["student", "staff", "ta", "professor"].includes(entity) && tab === "wallet"){
-      if(section === "overview" || section === ""){
-        return<Wallet  userID={userId} userInfo={user}/>;
+    if (
+      ["student", "staff", "ta", "professor"].includes(entity) &&
+      tab === "wallet"
+    ) {
+      if (section === "overview" || section === "") {
+        return <Wallet userID={userId} userInfo={user} />;
       }
     }
 
@@ -501,63 +530,20 @@ export default function EntityCatchAllPage() {
     }
 
     if (tab === "workshop-requests") {
-      if (section === "all-requests") {
-        return Evaluating && specificWorkshop ? (
-          <WorkshopDetails
-            workshop={specificWorkshop}
-            setEvaluating={setEvaluating}
-            eventsOfficeId={userId}
-          />
-        ) : (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={true}
-            filter="none"
-          />
-        );
-      }
-      if (section === "pending") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="pending"
-          />
-        );
-      } else if (section === "accepted") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="approved"
-          />
-        );
-      } else if (section === "rejected") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="rejected"
-          />
-        );
-      } else if (section === "awating_review") {
-        console.log(section);
-        return (
-          <WorkshopRequests
-            setEvaluating={setEvaluating}
-            setSpecificWorkshop={setSpecificWorkshop!}
-            evaluate={false}
-            filter="awaiting_review"
-          />
-        );
-      }
+      return Evaluating && specificWorkshop ? (
+        <WorkshopDetails
+          workshop={specificWorkshop}
+          setEvaluating={setEvaluating}
+          eventsOfficeId={eventOfficeName}
+        />
+      ) : (
+        <WorkshopRequests
+          setEvaluating={setEvaluating}
+          setSpecificWorkshop={setSpecificWorkshop!}
+          evaluate={true}
+          filter="none"
+        />
+      );
     }
 
     // Events Office - Gym Management
@@ -586,6 +572,9 @@ export default function EntityCatchAllPage() {
           />
         );
       }
+      if (section === "favorites") {
+        return <FavoritesList userInfo={user} user={entity} />;
+      }
       if (section === "all-events") {
         return (
           <BrowseEventsContent
@@ -611,34 +600,15 @@ export default function EntityCatchAllPage() {
     }
 
     if (entity === "professor" && tab === "workshops") {
-      if (section === "my-workshops") {
-        return <WorkshopList userId={userId} filter={"none"} userInfo={user} />;
-      }
-      if (section === "my-accepted-workshops") {
-        return (
-          <WorkshopList userId={userId} filter={"approved"} userInfo={user} />
-        );
-      }
-      if (section === "my-rejected-workshops") {
-        return (
-          <WorkshopList userId={userId} filter={"rejected"} userInfo={user} />
-        );
-      }
-      if (section === "my-under-workshops") {
-        return (
-          <WorkshopList
-            userId={userId}
-            filter={"awaiting_review"}
-            userInfo={user}
-          />
-        );
-      }
-      if (section === "my-pending-workshops") {
-        return (
-          <WorkshopList userId={userId} filter={"pending"} userInfo={user} />
-        );
-      }
+      return <WorkshopList userId={userId} filter={"none"} userInfo={user} />;
     }
+
+    // Notifications - Available for all entities
+    if (tab === "notifications") {
+      console.log("✅ Notifications tab accessed for entity:", entity);
+      return <NotificationsPageContent />;
+    }
+
     // Default placeholder content
     return (
       <div className="p-6 bg-white">
@@ -679,15 +649,17 @@ export default function EntityCatchAllPage() {
   };
 
   return (
-    <ScaledViewport scale={0.95}>
+    <ScaledViewport scale={1}>
       <EntityNavigation user={user}>{renderContent()}</EntityNavigation>
       {redirecting && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 99999,
-          pointerEvents: "none",
-        }}>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 99999,
+            pointerEvents: "none",
+          }}
+        >
           {/* Use AnimatedLoading for overlay */}
           <AnimatedLoading />
         </div>

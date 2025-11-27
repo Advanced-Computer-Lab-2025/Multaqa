@@ -1,10 +1,14 @@
 import React from 'react';
-import { Box, Typography, Grid as MuiGrid, Chip, CardContent, Avatar } from '@mui/material';
+import { Box, Typography, Grid as MuiGrid, Chip, CardContent, Avatar, Divider, Tooltip, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Clock, Group, Mail } from 'lucide-react';
 import { BazaarDetails as BazaarDetailsType } from '../types/eventDetails.types';
 import { SectionTitle, IconWrapper } from './shared/StyledComponents';
 import { CalendarToday, EventAvailable, AccessTime, LocationOn, AttachMoney, Person } from '@mui/icons-material';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import CustomButton from '@/components/shared/Buttons/CustomButton';
+import { useState } from 'react';
+import { handleGenerateQR } from '../utils/index';
 
 const Grid = styled(MuiGrid)``;
 
@@ -17,8 +21,12 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
   endTime,
   location,
   vendors,
+  userRole,
+  eventId
 }) => {
   console.log(vendors);
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const detailItems = [
       {
         icon: <CalendarToday color="primary" />,
@@ -116,94 +124,129 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
             </Grid>
           ))}
           
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid size={{ xs:12 , md:12}}>
+          {/* Participating Vendors Section - Full Width */}
+          {vendors?.filter(vendor => vendor !== null).length > 0 && (
+            <Grid size={{ xs:12 }}>
+              <Paper 
+                elevation={2}
+                sx={{ 
+                  p: 3, 
+                  borderRadius: 3,
+                  border: `2px solid ${color}`,
+                  borderColor: 'divider'
+                }}
+              >
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'space-between',
-                  mb: 2
+                  mb: 3
                 }}>
-                 {(vendors.filter(vendor => vendor !== null).length>0)&&<Typography variant="h6" sx={{ 
+                  <Typography variant="h6" sx={{ 
                     color: 'text.primary', 
                     fontWeight: 600
                   }}>
                     Participating Vendors
                   </Typography>
-                  }
-                  {vendors?.filter(vendor => vendor !== null).length > 0 && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Chip 
                       icon={<Person />}
                       label={`${vendors.filter(vendor => vendor !== null).length} Vendor${vendors.filter(vendor => vendor !== null).length !== 1 ? 's' : ''}`}
                       color="primary"
                       variant="outlined"
-                      sx={{ fontWeight: 'medium' }}
+                      sx={{ fontWeight: 'medium', height: 35 }}
                     />
-                  )}
+                    {userRole === "events-office" && (
+                      <Tooltip title="Generate QR code and email it to participating vendors" arrow>
+                        <span>
+                          <CustomButton
+                            onClick={() => handleGenerateQR(setIsGenerating, eventId)}
+                            variant="outlined"
+                            width="auto"
+                            startIcon={<QrCode2Icon/>}
+                            loading={isGenerating}
+                            disabled={isGenerating}
+                            sx={{paddingLeft:2, paddingRight:2}}
+                          >
+                            {isGenerating ? "Emailing QR Code..." : "Generate QR Code"}
+                          </CustomButton>
+                        </span>
+                      </Tooltip>
+                    )}
+                  </Box>
                 </Box>
-              </Grid>
-              
-              {vendors?.filter(vendor => vendor !== null).map((vendor, index) => (
-                <Grid size={{ xs:12, md:6, sm:6 }} key={index}>
-                  <Box 
-                    sx={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      p: 2,
-                      borderRadius: 2,
-                      bgcolor: 'white',
-                      boxShadow: 1,
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: 2,
-                        bgcolor: 'primary.50'
-                      }
-                    }}
-                  >
-                    <Avatar 
-                      sx={{ 
-                        mr: 2,
-                        bgcolor: stringToColor(vendor.companyName),
-                        width: 50,
-                        height: 50,
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {vendor.companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
-                    </Avatar>
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography 
-                        variant="subtitle1" 
-                        fontWeight="medium"
+
+                <Divider sx={{ mb: 3 }} />
+
+                <Grid container spacing={2}>
+                  {vendors?.filter(vendor => vendor !== null).map((vendor, index) => (
+                    <Grid size={{ xs:12, md:6, sm:6 }} key={index}>
+                      <Box 
                         sx={{ 
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          display: 'flex',
+                          alignItems: 'center',
+                          p: 2,
+                          borderRadius: 2,
+                          bgcolor: 'white',
+                          boxShadow: 1,
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: 2,
+                            bgcolor: 'primary.50'
+                          }
                         }}
                       >
-                        {vendor.companyName}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                        <Mail size={14} color="#666" style={{ marginRight: 4 }} />
-                        <Typography 
-                          variant="body2" 
-                          color="text.secondary"
+                        <Avatar 
+                          src={vendor.logo?.url || undefined} 
                           sx={{ 
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            mr: 2,
+                            bgcolor: vendor.logo?.url ? 'transparent' : stringToColor(vendor.companyName),
+                            width: 50,
+                            height: 50,
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            '& img': {
+                              objectFit: 'contain', 
+                            }
                           }}
                         >
-                          {vendor.email}
-                        </Typography>
+                          {!vendor.logo?.url && vendor.companyName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        </Avatar>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography 
+                            variant="subtitle1" 
+                            fontWeight="medium"
+                            sx={{ 
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {vendor.companyName}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                            <Mail size={14} color="#666" style={{ marginRight: 4 }} />
+                            <Typography 
+                              variant="body2" 
+                              color="text.secondary"
+                              sx={{ 
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {vendor.email}
+                            </Typography>
+                          </Box>
+                        </Box>
                       </Box>
-                    </Box>
-                  </Box>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
+              </Paper>
             </Grid>
+          )}
 
         </Grid>
       </CardContent>

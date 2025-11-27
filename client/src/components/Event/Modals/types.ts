@@ -7,8 +7,16 @@ export interface Review {
   comment: string;
   createdAt: string;
 }
+type Attendee = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  _id: string;
+};
 
-export type EventSection = 'general' | 'details' | 'reviews'|'agenda';
+type AttendeesArray = Attendee[];
+
+export type EventSection = 'general' | 'details' | 'reviews' | 'agenda' | 'attendees';
 
 export interface EventDetailsProps {
   color: string;
@@ -24,7 +32,10 @@ export interface EventDetailsProps {
   user:string;
   attended?:boolean;
   eventId: string; // Required for backend API calls
-  userId:string;
+  userId?:string;
+  createdBy?:string;
+  attendees:AttendeesArray;
+  onParentClose?: () => void;
 }
 
 // Mock data for reviews
