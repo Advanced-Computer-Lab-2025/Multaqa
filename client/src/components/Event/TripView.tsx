@@ -37,6 +37,7 @@ const TripView: React.FC<BazarViewProps> = ({
   registrationPassed,
   archived,
   registrationDeadline,
+  upcoming,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<boolean>(false);
@@ -47,21 +48,22 @@ const TripView: React.FC<BazarViewProps> = ({
   const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
-  const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
-    const fid = f?._id?.$oid || f?._id || f;
-    return String(fid) === String(id);
-  }));
-
+  const isFavorited = Boolean(
+    userInfo?.favorites?.some((f: any) => {
+      const fid = f?._id?.$oid || f?._id || f;
+      return String(fid) === String(id);
+    })
+  );
 
   const handlePaymentSuccess = (paymentDetails: any) => {
-    console.log('Payment successful:', paymentDetails);
+    console.log("Payment successful:", paymentDetails);
     setPaymentDrawerOpen(false);
   };
 
-
   const startDate = new Date(details["Start Date"]);
   const now = new Date();
-  const isRefundable = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
+  const isRefundable =
+    (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
 
   const finalPrice = parseInt(details["Cost"], 10); // base 10
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
@@ -82,7 +84,8 @@ const TripView: React.FC<BazarViewProps> = ({
   return (
     <>
       <EventCard
-        eventId={id} isFavorite={isFavorited}
+        eventId={id}
+        isFavorite={isFavorited}
         title={name}
         startDate={details["Start Date"]}
         endDate={details["End Date"]}
@@ -91,8 +94,9 @@ const TripView: React.FC<BazarViewProps> = ({
         color={background}
         leftIcon={<IconComponent />}
         eventType={"Trip"}
-        spotsLeft={details['Spots Left']}
+        spotsLeft={details["Spots Left"]}
         totalSpots={details["Capacity"]}
+        upcoming={upcoming}
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={
           user === "admin" ? (
@@ -102,8 +106,8 @@ const TripView: React.FC<BazarViewProps> = ({
                 onClick={handleOpenDeleteModal}
                 sx={{
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  border: '1px solid',
-                  borderColor: 'divider',
+                  border: "1px solid",
+                  borderColor: "divider",
                   borderRadius: 2,
                   "&:hover": {
                     backgroundColor: "rgba(255, 0, 0, 0.1)",
@@ -115,17 +119,57 @@ const TripView: React.FC<BazarViewProps> = ({
                 <Trash2 size={18} />
               </IconButton>
             </Tooltip>
-          ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background} /> : null)
+          ) : user === "events-office" || user === "events-only" ? (
+            <Utilities
+              archived={archived}
+              onRestrict={() => setRestrictUsers(true)}
+              onArchive={() => setArchive(true)}
+              onEdit={() => setEdit(true)}
+              onDelete={handleOpenDeleteModal}
+              event={"Trip"}
+              color={background}
+            />
+          ) : null
         }
         registerButton={
-          (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-            !(datePassed || attended) && (
-              <>
-                {registered || isRegisteredEvent ? (
-                  // User is registered - show cancel button
+          (user == "staff" ||
+            user == "student" ||
+            user == "ta" ||
+            user == "professor") &&
+          !(datePassed || attended) && (
+            <>
+              {registered || isRegisteredEvent ? (
+                // User is registered - show cancel button
+                <CustomButton
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 999,
+                    backgroundColor: `${background}40`,
+                    color: background,
+                    borderColor: background,
+                    fontWeight: 600,
+                    px: 3,
+                    textTransform: "none",
+                    boxShadow: `0 4px 14px ${background}40`,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: `${background}50`,
+                      transform: "translateY(-2px)",
+                      boxShadow: `0 6px 20px ${background}50`,
+                    },
+                    width: "fit-content",
+                  }}
+                  onClick={() => setCancelRegisteration(true)}
+                >
+                  Cancel Registration
+                </CustomButton>
+              ) : (
+                // User is not registered - show register button
+                !registrationPassed && (
                   <CustomButton
                     size="small"
-                    variant="outlined"
+                    variant="contained"
                     sx={{
                       borderRadius: 999,
                       backgroundColor: `${background}40`,
@@ -141,45 +185,22 @@ const TripView: React.FC<BazarViewProps> = ({
                         transform: "translateY(-2px)",
                         boxShadow: `0 6px 20px ${background}50`,
                       },
-                      width: 'fit-content'
                     }}
-                    onClick={() => setCancelRegisteration(true)}
+                    onClick={() => setRegister(true)}
                   >
-                    Cancel Registration
+                    Register
                   </CustomButton>
-                ) : (
-                  // User is not registered - show register button
-                  !(registrationPassed) && (
-                    <CustomButton
-                      size="small"
-                      variant="contained"
-                      sx={{
-                        borderRadius: 999,
-                        backgroundColor: `${background}40`,
-                        color: background,
-                        borderColor: background,
-                        fontWeight: 600,
-                        px: 3,
-                        textTransform: "none",
-                        boxShadow: `0 4px 14px ${background}40`,
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          backgroundColor: `${background}50`,
-                          transform: "translateY(-2px)",
-                          boxShadow: `0 6px 20px ${background}50`,
-                        },
-                      }}
-                      onClick={() => setRegister(true)}
-                    >
-                      Register
-                    </CustomButton>
-                  )
-                )}
-              </>
-            )
+                )
+              )}
+            </>
           )
         }
-        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]} />
+        expanded={expanded}
+        attended={attended}
+        archived={archived}
+        location={details["Location"]}
+        cost={details["Cost"]}
+      />
 
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal
@@ -224,8 +245,9 @@ const TripView: React.FC<BazarViewProps> = ({
           >
             {details["Start Date"] === details["End Date"]
               ? details["Start Date"] || "TBD"
-              : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"
-              }`}
+              : `${details["Start Date"] || "TBD"} - ${
+                  details["End Date"] || "TBD"
+                }`}
           </Typography>
 
           <Typography
@@ -241,13 +263,59 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditTrip setRefresh={setRefresh!} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)} endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)} registrationDeadline={new Date(registrationDeadline)} capacity={parseInt(details["Capacity"], 10)} open={edit} onClose={() => { setEdit(false) }} />
-      <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable} />
-      <ArchiveEvent setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"} open={archive} onClose={() => setArchive(false)} />
-      <RegisterEventModal open={register} onClose={() => { setRegister(false); }} onParentClose={() => setDetailsModalOpen(false)}
-        eventType={"Trip"} userInfo={userInfo} eventId={id} color={background} paymentOpen={() => setPaymentDrawerOpen(true)} />
-
+      <EditTrip
+        setRefresh={setRefresh!}
+        tripId={id}
+        tripName={name}
+        location={details["Location"]}
+        price={finalPrice}
+        description={description}
+        startDate={
+          new Date(`${details["Start Date"]}T${details["Start Time"]}`)
+        }
+        endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)}
+        registrationDeadline={new Date(registrationDeadline)}
+        capacity={parseInt(details["Capacity"], 10)}
+        open={edit}
+        onClose={() => {
+          setEdit(false);
+        }}
+      />
+      <RestrictUsers
+        setRefresh={setRefresh!}
+        eventId={id}
+        eventName={name}
+        eventType={"trip"}
+        open={restrictUsers}
+        onClose={() => setRestrictUsers(false)}
+      />
+      <CancelRegistration
+        setRefresh={setRefresh!}
+        eventId={id}
+        open={cancelRegisteration}
+        onClose={() => setCancelRegisteration(false)}
+        isRefundable={isRefundable}
+      />
+      <ArchiveEvent
+        setRefresh={setRefresh!}
+        eventId={id}
+        eventName={name}
+        eventType={"trip"}
+        open={archive}
+        onClose={() => setArchive(false)}
+      />
+      <RegisterEventModal
+        open={register}
+        onClose={() => {
+          setRegister(false);
+        }}
+        onParentClose={() => setDetailsModalOpen(false)}
+        eventType={"Trip"}
+        userInfo={userInfo}
+        eventId={id}
+        color={background}
+        paymentOpen={() => setPaymentDrawerOpen(true)}
+      />
 
       <CustomModalLayout
         open={detailsModalOpen}
@@ -263,14 +331,43 @@ const TripView: React.FC<BazarViewProps> = ({
           color={background}
           onParentClose={() => setDetailsModalOpen(false)}
           button={
-            (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-              !(datePassed || attended) && (
-                <>
-                  {registered || isRegisteredEvent ? (
-                    // User is registered - show cancel button
+            (user == "staff" ||
+              user == "student" ||
+              user == "ta" ||
+              user == "professor") &&
+            !(datePassed || attended) && (
+              <>
+                {registered || isRegisteredEvent ? (
+                  // User is registered - show cancel button
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                      width: "fit-content",
+                    }}
+                    onClick={() => setCancelRegisteration(true)}
+                  >
+                    Cancel Registration
+                  </CustomButton>
+                ) : (
+                  !registrationPassed && (
                     <CustomButton
                       size="small"
-                      variant="outlined"
+                      variant="contained"
                       sx={{
                         borderRadius: 999,
                         backgroundColor: `${background}40`,
@@ -286,45 +383,21 @@ const TripView: React.FC<BazarViewProps> = ({
                           transform: "translateY(-2px)",
                           boxShadow: `0 6px 20px ${background}50`,
                         },
-                        width: 'fit-content'
                       }}
-                      onClick={() => setCancelRegisteration(true)}
+                      onClick={() => setRegister(true)}
                     >
-                      Cancel Registration
+                      Register
                     </CustomButton>
-                  ) : (
-                    !(registrationPassed) && (
-                      <CustomButton
-                        size="small"
-                        variant="contained"
-                        sx={{
-                          borderRadius: 999,
-                          backgroundColor: `${background}40`,
-                          color: background,
-                          borderColor: background,
-                          fontWeight: 600,
-                          px: 3,
-                          textTransform: "none",
-                          boxShadow: `0 4px 14px ${background}40`,
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            backgroundColor: `${background}50`,
-                            transform: "translateY(-2px)",
-                            boxShadow: `0 6px 20px ${background}50`,
-                          },
-                        }}
-                        onClick={() => setRegister(true)}
-                      >
-                        Register
-                      </CustomButton>
-                    )
-                  )}
-                </>
-              )
+                  )
+                )}
+              </>
             )
           }
-          sections={user == "vendor" ? ['general', 'details'] : ['general', 'details',
-            'reviews']}
+          sections={
+            user == "vendor"
+              ? ["general", "details"]
+              : ["general", "details", "reviews"]
+          }
           user={user ? user : ""}
           attended={attended}
           eventId={id}

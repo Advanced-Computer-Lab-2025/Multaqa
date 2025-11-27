@@ -43,7 +43,6 @@ import theme from "@/themes/lightTheme";
 interface BrowseEventsProps {
   registered: boolean;
   user: string;
-
   userInfo: any;
   userID: string;
 }
@@ -79,26 +78,46 @@ const getFilterGroups = (
   userRole: string,
   professorOptions: FilterOption[]
 ): FilterGroup[] => [
-    {
-      id: "professorName",
-      title: "Professor Name",
-      type: "text",
-      options: professorOptions,
-    },
-    {
-      id: "eventType",
-      title: "Event Type",
-      type: "chip",
-      options: [
-        { label: "Conference", value: EventType.CONFERENCE },
-        { label: "Workshop", value: EventType.WORKSHOP },
-        { label: "Bazaar", value: EventType.BAZAAR },
-        { label: "Booth", value: EventType.BOOTH },
-        { label: "Trip", value: EventType.TRIP },
-      ],
-    },
-    ...(userRole !== "vendor"
-      ? [
+  {
+    id: "professorName",
+    title: "Professor Name",
+    type: "text",
+    options: professorOptions,
+  },
+  {
+    id: "eventType",
+    title: "Event Type",
+    type: "chip",
+    options: [
+      { label: "Conference", value: EventType.CONFERENCE },
+      { label: "Workshop", value: EventType.WORKSHOP },
+      { label: "Bazaar", value: EventType.BAZAAR },
+      { label: "Booth", value: EventType.BOOTH },
+      { label: "Trip", value: EventType.TRIP },
+    ],
+  },
+  ...(userRole === "events-office" || userRole === "admin"
+    ? [
+        {
+          id: "eventStatus",
+          title: "Event Status",
+          type: "chip" as const,
+          options: [
+            { label: "Upcoming", value: "upcoming" },
+            { label: "Archived", value: "archived" },
+          ],
+        },
+      ]
+    : [
+        {
+          id: "eventStatus",
+          title: "Event Status",
+          type: "chip" as const,
+          options: [{ label: "Upcoming", value: "upcoming" }],
+        },
+      ]),
+  ...(userRole !== "vendor"
+    ? [
         {
           id: "attendance",
           title: "My Status",
@@ -106,13 +125,13 @@ const getFilterGroups = (
           options: [{ label: "Attended", value: "attended" }],
         },
       ]
-      : []),
-    {
-      id: "date",
-      title: "Date",
-      type: "date", // <--- NEW TYPE
-    },
-  ];
+    : []),
+  {
+    id: "date",
+    title: "Date",
+    type: "date", // <--- NEW TYPE
+  },
+];
 
 const EventColor = [
   {
@@ -151,6 +170,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     eventName: [], // Filter by event name
     attendance: [], // Multi-select for attendance status
     date: "", // Single date selection
+    eventStatus: [], // Multi-select for event status (upcoming/archived)
   });
   const [events, setEvents] = useState<Event[]>([]);
   const [refresh, setRefresh] = useState(false);
@@ -161,7 +181,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
-  const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
+  const [cachedProfessors, setCachedProfessors] = useState<
+    { firstName: string; lastName: string }[]
+  >([]);
   const registeredEvents = userInfo?.registeredEvents;
 
   // Fetch all professors once on mount for filtering
@@ -205,7 +227,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     };
 
     const options = cachedProfessors.map((prof) => {
-      const fullName = `${formatProfessorName(prof.firstName)} ${formatProfessorName(prof.lastName)}`;
+      const fullName = `${formatProfessorName(
+        prof.firstName
+      )} ${formatProfessorName(prof.lastName)}`;
       return {
         label: fullName,
         value: fullName.toLowerCase(),
@@ -307,8 +331,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             (event.details?.Description?.toLowerCase() || "").includes(query) ||
             (Array.isArray(event.people)
               ? event.people.some((p) =>
-                (p?.toString().toLowerCase() || "").includes(query)
-              )
+                  (p?.toString().toLowerCase() || "").includes(query)
+                )
               : false) ||
             Object.values(event.details ?? {}).some((value) =>
               String(value ?? "")
@@ -364,10 +388,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           const createdByDetail =
             (event.details?.["Created by"] ||
               event.details?.["Created By"] ||
-              "") ?? "";
-          const createdByText = createdByDetail
-            .toString()
-            .toLowerCase();
+              "") ??
+            "";
+          const createdByText = createdByDetail.toString().toLowerCase();
 
           return selectedProfessors.some((query) => {
             const lowerQuery = query.toLowerCase();
@@ -426,6 +449,31 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     ) {
       filtered = filtered.filter((event) => event.attended === true);
     }
+
+    // Apply Event Status Filter
+    if (
+      filters.eventStatus &&
+      Array.isArray(filters.eventStatus) &&
+      filters.eventStatus.length > 0
+    ) {
+      const statusFilters = filters.eventStatus as string[];
+      const hasUpcoming = statusFilters.includes("upcoming");
+      const hasArchived = statusFilters.includes("archived");
+
+      // If both selected, show all events (no filtering)
+      // If only one selected, filter by that status
+      if (hasUpcoming && hasArchived) {
+        // Show all events when both are selected
+        // No filtering needed
+      } else if (hasUpcoming && !hasArchived) {
+        // Show only upcoming events
+        filtered = filtered.filter((event) => event.upcoming === true);
+      } else if (hasArchived && !hasUpcoming) {
+        // Show only archived events
+        filtered = filtered.filter((event) => event.archived === true);
+      }
+    }
+
     // Apply Date Filter
     const dateFilterValue = filters.date;
     if (typeof dateFilterValue === "string" && dateFilterValue) {
@@ -485,7 +533,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       if (
         (groupId === "eventType" ||
           groupId === "location" ||
-          groupId === "attendance") &&
+          groupId === "attendance" ||
+          groupId === "eventStatus") &&
         Array.isArray(currentVal)
       ) {
         if (currentVal.includes(value)) {
@@ -515,6 +564,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       eventName: [],
       attendance: [],
       date: "",
+      eventStatus: [],
     });
     setSearchQuery("");
   }, []);
@@ -552,8 +602,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       ? user === "events-office"
         ? "Manage Events"
         : registered
-          ? " My Registered Events"
-          : "Browse Events"
+        ? " My Registered Events"
+        : "Browse Events"
       : "Create Events";
 
   const pageDescription =
@@ -561,8 +611,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       ? user === "events-office"
         ? "Manage all events that are on the system"
         : registered
-          ? "Keep track of which events you have registered for"
-          : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+        ? "Keep track of which events you have registered for"
+        : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
       : "Create and keep track of events you have created";
 
   // Render event component based on type
@@ -588,6 +638,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             archived={event.archived}
+            upcoming={event.upcoming}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
@@ -615,6 +666,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             archived={event.archived}
+            upcoming={event.upcoming}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
@@ -642,6 +694,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             archived={event.archived}
+            upcoming={event.upcoming}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
@@ -670,6 +723,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             archived={event.archived}
+            upcoming={event.upcoming}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
           />
         );
@@ -693,6 +747,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             onDelete={() => handleDeleteEvent(event.id)}
             attended={event.attended}
             archived={event.archived}
+            upcoming={event.upcoming}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()

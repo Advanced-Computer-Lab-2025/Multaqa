@@ -19,5 +19,6 @@ export type FilterValue = string | string[] | number | boolean;
 // Define filters type
 export interface Filters {
   eventType?: string[];
+  eventStatus?: string[];
   [key: string]: FilterValue | undefined;
 }

@@ -1,12 +1,30 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton, Tooltip, Divider, Grid, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  IconButton,
+  Tooltip,
+  Divider,
+  Grid,
+  Stack,
+} from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import EditIcon from "@mui/icons-material/Edit";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle, Ban, Archive } from "lucide-react";
+import {
+  Trash2,
+  MapPin,
+  Users,
+  Calendar,
+  Clock,
+  AlertCircle,
+  Ban,
+  Archive,
+} from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -36,12 +54,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   userInfo,
   attended,
   archived,
+  upcoming,
   datePassed,
   registrationPassed,
   professorStatus,
   evaluateButton,
   commentButton,
-  attendees
+  attendees,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -50,22 +69,25 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [archive, setArchive] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const updatedDetails = { ...details, professors }
+  const updatedDetails = { ...details, professors };
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   const [edit, setEdit] = useState(false);
 
-  const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
-    const fid = f?._id?.$oid || f?._id || f;
-    return String(fid) === String(id);
-  }));
+  const isFavorited = Boolean(
+    userInfo?.favorites?.some((f: any) => {
+      const fid = f?._id?.$oid || f?._id || f;
+      return String(fid) === String(id);
+    })
+  );
 
   const handlePaymentSuccess = (paymentDetails: any) => {
-    console.log('Payment successful:', paymentDetails);
+    console.log("Payment successful:", paymentDetails);
     setPaymentDrawerOpen(false);
   };
   const startDate = new Date(details["Start Date"]);
   const now = new Date();
-  const isRefundable = (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
+  const isRefundable =
+    (startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) >= 14;
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -94,7 +116,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     return cleanName[0].toUpperCase();
   };
 
-
   return (
     <>
       <EventCard
@@ -107,103 +128,111 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         cost={details["Cost"]}
         startTime={details["Start Time"]}
         endTime={details["End Time"]}
-        totalSpots={professorStatus == "approved" ? details["Capacity"] : undefined}
+        totalSpots={
+          professorStatus == "approved" ? details["Capacity"] : undefined
+        }
         color={background}
         leftIcon={<IconComponent />}
         eventType={"Workshop"}
         spotsLeft={details["Spots Left"]}
-        createdBy={details['Created by']}
+        createdBy={details["Created by"]}
         professors={professors}
+        upcoming={upcoming}
         onOpenDetails={() => setDetailsModalOpen(true)}
-        utilities={(user === "events-office" || user === "admin") ? (
-          <Stack direction="row" spacing={1}>
-            {(user === "events-office" && !archived) ? (
-              <>
-                <Tooltip title={"Archive Workshop"}>
-                  <IconButton
-                    size="medium"
-                    onClick={() => setArchive(true)}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                      "&:hover": {
-                        backgroundColor: "#ff980015",
-                        borderColor: "warning.main",
-                        color: "warning.main",
-                      },
-                    }}
-                  >
-                    <Archive size={18} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={"Restrict Workshop"}>
-                  <IconButton
-                    size="medium"
-                    onClick={() => setRestrictUsers(true)}
-                    sx={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                      "&:hover": {
-                        backgroundColor: `#6b728015`,
-                        borderColor: "#6b7280",
-                        color: "#6b7280",
-                      },
-                    }}
-                  >
-                    <Ban size={18} />
-                  </IconButton>
-                </Tooltip>
-              </>
-            ) : null}
+        utilities={
+          user === "events-office" || user === "admin" ? (
+            <Stack direction="row" spacing={1}>
+              {user === "events-office" && !archived ? (
+                <>
+                  <Tooltip title={"Archive Workshop"}>
+                    <IconButton
+                      size="medium"
+                      onClick={() => setArchive(true)}
+                      sx={{
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        "&:hover": {
+                          backgroundColor: "#ff980015",
+                          borderColor: "warning.main",
+                          color: "warning.main",
+                        },
+                      }}
+                    >
+                      <Archive size={18} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={"Restrict Workshop"}>
+                    <IconButton
+                      size="medium"
+                      onClick={() => setRestrictUsers(true)}
+                      sx={{
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        "&:hover": {
+                          backgroundColor: `#6b728015`,
+                          borderColor: "#6b7280",
+                          color: "#6b7280",
+                        },
+                      }}
+                    >
+                      <Ban size={18} />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              ) : null}
 
-            <Tooltip title="Delete Workshop">
+              <Tooltip title="Delete Workshop">
+                <IconButton
+                  size="medium"
+                  onClick={handleOpenDeleteModal}
+                  sx={{
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    borderRadius: 2,
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 0, 0, 0.1)",
+                      borderColor: "error.main",
+                      color: "error.main",
+                    },
+                  }}
+                >
+                  <Trash2 size={18} />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          ) : user === "professor" ? (
+            <Tooltip title="Edit Workshop">
               <IconButton
                 size="medium"
-                onClick={handleOpenDeleteModal}
+                onClick={() => setEdit(true)}
                 sx={{
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  border: '1px solid',
-                  borderColor: 'divider',
+                  border: "1px solid",
+                  borderColor: "divider",
                   borderRadius: 2,
                   "&:hover": {
-                    backgroundColor: "rgba(255, 0, 0, 0.1)",
-                    borderColor: "error.main",
-                    color: "error.main",
+                    backgroundColor: `${background}15`,
+                    borderColor: background,
+                    color: background,
                   },
                 }}
               >
-                <Trash2 size={18} />
+                <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-          </Stack>
-        ) : user === "professor" ? (
-          <Tooltip title="Edit Workshop">
-            <IconButton
-              size="medium"
-              onClick={() => setEdit(true)}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 2,
-                "&:hover": {
-                  backgroundColor: `${background}15`,
-                  borderColor: background,
-                  color: background,
-                },
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        ) : null}
+          ) : null
+        }
         commentButton={commentButton}
         registerButton={
-          (user == "staff" || user == "student" || user == "ta" || user == "professor") &&
+          (user == "staff" ||
+            user == "student" ||
+            user == "ta" ||
+            user == "professor") &&
           !(datePassed || attended) && (
             <>
               {registered || isRegisteredEvent ? (
@@ -225,14 +254,14 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       transform: "translateY(-2px)",
                       boxShadow: `0 6px 20px ${background}50`,
                     },
-                    width: 'fit-content'
+                    width: "fit-content",
                   }}
                   onClick={() => setCancelRegisteration(true)}
                 >
                   Cancel Registration
                 </CustomButton>
               ) : (
-                !(registrationPassed) && (
+                !registrationPassed && (
                   <CustomButton
                     size="small"
                     variant="contained"
@@ -273,7 +302,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         workshopName={name}
         budget={parseInt(details["Required Budget"], 10)}
         capacity={parseInt(details["Capacity"], 10)}
-        startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)}
+        startDate={
+          new Date(`${details["Start Date"]}T${details["Start Time"]}`)
+        }
         endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)}
         registrationDeadline={new Date(details["Deadline"])}
         description={description}
@@ -282,7 +313,11 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         fundingSource={details["Funding Source"]}
         creatingProfessor={details["Created By"]}
         faculty={details["Faculty Responsible"]}
-        extraResources={details["Extra Required Resources"] ? [details["Extra Required Resources"]] : []}
+        extraResources={
+          details["Extra Required Resources"]
+            ? [details["Extra Required Resources"]]
+            : []
+        }
         associatedProfs={professors}
         onClose={() => {
           setEdit(false);
@@ -333,7 +368,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           >
             {details["Start Date"] === details["End Date"]
               ? details["Start Date"] || "TBD"
-              : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"}`}
+              : `${details["Start Date"] || "TBD"} - ${
+                  details["End Date"] || "TBD"
+                }`}
           </Typography>
 
           <Typography
@@ -350,109 +387,148 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
       </CustomModal>
       <RegisterEventModal
         open={register}
-        onClose={() => { setRegister(false); }}
+        onClose={() => {
+          setRegister(false);
+        }}
         onParentClose={() => setDetailsModalOpen(false)}
         eventType={"Workshop"}
         userInfo={userInfo}
         eventId={id}
-        color={background} paymentOpen={() => setPaymentDrawerOpen(true)} />
-      <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)} />
-      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable} />
+        color={background}
+        paymentOpen={() => setPaymentDrawerOpen(true)}
+      />
+      <RestrictUsers
+        setRefresh={setRefresh!}
+        eventId={id}
+        eventName={name}
+        eventType={"workshop"}
+        open={restrictUsers}
+        onClose={() => setRestrictUsers(false)}
+      />
+      <ArchiveEvent
+        setRefresh={setRefresh!}
+        eventName={name}
+        eventId={id}
+        eventType={"workshop"}
+        open={archive}
+        onClose={() => setArchive(false)}
+      />
+      <CancelRegistration
+        setRefresh={setRefresh!}
+        eventId={id}
+        open={cancelRegisteration}
+        onClose={() => setCancelRegisteration(false)}
+        isRefundable={isRefundable}
+      />
       <CustomModalLayout
-              open={detailsModalOpen}
-              onClose={() => setDetailsModalOpen(false)}
-              width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
-              borderColor={background}
-            >
-              <EventDetails
-                title={name}
-                description={description}
-                eventType="Workshop"
-                details={updatedDetails}
-                color={background}
-                agenda={agenda}
-                userId={userInfo?._id}
-                createdBy={userInfo?._id===details["CreatedId"]?"you": details['Created by']} 
-                button={
-                  (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
-                    !(datePassed || attended) && (
-                        <>
-                          {registered || isRegisteredEvent ? (
-                            // User is registered - show cancel button
-                            <CustomButton
-                              size="small"
-                              variant="outlined"
-                              sx={{ 
-                                borderRadius: 999,
-                                backgroundColor: `${background}40`,
-                                color: background,
-                                borderColor: background,
-                                fontWeight: 600,
-                                px: 3,
-                                textTransform: "none",
-                                boxShadow: `0 4px 14px ${background}40`,
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  backgroundColor: `${background}50`,
-                                  transform: "translateY(-2px)",
-                                  boxShadow: `0 6px 20px ${background}50`,
-                                },
-                                width: 'fit-content'
-                              }}
-                              onClick={() => setCancelRegisteration(true)}
-                            >
-                              Cancel Registration
-                            </CustomButton>
-                          ) : (
-                            // User is not registered - show register button
-                           !(registrationPassed) && (
-                              <CustomButton
-                                size="small"
-                                variant="contained"
-                                sx={{ 
-                                  borderRadius: 999,
-                                  backgroundColor: `${background}40`,
-                                  color: background,
-                                  borderColor: background,
-                                  fontWeight: 600,
-                                  px: 3,
-                                  textTransform: "none",
-                                  boxShadow: `0 4px 14px ${background}40`,
-                                  transition: "all 0.3s ease",
-                                  "&:hover": {
-                                    backgroundColor: `${background}50`,
-                                    transform: "translateY(-2px)",
-                                    boxShadow: `0 6px 20px ${background}50`,
-                                  },
-                                }}
-                                onClick={() => setRegister(true)}
-                              >
-                                Register
-                              </CustomButton>
-                            )
-                          )}
-                        </>
-                      )
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        width="w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]"
+        borderColor={background}
+      >
+        <EventDetails
+          title={name}
+          description={description}
+          eventType="Workshop"
+          details={updatedDetails}
+          color={background}
+          agenda={agenda}
+          userId={userInfo?._id}
+          createdBy={
+            userInfo?._id === details["CreatedId"]
+              ? "you"
+              : details["Created by"]
+          }
+          button={
+            (user == "staff" ||
+              user == "student" ||
+              user == "ta" ||
+              user == "professor") &&
+            !(datePassed || attended) && (
+              <>
+                {registered || isRegisteredEvent ? (
+                  // User is registered - show cancel button
+                  <CustomButton
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 999,
+                      backgroundColor: `${background}40`,
+                      color: background,
+                      borderColor: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      boxShadow: `0 4px 14px ${background}40`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${background}50`,
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 20px ${background}50`,
+                      },
+                      width: "fit-content",
+                    }}
+                    onClick={() => setCancelRegisteration(true)}
+                  >
+                    Cancel Registration
+                  </CustomButton>
+                ) : (
+                  // User is not registered - show register button
+                  !registrationPassed && (
+                    <CustomButton
+                      size="small"
+                      variant="contained"
+                      sx={{
+                        borderRadius: 999,
+                        backgroundColor: `${background}40`,
+                        color: background,
+                        borderColor: background,
+                        fontWeight: 600,
+                        px: 3,
+                        textTransform: "none",
+                        boxShadow: `0 4px 14px ${background}40`,
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          backgroundColor: `${background}50`,
+                          transform: "translateY(-2px)",
+                          boxShadow: `0 6px 20px ${background}50`,
+                        },
+                      }}
+                      onClick={() => setRegister(true)}
+                    >
+                      Register
+                    </CustomButton>
                   )
-                }
-                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:(user=="professor"?['general','agenda','details','attendees',
-                  'reviews']:['general','agenda','details','reviews']))}
-                user={user?user:""}
-                attended ={attended}
-                eventId={id}
-                attendees={attendees}
-              />
-            </CustomModalLayout>
-             <PaymentDrawer
-              open={paymentDrawerOpen}
-              onClose={() => setPaymentDrawerOpen(false)}
-              totalAmount={parseInt(details["Cost"])}
-              walletBalance={userInfo?.walletBalance||0} 
-              onPaymentSuccess={handlePaymentSuccess}
-              eventId={id}
-              email={userInfo?.email}
-            />
+                )}
+              </>
+            )
+          }
+          sections={
+            user == "vendor"
+              ? ["general", "agenda", "details"]
+              : professorStatus == "pending" ||
+                professorStatus == "awaiting_review" ||
+                professorStatus == "rejected"
+              ? ["general", "agenda", "details"]
+              : user == "professor"
+              ? ["general", "agenda", "details", "attendees", "reviews"]
+              : ["general", "agenda", "details", "reviews"]
+          }
+          user={user ? user : ""}
+          attended={attended}
+          eventId={id}
+          attendees={attendees}
+        />
+      </CustomModalLayout>
+      <PaymentDrawer
+        open={paymentDrawerOpen}
+        onClose={() => setPaymentDrawerOpen(false)}
+        totalAmount={parseInt(details["Cost"])}
+        walletBalance={userInfo?.walletBalance || 0}
+        onPaymentSuccess={handlePaymentSuccess}
+        eventId={id}
+        email={userInfo?.email}
+      />
     </>
   );
 };

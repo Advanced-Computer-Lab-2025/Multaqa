@@ -47,6 +47,7 @@ interface EventCardProps {
   createdBy?: string;
   professors?: string[]; // Array of professor names for workshops
   archived?: boolean;
+  upcoming?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -79,6 +80,7 @@ const EventCard: React.FC<EventCardProps> = ({
   createdBy,
   professors = [],
   archived = false,
+  upcoming = true,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
@@ -332,6 +334,23 @@ const EventCard: React.FC<EventCardProps> = ({
                 />
               )}
               {professorStatus && statusChip(professorStatus)}
+              {upcoming && !archived && (
+                <Chip
+                  label="Upcoming"
+                  size="small"
+                  sx={{
+                    backgroundColor: theme.palette.success.contrastText,
+                    color: theme.palette.success.main,
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    height: 24,
+                    border: "1px solid " + theme.palette.success.main,
+                    "&:hover": {
+                      backgroundColor: theme.palette.success.light + "15",
+                    },
+                  }}
+                />
+              )}
               {archived && (
                 <Chip
                   label="Archived"
@@ -729,11 +748,13 @@ const EventCard: React.FC<EventCardProps> = ({
                     fontWeight: 600,
                   }}
                 >
-                  {(createdBy).toUpperCase()}
+                  {createdBy.toUpperCase()}
                   {professors.length > 0 && (
                     <>
                       {" & "}
-                      {professors.length === 1 ? "1 OTHER" : `${professors.length} OTHERS`}
+                      {professors.length === 1
+                        ? "1 OTHER"
+                        : `${professors.length} OTHERS`}
                     </>
                   )}
                 </Typography>

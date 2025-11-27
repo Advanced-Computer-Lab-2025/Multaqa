@@ -30,18 +30,21 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   setRefresh,
   attended,
   archived,
-  userInfo
+  upcoming,
+  userInfo,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
-  const [edit, setEdit] = useState(false)
+  const [edit, setEdit] = useState(false);
   const [restrictUsers, setRestrictUsers] = useState(false);
   const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
-    const fid = f?._id?.$oid || f?._id || f;
-    return String(fid) === String(id);
-  }));
+  const isFavorited = Boolean(
+    userInfo?.favorites?.some((f: any) => {
+      const fid = f?._id?.$oid || f?._id || f;
+      return String(fid) === String(id);
+    })
+  );
 
   const handleOpenDeleteModal = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -68,14 +71,20 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
 
     // Check if agenda matches any professor's full name
     const matchingProfessor = cachedProfessors.find((prof) => {
-      const fullName = `${prof.firstName} ${prof.lastName}`.toLowerCase().trim();
-      return agendaLower === fullName || agendaLower.includes(fullName) || fullName.includes(agendaLower);
+      const fullName = `${prof.firstName} ${prof.lastName}`
+        .toLowerCase()
+        .trim();
+      return (
+        agendaLower === fullName ||
+        agendaLower.includes(fullName) ||
+        fullName.includes(agendaLower)
+      );
     });
 
     if (matchingProfessor) {
       // Capitalize each part of the name properly
-      const firstName = (matchingProfessor.firstName).toUpperCase();
-      const lastName = (matchingProfessor.lastName).toUpperCase();
+      const firstName = matchingProfessor.firstName.toUpperCase();
+      const lastName = matchingProfessor.lastName.toUpperCase();
       return `${firstName} ${lastName}`;
     }
 
@@ -83,7 +92,6 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   };
 
   const professorName = getProfessorFromAgenda();
-
 
   return (
     <>
@@ -103,31 +111,47 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventType={"Conference"}
         spotsLeft={details["Spots Left"]}
         createdBy={professorName}
+        upcoming={upcoming}
         onOpenDetails={() => setDetailsModalOpen(true)}
-        utilities={user === "admin" ? (
-          <Tooltip title="Delete Conference">
-            <IconButton
-              size="medium"
-              onClick={handleOpenDeleteModal}
-              sx={{
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 2,
-                "&:hover": {
-                  backgroundColor: "rgba(255, 0, 0, 0.1)",
-                  borderColor: "error.main",
-                  color: "error.main",
-                },
+        utilities={
+          user === "admin" ? (
+            <Tooltip title="Delete Conference">
+              <IconButton
+                size="medium"
+                onClick={handleOpenDeleteModal}
+                sx={{
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 0, 0, 0.1)",
+                    borderColor: "error.main",
+                    color: "error.main",
+                  },
+                }}
+              >
+                <Trash2 size={18} />
+              </IconButton>
+            </Tooltip>
+          ) : user === "events-office" || user === "events-only" ? (
+            <Utilities
+              archived={archived}
+              onRestrict={() => setRestrictUsers(true)}
+              onArchive={() => setArchive(true)}
+              onEdit={() => {
+                setEdit(true);
               }}
-            >
-              <Trash2 size={18} />
-            </IconButton>
-          </Tooltip>
-        ) : (user === "events-office" || user === "events-only" ?
-          <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); }} onDelete={handleOpenDeleteModal} event={"Conference"} color={background} /> : null)}
-        expanded={expanded} archived={archived} location={details["Location"]} />
-
+              onDelete={handleOpenDeleteModal}
+              event={"Conference"}
+              color={background}
+            />
+          ) : null
+        }
+        expanded={expanded}
+        archived={archived}
+        location={details["Location"]}
+      />
 
       {/* Delete Confirmation Modal */}
       <CustomModal
@@ -173,8 +197,9 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           >
             {details["Start Date"] === details["End Date"]
               ? details["Start Date"] || "TBD"
-              : `${details["Start Date"] || "TBD"} - ${details["End Date"] || "TBD"
-              }`}
+              : `${details["Start Date"] || "TBD"} - ${
+                  details["End Date"] || "TBD"
+                }`}
           </Typography>
 
           <Typography
@@ -210,10 +235,24 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         />
       )}
       {setRefresh && (
-        <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+        <RestrictUsers
+          setRefresh={setRefresh}
+          eventId={id}
+          eventName={name}
+          eventType={"conference"}
+          open={restrictUsers}
+          onClose={() => setRestrictUsers(false)}
+        />
       )}
       {setRefresh && (
-        <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)} />
+        <ArchiveEvent
+          setRefresh={setRefresh}
+          eventName={name}
+          eventId={id}
+          eventType={"conference"}
+          open={archive}
+          onClose={() => setArchive(false)}
+        />
       )}
       <CustomModalLayout
         open={detailsModalOpen}
@@ -228,8 +267,11 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           details={details}
           agenda={agenda}
           color={background}
-          sections={user == "vendor" ? ['general', 'agenda', 'details'] : ['general', 'details', 'agenda',
-            'reviews']}
+          sections={
+            user == "vendor"
+              ? ["general", "agenda", "details"]
+              : ["general", "details", "agenda", "reviews"]
+          }
           user={user ? user : ""}
           attended={attended}
           eventId={id}
