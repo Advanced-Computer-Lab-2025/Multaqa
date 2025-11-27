@@ -39,6 +39,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
+import { useNotifications } from "@/context/NotificationContext";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -163,6 +164,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
   const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
+  const { enableToasts } = useNotifications();
+
+  // Enable notification toasts when browse events page mounts
+  useEffect(() => {
+    enableToasts();
+    console.log("✅ Notification toasts enabled on browse events page");
+  }, [enableToasts]);
 
   // Fetch all professors once on mount for filtering
   useEffect(() => {

@@ -46,7 +46,6 @@ export class WorkshopService {
       createdEventId as mongoose.Schema.Types.ObjectId
     );
     await professor.save();
-    console.log(createdEvent);
 
     await NotificationService.sendNotification({
       role: [UserRole.ADMINISTRATION],
