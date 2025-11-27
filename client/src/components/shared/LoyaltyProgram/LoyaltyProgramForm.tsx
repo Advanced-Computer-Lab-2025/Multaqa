@@ -7,13 +7,10 @@ import {
   FormControlLabel,
   Collapse,
   IconButton,
-  InputAdornment,
 } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import PercentIcon from "@mui/icons-material/Percent";
-import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import { CustomTextField, CustomCheckbox } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
 import {
@@ -48,14 +45,16 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit} className="w-full">
-          <Box className="flex flex-col gap-6 p-4">
+          <Box className="flex flex-col gap-6 p-4 ">
             <Typography
               variant="h4"
+              component="h3"
+              className="font-bold mb-8"
+              color="primary"
               sx={{
-                fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                fontWeight: 600,
-                color: "primary.main",
                 textAlign: "center",
+                fontFamily: "var(--font-poppins), system-ui, sans-serif",
+                mb: 4,
               }}
             >
               Loyalty Program
@@ -76,13 +75,6 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
                 }}
                 name="discountRate"
                 value={formik.values.discountRate}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PercentIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
               />
               {formik.touched.discountRate && formik.errors.discountRate && (
                 <Box display="flex" alignItems="center" mt={1}>
@@ -105,20 +97,14 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
                 fieldType="text"
                 neumorphicBox
                 onChange={(e) => {
-                  formik.setFieldValue("promoCode", e.target.value);
+                  const valueWithoutSpaces = e.target.value.replace(/\s+/g, "");
+                  formik.setFieldValue("promoCode", valueWithoutSpaces);
                 }}
                 onBlur={() => {
                   formik.setFieldTouched("promoCode", true);
                 }}
                 name="promoCode"
                 value={formik.values.promoCode}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <ConfirmationNumberIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
               />
               {formik.touched.promoCode && formik.errors.promoCode && (
                 <Box display="flex" alignItems="center" mt={1}>
@@ -142,6 +128,8 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
                 multiline
                 rows={4}
                 neumorphicBox
+                borderRadius="20px"
+                autoCapitalize="false"
                 onChange={(e) => {
                   formik.setFieldValue("termsAndConditions", e.target.value);
                 }}
@@ -173,7 +161,7 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
               >
                 <Typography
                   variant="subtitle2"
-                  color="primary"
+                  color="text-gray-500"
                   className="font-semibold hover:underline"
                 >
                   View GUC Loyalty Program Terms & Conditions

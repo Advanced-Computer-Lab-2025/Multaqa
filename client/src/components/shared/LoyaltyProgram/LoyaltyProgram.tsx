@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, Divider } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import CustomButton from "../Buttons/CustomButton";
 import { CustomModalLayout, CustomModal } from "../modals";
 import LoyaltyProgramForm from "./LoyaltyProgramForm";
@@ -47,119 +47,123 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
 
   if (isSubscribed) {
     return (
-      <Box className="w-full p-4 md:p-8">
-        <Box className="flex items-center gap-4 mb-8">
+      <Box className="w-full p-6 md:p-6">
+        <Box className="flex items-center gap-4 mb-10 text-center">
           <Typography
-            variant="h3"
+            variant="h4"
             component="h2"
             className="font-bold"
             color="primary"
+            sx={{
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+              mb: 4,
+            }}
           >
             My Loyalty Program Participation
           </Typography>
         </Box>
 
-        <Box className="mb-10">
+        <Box className="mb-12">
           <Typography
-            variant="h5"
+            variant="h6"
             className="mb-6 font-semibold flex items-center gap-2"
             color="textPrimary"
           >
-            <InfoOutlinedIcon color="action" fontSize="large" /> Program Details
+            <InfoOutlinedIcon color="action" fontSize="medium" /> Program Details
           </Typography>
-          <Box className="flex flex-col md:flex-row gap-6">
+          <Box className="flex flex-wrap gap-6 justify-center">
             <NeumorphicBox
-              containerType="inwards"
+              containerType="outwards"
               sx={{
-                p: 6,
+                p: 4,
                 borderRadius: 4,
+                minWidth: "280px",
+                maxWidth: "350px",
+                flex: "1 1 280px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
-                flex: 1,
+                textAlign: "center",
+                transition: "transform 0.2s",
+                border: `2px solid ${theme.palette.primary.main}`,
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                },
               }}
             >
-              <Box className="flex items-center gap-3 mb-3">
-                <PercentIcon color="primary" fontSize="large" />
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  fontWeight="medium"
-                >
-                  Discount Rate
-                </Typography>
+              <Box className="mb-4 p-3 rounded-full bg-gray-50">
+                <PercentIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />
               </Box>
-              <Typography variant="h2" color="primary" className="font-bold">
+              <Typography variant="h6" className="font-bold mb-2">
+                Discount Rate
+              </Typography>
+              <Typography variant="body1" className="text-gray-600">
                 {discountRate}%
               </Typography>
             </NeumorphicBox>
             <NeumorphicBox
-              containerType="inwards"
+              containerType="outwards"
               sx={{
-                p: 6,
+                p: 4,
                 borderRadius: 4,
+                minWidth: "280px",
+                maxWidth: "350px",
+                flex: "1 1 280px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
-                flex: 1,
+                textAlign: "center",
+                transition: "transform 0.2s",
+                border: `2px solid ${theme.palette.secondary.main}`,
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                },
               }}
             >
-              <Box className="flex items-center gap-3 mb-3">
-                <ConfirmationNumberIcon color="secondary" fontSize="large" />
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  fontWeight="medium"
-                >
-                  Promo Code
-                </Typography>
+              <Box className="mb-4 p-3 rounded-full bg-gray-50">
+                <ConfirmationNumberIcon sx={{ fontSize: 40, color: theme.palette.secondary.main }} />
               </Box>
-              <Typography
-                variant="h3"
-                className="font-mono font-bold text-gray-800 tracking-wider"
-              >
+              <Typography variant="h6" className="font-bold mb-2">
+                Promo Code
+              </Typography>
+              <Typography variant="body1" className="text-gray-600">
                 {promoCode}
               </Typography>
             </NeumorphicBox>
           </Box>
         </Box>
 
-{/* horizontal divider  */}
-        <Divider sx={{ my: 20 }} />
-        <Box className="mb-10">
+        <Box className="mb-12">
           <Typography
-            variant="h5"
+            variant="h6"
             className="mb-6 font-semibold flex items-center gap-2"
             color="textPrimary"
           >
-            <DescriptionIcon color="action" fontSize="large" /> Terms and
-            Conditions
+            <DescriptionIcon color="action" fontSize="medium" /> Terms and Conditions
           </Typography>
           <NeumorphicBox
             containerType="inwards"
-            sx={{ p: 5, borderRadius: 4, bgcolor: "rgba(0,0,0,0.02)" }}
+            sx={{ p: 4, borderRadius: 4, bgcolor: "rgba(0,0,0,0.02)" }}
           >
             <Typography
-              variant="body1"
-              className="whitespace-pre-wrap text-gray-700 leading-relaxed text-lg"
+              variant="body2"
+              className="whitespace-pre-wrap text-gray-700 leading-relaxed"
             >
               {termsAndConditions}
             </Typography>
           </NeumorphicBox>
         </Box>
 
-        <Box className="flex justify-end mt-12">
+        <Box className="flex justify-end mt-8">
           <CustomButton
             type="button"
             variant="outlined"
             color="error"
-            width="280px"
-            height="50px"
+            width="200px"
+            height="40px"
             label="Cancel Participation"
             onClick={handleOpenConfirmModal}
-            sx={{ fontSize: "1.1rem" }}
+            sx={{ fontSize: "0.9rem" }}
           />
         </Box>
 
@@ -182,8 +186,8 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
           }}
         >
           <Typography>
-            Are you sure you want to cancel your participation in the GUC
-            Loyalty Program? This action cannot be undone.
+            Are you sure you want to cancel your participation in the GUC Loyalty Program? This
+            action cannot be undone.
           </Typography>
         </CustomModal>
       </Box>
