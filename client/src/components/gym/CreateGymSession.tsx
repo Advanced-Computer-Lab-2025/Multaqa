@@ -101,13 +101,6 @@ export default function CreateGymSession({
           maxParticipants: parseInt(values.maxParticipants),
           trainer: trainerName || undefined,
         });
-<<<<<<< HEAD
-        toast.success("Gym session created successfully",{
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
-=======
         
         toast.success("Gym session created successfully", {
           position: "bottom-right",
@@ -115,7 +108,6 @@ export default function CreateGymSession({
           theme: "colored",
         });
         
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
         console.log("✅ Gym session created successfully");
 
         // Notify parent to refresh data
@@ -126,16 +118,6 @@ export default function CreateGymSession({
         formik.resetForm();
         setActiveTab('general');
         onClose();
-<<<<<<< HEAD
-      } catch (err:any) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to create gym session";
-            toast.error(err?.response?.data?.error, {
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
-=======
       } catch (err: any) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create gym session";
@@ -146,7 +128,6 @@ export default function CreateGymSession({
           theme: "colored",
         });
         
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
         setError(errorMessage);
         console.error("Error creating session:", err);
       } finally {
@@ -158,10 +139,7 @@ export default function CreateGymSession({
   const handleClose = () => {
     formik.resetForm();
     setActiveTab('general');
-<<<<<<< HEAD
-=======
     setError(null);
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
     onClose();
   };
 
@@ -188,20 +166,12 @@ export default function CreateGymSession({
     p: { xs: 1, md: 3 },
     borderRadius: '32px',
     background: theme.palette.background.paper,
-<<<<<<< HEAD
-    border: `1.5px solid ${accentColor}`,
-=======
     border: `1.5px solid ${theme.palette.grey[300]}`,
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-<<<<<<< HEAD
-    boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
-=======
     boxShadow: `0 4px 24px 0 ${accentColor}14`,
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
     transition: 'box-shadow 0.2s',
   };
 
@@ -217,11 +187,7 @@ export default function CreateGymSession({
         background: '#fff',
         borderRadius: '32px',
         p: 3,
-<<<<<<< HEAD
-        height: '450px',
-=======
         height: '600px',
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
         display: 'flex',
         flexDirection: 'column'
       }}>
@@ -252,20 +218,12 @@ export default function CreateGymSession({
                 flexShrink: 0,
                 background: theme.palette.background.paper,
                 borderRadius: '32px',
-<<<<<<< HEAD
-                border: `2px solid ${accentColor}`,
-=======
                 border: `1.5px solid ${theme.palette.grey[300]}`,
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
                 p: 2,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-start',
-<<<<<<< HEAD
-                boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
-=======
                 boxShadow: `0 4px 24px 0 ${accentColor}14`,
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
                 transition: 'box-shadow 0.2s',
                 height: 'fit-content', 
                 alignSelf: 'flex-start', 
@@ -326,11 +284,7 @@ export default function CreateGymSession({
               flex: 1, 
               display: 'flex', 
               flexDirection: 'column',
-<<<<<<< HEAD
-              minWidth: 0,
-=======
               minHeight: 0,
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
             }}>
               {/* General Info Tab */}
               {activeTab === 'general' && (
@@ -352,10 +306,7 @@ export default function CreateGymSession({
                       required
                       fullWidth
                       size="small"
-<<<<<<< HEAD
-=======
                       usePortalPositioning={true}
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
                     />
                   </Box>
 
@@ -496,17 +447,10 @@ export default function CreateGymSession({
                     fontWeight: 700, 
                     fontSize: "16px", 
                     borderRadius: '20px', 
-<<<<<<< HEAD
-                    boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
-                    background: accentColor,
-                    '&:hover': {
-                      background: '#5a7ae0',
-=======
                     boxShadow: `0 2px 8px 0 ${accentColor}20`,
                     background: accentColor,
                     '&:hover': {
                       background: `${accentColor}E6`,
->>>>>>> 11f3aa90 (merge: hatem's to salma's)
                     }
                   }}
                 />
