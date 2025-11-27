@@ -5,14 +5,12 @@ import { api } from "@/api";
 import { LoyaltyProgramFormValues } from "../types";
 
 export const LOYALTY_PROGRAM_TERMS = [
-  "Vendors must provide a valid discount rate (minimum 10%) and promo code.",
   "The discount must be applicable to all GUC students and staff with a valid ID.",
   "Participation is subject to approval by the GUC administration.",
   "Vendors must adhere to the GUC code of conduct and ethical standards.",
   "Promo codes must remain active for a minimum of 6 months.",
   "The GUC reserves the right to review and revoke participation quarterly.",
   "Misuse of the program or complaints may lead to immediate termination.",
-  "Vendors agree to display GUC Loyalty Program signage at their premises.",
 ];
 
 export const getValidationSchema = () =>

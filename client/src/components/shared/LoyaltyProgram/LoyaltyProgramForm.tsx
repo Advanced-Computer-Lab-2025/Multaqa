@@ -49,6 +49,18 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
       {(formik) => (
         <form onSubmit={formik.handleSubmit} className="w-full">
           <Box className="flex flex-col gap-6 p-4">
+            <Typography
+              variant="h4"
+              sx={{
+                fontFamily: "var(--font-poppins), system-ui, sans-serif",
+                fontWeight: 600,
+                color: "primary.main",
+                textAlign: "center",
+              }}
+            >
+              Loyalty Program
+            </Typography>
+
             {/* Discount Rate */}
             <div className="w-full">
               <CustomTextField
