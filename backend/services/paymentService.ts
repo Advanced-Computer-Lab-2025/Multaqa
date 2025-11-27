@@ -397,7 +397,6 @@ export class PaymentService {
         `Cannot process payment. Request status is ${vendorRequest.status}. Payment is only allowed when status is APPROVED.`
       );
     }
-    console.log("Vendor request:", vendorRequest);
     // Check if vendor has already paid
     if ((vendorRequest as any).hasPaid === true) {
       throw createError(
@@ -415,8 +414,44 @@ export class PaymentService {
       );
     }
 
-    // TODO: Calculate participation fee based on event-specific logic
-    const participationFee: number = 100; // Replace with actual calculation logic
+    // Calculate participation fee based on event type and vendor's RequestData
+    const BASE_PRICE = 50;
+    let participationFee: number = BASE_PRICE;
+
+    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      // For platform booth: base price * duration * location factor
+      const requestData = event.RequestData;
+      const duration = requestData?.boothSetupDuration || 1; // in weeks (1-4)
+      const location = requestData?.boothLocation || "";
+
+      // Location factor: length of location string (longer = more expensive)
+      const locationFactor = Math.max(1, Math.floor(location.length / 10));
+
+      participationFee = BASE_PRICE * duration * locationFactor;
+    } else if (event.type === EVENT_TYPES.BAZAAR) {
+      // For bazaar: base price * booth size * location factor
+      const vendorData = event.vendors?.find((v) => {
+        const vendorRefId =
+          typeof v.vendor === "string"
+            ? v.vendor
+            : (v.vendor as any)?._id?.toString() || v.vendor?.toString();
+        return vendorRefId === vendorId.toString();
+      });
+
+      if (vendorData?.RequestData) {
+        const location = vendorData.RequestData.bazaarLocation || "";
+        const boothSize = vendorData.RequestData.boothSize || "2x2";
+
+        // Extract numeric value from booth size (e.g., "2x2" -> 2, "4x4" -> 4)
+        const sizeMatch = boothSize.match(/(\d+)/);
+        const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
+
+        // Location factor: length of location string (longer = more expensive)
+        const locationFactor = Math.max(1, Math.floor(location.length / 10));
+
+        participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
+      }
+    }
 
     // Validate participation fee
     if (!participationFee || participationFee <= 0) {
