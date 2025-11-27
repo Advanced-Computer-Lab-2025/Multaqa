@@ -169,29 +169,6 @@ export default function CreateGymSession({
     transition: 'box-shadow 0.2s',
   };
 
-  const tertiaryInputStyles = {
-    '& .MuiInputLabel-root': {
-      color: theme.palette.grey[500],
-      '&.Mui-focused': { color: accentColor },
-    },
-    '& .MuiInputBase-input': {
-      color: '#000000',
-      '&::placeholder': {
-        color: theme.palette.grey[400],
-        opacity: 1,
-      },
-    },
-    '& .MuiInput-underline:before': {
-      borderBottomColor: theme.palette.grey[400],
-    },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-      borderBottomColor: accentColor,
-    },
-    '& .MuiInput-underline:after': {
-      borderBottomColor: accentColor,
-    },
-  };
-
   return (
     <CustomModalLayout
       open={open}

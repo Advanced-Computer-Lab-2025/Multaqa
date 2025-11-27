@@ -469,6 +469,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 value={values.location}
                                                 onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)}
                                                 name="location"
+                                                usePortalPositioning={true}
                                             />
                                             {errors.location && touched.location && (
                                                 <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.location}</Typography>
@@ -492,6 +493,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 value={values.faculty}
                                                 onChange={(e: any) => setFieldValue("faculty", e.target ? e.target.value : e)}
                                                 name="faculty"
+                                                usePortalPositioning={true}
                                             />
                                             {errors.faculty && touched.faculty && (
                                                 <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.faculty}</Typography>
@@ -599,6 +601,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                             value={values.fundingSource}
                                             onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
                                             name="fundingSource"
+                                            usePortalPositioning={true}
                                         />
                                         {errors.fundingSource && touched.fundingSource && (
                                             <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.fundingSource}</Typography>
@@ -624,6 +627,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                             setSelectedProf('');
                                         }}
                                         name="professors"
+                                        usePortalPositioning={true}
                                     />
                                     {errors.professors && touched.professors ?
                                         <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.professors.toString()}</Typography>
@@ -686,70 +690,70 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 '&:hover': {
                                                     backgroundColor: `${accentColor}E6`,
                                                 }
-                                                  }}
-                                                                                        >
-                                                      <AddIcon />
-                                                  </IconButton>
-                                              </Box>
-          
-                                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
-                                                  {values.extraResources.map((res) => (
-                                                      <Chip
-                                                          key={res}
-                                                          label={res}
-                                                          onDelete={() =>
-                                                              setFieldValue(
-                                                                  "extraRequiredResources",
-                                                                  values.extraResources.filter((r) => r !== res)
-                                                              )
-                                                          }
-                                                          sx={{
-                                                              m: 0.5,
-                                                              borderColor: accentColor,
-                                                              color: accentColor,
-                                                              '& .MuiChip-deleteIcon': {
-                                                                  color: accentColor,
-                                                                  '&:hover': {
-                                                                      color: `${accentColor}CC`,
-                                                                  }
-                                                              }
-                                                          }}
-                                                          variant="outlined"
-                                                      />
-                                                  ))}
-                                              </Box>
-                                          </Paper>
-                                      )}
+                                            }}
+                                        >
+                                            <AddIcon />
+                                        </IconButton>
+                                    </Box>
 
-                                                                  {/* Submit Button */}
-                                                                  <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                                                                      <CustomButton
-                                                                          disabled={isSubmitting}
-                                                                          label={isSubmitting ? "Creating..." : 'Create'}
-                                                                          variant='contained'
-                                                                          color='tertiary'
-                                                                          type='submit'
-                                                                          sx={{
-                                                                              px: 3,
-                                                                              width: "180px",
-                                                                              height: "40px",
-                                                                              fontWeight: 700,
-                                                                              fontSize: "16px",
-                                                                              borderRadius: '20px',
-                                                                              boxShadow: `0 2px 8px 0 ${accentColor}20`,
-                                                                              background: accentColor,
-                                                                              '&:hover': {
-                                                                                  background: `${accentColor}E6`,
-                                                                              }
-                                                                          }}
-                                                                      />
-                                                                  </Box>
-                                                              </Box>
-                                                          </Box>
-                                                      </form>
-                                                  </Box>
-                                              </CustomModalLayout>
-                                          );
-                                      };
-                                      
-                                      export default CreateWorkshop;
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
+                                        {values.extraResources.map((res) => (
+                                            <Chip
+                                                key={res}
+                                                label={res}
+                                                onDelete={() =>
+                                                    setFieldValue(
+                                                        "extraRequiredResources",
+                                                        values.extraResources.filter((r) => r !== res)
+                                                    )
+                                                }
+                                                sx={{
+                                                    m: 0.5,
+                                                    borderColor: accentColor,
+                                                    color: accentColor,
+                                                    '& .MuiChip-deleteIcon': {
+                                                        color: accentColor,
+                                                        '&:hover': {
+                                                            color: `${accentColor}CC`,
+                                                        }
+                                                    }
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        ))}
+                                    </Box>
+                                </Paper>
+                            )}
+
+                            {/* Submit Button */}
+                            <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                                <CustomButton
+                                    disabled={isSubmitting}
+                                    label={isSubmitting ? "Creating..." : 'Create'}
+                                    variant='contained'
+                                    color='tertiary'
+                                    type='submit'
+                                    sx={{
+                                        px: 3,
+                                        width: "180px",
+                                        height: "40px",
+                                        fontWeight: 700,
+                                        fontSize: "16px",
+                                        borderRadius: '20px',
+                                        boxShadow: `0 2px 8px 0 ${accentColor}20`,
+                                        background: accentColor,
+                                        '&:hover': {
+                                            background: `${accentColor}E6`,
+                                        }
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    </Box>
+                </form>
+            </Box>
+        </CustomModalLayout>
+    );
+};
+
+export default CreateWorkshop;

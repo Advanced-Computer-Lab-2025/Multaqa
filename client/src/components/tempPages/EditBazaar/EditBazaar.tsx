@@ -9,7 +9,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import RichTextField from '@/components/shared/TextField/TextField';
-import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles, horizontalLayoutStyles, step1BoxStyles, step2BoxStyles, modalHeaderStyles, modalFormStyles} from '@/components/shared/styles';
+import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles, horizontalLayoutStyles, step1BoxStyles, step2BoxStyles, modalHeaderStyles, modalFormStyles } from '@/components/shared/styles';
 import theme from '@/themes/lightTheme';
 import { toast } from 'react-toastify';
 
@@ -72,7 +72,7 @@ interface EditBazaarProps {
   open: boolean;
   onClose: () => void;
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
-  color:string;
+  color: string;
 }
 
 const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline, open, onClose, setRefresh, color }: EditBazaarProps) => {
@@ -81,7 +81,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Use the color prop as accent color, fallback to theme if not provided
   const accentColor = color || theme.palette.primary.main;
 
@@ -117,63 +117,63 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
         setRefresh((refresh) => !refresh);
       }
       toast.success("Bazaar edited successfully", {
-          position:"bottom-right",
-          autoClose:3000,
-          theme: "colored",
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
       })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.message || "API call failed");
       window.alert(err.response.data.error);
       toast.error("Failed to edit bazaar. Please try again.", {
-                  position:"bottom-right",
-                  autoClose:3000,
-                  theme: "colored",
-                  });
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleClose = () => {
-  onClose();
-  setActiveTab('general');
+    onClose();
+    setActiveTab('general');
   };
-  
+
   // Logic to find the first error and switch tab
   const getFirstErrorTab = (errors: any): 'general' | 'description' | null => {
-      const generalFields = ['bazaarName', 'location', 'startDate', 'endDate', 'registrationDeadline'];
-      
-      // 1. Check General Info tab
-      for (const field of generalFields) {
-        if (errors[field]) {
-          return 'general';
-        }
-      }
-      
-      // 2. Check Description tab
-      if (errors.description) {
-        return 'description';
-      }
+    const generalFields = ['bazaarName', 'location', 'startDate', 'endDate', 'registrationDeadline'];
 
-      return null;
+    // 1. Check General Info tab
+    for (const field of generalFields) {
+      if (errors[field]) {
+        return 'general';
+      }
+    }
+
+    // 2. Check Description tab
+    if (errors.description) {
+      return 'description';
+    }
+
+    return null;
   };
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (values: any, actions: any) => {
-    
+
     // Manually run validation before proceeding
     const validationErrors = await actions.validateForm();
-    
+
     if (Object.keys(validationErrors).length > 0) {
       const errorTab = getFirstErrorTab(validationErrors);
-      
+
       if (errorTab) {
         setActiveTab(errorTab);
         toast.error("Please fill out all required fields.", {
-            position: "bottom-right",
-            autoClose: 3000,
-            theme: "colored",
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
         });
       }
       return; // Stop submission if there are validation errors
@@ -204,7 +204,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     initialValues,
     validationSchema: bazaarSchema,
     onSubmit: onSubmit,
-    validateOnChange: true, 
+    validateOnChange: true,
     validateOnBlur: true,
   });
 
@@ -222,7 +222,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
   
   const handleDescriptionChange = (htmlContent: string) => {
     setFieldValue('description', htmlContent);
-    };
+  };
 
   return (
     <CustomModalLayout open={open} borderColor={accentColor} title="Edit Bazaar" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]">
