@@ -25,6 +25,26 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
     if (!selectedVendorId) return;
 
     setVoting(true);
+
+    // Handle test/mock polls without backend
+    if (poll.id.startsWith("test-poll-")) {
+      setTimeout(() => {
+        toast.success("Vote submitted successfully! (Demo)");
+        setHasVoted(true);
+        
+        setLocalPoll(prev => ({
+          ...prev,
+          options: prev.options.map(opt => 
+            opt.vendorId === selectedVendorId 
+              ? { ...opt, voteCount: opt.voteCount + 1 } 
+              : opt
+          )
+        }));
+        setVoting(false);
+      }, 1000);
+      return;
+    }
+
     try {
       await votePoll(poll.id, selectedVendorId);
       toast.success("Vote submitted successfully!");
@@ -53,27 +73,37 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
   const isExpired = new Date() > endDate;
 
   return (
-    <NeumorphicBox 
-      className="mb-6 w-full h-full flex flex-col" 
-      borderRadius="24px"
-      padding="24px"
+    <Box 
+      className="mb-4 w-full h-full flex flex-col" 
+      sx={{
+        borderRadius: "12px",
+        p: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        transition: "all 0.2s",
+        "&:hover": {
+          borderColor: "primary.main",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+        }
+      }}
     >
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-          <Typography variant="h6" fontWeight="700" color="text.primary" sx={{ lineHeight: 1.3 }}>
+      <Box sx={{ mb: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
+          <Typography variant="subtitle1" fontWeight="700" color="text.primary" sx={{ lineHeight: 1.2, fontSize: "0.95rem" }}>
             {localPoll.title}
           </Typography>
           {isExpired && (
-            <Chip label="Ended" color="default" size="small" />
+            <Chip label="Ended" color="default" size="small" sx={{ height: 20, fontSize: "0.65rem" }} />
           )}
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: "40px" }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontSize: "0.75rem", minHeight: "32px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {localPoll.description}
         </Typography>
         
-        <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary", fontSize: "0.875rem" }}>
-          <Clock size={16} style={{ marginRight: 6 }} />
-          <Typography variant="caption">
+        <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary", fontSize: "0.75rem" }}>
+          <Clock size={14} style={{ marginRight: 4 }} />
+          <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
             Ends: {endDate.toLocaleDateString()}
           </Typography>
         </Box>
@@ -85,40 +115,43 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
             <RadioGroup
               value={selectedVendorId}
               onChange={(e) => setSelectedVendorId(e.target.value)}
-              sx={{ mb: 3 }}
+              sx={{ mb: 2 }}
             >
               {localPoll.options.map((option) => (
                 <Box 
                   key={option.vendorId}
                   sx={{ 
-                    mb: 1.5, 
-                    p: 1.5, 
-                    borderRadius: 3,
+                    mb: 1, 
+                    p: 0.75, 
+                    borderRadius: 1.5,
                     border: "1px solid",
-                    borderColor: selectedVendorId === option.vendorId ? "primary.main" : "transparent",
+                    borderColor: selectedVendorId === option.vendorId ? "primary.main" : "divider",
                     bgcolor: selectedVendorId === option.vendorId ? "primary.lighter" : "transparent",
                     transition: "all 0.2s",
                     "&:hover": {
-                      bgcolor: "grey.50"
-                    }
+                      bgcolor: "grey.50",
+                      borderColor: selectedVendorId === option.vendorId ? "primary.main" : "grey.400"
+                    },
+                    cursor: "pointer"
                   }}
+                  onClick={() => setSelectedVendorId(option.vendorId)}
                 >
                   <FormControlLabel
                     value={option.vendorId}
-                    control={<CustomRadio />}
+                    control={<CustomRadio size="small" sx={{ p: 0.5 }} />}
                     label={
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <Avatar 
                           src={option.vendorLogo} 
                           alt={option.vendorName} 
-                          sx={{ width: 32, height: 32, mr: 1.5 }}
+                          sx={{ width: 20, height: 20, mr: 1 }}
                         />
-                        <Typography fontWeight={selectedVendorId === option.vendorId ? "600" : "400"}>
+                        <Typography variant="body2" fontWeight={selectedVendorId === option.vendorId ? "600" : "400"} sx={{ fontSize: "0.8rem" }}>
                           {option.vendorName}
                         </Typography>
                       </Box>
                     }
-                    sx={{ m: 0, width: "100%" }}
+                    sx={{ m: 0, width: "100%", pointerEvents: "none" }} 
                   />
                 </Box>
               ))}
@@ -129,11 +162,13 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
               disabled={!selectedVendorId || voting}
               variant="contained"
               fullWidth
-              label={voting ? "Submitting..." : "Vote Now"}
+              size="small"
+              label={voting ? "..." : "Vote"}
+              sx={{ py: 0.5, fontSize: "0.8rem" }}
             />
           </Box>
         ) : (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
             {localPoll.options
               .sort((a, b) => b.voteCount - a.voteCount)
               .map((option, index) => {
@@ -143,21 +178,21 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
                 
                 return (
                   <Box key={option.vendorId}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <Avatar 
                           src={option.vendorLogo} 
                           alt={option.vendorName} 
-                          sx={{ width: 24, height: 24, mr: 1 }}
+                          sx={{ width: 18, height: 18, mr: 0.75 }}
                         />
-                        <Typography variant="body2" fontWeight={isSelected ? "bold" : "normal"}>
+                        <Typography variant="caption" fontWeight={isSelected ? "bold" : "normal"} sx={{ fontSize: "0.75rem" }}>
                           {option.vendorName}
                         </Typography>
                         {isSelected && (
-                          <CheckCircle size={14} color="#4caf50" style={{ marginLeft: 6 }} />
+                          <CheckCircle size={12} color="#4caf50" style={{ marginLeft: 4 }} />
                         )}
                       </Box>
-                      <Typography variant="caption" fontWeight="600">
+                      <Typography variant="caption" fontWeight="600" sx={{ fontSize: "0.75rem" }}>
                         {percentage.toFixed(1)}%
                       </Typography>
                     </Box>
@@ -165,28 +200,28 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
                       variant="determinate" 
                       value={percentage} 
                       sx={{
-                        height: 8,
-                        borderRadius: 4,
+                        height: 4,
+                        borderRadius: 2,
                         bgcolor: "grey.100",
                         "& .MuiLinearProgress-bar": {
                           bgcolor: isWinner ? "success.main" : "primary.main",
-                          borderRadius: 4,
+                          borderRadius: 2,
                         }
                       }}
                     />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", textAlign: "right" }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: "block", textAlign: "right", fontSize: "0.65rem" }}>
                       {option.voteCount} votes
                     </Typography>
                   </Box>
                 );
               })}
             
-            <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid", borderColor: "divider", textAlign: "center" }}>
-              <Typography variant="caption" color="text.secondary">
+            <Box sx={{ mt: 1.5, pt: 1.5, borderTop: "1px solid", borderColor: "divider", textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
                 Total Votes: {totalVotes}
               </Typography>
               {hasVoted && (
-                <Typography variant="body2" color="success.main" fontWeight="500" sx={{ mt: 0.5 }}>
+                <Typography variant="caption" color="success.main" fontWeight="500" sx={{ display: "block", mt: 0.5, fontSize: "0.7rem" }}>
                   Thanks for voting!
                 </Typography>
               )}
@@ -194,7 +229,7 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
           </Box>
         )}
       </Box>
-    </NeumorphicBox>
+    </Box>
   );
 };
 
