@@ -36,6 +36,7 @@ import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import HomeIcon from "@mui/icons-material/Home";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
+import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
 import ScaledLogo from "@/components/shared/MultaqaLogos/ScaledLogo";
 
 const MotionBox = motion(Box);
@@ -435,10 +436,19 @@ function HomePageContent() {
             sx={{
               cursor: "pointer",
               display: "flex",
+              justifyContent: "flex-start",
               alignItems: "center",
+              gap: 2,
             }}
           >
-            <ScaledLogo image={multaqaLogo} transparent />
+            <ScaledLogo
+              image={multaqaIcon}
+              transparent
+              iconOnly
+            />
+            <Typography variant="h5" sx={{ fontWeight: 800, fontFamily: "var(--font-jost)", textTransform: "uppercase" }}>
+              Multaqa
+            </Typography>
           </Box>
 
           <Stack
