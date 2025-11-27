@@ -180,3 +180,115 @@ export const createGymSession = async (
   }
 };
 
+export const editGymSession = async (
+  sessionId: string,
+  sessionData: {
+    startDateTime: Date;
+    duration: number; // in minutes
+    type: GymSessionType;
+    maxParticipants: number;
+    trainer?: string;
+    title?: string;
+    location?: string;
+  }
+): Promise<GymSession> => {
+  try {
+    console.log(`✏️ Updating gym session ${sessionId}...`, sessionData);
+
+    // 1. Extract date and time from startDateTime
+    const sessionDate = new Date(sessionData.startDateTime);
+    const time = formatTimeToHHMM(sessionDate);
+
+    // 2. Prepare backend payload (ensuring to map frontend names to backend names)
+    const payload = {
+      // Backend expects 'date' and 'time' fields for the start
+      date: sessionDate.toISOString(), 
+      time: time,
+      duration: sessionData.duration,
+      sessionType: mapSessionTypeToBackend(sessionData.type),
+      capacity: sessionData.maxParticipants,
+      // Include optional fields if they are provided
+      ...(sessionData.trainer && { trainer: sessionData.trainer }),
+      ...(sessionData.title && { eventName: sessionData.title }), // Assuming backend uses 'eventName'
+      ...(sessionData.location && { location: sessionData.location }),
+    };
+
+    console.log("📤 Sending update payload:", payload);
+
+    // 3. Send PATCH request using the correct RESTful endpoint structure
+    // NOTE: Using '/gymsessions/' (plural, no hyphen) to resolve the 404 error
+    const response = await api.patch(
+      `/gymsessions/${sessionId}`,
+      payload
+    );
+
+    const updatedSession = response.data.data;
+    console.log("✅ Gym session updated successfully:", response.data.message);
+
+    // 4. Map the backend response back to the GymSession interface (similar to fetch logic)
+    // NOTE: This complex mapping ensures the returned object is compatible with your list state
+    const startDateTime = combineDateTime(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (updatedSession as any).eventStartDate,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (updatedSession as any).eventStartTime
+    );
+    const endDateTime = combineDateTime(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (updatedSession as any).eventEndDate || (updatedSession as any).eventStartDate,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (updatedSession as any).eventEndTime
+    );
+
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      id: (updatedSession as any)._id || (updatedSession as any).id,
+      title: sessionData.title || updatedSession.eventName, // Use frontend title if available
+      type: sessionData.type,
+      instructor: sessionData.trainer || updatedSession.trainer,
+      location: sessionData.location || updatedSession.location || "Gym",
+      start: startDateTime,
+      end: endDateTime,
+      spotsTotal: sessionData.maxParticipants,
+      spotsTaken: updatedSession.attendees?.length || 0,
+    };
+
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error(`❌ Failed to update gym session ${sessionId}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    // Handle generic errors
+    if (error instanceof Error) {
+      console.error(`❌ Failed to update gym session ${sessionId}:`, error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to update gym session");
+  }
+};
+
+export const cancelGymSession = async (sessionId: string): Promise<void> => {
+  try {
+    console.log(`🗑️ Deleting gym session ${sessionId}...`);
+
+    // Use DELETE method on the RESTful endpoint /gymsessions/:id
+    const response = await api.delete(`/gymsessions/${sessionId}`);
+
+    console.log("✅ Gym session deleted successfully:", response.data.message);
+    
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      // The backend should return a 401/404/400 error with a specific message
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error(`❌ Failed to cancel gym session ${sessionId}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error(`❌ Failed to cancel gym session ${sessionId}:`, error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to cancel gym session");
+  }
+};
+
