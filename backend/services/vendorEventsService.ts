@@ -8,15 +8,15 @@ import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import createError from "http-errors";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
-import { Event_Request_Status } from "../constants/user.constants";
+import { Event_Request_Status, UserRole } from "../constants/user.constants";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
-import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
-import {
-  IBoothAttendee,
-  IPlatformBooth,
-} from "../interfaces/models/platformBooth.interface";
+import { Notification } from "./notificationService";
+import { NotificationService } from "./notificationService";
+import { AdministrationRoleType } from "../constants/administration.constants";
+import { StaffPosition } from "../constants/staffMember.constants";
+import { IBoothAttendee } from "../interfaces/models/platformBooth.interface";
 import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
 import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
 import { IUser } from "../interfaces/models/user.interface";
@@ -25,13 +25,11 @@ import { pdfGenerator } from "../utils/pdfGenerator";
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
-  private platformBoothRepo: GenericRepository<IPlatformBooth>;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
-    this.platformBoothRepo = new GenericRepository(PlatformBooth);
   }
 
   /**
@@ -124,6 +122,18 @@ export class VendorEventsService {
 
     await vendor.save();
 
+    await NotificationService.sendNotification({
+      role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
+      adminRole: [
+        AdministrationRoleType.EVENTS_OFFICE,
+        AdministrationRoleType.ADMIN,
+      ],
+      type: "VENDOR_PENDING_REQUEST",
+      title: "New Vendor Application",
+      message: `Vendor "${vendor.companyName}" has applied for a platform booth event.`,
+      createdAt: new Date(),
+    } as Notification);
+
     return {
       vendor,
       event,
@@ -187,6 +197,18 @@ export class VendorEventsService {
 
     await event.save();
     await vendor.save();
+
+    await NotificationService.sendNotification({
+      role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
+      adminRole: [
+        AdministrationRoleType.EVENTS_OFFICE,
+        AdministrationRoleType.ADMIN,
+      ],
+      type: "VENDOR_PENDING_REQUEST",
+      title: "New Vendor Application",
+      message: `Vendor "${vendor.companyName}" has applied for the bazaar event "${event.eventName}".`,
+      createdAt: new Date(),
+    } as Notification);
 
     return {
       vendor,
@@ -626,6 +648,21 @@ export class VendorEventsService {
     if (!updatedVendor) {
       throw createError(500, "Failed to update vendor loyalty program");
     }
+
+    await NotificationService.sendNotification({
+      role: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+      staffPosition: [
+        StaffPosition.TA,
+        StaffPosition.PROFESSOR,
+        StaffPosition.STAFF,
+      ],
+      type: "LOYALTY_NEW_PARTNER",
+      title: "New Loyalty Program Partner",
+      message: `Vendor "${
+        vendor.companyName
+      }" has joined the GUC loyalty program. Enjoy exclusive discounts with promo code "${loyaltyData.promoCode.toUpperCase()}".`,
+      createdAt: new Date(),
+    } as Notification);
 
     return updatedVendor;
   }

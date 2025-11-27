@@ -1,7 +1,7 @@
 "use client";
 import * as React from 'react';
 import { Box, Popper, ClickAwayListener, Grow, Paper } from '@mui/material';
-import  { FilterGroup } from './types';
+import { FilterGroup } from './types';
 import FilterBox from "./FilterBox"
 import CustomButton from '../Buttons/CustomButton';
 
@@ -10,9 +10,10 @@ interface FilterPanelProps {
     onFilterChange: (groupId: string, value: any) => void;
     currentFilters: Record<string, any>;
     onReset?: () => void;
+    matchSearchBar?: boolean; // Optional prop to match search bar height
 }
 
-const FilterPanel: React.FC<FilterPanelProps> = ({ filterGroups, onFilterChange, currentFilters, onReset }) => {
+const FilterPanel: React.FC<FilterPanelProps> = ({ filterGroups, onFilterChange, currentFilters, onReset, matchSearchBar = false }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLButtonElement | null>(null);
 
@@ -36,12 +37,18 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ filterGroups, onFilterChange,
         <Box>
             <CustomButton
                 ref={anchorRef}
-                size="small"
+                size={matchSearchBar ? "medium" : "small"}
                 variant="outlined"
                 onClick={handleToggle}
                 aria-haspopup="true"
                 aria-expanded={open}
                 aria-label={open ? 'Close filters' : 'Open filters'}
+                sx={matchSearchBar ? {
+                    py: 1.75,
+                    px: 3,
+                    fontSize: '1rem',
+                    fontWeight: 500,
+                } : {}}
             >
                 Filter
             </CustomButton>

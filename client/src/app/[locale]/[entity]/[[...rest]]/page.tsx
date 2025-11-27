@@ -29,6 +29,7 @@ import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
+import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -141,9 +142,11 @@ export default function EntityCatchAllPage() {
   const pathname = usePathname() || "";
   const router = useRouter();
   const entityFromUrl = params.entity ?? "";
-  const segments = pathname.split("/").filter(Boolean);
-  const tab = segments[1] || "";
-  const section = segments[2] || "";
+  // Use params.rest for tab and section instead of parsing pathname manually
+  const restSegments = params.rest || [];
+  const tab = restSegments[0] || "";
+  const section = restSegments[1] || "";
+
   const [Evaluating, setEvaluating] = useState(false);
   const [specificWorkshop, setSpecificWorkshop] = useState<WorkshopViewProps>();
   const { user, isLoading } = useAuth();
@@ -222,7 +225,8 @@ export default function EntityCatchAllPage() {
       const lastValidPublicRoute =
         sessionStorage.getItem("lastValidPublicRoute") || "/";
       // If current route is not valid (e.g., too many segments, or not a known public route)
-      if (segments.length > 3 || pathname.match(/\/404|\/error/)) {
+      // Check rest segments length instead of pathname segments
+      if (restSegments.length > 2 || pathname.match(/\/404|\/error/)) {
         router.replace(lastValidPublicRoute);
         return;
       }
@@ -243,7 +247,7 @@ export default function EntityCatchAllPage() {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [showLoginRedirect, countdown, router, pathname, segments]);
+  }, [showLoginRedirect, countdown, router, pathname, restSegments]);
 
   // Route validation and redirect effect
   useEffect(() => {
@@ -255,11 +259,19 @@ export default function EntityCatchAllPage() {
         router.replace(newPath);
         return;
       }
+
       // If too many segments (e.g., /en/professor/workshops/my-workshops/asd)
-      if (segments.length > 3) {
+      // Check rest segments length > 2 (tab + section)
+      // BUT exclude notifications tab which can have notifications/id (length 2)
+      // Actually notifications/id is length 2, so it's fine.
+      // But if notifications/id/extra -> length 3 -> redirect.
+      // So restSegments.length > 2 is the correct check for most cases.
+
+      if (restSegments.length > 2) {
         setRedirecting(true);
         // Only keep up to /locale/entity/tab/section
-        const validBase = `/${segments[0]}/${segments[1]}/${segments[2]}`;
+        // Construct valid base using entity and first 2 rest segments
+        const validBase = `/${correctEntitySegment}/${restSegments[0]}/${restSegments[1]}`;
         router.replace(validBase);
         return;
       }
@@ -268,7 +280,7 @@ export default function EntityCatchAllPage() {
       setRedirecting(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, segments]);
+  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, restSegments]);
 
   // Show loading state for initial load only
   if (isLoading) {
@@ -590,6 +602,13 @@ export default function EntityCatchAllPage() {
     if (entity === "professor" && tab === "workshops") {
       return <WorkshopList userId={userId} filter={"none"} userInfo={user} />;
     }
+
+    // Notifications - Available for all entities
+    if (tab === "notifications") {
+      console.log("✅ Notifications tab accessed for entity:", entity);
+      return <NotificationsPageContent />;
+    }
+
     // Default placeholder content
     return (
       <div className="p-6 bg-white">

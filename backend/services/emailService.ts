@@ -185,12 +185,12 @@ export const sendQRCodeEmail = async (
     html,
     attachments: [
       {
-        filename: `QR_Code_${eventName.replace(/[^a-zA-Z0-9]/g, '_')}.png`,
+        filename: `QR_Code_${eventName.replace(/[^a-zA-Z0-9]/g, "_")}.png`,
         content: qrCodeBuffer,
-        contentType: 'pdf',
-        disposition: 'attachment'
-      }
-    ]
+        contentType: "pdf",
+        disposition: "attachment",
+      },
+    ],
   });
 };
 // Send gym session notification email (cancelled or edited)

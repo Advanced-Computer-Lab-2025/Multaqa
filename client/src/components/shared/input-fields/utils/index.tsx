@@ -18,9 +18,6 @@ import {
 } from "../types";
 import theme from "@/themes/lightTheme";
 
-export const NAME_FORMATTING_NOTE =
-  "Tip: Please enter your name with proper capitalization (e.g., John Doe).";
-
 /**
  * Get email domain based on stakeholder type
  */

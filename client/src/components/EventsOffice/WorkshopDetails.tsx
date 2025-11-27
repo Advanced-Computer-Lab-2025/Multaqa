@@ -32,6 +32,8 @@ import { CustomModal } from "../shared/modals";
 import { api } from "@/api";
 import { WorkshopViewProps } from "../Event/types";
 import { toast } from "react-toastify";
+import CustomTextField from "../shared/input-fields/CustomTextField";
+import CustomSelectField from "../shared/input-fields/CustomSelectField";
 
 interface WorkshopDetailsProps {
   workshop: WorkshopViewProps;
@@ -138,16 +140,16 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
         payload
       );
       toast.success("Your evaluation has been recieved. Thank you !", {
-              position: "bottom-right",
-              autoClose: 3000,
-              theme: "colored",
-            });
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
     } catch (err: any) {
-       toast.error(err?.response?.data?.error, {
-              position: "bottom-right",
-              autoClose: 3000,
-              theme: "colored",
-            });
+      toast.error(err?.response?.data?.error, {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
       setStatus("N/A");
       setStatusFinalized(false);
       setComment(""); // Clear comment field if the attempt failed
@@ -185,12 +187,12 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     const commentArray: CommentWithoutId[] =
       comment.trim() && confirmed === "awaiting_review"
         ? [
-            {
-              commenter: eventsOfficeId,
-              text: comment,
-              timestamp: new Date().toISOString(),
-            },
-          ]
+          {
+            commenter: eventsOfficeId,
+            text: comment,
+            timestamp: new Date().toISOString(),
+          },
+        ]
         : [];
 
     const payload = {
@@ -325,7 +327,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
             {/* Two Column Layout */}
             <Grid container spacing={4} sx={{ mb: 4 }}>
               {/* Left Column */}
-              <Grid size={{xs:12, md:6}}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <InfoItem
                   icon={<CalendarMonth fontSize="small" />}
                   label="Start"
@@ -355,7 +357,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
               </Grid>
 
               {/* Right Column */}
-                <Grid size={{xs:12, md:6}}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <InfoItem
                   icon={<AttachMoney fontSize="small" />}
                   label="Budget"
@@ -510,17 +512,13 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
               </Typography>
 
               <Grid container spacing={2}>
-                    <Grid size={{xs:12, md:8}}>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 500, mb: 0.5 }}
-                  >
-                    Comments
-                  </Typography>
-                  <TextField
+                <Grid size={{ xs: 12, md: 8 }}>
+                  <CustomTextField
+                    name="comments"
+                    label="Comments"
+                    fieldType="text"
                     multiline
                     rows={3}
-                    fullWidth
                     placeholder={
                       status === "N/A" || status === "awaiting_review"
                         ? "Add comments (saved for 'Awaiting Review' only)..."
@@ -529,34 +527,20 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     disabled={status !== "awaiting_review" && status !== "N/A"}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: 1.5,
-                      },
-                    }}
+                    neumorphicBox={false}
                   />
                 </Grid>
 
-                <Grid size={{xs:12, md:4}}>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 500, mb: 0.5 }}
-                  >
-                    Status
-                  </Typography>
-                  <FormControl fullWidth>
-                    <Select
-                      value={status}
-                      onChange={(e) => handleStatusChange(e.target.value)}
-                      sx={{ borderRadius: 1.5 }}
-                    >
-                      {statusOptions.map((opt) => (
-                        <MenuItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <CustomSelectField
+                    name="status"
+                    label="Status"
+                    fieldType="single"
+                    options={statusOptions}
+                    value={status}
+                    onChange={(value) => handleStatusChange(value as string)}
+                    neumorphicBox={false}
+                  />
                 </Grid>
               </Grid>
             </Paper>
@@ -612,14 +596,14 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
           onClick: handleCancelStatus,
         }}
       >
-        <Box sx={{ mt: 2 }}>
-          <Typography>
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Typography sx={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
             Set status to{" "}
             <strong>{getStatusLabel(pendingStatus || "N/A")}</strong>?
           </Typography>
           <Typography
             variant="body2"
-            sx={{ mt: 2, color: theme.palette.error.main, fontWeight: 500 }}
+            sx={{ mt: 2, color: theme.palette.error.main, fontWeight: 500, fontFamily: "var(--font-poppins), system-ui, sans-serif" }}
           >
             ⚠️ This action cannot be undone.
           </Typography>

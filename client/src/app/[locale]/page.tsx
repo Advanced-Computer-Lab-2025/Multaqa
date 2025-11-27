@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   alpha,
   Box,
@@ -124,43 +125,111 @@ const socialLinks = [
 ];
 
 export default function HomePage() {
+  // We wrap in Suspense just in case, but we removed the hooks that cause the issue
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
+      <HomePageContent />
+    </Suspense>
+  );
+}
+
+function HomePageContent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // State
   const [showSignUpOptions, setShowSignUpOptions] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLocaleModalOpen, setIsLocaleModalOpen] = useState(false);
   const [isConsentOpen, setIsConsentOpen] = useState(false);
+
+  // View State (Initialized from URL to prevent animation jump)
+  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
+    () => {
+      if (pathname?.endsWith("/login")) return "login";
+      if (pathname?.endsWith("/register")) return "register";
+      return "home";
+    }
+  );
+
+  const [userType, setUserType] = useState<string>(() => {
+    return searchParams?.get("userType") || "";
+  });
+
   const lastScrollY = useRef(0);
   const signUpHoverRef = useRef<HTMLDivElement | null>(null);
   const signUpHoverTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
-  const [userType, setUserType] = useState<string>("");
-  const [currentView, setCurrentView] = useState<"home" | "login" | "register">(
-    "home"
-  );
 
   const isHome = currentView === "home";
 
-  const handleLoginClick = () => {
-    setCurrentView("login");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleRegisterClick = (type: string) => {
+  // --- HELPER TO UPDATE URL WITHOUT RELOAD ---
+  const handleViewChange = (
+    view: "home" | "login" | "register",
+    type: string = ""
+  ) => {
+    setCurrentView(view);
     setUserType(type);
-    setCurrentView("register");
+
+    let newPath = "/";
+    // Adjust based on your locale logic if needed
+    if (view === "login") newPath = "/login";
+    if (view === "register") newPath = "/register";
+
+    if (view === "register" && type) {
+      newPath += `?userType=${type}`;
+    }
+
+    // Push new state manually
+    window.history.pushState({ view, userType: type }, "", newPath);
+  };
+
+  // --- HANDLERS (With Event Prevention) ---
+  const handleLoginClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    handleViewChange("login");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleHomeClick = () => {
-    setCurrentView("home");
-    setUserType("");
+  const handleRegisterClick = (type: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    handleViewChange("register", type);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleHomeClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    handleViewChange("home");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // --- POPSTATE LISTENER (Browser Back Button) ---
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+
+      if (path.endsWith("/login")) {
+        setCurrentView("login");
+      } else if (path.endsWith("/register")) {
+        setCurrentView("register");
+        setUserType(params.get("userType") || "");
+      } else {
+        setCurrentView("home");
+        setUserType("");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // --- SCROLL LOGIC ---
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
@@ -356,13 +425,12 @@ export default function HomePage() {
             gap: 2,
           }}
         >
-          {/* <Typography
-            component={Link}
-            href="/"
+          {/* LOGO: Changed component={Link} to div to prevent router hijacking */}
+          <Typography
+            component="div"
             onClick={(e) => {
               if (currentView !== "home") {
-                e.preventDefault();
-                handleHomeClick();
+                handleHomeClick(e);
               }
             }}
             variant="h6"
@@ -376,10 +444,9 @@ export default function HomePage() {
             }}
           >
             MULTAQA
-          </Typography> */}
-          <Link href="/">
-            <ScaledLogo image={multaqaLogo} transparent />
-          </Link>
+          </Typography>
+
+          {/* <ScaledLogo image={multaqaLogo} transparent /> */}
 
           <Stack
             direction="row"
@@ -399,7 +466,7 @@ export default function HomePage() {
                   exit={{ opacity: 0, x: -20 }}
                 >
                   <IconButton
-                    onClick={handleHomeClick}
+                    onClick={(e) => handleHomeClick(e)}
                     aria-label="Go to home"
                     sx={{
                       height: 40,
@@ -489,7 +556,7 @@ export default function HomePage() {
               {currentView === "home" && (
                 <CustomButton
                   variant="contained"
-                  onClick={handleLoginClick}
+                  onClick={(e: any) => handleLoginClick(e)}
                   label="Login"
                   size="small"
                   sx={{
@@ -960,9 +1027,11 @@ export default function HomePage() {
                     Sign up as
                   </Typography>
                   <CustomButton
-                    component={Link}
-                    href="/register?userType=university-member"
                     variant="contained"
+                    onClick={(e: any) => {
+                      setIsMenuOpen(false);
+                      handleRegisterClick("university-member", e);
+                    }}
                     sx={{
                       width: "100%",
                       height: 58,
@@ -977,9 +1046,8 @@ export default function HomePage() {
                         borderColor: theme.palette.tertiary.dark,
                       },
                     }}
-                  >
-                    University Member
-                  </CustomButton>
+                    label="University Member"
+                  />
                 </Stack>
                 <Stack spacing={1}>
                   <Typography
@@ -993,10 +1061,12 @@ export default function HomePage() {
                     Sign up as
                   </Typography>
                   <CustomButton
-                    component={Link}
-                    href="/register?userType=vendor"
-                    color="primary"
                     variant="outlined"
+                    color="primary"
+                    onClick={(e: any) => {
+                      setIsMenuOpen(false);
+                      handleRegisterClick("vendor", e);
+                    }}
                     sx={{
                       width: "100%",
                       height: 58,
@@ -1004,9 +1074,8 @@ export default function HomePage() {
                       fontWeight: 600,
                       letterSpacing: "0.04em",
                     }}
-                  >
-                    Vendor
-                  </CustomButton>
+                    label="Vendor"
+                  />
                 </Stack>
                 <Typography
                   sx={{
@@ -1022,12 +1091,20 @@ export default function HomePage() {
                 >
                   Already have an account?
                   <Typography
-                    component={Link}
-                    href="/login"
+                    component="button"
+                    onClick={(e) => {
+                      setIsMenuOpen(false);
+                      handleLoginClick(e);
+                    }}
                     sx={{
                       color: theme.palette.primary.main,
                       fontWeight: 600,
                       textDecoration: "none",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      p: 0,
                       "&:hover": {
                         textDecoration: "underline",
                       },
@@ -1304,7 +1381,44 @@ export default function HomePage() {
               so every voice on campus can connect through meaningful
               experiences.
             </Typography>
+          </Container>
+        </Box>
 
+        <Box
+          component="footer"
+          sx={{
+            background: `linear-gradient(135deg, ${theme.palette.primary.main
+              } 0%, ${alpha(theme.palette.tertiary.main, 0.7)} 100%)`,
+            color: theme.palette.common.white,
+            position: "relative",
+            overflow: "hidden",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `radial-gradient(circle at 30% 40%, ${alpha(
+                theme.palette.primary.light,
+                0.15
+              )}, transparent 60%)`,
+              pointerEvents: "none",
+            },
+          }}
+        >
+          <Container
+            maxWidth="lg"
+            sx={{
+              py: { xs: 6, md: 8 },
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              alignItems: { xs: "center", md: "stretch" },
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
             <Stack
               direction={{ xs: "column", md: "row" }}
               spacing={3}
@@ -1423,9 +1537,8 @@ export default function HomePage() {
         <Box
           component="footer"
           sx={{
-            background: `linear-gradient(135deg, ${
-              theme.palette.primary.main
-            } 0%, ${alpha(theme.palette.tertiary.main, 0.7)} 100%)`,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main
+              } 0%, ${alpha(theme.palette.tertiary.main, 0.7)} 100%)`,
             color: theme.palette.common.white,
             position: "relative",
             overflow: "hidden",
@@ -1674,7 +1787,7 @@ const HeroContent = ({
     >
       <CustomButton
         variant="contained"
-        onClick={handleLoginClick}
+        onClick={(e: any) => handleLoginClick(e)} // Pass event
         label="Login"
         sx={{
           width: { xs: "100%", sm: "160px" },
@@ -1724,7 +1837,7 @@ const HeroContent = ({
           color="primary"
           label="Sign Up"
           endIcon={<ArrowOutwardIcon />}
-          onClick={() => {
+          onClick={(e: any) => {
             if (isMobile) {
               setShowSignUpOptions((prev: boolean) => !prev);
             }
@@ -1784,7 +1897,7 @@ const HeroContent = ({
               <Box
                 key={option.label}
                 component="button"
-                onClick={() => handleRegisterClick(option.userType)}
+                onClick={(e) => handleRegisterClick(option.userType, e)} // Pass event
                 sx={{
                   borderRadius: 2,
                   p: 1.5,
@@ -1871,6 +1984,8 @@ const authTransition = (delay: number) => ({
   damping: 20,
   delay: delay,
 });
+
+
 
 const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
   <Box
