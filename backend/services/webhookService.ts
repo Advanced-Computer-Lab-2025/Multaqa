@@ -160,35 +160,40 @@ export class WebhookService {
       vendor.markModified("requestedEvents");
       await vendor.save();
 
-      console.log(
-        `✅ Vendor ${vendorId} payment completed for event ${eventId} - hasPaid set to true`
-      );
-
-      // Update the event based on type - no status change needed, just mark payment received
+      // Update the event based on type - SET hasPaid to true in event RequestData
       if (event.type === EVENT_TYPES.BAZAAR) {
-        // Find vendor in event's vendors array
-        const vendorIndex = event.vendors?.findIndex(
-          (ve) => ve.vendor?.toString() === vendorId.toString()
-        );
+        // Find vendor in event's vendors array - handle both populated and unpopulated vendor refs
+        const vendorIndex = event.vendors?.findIndex((ve) => {
+          // Handle populated vendor (object with _id) vs unpopulated (ObjectId string)
+          const vendorRefId =
+            typeof ve.vendor === "string"
+              ? ve.vendor
+              : (ve.vendor as any)?._id?.toString() || ve.vendor?.toString();
+          return vendorRefId === vendorId.toString();
+        });
 
         if (vendorIndex !== -1 && vendorIndex !== undefined && event.vendors) {
-          // No status change needed - vendor was already approved
+          // Set hasPaid to true in the event's RequestData
+          event.vendors[vendorIndex].RequestData.hasPaid = true;
           event.markModified("vendors");
           await event.save();
-          console.log(
-            `✅ Updated bazaar event ${eventId} - vendor payment recorded`
+        } else {
+          console.error(
+            `⚠️ Could not find vendor ${vendorId} in bazaar event ${eventId} vendors array`
           );
         }
       } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
-        // For platform booth, no status change needed
+        // For platform booth, set hasPaid to true in RequestData
         if (
           event.vendor?.toString() === vendorId.toString() &&
           event.RequestData
         ) {
+          event.RequestData.hasPaid = true;
           event.markModified("RequestData");
           await event.save();
-          console.log(
-            `✅ Updated platform booth event ${eventId} - vendor payment recorded`
+        } else {
+          console.error(
+            `⚠️ Vendor mismatch or missing RequestData for platform booth event ${eventId}`
           );
         }
       }
@@ -211,10 +216,6 @@ export class WebhookService {
           paymentDate: new Date(),
           paymentMethod: "Card",
         });
-
-        console.log(
-          `✅ Vendor payment receipt sent for session ${session.id} to ${customerEmail}`
-        );
       }
     } catch (error) {
       console.error(

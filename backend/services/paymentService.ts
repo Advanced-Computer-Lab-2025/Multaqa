@@ -397,7 +397,7 @@ export class PaymentService {
         `Cannot process payment. Request status is ${vendorRequest.status}. Payment is only allowed when status is APPROVED.`
       );
     }
-
+    console.log("Vendor request:", vendorRequest);
     // Check if vendor has already paid
     if ((vendorRequest as any).hasPaid === true) {
       throw createError(
