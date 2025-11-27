@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Box, Typography, Container } from "@mui/material";
 import FilterPanel from "../shared/FilterCard/FilterPanel";
-import { FilterGroup } from "../shared/FilterCard/types";
+import { FilterGroup, FilterOption } from "../shared/FilterCard/types";
 import ConferenceView from "../Event/ConferenceView";
 import WorkshopView from "../Event/WorkshopView";
 import BazarView from "../Event/BazarView";
@@ -20,7 +20,7 @@ import { api } from "@/api";
 import CreateBazaar from "../tempPages/CreateBazaar/CreateBazaar";
 import Create from "../tempPages/CreateConference/CreateConference";
 
-import { deleteEvent, frameData } from "./utils";
+import { deleteEvent, frameData, capitalizeNamePart } from "./utils";
 import { EventType, BaseEvent, Filters, FilterValue } from "./types";
 import CreationHubDropdown from "../createButton/CreationHubDropdown";
 import StorefrontIcon from "@mui/icons-material/Storefront";
@@ -75,26 +75,30 @@ type Event =
   | BoothEvent
   | TripEvent;
 
-const getFilterGroups = (userRole: string): FilterGroup[] => [
-  {
-    id: "professorName",
-    title: "Professor Name",
-    type: "text",
-  },
-  {
-    id: "eventType",
-    title: "Event Type",
-    type: "chip",
-    options: [
-      { label: "Conference", value: EventType.CONFERENCE },
-      { label: "Workshop", value: EventType.WORKSHOP },
-      { label: "Bazaar", value: EventType.BAZAAR },
-      { label: "Booth", value: EventType.BOOTH },
-      { label: "Trip", value: EventType.TRIP },
-    ],
-  },
-  ...(userRole !== "vendor"
-    ? [
+const getFilterGroups = (
+  userRole: string,
+  professorOptions: FilterOption[]
+): FilterGroup[] => [
+    {
+      id: "professorName",
+      title: "Professor Name",
+      type: "text",
+      options: professorOptions,
+    },
+    {
+      id: "eventType",
+      title: "Event Type",
+      type: "chip",
+      options: [
+        { label: "Conference", value: EventType.CONFERENCE },
+        { label: "Workshop", value: EventType.WORKSHOP },
+        { label: "Bazaar", value: EventType.BAZAAR },
+        { label: "Booth", value: EventType.BOOTH },
+        { label: "Trip", value: EventType.TRIP },
+      ],
+    },
+    ...(userRole !== "vendor"
+      ? [
         {
           id: "attendance",
           title: "My Status",
@@ -102,13 +106,13 @@ const getFilterGroups = (userRole: string): FilterGroup[] => [
           options: [{ label: "Attended", value: "attended" }],
         },
       ]
-    : []),
-  {
-    id: "date",
-    title: "Date",
-    type: "date", // <--- NEW TYPE
-  },
-];
+      : []),
+    {
+      id: "date",
+      title: "Date",
+      type: "date", // <--- NEW TYPE
+    },
+  ];
 
 const EventColor = [
   {
@@ -156,8 +160,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createconference, setConference] = useState(false);
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
+  const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
+  const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
-  const requestedEvents = userInfo?.requestedEvents;
+
+  // Fetch all professors once on mount for filtering
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      try {
+        const res = await api.get("/users/professors");
+        const professors = res.data.data.map((prof: any) => ({
+          firstName: prof.firstName,
+          lastName: prof.lastName,
+        }));
+        setCachedProfessors(professors);
+        console.log("📚 Cached professors for filtering:", professors);
+      } catch (err) {
+        console.error("Failed to fetch professors:", err);
+      }
+    };
+    fetchProfessors();
+  }, []);
+
   // Separate effect for loading events
   useEffect(() => {
     if (!registered) {
@@ -166,6 +190,33 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       handleRegistered();
     }
   }, [registered, refresh]);
+
+  // Use cached professors for filter options instead of parsing events
+  useEffect(() => {
+    if (cachedProfessors.length === 0) return;
+
+    const formatProfessorName = (rawName?: string | null) => {
+      if (!rawName || typeof rawName !== "string") return "";
+      return rawName
+        .trim()
+        .split(/\s+/)
+        .map((part) => capitalizeNamePart(part))
+        .join(" ");
+    };
+
+    const options = cachedProfessors.map((prof) => {
+      const fullName = `${formatProfessorName(prof.firstName)} ${formatProfessorName(prof.lastName)}`;
+      return {
+        label: fullName,
+        value: fullName.toLowerCase(),
+      };
+    });
+
+    const sortedOptions = options.sort((a, b) =>
+      a.label.localeCompare(b.label)
+    );
+    setProfessorOptions(sortedOptions);
+  }, [cachedProfessors]);
 
   const getUserData = () => {
     const user = {
@@ -190,7 +241,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       if (!registered) {
         const res = await api.get("/events");
         const data = res.data.data;
+        console.log("📡 Raw data from /events endpoint:", data);
         const result = frameData(data, userInfo);
+        console.log("🔄 Transformed events data:", result);
         const newResults =
           user === "vendor"
             ? result.filter((event) => event.type === "bazaar")
@@ -254,8 +307,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             (event.details?.Description?.toLowerCase() || "").includes(query) ||
             (Array.isArray(event.people)
               ? event.people.some((p) =>
-                  (p?.toString().toLowerCase() || "").includes(query)
-                )
+                (p?.toString().toLowerCase() || "").includes(query)
+              )
               : false) ||
             Object.values(event.details ?? {}).some((value) =>
               String(value ?? "")
@@ -308,10 +361,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           event.type === EventType.WORKSHOP
         ) {
           const professors = (event as any).professors as string[] | undefined;
-          const agendaText =
-            (event.agenda as string | undefined)?.toLowerCase() || "";
+          const createdByDetail =
+            (event.details?.["Created by"] ||
+              event.details?.["Created By"] ||
+              "") ?? "";
+          const createdByText = createdByDetail
+            .toString()
+            .toLowerCase();
 
-          return selectedProfessors.every((query) => {
+          return selectedProfessors.some((query) => {
             const lowerQuery = query.toLowerCase();
 
             // Check in professors list
@@ -322,10 +380,16 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
                   prof.toLowerCase().includes(lowerQuery)
               ) ?? false;
 
-            // Check in agenda text
-            const inAgenda = agendaText.includes(lowerQuery);
+            const inCreatedBy = createdByText.includes(lowerQuery);
 
-            return inProfessors || inAgenda;
+            // For conferences, also check the agenda
+            let inAgenda = false;
+            if (event.type === EventType.CONFERENCE && (event as any).agenda) {
+              const agenda = ((event as any).agenda as string).toLowerCase();
+              inAgenda = agenda.includes(lowerQuery);
+            }
+
+            return inProfessors || inCreatedBy || inAgenda;
           });
         }
         return false;
@@ -488,8 +552,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       ? user === "events-office"
         ? "Manage Events"
         : registered
-        ? " My Registered Events"
-        : "Browse Events"
+          ? " My Registered Events"
+          : "Browse Events"
       : "Create Events";
 
   const pageDescription =
@@ -497,8 +561,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       ? user === "events-office"
         ? "Manage all events that are on the system"
         : registered
-        ? "Keep track of which events you have registered for"
-        : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+          ? "Keep track of which events you have registered for"
+          : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
       : "Create and keep track of events you have created";
 
   // Render event component based on type
@@ -517,6 +581,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             name={event.name}
             description={event.description}
             agenda={event.agenda}
+            cachedProfessors={cachedProfessors}
             user={user}
             registered={registered}
             userInfo={userInfo}
@@ -581,6 +646,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            registrationDeadline={event.registrationDeadline}
           />
         );
       case EventType.BOOTH:
@@ -631,6 +697,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            registrationDeadline={event.registrationDeadline}
           />
         );
       default:
@@ -646,19 +713,19 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         padding={{ xs: 0 }}
         horizontalPadding={{ xs: 1 }}
       >
-        {/* Search, Filter, and Sort Row */}
+        {/* Search and Filter Row */}
         <Box
           sx={{
             display: "flex",
             gap: 2,
             alignItems: "center",
             mb: 6,
-            flexWrap: "wrap",
+            flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
           }}
         >
-          <Box sx={{ flexGrow: 0.3, minWidth: "300px" }}>
+          <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
             <CustomSearchBar
-              width="64vw"
+              width="100%"
               type="outwards"
               icon
               value={searchQuery}
@@ -669,18 +736,32 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           </Box>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <FilterPanel
-              filterGroups={getFilterGroups(user)}
+              filterGroups={getFilterGroups(user, professorOptions)}
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}
+              matchSearchBar
             />
           </LocalizationProvider>
+        </Box>
+
+        {/* Sort By and Creation Hub Row */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            mb: 2,
+          }}
+        >
           <SortByDate value={sortBy} onChange={handleSortChange} />
           {user === "events-only" && (
             <CreationHubDropdown
               options={creationHubOptions}
               helperText="Choose what you would like to create"
-              dropdownSide="left"
+              dropdownSide="right"
+              buttonTextColor="#fff"
             />
           )}
         </Box>

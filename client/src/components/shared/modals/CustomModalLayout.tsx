@@ -23,7 +23,7 @@ export default function CustomModalLayout({
   borderColor,
   title,
 }: CustomModalLayoutProps) {
-  const transitionDuration = 200;
+  const transitionDuration = 300;
   const [isCloseActive, setIsCloseActive] = React.useState(false);
 
   const handleClose = React.useCallback(() => {
@@ -60,17 +60,17 @@ export default function CustomModalLayout({
   // Parse width prop to create sx overrides
   const getWidthSx = () => {
     if (!width) return {};
-    
+
     // Extract breakpoint-specific widths from the width string
     const sxOverrides: Record<string, unknown> = {};
-    
+
     // Match patterns like w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[60vw], xl:w-[50vw]
     const baseWidth = width.match(/(?:^|\s)w-\[([^\]]+)\]/);
     const smWidth = width.match(/sm:w-\[([^\]]+)\]/);
     const mdWidth = width.match(/md:w-\[([^\]]+)\]/);
     const lgWidth = width.match(/lg:w-\[([^\]]+)\]/);
     const xlWidth = width.match(/xl:w-\[([^\]]+)\]/);
-    
+
     if (baseWidth) {
       sxOverrides.width = baseWidth[1];
       sxOverrides.maxWidth = baseWidth[1];
@@ -99,7 +99,7 @@ export default function CustomModalLayout({
         maxWidth: xlWidth[1],
       };
     }
-    
+
     return sxOverrides;
   };
 
@@ -119,61 +119,33 @@ export default function CustomModalLayout({
       disableAutoFocus
     >
       <Fade in={open} timeout={transitionDuration}>
-      <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
-          {/* Use sx prop directly on StyledModalHeader for Flexbox layout */}
-          <StyledModalHeader 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', // Ensures maximum separation
-              alignItems: 'center', // Vertically centers them
-              paddingRight: '10px', // Adjusted to account for close button size if needed
-            }}
-          >
-            {/* Title on the left OR an empty spacer */}
-            {title ? (
-              <h2 
-                id="modal-title" 
-                style={{ 
-                  fontFamily: "var(--font-jost), system-ui, sans-serif",
-                  fontWeight: 700,
-                  margin: 0, 
-                  paddingLeft: '10px', 
-                  borderBottom: `4px solid ${baseBorderColor}`, // Thick underline with accent color
-                  paddingBottom: '4px', // Space between text and underline
-                  marginLeft: 2,
-                  fontSize: '1.5rem',
-                }}
-              >
-                {title}
-              </h2>
-            ) : (
-              // <--- ADDED: If no title, use an empty div to occupy the left side
-              <div style={{ paddingLeft: '10px' }}></div> 
-            )}
-            
-            {/* Close Icon on the right */}
-            <div>
-              <AnimatedCloseButton
-                open={isCloseActive}
-                onClick={handleClose}
-                appearance="neumorphic"
-                lineColor={closeIconColor}
-                neumorphicProps={{
-                  containerType: "inwards",
-                  width: "42px",
-                  height: "42px",
-                  padding: "2px",
-                }}
-                variant="closeOnly"
-                ariaLabel="Close modal"
-              />
-            </div>
-          </StyledModalHeader>
-            
-          {/* Scrollable content area */}
-          <StyledModalContent>
-            {children}
-          </StyledModalContent>
+        <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
+          <StyledModalBox>
+            {/* Close Icon at the top right - Fixed header */}
+            <StyledModalHeader>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <AnimatedCloseButton
+                  open={isCloseActive}
+                  onClick={handleClose}
+                  appearance="neumorphic"
+                  lineColor={closeIconColor}
+                  neumorphicProps={{
+                    containerType: "inwards",
+                    width: "42px",
+                    height: "42px",
+                    padding: "2px",
+                  }}
+                  variant="closeOnly"
+                  ariaLabel="Close modal"
+                />
+              </div>
+            </StyledModalHeader>
+
+            {/* Scrollable content area */}
+            <StyledModalContent>
+              {children}
+            </StyledModalContent>
+          </StyledModalBox>
         </ModalCardWrapper>
       </Fade>
     </Modal>

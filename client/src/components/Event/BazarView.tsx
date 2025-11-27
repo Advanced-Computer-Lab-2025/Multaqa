@@ -30,6 +30,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   setRefresh,
   attended,
   archived,
+  registrationDeadline,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -216,9 +217,9 @@ const BazarView: React.FC<BazarViewProps> = ({
       <EditBazaar  
         setRefresh={setRefresh} bazaarId={id} bazaarName={name} 
         location={details["Location"]}  description={description} 
-        startDate={new Date(details['Start Date'])} 
-        endDate={new Date (details['End Date'])} 
-        registrationDeadline={new Date(details['Registration Deadline'])} open={edit} 
+        startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)} 
+        endDate={new Date (`${details["End Date"]}T${details["End Time"]}`)} 
+        registrationDeadline={new Date(registrationDeadline)} open={edit} 
         onClose={()=> {setEdit(false)}} color={theme.palette.tertiary.main}
       />
       <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />

@@ -32,8 +32,8 @@ export const getSelectFieldStyles = (
       ? `${minWidthFromContent}px`
       : "200px";
 
-  // Determine border color priority: error > focus > hover > transparent
-  let borderColor = "transparent";
+  // Determine border color priority: error > focus > hover > default gray
+  let borderColor = "#e0e0e0"; // Default visible border
   // eslint-disable-next-line prefer-const
   let borderWidth = "2px";
   if (isError) {
@@ -82,8 +82,8 @@ export const getLabelStyles = (
   const labelColor = isError
     ? "#d32f2f"
     : isFocused
-    ? theme.palette.tertiary.main
-    : "#999";
+      ? theme.palette.tertiary.main
+      : "#999";
 
   return {
     position: "absolute",
@@ -116,9 +116,8 @@ export const getDropdownIconStyles = (isOpen: boolean): React.CSSProperties => {
     top: "50%",
     transform: `translateY(-50%) ${isOpen ? "rotate(180deg)" : "rotate(0deg)"}`,
     transition: "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-    color: `${
-      isOpen ? theme.palette.tertiary.main : theme.palette.primary.main
-    }`,
+    color: `${isOpen ? theme.palette.tertiary.main : theme.palette.primary.main
+      }`,
     pointerEvents: "none" as const,
     // Increased chevron size slightly (label untouched)
     fontSize: "23px",
@@ -130,32 +129,21 @@ export const getDropdownIconStyles = (isOpen: boolean): React.CSSProperties => {
  * Styles for the dropdown menu
  */
 export const getDropdownStyles = (
-props: DropdownStyleProps, border?: any): React.CSSProperties => {
+  props: DropdownStyleProps, border?: any): React.CSSProperties => {
   const { isOpen } = props;
 
   return {
-    position: "absolute",
-    display:"flex",
-    justifyContent:"center",
-    alignItems:"center",
-    flexDirection:"column",
-    top: "calc(100% + 8px)",
-    left: 0,
-    right: 0,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
     maxHeight: "250px",
-    width:"200px",
+    width: "100%",
     overflowY: "auto" as const,
     backgroundColor: theme.palette.background.default,
     border: `2px solid  ${theme.palette.tertiary.main}`,
     borderRadius: "16px",
-    // High z-index to ensure the dropdown overlays modals/other UI; inline styles outrank non-!important rules
-    zIndex: 9999,
     marginBottom: "16px",
-    // Removed box shadow for a cleaner look for the dropdown styles
-    // boxShadow: `
-    //   -5px -5px 10px 0 #FAFBFF,
-    //   5px 5px 10px 0 rgba(22, 27, 29, 0.25)
-    // `,
     opacity: isOpen ? 1 : 0,
     visibility: isOpen ? ("visible" as const) : ("hidden" as const),
     transform: isOpen ? "translateY(0)" : "translateY(-10px)",
@@ -239,8 +227,8 @@ export const getOptionHoverStyles = (
     backgroundColor: isHovered
       ? "rgba(58, 79, 153, 0.08)"
       : isSelected
-      ? "rgba(58, 79, 153, 0.1)"
-      : "transparent",
+        ? "rgba(58, 79, 153, 0.1)"
+        : "transparent",
     borderLeft:
       isHovered || isSelected
         ? `3px solid  ${theme.palette.tertiary.main}`

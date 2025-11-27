@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import { CustomTextFieldProps } from "../types";
 import theme from "@/themes/lightTheme";
-import { capitalizeName, NAME_FORMATTING_NOTE } from "../utils";
+import { capitalizeName } from "../utils";
 
 // Custom styled component - no MUI dependency
 const StyledDefaultTextField: React.FC<
@@ -502,22 +502,6 @@ const StyledDefaultTextField: React.FC<
     </div>
   ) : null;
 
-  const noteBlock = shouldRenderNameNote ? (
-    <div
-      style={{
-        color: "#6b7280",
-        fontSize: "0.75rem",
-        marginTop: hasHelperTextContent ? "2px" : "3px",
-        marginLeft: neumorphicBox ? "16px" : "0px",
-        marginRight: "14px",
-        fontWeight: 400,
-        lineHeight: 1.66,
-      }}
-    >
-      {NAME_FORMATTING_NOTE}
-    </div>
-  ) : null;
-
   return (
     <div style={{ width: "100%" }}>
       {/* Separate Label - Rendered outside when neumorphic */}
@@ -735,7 +719,6 @@ const StyledDefaultTextField: React.FC<
 
       {/* Helper / Note Text */}
       {helperBlock}
-      {noteBlock}
     </div>
   );
 };

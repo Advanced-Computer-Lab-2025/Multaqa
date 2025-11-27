@@ -6,7 +6,7 @@ import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import EditIcon from "@mui/icons-material/Edit";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle , Ban, Archive} from "lucide-react";
+import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle, Ban, Archive } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -41,6 +41,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   professorStatus,
   evaluateButton,
   commentButton,
+  attendees
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -49,21 +50,18 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const [archive, setArchive] = useState(false);
   const [cancelRegisteration, setCancelRegisteration] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const updatedDetails = {...details,professors}
+  const updatedDetails = { ...details, professors }
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   const [edit, setEdit] = useState(false);
-  
-  const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
+
+  const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
     const fid = f?._id?.$oid || f?._id || f;
     return String(fid) === String(id);
   }));
 
-   const handlePaymentSuccess = (paymentDetails:any) => {
+  const handlePaymentSuccess = (paymentDetails: any) => {
     console.log('Payment successful:', paymentDetails);
     setPaymentDrawerOpen(false);
-    
-    // Handle successful payment - redirect, show confirmation, etc.
-    alert(`Payment successful! Transaction ID: ${paymentDetails.transactionId}`);
   };
   const startDate = new Date(details["Start Date"]);
   const now = new Date();
@@ -109,12 +107,13 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         cost={details["Cost"]}
         startTime={details["Start Time"]}
         endTime={details["End Time"]}
-        totalSpots={professorStatus=="approved"?details["Capacity"]:undefined}
+        totalSpots={professorStatus == "approved" ? details["Capacity"] : undefined}
         color={background}
         leftIcon={<IconComponent />}
         eventType={"Workshop"}
         spotsLeft={details["Spots Left"]}
         createdBy={details['Created by']}
+        professors={professors}
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={(user === "events-office" || user === "admin") ? (
           <Stack direction="row" spacing={1}>
@@ -181,26 +180,26 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               </IconButton>
             </Tooltip>
           </Stack>
-        ) : user==="professor"? (
-            <Tooltip title ="Edit Workshop">
-              <IconButton
-                size="medium"
-                onClick={()=>setEdit(true)}
-                sx={{
-                    backgroundColor: "rgba(255, 255, 255, 0.9)",
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    "&:hover": {
-                      backgroundColor: `${background}15`,
-                      borderColor: background,
-                      color: background,
-                    },
-                  }}
-              >
-               <EditIcon fontSize="small"/>
-              </IconButton>
-            </Tooltip>
+        ) : user === "professor" ? (
+          <Tooltip title="Edit Workshop">
+            <IconButton
+              size="medium"
+              onClick={() => setEdit(true)}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: `${background}15`,
+                  borderColor: background,
+                  color: background,
+                },
+              }}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         ) : null}
         commentButton={commentButton}
         registerButton={
@@ -274,11 +273,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         workshopName={name}
         budget={parseInt(details["Required Budget"], 10)}
         capacity={parseInt(details["Capacity"], 10)}
-        startDate={new Date(details["Start Date"])}
-        endDate={new Date(details["End Date"])}
-        registrationDeadline={
-          new Date(details["Registration Deadline"])
-        }
+        startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)}
+        endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)}
+        registrationDeadline={new Date(details["Deadline"])}
         description={description}
         agenda={agenda}
         location={details["Location"]}
@@ -351,16 +348,17 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <RegisterEventModal 
+      <RegisterEventModal
         open={register}
-        onClose={() => { setRegister(false); } }
+        onClose={() => { setRegister(false); }}
+        onParentClose={() => setDetailsModalOpen(false)}
         eventType={"Workshop"}
         userInfo={userInfo}
         eventId={id}
-       color={background} paymentOpen={() => setPaymentDrawerOpen(true)}/>
+        color={background} paymentOpen={() => setPaymentDrawerOpen(true)} />
       <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)}/>
-      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable}/>
+      <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)} />
+      <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable} />
       <CustomModalLayout
               open={detailsModalOpen}
               onClose={() => setDetailsModalOpen(false)}
@@ -438,11 +436,12 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       )
                   )
                 }
-                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:['general','agenda','details',
-                  'reviews'])}
+                sections={user=="vendor"?['general','agenda', 'details']:(professorStatus=="pending"||professorStatus=="awaiting_review"||professorStatus=="rejected"?['general','agenda','details']:(user=="professor"?['general','agenda','details','attendees',
+                  'reviews']:['general','agenda','details','reviews']))}
                 user={user?user:""}
                 attended ={attended}
                 eventId={id}
+                attendees={attendees}
               />
             </CustomModalLayout>
              <PaymentDrawer
