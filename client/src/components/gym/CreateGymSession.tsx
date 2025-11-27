@@ -188,23 +188,7 @@ export default function CreateGymSession({
               size="small"
               usePortalPositioning={true}
             />
-            <CustomTextField
-              label="Trainer Name (Optional)"
-              fieldType="name"
-              name="trainer"
-              value={formik.values.trainer}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
-              helperText={
-                formik.touched.trainer
-                  ? formik.errors.trainer
-                  : "Leave empty if trainer is not assigned yet"
-              }
-              placeholder="Enter trainer name"
-              neumorphicBox
-              fullWidth
-            />
+
 
             {/* Start Date and Time */}
             <DateTimePicker

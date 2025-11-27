@@ -228,6 +228,7 @@ export default function GymSessionsManagementContent() {
                   <TableCell align="center">Time</TableCell>
                   <TableCell align="center">Duration</TableCell>
                   <TableCell align="center">Type</TableCell>
+                  <TableCell align="center">Trainer</TableCell>
                   <TableCell align="center">Max Participants</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
@@ -304,6 +305,17 @@ export default function GymSessionsManagementContent() {
                             color: theme.palette.text.primary,
                           }}
                         >
+                          {session.instructor || "-"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 500,
+                            color: theme.palette.text.primary,
+                          }}
+                        >
                           {session.spotsTotal}
                         </Typography>
                       </TableCell>
@@ -315,20 +327,7 @@ export default function GymSessionsManagementContent() {
                             justifyContent: "center",
                           }}
                         >
-                          <Tooltip title="View Details">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleViewSession(session)}
-                              sx={{
-                                color: theme.palette.primary.main,
-                                "&:hover": {
-                                  backgroundColor: `${theme.palette.primary.main}20`,
-                                },
-                              }}
-                            >
-                              <ViewIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+
                           <Tooltip title="Edit Session">
                             <IconButton
                               size="small"
