@@ -205,12 +205,6 @@ export const editGymSession = async (
       date: sessionDate.toISOString(), 
       time: time,
       duration: sessionData.duration,
-      sessionType: mapSessionTypeToBackend(sessionData.type),
-      capacity: sessionData.maxParticipants,
-      // Include optional fields if they are provided
-      ...(sessionData.trainer && { trainer: sessionData.trainer }),
-      ...(sessionData.title && { eventName: sessionData.title }), // Assuming backend uses 'eventName'
-      ...(sessionData.location && { location: sessionData.location }),
     };
 
     console.log("📤 Sending update payload:", payload);

@@ -121,7 +121,6 @@ export default function EditGymSession({
           type: values.type as GymSessionType,
           maxParticipants: parseInt(values.maxParticipants),
           trainer: trainerName || undefined,
-          // NOTE: If your backend requires title/location, pass them here too
         };
 
         // 🎯 NEW LOGIC: Use the dedicated utility function

@@ -1,239 +1,228 @@
 import React, { useState } from 'react';
 import logoPlaceholder from './logo.jpeg';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {
-    Box,
-    Typography,
-    Paper,
-    Divider,
-    IconButton,
-    Tooltip,
-    useTheme,
-    Collapse, // Imported for the Inline Collapse
+  Box,
+  Typography,
+  Paper,
+  Divider,
+  IconButton,
+  Tooltip,
+  useTheme,
+  Collapse,
 } from '@mui/material';
 import {
-    LocalOffer as DiscountIcon,
-    Code as CodeIcon,
-    ContentCopy as CopyIcon,
-    CheckCircle as CheckIcon,
-    Info as InfoIcon,
-    Close as CloseIcon, // Used to close the collapse panel
+  LocalOffer as DiscountIcon,
+  Code as CodeIcon,
+  ContentCopy as CopyIcon,
+  CheckCircle as CheckIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
+import { IFileInfo } from '../../../../../backend/interfaces/fileData.interface';
 
-// Assume Vendor interface is imported
 interface Vendor {
-    id: string;
-    name: string;
-    discountRate: string;
+  companyName: string;
+  logo: IFileInfo;
+  loyaltyProgram?: {
+    discountRate: number;
     promoCode: string;
     termsAndConditions: string;
-    logoURL: string
+  };
 }
 
 interface VendorCardProps {
-    vendor: Vendor;
-    // onViewTNC is now optional, as the main display is handled internally
-    onViewTNC: (tnc: string) => void;
+  vendor: Vendor;
 }
 
-const VendorCard: React.FC<VendorCardProps> = ({ vendor, onViewTNC }) => {
-    const theme = useTheme();
-    const [copySuccess, setCopySuccess] = useState<'Copy' | 'Copied!' | 'Failed!'>('Copy');
-    const [showTncDrawer, setShowTncDrawer] = useState(false); 
+const VendorCard: React.FC<VendorCardProps> = ({ vendor }) => {
+  const theme = useTheme();
+  const [copySuccess, setCopySuccess] = useState<'Copy' | 'Copied!'>('Copy');
+  const [showTnc, setShowTnc] = useState(false);
 
-    // --- Helper Functions (Stubs) ---
-     const handleCopy = async (text: string) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            setCopySuccess('Copied!');
-            setTimeout(() => setCopySuccess('Copy'), 2000); 
-        } catch (err) {
-            setCopySuccess('Failed!');
-        }
-    };
-    // ---------------------------------
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess('Copied!');
+      setTimeout(() => setCopySuccess('Copy'), 2000);
+    } catch {
+      // fail silently
+    }
+  };
 
-    return (
-        <Paper
-            elevation={3}
-            sx={{
-                borderRadius: '24px', 
-                padding: 3,
-                maxWidth: 300,
-                pt: 6, 
-                boxShadow: `0px 4px 20px rgba(0, 0, 0, 0.05)`,
-            }}
+  return (
+    <Paper
+      elevation={3}
+      sx={{
+        borderRadius: '24px',
+        border: '1.5px solid',
+        borderColor: 'grey.300',
+        padding: 3,
+        maxWidth: 300,
+        pt: 6,
+        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          borderColor: 'primary.main',
+          boxShadow: '0px 8px 30px rgba(0, 0, 0, 0.12)',
+        },
+      }}
+    >
+      {/* LOGO & TITLE */}
+      <Box sx={{ position: 'relative', mb: 1 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -85,
+            left: 10,
+            width: 65,
+            height: 65,
+            bgcolor: 'primary.main',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0px 3px 10px rgba(0, 0, 0, 0.2)',
+            overflow: 'hidden',
+          }}
         >
-            {/* 1. TITLE & LOGO */}
-            <Box sx={{ position: 'relative', mb:1}}>
-                {/* Logo/Category Indicator */}
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: -85, 
-                        left:10, 
-                        width: 65, 
-                        height: 65, 
-                        backgroundColor: theme.palette.primary.main,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1,
-                        color: 'white',
-                        boxShadow: `0px 3px 10px rgba(0, 0, 0, 0.2)`, 
-                    }}
-                >
-                    <img 
-                        src={logoPlaceholder.src} // Assumes logo.jpeg is in the public folder
-                        alt={`${vendor.name} logo placeholder`}
-                        style={{
-                            width: '100%', 
-                            height: '100%',
-                            objectFit: 'cover', // Ensures image covers the circle
-                            borderRadius: '50%', // Ensures image is cropped to a circle
-                        }}
-                    />
-                </Box>
+          <img
+            src={vendor.logo?.url || logoPlaceholder.src}
+            alt={`${vendor.companyName} logo`}
+            onError={(e) => {
+              if (e.currentTarget.src !== logoPlaceholder.src) {
+                e.currentTarget.src = logoPlaceholder.src;
+              }
+            }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </Box>
 
-                <Typography variant="h6" sx={{ fontWeight: 600, mt: 1 }}>
-                    {vendor.name}
-                </Typography>
-            </Box>
+        <Typography variant="h6" sx={{ fontWeight: 600,textAlign: 'left' }}>
+          {vendor.companyName}
+        </Typography>
+      </Box>
 
-            <Divider sx={{ mb: 2 }} />
+      <Divider sx={{ mb: 2}} />
 
-            {/* 2. DISCOUNT RATE & T&C TRIGGER */}
-            <Box sx={{ mb: 2 }}>
-                {/* DISCOUNT RATE (The Primary Value) */}
-                <Box display="flex" alignItems="center" mb={1}>
-                    <DiscountIcon color="action" sx={{ mr: 1, fontSize: 18 }} />
-                    <Typography variant="body2" color="#666666" mr={1}>
-                        Discount Rate
-                    </Typography>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            fontWeight: 700,
-                            ml: 'auto',
-                            color: theme.palette.error.main,
-                            fontSize: '18'
-                        }}
-                    >
-                        {vendor.discountRate}
-                    </Typography>
-                </Box>
+      {/* DISCOUNT RATE - GREEN & BOLD */}
+      <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
+        <Box display="flex" alignItems="center">
+          <DiscountIcon color="action" sx={{ mr: 1, fontSize: 18 }} />
+          <Typography variant="body2" color="#666666">
+            Discount Rate
+          </Typography>
+        </Box>
+        <Typography
+          variant="body1"
+          sx={{
+            fontWeight: 700,
+            color: '#00C853', // Bright green
+            fontSize: '14px',
+          }}
+        >
+          {vendor.loyaltyProgram?.discountRate
+            ? `${vendor.loyaltyProgram.discountRate}%`
+            : 'Special Offer'}
+        </Typography>
+      </Box>
 
-                {/* TERMS AND CONDITIONS TRIGGER (Simplified) */}
-                <Box display="flex" alignItems="center" justifyContent="flex-start">
-                    <InfoIcon color="action" sx={{ mr: 1, fontSize: 18 }} />
-                    
-                    {/* T&C Text acting as the hyperlink trigger */}
-                    <Typography 
-                        variant="body2" 
-                        color="#666666"
-                        onClick={() => setShowTncDrawer(!showTncDrawer)} // Toggle the collapse
-                        sx={{
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                            '&:hover': {
-                                color: theme.palette.primary.main,
-                            }
-                        }}
-                    >
-                        Terms & Conditions
-                    </Typography>
-                </Box>
-            </Box>
+      {/* T&C SECTION - Right under Discount Rate */}
+      <Box mb={2}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" alignItems="center">
+            <InfoIcon color="action" sx={{ mr: 1, fontSize: 18 }} />
+            <Typography variant="body2" color="#666666">
+              Terms & Conditions
+            </Typography>
+          </Box>
 
-            {/* INLINE T&C COLLAPSE*/}
-            <Collapse in={showTncDrawer}>
-                <Box 
-                    sx={{ 
-                        mt: 1, 
-                        mb: 2, 
-                        p: 1.5, 
-                        borderRadius: '8px', 
-                        backgroundColor: theme.palette.grey[50],
-                        border: `1px solid ${theme.palette.divider}`
-                    }}
-                >
-                    <Box display="flex" alignItems="flex-start" mb={0.5}>
-                        <Box sx={{ flexGrow: 1 }} /> 
-                        
-                        <IconButton 
-                            size="small" 
-                            onClick={() => setShowTncDrawer(false)}
-                            sx={{ mt: -1, mr: -1 }} 
-                        >
-                            <CloseIcon fontSize="small" color="action" />
-                        </IconButton>
-                    </Box>
-                    <Typography 
-                        variant="body2" 
-                        sx={{ 
-                            whiteSpace: 'pre-wrap', 
-                            color: "theme.palette.text.primary",
-                            mt: -1.0, 
-                        }}
-                    >
-                        {vendor.termsAndConditions}
-                    </Typography>
-                </Box>
-            </Collapse>
-            
-            <Divider sx={{ mb: 1 }} />
+          <IconButton
+            size="small"
+            onClick={() => setShowTnc(!showTnc)}
+            sx={{
+              transform: showTnc ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.25s ease-in-out',
+            }}
+          >
+            <KeyboardArrowDownIcon
+              sx={{
+                fontSize: 20,
+                color: showTnc ? 'primary.main' : '#666666',
+              }}
+            />
+          </IconButton>
+        </Box>
 
-            {/* 3. PROMO CODE */}
-            <Box sx={{ pt: 1 }}> 
-                <Typography
-                    variant="caption"
-                    color='#666666'
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        mb: 1
-                    }}
-                >
-                    <CodeIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                    Promo Code:
-                </Typography>
+        <Collapse in={showTnc}>
+          <Box
+            sx={{
+              mt: 1,
+              p: 2,
+              bgcolor: 'grey.50',
+              borderRadius: '8px',
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Typography
+              variant="body2"
+              color="#666666"
+              sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, fontSize: '13px' }}
+            >
+              {vendor.loyaltyProgram?.termsAndConditions || 'No terms available.'}
+            </Typography>
+          </Box>
+        </Collapse>
+      </Box>
 
-                {/* Promo Code Box */}
-                <Box
-                    sx={{
-                        p: 1.5,
-                        backgroundColor: theme.palette.grey[100],
-                        borderRadius: '8px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        border: `1px dashed ${theme.palette.divider}`
-                    }}
-                >
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            fontWeight: 700,
-                            fontFamily: 'monospace',
-                            color: theme.palette.text.primary
-                        }}
-                    >
-                        {vendor.promoCode}
-                    </Typography>
-                    <Tooltip title={copySuccess === 'Copied!' ? 'Copied!' : 'Copy to Clipboard'}>
-                        <IconButton
-                            size="small"
-                            onClick={() => handleCopy(vendor.promoCode)}
-                            color={copySuccess === 'Copied!' ? 'success' : 'primary'}
-                            sx={{ ml: 1 }}
-                        >
-                            {copySuccess === 'Copied!' ? <CheckIcon /> : <CopyIcon />}
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box>
-        </Paper>
-    );
+      <Divider sx={{ mb: 1}} />
+
+      {/* PROMO CODE - Below T&C */}
+      <Box>
+        <Typography
+          variant="caption"
+          color="#666666"
+          sx={{ display: 'flex', alignItems: 'center', mb: 1 }}
+        >
+          <CodeIcon sx={{ fontSize: 16, mr: 0.5 }} />
+          Promo Code:
+        </Typography>
+
+        <Box
+          sx={{
+            p: 1.5,
+            bgcolor: 'grey.100',
+            borderRadius: '8px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            border: `1px dashed ${theme.palette.divider}`,
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              letterSpacing: 1,
+              color: theme.palette.text.primary,
+            }}
+          >
+            {vendor.loyaltyProgram?.promoCode || 'N/A'}
+          </Typography>
+
+          <Tooltip title={copySuccess === 'Copied!' ? 'Copied!' : 'Copy to clipboard'}>
+            <IconButton
+              size="small"
+              onClick={() => handleCopy(vendor.loyaltyProgram?.promoCode || '')}
+              color={copySuccess === 'Copied!' ? 'success' : 'primary'}
+            >
+              {copySuccess === 'Copied!' ? <CheckIcon /> : <CopyIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
+    </Paper>
+  );
 };
 
 export default VendorCard;
