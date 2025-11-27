@@ -11,6 +11,9 @@ import { WorkshopViewProps } from "../Event/types";
 import WorkshopView from "../Event/WorkshopView";
 import Diversity3Icon from "@mui/icons-material/Diversity3";
 import { EventCardsListSkeleton } from "../BrowseEvents/utils/EventCardSkeleton";
+import { CustomModalLayout } from "../shared/modals";
+import CommentsList from "../shared/Professor/CommentsModal";
+import EmptyState from "../shared/states/EmptyState";
 
 interface WorkshopRequestsProps {
   setEvaluating: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,6 +21,14 @@ interface WorkshopRequestsProps {
   evaluate:boolean;
   filter:string;
 }
+
+interface CommentItem {
+  commenter: string;
+  name:string;
+  text: string;
+  timestamp: string;
+}
+
 
 const statusChip = (status: string) => {
   if (status === "pending") return <Chip size="small" label="Pending" color="warning" variant="outlined" />;
@@ -32,10 +43,12 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
   evaluate,
   filter
 }) =>  {
-  const [requests, setRequests] = useState<WorkshopViewProps[]>([]);
-  const [filteredRequests, setFilteredRequests] = useState<WorkshopViewProps[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<any[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const [commentModal, setCommentModal] = useState<boolean>(false);
+  const [selectedWorkshopComments, setSelectedWorkshopComments] = useState<any[]>([]);
 
    useEffect(() => {
     handleCallAPI()
@@ -67,6 +80,10 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
     }
   };
 
+    const handleViewComments = (comments: CommentItem[]) => {
+    setSelectedWorkshopComments(comments || []);
+    setCommentModal(true);
+  };
   // 💡 NEW: Custom sorting logic to put 'pending' workshops first
   const sortWorkshops = (workshops: WorkshopViewProps[]): WorkshopViewProps[] => {
     // Create a mutable copy to sort
@@ -130,9 +147,9 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
             onClick={() => setSelectedFilter(option.value)}
             variant="outlined"
             size="medium"
-            sx={{
+           sx={{
               color: option.color,
-              borderWidth:selectedFilter === option.value ? 2 : 1,
+              borderWidth: selectedFilter === option.value ? 2 : 1,
               borderColor: option.color,
               fontWeight: selectedFilter === option.value ? 600 : 500,
               fontSize: "0.875rem",
@@ -143,7 +160,7 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
               cursor: "pointer",
               "&:hover": {
                 color: option.color,
-                borderWidth:2,
+                borderWidth: 2,
               },
             }}
           />
@@ -173,45 +190,63 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
                  <CustomButton
                     size="small"
                     variant="contained"
-                    sx={{ 
-                      borderRadius: 999,
-                      backgroundColor: `${background}40`,
-                      color: background,
-                      borderColor: background,
-                      fontWeight: 600,
-                      px: 3,
-                      textTransform: "none",
-                      boxShadow: `0 4px 14px ${background}40`,
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        backgroundColor: `${background}50`,
-                        transform: "translateY(-2px)",
-                        boxShadow: `0 6px 20px ${background}50`,
-                      },
-                    }}
+                    sx={{
+                          borderRadius: 999,
+                          border: `1px solid ${background}`,
+                          backgroundColor: `${background}`,
+                          color: background,
+                          fontWeight: 600,
+                          px: 3,
+                          textTransform: "none",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            transform: "translateY(-2px)",
+                          },
+                        }}
                     onClick={() => {setEvaluating(true); setSpecificWorkshop(item)}}
                   >
                     Evaluate
                   </CustomButton>
                 }
+                 commentButton={
+                                  <CustomButton
+                                    size="small"
+                                    variant="contained"
+                                       sx={{
+                                      borderRadius: 999,
+                                      border: `1px solid ${background}`,
+                                      backgroundColor: `${background}`,
+                                      color: background,
+                                      fontWeight: 600,
+                                      px: 3,
+                                      textTransform: "none",
+                                      transition: "all 0.3s ease",
+                                      "&:hover": {
+                                        transform: "translateY(-2px)",
+                                      },
+                                      width: 'fit-content'
+                                    }}
+                                    onClick={() => handleViewComments(item.comments)}
+                                  >
+                                    View Comments
+                                  </CustomButton>
+                                }
               />
             </React.Fragment>
           ))}
         {loading && <EventCardsListSkeleton />}
         {!loading &&(!filteredRequests || filteredRequests.length === 0) &&
-          <Box
-            sx={{
-              height: "60vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: "1.2rem",
-            }}
-          >
-            No workshops to view here!
-          </Box>
+          <EmptyState
+                    title = "No workshops to view"
+                    />
         }
       </Stack>
+       <CustomModalLayout
+              open={commentModal}
+              onClose={() => setCommentModal(false)}
+            >
+              <CommentsList comments={selectedWorkshopComments} />
+            </CustomModalLayout>
     </Box>
   );
 }

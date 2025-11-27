@@ -602,6 +602,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             key={event.id}
             details={event.details}
             name={event.name}
+            attendees={event.attendees}
             description={event.description}
             professorsId={event.professorsId}
             professors={event.professors}
@@ -853,6 +854,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           open={createconference}
           onClose={() => setConference(false)}
           setRefresh={setRefresh}
+          color={theme.palette.tertiary.main}
         />
       </ContentWrapper>
     </Container>

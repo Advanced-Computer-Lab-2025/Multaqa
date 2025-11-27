@@ -11,7 +11,7 @@ import {
   StyledModalHeader,
 } from "./styles/StyledModal";
 import AnimatedCloseButton from "@/components/shared/Buttons/AnimatedCloseButton";
-import { CustomModalLayoutProps } from "./types"; // Assuming title will be added here
+import { CustomModalLayoutProps } from "./types"; 
 import { createDelayedCloseHandler } from "./utils";
 import { useTheme, lighten } from "@mui/material/styles";
 
@@ -46,10 +46,9 @@ export default function CustomModalLayout({
   }, [open]);
 
   const theme = useTheme();
-  // Use provided borderColor or fallback to theme. Compute a lighter variant for the close icon.
   const tertiary = (theme.palette as unknown as { tertiary?: { main?: string } }).tertiary;
   const baseBorderColor = borderColor ?? tertiary?.main ?? theme.palette.primary.main;
-  // lighten may throw for some invalid color formats; default to baseBorderColor if lighten fails
+  
   let closeIconColor = baseBorderColor;
   try {
     closeIconColor = lighten(String(baseBorderColor), 0.35);
@@ -57,14 +56,10 @@ export default function CustomModalLayout({
     // keep baseBorderColor if lighten isn't applicable
   }
 
-  // Parse width prop to create sx overrides
   const getWidthSx = () => {
     if (!width) return {};
 
-    // Extract breakpoint-specific widths from the width string
     const sxOverrides: Record<string, unknown> = {};
-
-    // Match patterns like w-[90vw], sm:w-[80vw], md:w-[70vw], lg:w-[60vw], xl:w-[50vw]
     const baseWidth = width.match(/(?:^|\s)w-\[([^\]]+)\]/);
     const smWidth = width.match(/sm:w-\[([^\]]+)\]/);
     const mdWidth = width.match(/md:w-\[([^\]]+)\]/);
@@ -121,11 +116,12 @@ export default function CustomModalLayout({
       <Fade in={open} timeout={transitionDuration}>
         <ModalCardWrapper sx={getWidthSx()} borderColor={borderColor}>
           <StyledModalBox>
-            {/* Header with Title and Close Icon - Fixed header */}
+            {/* Header with Title and Close Icon */}
             <StyledModalHeader>
               <div style={{ 
                 display: 'flex', 
-                justifyContent: 'space-between', 
+                // CHANGE HERE: conditionally set justify-content
+                justifyContent: title ? 'space-between' : 'flex-end', 
                 alignItems: 'center',
                 width: '100%'
               }}>
@@ -179,7 +175,6 @@ export default function CustomModalLayout({
               </div>
             </StyledModalHeader>
 
-            {/* Scrollable content area */}
             <StyledModalContent>
               {children}
             </StyledModalContent>

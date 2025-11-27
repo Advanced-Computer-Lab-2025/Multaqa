@@ -24,8 +24,8 @@ import { toast } from "react-toastify";
 import { api } from "../../../api";
 import { frameData } from "./utils/frameData";
 import { ReviewSkeletonList } from "./utils/ReviewSkeletonList";
-import { NoReviews } from "./utils/NoReviews";
 import { AttendeesList } from "./utils/Attendees";
+import EmptyState from "@/components/shared/states/EmptyState";
 
 // Styled components
 const TabsContainer = styled(Box)(({ theme }) => ({
@@ -370,7 +370,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
 
   const renderAttendees = () => (
    <AttendeesList 
-     attendees={attendees}
+     attendees={attendees||[]}
    />
   );
 
@@ -662,7 +662,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
               </Box>
             ))
           ) : (
-            <NoReviews canAddReview={attended} color={color} />
+            <EmptyState  title = "No Reviews Yet!"  description = {attended? "Be the first to share your thoughts!"
+          : "Check back later to see what people think."}/>
           )}
         </Box>
       </Box>

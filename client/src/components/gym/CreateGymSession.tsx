@@ -16,6 +16,7 @@ import { createGymSession } from "./utils";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { toast } from "react-toastify";
 
 interface CreateGymSessionProps {
   open: boolean;
@@ -100,7 +101,11 @@ export default function CreateGymSession({
           maxParticipants: parseInt(values.maxParticipants),
           trainer: trainerName || undefined,
         });
-
+        toast.success("Gym session created successfully",{
+                  position: "bottom-right",
+                  autoClose: 3000,
+                  theme: "colored",
+                });
         console.log("✅ Gym session created successfully");
 
         // Notify parent to refresh data
@@ -110,9 +115,14 @@ export default function CreateGymSession({
 
         formik.resetForm();
         onClose();
-      } catch (err: unknown) {
+      } catch (err:any) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create gym session";
+            toast.error(err?.response?.data?.error, {
+                  position: "bottom-right",
+                  autoClose: 3000,
+                  theme: "colored",
+                });
         setError(errorMessage);
         console.error("Error creating session:", err);
       } finally {

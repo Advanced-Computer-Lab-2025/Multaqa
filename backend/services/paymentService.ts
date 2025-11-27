@@ -19,7 +19,7 @@ const DEFAULT_SUCCESS_URL =
   process.env.STRIPE_SUCCESS_URL ||
   "http://localhost:3000/en/successfulPayment";
 const DEFAULT_CANCEL_URL =
-  process.env.STRIPE_CANCEL_URL || "https://example.com/payments/cancel";
+  process.env.STRIPE_CANCEL_URL || "http://localhost:3000/en/errorPayment";
 
 export interface CreateCheckoutSessionParams {
   eventId: string;
