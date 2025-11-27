@@ -17,6 +17,8 @@ export interface VendorRequest {
     data: any;
     status: Event_Request_Status;
     QRCodeGenerated?: boolean;
+    hasPaid?: boolean;
+    paymentDeadline?: Date;
   };
 }
 

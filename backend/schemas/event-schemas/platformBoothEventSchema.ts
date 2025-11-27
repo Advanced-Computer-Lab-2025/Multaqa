@@ -23,12 +23,14 @@ const platformBoothSchema = new Schema<IPlatformBooth>({
           enum: Object.values(Event_Request_Status),
           default: Event_Request_Status.PENDING,
         },
-        QRCodeGenerated: { type: Boolean, default: false }
+        QRCodeGenerated: { type: Boolean, default: false },
+        hasPaid: { type: Boolean, default: false },
+        paymentDeadline: { type: Date },
       },
       { _id: false }
     ),
     required: true,
-  }
+  },
 });
 
 export const PlatformBooth = Event.discriminator(

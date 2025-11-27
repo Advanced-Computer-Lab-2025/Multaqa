@@ -18,7 +18,6 @@ import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
 
-
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
 
@@ -64,9 +63,8 @@ app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
 
-
 const MONGO_URI =
-  process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+  process.env.NEW_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {

@@ -679,6 +679,7 @@ export class VendorEventsService {
         if (
           eventData.RequestData &&
           eventData.RequestData.status === "approved" &&
+          eventData.RequestData.hasPaid === true &&
           eventData.RequestData.QRCodeGenerated === false
         ) {
           filteredEvents.push(eventData as IEvent);
@@ -691,6 +692,7 @@ export class VendorEventsService {
             return (
               vendor.RequestData &&
               vendor.RequestData.status === "approved" &&
+              vendor.RequestData.hasPaid === true &&
               vendor.RequestData.QRCodeGenerated === false
             );
           }
@@ -723,6 +725,8 @@ export class VendorEventsService {
     if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (
         event.RequestData.status === "approved" &&
+        event.RequestData.hasPaid &&
+        event.RequestData.hasPaid === true &&
         event.RequestData.QRCodeGenerated === false
       ) {
         await this.generateAndSendQRCodes(
@@ -744,8 +748,11 @@ export class VendorEventsService {
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       let isNotEmpty: boolean = false;
       for (const vendorEntry of event.vendors || []) {
+        console.log(vendorEntry);
         if (
           vendorEntry.RequestData.status === "approved" &&
+          vendorEntry.RequestData.hasPaid &&
+          vendorEntry.RequestData.hasPaid === true &&
           vendorEntry.RequestData.QRCodeGenerated === false
         ) {
           isNotEmpty = true;
