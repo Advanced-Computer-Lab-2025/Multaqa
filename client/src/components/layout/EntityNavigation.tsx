@@ -146,6 +146,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
+          { id: "polls", label: "Polls" },
         ],
       },
       {
@@ -196,6 +197,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
+          { id: "polls", label: "Polls" },
         ],
       },
       {
@@ -235,6 +237,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
+          { id: "polls", label: "Polls" },
         ],
       },
       {
@@ -272,6 +275,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-events", label: "Browse Events" },
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
+          { id: "polls", label: "Polls" },
         ],
       },
       {
@@ -332,6 +336,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
           { id: "documents", label: "View Documents" },
+          { id: "vendor-polls", label: "Vendor Polls" },
         ],
       },
       {

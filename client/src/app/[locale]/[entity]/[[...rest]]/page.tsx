@@ -30,6 +30,8 @@ import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
 import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
+import PollsManagement from "@/components/EventsOffice/Polls/PollsManagement";
+import PollList from "@/components/Polls/PollList";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -493,6 +495,10 @@ export default function EntityCatchAllPage() {
         return <VendorParticipationRequests />;
       }
 
+      if (section === "vendor-polls") {
+        return <PollsManagement />;
+      }
+
       if (section === "all-vendors") {
         return (
           <div className="p-6 bg-white">
@@ -574,6 +580,9 @@ export default function EntityCatchAllPage() {
       }
       if (section === "favorites") {
         return <FavoritesList userInfo={user} user={entity} />;
+      }
+      if (section === "polls") {
+        return <PollList />;
       }
       if (section === "all-events") {
         return (
