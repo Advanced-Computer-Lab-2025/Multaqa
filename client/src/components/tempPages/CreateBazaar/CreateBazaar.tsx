@@ -10,6 +10,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CustomButton from '../../shared/Buttons/CustomButton';
 import RichTextField from '../../shared/TextField/TextField';
 import theme from '@/themes/lightTheme';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles, horizontalLayoutStyles, step1BoxStyles, step2BoxStyles, modalHeaderStyles, modalFormStyles } from '@/components/shared/styles';
 
 import { bazaarSchema } from "./schemas/bazaar";
@@ -49,7 +50,7 @@ const createContentPaperStyles = (accentColor: string) => ({
   p: { xs: 1, md: 3 },
   borderRadius: '32px',
   background: theme.palette.background.paper,
-  border: `1.5px solid ${theme.palette.grey[300]}`,
+  border:`1.5px solid ${accentColor}`,
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
@@ -66,6 +67,7 @@ const initialValues = {
     endDate: null,
     registrationDeadline: null,
 };
+
 
 interface CreateBazaarProps {
     open:boolean;
@@ -120,47 +122,9 @@ const CreateBazaar = ({open, onClose, setRefresh, color}: CreateBazaarProps) => 
     }
     };
     
-    // Updated function to check for errors across 2 tabs
-    const getFirstErrorTab = (errors: any): 'general' | 'description' | null => {
-        // Tab 1: General Info fields (Includes all details fields now)
-        const generalFields = ['bazaarName', 'location', 'startDate', 'endDate', 'registrationDeadline'];
-        
-        // Tab 2: Description field
-        const descriptionField = 'description';
-
-        // 1. Check General Info tab
-        for (const field of generalFields) {
-          if (errors[field]) {
-            return 'general';
-          }
-        }
-        
-        // 2. Check Description tab
-        if (errors[descriptionField]) {
-          return 'description';
-        }
-
-        return null;
-    };
+  
 
   const onSubmit = async (values: any, actions: any) => {
-    // Manually run validation before proceeding
-    const validationErrors = await actions.validateForm();
-    
-    if (Object.keys(validationErrors).length > 0) {
-      const errorTab = getFirstErrorTab(validationErrors);
-      
-      if (errorTab) {
-        setActiveTab(errorTab);
-        toast.error("Please fill out all required fields.", {
-            position: "bottom-right",
-            autoClose: 3000,
-            theme: "colored",
-        });
-      }
-      return; // Stop submission if there are validation errors
-    }
-
     onClose();
     const startDateObj = values.startDate; // dayjs object
     const endDateObj = values.endDate;
@@ -188,6 +152,18 @@ const CreateBazaar = ({open, onClose, setRefresh, color}: CreateBazaarProps) => 
     validateOnChange: true, 
     validateOnBlur: true,
   });
+
+ // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.bazaarName && touched.bazaarName) ||
+        (errors.startDate && touched.startDate) ||
+        (errors.endDate && touched.endDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.description && touched.description) ||
+        (errors.location && touched.location)
+    );
+
+    const descriptionHasErrors = !!(errors.description && touched.description);
 
 const handleDescriptionChange = (htmlContent: string) => {
     setFieldValue('description', htmlContent);
@@ -220,11 +196,11 @@ setActiveTab('general');
                 }}>
                                              <Box
                                                sx={{
-                                                 width: '220px', 
+                                                 width: '250px', 
                                                  flexShrink: 0,
                                                  background: theme.palette.background.paper,
                                                  borderRadius: '32px',
-                                                 border: `1.5px solid ${theme.palette.grey[300]}`,
+                                                 border:`1.5px solid ${accentColor}`,
                                                  p: 2,
                                                  display: 'flex',
                                                  flexDirection: 'column',
@@ -235,37 +211,49 @@ setActiveTab('general');
                                                  alignSelf: 'flex-start', 
                                                }}
                                              >
-                                                 <List sx={{ width: '100%', height: '100%' }}>
-                                                     {tabSections.map((section) => (
-                                                         <ListItem key={section.key} disablePadding>
-                                                             <ListItemButton
-                                                                 selected={activeTab === section.key}
-                                                                 onClick={() => setActiveTab(section.key)}
-                                                                 sx={{
-                                                                     borderRadius: '24px',
-                                                                     mb: 1.5,
-                                                                     px: 2.5,
-                                                                     py: 1.5,
-                                                                     fontWeight: 600,
-                                                                     fontSize: '1.08rem',
-                                                                     background: activeTab === section.key ? `${accentColor}14` : 'transparent',
-                                                                     color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                                                                     boxShadow: activeTab === section.key ? `0 2px 8px 0 ${accentColor}20` : 'none',
-                                                                     transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-                                                                     '&:hover': {
-                                                                         background: `${accentColor}0A`,
-                                                                         color: accentColor,
-                                                                     },
-                                                                 }}
-                                                             >
-                                                                 <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary,  '&:hover': {
+                                                <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+                                                  
+                                                  return (
+                                                  <ListItem key={section.key} disablePadding>
+                                                      <ListItemButton
+                                                          selected={activeTab === section.key}
+                                                          onClick={() => setActiveTab(section.key)}
+                                                          sx={{
+                                                              borderRadius: '24px',
+                                                              mb: 1.5,
+                                                              px: 2.5,
+                                                              py: 1.5,
+                                                              fontWeight: 600,
+                                                              fontSize: '1.08rem',
+                                                              background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                                                              color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                              boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                                                              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                              '&:hover': {
+                                                                  background: 'rgba(110, 138, 230, 0.05)',
+                                                                  color: accentColor,
+                                                              },
+                                                          }}
+                                                      >
+                                                          <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
                                                                 color: accentColor
-                                                              } }}>{section.icon}</ListItemIcon>
-                                                                 <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700}} />
-                                                             </ListItemButton>
-                                                         </ListItem>
-                                                     ))}
-                                                 </List>
+                                                              }, }}>{section.icon}</ListItemIcon>
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700, mr:2 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: 'auto'
+                                                                  }} 
+                                                              />
+                                                          )}
+                                                      </ListItemButton>
+                                                  </ListItem>
+                                              )})}
+                                          </List>
                                              </Box>
                  
 

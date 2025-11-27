@@ -317,12 +317,11 @@ export default function GymSchedule({ month, sessions }: Props) {
                 variant="outlined"
                 sx={{
                   fontFamily: "var(--font-poppins)",
-                  fontWeight: 700,
-                  letterSpacing: 0.2,
+                  fontWeight: isActive?600:500,
                   borderRadius: "28px",
                   px: 1.75,
                   height: 28,
-                  borderWidth: isActive ? 3 : 1,
+                  borderWidth: isActive ? 2 : 1,
                   borderColor: baseColor,
                   color: baseColor,
                   backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
@@ -331,11 +330,8 @@ export default function GymSchedule({ month, sessions }: Props) {
                     : `0 1px 3px ${alpha(baseColor, 0.18)}`,
                   transition:
                     "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                  transform: isActive ? "translateY(-1px)" : "none",
                   "&:hover": {
-                    backgroundColor: alpha(baseColor, 0.16),
-                    borderWidth: isActive ? 3 : 2,
-                    transform: "translateY(-1px)",
+                    borderWidth: 2,
                   },
                 }}
               />
@@ -380,7 +376,7 @@ export default function GymSchedule({ month, sessions }: Props) {
                     p: { xs: 2, md: 3 },
                     borderRadius: "16px",
                     position: "relative",
-                    backgroundColor: alpha(accent, 0.075),
+                    backgroundColor: "#fff",
                     border: `1px solid ${alpha(accent, 0.35)}`,
                     boxShadow: `0 0 0 1px ${alpha(
                       accent,
