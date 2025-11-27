@@ -7,6 +7,8 @@ export interface IRequestedEvent {
   RequestData: any;
   status: Event_Request_Status;
   QRCodeGenerated: boolean;
+  hasPaid?: boolean;
+  paymentDeadline?: Date;
 }
 
 export interface VendorRequest {
@@ -14,9 +16,8 @@ export interface VendorRequest {
   RequestData: {
     data: any;
     status: Event_Request_Status;
-     QRCodeGenerated?: boolean;
+    QRCodeGenerated?: boolean;
   };
- 
 }
 
 export interface IVendor extends IUser {

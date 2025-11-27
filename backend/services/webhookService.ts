@@ -155,17 +155,16 @@ export class WebhookService {
         return;
       }
 
-      // Update the status to APPROVED in vendor's requestedEvents
-      vendor.requestedEvents[requestIndex].status =
-        Event_Request_Status.APPROVED;
+      // Mark payment as completed - set hasPaid to true
+      (vendor.requestedEvents[requestIndex] as any).hasPaid = true;
       vendor.markModified("requestedEvents");
       await vendor.save();
 
       console.log(
-        `✅ Vendor ${vendorId} participation approved for event ${eventId} after payment`
+        `✅ Vendor ${vendorId} payment completed for event ${eventId} - hasPaid set to true`
       );
 
-      // Update the event based on type
+      // Update the event based on type - no status change needed, just mark payment received
       if (event.type === EVENT_TYPES.BAZAAR) {
         // Find vendor in event's vendors array
         const vendorIndex = event.vendors?.findIndex(
@@ -173,25 +172,23 @@ export class WebhookService {
         );
 
         if (vendorIndex !== -1 && vendorIndex !== undefined && event.vendors) {
-          event.vendors[vendorIndex].RequestData.status =
-            Event_Request_Status.APPROVED;
+          // No status change needed - vendor was already approved
           event.markModified("vendors");
           await event.save();
           console.log(
-            `✅ Updated bazaar event ${eventId} vendor status to APPROVED`
+            `✅ Updated bazaar event ${eventId} - vendor payment recorded`
           );
         }
       } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
-        // For platform booth, update the single vendor's RequestData
+        // For platform booth, no status change needed
         if (
           event.vendor?.toString() === vendorId.toString() &&
           event.RequestData
         ) {
-          event.RequestData.status = Event_Request_Status.APPROVED;
           event.markModified("RequestData");
           await event.save();
           console.log(
-            `✅ Updated platform booth event ${eventId} vendor status to APPROVED`
+            `✅ Updated platform booth event ${eventId} - vendor payment recorded`
           );
         }
       }

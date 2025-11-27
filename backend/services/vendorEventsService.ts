@@ -13,7 +13,10 @@ import { EVENT_TYPES } from "../constants/events.constants";
 import { IApplicationResult } from "../interfaces/applicationResult.interface";
 import { BOOTH_LOCATIONS } from "../constants/booth.constants";
 import { PlatformBooth } from "../schemas/event-schemas/platformBoothEventSchema";
-import { IBoothAttendee, IPlatformBooth } from "../interfaces/models/platformBooth.interface";
+import {
+  IBoothAttendee,
+  IPlatformBooth,
+} from "../interfaces/models/platformBooth.interface";
 import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
 import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
 import { IUser } from "../interfaces/models/user.interface";
@@ -116,6 +119,7 @@ export class VendorEventsService {
       RequestData: data.value,
       status: applicationStatus,
       QRCodeGenerated: false,
+      hasPaid: false,
     });
 
     await vendor.save();
@@ -168,12 +172,17 @@ export class VendorEventsService {
       RequestData: data.value,
       status: applicationStatus,
       QRCodeGenerated: false,
+      hasPaid: false,
     });
 
     // Add vendor to bazaar's vendors list
     event.vendors?.push({
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus , QRCodeGenerated: false },
+      RequestData: {
+        ...data.value,
+        status: applicationStatus,
+        QRCodeGenerated: false,
+      },
     });
 
     await event.save();
@@ -287,7 +296,7 @@ export class VendorEventsService {
   async respondToVendorRequest(
     eventId: string,
     vendorId: string,
-    reqBody: { status: "pending_payment" | "rejected" }
+    reqBody: { status: "approved" | "rejected" }
   ): Promise<void> {
     const event = await this.eventRepo.findById(eventId);
     if (!event) {
@@ -300,10 +309,10 @@ export class VendorEventsService {
     }
 
     const { status } = reqBody;
-    if (status !== "pending_payment" && status !== "rejected") {
+    if (status !== "approved" && status !== "rejected") {
       throw createError(
         400,
-        "Invalid status. Must be 'pending_payment' or 'rejected'"
+        "Invalid status. Must be 'approved' or 'rejected'"
       );
     }
 
@@ -318,18 +327,19 @@ export class VendorEventsService {
 
     // Map status to Event_Request_Status enum
     const mappedStatus =
-      status === "pending_payment"
-        ? Event_Request_Status.PENDING_PAYMENT
+      status === "approved"
+        ? Event_Request_Status.APPROVED
         : Event_Request_Status.REJECTED;
 
     vendor.requestedEvents[requestIndex].status = mappedStatus;
 
-    // Set payment deadline if status is pending_payment (3 days from now)
-    if (status === "pending_payment") {
+    // Set payment deadline if status is approved (3 days from now)
+    if (status === "approved") {
       const paymentDeadline = new Date();
       paymentDeadline.setDate(paymentDeadline.getDate() + 3);
       (vendor.requestedEvents[requestIndex] as any).paymentDeadline =
         paymentDeadline;
+      (vendor.requestedEvents[requestIndex] as any).hasPaid = false;
     }
 
     vendor.markModified("requestedEvents");
@@ -347,8 +357,8 @@ export class VendorEventsService {
 
       event.vendors[vendorIndex].RequestData.status = status;
 
-      // Set payment deadline if status is pending_payment (3 days from now)
-      if (status === "pending_payment") {
+      // Set payment deadline if status is approved (3 days from now)
+      if (status === "approved") {
         const paymentDeadline = new Date();
         paymentDeadline.setDate(paymentDeadline.getDate() + 3);
         event.vendors[vendorIndex].RequestData.paymentDeadline =
@@ -368,8 +378,8 @@ export class VendorEventsService {
       event.RequestData.status = status;
       event.markModified("RequestData");
 
-      // Only update dates if status is pending_payment
-      if (status === "pending_payment") {
+      // Only update dates if status is approved
+      if (status === "approved") {
         // Set payment deadline (3 days from now)
         const paymentDeadline = new Date();
         paymentDeadline.setDate(paymentDeadline.getDate() + 3);
@@ -389,7 +399,7 @@ export class VendorEventsService {
 
     // Send application status email to vendor
     const paymentDeadline =
-      status === "pending_payment"
+      status === "approved"
         ? (() => {
             const deadline = new Date();
             deadline.setDate(deadline.getDate() + 3);
@@ -402,9 +412,9 @@ export class VendorEventsService {
       vendor.companyName,
       event.type === EVENT_TYPES.BAZAAR ? "bazaar" : "booth",
       event.eventName,
-      status === "pending_payment" ? "accepted" : "rejected",
+      status === "approved" ? "accepted" : "rejected",
       status === "rejected" ? event.RequestData?.rejectionReason : undefined,
-      status === "pending_payment" ? event.RequestData?.nextSteps : undefined,
+      status === "approved" ? event.RequestData?.nextSteps : undefined,
       paymentDeadline
     );
     await event.save();
@@ -469,8 +479,8 @@ export class VendorEventsService {
 
   /**
    * Allows a vendor to cancel their participation in an event if they haven't paid yet
-   * Vendors can cancel when status is PENDING or PENDING_PAYMENT
-   * Once status is APPROVED (payment completed), cancellation is not allowed
+   * Vendors can cancel when hasPaid is false
+   * Once hasPaid is true (payment completed), cancellation is not allowed
    * @param vendorId vendor's ID
    * @param eventId event's ID
    * @returns void
@@ -511,22 +521,11 @@ export class VendorEventsService {
     }
     console.log("===================================");
 
-    // Check if the vendor has already paid (status is APPROVED)
-    if (vendorRequest.status === Event_Request_Status.APPROVED) {
+    // Check if the vendor has already paid
+    if ((vendorRequest as any).hasPaid === true) {
       throw createError(
         400,
         "Cannot cancel - payment has already been completed for this event"
-      );
-    }
-
-    // Allow cancellation if status is PENDING or PENDING_PAYMENT
-    if (
-      vendorRequest.status !== Event_Request_Status.PENDING &&
-      vendorRequest.status !== Event_Request_Status.PENDING_PAYMENT
-    ) {
-      throw createError(
-        400,
-        `Cannot cancel event with status: ${vendorRequest.status}. Only PENDING or PENDING_PAYMENT requests can be cancelled.`
       );
     }
 
@@ -743,7 +742,7 @@ export class VendorEventsService {
         );
       }
     } else if (event.type === EVENT_TYPES.BAZAAR) {
-      let isNotEmpty:boolean = false;
+      let isNotEmpty: boolean = false;
       for (const vendorEntry of event.vendors || []) {
         if (
           vendorEntry.RequestData.status === "approved" &&
@@ -759,7 +758,7 @@ export class VendorEventsService {
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
-        } 
+        }
       }
       if (!isNotEmpty) {
         throw createError(
@@ -779,22 +778,24 @@ export class VendorEventsService {
     attendees: IBoothAttendee[]
   ): Promise<void> {
     // Ensure attendees is always an array
-    
+
     const qrCodeData: any[] = [];
     for (const attendee of attendees) {
-        const qrCodeBuffer = await generateQrCodeBuffer( 
-            eventName,
-            location,
-            new Date().toISOString(),
-            attendee.name,
-           
-        );
-        qrCodeData.push({
-            buffer: qrCodeBuffer,
-            name: `${attendee.name}`,
-        });
+      const qrCodeBuffer = await generateQrCodeBuffer(
+        eventName,
+        location,
+        new Date().toISOString(),
+        attendee.name
+      );
+      qrCodeData.push({
+        buffer: qrCodeBuffer,
+        name: `${attendee.name}`,
+      });
     }
-    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData,eventName);
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(
+      qrCodeData,
+      eventName
+    );
     console.log("Sending QR Code Email to:", email);
     await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
   }

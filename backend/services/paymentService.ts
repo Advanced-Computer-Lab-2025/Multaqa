@@ -390,11 +390,19 @@ export class PaymentService {
       );
     }
 
-    // Validate that the request status is PENDING_PAYMENT
-    if (vendorRequest.status !== Event_Request_Status.PENDING_PAYMENT) {
+    // Validate that the request status is APPROVED and payment not yet completed
+    if (vendorRequest.status !== Event_Request_Status.APPROVED) {
       throw createError(
         400,
-        `Cannot process payment. Request status is ${vendorRequest.status}. Payment is only allowed when status is PENDING_PAYMENT.`
+        `Cannot process payment. Request status is ${vendorRequest.status}. Payment is only allowed when status is APPROVED.`
+      );
+    }
+
+    // Check if vendor has already paid
+    if ((vendorRequest as any).hasPaid === true) {
+      throw createError(
+        400,
+        "Payment has already been completed for this event."
       );
     }
 

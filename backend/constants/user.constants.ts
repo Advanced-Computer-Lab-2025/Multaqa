@@ -15,5 +15,4 @@ export enum Event_Request_Status {
   AWAITING_REVIEW = "awaiting_review",
   APPROVED = "approved",
   REJECTED = "rejected",
-  PENDING_PAYMENT = "pending_payment",
 }
