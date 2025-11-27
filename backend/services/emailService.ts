@@ -128,14 +128,14 @@ export const sendCertificateOfAttendanceEmail = async (
     to: userEmail,
     subject: "🎓 Your Certificate of Attendance - Multaqa",
     html,
-     attachments: [   
-    {
-      filename: `Certificate_${username.replace(/[^a-zA-Z0-9]/g, '_')}_${workshopName.replace(/[^a-zA-Z0-9]/g, '_')}_${randomId}.pdf`,
-      content: certificateBuffer,  
-      contentType: 'application/pdf',
-      disposition: 'attachment' 
-    }
-  ]
+    attachments: [
+      {
+        filename: `Certificate_${username.replace(/[^a-zA-Z0-9]/g, '_')}_${workshopName.replace(/[^a-zA-Z0-9]/g, '_')}_${randomId}.pdf`,
+        content: certificateBuffer,
+        contentType: 'application/pdf',
+        disposition: 'attachment'
+      }
+    ]
   });
 };
 
@@ -160,9 +160,8 @@ export const sendApplicationStatusEmail = async (
 
   const typeLabel = applicationType === "bazaar" ? "Bazaar" : "Booth";
   const statusEmoji = status === "accepted" ? "✅" : "❌";
-  const subject = `${statusEmoji} ${typeLabel} Application ${
-    status === "accepted" ? "Accepted" : "Update"
-  } - Multaqa`;
+  const subject = `${statusEmoji} ${typeLabel} Application ${status === "accepted" ? "Accepted" : "Update"
+    } - Multaqa`;
 
   await sendEmail({
     to: userEmail,

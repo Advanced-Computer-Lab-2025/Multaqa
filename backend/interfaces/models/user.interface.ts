@@ -1,10 +1,14 @@
 import { Document } from "mongoose";
 import { UserRole } from "../../constants/user.constants";
 import { UserStatus } from "../../constants/user.constants";
+import { NotificationType } from "../../constants/user.constants";
 
-export interface INotification {
+export interface INotification extends Document {
+  type: NotificationType;
   title: string;
   message: string;
+  read: boolean;
+  delivered: boolean;
   createdAt: Date;
 }
 
@@ -13,9 +17,9 @@ export interface IUser extends Document {
   password: string;
   status?: UserStatus;
   role: UserRole;
+  notifications: INotification[];
   registeredAt?: Date;
   verifiedAt?: Date;
   updatedAt?: Date;
   isVerified: boolean;
-  notifications?: INotification[];
 }

@@ -12,6 +12,5 @@ export interface IStaffMember extends IUser {
   position?: StaffPosition;
   favorites?: Schema.Types.ObjectId[];
   registeredEvents?: Schema.Types.ObjectId[];
-  // TODO: Filter registeredEvents by (date < today) to get attended ones
   myWorkshops?: Schema.Types.ObjectId[];
 }
