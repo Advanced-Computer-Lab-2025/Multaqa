@@ -81,7 +81,7 @@ app.use(notFoundHandler);
 
 const PORT = process.env.PORT || 4000;
 const MONGO_URI =
-  process.env.NEW_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+  process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {
