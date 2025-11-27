@@ -25,6 +25,7 @@ const StyledDefaultTextField: React.FC<
   disableDynamicMorphing = true,
   stakeholderType = "staff",
   disableIcon = false,
+  borderRadius = "50px",
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -362,7 +363,7 @@ const StyledDefaultTextField: React.FC<
           ? "#f3f4f6"
           : theme.palette.background.default,
         border: `2px solid ${borderColor}`,
-        borderRadius: "50px",
+        borderRadius: borderRadius,
         outline: "none",
         transition:
           "box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
@@ -480,8 +481,7 @@ const StyledDefaultTextField: React.FC<
     helperTextValue !== undefined &&
     helperTextValue !== null &&
     !(
-      typeof helperTextValue === "string" &&
-      helperTextValue.trim().length === 0
+      typeof helperTextValue === "string" && helperTextValue.trim().length === 0
     );
 
   const shouldRenderNameNote = isNameField;

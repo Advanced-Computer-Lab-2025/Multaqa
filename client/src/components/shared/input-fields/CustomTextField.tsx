@@ -29,6 +29,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   autoCapitalizeName: autoCapitalizeNameProp = true,
   separateLabels = false,
   disableIcon = false,
+  borderRadius = "50px",
   value,
   onChange,
   ...props
@@ -174,30 +175,26 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     helperTextValue !== undefined &&
     helperTextValue !== null &&
     !(
-      typeof helperTextValue === "string" &&
-      helperTextValue.trim().length === 0
+      typeof helperTextValue === "string" && helperTextValue.trim().length === 0
     );
 
   const shouldRenderNameNote = isNameField;
 
   const helperTextForStandard =
-    (hasHelperTextContent || shouldRenderNameNote)
-      ? (
-          <>
-            {hasHelperTextContent && (
-              <span
-                style={{
-                  display: "block",
-                  color: isErrorState ? "#d32f2f" : "#6b7280",
-                }}
-              >
-                {helperTextValue}
-              </span>
-            )}
-           
-          </>
-        )
-      : undefined;
+    hasHelperTextContent || shouldRenderNameNote ? (
+      <>
+        {hasHelperTextContent && (
+          <span
+            style={{
+              display: "block",
+              color: isErrorState ? "#d32f2f" : "#6b7280",
+            }}
+          >
+            {helperTextValue}
+          </span>
+        )}
+      </>
+    ) : undefined;
 
   const mergedInputProps = {
     ...(props.inputProps || {}),
@@ -208,8 +205,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
       inputMode: "decimal" as const,
     }),
     ...(fieldType === "phone" && { inputMode: "tel" as const }),
-  } as React.InputHTMLAttributes<HTMLInputElement> &
-    Record<string, unknown>;
+  } as React.InputHTMLAttributes<HTMLInputElement> & Record<string, unknown>;
 
   if (isNameField) {
     mergedInputProps.autoCapitalize = "off";
@@ -259,6 +255,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
           stakeholderType={stakeholderType}
           separateLabels={separateLabels}
           disableIcon={disableIcon}
+          borderRadius={borderRadius}
           error={isErrorState}
         />
       ) : (
@@ -274,7 +271,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                     : "outwards"
                 }
                 padding="2px"
-                borderRadius="50px"
+                borderRadius={borderRadius}
                 width="100%"
               >
                 <StyledTextField
@@ -286,6 +283,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   fieldType={fieldType}
                   stakeholderType={stakeholderType}
                   neumorphicBox={neumorphicBox}
+                  borderRadius={borderRadius}
                   variant="outlined"
                   size="small"
                   type={getInputType()}
@@ -321,7 +319,6 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   {helperTextValue}
                 </div>
               )}
-             
             </div>
           ) : (
             <StyledTextField
