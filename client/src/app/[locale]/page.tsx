@@ -1444,7 +1444,7 @@ function HomePageContent() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      bgcolor: alpha(theme.palette.primary.main, 0.4),
+                      bgcolor: alpha(theme.palette.primary.main, 0.55),
                       color: theme.palette.tertiary.dark,
                       mb: 2.5,
                     }}
