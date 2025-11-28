@@ -117,9 +117,12 @@ export const getActivePolls = async (): Promise<(Poll & { hasVoted?: boolean })[
       success: boolean;
       data: BackendPoll[];
       message: string;
-    }>("/vendorEvents/polls/active");
+    }>("/vendorEvents/polls");
     
-    return response.data.data.map(transformPoll);
+    // Filter for active polls only
+    const activePolls = response.data.data.filter(poll => poll.isActive);
+    
+    return activePolls.map(transformPoll);
   } catch (error) {
     console.error("Failed to fetch active polls:", error);
     throw error;

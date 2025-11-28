@@ -457,7 +457,8 @@ async function getVendorsWithOverlappingBooths(req: Request, res: Response) {
 
 async function getAllPolls(req: AuthenticatedRequest, res: Response) {
   try {
-    const polls = await vendorEventsService.getAllPolls();
+    const userId = req.user?.id;
+    const polls = await vendorEventsService.getAllPolls(userId);
     res.json({
       success: true,
       data: polls,
@@ -467,53 +468,6 @@ async function getAllPolls(req: AuthenticatedRequest, res: Response) {
     throw createError(
       error.status || 500,
       error.message || "Error retrieving polls"
-    );
-  }
-}
-
-async function getActivePolls(req: AuthenticatedRequest, res: Response) {
-  try {
-    const userId = req.user?.id;
-    const polls = await vendorEventsService.getActivePolls();
-    
-    // Add hasVoted field for each poll based on current user
-    const pollsWithVoteStatus = await Promise.all(
-      polls.map(async (poll) => {
-        const hasVoted = userId 
-          ? await vendorEventsService.hasUserVoted((poll as any)._id.toString(), userId)
-          : false;
-        return {
-          ...poll.toObject(),
-          hasVoted,
-        };
-      })
-    );
-    
-    res.json({
-      success: true,
-      data: pollsWithVoteStatus,
-      message: "Active polls retrieved successfully",
-    });
-  } catch (error: any) {
-    throw createError(
-      error.status || 500,
-      error.message || "Error retrieving active polls"
-    );
-  }
-}
-
-async function getRegisteredVendors(req: AuthenticatedRequest, res: Response) {
-  try {
-    const vendors = await vendorEventsService.getRegisteredVendors();
-    res.json({
-      success: true,
-      data: vendors,
-      message: "Registered vendors retrieved successfully",
-    });
-  } catch (error: any) {
-    throw createError(
-      error.status || 500,
-      error.message || "Error retrieving registered vendors"
     );
   }
 }
@@ -577,16 +531,6 @@ router.get(
   getVendorsWithOverlappingBooths
 );
 
-// Get all registered vendors for poll creation
-router.get(
-  "/registered-vendors",
-  authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
-    adminRoles: [AdministrationRoleType.EVENTS_OFFICE],
-  }),
-  getRegisteredVendors
-);
-
 // Get all polls (for Events Office management)
 router.get(
   "/polls",
@@ -599,27 +543,6 @@ router.get(
     ]
   }),
   getAllPolls
-);
-
-// Get active polls (for students/staff to vote)
-router.get(
-  "/polls/active",
-  authorizeRoles({ 
-    userRoles: [
-      UserRole.STUDENT, 
-      UserRole.STAFF_MEMBER,
-      UserRole.ADMINISTRATION
-    ], 
-    staffPositions: [
-      StaffPosition.PROFESSOR, 
-      StaffPosition.TA, 
-      StaffPosition.STAFF
-    ],
-    adminRoles: [
-      AdministrationRoleType.EVENTS_OFFICE
-    ]
-  }),
-  getActivePolls
 );
 
 router.post(
