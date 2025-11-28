@@ -29,6 +29,7 @@ import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
+import LoyaltyProgram from "@/components/shared/LoyaltyProgram/LoyaltyProgram";
 import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
 import PollsManagement from "@/components/EventsOffice/Polls/PollsManagement";
 import PollList from "@/components/Polls/PollList";
@@ -71,7 +72,6 @@ const getEventsOfficeName = (user: any): string => {
 
   return ""; // ultimate fallback
 };
-
 
 const SignedOutFallback = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
   const [showAction, setShowAction] = useState(false);
@@ -350,6 +350,21 @@ export default function EntityCatchAllPage() {
             user={"vendor"}
             userInfo={user}
             userID={userId}
+          />
+        );
+      }
+    }
+
+    // Vendor - Loyalty Program
+    if (entity === "vendor" && tab === "loyalty") {
+      if (section === "program-status") {
+        return (
+          <LoyaltyProgram
+            isSubscribed={!!user?.loyaltyProgram}
+            discountRate={user?.loyaltyProgram?.discountRate}
+            promoCode={user?.loyaltyProgram?.promoCode}
+            termsAndConditions={user?.loyaltyProgram?.termsAndConditions}
+            onStatusChange={() => window.location.reload()}
           />
         );
       }

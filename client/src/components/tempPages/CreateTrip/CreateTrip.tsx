@@ -21,6 +21,7 @@ import StyledAccordionSummary from '@/components/shared/Accordion/StyledAccordio
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 import {api} from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
@@ -36,7 +37,35 @@ interface CreateTripProps {
   color:string;
  }
 
-const accentColor = '#6e8ae6';
+
+const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
+  const handleCallApi = async (payload:any) => {
+    setLoading(true);
+    setError(null);
+    setResponse([]);
+    try {
+      // TODO: Replace with your API route
+      const res = await api.post("/events", payload);
+      setResponse(res.data);
+      setRefresh((prev)=> !prev);
+      toast.success("Trip created successfully", {
+                  position:"bottom-right",
+                  autoClose:3000,
+                  theme: "colored",
+              })
+    } catch (err: any) {
+      setError(err?.message || "API call failed");
+      window.alert(err.response.data.error);
+      toast.error("Failed to create trip. Please try again.", {
+          position:"bottom-right",
+          autoClose:3000,
+          theme: "colored",
+          });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const accentColor = color;
 
 const tertiaryInputStyles = {
   '& .MuiInputLabel-root': {
@@ -75,35 +104,6 @@ const contentPaperStyles = {
   transition: 'box-shadow 0.2s',
 
 };
-
-const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
-  const handleCallApi = async (payload:any) => {
-    setLoading(true);
-    setError(null);
-    setResponse([]);
-    try {
-      // TODO: Replace with your API route
-      const res = await api.post("/events", payload);
-      setResponse(res.data);
-      setRefresh((prev)=> !prev);
-      toast.success("Trip created successfully", {
-                  position:"bottom-right",
-                  autoClose:3000,
-                  theme: "colored",
-              })
-    } catch (err: any) {
-      setError(err?.message || "API call failed");
-      window.alert(err.response.data.error);
-      toast.error("Failed to create trip. Please try again.", {
-          position:"bottom-right",
-          autoClose:3000,
-          theme: "colored",
-          });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +166,19 @@ const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
         setActiveTab(newValue);
     };
 
+    // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.tripName && touched.tripName) ||
+        (errors.startDate && touched.startDate) ||
+        (errors.endDate && touched.endDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.price && touched.price) ||
+        (errors.capacity && touched.capacity) ||
+        (errors.location && touched.location)
+    );
+
+    const descriptionHasErrors = !!(errors.description && touched.description);
+
    
   return (
     <CustomModalLayout open={open} borderColor={accentColor} title="Create Trip" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]">
@@ -190,7 +203,7 @@ const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
            {/* Vertical Tabs on the left (Sidebar) */}
                                       <Box
                                         sx={{
-                                          width: '220px', 
+                                          width: '250px', 
                                           flexShrink: 0,
                                           background: theme.palette.background.paper,
                                           borderRadius: '32px',
@@ -206,7 +219,10 @@ const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
                                         }}
                                       >
                                           <List sx={{ width: '100%', height: '100%' }}>
-                                              {tabSections.map((section) => (
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+                                                  
+                                                  return (
                                                   <ListItem key={section.key} disablePadding>
                                                       <ListItemButton
                                                           selected={activeTab === section.key}
@@ -231,10 +247,19 @@ const CreateTrip = ({open, onClose, setRefresh, color }: CreateTripProps) => {
                                                           <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
                                                                 color: accentColor
                                                               }, }}>{section.icon}</ListItemIcon>
-                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700 }} />
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700, mr:2 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: 'auto'
+                                                                  }} 
+                                                              />
+                                                          )}
                                                       </ListItemButton>
                                                   </ListItem>
-                                              ))}
+                                              )})}
                                           </List>
                                       </Box>
           

@@ -48,16 +48,18 @@ export default function NotificationItem({
   };
 
   const handleClick = () => {
-    // If truncated in compact mode, navigate to individual notification page
-    if (isTruncated && notification._id) {
-      const { locale, entity } = getLocaleAndEntity();
-      router.push(`/${locale}/${entity}/notifications/${notification._id}`);
-      return;
+
+    // Mark as read if unread
+    if (!notification.read && notification._id) {
+      console.log("📖 Marking as read from click");
+      onRead(notification._id);
     }
 
-    // Otherwise, just mark as read if unread
-    if (!notification.read && notification._id) {
-      onRead(notification._id);
+    // Always navigate to notification details page when clicked
+    if (notification._id) {
+      console.log("🔗 Navigating to notification details");
+      const { locale, entity } = getLocaleAndEntity();
+      router.push(`/${locale}/${entity}/notifications/${notification._id}`);
     }
   };
 
@@ -99,12 +101,12 @@ export default function NotificationItem({
         borderRadius: 1,
         backgroundColor: notification.read ? "#ffffff" : alpha("#6299d0", 0.12),
         border: `1px solid ${notification.read ? "#e0e0e0" : alpha("#6299d0", 0.35)}`,
-        cursor: isTruncated || !notification.read ? "pointer" : "default",
+        cursor: "pointer",
         transition: "all 0.2s ease",
         "&:hover": {
-          backgroundColor: notification.read ? alpha("#6299d0", 0.08) : alpha("#6299d0", 0.1),
+          backgroundColor: notification.read ? alpha("#6299d0", 0.08) : alpha("#6299d0", 0.18),
           borderColor: alpha("#6299d0", 0.5),
-          transform: isTruncated || !notification.read ? "translateX(4px)" : "none",
+          transform: "translateX(4px)",
         },
       }}
     >

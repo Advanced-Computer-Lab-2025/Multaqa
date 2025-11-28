@@ -18,6 +18,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import { CustomModalLayout } from '@/components/shared/modals';
 import { api } from '@/api';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 
 // --- Shared Styles (Updated to use color prop) ---
@@ -49,7 +50,7 @@ const createContentPaperStyles = (accentColor: string) => ({
   p: { xs: 1, md: 3 },
   borderRadius: '32px',
   background: theme.palette.background.paper,
-  border: `1.5px solid ${theme.palette.grey[300]}`,
+  border:`1.5px solid ${accentColor}`,
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
@@ -206,6 +207,18 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     validateOnChange: true, 
     validateOnBlur: true,
   });
+
+ // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.bazaarName && touched.bazaarName) ||
+        (errors.startDate && touched.startDate) ||
+        (errors.endDate && touched.endDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.description && touched.description) ||
+        (errors.location && touched.location)
+    );
+
+    const descriptionHasErrors = !!(errors.description && touched.description);
   
   const handleDescriptionChange = (htmlContent: string) => {
     setFieldValue('description', htmlContent);
@@ -232,54 +245,66 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                     minHeight: 0, // Important for flex container with nested scrolling content
                 }}>
                   <Box
-                    sx={{
-                      width: '220px', 
-                      flexShrink: 0,
-                      background: theme.palette.background.paper,
-                      borderRadius: '32px',
-                      border: `1.5px solid ${theme.palette.grey[300]}`,
-                      p: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      boxShadow: `0 4px 24px 0 ${accentColor}14`,
-                      transition: 'box-shadow 0.2s',
-                      height: 'fit-content', 
-                      alignSelf: 'flex-start', 
-                    }}
-                  >
-                   <List sx={{ width: '100%', height: '100%' }}>
-                        {tabSections.map((section) => (
-                            <ListItem key={section.key} disablePadding>
-                                <ListItemButton
-                                    selected={activeTab === section.key}
-                                    onClick={() => setActiveTab(section.key)}
-                                    sx={{
-                                        borderRadius: '24px',
-                                        mb: 1.5,
-                                        px: 2.5,
-                                        py: 1.5,
-                                        fontWeight: 600,
-                                        fontSize: '1.08rem',
-                                        background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
-                                        color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                                        boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
-                                        transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-                                        '&:hover': {
-                                            background: 'rgba(110, 138, 230, 0.05)',
-                                            color: accentColor,
-                                        },
-                                    }}
-                                >
-                                    <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
-                                            color: accentColor
-                                        }, }}>{section.icon}</ListItemIcon>
-                                    <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700 }} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                  </Box>
+                                               sx={{
+                                                 width: '250px', 
+                                                 flexShrink: 0,
+                                                 background: theme.palette.background.paper,
+                                                 borderRadius: '32px',
+                                                 border:`1.5px solid ${accentColor}`,
+                                                 p: 2,
+                                                 display: 'flex',
+                                                 flexDirection: 'column',
+                                                 alignItems: 'flex-start',
+                                                 boxShadow: `0 4px 24px 0 ${accentColor}14`,
+                                                 transition: 'box-shadow 0.2s',
+                                                 height: 'fit-content', 
+                                                 alignSelf: 'flex-start', 
+                                               }}
+                                             >
+                                                <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+                                                  
+                                                  return (
+                                                  <ListItem key={section.key} disablePadding>
+                                                      <ListItemButton
+                                                          selected={activeTab === section.key}
+                                                          onClick={() => setActiveTab(section.key)}
+                                                          sx={{
+                                                              borderRadius: '24px',
+                                                              mb: 1.5,
+                                                              px: 2.5,
+                                                              py: 1.5,
+                                                              fontWeight: 600,
+                                                              fontSize: '1.08rem',
+                                                              background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                                                              color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                              boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                                                              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                              '&:hover': {
+                                                                  background: 'rgba(110, 138, 230, 0.05)',
+                                                                  color: accentColor,
+                                                              },
+                                                          }}
+                                                      >
+                                                          <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                                                                color: accentColor
+                                                              }, }}>{section.icon}</ListItemIcon>
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700, mr:2 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: 'auto'
+                                                                  }} 
+                                                              />
+                                                          )}
+                                                      </ListItemButton>
+                                                  </ListItem>
+                                              )})}
+                                          </List>
+                                             </Box>
                  
 
                     {/* Section Content on the right - Takes remaining width and all available height */}

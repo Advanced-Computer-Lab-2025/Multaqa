@@ -10,6 +10,7 @@ import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { INotification, IUser } from "../interfaces/models/user.interface";
 import createError from "http-errors";
+import { save } from "pdfkit";
 
 // Helper function to broadcast events to all user's sockets (for sync events like read/unread/delete)
 function broadcastToUserSockets(userId: string, eventName: string, data: any) {
@@ -24,41 +25,73 @@ function broadcastToUserSockets(userId: string, eventName: string, data: any) {
   }
 }
 
-async function sendSocketNotification(typeNotification: string, notification: Notification) {
+// Helper function to add a notification to a user's notifications array if it does not already exist
+async function addNotificationToUser(userId: string, notification: Notification, saveToDatabase: boolean = true): Promise<IUser | null> {
   try {
-    if (!notification.userId && !notification.role && !notification.adminRole && !notification.staffPosition) {
-      return;
+    const userRepo = new GenericRepository<IUser>(User);
+    const user = await userRepo.findById(userId);
+    if (!user) {
+      console.error(`User ${userId} not found`);
+      return null;
     }
 
-    const userRepo = new GenericRepository<IUser>(User);
+    if (saveToDatabase) {
+      const sockets = OnlineUsersService.getUserSockets(userId);
+      const isOnline = sockets.length > 0;
+
+      console.log(`📬 Adding notification to user ${userId}: ${notification.title}`);
+      user.notifications.push({
+        type: notification.type,
+        title: notification.title || '',
+        message: notification.message || '',
+        read: false,
+        delivered: isOnline,
+        createdAt: new Date()
+      } as INotification);
+
+      await user.save();
+    }
+
+    return user;
+  } catch (error) {
+    console.error(`Failed to add notification to user ${userId}:`, error);
+    return null;
+  }
+}
+
+// Helper function to find the index of a newly added notification
+function findNotificationIndex(user: IUser, notification: Notification): number {
+  // search from the end for a matching notification
+  for (let i = user.notifications.length - 1; i >= 0; i--) {
+    const n = user.notifications[i];
+    if (n._id === notification._id) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+async function sendSocketNotification(typeNotification: string, notification: Notification, saveToDatabase: boolean = true) {
+  try {
+    if (!notification.userId && !notification.role) {
+      return;
+    }
 
     // Notify specific user
     if (notification.userId) {
       try {
-        const sockets = OnlineUsersService.getUserSockets(notification.userId);
-        const isOnline = sockets.length > 0;
-
-        // Add notification to user's notifications array
-        const user = await userRepo.findById(notification.userId);
+        const user = await addNotificationToUser(notification.userId, notification, saveToDatabase);
         if (user) {
-          user.notifications.push({
-            type: notification.type,
-            title: notification.title || '',
-            message: notification.message || '',
-            read: false,
-            delivered: isOnline,
-            createdAt: new Date()
-          } as INotification);
-          await user.save();
-          
-          // Get the newly created notification with its _id
-          const newNotification = user.notifications[user.notifications.length - 1];
-          const notificationWithId = {
-            ...notification,
-            _id: (newNotification._id as any)?.toString(),
-          };
-          
-          sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
+          const notificationIndex = findNotificationIndex(user, notification);
+          if (notificationIndex !== -1) {
+            const notificationWithId = {
+              ...notification,
+              _id: (user.notifications[notificationIndex]._id as any)?.toString(),
+            };
+            const sockets = OnlineUsersService.getUserSockets(notification.userId);
+            sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
+          }
         }
       } catch (error: any) {
         throw createError(500, "Error sending socket notification to specific user:", error);
@@ -67,10 +100,10 @@ async function sendSocketNotification(typeNotification: string, notification: No
     }
 
     // Notify by roles
-    const usersToNotifySet = new Set<string>();
-
-    const userService = new UserService();
     if (notification.role) {
+
+      const usersToNotifySet = new Set<string>();
+      const userService = new UserService();
       const promises: Promise<any[]>[] = [];
 
       if (notification.role.includes(UserRole.ADMINISTRATION)) {
@@ -107,37 +140,25 @@ async function sendSocketNotification(typeNotification: string, notification: No
           usersToNotifySet.add(String(user._id));
         });
       });
-    }
 
-    // Convert Set to Array for iteration
-    const usersToNotify = Array.from(usersToNotifySet);
 
-    // Process notifications for all users
-    for (const userId of usersToNotify) {
-      const sockets = OnlineUsersService.getUserSockets(userId);
-      const isOnline = sockets.length > 0;
+      // Convert Set to Array for iteration
+      const usersToNotify = Array.from(usersToNotifySet);
 
-      // Add notification to user's notifications array
-      const user = await userRepo.findById(userId);
-      if (user) {
-        user.notifications.push({
-          type: notification.type,
-          title: notification.title || '',
-          message: notification.message || '',
-          read: false,
-          delivered: isOnline,
-          createdAt: new Date()
-        } as INotification);
-        await user.save();
-        
-        // Get the newly created notification with its _id
-        const newNotification = user.notifications[user.notifications.length - 1];
-        const notificationWithId = {
-          ...notification,
-          _id: (newNotification._id as any)?.toString(),
-        };
-        
-        sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
+      // Process notifications for all users
+      for (const userId of usersToNotify) {
+        const user = await addNotificationToUser(userId, notification, saveToDatabase);
+        if (user) {
+          const notificationIndex = findNotificationIndex(user, notification);
+          if (notificationIndex !== -1) {
+            const notificationWithId = {
+              ...notification,
+              _id: (user.notifications[notificationIndex]._id as any)?.toString(),
+            };
+            const sockets = OnlineUsersService.getUserSockets(userId);
+            sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
+          }
+        }
       }
     }
     return;
@@ -153,13 +174,13 @@ async function sendSocketNotification(typeNotification: string, notification: No
  */
 
 // When professors submit workshop requests -> notify EventsOffice
-eventBus.on("notification:workshop:requestSubmitted", (notification) => {
-  sendSocketNotification("notification:workshop:requestSubmitted", notification);
+eventBus.on("notification:workshop:requestSubmitted", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:workshop:requestSubmitted", notification, saveToDatabase);
 });
 
 // When a professor's workshop is accepted/rejected -> notify professor
-eventBus.on("notification:workshop:statusChanged", (notification) => {
-  sendSocketNotification("notification:workshop:statusChanged", notification);
+eventBus.on("notification:workshop:statusChanged", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:workshop:statusChanged", notification, saveToDatabase);
 });
 
 /**
@@ -169,13 +190,13 @@ eventBus.on("notification:workshop:statusChanged", (notification) => {
  */
 
 // New events added -> notify everyone
-eventBus.on("notification:event:new", (notification) => {
-  sendSocketNotification("notification:event:new", notification);
+eventBus.on("notification:event:new", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:event:new", notification, saveToDatabase);
 });
 
 // Event reminders 1 day and 1 hour before -> notify attendees
-eventBus.on("notification:event:reminder", (notification) => {
-  sendSocketNotification("notification:event:reminder", notification);
+eventBus.on("notification:event:reminder", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:event:reminder", notification, saveToDatabase);
 });
 
 /**
@@ -183,8 +204,10 @@ eventBus.on("notification:event:reminder", (notification) => {
  * Loyalty Program Notifications
  * -------------------------------
  */
-eventBus.on("notification:loyalty:newPartner", (notification) => {
-  sendSocketNotification("notification:loyalty:newPartner", notification);
+
+// newly added partners in GUC loyalty program -> notify Student/Staff/TA/Professor
+eventBus.on("notification:loyalty:newPartner", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:loyalty:newPartner", notification, saveToDatabase);
 });
 
 /**
@@ -194,8 +217,8 @@ eventBus.on("notification:loyalty:newPartner", (notification) => {
  */
 
 // Pending vendor requests -> notify EventsOffice/Admin
-eventBus.on("notification:vendor:pendingRequest", (notification) => {
-  sendSocketNotification("notification:vendor:pendingRequest", notification);
+eventBus.on("notification:vendor:pendingRequest", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:vendor:pendingRequest", notification, saveToDatabase);
 });
 
 
@@ -226,6 +249,6 @@ eventBus.on("notification:delete", (data: { userId: string; notificationId: stri
 });
 
 // Fallback for new generic notifications
-eventBus.on("notification:new", (notification) => {
-  sendSocketNotification("notification:new", notification);
+eventBus.on("notification:new", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:new", notification, saveToDatabase);
 });

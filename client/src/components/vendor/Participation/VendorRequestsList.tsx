@@ -218,13 +218,19 @@ export default function VendorRequestsList() {
                   <CustomButton
                     size="small"
                     variant="outlined"
-                    sx={{
+                   sx={{
                       borderRadius: 999,
-                      backgroundColor: `${theme.palette.primary.main}10`,
-                      color: theme.palette.primary.main,
-                      borderColor: theme.palette.primary.main,
-                      width: "fit-content",
-                      fontSize: '0.5rem',
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                      width: 'fit-content'
                     }}
                      onClick={() => {
                       setSelectedEventId(item.eventId ?? null); // use mapped request id (vendorEvents._id)

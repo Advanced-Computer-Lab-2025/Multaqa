@@ -36,6 +36,7 @@ import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import HomeIcon from "@mui/icons-material/Home";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
+import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
 import ScaledLogo from "@/components/shared/MultaqaLogos/ScaledLogo";
 
 const MotionBox = motion(Box);
@@ -426,27 +427,29 @@ function HomePageContent() {
           }}
         >
           {/* LOGO: Changed component={Link} to div to prevent router hijacking */}
-          <Typography
-            component="div"
+          <Box
             onClick={(e) => {
               if (currentView !== "home") {
                 handleHomeClick(e);
               }
             }}
-            variant="h6"
             sx={{
-              textDecoration: "none",
-              color: theme.palette.text.primary,
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
               cursor: "pointer",
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: 2,
             }}
           >
-            MULTAQA
-          </Typography>
-
-          {/* <ScaledLogo image={multaqaLogo} transparent /> */}
+            <ScaledLogo
+              image={multaqaIcon}
+              transparent
+              iconOnly
+            />
+            <Typography variant="h5" sx={{ fontWeight: 800, fontFamily: "var(--font-jost)", textTransform: "uppercase" }}>
+              Multaqa
+            </Typography>
+          </Box>
 
           <Stack
             direction="row"
@@ -1451,7 +1454,7 @@ function HomePageContent() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      bgcolor: alpha(theme.palette.primary.main, 0.4),
+                      bgcolor: alpha(theme.palette.primary.main, 0.55),
                       color: theme.palette.tertiary.dark,
                       mb: 2.5,
                     }}
