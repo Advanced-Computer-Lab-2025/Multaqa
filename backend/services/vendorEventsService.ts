@@ -94,12 +94,29 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
+    // Calculate participation fee for platform booth
+    const BASE_PRICE = 50;
+    const duration = data.value.boothSetupDuration || 1; // in weeks (1-4)
+    const location = data.value.boothLocation || "";
+
+    // Extract booth number from location (e.g., "Booth 15" -> 15)
+    const boothNumberMatch = location.match(/(\d+)/);
+    const boothNumber = boothNumberMatch
+      ? parseInt(boothNumberMatch[1], 10)
+      : 1;
+
+    const participationFee = BASE_PRICE * duration * boothNumber;
+
     // Create a new platform booth event for this vendor
     const event = await this.eventRepo.create({
       type: EVENT_TYPES.PLATFORM_BOOTH,
       eventName: `${vendor.companyName} Booth`,
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus },
+      RequestData: {
+        ...data.value,
+        status: applicationStatus,
+        participationFee,
+      },
       archived: false,
       attendees: [],
       allowedUsers: [],
@@ -121,13 +138,18 @@ export class VendorEventsService {
       RequestData: data.value,
       status: applicationStatus,
       QRCodeGenerated: false,
+      hasPaid: false,
+      participationFee,
     });
 
     await vendor.save();
 
     await NotificationService.sendNotification({
       role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
-      adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
+      adminRole: [
+        AdministrationRoleType.EVENTS_OFFICE,
+        AdministrationRoleType.ADMIN,
+      ],
       type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for a platform booth event.`,
@@ -176,18 +198,35 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
+    // Calculate participation fee for bazaar
+    const BASE_PRICE = 50;
+    const location = data.value.bazaarLocation || "";
+    const boothSize = data.value.boothSize || "2x2";
+    const sizeMatch = boothSize.match(/(\d+)/);
+    const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
+    const locationFactor = Math.max(1, Math.floor(location.length / 10));
+    const participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
+
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
       event: eventId,
       RequestData: data.value,
       status: applicationStatus,
       QRCodeGenerated: false,
+      hasPaid: false,
+      participationFee,
     });
 
     // Add vendor to bazaar's vendors list
     event.vendors?.push({
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus, QRCodeGenerated: false },
+      RequestData: {
+        ...data.value,
+        status: applicationStatus,
+        QRCodeGenerated: false,
+        hasPaid: false,
+        participationFee,
+      },
     });
 
     await event.save();
@@ -195,11 +234,14 @@ export class VendorEventsService {
 
     await NotificationService.sendNotification({
       role: [UserRole.ADMINISTRATION], // Notify EventsOffice/Admin
-      adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
+      adminRole: [
+        AdministrationRoleType.EVENTS_OFFICE,
+        AdministrationRoleType.ADMIN,
+      ],
       type: "VENDOR_PENDING_REQUEST",
       title: "New Vendor Application",
       message: `Vendor "${vendor.companyName}" has applied for the bazaar event "${event.eventName}".`,
-      createdAt: new Date()
+      createdAt: new Date(),
     } as Notification);
 
     return {
@@ -339,8 +381,23 @@ export class VendorEventsService {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    vendor.requestedEvents[requestIndex].status =
-      status as Event_Request_Status;
+    // Map status to Event_Request_Status enum
+    const mappedStatus =
+      status === "approved"
+        ? Event_Request_Status.APPROVED
+        : Event_Request_Status.REJECTED;
+
+    vendor.requestedEvents[requestIndex].status = mappedStatus;
+
+    // Set payment deadline if status is approved (3 days from now)
+    if (status === "approved") {
+      const paymentDeadline = new Date();
+      paymentDeadline.setDate(paymentDeadline.getDate() + 3);
+      (vendor.requestedEvents[requestIndex] as any).paymentDeadline =
+        paymentDeadline;
+      (vendor.requestedEvents[requestIndex] as any).hasPaid = false;
+    }
+
     vendor.markModified("requestedEvents");
     await vendor.save();
 
@@ -355,6 +412,16 @@ export class VendorEventsService {
       }
 
       event.vendors[vendorIndex].RequestData.status = status;
+
+      // Set payment deadline if status is approved (3 days from now)
+      if (status === "approved") {
+        const paymentDeadline = new Date();
+        paymentDeadline.setDate(paymentDeadline.getDate() + 3);
+        event.vendors[vendorIndex].RequestData.paymentDeadline =
+          paymentDeadline;
+        event.vendors[vendorIndex].RequestData.hasPaid = false;
+      }
+
       event.markModified("vendors");
     } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (!event.vendor || event.vendor.toString() !== vendorId.toString()) {
@@ -368,18 +435,36 @@ export class VendorEventsService {
       event.RequestData.status = status;
       event.markModified("RequestData");
 
-      const { boothSetupDuration } = event.RequestData;
-      // Calculate start date: now + boothSetupDuration (in weeks)
-      const now = new Date();
-      event.eventStartDate = now;
-      event.eventEndDate = new Date(
-        now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
-      );
+      // Only update dates if status is approved
+      if (status === "approved") {
+        // Set payment deadline (3 days from now)
+        const paymentDeadline = new Date();
+        paymentDeadline.setDate(paymentDeadline.getDate() + 3);
+        event.RequestData.paymentDeadline = paymentDeadline;
+        event.RequestData.hasPaid = false;
+
+        const { boothSetupDuration } = event.RequestData;
+        // Calculate start date: now + boothSetupDuration (in weeks)
+        const now = new Date();
+        event.eventStartDate = now;
+        event.eventEndDate = new Date(
+          now.getTime() + boothSetupDuration * 7 * 24 * 60 * 60 * 1000
+        );
+      }
     } else {
       throw createError(400, "Invalid event type");
     }
 
     // Send application status email to vendor
+    const paymentDeadline =
+      status === "approved"
+        ? (() => {
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + 3);
+            return deadline;
+          })()
+        : undefined;
+
     await sendApplicationStatusEmail(
       vendor.email,
       vendor.companyName,
@@ -387,7 +472,8 @@ export class VendorEventsService {
       event.eventName,
       status === "approved" ? "accepted" : "rejected",
       status === "rejected" ? event.RequestData?.rejectionReason : undefined,
-      status === "approved" ? event.RequestData?.nextSteps : undefined
+      status === "approved" ? event.RequestData?.nextSteps : undefined,
+      paymentDeadline
     );
     await event.save();
   }
@@ -451,8 +537,8 @@ export class VendorEventsService {
 
   /**
    * Allows a vendor to cancel their participation in an event if they haven't paid yet
-   * Vendors can cancel when status is PENDING or PENDING_PAYMENT
-   * Once status is APPROVED (payment completed), cancellation is not allowed
+   * Vendors can cancel when hasPaid is false
+   * Once hasPaid is true (payment completed), cancellation is not allowed
    * @param vendorId vendor's ID
    * @param eventId event's ID
    * @returns void
@@ -477,38 +563,26 @@ export class VendorEventsService {
       throw createError(404, "Vendor has not applied to this event");
     }
 
-    const vendorRequest = vendor.requestedEvents[requestIndex];
-
-    // For bazaar, log the vendor entry in the event
+    // Check if the vendor has already paid by checking event's RequestData
+    let hasPaid = false;
     if (event.type === EVENT_TYPES.BAZAAR && event.vendors) {
       const vendorInEvent = event.vendors.find(
         (ve) => ve.vendor?.toString() === vendorId.toString()
       );
-      if (vendorInEvent) {
-        console.log(
-          "Bazaar Vendor Entry Status:",
-          vendorInEvent.RequestData?.status
-        );
+      if (vendorInEvent?.RequestData?.hasPaid === true) {
+        hasPaid = true;
+      }
+    } else if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
+      if (event.RequestData?.hasPaid === true) {
+        hasPaid = true;
       }
     }
-    console.log("===================================");
 
-    // Check if the vendor has already paid (status is APPROVED)
-    if (vendorRequest.status === Event_Request_Status.APPROVED) {
+    // Check if the vendor has already paid
+    if (hasPaid) {
       throw createError(
         400,
         "Cannot cancel - payment has already been completed for this event"
-      );
-    }
-
-    // Allow cancellation if status is PENDING or PENDING_PAYMENT
-    if (
-      vendorRequest.status !== Event_Request_Status.PENDING &&
-      vendorRequest.status !== Event_Request_Status.PENDING_PAYMENT
-    ) {
-      throw createError(
-        400,
-        `Cannot cancel event with status: ${vendorRequest.status}. Only PENDING or PENDING_PAYMENT requests can be cancelled.`
       );
     }
 
@@ -615,7 +689,9 @@ export class VendorEventsService {
       staffPosition: [StaffPosition.TA, StaffPosition.PROFESSOR, StaffPosition.STAFF],
       type: "LOYALTY_NEW_PARTNER",
       title: "New Loyalty Program Partner",
-      message: `Vendor "${vendor.companyName}" has joined the GUC loyalty program. Enjoy exclusive discounts with promo code "${loyaltyData.promoCode.toUpperCase()}".`,
+      message: `Vendor "${
+        vendor.companyName
+      }" has joined the GUC loyalty program. Enjoy exclusive discounts with promo code "${loyaltyData.promoCode.toUpperCase()}".`,
       createdAt: new Date(),
     } as Notification);
 
@@ -671,6 +747,7 @@ export class VendorEventsService {
         if (
           eventData.RequestData &&
           eventData.RequestData.status === "approved" &&
+          eventData.RequestData.hasPaid === true &&
           eventData.RequestData.QRCodeGenerated === false
         ) {
           filteredEvents.push(eventData as IEvent);
@@ -683,6 +760,7 @@ export class VendorEventsService {
             return (
               vendor.RequestData &&
               vendor.RequestData.status === "approved" &&
+              vendor.RequestData.hasPaid === true &&
               vendor.RequestData.QRCodeGenerated === false
             );
           }
@@ -715,6 +793,8 @@ export class VendorEventsService {
     if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
       if (
         event.RequestData.status === "approved" &&
+        event.RequestData.hasPaid &&
+        event.RequestData.hasPaid === true &&
         event.RequestData.QRCodeGenerated === false
       ) {
         await this.generateAndSendQRCodes(
@@ -722,7 +802,9 @@ export class VendorEventsService {
           (event.vendor as IUser).email,
           event.eventName,
           event.location || "Unknown Location",
-          event.RequestData.boothAttendees as IBoothAttendee[]
+          event.RequestData.boothAttendees as IBoothAttendee[],
+          event.eventStartDate,
+          event.eventEndDate
         );
 
         event.RequestData.QRCodeGenerated = true;
@@ -736,8 +818,11 @@ export class VendorEventsService {
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       let isNotEmpty: boolean = false;
       for (const vendorEntry of event.vendors || []) {
+        console.log(vendorEntry);
         if (
           vendorEntry.RequestData.status === "approved" &&
+          vendorEntry.RequestData.hasPaid &&
+          vendorEntry.RequestData.hasPaid === true &&
           vendorEntry.RequestData.QRCodeGenerated === false
         ) {
           isNotEmpty = true;
@@ -746,7 +831,9 @@ export class VendorEventsService {
             (vendorEntry.vendor as IVendor).email,
             event.eventName,
             event.location || "Unknown Location",
-            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[]
+            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[],
+            event.eventStartDate,
+            event.eventEndDate
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
@@ -767,7 +854,9 @@ export class VendorEventsService {
     email: string,
     eventName: string,
     location: string,
-    attendees: IBoothAttendee[]
+    attendees: IBoothAttendee[],
+    eventStartDate: Date,
+    eventEndDate: Date
   ): Promise<void> {
     // Ensure attendees is always an array
 

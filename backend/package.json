@@ -7,7 +7,7 @@
     "dev": "node ./scripts/kill-port.js && nodemon app.ts",
     "start": "node ./scripts/kill-port.js && ts-node app.ts",
     "kill-port": "node ./scripts/kill-port.js",
-    "stripe:webhook": "./scripts/start-stripe-webhook.sh"
+    "stripe:webhook": "bash ./scripts/start-stripe-webhook.sh"
   },
   "keywords": [],
   "author": "",
