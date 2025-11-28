@@ -15,6 +15,7 @@ import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
 import CancelApplicationVendor from "./Modals/CancelApplicationVendor";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import VendorPaymentDrawer from "./helpers/VendorPaymentDrawer";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -41,6 +42,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   const [restrictUsers, setRestrictUsers] = useState(false);
   const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
     const fid = f?._id?.$oid || f?._id || f;
     return String(fid) === String(id);
@@ -56,6 +58,9 @@ const BazarView: React.FC<BazarViewProps> = ({
   const isRequested = Boolean(requestForThisEvent);
   const requestStatus = requestForThisEvent?.status; // 'pending' | 'approved' etc.
   const hasPaid = requestForThisEvent?.hasPaid;
+  const participationFee = requestForThisEvent?.participationFee;
+
+  console.log(requestForThisEvent);
   
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -161,7 +166,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                         transform: "translateY(-2px)",
                       },
                     }}
-                  onClick={() => {}}
+                  onClick={() => setPaymentDrawerOpen(true)}
                 >
                   Pay
                 </CustomButton>
@@ -363,6 +368,13 @@ const BazarView: React.FC<BazarViewProps> = ({
         />
       </CustomModalLayout>
       <CancelApplicationVendor eventId={id} open={cancelApplication} onClose={() => setCancelApplication(false)} setRefresh={setRefresh}/>
+      <VendorPaymentDrawer
+        open={paymentDrawerOpen}
+        onClose={() => setPaymentDrawerOpen(false)}
+        eventId={id}
+        totalAmount={participationFee}
+        email={userInfo.email}
+      />
     </>
   );
 };
