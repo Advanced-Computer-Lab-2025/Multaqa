@@ -55,6 +55,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   });
   const isRequested = Boolean(requestForThisEvent);
   const requestStatus = requestForThisEvent?.status; // 'pending' | 'approved' etc.
+  const hasPaid = requestForThisEvent?.hasPaid;
   
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -141,13 +142,36 @@ const BazarView: React.FC<BazarViewProps> = ({
                   bazarId={id} 
                 />
               </CustomButton>
-            ) :(
+            ) : (
+              // if requested and status is approved but not paid -> show Pay button
+              requestStatus === "approved" && !hasPaid ? (
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.success.dark}`,
+                      backgroundColor: `${theme.palette.success.main}`,
+                      color: theme.palette.primary.contrastText,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  onClick={() => {}}
+                >
+                  Pay
+                </CustomButton>
+              ) : 
               // if requested and NOT approved -> show Cancel Application
-              (requestStatus === "pending" || requestStatus === "payment_pending") ? (
+              requestStatus !== "approved" && !hasPaid ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
-             sx={{
+                  sx={{
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.error.dark}`,
                       backgroundColor: `${theme.palette.error.main}`,
@@ -165,7 +189,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                 >
                   Cancel Application
                 </CustomButton>
-              ) : null // if approved, render nothing
+              ) : null // if paid or other status, render nothing
             )
           )
         } expanded={expanded} archived={archived} location={details["Location"]}  
@@ -280,9 +304,32 @@ const BazarView: React.FC<BazarViewProps> = ({
                   bazarId={id} 
                 />
               </CustomButton>
-            ) :(
+            ) : (
+              // if requested and status is approved but not paid -> show Pay button
+              requestStatus === "approved" && !hasPaid ? (
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.success.dark}`,
+                      backgroundColor: `${theme.palette.success.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  onClick={() => {}}
+                >
+                  Pay
+                </CustomButton>
+              ) :
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" ? (
+              requestStatus !== "approved" && !hasPaid ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
@@ -304,7 +351,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                 >
                   Cancel Application
                 </CustomButton>
-              ) : null // if approved, render nothing
+              ) : null // if paid or other status, render nothing
             )
           )
         }
