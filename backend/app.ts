@@ -40,6 +40,10 @@ import "./schemas/event-schemas/bazaarEventSchema";
 import "./schemas/event-schemas/platformBoothEventSchema";
 import "./schemas/event-schemas/tripSchema";
 import "./schemas/event-schemas/conferenceEventSchema";
+
+// Import misc schemas
+import "./schemas/misc/pollSchema";
+
 import "./config/redisClient";
 import "./config/cloudinary";
 

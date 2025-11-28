@@ -20,6 +20,7 @@ import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.i
 import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { GetEventsResponse } from "../interfaces/responses/eventResponses.interface";
+import { StaffPosition } from "../constants/staffMember.constants";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -349,7 +350,7 @@ async function generateVendorEventQRCodes(
 ) {
   const { eventId } = req.params
   try {
-    if (!eventId ) {
+    if (!eventId) {
       throw createError(400, "Event ID and Vendor ID are required");
     }
     await vendorEventsService.generateVendorEventQRCodes(eventId);
@@ -436,12 +437,137 @@ async function cancelLoyaltyProgram(req: AuthenticatedRequest, res: Response) {
   }
 }
 
+// get all vendors requesting to set up booths in the same location during the same durations
+async function getVendorsWithOverlappingBooths(req: Request, res: Response) {
+  try {
+    const requests = await vendorEventsService.getVendorsWithOverlappingBooths();
+    res.json({
+      success: true,
+      data: requests,
+      message: "Vendors with overlapping booth requests retrieved successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving vendors with overlapping booth requests"
+    );
+  }
+}
+
+async function getAllPolls(req: AuthenticatedRequest, res: Response) {
+  try {
+    const polls = await vendorEventsService.getAllPolls();
+    res.json({
+      success: true,
+      data: polls,
+      message: "Polls retrieved successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving polls"
+    );
+  }
+}
+
+async function createPoll(req: Request, res: Response) {
+  try {
+    const pollData = req.body;
+    const newPoll = await vendorEventsService.createPoll(pollData);
+    res.status(201).json({
+      success: true,
+      data: newPoll,
+      message: "Poll created successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error creating poll"
+    );
+  }
+}
+
+async function voteInPoll(req: AuthenticatedRequest, res: Response) {
+  try {
+    const { pollId, vendorId } = req.params;
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      throw createError(401, "User not authenticated");
+    }
+    
+    const updatedPoll = await vendorEventsService.voteInPoll(pollId, vendorId, userId);
+    res.json({
+      success: true,
+      data: updatedPoll,
+      message: "Vote recorded successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error voting in poll"
+    );
+  }
+}
+
 const router = Router();
 
 router.get(
   "/",
   authorizeRoles({ userRoles: [UserRole.VENDOR] }),
   getVendorUpcomingEvents
+);
+
+router.get(
+  "/overlapping-booth-requests",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE
+    ],
+  }),
+  getVendorsWithOverlappingBooths
+);
+
+router.get(
+  "/polls",
+  authorizeRoles({ 
+    userRoles: [
+      UserRole.ADMINISTRATION
+    ], 
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE
+    ]
+  }),
+  getAllPolls
+);
+
+router.post(
+  "/polls",
+  authorizeRoles({ 
+    userRoles: [
+      UserRole.ADMINISTRATION
+    ], 
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE
+    ]
+  }),
+  createPoll
+);
+
+router.post(
+  "/polls/:pollId/vote/:vendorId",
+  authorizeRoles({ 
+    userRoles: [
+      UserRole.STUDENT, 
+      UserRole.STAFF_MEMBER
+    ], 
+    staffPositions: [
+      StaffPosition.PROFESSOR, 
+      StaffPosition.TA, 
+      StaffPosition.STAFF] 
+    }),
+  voteInPoll
 );
 
 router.get(
