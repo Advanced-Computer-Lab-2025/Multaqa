@@ -458,6 +458,37 @@ export class PaymentService {
       throw createError(400, "Invalid participation fee calculation");
     }
 
+    // Store participation fee in vendor's requestedEvents
+    const requestIndex = vendor.requestedEvents.findIndex(
+      (req) => req.event?.toString() === eventId.toString()
+    );
+    if (requestIndex !== -1) {
+      (vendor.requestedEvents[requestIndex] as any).participationFee =
+        participationFee;
+      vendor.markModified("requestedEvents");
+      await vendor.save();
+    }
+
+    // Store participation fee in event's RequestData
+    if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.RequestData) {
+      event.RequestData.participationFee = participationFee;
+      event.markModified("RequestData");
+      await event.save();
+    } else if (event.type === EVENT_TYPES.BAZAAR) {
+      const vendorData = event.vendors?.find((v) => {
+        const vendorRefId =
+          typeof v.vendor === "string"
+            ? v.vendor
+            : (v.vendor as any)?._id?.toString() || v.vendor?.toString();
+        return vendorRefId === vendorId.toString();
+      });
+      if (vendorData?.RequestData) {
+        vendorData.RequestData.participationFee = participationFee;
+        event.markModified("vendors");
+        await event.save();
+      }
+    }
+
     // Build metadata
     const sanitizedMetadata: Record<string, string> = {
       eventId,

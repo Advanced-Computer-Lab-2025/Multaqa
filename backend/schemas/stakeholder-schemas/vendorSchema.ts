@@ -28,6 +28,9 @@ const vendorSchema = new Schema<IVendor>({
       paymentDeadline: {
         type: Date,
       },
+      participationFee: {
+        type: Number,
+      },
     },
   ],
 });

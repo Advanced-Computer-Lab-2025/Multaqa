@@ -26,6 +26,7 @@ const platformBoothSchema = new Schema<IPlatformBooth>({
         QRCodeGenerated: { type: Boolean, default: false },
         hasPaid: { type: Boolean, default: false },
         paymentDeadline: { type: Date },
+        participationFee: { type: Number },
       },
       { _id: false }
     ),
