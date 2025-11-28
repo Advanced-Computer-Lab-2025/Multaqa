@@ -25,7 +25,6 @@ const mapRequestedEventToVendorParticipation = (
   const vendorEntry = Array.isArray(event?.vendors)
     ? event.vendors.find((vendor: any) => vendor?.vendor === vendorId)
     : undefined;
-
   const requestData = item?.RequestData ?? vendorEntry?.RequestData ?? {};
 
   const typeRaw =

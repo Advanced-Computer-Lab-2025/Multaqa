@@ -233,7 +233,7 @@ const VendorPaymentDrawer: React.FC<VendorPaymentDrawerProps> = ({
                     Booth Registration Fee
                   </Typography>
                   <Typography variant="body2" fontWeight="700">
-                    USD {totalAmount}
+                    EGP {totalAmount}
                   </Typography>
                 </Box>
               </Box>
@@ -255,7 +255,7 @@ const VendorPaymentDrawer: React.FC<VendorPaymentDrawerProps> = ({
                       backgroundClip: 'text'
                     }}
                   >
-                    EGP {totalAmount.toFixed(2)}
+                    EGP {totalAmount}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" fontWeight="600">
                     Inclusive of all taxes
