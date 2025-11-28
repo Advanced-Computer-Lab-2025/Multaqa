@@ -941,4 +941,47 @@ export class VendorEventsService {
 
     return poll;
   }
+
+  /**
+   * Get all registered vendors for poll creation
+   * @returns Array of vendors with id, companyName, and logo
+   */
+  async getRegisteredVendors(): Promise<
+    Array<{
+      vendorId: string;
+      companyName: string;
+      logo: any;
+    }>
+  > {
+    const vendors = await this.vendorRepo.findAll({});
+
+    return vendors.map((vendor) => ({
+      vendorId: (vendor as any)._id.toString(),
+      companyName: vendor.companyName,
+      logo: vendor.logo,
+    }));
+  }
+
+  /**
+   * Get active polls (for students/staff to vote)
+   * @returns Array of active polls
+   */
+  async getActivePolls() {
+    const allPolls = await this.pollRepo.findAll({});
+    // Filter to only active polls (deadline in the future)
+    return allPolls.filter(poll => poll.isActive);
+  }
+
+  /**
+   * Check if user has voted in a specific poll
+   * @param pollId Poll ID
+   * @param userId User ID
+   * @returns Boolean indicating if user has voted
+   */
+  async hasUserVoted(pollId: string, userId: string): Promise<boolean> {
+    const poll = await this.pollRepo.findById(pollId);
+    if (!poll) return false;
+    
+    return poll.votes.some(vote => vote.userId.toString() === userId);
+  }
 }

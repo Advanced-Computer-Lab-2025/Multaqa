@@ -14,6 +14,7 @@ export interface Poll {
   options: PollOption[];
   isActive: boolean;
   createdAt: string;
+  hasVoted?: boolean; // Whether the current user has voted in this poll
 }
 
 export interface CreatePollDTO {
@@ -21,5 +22,5 @@ export interface CreatePollDTO {
   description: string;
   startDate: Date;
   endDate: Date;
-  vendorRequestIds: string[]; // IDs of the vendor requests to include in the poll
+  vendorRequestIds: string[]; // IDs of the vendors to include in the poll
 }

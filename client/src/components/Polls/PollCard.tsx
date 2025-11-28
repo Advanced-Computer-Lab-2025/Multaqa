@@ -7,7 +7,6 @@ import CustomRadio from "@/components/shared/input-fields/CustomRadio";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { votePoll } from "@/services/pollService";
 import { toast } from "react-toastify";
-import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
 import { Clock, CheckCircle } from "lucide-react";
 
 interface PollCardProps {
@@ -18,7 +17,7 @@ interface PollCardProps {
 const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
   const [selectedVendorId, setSelectedVendorId] = useState<string>("");
   const [voting, setVoting] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
+  const [hasVoted, setHasVoted] = useState(poll.hasVoted || false);
   const [localPoll, setLocalPoll] = useState<Poll>(poll);
 
   const handleVote = async () => {
@@ -59,9 +58,17 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
             : opt
         )
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to vote", error);
-      toast.error("Failed to submit vote");
+      const errorMessage = error.message || "Failed to submit vote";
+      
+      // If user has already voted, update the UI state
+      if (errorMessage.toLowerCase().includes("already voted")) {
+        setHasVoted(true);
+        toast.info("You have already voted in this poll");
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setVoting(false);
     }

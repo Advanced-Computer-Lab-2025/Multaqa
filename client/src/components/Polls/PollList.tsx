@@ -15,103 +15,9 @@ interface PollListProps {
   showHeader?: boolean;
 }
 
-const DAY_IN_MS = 86_400_000;
-
-const createMockPolls = (): Poll[] => {
-  const now = Date.now();
-
-  return [
-    {
-      id: "test-poll-1",
-      title: "Best Campus Coffee 2025",
-      description:
-        "Vote for your favorite coffee spot on campus! Who brews the best bean?",
-      startDate: new Date(now).toISOString(),
-      endDate: new Date(now + 3 * DAY_IN_MS).toISOString(),
-      isActive: true,
-      createdAt: new Date(now).toISOString(),
-      options: [
-        {
-          vendorId: "v1",
-          vendorName: "Bean There Done That",
-          voteCount: 45,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bean",
-        },
-        {
-          vendorId: "v2",
-          vendorName: "Daily Grind",
-          voteCount: 32,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Grind",
-        },
-        {
-          vendorId: "v3",
-          vendorName: "Brewed Awakening",
-          voteCount: 18,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Brew",
-        },
-      ],
-    },
-    {
-      id: "test-poll-2",
-      title: "Favorite Lunch Spot",
-      description:
-        "Which food truck serves the best lunch? Let us know your pick!",
-      startDate: new Date(now).toISOString(),
-      endDate: new Date(now + 5 * DAY_IN_MS).toISOString(),
-      isActive: true,
-      createdAt: new Date(now).toISOString(),
-      options: [
-        {
-          vendorId: "v4",
-          vendorName: "Taco 'Bout It",
-          voteCount: 120,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Taco",
-        },
-        {
-          vendorId: "v5",
-          vendorName: "Burger King (Not that one)",
-          voteCount: 98,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Burger",
-        },
-        {
-          vendorId: "v6",
-          vendorName: "Wok This Way",
-          voteCount: 145,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Wok",
-        },
-      ],
-    },
-    {
-      id: "test-poll-3",
-      title: "Best Tech Accessories",
-      description:
-        "Who has the coolest gadgets and accessories at the tech fair?",
-      startDate: new Date(now).toISOString(),
-      endDate: new Date(now + 2 * DAY_IN_MS).toISOString(),
-      isActive: true,
-      createdAt: new Date(now).toISOString(),
-      options: [
-        {
-          vendorId: "v7",
-          vendorName: "Gadget Galaxy",
-          voteCount: 56,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Gadget",
-        },
-        {
-          vendorId: "v8",
-          vendorName: "Cable Guy",
-          voteCount: 23,
-          vendorLogo: "https://api.dicebear.com/7.x/avataaars/svg?seed=Cable",
-        },
-      ],
-    },
-  ];
-};
-
 const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
-  const [polls, setPolls] = useState<Poll[]>(() => createMockPolls());
+  const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
-  const [usingMockData, setUsingMockData] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
@@ -132,21 +38,18 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
           return;
         }
 
-        if (Array.isArray(activePolls) && activePolls.length > 0) {
+        if (Array.isArray(activePolls)) {
           setPolls(activePolls);
-          setUsingMockData(false);
         } else {
-          setPolls(createMockPolls());
-          setUsingMockData(true);
+          setPolls([]);
         }
       } catch (fetchError) {
         console.error("Failed to fetch polls", fetchError);
         if (!isMounted) {
           return;
         }
-        setError("Unable to load live polls. Showing demo polls instead.");
-        setPolls(createMockPolls());
-        setUsingMockData(true);
+        setError("Unable to load polls. Please try again later.");
+        setPolls([]);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -195,18 +98,13 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
   const body = (
     <Box sx={{ maxWidth: 1100, mx: "auto" }}>
       {error && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
       {isEventsOffice && (
         <Alert severity="info" sx={{ mb: 2 }}>
           Events Office users can monitor poll progress but cannot cast votes.
-        </Alert>
-      )}
-      {usingMockData && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          You are viewing demo polls. Voting is simulated locally until the backend is ready.
         </Alert>
       )}
       {loading && <LinearProgress sx={{ mb: 2 }} />}

@@ -19,11 +19,10 @@ import CustomTextField from "@/components/shared/input-fields/CustomTextField";
 import DateTimePicker from "@/components/shared/DateTimePicker/DateTimePicker";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
-import { getVendorRequestsForPoll, createPoll } from "@/services/pollService";
-import { VendorParticipationRequest } from "@/components/EventsOffice/VendorRequests/types";
+import { getRegisteredVendors, createPoll, RegisteredVendor } from "@/services/pollService";
 import { toast } from "react-toastify";
 import { useTheme } from "@mui/material/styles";
-import { Store, Calendar, Info } from "lucide-react";
+import { Store, Info } from "lucide-react";
 
 interface CreatePollFormProps {
   onSuccess?: () => void;
@@ -33,22 +32,22 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [vendorRequests, setVendorRequests] = useState<VendorParticipationRequest[]>([]);
+  const [vendors, setVendors] = useState<RegisteredVendor[]>([]);
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    const fetchVendors = async () => {
       try {
-        const requests = await getVendorRequestsForPoll();
-        setVendorRequests(requests);
+        const registeredVendors = await getRegisteredVendors();
+        setVendors(registeredVendors);
       } catch (error) {
-        console.error("Failed to fetch vendor requests", error);
-        toast.error("Failed to fetch vendor requests");
+        console.error("Failed to fetch registered vendors", error);
+        toast.error("Failed to fetch registered vendors");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRequests();
+    fetchVendors();
   }, []);
 
   const formik = useFormik({
@@ -57,7 +56,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
       description: "",
       startDate: null as Date | null,
       endDate: null as Date | null,
-      vendorRequestIds: [] as string[],
+      vendorIds: [] as string[],
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
@@ -67,7 +66,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
         .required("End date is required")
         .nullable()
         .min(Yup.ref("startDate"), "End date must be after start date"),
-      vendorRequestIds: Yup.array()
+      vendorIds: Yup.array()
         .min(2, "Select at least 2 vendors for the poll")
         .required("Vendors are required"),
     }),
@@ -81,7 +80,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
           description: values.description,
           startDate: values.startDate,
           endDate: values.endDate,
-          vendorRequestIds: values.vendorRequestIds,
+          vendorRequestIds: values.vendorIds, // Now using vendor IDs directly
         });
         toast.success("Poll created successfully!");
         if (onSuccess) {
@@ -89,9 +88,10 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
         } else {
           window.location.reload();
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to create poll", error);
-        toast.error("Failed to create poll");
+        const errorMessage = error.message || "Failed to create poll";
+        toast.error(errorMessage);
       } finally {
         setSubmitting(false);
       }
@@ -99,11 +99,11 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
   });
 
   const handleVendorToggle = (id: string) => {
-    const currentIds = formik.values.vendorRequestIds;
+    const currentIds = formik.values.vendorIds;
     const newIds = currentIds.includes(id)
-      ? currentIds.filter((reqId) => reqId !== id)
+      ? currentIds.filter((vendorId) => vendorId !== id)
       : [...currentIds, id];
-    formik.setFieldValue("vendorRequestIds", newIds);
+    formik.setFieldValue("vendorIds", newIds);
   };
 
   if (loading) {
@@ -209,15 +209,15 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
                   </Typography>
                 </Box>
                 <Chip 
-                  label={`${formik.values.vendorRequestIds.length} Selected`} 
-                  color={formik.values.vendorRequestIds.length >= 2 ? "primary" : "default"}
-                  variant={formik.values.vendorRequestIds.length >= 2 ? "filled" : "outlined"}
+                  label={`${formik.values.vendorIds.length} Selected`} 
+                  color={formik.values.vendorIds.length >= 2 ? "primary" : "default"}
+                  variant={formik.values.vendorIds.length >= 2 ? "filled" : "outlined"}
                 />
               </Box>
 
-              {formik.touched.vendorRequestIds && formik.errors.vendorRequestIds && (
+              {formik.touched.vendorIds && formik.errors.vendorIds && (
                 <Typography color="error" variant="caption" sx={{ display: "block", mb: 2 }}>
-                  {formik.errors.vendorRequestIds as string}
+                  {formik.errors.vendorIds as string}
                 </Typography>
               )}
 
@@ -233,20 +233,20 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
                   "&::-webkit-scrollbar-thumb:hover": { background: "#555" },
                 }}
               >
-                {vendorRequests.length === 0 ? (
+                {vendors.length === 0 ? (
                   <Box sx={{ textAlign: "center", py: 8, bgcolor: "grey.50", borderRadius: 2 }}>
                     <Info size={48} color="#9e9e9e" style={{ marginBottom: 16 }} />
-                    <Typography color="textSecondary">No pending vendor requests found.</Typography>
+                    <Typography color="textSecondary">No registered vendors found.</Typography>
                   </Box>
                 ) : (
                   <Grid container spacing={2}>
-                    {vendorRequests.map((req) => {
-                      const isSelected = formik.values.vendorRequestIds.includes(req.id);
+                    {vendors.map((vendor) => {
+                      const isSelected = formik.values.vendorIds.includes(vendor.vendorId);
                       return (
-                        <Grid item xs={12} key={req.id}>
+                        <Grid item xs={12} key={vendor.vendorId}>
                           <Card
                             variant="outlined"
-                            onClick={() => handleVendorToggle(req.id)}
+                            onClick={() => handleVendorToggle(vendor.vendorId)}
                             sx={{
                               cursor: "pointer",
                               borderColor: isSelected ? "primary.main" : "divider",
@@ -269,8 +269,8 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
                                   sx={{ mr: 2 }}
                                 />
                                 
-                                {req.vendorLogo ? (
-                                  <Avatar src={req.vendorLogo} sx={{ width: 48, height: 48, mr: 2 }} />
+                                {vendor.logo?.url ? (
+                                  <Avatar src={vendor.logo.url} sx={{ width: 48, height: 48, mr: 2 }} />
                                 ) : (
                                   <Avatar sx={{ width: 48, height: 48, mr: 2, bgcolor: "secondary.main" }}>
                                     <Store size={24} />
@@ -279,19 +279,8 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
                                 
                                 <Box sx={{ flex: 1 }}>
                                   <Typography variant="subtitle1" fontWeight="bold">
-                                    {req.vendorName}
+                                    {vendor.companyName}
                                   </Typography>
-                                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 0.5 }}>
-                                    <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary" }}>
-                                      <Calendar size={14} style={{ marginRight: 4 }} />
-                                      <Typography variant="caption">{req.eventName}</Typography>
-                                    </Box>
-                                    <Chip 
-                                      label={req.eventType.replace("_", " ")} 
-                                      size="small" 
-                                      sx={{ height: 20, fontSize: "0.7rem", textTransform: "capitalize" }} 
-                                    />
-                                  </Box>
                                 </Box>
                               </Box>
                             </CardContent>
@@ -318,7 +307,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
               type="submit"
               variant="contained"
               width="200px"
-              disabled={submitting || vendorRequests.length < 2}
+              disabled={submitting || vendors.length < 2}
               label={submitting ? "Creating..." : "Create Poll"}
             />
           </Box>
