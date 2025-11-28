@@ -21,15 +21,19 @@ import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
 import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
 import { IUser } from "../interfaces/models/user.interface";
 import { pdfGenerator } from "../utils/pdfGenerator";
+import { IPoll } from "../interfaces/models/poll.interface"
+import { Poll } from "../schemas/misc/pollSchema"
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
+  private pollRepo: GenericRepository<IPoll>;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
+    this.pollRepo = new GenericRepository(Poll);
   }
 
   /**
@@ -682,11 +686,7 @@ export class VendorEventsService {
 
     await NotificationService.sendNotification({
       role: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
-      staffPosition: [
-        StaffPosition.TA,
-        StaffPosition.PROFESSOR,
-        StaffPosition.STAFF,
-      ],
+      staffPosition: [StaffPosition.TA, StaffPosition.PROFESSOR, StaffPosition.STAFF],
       type: "LOYALTY_NEW_PARTNER",
       title: "New Loyalty Program Partner",
       message: `Vendor "${
@@ -858,29 +858,176 @@ export class VendorEventsService {
     eventStartDate: Date,
     eventEndDate: Date
   ): Promise<void> {
-    // Ensure dates are proper Date objects
-    const startDate = new Date(eventStartDate);
-    const endDate = new Date(eventEndDate);
+    // Ensure attendees is always an array
 
     const qrCodeData: any[] = [];
     for (const attendee of attendees) {
-      const dateRange = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
       const qrCodeBuffer = await generateQrCodeBuffer(
         eventName,
         location,
-        dateRange,
-        attendee.name
+        new Date().toISOString(),
+        attendee.name,
       );
       qrCodeData.push({
         buffer: qrCodeBuffer,
         name: `${attendee.name}`,
       });
     }
-    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(
-      qrCodeData,
-      eventName
-    );
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData, eventName);
     console.log("Sending QR Code Email to:", email);
     await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
+  }
+
+  async getVendorsWithOverlappingBooths(): Promise<any[]> {
+    // Get all pending platform booth events
+    const platformBoothEvents = await this.eventRepo.findAll(
+      {
+        type: EVENT_TYPES.PLATFORM_BOOTH,
+        "RequestData.status": Event_Request_Status.PENDING,
+      },
+      {
+        populate: [{ path: "vendor", select: "companyName logo email" }] as any[],
+      }
+    );
+
+    // Group vendors by booth location
+    const locationGroups = new Map<string, any[]>();
+
+    for (const event of platformBoothEvents) {
+      const boothLocation = event.RequestData?.boothLocation;
+
+      if (!locationGroups.has(boothLocation)) {
+        locationGroups.set(boothLocation, []);
+      }
+
+      locationGroups.get(boothLocation)!.push({
+        eventId: event._id,
+        eventName: event.eventName,
+        vendor: event.vendor,
+        boothSize: event.RequestData?.boothSize,
+        boothSetupDuration: event.RequestData?.boothSetupDuration,
+      });
+    }
+
+    // Convert to array format - show all vendors per location (conflicts based on location only)
+    const result: any[] = [];
+    for (const [location, vendors] of locationGroups.entries()) {
+      if (vendors.length > 1) {
+        result.push({
+          location,
+          vendorCount: vendors.length,
+          vendors: vendors.map((v) => ({
+            eventId: v.eventId,
+            eventName: v.eventName,
+            vendor: v.vendor,
+            boothSize: v.boothSize,
+            boothSetupDuration: v.boothSetupDuration,
+          })),
+        });
+      }
+    }
+
+    if (result.length === 0) {
+      throw createError(404, "No conflicting booth requests found");
+    }
+
+    return result;
+  }
+
+  async getAllPolls() {
+    return this.pollRepo.findAll({});
+  }
+
+  async createPoll(pollData: {
+    title: string;
+    description: string;
+    deadlineDate: Date;
+    vendorIds: string[];
+  }): Promise<IPoll> {
+    // Validate dates
+    const deadlineDate = new Date(pollData.deadlineDate);
+    
+    if (deadlineDate <= new Date()) {
+      throw createError(400, "End date must be in the future");
+    }
+
+    // Validate vendors exist
+    if (!pollData.vendorIds || pollData.vendorIds.length < 2) {
+      throw createError(400, "At least 2 vendors are required for a poll");
+    }
+
+    // Fetch vendor details
+    const vendors = await this.vendorRepo.findAll({
+      _id: { $in: pollData.vendorIds },
+    });
+
+    if (vendors.length !== pollData.vendorIds.length) {
+      throw createError(404, "One or more vendors not found");
+    }
+
+    // Create poll options from vendors
+    const options = vendors.map((vendor) => ({
+      vendorId: (vendor as any)._id.toString(),
+      vendorName: vendor.companyName,
+      vendorLogo: vendor.logo?.url,
+      voteCount: 0,
+    }));
+
+    // Create the poll
+    const poll = await this.pollRepo.create({
+      title: pollData.title,
+      description: pollData.description,
+      deadlineDate: deadlineDate,
+      options,
+    });
+
+    return poll;
+  }
+
+  async voteInPoll(pollId: string, vendorId: string, userId: string): Promise<IPoll> {
+    // Find the poll
+    const poll = await this.pollRepo.findById(pollId);
+    if (!poll) {
+      throw createError(404, "Poll not found");
+    }
+
+    // Check if poll is active
+    if (!poll.isActive) {
+      throw createError(400, "Poll has ended");
+    }
+
+    // Verify vendor is in the poll options
+    const optionIndex = poll.options.findIndex(
+      (option) => option.vendorId === vendorId
+    );
+    if (optionIndex === -1) {
+      throw createError(400, "Vendor is not an option in this poll");
+    }
+
+    // Check if user has already voted (if userId provided)
+    if (userId) {
+      const existingVote = poll.votes.find(
+        (vote) => vote.userId.toString() === userId
+      );
+
+      if (existingVote) {
+        throw createError(400, "You have already voted in this poll");
+      }
+    }
+
+    // Record the vote
+    poll.votes.push({
+      userId: userId as any,
+      vendorId,
+      votedAt: new Date(),
+    });
+
+    // Increment vote count
+    poll.options[optionIndex].voteCount += 1;
+    poll.markModified("options");
+    poll.markModified("votes");
+    await poll.save();
+
+    return poll;
   }
 }
