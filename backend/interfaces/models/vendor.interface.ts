@@ -16,7 +16,6 @@ export interface VendorRequest {
     status: Event_Request_Status;
      QRCodeGenerated?: boolean;
   };
- 
 }
 
 export interface IVendor extends IUser {

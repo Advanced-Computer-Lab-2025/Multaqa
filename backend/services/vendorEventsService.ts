@@ -806,8 +806,6 @@ export class VendorEventsService {
 
     for (const event of platformBoothEvents) {
       const boothLocation = event.RequestData?.boothLocation;
-      const eventStart = event.eventStartDate;
-      const eventEnd = event.eventEndDate;
 
       if (!locationGroups.has(boothLocation)) {
         locationGroups.set(boothLocation, []);
@@ -817,78 +815,31 @@ export class VendorEventsService {
         eventId: event._id,
         eventName: event.eventName,
         vendor: event.vendor,
-        boothLocation,
-        startDate: eventStart,
-        endDate: eventEnd,
         boothSize: event.RequestData?.boothSize,
         boothSetupDuration: event.RequestData?.boothSetupDuration,
       });
     }
 
-    // Process each location to find overlapping time periods
+    // Convert to array format - show all vendors per location (conflicts based on location only)
     const result: any[] = [];
-
-    for (const [location, allVendors] of locationGroups.entries()) {
-      // Sort by start date
-      allVendors.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
-
-      // Find overlapping time periods
-      const timePeriods: any[] = [];
-
-      for (let i = 0; i < allVendors.length; i++) {
-        const currentVendor = allVendors[i];
-        const overlappingVendors = [currentVendor];
-
-        // Check for overlaps with other vendors
-        for (let j = i + 1; j < allVendors.length; j++) {
-          const otherVendor = allVendors[j];
-
-          // Check if time periods overlap, Two periods overlap if: start2 <= end1
-          const overlaps = otherVendor.startDate <= currentVendor.endDate;
-          if (overlaps) {
-            overlappingVendors.push(otherVendor);
-          }
-        }
-
-        // Only add if there are multiple vendors (overlapping)
-        if (overlappingVendors.length > 1) {
-          // Calculate the overlapping time range
-          const overlapStart = new Date(
-            Math.max(...overlappingVendors.map((v) => v.startDate.getTime()))
-          );
-          const overlapEnd = new Date(
-            Math.min(...overlappingVendors.map((v) => v.endDate.getTime()))
-          );
-
-          timePeriods.push({
-            overlapStart,
-            overlapEnd,
-            vendors: overlappingVendors.map((v) => ({
-              eventId: v.eventId,
-              eventName: v.eventName,
-              vendor: v.vendor,
-              requestedStartDate: v.startDate,
-              requestedEndDate: v.endDate,
-              boothSize: v.boothSize,
-              boothSetupDuration: v.boothSetupDuration,
-            })),
-            vendorCount: overlappingVendors.length,
-          });
-        }
-      }
-
-
-      // Add location to results if it has overlapping periods
-      if (timePeriods.length > 0) {
+    for (const [location, vendors] of locationGroups.entries()) {
+      if (vendors.length > 1) {
         result.push({
           location,
-          conflictingPeriods: timePeriods,
+          vendorCount: vendors.length,
+          vendors: vendors.map((v) => ({
+            eventId: v.eventId,
+            eventName: v.eventName,
+            vendor: v.vendor,
+            boothSize: v.boothSize,
+            boothSetupDuration: v.boothSetupDuration,
+          })),
         });
       }
     }
 
     if (result.length === 0) {
-      throw createError(404, "No overlapping booth requests found");
+      throw createError(404, "No conflicting booth requests found");
     }
 
     return result;
