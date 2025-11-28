@@ -55,7 +55,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   });
   const isRequested = Boolean(requestForThisEvent);
   const requestStatus = requestForThisEvent?.status; // 'pending' | 'approved' etc.
-
+  
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
@@ -143,7 +143,7 @@ const BazarView: React.FC<BazarViewProps> = ({
               </CustomButton>
             ) :(
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" ? (
+              (requestStatus === "pending" || requestStatus === "payment_pending") ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
@@ -151,9 +151,10 @@ const BazarView: React.FC<BazarViewProps> = ({
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.error.dark}`,
                       backgroundColor: `${theme.palette.error.main}`,
-                      color: background,
+                      color: theme.palette.primary.contrastText,
                       fontWeight: 600,
                       px: 3,
+                      width: 'fit-content',
                       textTransform: "none",
                       transition: "all 0.3s ease",
                       "&:hover": {
