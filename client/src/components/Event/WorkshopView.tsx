@@ -25,6 +25,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   name,
   description,
   professors,
+  professorsId,
   icon: IconComponent,
   background,
   agenda,
@@ -277,7 +278,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         creatingProfessor={details["Created By"]}
         faculty={details["Faculty Responsible"]}
         extraResources={details["Extra Required Resources"] ? [details["Extra Required Resources"]] : []}
-        associatedProfs={professors}
+        associatedProfs={professorsId}
         onClose={() => {
           setEdit(false);
         }}
