@@ -23,31 +23,31 @@ export interface Notification {
 
 export class NotificationService {
 
-  static async sendNotification(notification: Notification) {
+  static async sendNotification(notification: Notification, saveToDatabase: boolean = true) {
     // Emit the event based on type if user is online
     switch (notification.type) {
       case "WORKSHOP_REQUEST_SUBMITTED":
-        eventBus.emit("notification:workshop:requestSubmitted", notification);
+        eventBus.emit("notification:workshop:requestSubmitted", notification, saveToDatabase);
         break;
       case "WORKSHOP_STATUS_CHANGED":
-        eventBus.emit("notification:workshop:statusChanged", notification);
+        eventBus.emit("notification:workshop:statusChanged", notification, saveToDatabase);
         break;
       case "EVENT_NEW":
-        eventBus.emit("notification:event:new", notification);
+        eventBus.emit("notification:event:new", notification, saveToDatabase);
         break;
       case "EVENT_REMINDER":
-        eventBus.emit("notification:event:reminder", notification);
+        eventBus.emit("notification:event:reminder", notification, saveToDatabase);
         break;
       case "LOYALTY_NEW_PARTNER":
-        eventBus.emit("notification:loyalty:newPartner", notification);
+        eventBus.emit("notification:loyalty:newPartner", notification, saveToDatabase);
         break;
       case "VENDOR_PENDING_REQUEST":
-        eventBus.emit("notification:vendor:pendingRequest", notification);
+        eventBus.emit("notification:vendor:pendingRequest", notification, saveToDatabase);
         break;
       default:
         console.warn(`No event bus handler for notification type: ${notification.type}`);
         // Fallback for new generic notifications
-        eventBus.emit("notification:new", notification);
+        eventBus.emit("notification:new", notification, saveToDatabase);
     }
   }
 
@@ -100,7 +100,7 @@ export class NotificationService {
         delivered: notification.delivered,
         createdAt: notification.createdAt
       };
-      await NotificationService.sendNotification(notificationData);
+      await NotificationService.sendNotification(notificationData, false);
       notification.delivered = true;
     }
     await user.save();

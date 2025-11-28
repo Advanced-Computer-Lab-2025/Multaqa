@@ -293,9 +293,9 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, co
                                                     name="eventStartDate"
                                                     label="Start Date and Time"
                                                     slotProps={{
-                                                        textField: { 
-                                                            variant: "standard", 
-                                                            fullWidth: true, 
+                                                        textField: {
+                                                            variant: "standard",
+                                                            fullWidth: true,
                                                             sx: tertiaryInputStyles,
                                                             InputLabelProps: {
                                                                 sx: {
@@ -322,9 +322,9 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, co
                                                     label="End Date and Time"
                                                     name="eventEndDate"
                                                     slotProps={{
-                                                        textField: { 
-                                                            variant: "standard", 
-                                                            fullWidth: true, 
+                                                        textField: {
+                                                            variant: "standard",
+                                                            fullWidth: true,
                                                             sx: tertiaryInputStyles,
                                                             InputLabelProps: {
                                                                 sx: {
@@ -394,6 +394,7 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, co
                                             value={values.fundingSource}
                                             onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
                                             name="fundingSource"
+                                            usePortalPositioning={true}
                                         />
                                         {errors.fundingSource && touched.fundingSource && (
                                             <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.fundingSource}</Typography>

@@ -312,6 +312,7 @@ export default function AllUsersContent() {
                 neumorphicBox
                 required
                 fullWidth
+                usePortalPositioning={true}
               />
             </Box>
 
