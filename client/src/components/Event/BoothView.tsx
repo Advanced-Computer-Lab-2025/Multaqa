@@ -130,8 +130,19 @@ const BoothView: React.FC<BoothViewProps> = ({
               size="small"
               variant="contained"
               // color="primary"
-              sx={{ borderRadius: 999 , backgroundColor: `${background}20`,
-              color:background, borderColor:background}}
+               sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
+                      color: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
             >
               Apply
             </CustomButton>

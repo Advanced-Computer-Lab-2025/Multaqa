@@ -347,7 +347,7 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
               left: 0,
               right: 0,
             }),
-          zIndex: 9999,
+          zIndex: 999999,
         }}
       >
         {options.map((option) => {

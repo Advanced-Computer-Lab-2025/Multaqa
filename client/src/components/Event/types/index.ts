@@ -64,6 +64,6 @@ export type WorkshopViewProps = BasicProps & {
   professorStatus?:string;
   evaluateButton?:React.ReactNode;
   commentButton?:React.ReactNode;
-  attendees: AttendeesArray;
+  attendees?: AttendeesArray;
   registrationDeadline?: any;
 }

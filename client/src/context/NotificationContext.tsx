@@ -27,6 +27,7 @@ export const NotificationProvider = ({
   const { user, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [canShowToasts, setCanShowToasts] = useState(false);
 
   // Computed unread count
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -126,24 +127,26 @@ export const NotificationProvider = ({
     // Add notification to state (sort by newest first)
     setNotifications((prev) => [notification, ...prev]);
 
-    // Show toast notification
-    toast.info(
-      <div>
-        <strong>{notification.title}</strong>
-        <p style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>
-          {notification.message}
-        </p>
-      </div>,
-      {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      }
-    );
-  }, []);
+    // Show toast notification only if toasts are enabled
+    if (canShowToasts) {
+      toast.info(
+        <div>
+          <strong>{notification.title}</strong>
+          <p style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            {notification.message}
+          </p>
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
+    }
+  }, [canShowToasts]);
 
   // Handle notification read event from backend (sync across tabs)
   const handleNotificationRead = useCallback(
@@ -266,6 +269,7 @@ export const NotificationProvider = ({
         markAllAsRead,
         isLoading,
         refetch: fetchNotifications,
+        enableToasts: () => setCanShowToasts(true),
       }}
     >
       {children}

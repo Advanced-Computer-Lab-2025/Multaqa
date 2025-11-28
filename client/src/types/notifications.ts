@@ -29,6 +29,7 @@ export interface NotificationContextType {
   markAllAsRead: () => void;
   isLoading: boolean;
   refetch: () => Promise<void>;
+  enableToasts: () => void;
 }
 
 // Helper type guard to check if notification type is valid

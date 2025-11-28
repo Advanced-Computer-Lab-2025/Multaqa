@@ -4,6 +4,8 @@ import { UserRoleKey } from "@/types";
 import Image from "next/image";
 import ScaledLogo from "../shared/MultaqaLogos/ScaledLogo";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
+import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
+import { Box, Typography } from "@mui/material";
 
 interface HeaderProps {
   title: string;
@@ -146,7 +148,25 @@ export default function TopNavigation({
         </div> */}
 
         <div className="flex items-center justify-between w-full px-4">
-          <ScaledLogo image={multaqaLogo} />
+          <Box
+            sx={{
+              cursor: "pointer",
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              gap: 1.5,
+            }}
+          >
+            <ScaledLogo
+              image={multaqaIcon}
+              transparent
+              iconOnly
+              small
+            />
+            <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: "var(--font-jost)", textTransform: "uppercase" }}>
+              Multaqa
+            </Typography>
+          </Box>
           {/* <span className="text-2xl font-heading font-bold text-gray-800 tracking-wide">
             {companyName}
           </span> */}
