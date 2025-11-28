@@ -90,12 +90,29 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
+    // Calculate participation fee for platform booth
+    const BASE_PRICE = 50;
+    const duration = data.value.boothSetupDuration || 1; // in weeks (1-4)
+    const location = data.value.boothLocation || "";
+
+    // Extract booth number from location (e.g., "Booth 15" -> 15)
+    const boothNumberMatch = location.match(/(\d+)/);
+    const boothNumber = boothNumberMatch
+      ? parseInt(boothNumberMatch[1], 10)
+      : 1;
+
+    const participationFee = BASE_PRICE * duration * boothNumber;
+
     // Create a new platform booth event for this vendor
     const event = await this.eventRepo.create({
       type: EVENT_TYPES.PLATFORM_BOOTH,
       eventName: `${vendor.companyName} Booth`,
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus },
+      RequestData: {
+        ...data.value,
+        status: applicationStatus,
+        participationFee,
+      },
       archived: false,
       attendees: [],
       allowedUsers: [],
@@ -118,6 +135,7 @@ export class VendorEventsService {
       status: applicationStatus,
       QRCodeGenerated: false,
       hasPaid: false,
+      participationFee,
     });
 
     await vendor.save();
@@ -176,6 +194,15 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
+    // Calculate participation fee for bazaar
+    const BASE_PRICE = 50;
+    const location = data.value.bazaarLocation || "";
+    const boothSize = data.value.boothSize || "2x2";
+    const sizeMatch = boothSize.match(/(\d+)/);
+    const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
+    const locationFactor = Math.max(1, Math.floor(location.length / 10));
+    const participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
+
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
       event: eventId,
@@ -183,6 +210,7 @@ export class VendorEventsService {
       status: applicationStatus,
       QRCodeGenerated: false,
       hasPaid: false,
+      participationFee,
     });
 
     // Add vendor to bazaar's vendors list
@@ -193,6 +221,7 @@ export class VendorEventsService {
         status: applicationStatus,
         QRCodeGenerated: false,
         hasPaid: false,
+        participationFee,
       },
     });
 
@@ -802,8 +831,9 @@ export class VendorEventsService {
             (vendorEntry.vendor as IVendor).email,
             event.eventName,
             event.location || "Unknown Location",
-            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[],event.eventStartDate,
-          event.eventEndDate
+            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[],
+            event.eventStartDate,
+            event.eventEndDate
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
@@ -828,7 +858,6 @@ export class VendorEventsService {
     eventStartDate: Date,
     eventEndDate: Date
   ): Promise<void> {
-   
     // Ensure dates are proper Date objects
     const startDate = new Date(eventStartDate);
     const endDate = new Date(eventEndDate);

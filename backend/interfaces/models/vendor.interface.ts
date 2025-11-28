@@ -9,6 +9,7 @@ export interface IRequestedEvent {
   QRCodeGenerated: boolean;
   hasPaid?: boolean;
   paymentDeadline?: Date;
+  participationFee?: number;
 }
 
 export interface VendorRequest {

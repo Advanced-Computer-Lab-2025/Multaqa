@@ -414,79 +414,15 @@ export class PaymentService {
       );
     }
 
-    // Calculate participation fee based on event type and vendor's RequestData
-    const BASE_PRICE = 50;
-    let participationFee: number = BASE_PRICE;
+    // Retrieve participation fee from vendor's requestedEvents (calculated at application time)
+    const participationFee = (vendorRequest as any).participationFee;
 
-    if (event.type === EVENT_TYPES.PLATFORM_BOOTH) {
-      // For platform booth: base price * duration * location factor
-      const requestData = event.RequestData;
-      const duration = requestData?.boothSetupDuration || 1; // in weeks (1-4)
-      const location = requestData?.boothLocation || "";
-
-      // Location factor: length of location string (longer = more expensive)
-      const locationFactor = Math.max(1, Math.floor(location.length / 10));
-
-      participationFee = BASE_PRICE * duration * locationFactor;
-    } else if (event.type === EVENT_TYPES.BAZAAR) {
-      // For bazaar: base price * booth size * location factor
-      const vendorData = event.vendors?.find((v) => {
-        const vendorRefId =
-          typeof v.vendor === "string"
-            ? v.vendor
-            : (v.vendor as any)?._id?.toString() || v.vendor?.toString();
-        return vendorRefId === vendorId.toString();
-      });
-
-      if (vendorData?.RequestData) {
-        const location = vendorData.RequestData.bazaarLocation || "";
-        const boothSize = vendorData.RequestData.boothSize || "2x2";
-
-        // Extract numeric value from booth size (e.g., "2x2" -> 2, "4x4" -> 4)
-        const sizeMatch = boothSize.match(/(\d+)/);
-        const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
-
-        // Location factor: length of location string (longer = more expensive)
-        const locationFactor = Math.max(1, Math.floor(location.length / 10));
-
-        participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
-      }
-    }
-
-    // Validate participation fee
+    // Validate participation fee exists
     if (!participationFee || participationFee <= 0) {
-      throw createError(400, "Invalid participation fee calculation");
-    }
-
-    // Store participation fee in vendor's requestedEvents
-    const requestIndex = vendor.requestedEvents.findIndex(
-      (req) => req.event?.toString() === eventId.toString()
-    );
-    if (requestIndex !== -1) {
-      (vendor.requestedEvents[requestIndex] as any).participationFee =
-        participationFee;
-      vendor.markModified("requestedEvents");
-      await vendor.save();
-    }
-
-    // Store participation fee in event's RequestData
-    if (event.type === EVENT_TYPES.PLATFORM_BOOTH && event.RequestData) {
-      event.RequestData.participationFee = participationFee;
-      event.markModified("RequestData");
-      await event.save();
-    } else if (event.type === EVENT_TYPES.BAZAAR) {
-      const vendorData = event.vendors?.find((v) => {
-        const vendorRefId =
-          typeof v.vendor === "string"
-            ? v.vendor
-            : (v.vendor as any)?._id?.toString() || v.vendor?.toString();
-        return vendorRefId === vendorId.toString();
-      });
-      if (vendorData?.RequestData) {
-        vendorData.RequestData.participationFee = participationFee;
-        event.markModified("vendors");
-        await event.save();
-      }
+      throw createError(
+        400,
+        "Participation fee not found. Please contact support."
+      );
     }
 
     // Build metadata
