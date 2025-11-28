@@ -792,6 +792,7 @@ const BoothForm: React.FC = () => {
                                   onFocus={() =>
                                     formik.setFieldTouched("boothSize", true)
                                   }
+                                  neumorphicBox={false}
                                 />
                                 {formik.touched.boothSize &&
                                   formik.errors.boothSize && (
@@ -866,6 +867,7 @@ const BoothForm: React.FC = () => {
                                       true
                                     )
                                   }
+                                  neumorphicBox={false}
                                 />
                                 {formik.touched.boothSetupDuration &&
                                   formik.errors.boothSetupDuration && (

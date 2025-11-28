@@ -736,6 +736,7 @@ const EditWorkshop = ({
                                             value={values.fundingSource}
                                             onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
                                             name="fundingSource"
+                                            neumorphicBox={false}
                                         />
                                         {errors.fundingSource && touched.fundingSource && (
                                             <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.fundingSource}</Typography>
