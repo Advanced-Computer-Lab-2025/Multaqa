@@ -773,7 +773,9 @@ export class VendorEventsService {
           (event.vendor as IUser).email,
           event.eventName,
           event.location || "Unknown Location",
-          event.RequestData.boothAttendees as IBoothAttendee[]
+          event.RequestData.boothAttendees as IBoothAttendee[],
+          event.eventStartDate,
+          event.eventEndDate
         );
 
         event.RequestData.QRCodeGenerated = true;
@@ -800,7 +802,8 @@ export class VendorEventsService {
             (vendorEntry.vendor as IVendor).email,
             event.eventName,
             event.location || "Unknown Location",
-            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[]
+            vendorEntry.RequestData.bazaarAttendees as IBoothAttendee[],event.eventStartDate,
+          event.eventEndDate
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
@@ -821,16 +824,22 @@ export class VendorEventsService {
     email: string,
     eventName: string,
     location: string,
-    attendees: IBoothAttendee[]
+    attendees: IBoothAttendee[],
+    eventStartDate: Date,
+    eventEndDate: Date
   ): Promise<void> {
-    // Ensure attendees is always an array
+   
+    // Ensure dates are proper Date objects
+    const startDate = new Date(eventStartDate);
+    const endDate = new Date(eventEndDate);
 
     const qrCodeData: any[] = [];
     for (const attendee of attendees) {
+      const dateRange = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
       const qrCodeBuffer = await generateQrCodeBuffer(
         eventName,
         location,
-        new Date().toISOString(),
+        dateRange,
         attendee.name
       );
       qrCodeData.push({
