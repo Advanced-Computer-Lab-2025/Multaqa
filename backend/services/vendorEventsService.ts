@@ -806,10 +806,8 @@ export class VendorEventsService {
 
     for (const event of platformBoothEvents) {
       const boothLocation = event.RequestData?.boothLocation;
-      if (!boothLocation) continue;
-
-      const eventStart = new Date(event.eventStartDate);
-      const eventEnd = new Date(event.eventEndDate);
+      const eventStart = event.eventStartDate;
+      const eventEnd = event.eventEndDate;
 
       if (!locationGroups.has(boothLocation)) {
         locationGroups.set(boothLocation, []);
@@ -884,7 +882,6 @@ export class VendorEventsService {
       if (timePeriods.length > 0) {
         result.push({
           location,
-          totalVendorsAtLocation: allVendors.length,
           conflictingPeriods: timePeriods,
         });
       }
@@ -956,7 +953,7 @@ export class VendorEventsService {
     return poll;
   }
 
-  async voteInPoll(pollId: string, vendorId: string, userId?: string): Promise<IPoll> {
+  async voteInPoll(pollId: string, vendorId: string, userId: string): Promise<IPoll> {
     // Find the poll
     const poll = await this.pollRepo.findById(pollId);
     if (!poll) {
@@ -976,7 +973,6 @@ export class VendorEventsService {
     const optionIndex = poll.options.findIndex(
       (option) => option.vendorId === vendorId
     );
-
     if (optionIndex === -1) {
       throw createError(400, "Vendor is not an option in this poll");
     }
@@ -990,14 +986,14 @@ export class VendorEventsService {
       if (existingVote) {
         throw createError(400, "You have already voted in this poll");
       }
-
-      // Record the vote
-      poll.votes.push({
-        userId: userId as any,
-        vendorId,
-        votedAt: new Date(),
-      });
     }
+
+    // Record the vote
+    poll.votes.push({
+      userId: userId as any,
+      vendorId,
+      votedAt: new Date(),
+    });
 
     // Increment vote count
     poll.options[optionIndex].voteCount += 1;
