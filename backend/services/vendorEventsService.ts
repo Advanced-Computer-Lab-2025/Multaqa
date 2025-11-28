@@ -21,15 +21,19 @@ import { sendApplicationStatusEmail, sendQRCodeEmail } from "./emailService";
 import { generateQrCodeBuffer } from "../utils/qrcodeGenerator";
 import { IUser } from "../interfaces/models/user.interface";
 import { pdfGenerator } from "../utils/pdfGenerator";
+import { IPoll } from "../interfaces/models/poll.interface"
+import { Poll } from "../schemas/misc/pollSchema"
 
 export class VendorEventsService {
   private vendorRepo: GenericRepository<IVendor>;
   private eventRepo: GenericRepository<IEvent>;
+  private pollRepo: GenericRepository<IPoll>;
 
   constructor() {
     // Vendor is a discriminator of User, so use User model to query vendors
     this.vendorRepo = new GenericRepository(Vendor);
     this.eventRepo = new GenericRepository(Event);
+    this.pollRepo = new GenericRepository(Poll);
   }
 
   /**
@@ -183,7 +187,7 @@ export class VendorEventsService {
     // Add vendor to bazaar's vendors list
     event.vendors?.push({
       vendor: vendorId,
-      RequestData: { ...data.value, status: applicationStatus , QRCodeGenerated: false },
+      RequestData: { ...data.value, status: applicationStatus, QRCodeGenerated: false },
     });
 
     await event.save();
@@ -606,8 +610,8 @@ export class VendorEventsService {
       throw createError(500, "Failed to update vendor loyalty program");
     }
 
-    await NotificationService.sendNotification({  
-      role: [UserRole.STUDENT, UserRole.STAFF_MEMBER], 
+    await NotificationService.sendNotification({
+      role: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
       staffPosition: [StaffPosition.TA, StaffPosition.PROFESSOR, StaffPosition.STAFF],
       type: "LOYALTY_NEW_PARTNER",
       title: "New Loyalty Program Partner",
@@ -730,7 +734,7 @@ export class VendorEventsService {
         );
       }
     } else if (event.type === EVENT_TYPES.BAZAAR) {
-      let isNotEmpty:boolean = false;
+      let isNotEmpty: boolean = false;
       for (const vendorEntry of event.vendors || []) {
         if (
           vendorEntry.RequestData.status === "approved" &&
@@ -746,7 +750,7 @@ export class VendorEventsService {
           );
           vendorEntry.RequestData.QRCodeGenerated = true;
           event.markModified("vendors");
-        } 
+        }
       }
       if (!isNotEmpty) {
         throw createError(
@@ -766,23 +770,241 @@ export class VendorEventsService {
     attendees: IBoothAttendee[]
   ): Promise<void> {
     // Ensure attendees is always an array
-    
+
     const qrCodeData: any[] = [];
     for (const attendee of attendees) {
-        const qrCodeBuffer = await generateQrCodeBuffer( 
-            eventName,
-            location,
-            new Date().toISOString(),
-            attendee.name,
-           
-        );
-        qrCodeData.push({
-            buffer: qrCodeBuffer,
-            name: `${attendee.name}`,
-        });
+      const qrCodeBuffer = await generateQrCodeBuffer(
+        eventName,
+        location,
+        new Date().toISOString(),
+        attendee.name,
+      );
+      qrCodeData.push({
+        buffer: qrCodeBuffer,
+        name: `${attendee.name}`,
+      });
     }
-    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData,eventName);
+    const pdfBuffer = await pdfGenerator.buildQrCodePdfBuffer(qrCodeData, eventName);
     console.log("Sending QR Code Email to:", email);
     await sendQRCodeEmail(email, companyName, eventName, pdfBuffer);
+  }
+
+  async getVendorsWithOverlappingBooths(): Promise<any[]> {
+    // Get all pending platform booth events
+    const platformBoothEvents = await this.eventRepo.findAll(
+      {
+        type: EVENT_TYPES.PLATFORM_BOOTH,
+        "RequestData.status": Event_Request_Status.PENDING,
+      },
+      {
+        populate: [{ path: "vendor", select: "companyName logo email" }] as any[],
+      }
+    );
+
+    // Group vendors by booth location
+    const locationGroups = new Map<string, any[]>();
+
+    for (const event of platformBoothEvents) {
+      const boothLocation = event.RequestData?.boothLocation;
+      if (!boothLocation) continue;
+
+      const eventStart = new Date(event.eventStartDate);
+      const eventEnd = new Date(event.eventEndDate);
+
+      if (!locationGroups.has(boothLocation)) {
+        locationGroups.set(boothLocation, []);
+      }
+
+      locationGroups.get(boothLocation)!.push({
+        eventId: event._id,
+        eventName: event.eventName,
+        vendor: event.vendor,
+        boothLocation,
+        startDate: eventStart,
+        endDate: eventEnd,
+        boothSize: event.RequestData?.boothSize,
+        boothSetupDuration: event.RequestData?.boothSetupDuration,
+      });
+    }
+
+    // Process each location to find overlapping time periods
+    const result: any[] = [];
+
+    for (const [location, allVendors] of locationGroups.entries()) {
+      // Sort by start date
+      allVendors.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+
+      // Find overlapping time periods
+      const timePeriods: any[] = [];
+
+      for (let i = 0; i < allVendors.length; i++) {
+        const currentVendor = allVendors[i];
+        const overlappingVendors = [currentVendor];
+
+        // Check for overlaps with other vendors
+        for (let j = i + 1; j < allVendors.length; j++) {
+          const otherVendor = allVendors[j];
+
+          // Check if time periods overlap, Two periods overlap if: start2 <= end1
+          const overlaps = otherVendor.startDate <= currentVendor.endDate;
+          if (overlaps) {
+            overlappingVendors.push(otherVendor);
+          }
+        }
+
+        // Only add if there are multiple vendors (overlapping)
+        if (overlappingVendors.length > 1) {
+          // Calculate the overlapping time range
+          const overlapStart = new Date(
+            Math.max(...overlappingVendors.map((v) => v.startDate.getTime()))
+          );
+          const overlapEnd = new Date(
+            Math.min(...overlappingVendors.map((v) => v.endDate.getTime()))
+          );
+
+          timePeriods.push({
+            overlapStart,
+            overlapEnd,
+            vendors: overlappingVendors.map((v) => ({
+              eventId: v.eventId,
+              eventName: v.eventName,
+              vendor: v.vendor,
+              requestedStartDate: v.startDate,
+              requestedEndDate: v.endDate,
+              boothSize: v.boothSize,
+              boothSetupDuration: v.boothSetupDuration,
+            })),
+            vendorCount: overlappingVendors.length,
+          });
+        }
+      }
+
+
+      // Add location to results if it has overlapping periods
+      if (timePeriods.length > 0) {
+        result.push({
+          location,
+          totalVendorsAtLocation: allVendors.length,
+          conflictingPeriods: timePeriods,
+        });
+      }
+    }
+
+    if (result.length === 0) {
+      throw createError(404, "No overlapping booth requests found");
+    }
+
+    return result;
+  }
+
+  async getAllPolls() {
+    return this.pollRepo.findAll({});
+  }
+
+  async createPoll(pollData: {
+    title: string;
+    description: string;
+    startDate: Date;
+    endDate: Date;
+    vendorIds: string[];
+  }): Promise<IPoll> {
+    // Validate dates
+    const start = new Date(pollData.startDate);
+    const end = new Date(pollData.endDate);
+    const now = new Date();
+
+    if (start >= end) {
+      throw createError(400, "Start date must be before end date");
+    }
+
+    if (end <= now) {
+      throw createError(400, "End date must be in the future");
+    }
+
+    // Validate vendors exist
+    if (!pollData.vendorIds || pollData.vendorIds.length < 2) {
+      throw createError(400, "At least 2 vendors are required for a poll");
+    }
+
+    // Fetch vendor details
+    const vendors = await this.vendorRepo.findAll({
+      _id: { $in: pollData.vendorIds },
+    });
+
+    if (vendors.length !== pollData.vendorIds.length) {
+      throw createError(404, "One or more vendors not found");
+    }
+
+    // Create poll options from vendors
+    const options = vendors.map((vendor) => ({
+      vendorId: (vendor as any)._id.toString(),
+      vendorName: vendor.companyName,
+      vendorLogo: vendor.logo?.url,
+      voteCount: 0,
+    }));
+
+    // Create the poll
+    const poll = await this.pollRepo.create({
+      title: pollData.title,
+      description: pollData.description,
+      startDate: start,
+      endDate: end,
+      options,
+      createdAt: new Date(),
+    });
+
+    return poll;
+  }
+
+  async voteInPoll(pollId: string, vendorId: string, userId?: string): Promise<IPoll> {
+    // Find the poll
+    const poll = await this.pollRepo.findById(pollId);
+    if (!poll) {
+      throw createError(404, "Poll not found");
+    }
+
+    // Check if poll is active
+    const now = new Date();
+    if (now < poll.startDate) {
+      throw createError(400, "Poll has not started yet");
+    }
+    if (now > poll.endDate) {
+      throw createError(400, "Poll has ended");
+    }
+
+    // Verify vendor is in the poll options
+    const optionIndex = poll.options.findIndex(
+      (option) => option.vendorId === vendorId
+    );
+
+    if (optionIndex === -1) {
+      throw createError(400, "Vendor is not an option in this poll");
+    }
+
+    // Check if user has already voted (if userId provided)
+    if (userId) {
+      const existingVote = poll.votes.find(
+        (vote) => vote.userId.toString() === userId
+      );
+
+      if (existingVote) {
+        throw createError(400, "You have already voted in this poll");
+      }
+
+      // Record the vote
+      poll.votes.push({
+        userId: userId as any,
+        vendorId,
+        votedAt: new Date(),
+      });
+    }
+
+    // Increment vote count
+    poll.options[optionIndex].voteCount += 1;
+    poll.markModified("options");
+    poll.markModified("votes");
+    await poll.save();
+
+    return poll;
   }
 }
