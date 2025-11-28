@@ -4,28 +4,34 @@ import { IPoll } from '../../interfaces/models/poll.interface';
 const pollSchema = new Schema<IPoll>({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  startDate: { type: Date, default: Date.now },
+  deadlineDate: { type: Date, required: true },
   options: [
-    {
-      vendorId: { type: String, required: true },
-      vendorName: { type: String, required: true },
-      vendorLogo: { type: String },
-      voteCount: { type: Number, required: true, default: 0 }
-    }
+    new Schema(
+      {
+        vendorId: { type: String, required: true },
+        vendorName: { type: String, required: true },
+        vendorLogo: { type: String },
+        voteCount: { type: Number, required: true, default: 0 }
+      },
+      { _id: false }
+    )
   ],
   votes: [
-    {
-      userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-      vendorId: { type: String, required: true },
-      votedAt: { type: Date, default: Date.now }
-    }
+    new Schema(
+      {
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        vendorId: { type: String, required: true },
+        votedAt: { type: Date, default: Date.now }
+      },
+      { _id: false }
+    )
   ],
-  createdAt: { type: Date, required: true, default: Date.now }
+  createdAt: { type: Date, default: Date.now }
 });
 
 pollSchema.virtual("isActive").get(function (this: IPoll) {
-  return new Date() > this.endDate;
+  return new Date() < this.deadlineDate;
 });
 
 pollSchema.set("toObject", { virtuals: true });

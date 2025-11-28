@@ -852,20 +852,13 @@ export class VendorEventsService {
   async createPoll(pollData: {
     title: string;
     description: string;
-    startDate: Date;
-    endDate: Date;
+    deadlineDate: Date;
     vendorIds: string[];
   }): Promise<IPoll> {
     // Validate dates
-    const start = new Date(pollData.startDate);
-    const end = new Date(pollData.endDate);
-    const now = new Date();
-
-    if (start >= end) {
-      throw createError(400, "Start date must be before end date");
-    }
-
-    if (end <= now) {
+    const deadlineDate = new Date(pollData.deadlineDate);
+    
+    if (deadlineDate <= new Date()) {
       throw createError(400, "End date must be in the future");
     }
 
@@ -895,10 +888,8 @@ export class VendorEventsService {
     const poll = await this.pollRepo.create({
       title: pollData.title,
       description: pollData.description,
-      startDate: start,
-      endDate: end,
+      deadlineDate: deadlineDate,
       options,
-      createdAt: new Date(),
     });
 
     return poll;
@@ -912,11 +903,7 @@ export class VendorEventsService {
     }
 
     // Check if poll is active
-    const now = new Date();
-    if (now < poll.startDate) {
-      throw createError(400, "Poll has not started yet");
-    }
-    if (now > poll.endDate) {
+    if (!poll.isActive) {
       throw createError(400, "Poll has ended");
     }
 

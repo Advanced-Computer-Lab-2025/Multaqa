@@ -17,7 +17,7 @@ export interface IPoll extends Document{
   title: string;
   description: string;
   startDate: Date; 
-  endDate: Date;  
+  deadlineDate: Date;  
   options: IPollOption[];
   votes: IPollVote[];
   isActive: boolean;
