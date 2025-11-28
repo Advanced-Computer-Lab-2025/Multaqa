@@ -353,12 +353,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       { key: "archive", label: "Archive", icon: Archive, tabs: [] },
-      {
-        key: "notifications",
-        label: "Notifications",
-        icon: ClipboardList,
-        tabs: [],
-      },
+      // {
+      //   key: "notifications",
+      //   label: "Notifications",
+      //   icon: ClipboardList,
+      //   tabs: [],
+      // },
     ],
   },
   admin: {
