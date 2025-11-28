@@ -113,23 +113,24 @@ export default function VendorUpcomingParticipation() {
       try {
         const response = await api.get(`/vendorEvents`);
         const requestedEventsRaw = response.data?.data || [];
-        console.log(requestedEventsRaw);
+        console.log("Fetched vendor events for upcoming:", requestedEventsRaw);
+        
         const mapped = (requestedEventsRaw as any[])
-          .map((entry) =>
-            mapRequestedEventToVendorParticipation(entry, vendorId as string)
-          )
-          .filter((item: any) => {
-            const eventValue = requestedEventsRaw.find(
-              (e: any) => e._id === item.id || e.event?._id === item.id
-            );
-            const rawStatus =
-              eventValue?.status ??
-              eventValue?.RequestData?.status ??
-              "pending";
+          .filter((entry: any) => {
+            // Filter 1: Only show items where hasPaid is true
+            const hasPaid = entry?.hasPaid ?? false;
+            if (!hasPaid) return false;
+
+            // Filter 2: Only show items where status is approved/accepted
+            const rawStatus = entry?.status ?? "pending";
             const statusKey = String(rawStatus ?? "").toLowerCase();
             const status = STATUS_MAP[statusKey] ?? "PENDING";
+            
             return status === "ACCEPTED";
-          });
+          })
+          .map((entry) =>
+            mapRequestedEventToVendorParticipation(entry, vendorId as string)
+          );
 
         if (!cancelled) {
           const unique = new Map<string, VendorParticipationItem>();
@@ -183,8 +184,6 @@ export default function VendorUpcomingParticipation() {
     </Stack>
   );
 
-  // Shared presentation (type chips, location, date range) handled by VendorItemCard
-
   return (
     <ContentWrapper
       title="My Upcoming Participations"
@@ -201,13 +200,12 @@ export default function VendorUpcomingParticipation() {
         <Stack direction="row" spacing={1} flexWrap="wrap">
           {typeFilters.map(({ key, label }) => {
             const isActive = typeFilter === key;
-            // Color coding: All (blue), Bazaar (pink/magenta), Platform Booth (light blue)
             const baseColor =
               key === "ALL"
-                ? "#6299d0" // Blue for All
+                ? "#6299d0"
                 : key === "BAZAAR"
-                ? "#e91e63" // Pink/Magenta for Bazaar (matches EventColor)
-                : "#2196f3"; // Light Blue for Platform Booth
+                ? "#e91e63"
+                : "#2196f3";
 
             return (
               <Chip
