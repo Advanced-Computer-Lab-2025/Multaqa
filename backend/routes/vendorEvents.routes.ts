@@ -22,6 +22,7 @@ import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { GetEventsResponse } from "../interfaces/responses/eventResponses.interface";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { asyncRouter } from "../config/errorHandler";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -531,16 +532,21 @@ router.get(
   getVendorsWithOverlappingBooths
 );
 
-// Get all polls (for Events Office management)
+// Get all polls
 router.get(
   "/polls",
   authorizeRoles({ 
     userRoles: [
-      UserRole.ADMINISTRATION
+      UserRole.ADMINISTRATION, UserRole.STUDENT, UserRole.STAFF_MEMBER
     ], 
     adminRoles: [
       AdministrationRoleType.EVENTS_OFFICE
-    ]
+    ], 
+    staffPositions: [
+      StaffPosition.PROFESSOR, 
+      StaffPosition.TA, 
+      StaffPosition.STAFF
+    ] 
   }),
   getAllPolls
 );
