@@ -765,33 +765,21 @@ export class EventsService {
     return await workbook.xlsx.writeBuffer() as any;
   }
 
-  private async getEventsBetween(startDate: Date, endDate: Date) {
-    return await this.getEvents(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      startDate.toISOString(),
-      endDate.toISOString()
-    );
-  }
-
   async checkUpcomingEvents() {
     const now = new Date();
+    now.setSeconds(0, 0); 
     const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
 
-    // Get events happening in 1 day (±30 minutes window)
-    const oneDayEvents = await this.getEventsBetween(
-      new Date(oneDayLater.getTime() - 30 * 60 * 1000),
-      new Date(oneDayLater.getTime() + 30 * 60 * 1000)
-    );
+    // Get events happening in 1 day 
+    const oneDayEvents = await this.eventRepo.findAll({
+      eventStartDate: oneDayLater
+    });
 
-    // Get events happening in 1 hour (±5 minutes window)
-    const oneHourEvents = await this.getEventsBetween(
-      new Date(oneHourLater.getTime() - 5 * 60 * 1000),
-      new Date(oneHourLater.getTime() + 5 * 60 * 1000)
-    );
+    // Get events happening in 1 hour 
+    const oneHourEvents = await this.eventRepo.findAll({
+      eventStartDate: oneHourLater
+    });
 
     // Send 1-day reminders
     for (const event of oneDayEvents) {
