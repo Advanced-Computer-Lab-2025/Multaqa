@@ -414,6 +414,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "participation-requests", label: "Participation Requests" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
       { id: "documents", label: "View Documents" },
+      { id: "attendee-reports", label: "Attendee Reports" },
+      { id: "sales-reports", label: "Sales Reports" },
     ],
     sections: [
       {
@@ -459,6 +461,16 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
           { id: "documents", label: "View Documents" },
         ],
+      },
+        {
+        key: "sales-attendance",
+        label: "Reports",
+        icon: BarChart3,
+        tabs: [
+          { id: "attendee-reports", label: "Attendee Reports" },
+          { id: "sales-reports", label: "Sales Reports" },
+        ],
+
       },
     ],
   },

@@ -31,6 +31,7 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
 import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
+import ReportTable from '../../../../components/shared/Report/reportTable';
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -483,6 +484,14 @@ export default function EntityCatchAllPage() {
         );
       }
     }
+
+    if (entity==="events-office" || entity=== "admin"){
+      if (section === "attendee-reports")
+        return <ReportTable reportType="attendees" />
+      else if (section === "sales-reports")
+        return <ReportTable reportType="sales" />
+    }
+
 
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
