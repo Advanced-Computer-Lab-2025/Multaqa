@@ -267,6 +267,7 @@ export default function VendorParticipationRequests() {
     Record<string, VendorRequestStatus | null>
   >({});
   const [refresh, setRefresh] = useState(false);
+  const [vendorsInPolls, setVendorsInPolls] = useState<Set<string>>(new Set());
 
   const [filters, setFilters] = useState<{
     status: string[];
@@ -282,10 +283,28 @@ export default function VendorParticipationRequests() {
     setFeedback(null);
 
     try {
-      const response = await api.get("/vendorEvents/vendor-requests");
-      const payload = response.data?.data ?? response.data ?? [];
+      // Fetch vendor requests and vendors in polls in parallel
+      const [requestsResponse, pollsResponse] = await Promise.all([
+        api.get("/vendorEvents/vendor-requests"),
+        api.get("/vendorEvents/vendors-in-polls").catch(() => ({ data: { data: [] } }))
+      ]);
+
+      const payload = requestsResponse.data?.data ?? requestsResponse.data ?? [];
+      const vendorsInPollsData = pollsResponse.data?.data ?? [];
+      const pollVendorIds = new Set<string>(vendorsInPollsData);
+      setVendorsInPolls(pollVendorIds);
+
       const mapped = (Array.isArray(payload) ? payload : [])
-        .map((entry) => mapRequest(entry as RawVendorRequest))
+        .map((entry) => {
+          const request = mapRequest(entry as RawVendorRequest);
+          if (request) {
+            return {
+              ...request,
+              isInPoll: pollVendorIds.has(request.vendorId)
+            };
+          }
+          return null;
+        })
         .filter((entry): entry is VendorParticipationRequest => Boolean(entry));
 
       setRequests(mapped);

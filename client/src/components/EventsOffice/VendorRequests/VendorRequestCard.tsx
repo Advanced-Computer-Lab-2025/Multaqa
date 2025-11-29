@@ -279,7 +279,17 @@ export default function VendorRequestCard({
                 <ChevronDown size={24} />
               </Box>
 
-              {isPending && onRespond ? (
+              {request.isInPoll && request.eventType === "platform_booth" ? (
+                <Chip
+                  label="In Poll"
+                  sx={{
+                    bgcolor: "#e0f2fe",
+                    color: "#0369a1",
+                    fontWeight: 600,
+                    borderRadius: "6px",
+                  }}
+                />
+              ) : isPending && onRespond ? (
                 <Stack direction="row" spacing={1}>
                   <CustomButton
                     variant="outlined"
