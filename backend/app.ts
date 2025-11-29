@@ -24,7 +24,6 @@ import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
 
-
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
 
@@ -97,7 +96,7 @@ async function startServer() {
 
     // Attach Socket.io to the http server object
     io = new Server(server, {
-      cors: { origin: "http://localhost:3000", credentials: true }
+      cors: { origin: "http://localhost:3000", credentials: true },
     });
 
     // Socket authentication
@@ -106,11 +105,13 @@ async function startServer() {
     // Handle socket connections -> executed ONLY when a socket tries to connect and stays active as long as the tab is open.
     io.on("connection", (socket) => {
       const userId = socket.data.userId;
-      
+
       // Guard: Ensure userId exists (auth middleware should set this)
       if (!userId) {
         console.error("⚠️ Socket connection without userId - disconnecting");
-        socket.emit("error", { message: "Authentication failed: User ID not found" });
+        socket.emit("error", {
+          message: "Authentication failed: User ID not found",
+        });
         socket.disconnect(true);
         return;
       }
@@ -120,44 +121,76 @@ async function startServer() {
       // Listen for read notification event
       // The frontend sends: socket.emit("notification:read", { .. }), So the backend receives it:
       // This is user-initiated, unlike the others which are system-initiated events
-      socket.on("notification:read", async (payload: { notificationId: string }) => {
-        try {
-          console.log("Marking notification as read:", { userId, notificationId: payload.notificationId });
-          await NotificationService.changeReadStatus(socket.data.userId, payload.notificationId, true);
-        } catch (error) {
-          console.error("Error marking notification as read:", error);
-          socket.emit("error", { message: "Failed to mark notification as read" });
+      socket.on(
+        "notification:read",
+        async (payload: { notificationId: string }) => {
+          try {
+            console.log("Marking notification as read:", {
+              userId,
+              notificationId: payload.notificationId,
+            });
+            await NotificationService.changeReadStatus(
+              socket.data.userId,
+              payload.notificationId,
+              true
+            );
+          } catch (error) {
+            console.error("Error marking notification as read:", error);
+            socket.emit("error", {
+              message: "Failed to mark notification as read",
+            });
+          }
         }
-      });
+      );
 
-      socket.on("notification:unread", async (payload: { notificationId: string }) => {
-        try {
-          console.log("Marking notification as unread:", { userId, notificationId: payload.notificationId });
-          await NotificationService.changeReadStatus(socket.data.userId, payload.notificationId, false);
-        } catch (error) {
-          console.error("Error marking notification as unread:", error);
-          socket.emit("error", { message: "Failed to mark notification as unread" });
+      socket.on(
+        "notification:unread",
+        async (payload: { notificationId: string }) => {
+          try {
+            console.log("Marking notification as unread:", {
+              userId,
+              notificationId: payload.notificationId,
+            });
+            await NotificationService.changeReadStatus(
+              socket.data.userId,
+              payload.notificationId,
+              false
+            );
+          } catch (error) {
+            console.error("Error marking notification as unread:", error);
+            socket.emit("error", {
+              message: "Failed to mark notification as unread",
+            });
+          }
         }
-      });
+      );
 
       // Send undelievered notifications when user connects
       (async () => {
         try {
-          await NotificationService.sendUndeliveredNotifications(socket.data.userId);
+          await NotificationService.sendUndeliveredNotifications(
+            socket.data.userId
+          );
         } catch (error) {
           console.error("Error sending undelivered notifications:", error);
         }
       })();
 
       // Listen for delete notification event from the frontend
-      socket.on("notification:delete", async (payload: { notificationId: string }) => {
-        try {
-          await NotificationService.deleteNotification(socket.data.userId, payload.notificationId);
-        } catch (error) {
-          console.error("Error deleting notification:", error);
-          socket.emit("error", { message: "Failed to delete notification" });
+      socket.on(
+        "notification:delete",
+        async (payload: { notificationId: string }) => {
+          try {
+            await NotificationService.deleteNotification(
+              socket.data.userId,
+              payload.notificationId
+            );
+          } catch (error) {
+            console.error("Error deleting notification:", error);
+            socket.emit("error", { message: "Failed to delete notification" });
+          }
         }
-      });
+      );
 
       socket.on("disconnect", () => {
         try {

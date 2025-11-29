@@ -7,8 +7,8 @@ import { VendorRequestItem } from "./types";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
-import { Cancel } from "@mui/icons-material";
 import CancelApplicationVendor from "@/components/Event/Modals/CancelApplicationVendor";
+import VendorPaymentDrawer from "@/components/Event/helpers/VendorPaymentDrawer";
 import ContentWrapper from "../../shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
 
@@ -18,10 +18,16 @@ const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   rejected: "REJECTED",
 };
 
+interface ExtendedVendorRequest extends VendorRequestItem {
+  hasPaid?: boolean;
+  participationFee?: number;
+  rawStatus?: string;
+}
+
 const mapRequestedEventToVendorRequest = (
   item: any,
   vendorId: string
-): VendorRequestItem => {
+): ExtendedVendorRequest => {
   const eventValue = item?.event;
   const event = eventValue && typeof eventValue === "object" ? eventValue : {};
   const eventId = typeof eventValue === "string" ? eventValue : event?._id;
@@ -37,6 +43,10 @@ const mapRequestedEventToVendorRequest = (
     "pending";
   const statusKey = String(rawStatus ?? "").toLowerCase();
   const status = STATUS_MAP[statusKey] ?? "PENDING";
+
+  // Get hasPaid and participationFee from the item (top-level vendorEvent)
+  const hasPaid = item?.hasPaid ?? false;
+  const participationFee = item?.participationFee ?? 0;
 
   const typeRaw =
     typeof event?.type === "string" ? event.type.toLowerCase() : "";
@@ -74,7 +84,7 @@ const mapRequestedEventToVendorRequest = (
   const title = typeof event?.eventName === "string" ? event.eventName : "";
   const location = typeof event?.location === "string" ? event.location : "";
 
-  const mapped: VendorRequestItem = {
+  const mapped: ExtendedVendorRequest = {
     id,
     title,
     type: isBazaar ? "BAZAAR" : "PLATFORM_BOOTH",
@@ -83,6 +93,9 @@ const mapRequestedEventToVendorRequest = (
     status,
     submittedAt,
     eventId,
+    hasPaid,
+    participationFee,
+    rawStatus: statusKey,
   };
 
   if (isBazaar && endDate) {
@@ -99,13 +112,16 @@ const mapRequestedEventToVendorRequest = (
 export default function VendorRequestsList() {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [requests, setRequests] = useState<VendorRequestItem[]>([]);
+  const [requests, setRequests] = useState<ExtendedVendorRequest[]>([]);
   const [cancelApplication, setCancelApplication] = useState(false);
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
 
-  // track which request (vendorEvent) was selected for cancellation
+  // track which request (vendorEvent) was selected
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  // toggle to trigger refetch after cancel
+  const [selectedParticipationFee, setSelectedParticipationFee] = useState<number>(0);
+  
+  // toggle to trigger refetch after cancel or payment
   const [refreshToggle, setRefreshToggle] = useState(false);
 
   useEffect(() => {
@@ -124,17 +140,18 @@ export default function VendorRequestsList() {
       try {
         const response = await api.get(`/vendorEvents`);
         const requestedEventsRaw = response.data?.data || [];
+        console.log("Fetched vendor events:", requestedEventsRaw);
 
         const mapped = (requestedEventsRaw as any[])
           .map((entry) =>
             mapRequestedEventToVendorRequest(entry, vendorId as string)
           )
           .filter(
-            (item) => item.status === "PENDING" || item.status === "REJECTED"
+            (item) => !item.hasPaid && (item.status === "PENDING" || item.status === "REJECTED" || item.status === "ACCEPTED")
           );
 
         if (!cancelled) {
-          const unique = new Map<string, VendorRequestItem>();
+          const unique = new Map<string, ExtendedVendorRequest>();
           mapped.forEach((request) => {
             if (!unique.has(request.id)) {
               unique.set(request.id, request);
@@ -166,33 +183,112 @@ export default function VendorRequestsList() {
    // refetch when user or refreshToggle change
   }, [user, refreshToggle]);
 
-  const renderDetails = (item: VendorRequestItem) => (
+  const renderDetails = (item: ExtendedVendorRequest) => (
     <Stack spacing={1}>
       <Typography variant="body2" sx={{ color: "#1E1E1E" }}>
         {item.status === "PENDING"
           ? "Your request is under review. You will be notified once a decision is made."
           : item.status === "REJECTED"
           ? `Reason: ${item.notes ?? "Not provided."}`
-          : "Approved. Please check Upcoming Participation for next steps."}
+          : item.status === "ACCEPTED" && !item.hasPaid
+          ? "Approved! Please complete payment to confirm your participation."
+          : item.status === "ACCEPTED" && item.hasPaid
+          ? "Payment completed. Thank you!"
+          : ""}
       </Typography>
       <Typography variant="body2" sx={{ color: "#6b7280" }}>
         Submitted: {new Date(item.submittedAt).toLocaleString()}
       </Typography>
+      {item.status === "ACCEPTED" && item.participationFee && (
+        <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 600 }}>
+          Participation Fee: EGP {item.participationFee.toFixed(2)}
+        </Typography>
+      )}
     </Stack>
   );
 
-  const statusChip = (status: VendorRequestItem["status"]) => {
-    if (status === "PENDING")
+  const statusChip = (item: ExtendedVendorRequest) => {
+    if (item.status === "PENDING")
       return (
         <Chip size="small" label="Pending" color="warning" variant="outlined" />
       );
-    if (status === "REJECTED")
+    if (item.status === "REJECTED")
       return (
         <Chip size="small" label="Rejected" color="error" variant="outlined" />
+      );
+    // If approved but not paid, show "Pending Payment"
+    if (item.rawStatus === "approved" && !item.hasPaid)
+      return (
+        <Chip size="small" label="Pending Payment" color="info" variant="outlined" />
       );
     return (
       <Chip size="small" label="Accepted" color="success" variant="outlined" />
     );
+  };
+
+  const renderActionButton = (item: ExtendedVendorRequest) => {
+    // If approved and not paid -> show Pay button
+    if (item.rawStatus === "approved" && !item.hasPaid) {
+      return (
+        <CustomButton
+          size="small"
+          variant="contained"
+          sx={{
+            borderRadius: 999,
+            border: `1px solid ${theme.palette.success.dark}`,
+            backgroundColor: `${theme.palette.success.main}`,
+            color: theme.palette.primary.contrastText,
+            fontWeight: 600,
+            px: 3,
+            textTransform: "none",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+          }}
+          onClick={() => {
+            setSelectedEventId(item.eventId ?? null);
+            setSelectedParticipationFee(item.participationFee ?? 0);
+            setPaymentDrawerOpen(true);
+          }}
+        >
+          Pay
+        </CustomButton>
+      );
+    }
+
+    // If pending (not approved) and not paid -> show Cancel Application
+    if (item.status === "PENDING" && !item.hasPaid) {
+      return (
+        <CustomButton
+          size="small"
+          variant="outlined"
+          sx={{
+            borderRadius: 999,
+            border: `1px solid ${theme.palette.error.dark}`,
+            backgroundColor: `${theme.palette.error.main}`,
+            color: "background.paper",
+            fontWeight: 600,
+            px: 3,
+            textTransform: "none",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+            width: 'fit-content'
+          }}
+          onClick={() => {
+            setSelectedEventId(item.eventId ?? null);
+            setCancelApplication(true);
+          }}
+        >
+          Cancel Application
+        </CustomButton>
+      );
+    }
+
+    // If paid or rejected, render nothing
+    return null;
   };
 
   return (
@@ -212,39 +308,14 @@ export default function VendorRequestsList() {
             item={item}
             details={renderDetails(item)}
             rightSlot={
-              <Stack direction="column" spacing={5} alignItems="center">
-                {statusChip(item.status)}
-                {item.status === "PENDING" && (
-                  <CustomButton
-                    size="small"
-                    variant="outlined"
-                   sx={{
-                      borderRadius: 999,
-                      border: `1px solid ${theme.palette.error.dark}`,
-                      backgroundColor: `${theme.palette.error.main}`,
-                      color: "background.paper",
-                      fontWeight: 600,
-                      px: 3,
-                      textTransform: "none",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                      },
-                      width: 'fit-content'
-                    }}
-                     onClick={() => {
-                      setSelectedEventId(item.eventId ?? null); // use mapped request id (vendorEvents._id)
-                      setCancelApplication(true);
-                    }}
-                  >
-                    Cancel Application
-                  </CustomButton>
-                )}
+              <Stack direction="column" spacing={2} alignItems="center">
+                {statusChip(item)}
+                {renderActionButton(item)}
               </Stack>
             }
           />
         ))}
-         <CancelApplicationVendor
+        <CancelApplicationVendor
           eventId={selectedEventId ?? ""}
           open={cancelApplication}
           onClose={() => {
@@ -252,6 +323,16 @@ export default function VendorRequestsList() {
             setSelectedEventId(null);
           }}
           setRefresh={setRefreshToggle}
+        />
+        <VendorPaymentDrawer
+          open={paymentDrawerOpen}
+          onClose={() => {
+            setPaymentDrawerOpen(false);
+            setSelectedEventId(null);
+          }}
+          eventId={selectedEventId ?? ""}
+          totalAmount={selectedParticipationFee}
+          email={user?.email ?? ""}
         />
       </Stack>
     </ContentWrapper>

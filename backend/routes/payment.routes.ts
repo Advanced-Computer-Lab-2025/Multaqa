@@ -119,6 +119,45 @@ async function refundPayment(
   }
 }
 
+// Create vendor participation checkout session
+async function createVendorCheckoutSession(
+  req: AuthenticatedRequest,
+  res: Response<CreateCheckoutSessionResponse>,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { eventId } = req.params as { eventId?: string };
+    if (!eventId) {
+      throw createError(400, "Missing eventId parameter");
+    }
+
+    const { customerEmail, metadata } = req.body || {};
+
+    const vendorId = req.user?.id;
+    if (!vendorId) {
+      throw createError(401, "Unauthorized: missing vendor in token");
+    }
+
+    const sessionData = await paymentService.createVendorParticipationCheckout({
+      eventId,
+      vendorId,
+      customerEmail,
+      metadata,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Vendor checkout session created",
+      data: {
+        sessionId: sessionData.sessionId,
+        url: sessionData.url,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 router.patch(
   "/:eventId/wallet",
   authorizeRoles({
@@ -150,6 +189,14 @@ router.post(
     ],
   }),
   createCheckoutSession
+);
+
+router.post(
+  "/vendor/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.VENDOR],
+  }),
+  createVendorCheckoutSession
 );
 
 export default router;

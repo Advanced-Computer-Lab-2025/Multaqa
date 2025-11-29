@@ -98,7 +98,8 @@ export class NotificationService {
         message: notification.message,
         read: notification.read,
         delivered: notification.delivered,
-        createdAt: notification.createdAt
+        createdAt: notification.createdAt,
+        _id: (notification._id as any)?.toString()
       };
       await NotificationService.sendNotification(notificationData, false);
       notification.delivered = true;
