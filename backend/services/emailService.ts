@@ -204,12 +204,14 @@ export const sendGymSessionNotificationEmail = async (params: {
     time: string;
     location: string;
     instructor?: string;
+    duration?: number;
   };
   newDetails?: {
     date: Date;
     time: string;
     location: string;
     instructor?: string;
+    duration?: number;
   };
 }) => {
   const html = getGymSessionNotificationTemplate(
