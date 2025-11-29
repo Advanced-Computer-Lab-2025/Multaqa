@@ -67,7 +67,7 @@ export default function RoleAssignmentContent() {
     const loadData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch unassigned staff for pending section
         const unassignedStaff = await fetchUnassignedStaff();
         setApplicants(unassignedStaff);
@@ -183,6 +183,28 @@ export default function RoleAssignmentContent() {
     }
   };
 
+  // Calculate the height for both boxes to match
+  const currentRoleKey = roleKeys[activeRoleIndex];
+  const assignedCount = (assigned[currentRoleKey] || []).length;
+  const pendingCount = applicants.length;
+
+  // Calculate height for assigned users box
+  const calculateAssignedBoxHeight = () => {
+    const maxCount = Math.max(assignedCount, pendingCount);
+    if (maxCount === 0) return "100px";
+    return `${maxCount * 180}px`;
+  };
+
+  // Calculate height for pending applicants box (taller than assigned)
+  const calculatePendingBoxHeight = () => {
+    const maxCount = Math.max(assignedCount, pendingCount);
+    if (maxCount === 0) return "150px";
+    return `${maxCount * 180 + 40}px`;
+  };
+
+  const assignedBoxHeight = calculateAssignedBoxHeight();
+  const pendingBoxHeight = calculatePendingBoxHeight();
+
   return (
     <DndContext
       onDragStart={(e) => handleDragStart(e, setActiveId)}
@@ -254,10 +276,9 @@ export default function RoleAssignmentContent() {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
-                minHeight:
-                  applicants.length > 0
-                    ? `${applicants.length * 150}px`
-                    : "100px",
+                minHeight: pendingBoxHeight,
+                justifyContent: applicants.length === 0 && !loading ? "center" : "flex-start",
+                alignItems: applicants.length === 0 && !loading ? "center" : "stretch",
               }}
             >
               {loading && (
@@ -421,10 +442,9 @@ export default function RoleAssignmentContent() {
                       display: "flex",
                       flexDirection: "column",
                       gap: 2,
-                      minHeight:
-                        (assigned[roleKey] || []).length > 0
-                          ? `${(assigned[roleKey] || []).length * 200}px`
-                          : "100px",
+                      minHeight: assignedBoxHeight,
+                      justifyContent: (assigned[roleKey] || []).length === 0 ? "center" : "flex-start",
+                      alignItems: (assigned[roleKey] || []).length === 0 ? "center" : "stretch",
                     }}
                   >
                     {(assigned[roleKey] || []).length === 0 && (
