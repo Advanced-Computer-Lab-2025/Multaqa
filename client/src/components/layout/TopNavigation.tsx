@@ -28,6 +28,7 @@ interface CurrentUser {
   profileImage?: string;
   firstName?: string;
   lastName?: string;
+  logoUrl?: string;
 }
 interface TopNavigationProps {
   companyName?: string;
@@ -66,10 +67,18 @@ const getInitials = (user?: CurrentUser, role?: string): string => {
   if (user.name) {
     const parts = user.name.trim().split(/\s+/);
     if (parts.length >= 2) {
+      // Multiple words: use first letter of first and last word
       return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(
         0
       )}`.toUpperCase();
     }
+    // Single word: extract capital letters or use first letter
+    const capitals = user.name.match(/[A-Z]/g);
+    if (capitals && capitals.length >= 2) {
+      // If there are multiple capitals (e.g., "EventsOffice"), use first two
+      return capitals.slice(0, 2).join("");
+    }
+    // Otherwise just use the first letter
     return user.name.charAt(0).toUpperCase();
   }
 
@@ -183,7 +192,16 @@ export default function TopNavigation({
                 <div className="flex items-center gap-3">
                   {/* Profile Avatar */}
                   <div className="flex-shrink-0">
-                    {currentUser.profileImage ? (
+                    {/* Show logo for vendors, otherwise show initials */}
+                    {userRole === "vendor" && currentUser.logoUrl ? (
+                      <Image
+                        src={currentUser.logoUrl}
+                        alt={displayName}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : currentUser.profileImage ? (
                       <Image
                         src={currentUser.profileImage}
                         alt={displayName}
@@ -234,11 +252,10 @@ export default function TopNavigation({
                 <button
                   key={index}
                   onClick={() => header.onTabChange?.(index)}
-                  className={`py-3 px-6 text-sm font-medium font-heading transition-all relative ${
-                    isActive
+                  className={`py-3 px-6 text-sm font-medium font-heading transition-all relative ${isActive
                       ? "text-[#6299d0] font-bold"
                       : "text-gray-600 hover:text-[#6299d0]"
-                  }`}
+                    }`}
                   style={{
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   }}

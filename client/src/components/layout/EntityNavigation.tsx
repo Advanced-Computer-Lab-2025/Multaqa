@@ -35,6 +35,7 @@ interface CurrentUser {
   firstName?: string;
   lastName?: string;
   companyName?: string;
+  logoUrl?: string;
 }
 
 interface EntityNavigationProps {
@@ -106,6 +107,7 @@ const formatUserData = (user: any): CurrentUser => {
     return {
       name: user.companyName,
       companyName: user.companyName,
+      logoUrl: user.logo?.url, // Extract logo URL from IFileInfo
     };
   }
 
