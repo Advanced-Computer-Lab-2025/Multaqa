@@ -253,7 +253,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   };
 
   const renderGeneral = () => (
-    <Box>
+    <Box sx={{ p: 4 }}>
       <Typography
         variant="h5"
         sx={{ mb: 2, color: "text.primary", fontWeight: 600 }}
@@ -319,7 +319,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     </Box>
   );
   const renderAgenda = () => (
-    <Box>
+    <Box sx={{ p: 4 }}>
       <Typography
         variant="h5"
         sx={{ mb: 6, color: "text.primary", fontWeight: 600 }}
