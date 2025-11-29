@@ -23,8 +23,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AspectRatioIcon from "@mui/icons-material/AspectRatio"; // Icon for Booth Size
 import { useTheme } from "@mui/material/styles";
 
-import { BazarFormValues} from "./types";
-import { validationSchema, submitBazarForm } from "./utils";
+import { BazarFormValues } from "./types";
+import {
+  validationSchema,
+  submitBazarForm,
+  BAZAR_PRICING,
+  calculateBazarTotal,
+} from "./utils";
 import CustomSelectField from "../input-fields/CustomSelectField";
 import { BazarApplicationFormProps } from "./types";
 import { useAuth } from "@/context/AuthContext";
@@ -34,7 +39,27 @@ import StyledAccordion from "../Accordion/StyledAccordion";
 import StyledAccordionSummary from "../Accordion/StyledAccordionSummary";
 import type { UploadStatus } from "../FileUpload/types";
 
-const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
+const PriceUpdater = ({
+  size,
+  location,
+  setFieldValue,
+}: {
+  size: string;
+  location: string;
+  setFieldValue: (field: string, value: unknown) => void;
+}) => {
+  useEffect(() => {
+    const total = calculateBazarTotal(size, location);
+    setFieldValue("price", total);
+  }, [size, location, setFieldValue]);
+
+  return null;
+};
+
+const BazarForm: React.FC<BazarApplicationFormProps> = ({
+  eventId,
+  location,
+}) => {
   const theme = useTheme();
   const { user } = useAuth();
 
@@ -54,6 +79,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
   const initialValues: BazarFormValues = {
     bazaarAttendees: [{ name: "", email: "", nationalId: null }],
     boothSize: "",
+    price: 0,
   };
 
   useEffect(() => {
@@ -137,6 +163,11 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
 
           return (
             <form onSubmit={formik.handleSubmit}>
+              <PriceUpdater
+                size={formik.values.boothSize}
+                location={location}
+                setFieldValue={formik.setFieldValue}
+              />
               <Box className="max-w-[600px] mx-auto">
                 <div className="flex flex-col flex-1 gap-4">
                   {/* Header */}
@@ -688,10 +719,15 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                               name="boothSize"
                               label="Booth Size"
                               fieldType="single"
-                              neumorphicBox
                               options={[
-                                { label: "2x2m", value: "2x2" },
-                                { label: "4x4m", value: "4x4" },
+                                {
+                                  label: `2x2m (${BAZAR_PRICING.SIZE_2X2} EGP)`,
+                                  value: "2x2",
+                                },
+                                {
+                                  label: `4x4m (${BAZAR_PRICING.SIZE_4X4} EGP)`,
+                                  value: "4x4",
+                                },
                               ]}
                               value={formik.values.boothSize}
                               onChange={(value) =>
@@ -703,7 +739,6 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                               onFocus={() =>
                                 formik.setFieldTouched("boothSize", true)
                               }
-                              neumorphicBox={false}
                             />
                             {formik.touched.boothSize &&
                               formik.errors.boothSize && (
@@ -723,6 +758,99 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                     </AccordionDetails>
                   </StyledAccordion>
 
+                  {/* Receipt Section */}
+                  <Box sx={{ mt: 3 }}>
+                    <Card
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        backgroundColor: theme.palette.primary.main + "10",
+                        border: `1px solid ${theme.palette.primary.main}30`,
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="600"
+                        gutterBottom
+                        color="primary.main"
+                      >
+                        Estimated Cost
+                      </Typography>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          Booth Size ({formik.values.boothSize || "-"})
+                        </Typography>
+                        <Typography variant="body2" fontWeight="500">
+                          {formik.values.boothSize === "2x2"
+                            ? BAZAR_PRICING.SIZE_2X2
+                            : formik.values.boothSize === "4x4"
+                            ? BAZAR_PRICING.SIZE_4X4
+                            : 0}{" "}
+                          EGP
+                        </Typography>
+                      </Box>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 2,
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          Location Fee ({location || "Not specified"})
+                        </Typography>
+                        <Typography variant="body2" fontWeight="500">
+                          {BAZAR_PRICING.LOCATIONS[location?.toLowerCase()] ||
+                            0}{" "}
+                          EGP
+                        </Typography>
+                      </Box>
+
+                      <Box
+                        sx={{
+                          my: 1,
+                          height: "1px",
+                          backgroundColor: theme.palette.primary.main + "30",
+                        }}
+                      />
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mt: 1,
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="700"
+                          color="primary.main"
+                        >
+                          Total
+                        </Typography>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="700"
+                          color="primary.main"
+                        >
+                          {calculateBazarTotal(
+                            formik.values.boothSize,
+                            location
+                          )}{" "}
+                          EGP
+                        </Typography>
+                      </Box>
+                    </Card>
+                  </Box>
                   {/* Submit */}
                   <Box className="w-full mt-auto ">
                     <Box
