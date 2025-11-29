@@ -25,6 +25,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   name,
   description,
   professors,
+  professorsId,
   icon: IconComponent,
   background,
   agenda,
@@ -210,23 +211,20 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 <CustomButton
                   size="small"
                   variant="outlined"
-                  sx={{
-                    borderRadius: 999,
-                    backgroundColor: `${background}40`,
-                    color: background,
-                    borderColor: background,
-                    fontWeight: 600,
-                    px: 3,
-                    textTransform: "none",
-                    boxShadow: `0 4px 14px ${background}40`,
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: `${background}50`,
-                      transform: "translateY(-2px)",
-                      boxShadow: `0 6px 20px ${background}50`,
-                    },
-                    width: 'fit-content'
-                  }}
+                 sx={{
+                                       borderRadius: 999,
+                                       backgroundColor: `${theme.palette.error.main}`,
+                                       color: background,
+                                       border: `1px solid ${theme.palette.error.dark}`,
+                                       fontWeight: 600,
+                                       px: 3,
+                                       textTransform: "none",
+                                       transition: "all 0.3s ease",
+                                       "&:hover": {
+                                         transform: "translateY(-2px)",
+                                       },
+                                       width: 'fit-content'
+                                     }}
                   onClick={() => setCancelRegisteration(true)}
                 >
                   Cancel Registration
@@ -236,20 +234,17 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
-                    sx={{
+                       sx={{
                       borderRadius: 999,
-                      backgroundColor: `${background}40`,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
                       color: background,
-                      borderColor: background,
                       fontWeight: 600,
                       px: 3,
                       textTransform: "none",
-                      boxShadow: `0 4px 14px ${background}40`,
                       transition: "all 0.3s ease",
                       "&:hover": {
-                        backgroundColor: `${background}50`,
                         transform: "translateY(-2px)",
-                        boxShadow: `0 6px 20px ${background}50`,
                       },
                     }}
                     onClick={() => setRegister(true)}
@@ -283,7 +278,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         creatingProfessor={details["Created By"]}
         faculty={details["Faculty Responsible"]}
         extraResources={details["Extra Required Resources"] ? [details["Extra Required Resources"]] : []}
-        associatedProfs={professors}
+        associatedProfs={professorsId}
         onClose={() => {
           setEdit(false);
         }}
@@ -386,7 +381,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                               sx={{ 
                                 borderRadius: 999,
                                 backgroundColor: `${background}40`,
-                                color: background,
+                                color: "background.paper",
                                 borderColor: background,
                                 fontWeight: 600,
                                 px: 3,
@@ -413,7 +408,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                                 sx={{ 
                                   borderRadius: 999,
                                   backgroundColor: `${background}40`,
-                                  color: background,
+                                  color: "background.paper",
                                   borderColor: background,
                                   fontWeight: 600,
                                   px: 3,

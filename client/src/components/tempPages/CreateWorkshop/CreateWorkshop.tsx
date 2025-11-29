@@ -18,6 +18,7 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 import { CustomModalLayout } from '@/components/shared/modals';
 import { workshopSchema } from "./schemas/workshop";
 import { toast } from 'react-toastify';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface ProfessorOption {
     label: string;
@@ -53,7 +54,7 @@ const createContentPaperStyles = (accentColor: string, theme: any) => ({
     p: { xs: 1, md: 3 },
     borderRadius: '32px',
     background: theme.palette.background.paper,
-    border: `1.5px solid ${theme.palette.grey[300]}`,
+    border: `2px solid ${accentColor}`,
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -165,58 +166,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
         }
     };
 
-    // Function to check for errors across tabs
-    const getFirstErrorTab = (errors: any): 'general' | 'description' | 'fullAgenda' | 'organization' | null => {
-        const generalFields = ['workshopName', 'startDate', 'endDate', 'registrationDeadline', 'budget', 'capacity', 'location', 'faculty'];
-        const descriptionField = 'description';
-        const fullAgendaField = 'agenda';
-        const organizationFields = ['fundingSource', 'professors', 'extraResources'];
-
-        // Check General tab
-        for (const field of generalFields) {
-            if (errors[field]) {
-                return 'general';
-            }
-        }
-
-        // Check Description tab
-        if (errors[descriptionField]) {
-            return 'description';
-        }
-
-        // Check Full Agenda tab
-        if (errors[fullAgendaField]) {
-            return 'fullAgenda';
-        }
-
-        // Check Organization tab
-        for (const field of organizationFields) {
-            if (errors[field]) {
-                return 'organization';
-            }
-        }
-
-        return null;
-    };
-
     const onSubmit = async (values: any, actions: any) => {
-        // Manually run validation before proceeding
-        const validationErrors = await actions.validateForm();
-
-        if (Object.keys(validationErrors).length > 0) {
-            const errorTab = getFirstErrorTab(validationErrors);
-
-            if (errorTab) {
-                setActiveTab(errorTab);
-                toast.error("Please fill out all required fields.", {
-                    position: "bottom-right",
-                    autoClose: 3000,
-                    theme: "colored",
-                });
-            }
-            return;
-        }
-
         onClose();
         const payload = {
             type: "workshop",
@@ -248,6 +198,23 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
         validateOnChange: true,
         validateOnBlur: true,
     });
+   
+      // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.workshopName && touched.workshopName) ||
+        (errors.startDate && touched.startDate) ||
+        (errors.endDate && touched.endDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.capacity && touched.capacity) ||
+        (errors.budget && touched.budget)||
+        (errors.faculty && touched.faculty) ||
+        (errors.location && touched.location)
+    );
+
+    const descriptionHasErrors = !!(errors.description && touched.description);
+    const agendaHasErrors = !!(errors.agenda && touched.agenda);
+    const organizationHasErrors = !!( (errors.professors && touched.professors) || (errors.fundingSource && touched.fundingSource) ||  (errors.extraResources && touched.extraResources)
+    );
 
     const handleClose = () => {
         onClose();
@@ -273,60 +240,67 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                         minHeight: 0,
                     }}>
                         {/* Sidebar Navigation */}
-                        <Box
-                            sx={{
-                                width: '220px',
-                                flexShrink: 0,
-                                background: theme.palette.background.paper,
-                                borderRadius: '32px',
-                                border: `1.5px solid ${theme.palette.grey[300]}`,
-                                p: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'flex-start',
-                                boxShadow: `0 4px 24px 0 ${accentColor}14`,
-                                transition: 'box-shadow 0.2s',
-                                height: 'fit-content',
-                                alignSelf: 'flex-start',
-                            }}
-                        >
-                            <List sx={{ width: '100%', height: '100%' }}>
-                                {tabSections.map((section) => (
-                                    <ListItem key={section.key} disablePadding>
-                                        <ListItemButton
-                                            selected={activeTab === section.key}
-                                            onClick={() => setActiveTab(section.key)}
-                                            sx={{
-                                                borderRadius: '24px',
-                                                mb: 1.5,
-                                                px: 2.5,
-                                                py: 1.5,
-                                                fontWeight: 600,
-                                                fontSize: '1.08rem',
-                                                background: activeTab === section.key ? `${accentColor}14` : 'transparent',
-                                                color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                                                boxShadow: activeTab === section.key ? `0 2px 8px 0 ${accentColor}20` : 'none',
-                                                transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
-                                                '&:hover': {
-                                                    background: `${accentColor}0A`,
-                                                    color: accentColor,
-                                                },
-                                            }}
-                                        >
-                                            <ListItemIcon sx={{
-                                                minWidth: 36,
-                                                color: activeTab === section.key ? accentColor : theme.palette.text.primary,
-                                                '&:hover': { color: accentColor }
-                                            }}>
-                                                {section.icon}
-                                            </ListItemIcon>
-                                            <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </Box>
-
+                      <Box
+                                        sx={{
+                                          width: '250px', 
+                                          flexShrink: 0,
+                                          background: theme.palette.background.paper,
+                                          borderRadius: '32px',
+                                          border:`2px solid ${accentColor}`,
+                                          p: 2,
+                                          display: 'flex',
+                                          flexDirection: 'column',
+                                          alignItems: 'flex-start',
+                                          boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                                          transition: 'box-shadow 0.2s',
+                                          height: 'fit-content', 
+                                          alignSelf: 'flex-start', 
+                                        }}
+                                      >
+                                          <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : section.key === 'fullAgenda' ? agendaHasErrors : section.key === 'organization' ? organizationHasErrors : false;
+                                                  
+                                                  return (
+                                                  <ListItem key={section.key} disablePadding>
+                                                      <ListItemButton
+                                                          selected={activeTab === section.key}
+                                                          onClick={() => setActiveTab(section.key)}
+                                                          sx={{
+                                                              borderRadius: '24px',
+                                                              mb: 1.5,
+                                                              px: 2.5,
+                                                              py: 1.5,
+                                                              fontWeight: 600,
+                                                              fontSize: '1.08rem',
+                                                              background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                                                              color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                                                              boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                                                              transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                                                              '&:hover': {
+                                                                  background: 'rgba(110, 138, 230, 0.05)',
+                                                                  color: accentColor,
+                                                              },
+                                                          }}
+                                                      >
+                                                          <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, '&:hover': {
+                                                                color: accentColor
+                                                              }, }}>{section.icon}</ListItemIcon>
+                                                          <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700, mr:2 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: 'auto'
+                                                                  }} 
+                                                              />
+                                                          )}
+                                                      </ListItemButton>
+                                                  </ListItem>
+                                              )})}
+                                          </List>
+                                      </Box>
                         {/* Content Area */}
                         <Box sx={{
                             flex: 1,
@@ -495,6 +469,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 value={values.location}
                                                 onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)}
                                                 name="location"
+                                                usePortalPositioning={true}
                                             />
                                             {errors.location && touched.location && (
                                                 <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.location}</Typography>
@@ -518,6 +493,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 value={values.faculty}
                                                 onChange={(e: any) => setFieldValue("faculty", e.target ? e.target.value : e)}
                                                 name="faculty"
+                                                usePortalPositioning={true}
                                             />
                                             {errors.faculty && touched.faculty && (
                                                 <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.faculty}</Typography>
@@ -625,6 +601,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                             value={values.fundingSource}
                                             onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}
                                             name="fundingSource"
+                                            usePortalPositioning={true}
                                         />
                                         {errors.fundingSource && touched.fundingSource && (
                                             <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.fundingSource}</Typography>
@@ -650,6 +627,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                             setSelectedProf('');
                                         }}
                                         name="professors"
+                                        usePortalPositioning={true}
                                     />
                                     {errors.professors && touched.professors ?
                                         <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.professors.toString()}</Typography>
@@ -712,70 +690,70 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 '&:hover': {
                                                     backgroundColor: `${accentColor}E6`,
                                                 }
-                                                  }}
-                                                                                        >
-                                                      <AddIcon />
-                                                  </IconButton>
-                                              </Box>
-          
-                                              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
-                                                  {values.extraResources.map((res) => (
-                                                      <Chip
-                                                          key={res}
-                                                          label={res}
-                                                          onDelete={() =>
-                                                              setFieldValue(
-                                                                  "extraRequiredResources",
-                                                                  values.extraResources.filter((r) => r !== res)
-                                                              )
-                                                          }
-                                                          sx={{
-                                                              m: 0.5,
-                                                              borderColor: accentColor,
-                                                              color: accentColor,
-                                                              '& .MuiChip-deleteIcon': {
-                                                                  color: accentColor,
-                                                                  '&:hover': {
-                                                                      color: `${accentColor}CC`,
-                                                                  }
-                                                              }
-                                                          }}
-                                                          variant="outlined"
-                                                      />
-                                                  ))}
-                                              </Box>
-                                          </Paper>
-                                      )}
+                                            }}
+                                        >
+                                            <AddIcon />
+                                        </IconButton>
+                                    </Box>
 
-                                                                  {/* Submit Button */}
-                                                                  <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                                                                      <CustomButton
-                                                                          disabled={isSubmitting}
-                                                                          label={isSubmitting ? "Creating..." : 'Create'}
-                                                                          variant='contained'
-                                                                          color='tertiary'
-                                                                          type='submit'
-                                                                          sx={{
-                                                                              px: 3,
-                                                                              width: "180px",
-                                                                              height: "40px",
-                                                                              fontWeight: 700,
-                                                                              fontSize: "16px",
-                                                                              borderRadius: '20px',
-                                                                              boxShadow: `0 2px 8px 0 ${accentColor}20`,
-                                                                              background: accentColor,
-                                                                              '&:hover': {
-                                                                                  background: `${accentColor}E6`,
-                                                                              }
-                                                                          }}
-                                                                      />
-                                                                  </Box>
-                                                              </Box>
-                                                          </Box>
-                                                      </form>
-                                                  </Box>
-                                              </CustomModalLayout>
-                                          );
-                                      };
-                                      
-                                      export default CreateWorkshop;
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
+                                        {values.extraResources.map((res) => (
+                                            <Chip
+                                                key={res}
+                                                label={res}
+                                                onDelete={() =>
+                                                    setFieldValue(
+                                                        "extraRequiredResources",
+                                                        values.extraResources.filter((r) => r !== res)
+                                                    )
+                                                }
+                                                sx={{
+                                                    m: 0.5,
+                                                    borderColor: accentColor,
+                                                    color: accentColor,
+                                                    '& .MuiChip-deleteIcon': {
+                                                        color: accentColor,
+                                                        '&:hover': {
+                                                            color: `${accentColor}CC`,
+                                                        }
+                                                    }
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        ))}
+                                    </Box>
+                                </Paper>
+                            )}
+
+                            {/* Submit Button */}
+                            <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                                <CustomButton
+                                    disabled={isSubmitting}
+                                    label={isSubmitting ? "Creating..." : 'Create'}
+                                    variant='contained'
+                                    color='tertiary'
+                                    type='submit'
+                                    sx={{
+                                        px: 3,
+                                        width: "180px",
+                                        height: "40px",
+                                        fontWeight: 700,
+                                        fontSize: "16px",
+                                        borderRadius: '20px',
+                                        boxShadow: `0 2px 8px 0 ${accentColor}20`,
+                                        background: accentColor,
+                                        '&:hover': {
+                                            background: `${accentColor}E6`,
+                                        }
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    </Box>
+                </form>
+            </Box>
+        </CustomModalLayout>
+    );
+};
+
+export default CreateWorkshop;

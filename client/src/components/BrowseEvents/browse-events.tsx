@@ -39,6 +39,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
+import { useNotifications } from "@/context/NotificationContext";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -603,6 +604,7 @@ switch (sortBy) {
             key={event.id}
             details={event.details}
             name={event.name}
+            attendees={event.attendees}
             description={event.description}
             professorsId={event.professorsId}
             professors={event.professors}
@@ -854,6 +856,7 @@ switch (sortBy) {
           open={createconference}
           onClose={() => setConference(false)}
           setRefresh={setRefresh}
+          color={theme.palette.tertiary.main}
         />
       </ContentWrapper>
     </Container>

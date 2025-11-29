@@ -154,6 +154,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
             <React.Fragment key={item.id}>
               <WorkshopView
                 id={item.id}
+                attendees={item.attendees}
                 background={"#9c27b0"}
                 icon={Diversity3Icon}
                 key={item.id}
@@ -172,29 +173,26 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
-                    sx={{
+                       sx={{
                       borderRadius: 999,
-                      backgroundColor: `${background}40`,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
                       color: background,
-                      borderColor: background,
                       fontWeight: 600,
-                      minWidth: "150px",
                       px: 3,
                       textTransform: "none",
-                      boxShadow: `0 4px 14px ${background}40`,
                       transition: "all 0.3s ease",
                       "&:hover": {
-                        backgroundColor: `${background}50`,
                         transform: "translateY(-2px)",
-                        boxShadow: `0 6px 20px ${background}50`,
                       },
+                      width: 'fit-content'
                     }}
                     onClick={() => handleViewComments(item.comments)}
                   >
                     View Comments
                   </CustomButton>
                 }
-              />
+            />
             </React.Fragment>
           ))}
 

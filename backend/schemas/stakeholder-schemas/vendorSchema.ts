@@ -21,6 +21,16 @@ const vendorSchema = new Schema<IVendor>({
         enum: Object.values(Event_Request_Status),
         default: Event_Request_Status.PENDING,
       },
+      hasPaid: {
+        type: Boolean,
+        default: false,
+      },
+      paymentDeadline: {
+        type: Date,
+      },
+      participationFee: {
+        type: Number,
+      },
     },
   ],
 });

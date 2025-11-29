@@ -56,7 +56,8 @@ export interface CustomSelectFieldProps {
   disableDynamicMorphing?: boolean; // Disable dynamic morphing on focus/blur
 }
 
-export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "children"> {
+export interface CustomTextFieldProps
+  extends Omit<TextFieldProps, "variant" | "children"> {
   name: string;
   fieldType: FieldType;
   startIcon?: React.ReactNode;
@@ -86,6 +87,7 @@ export interface CustomTextFieldProps extends Omit<TextFieldProps, "variant" | "
   autoCapitalizeName?: boolean; // Automatically capitalize names (first, last, full) - default true for text fields
   separateLabels?: boolean; // Separate labels for first and last name when fieldType is "text" and label contains "name"
   disableIcon?: boolean; // Disable the label and icon - default false (label shown by default)
+  borderRadius?: string; // Custom border radius for neumorphic box
 }
 
 export interface CustomRatingProps {

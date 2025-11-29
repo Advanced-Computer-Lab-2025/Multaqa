@@ -703,6 +703,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                               onFocus={() =>
                                 formik.setFieldTouched("boothSize", true)
                               }
+                              neumorphicBox={false}
                             />
                             {formik.touched.boothSize &&
                               formik.errors.boothSize && (

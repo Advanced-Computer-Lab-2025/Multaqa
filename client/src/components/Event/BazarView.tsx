@@ -15,6 +15,7 @@ import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
 import CancelApplicationVendor from "./Modals/CancelApplicationVendor";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import VendorPaymentDrawer from "./helpers/VendorPaymentDrawer";
 
 const BazarView: React.FC<BazarViewProps> = ({
   id,
@@ -41,6 +42,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   const [restrictUsers, setRestrictUsers] = useState(false);
   const [archive, setArchive] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   const isFavorited = Boolean(userInfo?.favorites?.some((f:any) => {
     const fid = f?._id?.$oid || f?._id || f;
     return String(fid) === String(id);
@@ -55,7 +57,11 @@ const BazarView: React.FC<BazarViewProps> = ({
   });
   const isRequested = Boolean(requestForThisEvent);
   const requestStatus = requestForThisEvent?.status; // 'pending' | 'approved' etc.
+  const hasPaid = requestForThisEvent?.hasPaid;
+  const participationFee = requestForThisEvent?.participationFee;
 
+  console.log(requestForThisEvent);
+  
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
@@ -119,12 +125,19 @@ const BazarView: React.FC<BazarViewProps> = ({
               <CustomButton
                 size="small"
                 variant="contained"
-                sx={{
-                  borderRadius: 999,
-                  backgroundColor: `${background}20`,
-                  color: background,
-                  borderColor: background,
-                }}
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
+                      color: background,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
                 onClick={handleOpenModal}
               >
                 Apply
@@ -134,24 +147,54 @@ const BazarView: React.FC<BazarViewProps> = ({
                   bazarId={id} 
                 />
               </CustomButton>
-            ) :(
+            ) : (
+              // if requested and status is approved but not paid -> show Pay button
+              requestStatus === "approved" && !hasPaid ? (
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.success.dark}`,
+                      backgroundColor: `${theme.palette.success.main}`,
+                      color: theme.palette.primary.contrastText,
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  onClick={() => setPaymentDrawerOpen(true)}
+                >
+                  Pay
+                </CustomButton>
+              ) : 
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" ? (
+              requestStatus !== "approved" && !hasPaid ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
                   sx={{
-                    borderRadius: 999,
-                    backgroundColor: `${background}10`,
-                    color: background,
-                    borderColor: background,
-                    width: "fit-content",
-                  }}
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: theme.palette.primary.contrastText,
+                      fontWeight: 600,
+                      px: 3,
+                      width: 'fit-content',
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
                   onClick={() => setCancelApplication(true)}
                 >
                   Cancel Application
                 </CustomButton>
-              ) : null // if approved, render nothing
+              ) : null // if paid or other status, render nothing
             )
           )
         } expanded={expanded} archived={archived} location={details["Location"]}  
@@ -244,12 +287,19 @@ const BazarView: React.FC<BazarViewProps> = ({
               <CustomButton
                 size="small"
                 variant="contained"
-                sx={{
-                  borderRadius: 999,
-                  backgroundColor: `${background}20`,
-                  color: background,
-                  borderColor: background,
-                }}
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${background}`,
+                      backgroundColor: `${background}`,
+                       color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
                 onClick={handleOpenModal}
               >
                 Apply
@@ -259,24 +309,54 @@ const BazarView: React.FC<BazarViewProps> = ({
                   bazarId={id} 
                 />
               </CustomButton>
-            ) :(
+            ) : (
+              // if requested and status is approved but not paid -> show Pay button
+              requestStatus === "approved" && !hasPaid ? (
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.success.dark}`,
+                      backgroundColor: `${theme.palette.success.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  onClick={() => {}}
+                >
+                  Pay
+                </CustomButton>
+              ) :
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" ? (
+              requestStatus !== "approved" && !hasPaid ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
-                  sx={{
-                    borderRadius: 999,
-                    backgroundColor: `${background}10`,
-                    color: background,
-                    borderColor: background,
-                    width: "fit-content",
-                  }}
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                        width: 'fit-content'
+                    }}
                   onClick={() => setCancelApplication(true)}
                 >
                   Cancel Application
                 </CustomButton>
-              ) : null // if approved, render nothing
+              ) : null // if paid or other status, render nothing
             )
           )
         }
@@ -288,6 +368,13 @@ const BazarView: React.FC<BazarViewProps> = ({
         />
       </CustomModalLayout>
       <CancelApplicationVendor eventId={id} open={cancelApplication} onClose={() => setCancelApplication(false)} setRefresh={setRefresh}/>
+      <VendorPaymentDrawer
+        open={paymentDrawerOpen}
+        onClose={() => setPaymentDrawerOpen(false)}
+        eventId={id}
+        totalAmount={participationFee}
+        email={userInfo.email}
+      />
     </>
   );
 };
