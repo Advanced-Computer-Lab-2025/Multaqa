@@ -26,7 +26,7 @@ function broadcastToUserSockets(userId: string, eventName: string, data: any) {
 }
 
 // Helper function to add a notification to a user's notifications array if it does not already exist
-async function addNotificationToUser(userId: string, notification: Notification, saveToDatabase: boolean = true): Promise<IUser | null> {
+async function addNotificationToUser(userId: string, notification: Notification, saveToDatabase: boolean = true) {
   try {
     const userRepo = new GenericRepository<IUser>(User);
     const user = await userRepo.findById(userId);
@@ -35,42 +35,28 @@ async function addNotificationToUser(userId: string, notification: Notification,
       return null;
     }
 
-    if (saveToDatabase) {
-      const sockets = OnlineUsersService.getUserSockets(userId);
-      const isOnline = sockets.length > 0;
+    const sockets = OnlineUsersService.getUserSockets(userId);
+    const isOnline = sockets.length > 0;
 
-      console.log(`📬 Adding notification to user ${userId}: ${notification.title}`);
-      user.notifications.push({
-        type: notification.type,
-        title: notification.title || '',
-        message: notification.message || '',
-        read: false,
-        delivered: isOnline,
-        createdAt: new Date()
-      } as INotification);
+    console.log(`📬 Adding notification to user ${userId}: ${notification.title}`);
+    user.notifications.push({
+      type: notification.type,
+      title: notification.title || '',
+      message: notification.message || '',
+      read: false,
+      delivered: isOnline,
+      createdAt: new Date()
+    } as INotification);
 
-      await user.save();
-    }
+    await user.save();
 
-    return user;
+    return user.notifications[user.notifications.length - 1]._id;
   } catch (error) {
     console.error(`Failed to add notification to user ${userId}:`, error);
     return null;
   }
 }
 
-// Helper function to find the index of a newly added notification
-function findNotificationIndex(user: IUser, notification: Notification): number {
-  // search from the end for a matching notification
-  for (let i = user.notifications.length - 1; i >= 0; i--) {
-    const n = user.notifications[i];
-    if (n._id === notification._id) {
-      return i;
-    }
-  }
-
-  return -1;
-}
 
 async function sendSocketNotification(typeNotification: string, notification: Notification, saveToDatabase: boolean = true) {
   try {
@@ -81,18 +67,16 @@ async function sendSocketNotification(typeNotification: string, notification: No
     // Notify specific user
     if (notification.userId) {
       try {
-        const user = await addNotificationToUser(notification.userId, notification, saveToDatabase);
-        if (user) {
-          const notificationIndex = findNotificationIndex(user, notification);
-          if (notificationIndex !== -1) {
-            const notificationWithId = {
-              ...notification,
-              _id: (user.notifications[notificationIndex]._id as any)?.toString(),
-            };
-            const sockets = OnlineUsersService.getUserSockets(notification.userId);
-            sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
-          }
+        let notificationWithId = notification;
+        if (saveToDatabase) {
+          const notificationId = await addNotificationToUser(notification.userId, notification);
+          notificationWithId = {
+            ...notification,
+            _id: notificationId?.toString()
+          };
         }
+        const sockets = OnlineUsersService.getUserSockets(notification.userId);
+        sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
       } catch (error: any) {
         throw createError(500, "Error sending socket notification to specific user:", error);
       }
@@ -147,18 +131,16 @@ async function sendSocketNotification(typeNotification: string, notification: No
 
       // Process notifications for all users
       for (const userId of usersToNotify) {
-        const user = await addNotificationToUser(userId, notification, saveToDatabase);
-        if (user) {
-          const notificationIndex = findNotificationIndex(user, notification);
-          if (notificationIndex !== -1) {
-            const notificationWithId = {
-              ...notification,
-              _id: (user.notifications[notificationIndex]._id as any)?.toString(),
-            };
-            const sockets = OnlineUsersService.getUserSockets(userId);
-            sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
-          }
+        let notificationWithId = notification;
+        if (saveToDatabase) {
+          const notificationId = await addNotificationToUser(userId, notification);
+          notificationWithId = {
+            ...notification,
+            _id: notificationId?.toString()
+          };
         }
+        const sockets = OnlineUsersService.getUserSockets(userId);
+        sockets.forEach((socketId) => io.to(socketId).emit(typeNotification, notificationWithId));
       }
     }
     return;
