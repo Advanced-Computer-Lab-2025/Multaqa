@@ -353,9 +353,33 @@ export default function EntityCatchAllPage() {
         );
       }
     }
-
-    if (["student", "staff","professor","ta","events-office","admin"].includes(entity) && section === "loyalty-partners"){
-      return <VendorsList/>
+    
+    // Vendor - Loyalty Program
+    if (entity === "vendor" && tab === "loyalty") {
+      if (section === "program-status") {
+        return (
+          <LoyaltyProgram
+            isSubscribed={!!user?.loyaltyProgram}
+            discountRate={user?.loyaltyProgram?.discountRate}
+            promoCode={user?.loyaltyProgram?.promoCode}
+            termsAndConditions={user?.loyaltyProgram?.termsAndConditions}
+            onStatusChange={() => window.location.reload()}
+          />
+        );
+      }
+    }
+    if (
+      [
+        "student",
+        "staff",
+        "professor",
+        "ta",
+        "events-office",
+        "admin",
+      ].includes(entity) &&
+      section === "loyalty-partners"
+    ) {
+      return <VendorsList />;
     }
 
     // Courts booking page for stakeholders
