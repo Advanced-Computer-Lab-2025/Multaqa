@@ -106,7 +106,7 @@ export const getOverlappingVendors = async (): Promise<VendorClashGroup[]> => {
             companyName: string;
             logo?: { url?: string; publicId?: string };
             email?: string;
-          };
+          } | null;
           boothSize?: string;
           boothSetupDuration?: number;
         }>;
@@ -114,21 +114,29 @@ export const getOverlappingVendors = async (): Promise<VendorClashGroup[]> => {
       message: string;
     }>("/vendorEvents/overlapping-booth-requests");
     
-    // Transform into clash groups
-    const clashGroups: VendorClashGroup[] = response.data.data.map(group => ({
-      location: group.location,
-      vendorCount: group.vendorCount,
-      vendors: group.vendors.map(v => ({
-        vendorId: v.vendor._id,
-        companyName: v.vendor.companyName,
-        eventId: v.eventId,
-        eventName: v.eventName,
-        boothLocation: group.location,
-        boothSize: v.boothSize,
-        boothSetupDuration: v.boothSetupDuration,
-        logo: v.vendor.logo,
-      })),
-    }));
+    // Transform into clash groups, filtering out vendors with null data
+    const clashGroups: VendorClashGroup[] = response.data.data
+      .map(group => {
+        // Filter out vendors with null vendor data
+        const validVendors = group.vendors.filter(v => v.vendor !== null);
+        
+        return {
+          location: group.location,
+          vendorCount: validVendors.length,
+          vendors: validVendors.map(v => ({
+            vendorId: v.vendor!._id,
+            companyName: v.vendor!.companyName,
+            eventId: v.eventId,
+            eventName: v.eventName,
+            boothLocation: group.location,
+            boothSize: v.boothSize,
+            boothSetupDuration: v.boothSetupDuration,
+            logo: v.vendor!.logo,
+          })),
+        };
+      })
+      // Only include clash groups with at least 2 valid vendors
+      .filter(group => group.vendorCount >= 2);
     
     return clashGroups;
   } catch (error: any) {

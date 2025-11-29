@@ -4,12 +4,17 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Alert from "@mui/material/Alert";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import { alpha } from "@mui/material/styles";
 import { Poll } from "@/types/poll";
-import { getActivePolls } from "@/services/pollService";
+import { getAllPolls } from "@/services/pollService";
 import PollCard from "./PollCard";
 import { useAuth } from "@/context/AuthContext";
 import EmptyState from "@/components/shared/states/EmptyState";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
+
+type FilterType = "all" | "running" | "ended";
 
 interface PollListProps {
   showHeader?: boolean;
@@ -19,6 +24,7 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterType>("all");
   const { user } = useAuth();
 
   const isEventsOffice =
@@ -33,13 +39,13 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
       setError(null);
 
       try {
-        const activePolls = await getActivePolls();
+        const allPolls = await getAllPolls();
         if (!isMounted) {
           return;
         }
 
-        if (Array.isArray(activePolls)) {
-          setPolls(activePolls);
+        if (Array.isArray(allPolls)) {
+          setPolls(allPolls);
         } else {
           setPolls([]);
         }
@@ -64,15 +70,121 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
     };
   }, []);
 
+  // Filter polls based on selection
+  const filteredPolls = polls.filter((poll) => {
+    const isExpired = new Date() > new Date(poll.endDate);
+    if (filter === "running") return !isExpired;
+    if (filter === "ended") return isExpired;
+    return true;
+  });
+
+  // Count polls for each filter
+  const runningCount = polls.filter((poll) => new Date() <= new Date(poll.endDate)).length;
+  const endedCount = polls.filter((poll) => new Date() > new Date(poll.endDate)).length;
+
+  // Define colors for filter chips
+  const filterColors = {
+    all: "#6299d0",     // Primary blue
+    running: "#4caf50", // Green for active
+    ended: "#f57c00",   // Orange for ended (warm, readable, indicates completion)
+  };
+
+  const filterChips = (
+    <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+      <Chip
+        label={`All (${polls.length})`}
+        onClick={() => setFilter("all")}
+        variant="outlined"
+        sx={{
+          fontFamily: "var(--font-poppins)",
+          fontWeight: filter === "all" ? 600 : 500,
+          borderRadius: "28px",
+          px: 1.75,
+          height: 32,
+          borderWidth: filter === "all" ? 2 : 1,
+          borderColor: filterColors.all,
+          color: filterColors.all,
+          backgroundColor: alpha(filterColors.all, filter === "all" ? 0.12 : 0.08),
+          boxShadow: filter === "all"
+            ? `0 6px 16px ${alpha(filterColors.all, 0.28)}`
+            : `0 1px 3px ${alpha(filterColors.all, 0.18)}`,
+          transition: "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+          "&:hover": { borderWidth: 2 },
+        }}
+      />
+      <Chip
+        label={`Running (${runningCount})`}
+        onClick={() => setFilter("running")}
+        variant="outlined"
+        sx={{
+          fontFamily: "var(--font-poppins)",
+          fontWeight: filter === "running" ? 600 : 500,
+          borderRadius: "28px",
+          px: 1.75,
+          height: 32,
+          borderWidth: filter === "running" ? 2 : 1,
+          borderColor: filterColors.running,
+          color: filterColors.running,
+          backgroundColor: alpha(filterColors.running, filter === "running" ? 0.12 : 0.08),
+          boxShadow: filter === "running"
+            ? `0 6px 16px ${alpha(filterColors.running, 0.28)}`
+            : `0 1px 3px ${alpha(filterColors.running, 0.18)}`,
+          transition: "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+          "&:hover": { borderWidth: 2 },
+        }}
+      />
+      <Chip
+        label={`Ended (${endedCount})`}
+        onClick={() => setFilter("ended")}
+        variant="outlined"
+        sx={{
+          fontFamily: "var(--font-poppins)",
+          fontWeight: filter === "ended" ? 600 : 500,
+          borderRadius: "28px",
+          px: 1.75,
+          height: 32,
+          borderWidth: filter === "ended" ? 2 : 1,
+          borderColor: filterColors.ended,
+          color: filterColors.ended,
+          backgroundColor: alpha(filterColors.ended, filter === "ended" ? 0.12 : 0.08),
+          boxShadow: filter === "ended"
+            ? `0 6px 16px ${alpha(filterColors.ended, 0.28)}`
+            : `0 1px 3px ${alpha(filterColors.ended, 0.18)}`,
+          transition: "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+          "&:hover": { borderWidth: 2 },
+        }}
+      />
+    </Stack>
+  );
+
+  const getEmptyMessage = () => {
+    if (filter === "running") {
+      return {
+        title: "No Running Polls",
+        description: isEventsOffice
+          ? "There are no active polls at the moment. Create a new poll to get started."
+          : "There are no active polls at the moment. Check back later!",
+      };
+    }
+    if (filter === "ended") {
+      return {
+        title: "No Ended Polls",
+        description: "There are no concluded polls yet.",
+      };
+    }
+    return {
+      title: "No Polls",
+      description: isEventsOffice
+        ? "Create a new poll to get started."
+        : "There are no polls at the moment.",
+    };
+  };
+
   const pollsGrid =
-    polls.length === 0 ? (
+    filteredPolls.length === 0 ? (
       <EmptyState
-        title="No Active Polls"
-        description={
-          isEventsOffice
-            ? "Create a new poll to get started."
-            : "There are no active polls at the moment."
-        }
+        title={getEmptyMessage().title}
+        description={getEmptyMessage().description}
       />
     ) : (
       <Box
@@ -87,7 +199,7 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
           alignItems: "stretch",
         }}
       >
-        {polls.map((poll) => (
+        {filteredPolls.map((poll) => (
           <Box key={poll.id} sx={{ display: "flex" }}>
             <PollCard poll={poll} readOnly={isEventsOffice} />
           </Box>
@@ -108,6 +220,7 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
         </Alert>
       )}
       {loading && <LinearProgress sx={{ mb: 2 }} />}
+      {!loading && filterChips}
       {pollsGrid}
     </Box>
   );
@@ -115,10 +228,10 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
   if (showHeader) {
     return (
       <ContentWrapper
-        title={isEventsOffice ? "Active Polls Overview" : "Active Vendor Polls"}
+        title={isEventsOffice ? "Polls Overview" : "Vendor Polls"}
         description={
           isEventsOffice
-            ? "Monitor the voting progress for active vendor polls."
+            ? "Monitor the voting progress for vendor polls."
             : "Vote for the vendors you want to see at the upcoming events!"
         }
       >

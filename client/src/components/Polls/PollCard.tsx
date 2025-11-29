@@ -7,7 +7,7 @@ import CustomRadio from "@/components/shared/input-fields/CustomRadio";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { votePoll } from "@/services/pollService";
 import { toast } from "react-toastify";
-import { Clock, CheckCircle } from "lucide-react";
+import { Clock, CheckCircle, Trophy } from "lucide-react";
 
 interface PollCardProps {
   poll: Poll;
@@ -181,25 +181,44 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
               .map((option, index) => {
                 const percentage = totalVotes > 0 ? (option.voteCount / totalVotes) * 100 : 0;
                 const isSelected = option.vendorId === selectedVendorId;
-                const isWinner = index === 0 && totalVotes > 0;
+                const isWinner = index === 0 && totalVotes > 0 && isExpired;
                 
                 return (
-                  <Box key={option.vendorId}>
+                  <Box 
+                    key={option.vendorId}
+                    sx={{
+                      ...(isWinner && {
+                        bgcolor: "#fef3c7",
+                        borderRadius: 2,
+                        p: 1,
+                        mx: -1,
+                        border: "2px solid #f59e0b",
+                      })
+                    }}
+                  >
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {isWinner && (
+                          <Trophy size={14} color="#f59e0b" style={{ marginRight: 4 }} fill="#f59e0b" />
+                        )}
                         <Avatar 
                           src={option.vendorLogo} 
                           alt={option.vendorName} 
                           sx={{ width: 18, height: 18, mr: 0.75 }}
                         />
-                        <Typography variant="caption" fontWeight={isSelected ? "bold" : "normal"} sx={{ fontSize: "0.75rem" }}>
+                        <Typography 
+                          variant="caption" 
+                          fontWeight={isSelected || isWinner ? "bold" : "normal"} 
+                          sx={{ fontSize: "0.75rem", color: isWinner ? "#92400e" : "inherit" }}
+                        >
                           {option.vendorName}
+                          {isWinner && " 🏆"}
                         </Typography>
                         {isSelected && (
                           <CheckCircle size={12} color="#4caf50" style={{ marginLeft: 4 }} />
                         )}
                       </Box>
-                      <Typography variant="caption" fontWeight="600" sx={{ fontSize: "0.75rem" }}>
+                      <Typography variant="caption" fontWeight="600" sx={{ fontSize: "0.75rem", color: isWinner ? "#92400e" : "inherit" }}>
                         {percentage.toFixed(1)}%
                       </Typography>
                     </Box>
@@ -209,14 +228,14 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
                       sx={{
                         height: 4,
                         borderRadius: 2,
-                        bgcolor: "grey.100",
+                        bgcolor: isWinner ? "#fde68a" : "grey.100",
                         "& .MuiLinearProgress-bar": {
-                          bgcolor: isWinner ? "success.main" : "primary.main",
+                          bgcolor: isWinner ? "#f59e0b" : "primary.main",
                           borderRadius: 2,
                         }
                       }}
                     />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25, display: "block", textAlign: "right", fontSize: "0.65rem" }}>
+                    <Typography variant="caption" color={isWinner ? "#92400e" : "text.secondary"} sx={{ mt: 0.25, display: "block", textAlign: "right", fontSize: "0.65rem" }}>
                       {option.voteCount} votes
                     </Typography>
                   </Box>

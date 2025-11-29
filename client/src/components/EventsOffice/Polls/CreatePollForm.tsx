@@ -75,12 +75,11 @@ interface CreatePollFormProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  color?: string;
 }
 
-const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSuccess, color }) => {
-  // Use the color prop as accent color, fallback to theme if not provided
-  const accentColor = color || theme.palette.primary.main;
+const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSuccess }) => {
+  // Use primary color consistently as accent
+  const accentColor = theme.palette.primary.main;
 
   // Create styles with the accent color
   const tertiaryInputStyles = createTertiaryInputStyles(accentColor);
@@ -447,6 +446,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                   <Box
                     sx={{
                       flex: 1,
+                      maxHeight: "400px",
                       overflowY: "auto",
                       pr: 1,
                       "&::-webkit-scrollbar": { width: "6px" },
@@ -474,13 +474,13 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                               onClick={() => handleClashSelect(clashGroup.location)}
                               sx={{
                                 cursor: "pointer",
-                                borderColor: isSelected ? accentColor : "divider",
-                                bgcolor: isSelected ? `${accentColor}10` : "background.paper",
+                                borderColor: isSelected ? theme.palette.primary.main : "divider",
+                                bgcolor: isSelected ? `${theme.palette.primary.light}30` : "background.paper",
                                 transition: "all 0.2s",
                                 borderRadius: "16px",
                                 borderWidth: isSelected ? "2px" : "1px",
                                 "&:hover": {
-                                  borderColor: accentColor,
+                                  borderColor: theme.palette.primary.main,
                                   boxShadow: 1,
                                 },
                               }}
@@ -493,14 +493,14 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                                     sx={{ 
                                       mr: 1.5, 
                                       mt: -0.5,
-                                      color: accentColor,
-                                      "&.Mui-checked": { color: accentColor },
+                                      color: theme.palette.primary.main,
+                                      "&.Mui-checked": { color: theme.palette.primary.main },
                                     }}
                                   />
                                   
                                   <Box sx={{ flex: 1, minWidth: 0 }}>
                                     <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                      <MapPin size={16} color={accentColor} style={{ marginRight: 6 }} />
+                                      <MapPin size={16} color={theme.palette.primary.main} style={{ marginRight: 6 }} />
                                       <Typography variant="subtitle1" fontWeight="bold">
                                         {clashGroup.location}
                                       </Typography>
@@ -510,9 +510,9 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                                           ml: 1.5, 
                                           px: 1, 
                                           py: 0.25, 
-                                          bgcolor: `${accentColor}20`, 
+                                          bgcolor: `${theme.palette.primary.light}50`, 
                                           borderRadius: "8px",
-                                          color: accentColor,
+                                          color: theme.palette.primary.dark,
                                           fontWeight: 600,
                                         }}
                                       >
@@ -527,7 +527,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                                           sx={{ 
                                             display: "flex", 
                                             alignItems: "center", 
-                                            bgcolor: "grey.100", 
+                                            bgcolor: `${theme.palette.primary.light}30`, 
                                             borderRadius: "12px",
                                             px: 1.5,
                                             py: 0.5,
@@ -537,7 +537,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                                           {vendor.logo?.url ? (
                                             <Avatar src={vendor.logo.url} sx={{ width: 24, height: 24, mr: 1 }} />
                                           ) : (
-                                            <Avatar sx={{ width: 24, height: 24, mr: 1, bgcolor: accentColor, fontSize: 12 }}>
+                                            <Avatar sx={{ width: 24, height: 24, mr: 1, bgcolor: theme.palette.primary.main, fontSize: 12 }}>
                                               <Store size={14} />
                                             </Avatar>
                                           )}
@@ -565,7 +565,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                   disabled={submitting || clashGroups.length === 0} 
                   label={submitting ? "Creating..." : "Create Poll"} 
                   variant="contained" 
-                  color="tertiary" 
+                  color="primary" 
                   type="submit" 
                   sx={{ 
                     px: 3, 
@@ -574,10 +574,10 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                     fontWeight: 700, 
                     fontSize: "16px", 
                     borderRadius: "20px", 
-                    boxShadow: `0 2px 8px 0 ${accentColor}20`,
-                    background: accentColor,
+                    boxShadow: `0 2px 8px 0 ${theme.palette.primary.main}30`,
+                    background: theme.palette.primary.main,
                     "&:hover": {
-                      background: `${accentColor}E6`,
+                      background: theme.palette.primary.dark,
                     }
                   }}
                 />

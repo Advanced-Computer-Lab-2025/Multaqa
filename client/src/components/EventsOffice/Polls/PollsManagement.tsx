@@ -36,7 +36,6 @@ const PollsManagement = () => {
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={handleCreateSuccess}
-        color="#6E8AE6"
       />
     </ContentWrapper>
   );
