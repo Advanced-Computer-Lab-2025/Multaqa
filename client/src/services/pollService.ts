@@ -11,6 +11,28 @@ export interface RegisteredVendor {
   };
 }
 
+// Interface for overlapping vendor from backend
+export interface OverlappingVendor {
+  vendorId: string;
+  companyName: string;
+  eventId: string;
+  eventName: string;
+  boothLocation: string;
+  boothSize?: string;
+  boothSetupDuration?: number;
+  logo?: {
+    url?: string;
+    publicId?: string;
+  };
+}
+
+// Interface for a clash group (vendors competing for the same location)
+export interface VendorClashGroup {
+  location: string;
+  vendorCount: number;
+  vendors: OverlappingVendor[];
+}
+
 // Interface for poll from backend API
 interface BackendPoll {
   _id: string;
@@ -62,6 +84,57 @@ export const getRegisteredVendors = async (): Promise<RegisteredVendor[]> => {
   } catch (error) {
     console.error("Failed to fetch registered vendors:", error);
     throw error;
+  }
+};
+
+/**
+ * Get vendors with overlapping booth requests for poll creation (Events Office only)
+ * Returns vendors who have pending booth requests for the same location, grouped by clash
+ */
+export const getOverlappingVendors = async (): Promise<VendorClashGroup[]> => {
+  try {
+    const response = await api.get<{
+      success: boolean;
+      data: Array<{
+        location: string;
+        vendorCount: number;
+        vendors: Array<{
+          eventId: string;
+          eventName: string;
+          vendor: {
+            _id: string;
+            companyName: string;
+            logo?: { url?: string; publicId?: string };
+            email?: string;
+          };
+          boothSize?: string;
+          boothSetupDuration?: number;
+        }>;
+      }>;
+      message: string;
+    }>("/vendorEvents/overlapping-booth-requests");
+    
+    // Transform into clash groups
+    const clashGroups: VendorClashGroup[] = response.data.data.map(group => ({
+      location: group.location,
+      vendorCount: group.vendorCount,
+      vendors: group.vendors.map(v => ({
+        vendorId: v.vendor._id,
+        companyName: v.vendor.companyName,
+        eventId: v.eventId,
+        eventName: v.eventName,
+        boothLocation: group.location,
+        boothSize: v.boothSize,
+        boothSetupDuration: v.boothSetupDuration,
+        logo: v.vendor.logo,
+      })),
+    }));
+    
+    return clashGroups;
+  } catch (error: any) {
+    console.error("Failed to fetch overlapping vendors:", error);
+    const errorMessage = error.response?.data?.message || error.message || "Failed to fetch vendors";
+    throw new Error(errorMessage);
   }
 };
 

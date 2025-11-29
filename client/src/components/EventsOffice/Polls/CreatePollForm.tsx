@@ -9,28 +9,26 @@ import {
   Typography,
   CircularProgress,
   Paper,
-  Grid,
   Card,
   CardContent,
   Avatar,
   Stack,
-  Chip,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Radio,
 } from "@mui/material";
 import { CustomTextField } from "@/components/shared/input-fields";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
-import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
-import { getRegisteredVendors, createPoll, RegisteredVendor } from "@/services/pollService";
+import { getOverlappingVendors, createPoll, getAllPolls, VendorClashGroup } from "@/services/pollService";
 import { toast } from "react-toastify";
 import theme from "@/themes/lightTheme";
-import { Store, Info } from "lucide-react";
+import { Store, Info, MapPin } from "lucide-react";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -90,7 +88,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [vendors, setVendors] = useState<RegisteredVendor[]>([]);
+  const [clashGroups, setClashGroups] = useState<VendorClashGroup[]>([]);
 
   // Tab state for sections
   const tabSections = [
@@ -100,19 +98,44 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
   const [activeTab, setActiveTab] = useState("details");
 
   useEffect(() => {
-    const fetchVendors = async () => {
+    const fetchData = async () => {
       try {
-        const registeredVendors = await getRegisteredVendors();
-        setVendors(registeredVendors);
-      } catch (error) {
-        console.error("Failed to fetch registered vendors", error);
-        toast.error("Failed to fetch registered vendors");
+        // Fetch both clash groups and active polls in parallel
+        const [overlappingGroups, allPolls] = await Promise.all([
+          getOverlappingVendors().catch(() => []),
+          getAllPolls().catch(() => []),
+        ]);
+        
+        // Get vendor IDs from active polls
+        const activePolls = allPolls.filter(poll => poll.isActive);
+        const vendorIdsWithActivePolls = new Set<string>();
+        for (const poll of activePolls) {
+          for (const option of poll.options) {
+            vendorIdsWithActivePolls.add(option.vendorId);
+          }
+        }
+        
+        // Filter out clash groups where ANY vendor is already in an active poll
+        const availableClashGroups = overlappingGroups.filter(group => {
+          // Check if all vendors in this group are NOT in an active poll
+          const allVendorsAvailable = group.vendors.every(
+            vendor => !vendorIdsWithActivePolls.has(vendor.vendorId)
+          );
+          return allVendorsAvailable;
+        });
+        
+        setClashGroups(availableClashGroups);
+      } catch (error: any) {
+        console.error("Failed to fetch data", error);
+        if (!error.message?.includes("No conflicting")) {
+          toast.error("Failed to fetch vendors with overlapping booth requests");
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVendors();
+    fetchData();
   }, []);
 
   const handleClose = () => {
@@ -123,7 +146,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
   // Logic to find the first error and switch tab
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFirstErrorTab = (errors: any): "details" | "vendors" | null => {
-    const detailsFields = ["title", "description", "startDate", "endDate"];
+    const detailsFields = ["title", "notes", "endDate"];
     
     // Check Poll Details tab
     for (const field of detailsFields) {
@@ -133,7 +156,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
     }
     
     // Check Vendors tab
-    if (errors.vendorIds) {
+    if (errors.selectedClashLocation) {
       return "vendors";
     }
 
@@ -143,26 +166,21 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
   const formik = useFormik({
     initialValues: {
       title: "",
-      description: "",
-      startDate: null as dayjs.Dayjs | null,
+      notes: "",
       endDate: null as dayjs.Dayjs | null,
-      vendorIds: [] as string[],
+      selectedClashLocation: "" as string,
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
-      description: Yup.string().required("Description is required"),
-      startDate: Yup.mixed().required("Start date is required").nullable(),
+      notes: Yup.string(),
       endDate: Yup.mixed()
         .required("End date is required")
         .nullable()
-        .test("is-after-start", "End date must be after start date", function (value) {
-          const { startDate } = this.parent;
-          if (!startDate || !value) return true;
-          return dayjs(value).isAfter(dayjs(startDate));
+        .test("is-in-future", "End date must be in the future", function (value) {
+          if (!value) return true;
+          return dayjs(value).isAfter(dayjs());
         }),
-      vendorIds: Yup.array()
-        .min(2, "Select at least 2 vendors for the poll")
-        .required("Vendors are required"),
+      selectedClashLocation: Yup.string().required("Please select a booth location clash"),
     }),
     validateOnChange: true,
     validateOnBlur: true,
@@ -185,16 +203,23 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
         return;
       }
 
-      if (!values.startDate || !values.endDate) return;
+      if (!values.endDate) return;
+      
+      // Get vendor IDs from the selected clash group
+      const selectedClash = clashGroups.find(g => g.location === values.selectedClashLocation);
+      if (!selectedClash) {
+        toast.error("Please select a valid booth location clash.");
+        return;
+      }
+      const vendorIds = selectedClash.vendors.map(v => v.vendorId);
       
       setSubmitting(true);
       try {
         await createPoll({
           title: values.title,
-          description: values.description,
-          startDate: values.startDate.toDate(),
+          description: values.notes || "",
           endDate: values.endDate.toDate(),
-          vendorRequestIds: values.vendorIds,
+          vendorRequestIds: vendorIds,
         });
         toast.success("Poll created successfully!", {
           position: "bottom-right",
@@ -220,23 +245,20 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
     },
   });
 
-  const handleVendorToggle = (id: string) => {
-    const currentIds = formik.values.vendorIds;
-    const newIds = currentIds.includes(id)
-      ? currentIds.filter((vendorId) => vendorId !== id)
-      : [...currentIds, id];
-    formik.setFieldValue("vendorIds", newIds);
+  const handleClashSelect = (location: string) => {
+    // Toggle selection - if same location is clicked, deselect; otherwise select new one
+    const newValue = formik.values.selectedClashLocation === location ? "" : location;
+    formik.setFieldValue("selectedClashLocation", newValue);
   };
 
   // Check if tabs have errors
   const detailsHasErrors = !!(
     (formik.errors.title && formik.touched.title) ||
-    (formik.errors.description && formik.touched.description) ||
-    (formik.errors.startDate && formik.touched.startDate) ||
+    (formik.errors.notes && formik.touched.notes) ||
     (formik.errors.endDate && formik.touched.endDate)
   );
 
-  const vendorsHasErrors = !!(formik.errors.vendorIds && formik.touched.vendorIds);
+  const vendorsHasErrors = !!(formik.errors.selectedClashLocation && formik.touched.selectedClashLocation);
 
   if (loading) {
     return (
@@ -340,76 +362,69 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
             }}>
               {/* Poll Details Tab */}
               {activeTab === "details" && (
-                <Paper elevation={0} sx={contentPaperStyles}>
-                  <CustomTextField 
-                    name="title"
-                    id="title"
-                    label="Poll Title" 
-                    fullWidth 
-                    placeholder="e.g., Best Food Vendor 2025" 
-                    fieldType="text"
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    autoCapitalizeName={false}
-                    sx={{ mt: 1, mb: 2 }}
-                  />
-                  {formik.errors.title && formik.touched.title && (
-                    <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: -1.5, mb: 1 }}>{formik.errors.title}</Typography>
-                  )}
+                <Paper elevation={0} sx={{ ...contentPaperStyles, justifyContent: "space-between" }}>
+                  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <CustomTextField 
+                      name="title"
+                      id="title"
+                      label="Poll Title" 
+                      fullWidth 
+                      placeholder="e.g., Best Food Vendor 2025" 
+                      fieldType="text"
+                      value={formik.values.title}
+                      onChange={formik.handleChange}
+                      autoCapitalizeName={false}
+                    />
+                    {formik.errors.title && formik.touched.title && (
+                      <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.title}</Typography>
+                    )}
+                  </Box>
 
-                  <CustomTextField 
-                    name="description"
-                    id="description"
-                    label="Description" 
-                    fullWidth 
-                    placeholder="What is this poll about?" 
-                    fieldType="text"
-                    value={formik.values.description}
-                    onChange={formik.handleChange}
-                    autoCapitalizeName={false}
-                    multiline
-                    rows={3}
-                    sx={{ mb: 2 }}
-                  />
-                  {formik.errors.description && formik.touched.description && (
-                    <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: -1.5, mb: 1 }}>{formik.errors.description}</Typography>
-                  )}
+                  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <CustomTextField 
+                      name="notes"
+                      id="notes"
+                      label="Notes" 
+                      fullWidth 
+                      placeholder="Add any additional notes (optional)" 
+                      fieldType="text"
+                      value={formik.values.notes}
+                      onChange={formik.handleChange}
+                      autoCapitalizeName={false}
+                      multiline
+                      minRows={1}
+                      maxRows={6}
+                      sx={{ 
+                        '& .MuiInputBase-root': {
+                          overflow: 'hidden',
+                        },
+                        '& textarea': {
+                          resize: 'none',
+                          overflow: 'hidden !important',
+                        }
+                      }}
+                    />
+                    {formik.errors.notes && formik.touched.notes && (
+                      <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.notes}</Typography>
+                    )}
+                  </Box>
                   
-                  {/* Date/Time Pickers section */}
-                  <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}> 
-                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker
-                          name="startDate"
-                          label="Start Date and Time"
-                          slotProps={{
-                            textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
-                          }}
-                          value={formik.values.startDate}
-                          onChange={(value) => formik.setFieldValue("startDate", value)}
-                        />
-                      </LocalizationProvider>
-                      {formik.errors.startDate && formik.touched.startDate && (
-                        <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.startDate as string}</Typography>
-                      )}
-                    </Box>
-      
-                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DateTimePicker
-                          label="End Date and Time"
-                          name="endDate"
-                          slotProps={{
-                            textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
-                          }}
-                          value={formik.values.endDate}
-                          onChange={(value) => formik.setFieldValue("endDate", value)}
-                        />
-                      </LocalizationProvider>
-                      {formik.errors.endDate && formik.touched.endDate && (
-                        <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.endDate as string}</Typography>
-                      )}
-                    </Box>
+                  {/* End Date/Time Picker */}
+                  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                        label="End Date and Time"
+                        name="endDate"
+                        slotProps={{
+                          textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                        }}
+                        value={formik.values.endDate}
+                        onChange={(value) => formik.setFieldValue("endDate", value)}
+                      />
+                    </LocalizationProvider>
+                    {formik.errors.endDate && formik.touched.endDate && (
+                      <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.endDate as string}</Typography>
+                    )}
                   </Box>
                 </Paper>
               )}
@@ -417,21 +432,15 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
               {/* Select Vendors Tab */}
               {activeTab === "vendors" && (
                 <Paper elevation={0} sx={contentPaperStyles}>
-                  <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Box sx={{ mb: 2 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Choose at least 2 vendors for the poll.
+                      Select a booth location clash. All vendors competing for the same location will be included in the poll.
                     </Typography>
-                    <Chip 
-                      label={`${formik.values.vendorIds.length} Selected`} 
-                      color={formik.values.vendorIds.length >= 2 ? "primary" : "default"}
-                      variant={formik.values.vendorIds.length >= 2 ? "filled" : "outlined"}
-                      size="small"
-                    />
                   </Box>
 
-                  {formik.touched.vendorIds && formik.errors.vendorIds && (
+                  {formik.touched.selectedClashLocation && formik.errors.selectedClashLocation && (
                     <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mb: 2 }}>
-                      {formik.errors.vendorIds as string}
+                      {formik.errors.selectedClashLocation as string}
                     </Typography>
                   )}
 
@@ -446,63 +455,105 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
                       "&::-webkit-scrollbar-thumb:hover": { background: "#555" },
                     }}
                   >
-                    {vendors.length === 0 ? (
+                    {clashGroups.length === 0 ? (
                       <Box sx={{ textAlign: "center", py: 8, bgcolor: "grey.50", borderRadius: 2 }}>
                         <Info size={48} color="#9e9e9e" style={{ marginBottom: 16 }} />
-                        <Typography color="textSecondary">No registered vendors found.</Typography>
+                        <Typography color="textSecondary">No booth location clashes found.</Typography>
+                        <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: "block" }}>
+                          Clashes with active polls are not shown.
+                        </Typography>
                       </Box>
                     ) : (
-                      <Grid container spacing={2}>
-                        {vendors.map((vendor) => {
-                          const isSelected = formik.values.vendorIds.includes(vendor.vendorId);
+                      <Stack spacing={2}>
+                        {clashGroups.map((clashGroup) => {
+                          const isSelected = formik.values.selectedClashLocation === clashGroup.location;
                           return (
-                            <Grid item xs={12} sm={6} key={vendor.vendorId}>
-                              <Card
-                                variant="outlined"
-                                onClick={() => handleVendorToggle(vendor.vendorId)}
-                                sx={{
-                                  cursor: "pointer",
-                                  borderColor: isSelected ? accentColor : "divider",
-                                  bgcolor: isSelected ? `${accentColor}10` : "background.paper",
-                                  transition: "all 0.2s",
-                                  position: "relative",
-                                  overflow: "visible",
-                                  borderRadius: "16px",
-                                  "&:hover": {
-                                    borderColor: accentColor,
-                                    boxShadow: 1,
-                                    transform: "translateY(-2px)",
-                                  },
-                                }}
-                              >
-                                <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                                    <CustomCheckbox
-                                      checked={isSelected}
-                                      onChange={() => {}}
-                                      sx={{ mr: 1.5 }}
-                                    />
-                                    
-                                    {vendor.logo?.url ? (
-                                      <Avatar src={vendor.logo.url} sx={{ width: 40, height: 40, mr: 1.5 }} />
-                                    ) : (
-                                      <Avatar sx={{ width: 40, height: 40, mr: 1.5, bgcolor: accentColor }}>
-                                        <Store size={20} />
-                                      </Avatar>
-                                    )}
-                                    
-                                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                                      <Typography variant="subtitle2" fontWeight="bold" noWrap>
-                                        {vendor.companyName}
+                            <Card
+                              key={clashGroup.location}
+                              variant="outlined"
+                              onClick={() => handleClashSelect(clashGroup.location)}
+                              sx={{
+                                cursor: "pointer",
+                                borderColor: isSelected ? accentColor : "divider",
+                                bgcolor: isSelected ? `${accentColor}10` : "background.paper",
+                                transition: "all 0.2s",
+                                borderRadius: "16px",
+                                borderWidth: isSelected ? "2px" : "1px",
+                                "&:hover": {
+                                  borderColor: accentColor,
+                                  boxShadow: 1,
+                                },
+                              }}
+                            >
+                              <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                                <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                                  <Radio
+                                    checked={isSelected}
+                                    onChange={() => {}}
+                                    sx={{ 
+                                      mr: 1.5, 
+                                      mt: -0.5,
+                                      color: accentColor,
+                                      "&.Mui-checked": { color: accentColor },
+                                    }}
+                                  />
+                                  
+                                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                      <MapPin size={16} color={accentColor} style={{ marginRight: 6 }} />
+                                      <Typography variant="subtitle1" fontWeight="bold">
+                                        {clashGroup.location}
+                                      </Typography>
+                                      <Typography 
+                                        variant="caption" 
+                                        sx={{ 
+                                          ml: 1.5, 
+                                          px: 1, 
+                                          py: 0.25, 
+                                          bgcolor: `${accentColor}20`, 
+                                          borderRadius: "8px",
+                                          color: accentColor,
+                                          fontWeight: 600,
+                                        }}
+                                      >
+                                        {clashGroup.vendorCount} vendors
                                       </Typography>
                                     </Box>
+                                    
+                                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                                      {clashGroup.vendors.map((vendor) => (
+                                        <Box 
+                                          key={vendor.vendorId}
+                                          sx={{ 
+                                            display: "flex", 
+                                            alignItems: "center", 
+                                            bgcolor: "grey.100", 
+                                            borderRadius: "12px",
+                                            px: 1.5,
+                                            py: 0.5,
+                                            mb: 0.5,
+                                          }}
+                                        >
+                                          {vendor.logo?.url ? (
+                                            <Avatar src={vendor.logo.url} sx={{ width: 24, height: 24, mr: 1 }} />
+                                          ) : (
+                                            <Avatar sx={{ width: 24, height: 24, mr: 1, bgcolor: accentColor, fontSize: 12 }}>
+                                              <Store size={14} />
+                                            </Avatar>
+                                          )}
+                                          <Typography variant="body2" noWrap sx={{ maxWidth: 150 }}>
+                                            {vendor.companyName}
+                                          </Typography>
+                                        </Box>
+                                      ))}
+                                    </Stack>
                                   </Box>
-                                </CardContent>
-                              </Card>
-                            </Grid>
+                                </Box>
+                              </CardContent>
+                            </Card>
                           );
                         })}
-                      </Grid>
+                      </Stack>
                     )}
                   </Box>
                 </Paper>
@@ -511,7 +562,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
               {/* Submit Button */}
               <Box sx={{ mt: 2, textAlign: "right", width: "100%", display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <CustomButton 
-                  disabled={submitting || vendors.length < 2} 
+                  disabled={submitting || clashGroups.length === 0} 
                   label={submitting ? "Creating..." : "Create Poll"} 
                   variant="contained" 
                   color="tertiary" 

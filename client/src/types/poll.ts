@@ -20,7 +20,6 @@ export interface Poll {
 export interface CreatePollDTO {
   title: string;
   description: string;
-  startDate: Date;
   endDate: Date;
   vendorRequestIds: string[]; // IDs of the vendors to include in the poll
 }
