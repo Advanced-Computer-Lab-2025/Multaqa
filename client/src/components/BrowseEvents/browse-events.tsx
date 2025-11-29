@@ -164,13 +164,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
   const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
-  const { enableToasts } = useNotifications();
-
-  // Enable notification toasts when browse events page mounts
-  useEffect(() => {
-    enableToasts();
-    console.log("✅ Notification toasts enabled on browse events page");
-  }, [enableToasts]);
 
   // Fetch all professors once on mount for filtering
   useEffect(() => {
