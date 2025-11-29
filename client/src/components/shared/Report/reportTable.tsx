@@ -42,12 +42,55 @@ const mapEventType = (type: string): string => {
  * @returns Transformed ReportRow with calculated fields
  */
 const transformEventToReportRow = (event: any): ReportRow => {
-    // Calculate attendees count from array length
-    const attendeesCount = Array.isArray(event.attendees) ? event.attendees.length : 0;
-    const price = event.price || 0;
+    let attendeesCount = 0;
+    let revenue = 0;
+    let totalSales = 0;
     
-    // Calculate revenue (attendees × price)
-    const revenue = attendeesCount * price;
+    // Handle different event types with specific calculation logic
+    if (event.type === 'bazaar') {
+        // For bazaar: count vendors who have paid
+        if (Array.isArray(event.vendors) && event.vendors.length > 0) {
+            const paidVendors = event.vendors.filter((vendor: any) => {
+                // Check if RequestData exists and has required fields
+                if (!vendor.RequestData) return false;
+                if (typeof vendor.RequestData.hasPaid !== 'boolean') return false;
+                if (typeof vendor.RequestData.participationFee !== 'number') return false;
+                
+                return vendor.RequestData.hasPaid === true;
+            });
+            
+            attendeesCount = paidVendors.length;
+            
+            // Calculate revenue: sum of participation fees from paid vendors
+            revenue = paidVendors.reduce((sum: number, vendor: any) => {
+                const fee = vendor.RequestData?.participationFee || 0;
+                return sum + fee;
+            }, 0);
+            
+            totalSales = attendeesCount;
+        }
+        // If no vendors or invalid data, all values remain 0
+    } else if (event.type === 'platform_booth') {
+        // For booth: check if RequestData exists and has required fields
+        if (event.RequestData && 
+            typeof event.RequestData.hasPaid === 'boolean' && 
+            typeof event.RequestData.participationFee === 'number') {
+            
+            if (event.RequestData.hasPaid === true) {
+                attendeesCount = 1;
+                totalSales = 1;
+                revenue = event.RequestData.participationFee;
+            }
+            // If hasPaid is false, values remain 0
+        }
+        // If RequestData is missing or invalid, all values remain 0
+    } else {
+        // For other event types (trip, workshop): use standard attendees array
+        attendeesCount = Array.isArray(event.attendees) ? event.attendees.length : 0;
+        const price = event.price || 0;
+        revenue = attendeesCount * price;
+        totalSales = attendeesCount;
+    }
     
     // Format date as YYYY-MM-DD
     const formattedDate = event.eventStartDate 
@@ -61,7 +104,7 @@ const transformEventToReportRow = (event: any): ReportRow => {
         location: event.location || 'N/A',
         date: formattedDate,
         revenue,
-        totalSales: attendeesCount // Total sales = number of attendees
+        totalSales
     };
 };
 
@@ -99,19 +142,39 @@ const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
                 console.log('📡 Raw events data from API:', events);
                 
                 // Filter logic based on report type:
-                // - Attendees report: events must have attendees array and eventStartDate (price is optional)
-                // - Sales report: events must have attendees array, price (number), and eventStartDate
+                // - Attendees report: events must have valid data and eventStartDate
+                // - Sales report: events must have revenue-generating data and eventStartDate
+                // - Exclude all conference events from both reports
                 const validEvents = events.filter((event: any) => {
-                    const hasAttendees = event.attendees && Array.isArray(event.attendees);
-                    const hasPrice = typeof event.price === 'number';
+                    // Exclude conference events
+                    if (event.type && event.type.toLowerCase() === 'conference') {
+                        return false;
+                    }
+                    
                     const hasStartDate = !!event.eventStartDate;
                     
-                    if (reportType === 'attendees') {
-                        // For attendees report: only need attendees and date (price optional)
-                        return hasAttendees && hasStartDate;
+                    // Check event type-specific requirements
+                    if (event.type === 'bazaar') {
+                        // Bazaar: needs vendors array and start date
+                        // Shows in both attendees and sales reports
+                        const hasVendors = event.vendors && Array.isArray(event.vendors);
+                        return hasVendors && hasStartDate;
+                    } else if (event.type === 'platform_booth') {
+                        // Booth: always show if has start date
+                        // Shows in both attendees and sales reports
+                        return hasStartDate;
                     } else {
-                        // For sales report: need attendees, price, and date
-                        return hasAttendees && hasPrice && hasStartDate;
+                        // Other event types (trip, workshop): use standard attendees array
+                        const hasAttendees = event.attendees && Array.isArray(event.attendees);
+                        const hasPrice = typeof event.price === 'number';
+                        
+                        if (reportType === 'attendees') {
+                            // For attendees report: only need attendees and date (price optional)
+                            return hasAttendees && hasStartDate;
+                        } else {
+                            // For sales report: need attendees, price, and date
+                            return hasAttendees && hasPrice && hasStartDate;
+                        }
                     }
                 });
                 
@@ -190,7 +253,6 @@ const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
                 options: [
                     { label: "Trip", value: "Trip" },
                     { label: "Booth", value: "Booth" },
-                    { label: "Conference", value: "Conference" },
                     { label: "Bazaar", value: "Bazaar" },
                     { label: "Workshop", value: "Workshop" }
                 ]
