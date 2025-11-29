@@ -463,6 +463,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   border: `2px solid ${color}`,
                   color: "#fff",
                   minWidth: "150px",
+                  mt: 5,
                   "&:hover": {
                     backgroundColor: `${color}CC`,
                   },
@@ -493,7 +494,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
               position: "relative",
               width: "2px",
               alignSelf: "stretch",
-              my: 2,
+              mt: 2,
+              mb: 4,
             }}
           >
             {/* Gradient background */}
