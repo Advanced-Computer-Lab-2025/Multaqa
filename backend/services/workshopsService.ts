@@ -255,7 +255,7 @@ export class WorkshopService {
       throw createError(404, "Workshop not found");
     }
     if (!workshop.attendees || workshop.attendees.length === 0) {
-      throw createError(400, "No attendees found for this workshop");
+      return;
     }
 
     // Send certificates to all attendees
