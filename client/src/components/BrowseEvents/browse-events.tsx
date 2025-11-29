@@ -98,13 +98,15 @@ const getFilterGroups = (
         { label: "Trip", value: EventType.TRIP },
       ],
     },
-    ...(userRole !== "vendor"
+    ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
       ? [
         {
           id: "attendance",
           title: "My Status",
           type: "chip" as const,
-          options: [{ label: "Attended", value: "attended" }],
+          options: [
+            { label: "Attended", value: "attended" },
+          ],
         },
       ]
       : []),
