@@ -711,13 +711,11 @@ switch (sortBy) {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
-      <ContentWrapper
-        title={pageTitle}
-        description={pageDescription}
-        padding={{ xs: 0 }}
-        horizontalPadding={{ xs: 1 }}
-      >
+    <ContentWrapper
+      title={pageTitle}
+      description={pageDescription}
+      padding={{ xs: 2, md: 4 }}
+    >
         {/* Search and Filter Row */}
         <Box
           sx={{
@@ -861,7 +859,6 @@ switch (sortBy) {
           color={theme.palette.tertiary.main}
         />
       </ContentWrapper>
-    </Container>
   );
 };
 
