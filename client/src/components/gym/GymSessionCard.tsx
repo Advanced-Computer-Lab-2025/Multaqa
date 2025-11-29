@@ -12,6 +12,8 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 const SESSION_ICONS: Record<GymSession["type"], React.ElementType> = {
   YOGA: SelfImprovementIcon,
@@ -78,21 +80,44 @@ export default function GymSessionCard({
       titleMaxLines={3}
       subtitleNode={
         <Typography
-          variant="body2"
-          sx={{ fontWeight: 600, color: "#111111", mb: 0.5 }}
+          variant="caption"
+          sx={{
+            fontWeight: 400,
+            color: "#6b7280",
+            mb: 0.5,
+            fontSize: "0.8rem",
+            fontStyle: session.instructor ? "normal" : "italic",
+          }}
         >
           {instructorLabel}
         </Typography>
       }
       metaNodes={
         [
-          <Typography
-            key="time"
-            variant="body2"
-            sx={{ fontWeight: 500, color: "#4b5563" }}
-          >
-            {start} – {end} · {session.location ?? "Main Gym"}
-          </Typography>,
+          <Stack key="meta" spacing={0.5}>
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <AccessTimeIcon
+                sx={{ fontSize: "0.9rem", color: "#9ca3af" }}
+              />
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 500, color: "#4b5563", fontSize: "0.85rem" }}
+              >
+                {start} – {end}
+              </Typography>
+            </Stack>
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <LocationOnIcon
+                sx={{ fontSize: "0.9rem", color: "#9ca3af" }}
+              />
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 500, color: "#4b5563", fontSize: "0.85rem" }}
+              >
+                {session.location ?? "Main Gym"}
+              </Typography>
+            </Stack>
+          </Stack>,
           showSpots ? (
             <Typography
               key="spots"
