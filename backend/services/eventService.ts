@@ -584,11 +584,17 @@ export class EventsService {
 
       for (const userId of attendeesToRemove) {
         try {
-          // Remove event from user's registeredEvents
+          // Get attendee details before removal for email
+          const attendee = (event.attendees as any[]).find(
+            (a: any) => a._id?.toString() === userId
+          );
+
+          // Remove user from event attendees and event from user's registeredEvents
           await this.userService.removeEventFromUserRegistrations(
             userId,
             eventId
           );
+          await this.removeAttendeeFromEvent(eventId, userId);
 
           // Refund to wallet if event has a price
           if (hasPrice) {
@@ -602,14 +608,9 @@ export class EventsService {
               type: "refund",
               date: new Date(),
             });
-
-            // refund processed for user (logged via transaction)
           }
 
           // Send email notification about removal
-          const attendee = (event.attendees as any[]).find(
-            (a: any) => a._id?.toString() === userId
-          );
           if (attendee) {
             await sendEventAccessRemovedEmail(
               attendee.email,
@@ -620,25 +621,9 @@ export class EventsService {
             );
           }
         } catch (error) {
-          // If user doesn't have the event in registeredEvents, continue
-          console.warn(`Could not remove event from user ${userId}:`, error);
+          console.warn(`Could not remove user ${userId} from event:`, error);
         }
       }
-
-      // Remove users from event attendees
-      const userOids = attendeesToRemove.map((id) => new Types.ObjectId(id));
-      event.attendees = (event.attendees as any[]).filter((attendee: any) => {
-        const id = attendee && attendee._id ? attendee._id : attendee;
-        const oid = Types.ObjectId.isValid(id) ? new Types.ObjectId(id) : null;
-        return (
-          oid &&
-          !userOids.some((removeOid) => removeOid.toString() === oid.toString())
-        );
-      });
-
-      await event.save();
-
-      // removal completed for ineligible attendees
     }
   }
 
