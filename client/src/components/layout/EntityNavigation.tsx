@@ -710,7 +710,7 @@ export default function EntityNavigation({
         </div>
 
         {/* Flexible main content area */}
-        <div className="flex-1 bg-[##c0d2f0] p-4 min-w-0">
+        <div className="flex-1 bg-[##c0d2f0] p-4 min-h-screen min-w-0">
           <div
             className="flex-1 bg-white min-h-0 overflow-auto"
             style={{
@@ -718,6 +718,7 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
+              maxHeight: "calc(100vh - 100px)",
               height: "fit-content",
             }}
           >
