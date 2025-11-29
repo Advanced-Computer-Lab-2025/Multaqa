@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Button, Skeleton, Stack, Typography } from "@mui/material";
 import type { StackProps } from "@mui/material/Stack";
 import { alpha } from "@mui/material/styles";
 import ActionCard from "@/components/shared/cards/ActionCard";
@@ -23,6 +23,18 @@ const SESSION_ICONS: Record<GymSession["type"], React.ElementType> = {
 };
 
 export type GymSessionCardLayout = "compact" | "full";
+
+type SessionStatus = "upcoming" | "ongoing" | "ended";
+
+const getSessionStatus = (start: string, end: string): SessionStatus => {
+  const now = new Date();
+  const startTime = new Date(start);
+  const endTime = new Date(end);
+  
+  if (now < startTime) return "upcoming";
+  if (now >= startTime && now <= endTime) return "ongoing";
+  return "ended";
+};
 
 type Props = {
   session: GymSession;
@@ -53,6 +65,11 @@ export default function GymSessionCard({
     ? `by ${session.instructor}`
     : "Instructor update soon";
   const isCompact = layout === "compact";
+  
+  // Determine session status
+  const sessionStatus = getSessionStatus(session.start, session.end);
+  const isUpcoming = sessionStatus === "upcoming";
+  
   const leftIcon = (
     <Box
       sx={{
@@ -63,11 +80,100 @@ export default function GymSessionCard({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        flexShrink: 0,
       }}
     >
       <Icon sx={{ fontSize: 24, color: baseColor }} />
     </Box>
   );
+
+  // Build meta nodes based on session status
+  const metaNodesArray: React.ReactNode[] = [
+    <Typography
+      key="time"
+      variant="body2"
+      sx={{ fontWeight: 500, color: "#4b5563" }}
+    >
+      {start} – {end} · {session.location ?? "Main Gym"}
+    </Typography>,
+  ];
+
+  // Only show spots for upcoming sessions
+  if (showSpots && isUpcoming) {
+    metaNodesArray.push(
+      <Typography
+        key="spots"
+        variant="caption"
+        sx={{ fontWeight: 700, color: baseColor, mt: 0.5 }}
+      >
+        {spotsLeft} spots left
+      </Typography>
+    );
+  }
+
+  // Add status indicator or register button
+  if (sessionStatus === "ended") {
+    metaNodesArray.push(
+      <Typography
+        key="status"
+        variant="caption"
+        sx={{ 
+          fontWeight: 600, 
+          color: "#9ca3af",
+          mt: 0.5,
+          fontStyle: "italic"
+        }}
+      >
+        Session Ended
+      </Typography>
+    );
+  } else if (sessionStatus === "ongoing") {
+    metaNodesArray.push(
+      <Typography
+        key="status"
+        variant="caption"
+        sx={{ 
+          fontWeight: 600, 
+          color: "#f59e0b",
+          mt: 0.5,
+        }}
+      >
+        Session Ongoing
+      </Typography>
+    );
+  } else {
+    metaNodesArray.push(
+      <Button
+        key="register"
+        variant="contained"
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          // TODO: Implement registration logic
+          console.log("Register clicked for session:", session.id);
+        }}
+        sx={{
+          mt: 1,
+          backgroundColor: baseColor,
+          color: "#fff",
+          fontWeight: 600,
+          fontSize: "0.75rem",
+          textTransform: "none",
+          borderRadius: "8px",
+          px: 2,
+          py: 0.5,
+          minWidth: "80px",
+          boxShadow: `0 2px 8px ${alpha(baseColor, 0.3)}`,
+          "&:hover": {
+            backgroundColor: alpha(baseColor, 0.85),
+            boxShadow: `0 4px 12px ${alpha(baseColor, 0.4)}`,
+          },
+        }}
+      >
+        Register
+      </Button>
+    );
+  }
 
   return (
     <ActionCard
@@ -84,31 +190,12 @@ export default function GymSessionCard({
           {instructorLabel}
         </Typography>
       }
-      metaNodes={
-        [
-          <Typography
-            key="time"
-            variant="body2"
-            sx={{ fontWeight: 500, color: "#4b5563" }}
-          >
-            {start} – {end} · {session.location ?? "Main Gym"}
-          </Typography>,
-          showSpots ? (
-            <Typography
-              key="spots"
-              variant="caption"
-              sx={{ fontWeight: 700, color: baseColor, mt: 0.5 }}
-            >
-              {spotsLeft} spots left
-            </Typography>
-          ) : null,
-        ].filter(Boolean) as React.ReactNode[]
-      }
+      metaNodes={metaNodesArray}
       borderColor={baseColor}
       background="#ffffff"
       sx={{
-        width: isCompact ? 240 : "100%",
-        minWidth: isCompact ? 240 : 0,
+        width: isCompact ? 300 : "100%",
+        minWidth: isCompact ? 300 : 0,
         flexShrink: isCompact ? 0 : 1,
         position: "relative",
         padding: "16px",
@@ -125,7 +212,7 @@ export default function GymSessionCard({
         },
       }}
       headerSx={{
-        alignItems: "center",
+        alignItems: "flex-start",
         flexDirection: isCompact ? "row" : { xs: "column", sm: "row" },
         gap: 1.75,
       }}
@@ -150,8 +237,8 @@ export function GymSessionCardSkeleton({
   return (
     <Box
       sx={{
-        width: isCompact ? 240 : "100%",
-        minWidth: isCompact ? 240 : 0,
+        width: isCompact ? 300 : "100%",
+        minWidth: isCompact ? 300 : 0,
         flexShrink: isCompact ? 0 : 1,
         position: "relative",
         padding: "16px",
