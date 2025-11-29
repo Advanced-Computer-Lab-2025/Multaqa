@@ -2,47 +2,42 @@
 
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus } from "lucide-react";
 import PollList from "@/components/Polls/PollList";
 import CreatePollForm from "./CreatePollForm";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 
 const PollsManagement = () => {
-  const [view, setView] = useState<"list" | "create">("list");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+
+  const handleCreateSuccess = () => {
+    setRefresh((prev) => !prev);
+  };
 
   return (
     <ContentWrapper
-      title={view === "list" ? "Vendor Polls" : "Create New Poll"}
-      description={
-        view === "list"
-          ? "Manage and monitor vendor polls for student engagement."
-          : "Set up a new poll for students to vote on their favorite vendors."
-      }
+      title="Vendor Polls"
+      description="Manage and monitor vendor polls for student engagement."
     >
       <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
-        {view === "list" ? (
-          <CustomButton
-            onClick={() => setView("create")}
-            variant="contained"
-            label="Create Poll"
-            startIcon={<Plus size={20} />}
-          />
-        ) : (
-          <CustomButton
-            onClick={() => setView("list")}
-            variant="outlined"
-            label="Back to Polls"
-            startIcon={<ArrowLeft size={20} />}
-          />
-        )}
+        <CustomButton
+          onClick={() => setIsCreateModalOpen(true)}
+          variant="contained"
+          label="Create Poll"
+          startIcon={<Plus size={20} />}
+        />
       </Box>
 
-      {view === "list" ? (
-        <PollList showHeader={false} />
-      ) : (
-        <CreatePollForm onSuccess={() => setView("list")} />
-      )}
+      <PollList showHeader={false} key={refresh ? "refreshed" : "initial"} />
+
+      <CreatePollForm
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+        color="#6E8AE6"
+      />
     </ContentWrapper>
   );
 };

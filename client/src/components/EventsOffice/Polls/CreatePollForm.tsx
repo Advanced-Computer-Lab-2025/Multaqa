@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import dayjs from "dayjs";
 import {
   Box,
   Typography,
@@ -14,25 +15,89 @@ import {
   Avatar,
   Stack,
   Chip,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import CustomTextField from "@/components/shared/input-fields/CustomTextField";
-import DateTimePicker from "@/components/shared/DateTimePicker/DateTimePicker";
+import { CustomTextField } from "@/components/shared/input-fields";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomCheckbox from "@/components/shared/input-fields/CustomCheckbox";
 import { getRegisteredVendors, createPoll, RegisteredVendor } from "@/services/pollService";
 import { toast } from "react-toastify";
-import { useTheme } from "@mui/material/styles";
+import theme from "@/themes/lightTheme";
 import { Store, Info } from "lucide-react";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { CustomModalLayout } from "@/components/shared/modals";
+
+// Style factory functions
+const createTertiaryInputStyles = (accentColor: string) => ({
+  "& .MuiInputLabel-root": {
+    color: theme.palette.grey[500],
+    "&.Mui-focused": { color: accentColor },
+  },
+  "& .MuiInputBase-input": {
+    color: "#000000",
+    "&::placeholder": {
+      color: theme.palette.grey[400],
+      opacity: 1,
+    },
+  },
+  "& .MuiInput-underline:before": {
+    borderBottomColor: theme.palette.grey[400],
+  },
+  "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
+    borderBottomColor: accentColor,
+  },
+  "& .MuiInput-underline:after": {
+    borderBottomColor: accentColor,
+  },
+});
+
+const createContentPaperStyles = (accentColor: string) => ({
+  p: { xs: 1, md: 3 },
+  borderRadius: "32px",
+  background: theme.palette.background.paper,
+  border: `1.5px solid ${accentColor}`,
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "auto",
+  boxShadow: `0 4px 24px 0 ${accentColor}14`,
+  transition: "box-shadow 0.2s",
+});
 
 interface CreatePollFormProps {
+  open: boolean;
+  onClose: () => void;
   onSuccess?: () => void;
+  color?: string;
 }
 
-const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
-  const theme = useTheme();
+const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSuccess, color }) => {
+  // Use the color prop as accent color, fallback to theme if not provided
+  const accentColor = color || theme.palette.primary.main;
+
+  // Create styles with the accent color
+  const tertiaryInputStyles = createTertiaryInputStyles(accentColor);
+  const contentPaperStyles = createContentPaperStyles(accentColor);
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [vendors, setVendors] = useState<RegisteredVendor[]>([]);
+
+  // Tab state for sections
+  const tabSections = [
+    { key: "details", label: "Poll Details", icon: <InfoOutlinedIcon /> },
+    { key: "vendors", label: "Select Vendors", icon: <HowToVoteOutlinedIcon /> },
+  ];
+  const [activeTab, setActiveTab] = useState("details");
 
   useEffect(() => {
     const fetchVendors = async () => {
@@ -50,27 +115,76 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
     fetchVendors();
   }, []);
 
+  const handleClose = () => {
+    onClose();
+    setActiveTab("details");
+  };
+
+  // Logic to find the first error and switch tab
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getFirstErrorTab = (errors: any): "details" | "vendors" | null => {
+    const detailsFields = ["title", "description", "startDate", "endDate"];
+    
+    // Check Poll Details tab
+    for (const field of detailsFields) {
+      if (errors[field]) {
+        return "details";
+      }
+    }
+    
+    // Check Vendors tab
+    if (errors.vendorIds) {
+      return "vendors";
+    }
+
+    return null;
+  };
+
   const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
-      startDate: null as Date | null,
-      endDate: null as Date | null,
+      startDate: null as dayjs.Dayjs | null,
+      endDate: null as dayjs.Dayjs | null,
       vendorIds: [] as string[],
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
       description: Yup.string().required("Description is required"),
-      startDate: Yup.date().required("Start date is required").nullable(),
-      endDate: Yup.date()
+      startDate: Yup.mixed().required("Start date is required").nullable(),
+      endDate: Yup.mixed()
         .required("End date is required")
         .nullable()
-        .min(Yup.ref("startDate"), "End date must be after start date"),
+        .test("is-after-start", "End date must be after start date", function (value) {
+          const { startDate } = this.parent;
+          if (!startDate || !value) return true;
+          return dayjs(value).isAfter(dayjs(startDate));
+        }),
       vendorIds: Yup.array()
         .min(2, "Select at least 2 vendors for the poll")
         .required("Vendors are required"),
     }),
-    onSubmit: async (values) => {
+    validateOnChange: true,
+    validateOnBlur: true,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onSubmit: async (values, actions: any) => {
+      // Manually run validation before proceeding
+      const validationErrors = await actions.validateForm();
+      
+      if (Object.keys(validationErrors).length > 0) {
+        const errorTab = getFirstErrorTab(validationErrors);
+        
+        if (errorTab) {
+          setActiveTab(errorTab);
+          toast.error("Please fill out all required fields.", {
+            position: "bottom-right",
+            autoClose: 3000,
+            theme: "colored",
+          });
+        }
+        return;
+      }
+
       if (!values.startDate || !values.endDate) return;
       
       setSubmitting(true);
@@ -78,20 +192,28 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
         await createPoll({
           title: values.title,
           description: values.description,
-          startDate: values.startDate,
-          endDate: values.endDate,
-          vendorRequestIds: values.vendorIds, // Now using vendor IDs directly
+          startDate: values.startDate.toDate(),
+          endDate: values.endDate.toDate(),
+          vendorRequestIds: values.vendorIds,
         });
-        toast.success("Poll created successfully!");
+        toast.success("Poll created successfully!", {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        actions.resetForm();
+        handleClose();
         if (onSuccess) {
           onSuccess();
-        } else {
-          window.location.reload();
         }
       } catch (error: any) {
         console.error("Failed to create poll", error);
         const errorMessage = error.message || "Failed to create poll";
-        toast.error(errorMessage);
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
       } finally {
         setSubmitting(false);
       }
@@ -106,214 +228,314 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ onSuccess }) => {
     formik.setFieldValue("vendorIds", newIds);
   };
 
+  // Check if tabs have errors
+  const detailsHasErrors = !!(
+    (formik.errors.title && formik.touched.title) ||
+    (formik.errors.description && formik.touched.description) ||
+    (formik.errors.startDate && formik.touched.startDate) ||
+    (formik.errors.endDate && formik.touched.endDate)
+  );
+
+  const vendorsHasErrors = !!(formik.errors.vendorIds && formik.touched.vendorIds);
+
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
+      <CustomModalLayout open={open} borderColor={accentColor} title="Create Poll" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[65vw]">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
+          <CircularProgress />
+        </Box>
+      </CustomModalLayout>
     );
   }
 
   return (
-    <Box sx={{ maxWidth: "1200px", margin: "0 auto" }}>
-      <Paper
-        elevation={0}
-        sx={{
-          p: { xs: 3, md: 5 },
-          borderRadius: 4,
-          background: "#fff",
-          border: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <form onSubmit={formik.handleSubmit}>
-          <Grid container spacing={6}>
-            {/* Left Column: Poll Details */}
-            <Grid item xs={12} md={5}>
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="h5" fontWeight="700" gutterBottom>
-                  Poll Details
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Define the poll information and duration.
-                </Typography>
-              </Box>
-              
-              <Stack spacing={3}>
-                <CustomTextField
-                  name="title"
-                  label="Poll Title"
-                  placeholder="e.g., Best Food Vendor 2025"
-                  value={formik.values.title}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.title && Boolean(formik.errors.title)}
-                  helperText={formik.touched.title && formik.errors.title}
-                  fullWidth
-                  fieldType="text"
-                />
+    <CustomModalLayout open={open} borderColor={accentColor} title="Create Poll" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[70vw] xl:w-[65vw]">
+      {/* Outer Box matching CreateBazaar's structure for consistent sizing */}
+      <Box sx={{ 
+        background: "#fff",
+        borderRadius: "32px",
+        p: 3,
+        height: "480px",
+        display: "flex",
+        flexDirection: "column"
+      }}>
+        
+        <form onSubmit={formik.handleSubmit} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <Box sx={{
+            display: "flex",
+            flexDirection: "row",
+            flex: 1,
+            gap: 3,
+            minHeight: 0,
+          }}>
+            {/* Left Sidebar - Tab Navigation */}
+            <Box
+              sx={{
+                width: "250px", 
+                flexShrink: 0,
+                background: theme.palette.background.paper,
+                borderRadius: "32px",
+                border: `1.5px solid ${accentColor}`,
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                boxShadow: `0 4px 24px 0 ${accentColor}14`,
+                transition: "box-shadow 0.2s",
+                height: "fit-content", 
+                alignSelf: "flex-start", 
+              }}
+            >
+              <List sx={{ width: "100%", height: "100%" }}>
+                {tabSections.map((section) => {
+                  const hasError = section.key === "details" ? detailsHasErrors : section.key === "vendors" ? vendorsHasErrors : false;
+                  
+                  return (
+                    <ListItem key={section.key} disablePadding>
+                      <ListItemButton
+                        selected={activeTab === section.key}
+                        onClick={() => setActiveTab(section.key)}
+                        sx={{
+                          borderRadius: "24px",
+                          mb: 1.5,
+                          px: 2.5,
+                          py: 1.5,
+                          fontWeight: 600,
+                          fontSize: "1.08rem",
+                          background: activeTab === section.key ? "rgba(110, 138, 230, 0.08)" : "transparent",
+                          color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                          boxShadow: activeTab === section.key ? "0 2px 8px 0 rgba(110, 138, 230, 0.15)" : "none",
+                          transition: "background 0.2s, color 0.2s, box-shadow 0.2s",
+                          "&:hover": {
+                            background: "rgba(110, 138, 230, 0.05)",
+                            color: accentColor,
+                          },
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 36, color: activeTab === section.key ? accentColor : theme.palette.text.primary, "&:hover": { color: accentColor }, }}>{section.icon}</ListItemIcon>
+                        <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700, mr: 2 }} />
+                        {hasError && (
+                          <ErrorOutlineIcon 
+                            sx={{ 
+                              color: "#db3030", 
+                              fontSize: "20px",
+                              ml: "auto"
+                            }} 
+                          />
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
 
-                <CustomTextField
-                  name="description"
-                  label="Description"
-                  placeholder="What is this poll about?"
-                  value={formik.values.description}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.description && Boolean(formik.errors.description)}
-                  helperText={formik.touched.description && formik.errors.description}
-                  fullWidth
-                  multiline
-                  rows={4}
-                  fieldType="text"
-                />
+            {/* Section Content on the right */}
+            <Box sx={{ 
+              flex: 1, 
+              display: "flex", 
+              flexDirection: "column", 
+              minHeight: 0, 
+              height: "100%", 
+            }}>
+              {/* Poll Details Tab */}
+              {activeTab === "details" && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  <CustomTextField 
+                    name="title"
+                    id="title"
+                    label="Poll Title" 
+                    fullWidth 
+                    placeholder="e.g., Best Food Vendor 2025" 
+                    fieldType="text"
+                    value={formik.values.title}
+                    onChange={formik.handleChange}
+                    autoCapitalizeName={false}
+                    sx={{ mt: 1, mb: 2 }}
+                  />
+                  {formik.errors.title && formik.touched.title && (
+                    <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: -1.5, mb: 1 }}>{formik.errors.title}</Typography>
+                  )}
 
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                  <Box sx={{ flex: 1 }}>
-                    <DateTimePicker
-                      id="startDate"
-                      name="startDate"
-                      label="Start Date"
-                      value={formik.values.startDate}
-                      onChange={(date) => formik.setFieldValue("startDate", date)}
-                      onBlur={() => formik.setFieldTouched("startDate", true)}
-                      error={formik.touched.startDate && Boolean(formik.errors.startDate)}
-                      errorMessage={formik.errors.startDate as string}
-                    />
+                  <CustomTextField 
+                    name="description"
+                    id="description"
+                    label="Description" 
+                    fullWidth 
+                    placeholder="What is this poll about?" 
+                    fieldType="text"
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    autoCapitalizeName={false}
+                    multiline
+                    rows={3}
+                    sx={{ mb: 2 }}
+                  />
+                  {formik.errors.description && formik.touched.description && (
+                    <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: -1.5, mb: 1 }}>{formik.errors.description}</Typography>
+                  )}
+                  
+                  {/* Date/Time Pickers section */}
+                  <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}> 
+                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          name="startDate"
+                          label="Start Date and Time"
+                          slotProps={{
+                            textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                          }}
+                          value={formik.values.startDate}
+                          onChange={(value) => formik.setFieldValue("startDate", value)}
+                        />
+                      </LocalizationProvider>
+                      {formik.errors.startDate && formik.touched.startDate && (
+                        <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.startDate as string}</Typography>
+                      )}
+                    </Box>
+      
+                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DateTimePicker
+                          label="End Date and Time"
+                          name="endDate"
+                          slotProps={{
+                            textField: { variant: "standard", fullWidth: true, sx: tertiaryInputStyles },
+                          }}
+                          value={formik.values.endDate}
+                          onChange={(value) => formik.setFieldValue("endDate", value)}
+                        />
+                      </LocalizationProvider>
+                      {formik.errors.endDate && formik.touched.endDate && (
+                        <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mt: 0.5 }}>{formik.errors.endDate as string}</Typography>
+                      )}
+                    </Box>
                   </Box>
-                  <Box sx={{ flex: 1 }}>
-                    <DateTimePicker
-                      id="endDate"
-                      name="endDate"
-                      label="End Date"
-                      value={formik.values.endDate}
-                      onChange={(date) => formik.setFieldValue("endDate", date)}
-                      onBlur={() => formik.setFieldTouched("endDate", true)}
-                      error={formik.touched.endDate && Boolean(formik.errors.endDate)}
-                      errorMessage={formik.errors.endDate as string}
-                      minDate={formik.values.startDate || undefined}
-                    />
-                  </Box>
-                </Stack>
-              </Stack>
-            </Grid>
-
-            {/* Right Column: Vendor Selection */}
-            <Grid item xs={12} md={7}>
-              <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                <Box>
-                  <Typography variant="h5" fontWeight="700" gutterBottom>
-                    Select Vendors
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Choose at least 2 vendors for the poll.
-                  </Typography>
-                </Box>
-                <Chip 
-                  label={`${formik.values.vendorIds.length} Selected`} 
-                  color={formik.values.vendorIds.length >= 2 ? "primary" : "default"}
-                  variant={formik.values.vendorIds.length >= 2 ? "filled" : "outlined"}
-                />
-              </Box>
-
-              {formik.touched.vendorIds && formik.errors.vendorIds && (
-                <Typography color="error" variant="caption" sx={{ display: "block", mb: 2 }}>
-                  {formik.errors.vendorIds as string}
-                </Typography>
+                </Paper>
               )}
 
-              <Box
-                sx={{
-                  maxHeight: "600px",
-                  overflowY: "auto",
-                  pr: 1,
-                  // Custom scrollbar styling
-                  "&::-webkit-scrollbar": { width: "6px" },
-                  "&::-webkit-scrollbar-track": { background: "#f1f1f1" },
-                  "&::-webkit-scrollbar-thumb": { background: "#888", borderRadius: "3px" },
-                  "&::-webkit-scrollbar-thumb:hover": { background: "#555" },
-                }}
-              >
-                {vendors.length === 0 ? (
-                  <Box sx={{ textAlign: "center", py: 8, bgcolor: "grey.50", borderRadius: 2 }}>
-                    <Info size={48} color="#9e9e9e" style={{ marginBottom: 16 }} />
-                    <Typography color="textSecondary">No registered vendors found.</Typography>
+              {/* Select Vendors Tab */}
+              {activeTab === "vendors" && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Choose at least 2 vendors for the poll.
+                    </Typography>
+                    <Chip 
+                      label={`${formik.values.vendorIds.length} Selected`} 
+                      color={formik.values.vendorIds.length >= 2 ? "primary" : "default"}
+                      variant={formik.values.vendorIds.length >= 2 ? "filled" : "outlined"}
+                      size="small"
+                    />
                   </Box>
-                ) : (
-                  <Grid container spacing={2}>
-                    {vendors.map((vendor) => {
-                      const isSelected = formik.values.vendorIds.includes(vendor.vendorId);
-                      return (
-                        <Grid item xs={12} key={vendor.vendorId}>
-                          <Card
-                            variant="outlined"
-                            onClick={() => handleVendorToggle(vendor.vendorId)}
-                            sx={{
-                              cursor: "pointer",
-                              borderColor: isSelected ? "primary.main" : "divider",
-                              bgcolor: isSelected ? "primary.lighter" : "background.paper",
-                              transition: "all 0.2s",
-                              position: "relative",
-                              overflow: "visible",
-                              "&:hover": {
-                                borderColor: "primary.main",
-                                boxShadow: 1,
-                                transform: "translateY(-2px)",
-                              },
-                            }}
-                          >
-                            <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                              <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <CustomCheckbox
-                                  checked={isSelected}
-                                  onChange={() => {}} // Handled by Card onClick
-                                  sx={{ mr: 2 }}
-                                />
-                                
-                                {vendor.logo?.url ? (
-                                  <Avatar src={vendor.logo.url} sx={{ width: 48, height: 48, mr: 2 }} />
-                                ) : (
-                                  <Avatar sx={{ width: 48, height: 48, mr: 2, bgcolor: "secondary.main" }}>
-                                    <Store size={24} />
-                                  </Avatar>
-                                )}
-                                
-                                <Box sx={{ flex: 1 }}>
-                                  <Typography variant="subtitle1" fontWeight="bold">
-                                    {vendor.companyName}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
 
-          <Box sx={{ mt: 6, display: "flex", justifyContent: "flex-end", gap: 2 }}>
-            {onSuccess && (
-              <CustomButton
-                onClick={onSuccess}
-                variant="outlined"
-                label="Cancel"
-                disabled={submitting}
-              />
-            )}
-            <CustomButton
-              type="submit"
-              variant="contained"
-              width="200px"
-              disabled={submitting || vendors.length < 2}
-              label={submitting ? "Creating..." : "Create Poll"}
-            />
+                  {formik.touched.vendorIds && formik.errors.vendorIds && (
+                    <Typography sx={{ color: "#db3030", fontSize: "0.875rem", mb: 2 }}>
+                      {formik.errors.vendorIds as string}
+                    </Typography>
+                  )}
+
+                  <Box
+                    sx={{
+                      flex: 1,
+                      overflowY: "auto",
+                      pr: 1,
+                      "&::-webkit-scrollbar": { width: "6px" },
+                      "&::-webkit-scrollbar-track": { background: "#f1f1f1" },
+                      "&::-webkit-scrollbar-thumb": { background: "#888", borderRadius: "3px" },
+                      "&::-webkit-scrollbar-thumb:hover": { background: "#555" },
+                    }}
+                  >
+                    {vendors.length === 0 ? (
+                      <Box sx={{ textAlign: "center", py: 8, bgcolor: "grey.50", borderRadius: 2 }}>
+                        <Info size={48} color="#9e9e9e" style={{ marginBottom: 16 }} />
+                        <Typography color="textSecondary">No registered vendors found.</Typography>
+                      </Box>
+                    ) : (
+                      <Grid container spacing={2}>
+                        {vendors.map((vendor) => {
+                          const isSelected = formik.values.vendorIds.includes(vendor.vendorId);
+                          return (
+                            <Grid item xs={12} sm={6} key={vendor.vendorId}>
+                              <Card
+                                variant="outlined"
+                                onClick={() => handleVendorToggle(vendor.vendorId)}
+                                sx={{
+                                  cursor: "pointer",
+                                  borderColor: isSelected ? accentColor : "divider",
+                                  bgcolor: isSelected ? `${accentColor}10` : "background.paper",
+                                  transition: "all 0.2s",
+                                  position: "relative",
+                                  overflow: "visible",
+                                  borderRadius: "16px",
+                                  "&:hover": {
+                                    borderColor: accentColor,
+                                    boxShadow: 1,
+                                    transform: "translateY(-2px)",
+                                  },
+                                }}
+                              >
+                                <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                                    <CustomCheckbox
+                                      checked={isSelected}
+                                      onChange={() => {}}
+                                      sx={{ mr: 1.5 }}
+                                    />
+                                    
+                                    {vendor.logo?.url ? (
+                                      <Avatar src={vendor.logo.url} sx={{ width: 40, height: 40, mr: 1.5 }} />
+                                    ) : (
+                                      <Avatar sx={{ width: 40, height: 40, mr: 1.5, bgcolor: accentColor }}>
+                                        <Store size={20} />
+                                      </Avatar>
+                                    )}
+                                    
+                                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                                      <Typography variant="subtitle2" fontWeight="bold" noWrap>
+                                        {vendor.companyName}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                </CardContent>
+                              </Card>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    )}
+                  </Box>
+                </Paper>
+              )}
+
+              {/* Submit Button */}
+              <Box sx={{ mt: 2, textAlign: "right", width: "100%", display: "flex", justifyContent: "flex-end", gap: 2 }}>
+                <CustomButton 
+                  disabled={submitting || vendors.length < 2} 
+                  label={submitting ? "Creating..." : "Create Poll"} 
+                  variant="contained" 
+                  color="tertiary" 
+                  type="submit" 
+                  sx={{ 
+                    px: 3, 
+                    width: "180px", 
+                    height: "40px", 
+                    fontWeight: 700, 
+                    fontSize: "16px", 
+                    borderRadius: "20px", 
+                    boxShadow: `0 2px 8px 0 ${accentColor}20`,
+                    background: accentColor,
+                    "&:hover": {
+                      background: `${accentColor}E6`,
+                    }
+                  }}
+                />
+              </Box>
+            </Box>
           </Box>
         </form>
-      </Paper>
-    </Box>
+      </Box>
+    </CustomModalLayout>
   );
 };
 
