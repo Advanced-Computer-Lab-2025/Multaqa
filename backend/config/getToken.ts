@@ -1,7 +1,10 @@
 import { google } from "googleapis";
 import readline from "readline";
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+
+// Load .env from the backend root directory
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
 // To run in terminal: cd config && npx ts-node getToken.ts
 
