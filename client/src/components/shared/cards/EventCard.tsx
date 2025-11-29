@@ -517,12 +517,19 @@ const EventCard: React.FC<EventCardProps> = ({
                 </Box>
               )}
 
-              {/* Show register button if it exists */}
-              {!utilities && registerButton && (
+              {/* Show Register/Evaluate/Comment button in the same spot */}
+              {!utilities && (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   {registerButton}
                 </Box>
               )}
+               {evaluateButton && professorStatus === "pending" && (
+                    <>{evaluateButton}</>
+                  )}
+
+               {commentButton && professorStatus === "awaiting_review" && (
+                    <>{commentButton}</>
+                  )}
             </Box>
 
             {/* Location Row */}
@@ -729,48 +736,19 @@ const EventCard: React.FC<EventCardProps> = ({
                     fontWeight: 600,
                   }}
                 >
-                  {(createdBy).toUpperCase()}
+                  {createdBy.toUpperCase()}
                   {professors.length > 0 && (
                     <>
                       {" & "}
-                      {professors.length === 1 ? "1 OTHER" : `${professors.length} OTHERS`}
+                      {professors.length === 1
+                        ? "1 OTHER"
+                        : `${professors.length} OTHERS`}
                     </>
                   )}
                 </Typography>
               </Box>
             </Box>
           )}
-          {/* Evaluate Button at Bottom Right */}
-          {evaluateButton &&
-            professorStatus &&
-            professorStatus == "pending" && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                  mt: "auto",
-                  pt: 1,
-                }}
-              >
-                {evaluateButton}
-              </Box>
-            )}
-          {commentButton &&
-            professorStatus &&
-            professorStatus == "awaiting_review" && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                  mt: "auto",
-                  pt: 1,
-                }}
-              >
-                {commentButton}
-              </Box>
-            )}
         </Box>
       </Box>
 

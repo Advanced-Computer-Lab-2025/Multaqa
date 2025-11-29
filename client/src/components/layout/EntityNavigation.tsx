@@ -493,11 +493,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "loyalty",
         label: "Loyalty Program",
         icon: Award,
-        tabs: [
-          { id: "program-status", label: "Program Status" },
-          { id: "discount-rates", label: "Discount Rates" },
-          { id: "partners", label: "View Partners" },
-        ],
+        tabs: [{ id: "program-status", label: "Program Details" }],
       },
     ],
   },

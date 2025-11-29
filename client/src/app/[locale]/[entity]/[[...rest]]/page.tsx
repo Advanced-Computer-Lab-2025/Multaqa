@@ -29,6 +29,7 @@ import Wallet from "@/components/Wallet/Wallet";
 import VectorFloating from "@/components/shared/VectorFloating";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
+import LoyaltyProgram from "@/components/shared/LoyaltyProgram/LoyaltyProgram";
 import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 
@@ -70,7 +71,6 @@ const getEventsOfficeName = (user: any): string => {
 
   return ""; // ultimate fallback
 };
-
 
 const SignedOutFallback = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
   const [showAction, setShowAction] = useState(false);

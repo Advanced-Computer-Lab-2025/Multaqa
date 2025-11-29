@@ -126,7 +126,7 @@ export const NotificationProvider = ({
     // Add notification to state (sort by newest first)
     setNotifications((prev) => [notification, ...prev]);
 
-    // Show toast notification
+    // Show toast notification only if toasts are enabled
     toast.info(
       <div>
         <strong>{notification.title}</strong>
@@ -143,6 +143,7 @@ export const NotificationProvider = ({
         draggable: true,
       }
     );
+
   }, []);
 
   // Handle notification read event from backend (sync across tabs)

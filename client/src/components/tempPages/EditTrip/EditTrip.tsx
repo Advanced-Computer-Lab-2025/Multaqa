@@ -7,6 +7,7 @@ import { Box, Grid, TextField, Typography, Paper, List, ListItem, ListItemButton
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 import CustomButton from '@/components/shared/Buttons/CustomButton';
 
@@ -50,7 +51,7 @@ const contentPaperStyles = {
   p: { xs: 1, md: 3 }, // Using xs: 1, md: 3 from CreateTrip
   borderRadius: '32px',
   background: theme.palette.background.paper,
-  border: `1.5px solid ${theme.palette.tertiary.light}`,
+  border:`1.5px solid ${theme.palette.tertiary.main}`,
   height: '100%', // Crucial for taking up full height
   display: 'flex',
   flexDirection: 'column',
@@ -168,7 +169,18 @@ const EditTrip = ({ tripId, tripName, location, price,
     { key: 'description', label: 'Description', icon: <DescriptionOutlinedIcon /> },
   ];
   const [activeTab, setActiveTab] = useState('general');
+   // Check if tabs have errors
+    const generalHasErrors = !!(
+        (errors.tripName && touched.tripName) ||
+        (errors.startDate && touched.startDate) ||
+        (errors.endDate && touched.endDate) ||
+        (errors.registrationDeadline && touched.registrationDeadline) ||
+        (errors.price && touched.price) ||
+        (errors.capacity && touched.capacity) ||
+        (errors.location && touched.location)
+    );
 
+    const descriptionHasErrors = !!(errors.description && touched.description);
   return (
     <CustomModalLayout open={open} title="Edit Trip" onClose={handleClose} width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]">
       {/* Outer Box matching CreateTrip's structure for consistent sizing */}
@@ -180,15 +192,7 @@ const EditTrip = ({ tripId, tripName, location, price,
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* Header Typography
-        <Typography sx={{ 
-          fontSize: '26px', 
-          fontWeight: 700, 
-          mb: 3,
-          color: '#000'
-        }}>
-          Edit Trip
-        </Typography> */}
+
         
         {/* Form taking remaining vertical space */}
         <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -203,11 +207,11 @@ const EditTrip = ({ tripId, tripName, location, price,
             {/* Vertical Tabs on the left (Sidebar) */}
                                        <Box
                                          sx={{
-                                           width: '220px', 
+                                           width: '250px', 
                                            flexShrink: 0,
                                            background: theme.palette.background.paper,
                                            borderRadius: '32px',
-                                           border: `1.5px solid ${theme.palette.grey[300]}`,
+                                           border:`2px solid ${color}`,
                                            p: 2,
                                            display: 'flex',
                                            flexDirection: 'column',
@@ -218,8 +222,11 @@ const EditTrip = ({ tripId, tripName, location, price,
                                            alignSelf: 'flex-start', 
                                          }}
                                        >
-                                           <List sx={{ width: '100%', height: '100%' }}>
-                                              {tabSections.map((section) => (
+                                            <List sx={{ width: '100%', height: '100%' }}>
+                                              {tabSections.map((section) => {
+                                                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'description' ? descriptionHasErrors : false;
+                                                  
+                                                  return (
                                                   <ListItem key={section.key} disablePadding>
                                                       <ListItemButton
                                                           selected={activeTab === section.key}
@@ -245,9 +252,18 @@ const EditTrip = ({ tripId, tripName, location, price,
                                                                 color: color
                                                               }, }}>{section.icon}</ListItemIcon>
                                                           <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight:700 }} />
+                                                          {hasError && (
+                                                              <ErrorOutlineIcon 
+                                                                  sx={{ 
+                                                                      color: '#db3030', 
+                                                                      fontSize: '20px',
+                                                                      ml: '2'
+                                                                  }} 
+                                                              />
+                                                          )}
                                                       </ListItemButton>
                                                   </ListItem>
-                                              ))}
+                                              )})}
                                           </List>
                                        </Box>
            
@@ -448,14 +464,6 @@ const EditTrip = ({ tripId, tripName, location, price,
               
               {/* Edit/Submit Button at the bottom */}
               <Box sx={{ mt: 2, textAlign: "right", width: '100%', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                {/* <CustomButton
-                  label="Cancel"
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  sx={{ width: "150px", height: "40px", fontWeight: 700, fontSize: "16px", borderRadius: '20px' }}
-                /> */}
                 <CustomButton
                   label={isSubmitting ? "Submitting" : "Edit"}
                   color='tertiary'
