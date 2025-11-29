@@ -9,6 +9,7 @@ import {
   getApplicationStatusTemplate,
   getExternalVisitorQREmailTemplate,
   getGymSessionNotificationTemplate,
+  getEventAccessRemovedTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -191,6 +192,28 @@ export const sendQRCodeEmail = async (
         disposition: "attachment",
       },
     ],
+  });
+};
+
+// Send event access removed email
+export const sendEventAccessRemovedEmail = async (
+  userEmail: string,
+  username: string,
+  eventName: string,
+  allowedRolesAndPositions: string[],
+  refundAmount?: number
+) => {
+  const html = getEventAccessRemovedTemplate(
+    username,
+    eventName,
+    allowedRolesAndPositions,
+    refundAmount
+  );
+
+  await sendEmail({
+    to: userEmail,
+    subject: `🚫 Event Registration Update - ${eventName}`,
+    html,
   });
 };
 // Send gym session notification email (cancelled or edited)
