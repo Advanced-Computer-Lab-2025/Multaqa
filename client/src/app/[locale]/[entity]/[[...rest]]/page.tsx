@@ -31,6 +31,7 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
 import LoyaltyProgram from "@/components/shared/LoyaltyProgram/LoyaltyProgram";
 import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
+import VendorsList from "@/components/shared/Vendor/vendorLayout";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -353,19 +354,8 @@ export default function EntityCatchAllPage() {
       }
     }
 
-    // Vendor - Loyalty Program
-    if (entity === "vendor" && tab === "loyalty") {
-      if (section === "program-status") {
-        return (
-          <LoyaltyProgram
-            isSubscribed={!!user?.loyaltyProgram}
-            discountRate={user?.loyaltyProgram?.discountRate}
-            promoCode={user?.loyaltyProgram?.promoCode}
-            termsAndConditions={user?.loyaltyProgram?.termsAndConditions}
-            onStatusChange={() => window.location.reload()}
-          />
-        );
-      }
+    if (["student", "staff","professor","ta","events-office","admin"].includes(entity) && section === "loyalty-partners"){
+      return <VendorsList/>
     }
 
     // Courts booking page for stakeholders

@@ -64,26 +64,34 @@ export class GymSessionsService {
   }
 
   async cancelGymSession(sessionId: string): Promise<void> {
-    const session = await this.gymSessionRepo.findById(sessionId,
-      { populate: "attendees" ,select:"email firstName lastName"}
-    );
+    const session = await this.gymSessionRepo.findById(sessionId, {
+      populate: {
+        path: "attendees",
+        select: "email firstName lastName",
+      } as any,
+      select:
+        "sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity attendees",
+    });
+    console.log(session);
     if (!session) {
       throw createError(404, "Gym session not found");
     }
-    for (const attendee of session.attendees as any[]) {
+    const sessionObj = session.toObject();
+    const oldDetails = {
+      date: new Date(sessionObj.eventStartDate),
+      time: sessionObj.eventStartTime,
+      location: sessionObj.location,
+      instructor: sessionObj.trainer ?? undefined,
+      duration: sessionObj.duration,
+    };
+    for (const attendee of sessionObj.attendees as any[]) {
       console.log("Notifying attendee", attendee.email);
       await sendGymSessionNotificationEmail({
         userEmail: attendee.email,
         username: `${attendee.firstName} ${attendee.lastName}`,
-        sessionName: session.eventName,
+        sessionName: sessionObj.eventName,
         actionType: "cancelled",
-        oldDetails: {
-          date: new Date(session.eventStartDate),
-          time: session.eventStartTime,
-          location: session.location ,
-          instructor: session.trainer ?? undefined,
-        },
-
+        oldDetails: oldDetails,
       });
     }
     const deleted = await this.gymSessionRepo.delete(sessionId);
@@ -98,12 +106,25 @@ export class GymSessionsService {
     sessionId: string,
     updateData: { date?: string; time?: string; duration?: number }
   ): Promise<IGymSessionEvent> {
-    const session = await this.gymSessionRepo.findById(sessionId,
-      { populate: "attendees" ,select:"email firstName lastName"}
-    );
+    const session = await this.gymSessionRepo.findById(sessionId, {
+      populate: {
+        path: "attendees",
+        select: "email firstName lastName",
+      } as any,
+      select:
+        "sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity attendees",
+    });
     if (!session) {
       throw createError(404, "Gym session not found");
     }
+    console.log(session);
+    const oldDetails = {
+      date: new Date(session.eventStartDate),
+      time: session.eventStartTime,
+      location: session.location || "TBD",
+      instructor: session.trainer ?? undefined,
+      duration: session.duration,
+    };
 
     // Update date if provided
     if (updateData.date) {
@@ -131,31 +152,30 @@ export class GymSessionsService {
         updateData.duration !== undefined
           ? updateData.duration
           : session.duration;
-      const [h, m] = startTime.split(":").map(Number);
-      session.eventEndTime = new Date(0, 0, 0, h, m + duration)
-        .toTimeString()
-        .slice(0, 5);
+      if (startTime && duration !== undefined) {
+        const [h, m] = startTime.split(":").map(Number);
+        session.eventEndTime = new Date(0, 0, 0, h, m + duration)
+          .toTimeString()
+          .slice(0, 5);
+      }
     }
 
     await session.save();
 
-    for (const attendee of session.attendees as any[]) {
+    const sessionObj = session.toObject();
+    for (const attendee of sessionObj.attendees as any[]) {
       await sendGymSessionNotificationEmail({
         userEmail: attendee.email,
         username: `${attendee.firstName} ${attendee.lastName}`,
-        sessionName: session.eventName,
+        sessionName: sessionObj.eventName,
         actionType: "edited",
-        oldDetails: {
-          date: new Date(session.eventStartDate),
-          time: session.eventStartTime,
-          location: session.location || "TBD", 
-          instructor: session.trainer ?? undefined,
-        },
+        oldDetails: oldDetails,
         newDetails: {
-          date: new Date(session.eventStartDate),
-          time: session.eventStartTime,
-          location: session.location || "TBD",  
-          instructor: session.trainer ?? undefined,
+          date: new Date(sessionObj.eventStartDate),
+          time: sessionObj.eventStartTime,
+          location: sessionObj.location || "TBD",
+          instructor: sessionObj.trainer ?? undefined,
+          duration: sessionObj.duration,
         },
       });
     }
@@ -186,6 +206,7 @@ export class GymSessionsService {
     }
     console.log("Registering user", userId, "to session", sessionId);
      session.attendees?.push(userId as any);
+     
     await session.save();
     return session;
   }
