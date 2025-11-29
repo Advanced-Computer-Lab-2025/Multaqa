@@ -9,11 +9,61 @@ import {
 import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { ContentWrapper } from '../containers'; 
-import { ATTENDEES_COLUMNS, SALES_COLUMNS, MOCK_ATTENDEES_DATA, MOCK_SALES_DATA } from './ReportData';
+import { ATTENDEES_COLUMNS, SALES_COLUMNS } from './ReportData';
+import { ReportRow } from './types';
 import FilterPanel from "@/components/shared/FilterCard/FilterPanel";
 import { FilterGroup, FilterOption } from '../FilterCard/types';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { api } from '@/api';
+import { EventCardsListSkeleton } from '@/components/BrowseEvents/utils/EventCardSkeleton';
+import EmptyState from '@/components/shared/states/EmptyState';
+import ErrorState from '@/components/shared/states/ErrorState';
+
+/**
+ * Helper function to map backend event types to display format
+ * @param type - Raw event type from API (e.g., 'conference', 'platform_booth')
+ * @returns Capitalized display format (e.g., 'Conference', 'Booth')
+ */
+const mapEventType = (type: string): string => {
+    const typeMap: Record<string, string> = {
+        'conference': 'Conference',
+        'trip': 'Trip',
+        'bazaar': 'Bazaar',
+        'workshop': 'Workshop',
+        'platform_booth': 'Booth'
+    };
+    return typeMap[type.toLowerCase()] || type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+};
+
+/**
+ * Helper function to transform API event data to ReportRow format
+ * @param event - Raw event object from /events endpoint
+ * @returns Transformed ReportRow with calculated fields
+ */
+const transformEventToReportRow = (event: any): ReportRow => {
+    // Calculate attendees count from array length
+    const attendeesCount = Array.isArray(event.attendees) ? event.attendees.length : 0;
+    const price = event.price || 0;
+    
+    // Calculate revenue (attendees × price)
+    const revenue = attendeesCount * price;
+    
+    // Format date as YYYY-MM-DD
+    const formattedDate = event.eventStartDate 
+        ? new Date(event.eventStartDate).toISOString().split('T')[0] 
+        : 'N/A';
+    
+    return {
+        eventName: event.eventName || 'N/A',
+        eventType: mapEventType(event.type || ''),
+        attendeesCount,
+        location: event.location || 'N/A',
+        date: formattedDate,
+        revenue,
+        totalSales: attendeesCount // Total sales = number of attendees
+    };
+};
 
 export const EVENT_TYPE_COLORS: Record<string, string> = {
     Trip: "#6e8ae6",
@@ -30,6 +80,60 @@ interface ReportTableProps {
 const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
     const theme = useTheme();
 
+    // State for managing fetched events data from API
+    const [eventsData, setEventsData] = useState<ReportRow[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch events data from API on component mount
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                
+                // Call /events endpoint
+                const response = await api.get('/events');
+                const events = response.data?.data || [];
+                
+                console.log('📡 Raw events data from API:', events);
+                
+                // Filter logic based on report type:
+                // - Attendees report: events must have attendees array and eventStartDate (price is optional)
+                // - Sales report: events must have attendees array, price (number), and eventStartDate
+                const validEvents = events.filter((event: any) => {
+                    const hasAttendees = event.attendees && Array.isArray(event.attendees);
+                    const hasPrice = typeof event.price === 'number';
+                    const hasStartDate = !!event.eventStartDate;
+                    
+                    if (reportType === 'attendees') {
+                        // For attendees report: only need attendees and date (price optional)
+                        return hasAttendees && hasStartDate;
+                    } else {
+                        // For sales report: need attendees, price, and date
+                        return hasAttendees && hasPrice && hasStartDate;
+                    }
+                });
+                
+                console.log(`✅ Filtered ${validEvents.length} valid events for ${reportType} report out of ${events.length} total`);
+                
+                // Transform valid events to ReportRow format
+                const transformedData = validEvents.map(transformEventToReportRow);
+                console.log('🔄 Transformed report data:', transformedData);
+                
+                setEventsData(transformedData);
+            } catch (err: any) {
+                console.error('❌ Error fetching events:', err);
+                setError(err?.response?.data?.message || err?.message || 'Failed to fetch events data');
+                setEventsData([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, [reportType]); // Re-fetch when reportType changes
+
     const { columns, data, title, description } = useMemo(() => {
         const isSales = reportType === 'sales';
         return {
@@ -38,9 +142,9 @@ const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
                 ? "Review total revenue generated and sales performance across all events."
                 : "View key attendance metrics and track visitor numbers for each event.",
             columns: isSales ? SALES_COLUMNS : ATTENDEES_COLUMNS,
-            data: isSales ? MOCK_SALES_DATA : MOCK_ATTENDEES_DATA
+            data: eventsData // Use fetched data instead of mock data
         };
-    }, [reportType]);
+    }, [reportType, eventsData]);
 
     // Define Filter State Types
     interface ReportFilters {
@@ -201,8 +305,36 @@ const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
         <ContentWrapper title={title} description={description}>
             <Box sx={{ p: 0, mt: 4 }}> 
 
-                {/* Filter Panel */}
-                <Box display="flex" justifyContent="flex-end" alignItems="center" sx={{ mb: 2, mr: 2 }}>
+                {/* Loading State - Show skeleton while fetching data */}
+                {loading && <EventCardsListSkeleton />}
+
+                {/* Error State - Show error message if API call fails */}
+                {error && (
+                    <ErrorState
+                        title={error}
+                        description="Oops! Something went wrong while fetching the report data. Please try again later."
+                        imageAlt="Error loading reports"
+                    />
+                )}
+
+                {/* Empty State - No events available in database */}
+                {!loading && !error && eventsData.length === 0 && (
+                    <EmptyState
+                        title="No events available"
+                        description={
+                            reportType === 'attendees'
+                                ? "There are no events with attendees and date data in the system yet."
+                                : "There are no events with complete sales data (attendees, price, and date) in the system yet."
+                        }
+                        imageAlt="No events illustration"
+                    />
+                )}
+
+                {/* Show filters and table only when data is loaded successfully */}
+                {!loading && !error && eventsData.length > 0 && (
+                    <>
+                        {/* Filter Panel */}
+                        <Box display="flex" justifyContent="flex-end" alignItems="center" sx={{ mb: 2, mr: 2 }}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <FilterPanel
                             filterGroups={getFilterGroups()}
@@ -310,6 +442,17 @@ const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
                         </Table>
                     </TableContainer>
                 </Paper>
+
+                {/* Empty State - No events match current filters */}
+                {sortedData.length === 0 && (
+                    <EmptyState
+                        title="No events found"
+                        description="No events match your current filter selections. Try adjusting your filters."
+                        imageAlt="No matching events illustration"
+                    />
+                )}
+                    </>
+                )}
             </Box>
         </ContentWrapper>
     );
