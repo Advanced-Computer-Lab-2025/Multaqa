@@ -955,4 +955,21 @@ export class VendorEventsService {
 
     return poll;
   }
+
+  async getVendorsInActivePolls(): Promise<string[]> {
+    // Query by deadlineDate since isActive is a virtual property
+    const polls = await this.pollRepo.findAll({
+      deadlineDate: { $gt: new Date() }
+    });
+
+    const vendorIdSet = new Set<string>();
+    for (const poll of polls) {
+      for (const option of poll.options) {
+        vendorIdSet.add(option.vendorId);
+      }
+    }
+
+    const vendorIds = Array.from(vendorIdSet);
+    return vendorIds;
+  }
 }

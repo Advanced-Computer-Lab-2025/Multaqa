@@ -513,6 +513,22 @@ async function voteInPoll(req: AuthenticatedRequest, res: Response) {
   }
 }
 
+async function getVendorsInActivePolls(req: AuthenticatedRequest, res: Response) {
+  try {
+    const vendors = await vendorEventsService.getVendorsInActivePolls();
+    res.json({
+      success: true,
+      data: vendors,
+      message: "Vendors in active polls retrieved successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving vendors in active polls"
+    );
+  }
+}
+
 const router = asyncRouter();
 
 router.get(
@@ -577,6 +593,19 @@ router.post(
       StaffPosition.STAFF] 
     }),
   voteInPoll
+);
+
+router.get(
+  "/vendors-in-polls",
+  authorizeRoles({ 
+    userRoles: [
+      UserRole.ADMINISTRATION
+    ], 
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE
+    ]
+  }),
+  getVendorsInActivePolls
 );
 
 router.get(
