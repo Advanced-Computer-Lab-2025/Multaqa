@@ -8,6 +8,35 @@ import { ErrorResponse } from "../../../../../../backend/interfaces/errors/error
 import { IFileInfo } from "../../../../../../backend/interfaces/fileData.interface";
 import { capitalizeName } from "../../input-fields/utils";
 
+export const BOOTH_PRICING = {
+  SIZE_2X2: 7000,
+  SIZE_4X4: 10000,
+  LOC_STANDARD: 0, // Booths 1-8
+  LOC_PREMIUM: 2000, // Booths 9-10
+};
+
+export const calculateTotal = (
+  size: string,
+  duration: number | string,
+  boothId: number | null
+) => {
+  let total = 0;
+  const weeks = Number(duration) || 0;
+
+  if (size === "2x2") total += BOOTH_PRICING.SIZE_2X2 * weeks;
+  if (size === "4x4") total += BOOTH_PRICING.SIZE_4X4 * weeks;
+
+  if (boothId) {
+    if (boothId >= 9 && boothId <= 10) {
+      total += BOOTH_PRICING.LOC_PREMIUM;
+    } else {
+      total += BOOTH_PRICING.LOC_STANDARD;
+    }
+  }
+
+  return total;
+};
+
 export const validationSchema = Yup.object({
   boothAttendees: Yup.array()
     .of(
@@ -46,9 +75,7 @@ export const submitBoothForm = async (
         ...attendee,
         name: capitalizeName(String(attendee.name ?? ""), false),
         nationalId:
-          attendeeIdStatuses[index] === "success"
-            ? attendee.nationalId
-            : null,
+          attendeeIdStatuses[index] === "success" ? attendee.nationalId : null,
       })
     );
 
@@ -58,6 +85,7 @@ export const submitBoothForm = async (
       boothLocation: values.boothLocation,
       boothAttendees: processedAttendees,
       boothSize: values.boothSize,
+      price: values.price,
     };
 
     const response = await api.post(`/vendorEvents/booth`, boothData);
@@ -219,31 +247,31 @@ export const handleAccordionChange =
     panel: string,
     formik?: FormikProps<BoothFormValues>
   ) =>
-    (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpandedAccordions((prev) => {
-        const newSet = new Set(prev);
-        if (isExpanded) {
-          newSet.add(panel);
-          // When user opens a new accordion, close completed ones
-          if (formik) {
-            setTimeout(
-              () =>
-                autoCloseCompletedAccordions(
-                  formik,
-                  panel,
-                  setExpandedAccordions
-                ),
-              0
-            );
-          }
-        } else {
-          newSet.delete(panel);
+  (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedAccordions((prev) => {
+      const newSet = new Set(prev);
+      if (isExpanded) {
+        newSet.add(panel);
+        // When user opens a new accordion, close completed ones
+        if (formik) {
+          setTimeout(
+            () =>
+              autoCloseCompletedAccordions(
+                formik,
+                panel,
+                setExpandedAccordions
+              ),
+            0
+          );
         }
-        return newSet;
-      });
-      // Mark that user has manually interacted - disable auto-expansion
-      lastErrorStateRef.current = "USER_CONTROLLED";
-    };
+      } else {
+        newSet.delete(panel);
+      }
+      return newSet;
+    });
+    // Mark that user has manually interacted - disable auto-expansion
+    lastErrorStateRef.current = "USER_CONTROLLED";
+  };
 
 export const checkAndExpandAccordionWithErrors = (
   formik: FormikProps<BoothFormValues>,
