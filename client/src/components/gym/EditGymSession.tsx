@@ -1,49 +1,54 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Box, Typography, Alert, useTheme } from "@mui/material";
+import React, { useMemo, useState } from "react";
+import { Box, Typography, Alert, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, TextField } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { useFormik } from "formik";
 import { capitalizeName } from "../shared/input-fields/utils";
 import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import { CustomModalLayout } from "../shared/modals";
-import { DateTimePicker } from "../shared/DateTimePicker";
 import { formatDuration } from "../shared/DateTimePicker/utils";
 import { GymSessionType, SESSION_LABEL } from "./types";
-import { modalFooterStyles } from "../shared/styles";
-import { editGymSession } from './utils';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { toast } from "react-toastify";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import dayjs, { Dayjs } from "dayjs";
+import { editGymSession } from "./utils";
 
 // Define the form data structure
 interface GymSessionFormData {
-  startDateTime: Date | null;
+  startDateTime: Dayjs | null;
   duration: string;
-  type: GymSessionType | string;
+  // NOTE: These fields are required for initialValues/UI but disabled/excluded from payload
+  type: GymSessionType | string; 
   maxParticipants: string;
   trainer: string;
 }
 
 interface EditGymSessionProps {
-  sessionId: string; // ID for the PATCH request
+  sessionId: string; 
   open: boolean;
   onClose: () => void;
-  setRefresh: React.Dispatch<React.SetStateAction<boolean>>; // For refreshing parent data after edit
-  // Initial values for the session
-  initialStartDateTime: Date; // Should be a Date object
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
+  initialStartDateTime: Date;
   initialDuration: string;
   initialType: GymSessionType;
   initialMaxParticipants: number;
   initialTrainer: string;
 }
 
-// Validation schema (copied from CreateGymSession, but fields that are not editable
-// are essentially validated on load, and editing is restricted by 'disabled' prop)
+// 🎯 EDITED: Only validate editable fields (startDateTime and duration)
 const gymSessionValidationSchema = Yup.object({
   startDateTime: Yup.date()
     .nullable()
-    .required("Start date and time is required"),
-    //.min(new Date(), "Date and time cannot be in the past"),
+    .required("Start date and time is required")
+    .min(dayjs().subtract(1, 'minute').toDate(), "Date and time cannot be in the past"), // Added past check validation
   duration: Yup.number()
     .typeError("Duration must be a number")
     .required("Duration is required")
@@ -51,23 +56,10 @@ const gymSessionValidationSchema = Yup.object({
     .integer("Duration must be an integer")
     .min(10, "Minimum duration is 10 minutes")
     .max(180, "Maximum duration is 180 minutes"),
-  // These fields are pre-filled and disabled, but validation ensures initial state is correct
-  type: Yup.string()
-    .required("Session type is required")
-    .oneOf(
-      ["YOGA", "PILATES", "AEROBICS", "ZUMBA", "CROSS_CIRCUIT", "KICK_BOXING"],
-      "Invalid session type"
-    ),
-  maxParticipants: Yup.number()
-    .typeError("Max participants must be a number")
-    .required("Max participants is required")
-    .positive("Max participants must be a positive number")
-    .integer("Max participants must be an integer")
-    .min(1, "Must have at least 1 participant")
-    .max(100, "Cannot exceed 100 participants"),
-  trainer: Yup.string()
-    .min(2, "Trainer name must be at least 2 characters long")
-    .max(100, "Trainer name must be at most 100 characters long"),
+  // Disabled fields are excluded from validation or are only minimally validated
+  type: Yup.string(), 
+  maxParticipants: Yup.string(),
+  trainer: Yup.string(),
 });
 
 const sessionTypeOptions = Object.entries(SESSION_LABEL).map(
@@ -92,12 +84,15 @@ export default function EditGymSession({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Memoize initial values to prevent unnecessary re-initialization
+  const accentColor = theme.palette.primary.main;
+  const [activeTab, setActiveTab] = useState('general');
+
+  // Memoize initial values - 🎯 CONVERT Date to Dayjs here
   const initialValues: GymSessionFormData = useMemo(() => ({
-    startDateTime: initialStartDateTime,
-    duration: String(initialDuration), // Convert number to string for text field
+    startDateTime: dayjs(initialStartDateTime), // ✅ Conversion here
+    duration: String(initialDuration),
     type: initialType,
-    maxParticipants: String(initialMaxParticipants), // Convert number to string for text field
+    maxParticipants: String(initialMaxParticipants),
     trainer: initialTrainer || "",
   }), [initialStartDateTime, initialDuration, initialType, initialMaxParticipants, initialTrainer]);
 
@@ -109,273 +104,391 @@ export default function EditGymSession({
       setIsSubmitting(true);
       setError(null);
 
-      try {
-        const trainerName = values.trainer
-          ? capitalizeName(String(values.trainer), false)
-          : undefined;
-
-        // Construct the payload for the utility function
-        const payload = {
-          startDateTime: values.startDateTime!, // Date object is fine, utils handles ISO
-          duration: parseInt(values.duration),
-          type: values.type as GymSessionType,
-          maxParticipants: parseInt(values.maxParticipants),
-          trainer: trainerName || undefined,
-        };
-
-        // 🎯 NEW LOGIC: Use the dedicated utility function
-        await editGymSession(sessionId, payload);
+      try {
+        const trainerName = values.trainer
+          ? capitalizeName(String(values.trainer), false)
+          : undefined;
+        const payload = {
+          startDateTime: values.startDateTime!.toDate(), 
+          duration: parseInt(values.duration),
+          type: values.type as GymSessionType,
+          maxParticipants: parseInt(values.maxParticipants),
+          trainer: trainerName || undefined,
+        };
+        await editGymSession(sessionId, payload);
 
         // Close modal and show success toast only upon success
         onClose(); 
-        toast.success("Gym session edited successfully", {
-          position: "bottom-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
+        toast.success("Gym session updated successfully", { // Changed text from 'created' to 'updated'
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
 
-        // Notify parent to refresh data
-        setRefresh((prev) => !prev);
-        formik.resetForm();
+        setRefresh((prev) => !prev);
+        formik.resetForm();
 
-      } catch (err: any) {
-        // Keep the modal open for the user to retry or see the error
-        // Re-open the modal if you closed it before the try/catch
-        // NOTE: Since you call onClose() before the try/catch, you should probably remove that line.
-        
-        const errorMessage =
-          err?.message || "Failed to update gym session"; // The utils function throws a clean Error object
+      } catch (err: any) {
+        const errorMessage =
+          err?.message || "Failed to update gym session";
 
-        setError(errorMessage);
-        window.alert(errorMessage);
-        toast.error(errorMessage, { // Use the actual error message in the toast
-          position: "bottom-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-  });
+        setError(errorMessage);
+        window.alert(errorMessage);
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+  });
 
   const handleClose = () => {
     formik.resetForm();
     onClose();
   };
 
+  const tabSections = [
+    { key: 'general', label: 'General Info', icon: <InfoOutlinedIcon /> },
+    { key: 'details', label: 'Details', icon: <DescriptionOutlinedIcon /> },
+  ];
+  
+  // Check if tabs have errors
+  const generalHasErrors = !!(
+    (formik.errors.startDateTime && formik.touched.startDateTime) ||
+    (formik.errors.duration && formik.touched.duration)
+    // Note: Type is excluded as it's not editable, but kept for UI structure
+  );
+  
+  const detailsHasErrors = !!(
+    (formik.errors.maxParticipants && formik.touched.maxParticipants) ||
+    (formik.errors.trainer && formik.touched.trainer)
+  );
+
+  const contentPaperStyles = {
+    p: { xs: 1, md: 3 },
+    borderRadius: '32px',
+    background: theme.palette.background.paper,
+    border: `1.5px solid ${accentColor}`,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+    transition: 'box-shadow 0.2s',
+  };
+
+
   return (
     <CustomModalLayout
       open={open}
       onClose={handleClose}
-      width="w-[90vw] sm:w-[80vw] md:w-[700px]"
-      borderColor={theme.palette.primary.main}
+      width="w-[95vw] xs:w-[80vw] lg:w-[60vw] xl:w-[60vw]"
+      borderColor={accentColor}
+      title="Edit Gym Session"
     >
-      <form onSubmit={formik.handleSubmit}>
+      <Box sx={{ 
+        background: '#fff',
+        borderRadius: '32px',
+        p: 3,
+        height: '450px',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         
-        <Box sx={{ p: 4 }}>
-          <Typography
-            variant="h5"
-            sx={{
-              fontFamily: "var(--font-jost), system-ui, sans-serif",
-              fontWeight: 700,
-              color: theme.palette.tertiary.main,
-              textAlign: "center",
-              mb: 3,
-            }}
-          >
-            Edit Gym Session
-          </Typography>
-
+        <form onSubmit={formik.handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Error Alert */}
           {error && (
             <Alert
               severity="error"
-              sx={{ mb: 3 }}
+              sx={{ mb: 2, borderRadius: '16px' }}
               onClose={() => setError(null)}
             >
               {error}
             </Alert>
           )}
-        
-          <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column", 
+
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            flex: 1,
             gap: 3,
-            borderRadius: '6px',
-            borderColor:theme.palette.tertiary.main,
-            borderWidth:'1px',
-            padding: '32px',
-            boxShadow: theme.shadows[5],
-            minHeight:'450px',
+            minHeight: 0,
+          }}>
+            {/* Sidebar - Fixed width */}
+            <Box
+              sx={{
+                width: '220px', 
+                flexShrink: 0,
+                background: theme.palette.background.paper,
+                borderRadius: '32px',
+                border: `2px solid ${accentColor}`,
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
+                transition: 'box-shadow 0.2s',
+                height: 'fit-content', 
+                alignSelf: 'flex-start', 
+              }}
+            >
+              <List sx={{ width: '100%', height: '100%' }}>
+                {tabSections.map((section) => {
+                  const hasError = section.key === 'general' ? generalHasErrors : section.key === 'details' ? detailsHasErrors : false;
+                  
+                  return (
+                    <ListItem key={section.key} disablePadding>
+                      <ListItemButton
+                        selected={activeTab === section.key}
+                        onClick={() => setActiveTab(section.key)}
+                        sx={{
+                          borderRadius: '24px',
+                          mb: 1.5,
+                          px: 2.5,
+                          py: 1.5,
+                          fontWeight: 600,
+                          fontSize: '1.08rem',
+                          background: activeTab === section.key ? 'rgba(110, 138, 230, 0.08)' : 'transparent',
+                          color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                          boxShadow: activeTab === section.key ? '0 2px 8px 0 rgba(110, 138, 230, 0.15)' : 'none',
+                          transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+                          '&:hover': {
+                            background: 'rgba(110, 138, 230, 0.05)',
+                            color: accentColor,
+                          },
+                        }}
+                      >
+                        <ListItemIcon sx={{ 
+                          minWidth: 36, 
+                          color: activeTab === section.key ? accentColor : theme.palette.text.primary, 
+                          '&:hover': { color: accentColor } 
+                        }}>
+                          {section.icon}
+                        </ListItemIcon>
+                        <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
+                        {hasError && (
+                          <ErrorOutlineIcon 
+                            sx={{ 
+                              color: '#db3030', 
+                              fontSize: '20px',
+                              ml: 'auto'
+                            }} 
+                          />
+                        )}
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Box>
+
+            {/* Content Area - Takes remaining space */}
+            <Box sx={{ 
+              flex: 1, 
+              display: 'flex', 
+              flexDirection: 'column',
+              minWidth: 0,
             }}>
-            
-            {/* Session Type (Read-Only) */}
-            <CustomSelectField
-              label="Session Type"
-              fieldType="single"
-              options={sessionTypeOptions}
-              name="type"
-              value={formik.values.type}
-              onChange={(value) => formik.setFieldValue("type", value)}
-              onBlur={() => formik.setFieldTouched("type", true)}
-              isError={
-                formik.touched.type ? Boolean(formik.errors.type) : false
-              }
-              helperText={formik.touched.type ? formik.errors.type : "Session type cannot be changed"}
-              placeholder="Select session type"
-              neumorphicBox
-              required
-              fullWidth
-              size="small"
-              disabled // Field is not editable
-              />
+              {/* General Info Tab */}
+              {activeTab === 'general' && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  {/* Session Type (DISABLED) */}
+                  <Box sx={{ mb: 3 }}>
+                    <CustomSelectField
+                      label="Session Type"
+                      fieldType="single"
+                      options={sessionTypeOptions}
+                      name="type"
+                      value={formik.values.type}
+                      onChange={(value) => formik.setFieldValue("type", value)}
+                      onBlur={() => formik.setFieldTouched("type", true)}
+                      isError={formik.touched.type ? Boolean(formik.errors.type) : false}
+                      helperText={formik.touched.type ? formik.errors.type : "Session type cannot be changed."}
+                      placeholder="Select session type"
+                      neumorphicBox
+                      required
+                      fullWidth
+                      size="small"
+                      disabled // 🎯 DISABLED
+                    />
+                  </Box>
 
-            {/* Trainer Name (Optional) (Read-Only) */}
-            <CustomTextField
-              label="Trainer Name (Optional)"
-              fieldType="text"
-              name="trainer"
-              value={formik.values.trainer}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.trainer && Boolean(formik.errors.trainer)}
-              helperText={
-                formik.touched.trainer
-                  ? formik.errors.trainer
-                  : "Trainer name cannot be changed"
-              }
-              placeholder="Enter trainer name"
-              neumorphicBox
-              fullWidth
-              disabled // Field is not editable
-            />
+                  {/* Start Date and Time (EDITABLE) */}
+                  <Box sx={{ mb: 3 , ml:1}}>
+                  <Box sx={{ flex: 1 }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                        name="startDateTime"
+                        label="Start Date & Time"
+                        slotProps={{
+                          textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            // ✅ Correct error handling
+                            error: formik.touched.startDateTime && Boolean(formik.errors.startDateTime),
+                            helperText: formik.touched.startDateTime ? formik.errors.startDateTime : "",
+                            InputLabelProps: {
+                              sx: {
+                                color: theme.palette.grey[500],
+                                '&.Mui-focused': { color: accentColor },
+                              },
+                            },
+                            sx: {
+                              color: accentColor,
+                              '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.grey[400],
+                              },
+                              '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: accentColor,
+                              },
+                              '& .MuiInput-underline:after': {
+                                borderBottomColor: accentColor,
+                              },
+                            },
+                          },
+                        }}
+                        minDate={dayjs(new Date())}
+                        value={formik.values.startDateTime}
+                        onChange={(dateTime) =>
+                          formik.setFieldValue("startDateTime", dateTime, true)
+                        } 
+                        onClose={() => formik.setFieldTouched("startDateTime", true)}
+                      />
+                    </LocalizationProvider>
+                    {/* ❌ REMOVED: Redundant Typography error display */}
+                  </Box>
+                  </Box>
 
-          {/* Start Date and Time (Editable) */}
-            <DateTimePicker
-              id="startDateTime"
-              label="Start Date & Time"
-              name="startDateTime"
-              value={formik.values.startDateTime}
-              onChange={(dateTime) =>
-                formik.setFieldValue("startDateTime", dateTime, true)
-              }
-              onBlur={() => formik.setFieldTouched("startDateTime", true)}
-              error={
-                formik.touched.startDateTime &&
-                Boolean(formik.errors.startDateTime)
-              }
-              errorMessage={
-                formik.touched.startDateTime ? formik.errors.startDateTime : ""
-              }
-              minDate={new Date()}
-              containerType="inwards"
-              touched={formik.touched.startDateTime}
-              labelColor={theme.palette.tertiary.main}
-            />
+                  {/* Duration (EDITABLE) */}
+                  <CustomTextField
+                    label="Duration (minutes)"
+                    fieldType="numeric"
+                    name="duration"
+                    value={formik.values.duration}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    onKeyPress={(event) => {
+                      const char = String.fromCharCode(event.which);
+                      if (!/[0-9]/.test(char)) {
+                        event.preventDefault();
+                      }
+                    }}
+                    error={formik.touched.duration && Boolean(formik.errors.duration)}
+                    helperText={
+                      formik.touched.duration
+                        ? formik.errors.duration
+                        : formik.values.duration
+                        ? `Duration: ${formatDuration(formik.values.duration)}`
+                        : "Enter duration in minutes (10-180 min)"
+                    }
+                    placeholder="Enter duration in minutes"
+                    neumorphicBox
+                    required
+                    fullWidth
+                    inputProps={{
+                      min: 10,
+                      max: 180,
+                      pattern: "[0-9]*",
+                      inputMode: "numeric",
+                    }}
+                  />
+                </Paper>
+              )}
 
-            {/* Duration (Editable) */}
-            <CustomTextField
-              label="Duration (minutes)"
-              fieldType="numeric"
-              name="duration"
-              value={formik.values.duration}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              onKeyPress={(event) => {
-                const char = String.fromCharCode(event.which);
-                if (!/[0-9]/.test(char)) {
-                  event.preventDefault();
-                }
-              }}
-              error={formik.touched.duration && Boolean(formik.errors.duration)}
-              helperText={
-                formik.touched.duration
-                  ? formik.errors.duration
-                  : formik.values.duration
-                  ? `Duration: ${formatDuration(formik.values.duration)}`
-                  : "Enter duration in minutes (10-180 min)"
-              }
-              placeholder="Enter duration in minutes"
-              neumorphicBox
-              required
-              fullWidth
-              inputProps={{
-                min: 10,
-                max: 180,
-                pattern: "[0-9]*",
-                inputMode: "numeric",
-              }}
-            />
+              {/* Details Tab */}
+              {activeTab === 'details' && (
+                <Paper elevation={0} sx={contentPaperStyles}>
+                  {/* Max Participants (DISABLED) */}
+                  <Box sx={{ mb: 3 }}>
+                    <CustomTextField
+                      label="Max Participants"
+                      fieldType="numeric"
+                      placeholder="Maximum number of participants"
+                      name="maxParticipants"
+                      value={formik.values.maxParticipants}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      onKeyPress={(event) => {
+                        const char = String.fromCharCode(event.which);
+                        if (!/[0-9]/.test(char)) {
+                          event.preventDefault();
+                        }
+                      }}
+                      error={
+                        formik.touched.maxParticipants &&
+                        Boolean(formik.errors.maxParticipants)
+                      }
+                      helperText={
+                        formik.touched.maxParticipants
+                          ? formik.errors.maxParticipants
+                          : "Max participants cannot be changed."
+                      }
+                      neumorphicBox
+                      required
+                      fullWidth
+                      inputProps={{
+                        min: 1,
+                        max: 100,
+                        pattern: "[0-9]*",
+                        inputMode: "numeric",
+                      }}
+                      disabled // 🎯 DISABLED
+                    />
+                  </Box>
 
-            {/* Max Participants (Read-Only) */}
-            <CustomTextField
-              label="Max Participants"
-              fieldType="numeric"
-              placeholder="Maximum number of participants"
-              name="maxParticipants"
-              value={formik.values.maxParticipants}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              onKeyPress={(event) => {
-                const char = String.fromCharCode(event.which);
-                if (!/[0-9]/.test(char)) {
-                  event.preventDefault();
-                }
-              }}
-              error={
-                formik.touched.maxParticipants &&
-                Boolean(formik.errors.maxParticipants)
-              }
-              helperText={
-                formik.touched.maxParticipants
-                  ? formik.errors.maxParticipants
-                  : "Max participants cannot be changed"
-              }
-              neumorphicBox
-              required
-              fullWidth
-              disabled // Field is not editable
-              inputProps={{
-                min: 1,
-                max: 100,
-                pattern: "[0-9]*",
-                inputMode: "numeric",
-              }}
-            />
+                  {/* Trainer Name (DISABLED) */}
+                  <CustomTextField
+                    label="Trainer Name (Optional)"
+                    fieldType="text"
+                    name="trainer"
+                    value={formik.values.trainer}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.trainer && Boolean(formik.errors.trainer)}
+                    helperText={
+                      formik.touched.trainer
+                        ? formik.errors.trainer
+                        : "Trainer name cannot be changed."
+                    }
+                    placeholder="Enter trainer name"
+                    neumorphicBox
+                    fullWidth
+                    disabled // 🎯 DISABLED
+                  />
+                </Paper>
+              )}
 
+              {/* Submit Button */}
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <CustomButton 
+                  // Renamed to 'Edit' from 'Create'
+                  disabled={!(formik.isValid && formik.dirty) || isSubmitting} 
+                  label={isSubmitting ? "Editing..." : 'Edit'} 
+                  variant='contained' 
+                  color='primary' 
+                  type='submit' 
+                  sx={{ 
+                    px: 3, 
+                    width: "180px", 
+                    height: "40px", 
+                    fontWeight: 700, 
+                    fontSize: "16px", 
+                    borderRadius: '20px', 
+                    boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
+                    background: accentColor,
+                    '&:hover': {
+                      background: '#5a7ae0',
+                    }
+                  }}
+                />
+              </Box>
+            </Box>
           </Box>
-          </Box>
-
-          {/* Action Buttons (using modalFooterStyles for consistency) */}
-          <Box sx={modalFooterStyles}>
-            <CustomButton
-              label="Cancel"
-              variant="outlined"
-              color="primary"
-              onClick={handleClose}
-              disabled={isSubmitting}
-              sx={{
-                width: "150px",
-                height: "32px",
-              }}
-            />
-            <CustomButton
-              label={isSubmitting ? "Updating..." : "Edit Session"}
-              type="submit"
-              variant="contained"
-              color="tertiary" // Using tertiary from conference edit button
-              disabled={!(formik.isValid && formik.dirty) || isSubmitting}
-              sx={{
-                width: "150px",
-                height: "32px",
-                fontWeight: 600,
-                padding: "12px",
-                fontSize: "14px"
-              }}
-            />
-          </Box>
-      </form>
+        </form>
+      </Box>
     </CustomModalLayout>
   );
 }

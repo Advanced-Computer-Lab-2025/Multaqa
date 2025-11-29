@@ -30,6 +30,7 @@ import CancelGymSession from "./CancelGymSession";
 import SessionTypeDropdown from "./SessionTypeDropdown";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
 import { fetchGymSessions } from "./utils";
+import CloseIcon from '@mui/icons-material/Close';
 
 
 
@@ -368,18 +369,18 @@ const handleDeleteSession = (session: GymSession) => {
                               <EditIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Delete Session">
+                          <Tooltip title="Cancel Session">
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteSession(session)}
                               sx={{
-                                color: theme.palette.error.main,
+                                color: theme.palette.grey[700],
                                 "&:hover": {
-                                  backgroundColor: `${theme.palette.error.main}20`,
+                                  backgroundColor: `${theme.palette.grey[600]}20`,
                                 },
                               }}
                             >
-                              <DeleteIcon fontSize="small" />
+                              <CloseIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                         </Box>
