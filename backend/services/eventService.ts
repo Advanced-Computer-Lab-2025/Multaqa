@@ -893,18 +893,35 @@ export class EventsService {
   async checkUpcomingEvents() {
     const now = new Date();
     now.setSeconds(0, 0);
-    const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
 
-    // Get events happening in 1 day
-    const oneDayEvents = await this.eventRepo.findAll({
-      eventStartDate: oneDayLater,
+    // Get all upcoming events (events that haven't started yet)
+    const allEvents = await this.eventRepo.findAll({
+      eventStartDate: { $gte: new Date(now.setHours(0, 0, 0, 0)) },
     });
 
-    // Get events happening in 1 hour
-    const oneHourEvents = await this.eventRepo.findAll({
-      eventStartDate: oneHourLater,
-    });
+    // Filter events for 1-day and 1-hour reminders by combining date and time
+    const oneDayEvents: IEvent[] = [];
+    const oneHourEvents: IEvent[] = [];
+
+    for (const event of allEvents) {
+      // Combine eventStartDate with eventStartTime to get the full datetime
+      const eventDate = new Date(event.eventStartDate);
+      
+      if (event.eventStartTime) {
+        const [hours, minutes] = event.eventStartTime.split(':').map(Number);
+        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+      }
+
+      // Check for 1-day reminder
+      if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
+        oneDayEvents.push(event);
+      }
+      
+      // Check for 1-hour reminder
+      if (eventDate.getTime() - now.getTime() == 60 * 60 * 1000) {
+        oneHourEvents.push(event);
+      }
+    }
 
     // Send 1-day reminders
     for (const event of oneDayEvents) {
