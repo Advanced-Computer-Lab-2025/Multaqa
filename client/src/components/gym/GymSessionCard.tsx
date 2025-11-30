@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, Skeleton, Stack, Typography } from "@mui/material";
 import type { StackProps } from "@mui/material/Stack";
 import { alpha } from "@mui/material/styles";
@@ -12,6 +12,7 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
+import { registerForGymSession } from "./utils";
 
 const SESSION_ICONS: Record<GymSession["type"], React.ElementType> = {
   YOGA: SelfImprovementIcon,
@@ -47,6 +48,7 @@ export default function GymSessionCard({
   showSpots = true,
   layout = "compact",
 }: Props) {
+  const [isRegistering, setIsRegistering] = useState(false);
   const baseColor = SESSION_COLORS[session.type];
   const start = new Date(session.start).toLocaleTimeString([], {
     hour: "2-digit",
@@ -69,6 +71,21 @@ export default function GymSessionCard({
   // Determine session status
   const sessionStatus = getSessionStatus(session.start, session.end);
   const isUpcoming = sessionStatus === "upcoming";
+
+  const handleRegister = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsRegistering(true);
+    try {
+      await registerForGymSession(session.id);
+      // You might want to show a success message or refresh the session data here
+      alert("Successfully registered for the session!");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to register";
+      alert(errorMessage);
+    } finally {
+      setIsRegistering(false);
+    }
+  };
   
   const leftIcon = (
     <Box
@@ -147,11 +164,8 @@ export default function GymSessionCard({
         key="register"
         variant="contained"
         size="small"
-        onClick={(e) => {
-          e.stopPropagation();
-          // TODO: Implement registration logic
-          console.log("Register clicked for session:", session.id);
-        }}
+        onClick={handleRegister}
+        disabled={isRegistering}
         sx={{
           mt: 1,
           backgroundColor: baseColor,
@@ -168,9 +182,13 @@ export default function GymSessionCard({
             backgroundColor: alpha(baseColor, 0.85),
             boxShadow: `0 4px 12px ${alpha(baseColor, 0.4)}`,
           },
+          "&:disabled": {
+            backgroundColor: alpha(baseColor, 0.5),
+            color: "#fff",
+          },
         }}
       >
-        Register
+        {isRegistering ? "Registering..." : "Register"}
       </Button>
     );
   }

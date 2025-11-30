@@ -286,3 +286,25 @@ export const cancelGymSession = async (sessionId: string): Promise<void> => {
   }
 };
 
+export const registerForGymSession = async (sessionId: string): Promise<void> => {
+  try {
+    console.log(`📝 Registering for gym session ${sessionId}...`);
+
+    const response = await api.post(`/gymsessions/${sessionId}/register`);
+
+    console.log("✅ Successfully registered for gym session:", response.data.message);
+    
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error(`❌ Failed to register for gym session ${sessionId}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error(`❌ Failed to register for gym session ${sessionId}:`, error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to register for gym session");
+  }
+};
+

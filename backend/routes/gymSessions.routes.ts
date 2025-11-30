@@ -54,9 +54,7 @@ async function getAllGymSessions(
     res.json({
       success: true,
       data: sessions || [],
-      message: sessions && sessions.length > 0 
-        ? "Gym sessions retrieved successfully" 
-        : "No gym sessions found for the selected period",
+      message: "Gym sessions retrieved successfully",
     });
   } catch (err: any) {
     throw createError(

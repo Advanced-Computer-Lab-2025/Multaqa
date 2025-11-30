@@ -57,10 +57,14 @@ export class GymSessionsService {
       $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),
     };
 
-    return this.gymSessionRepo.findAll(filter, {
+    const sessions = await this.gymSessionRepo.findAll(filter, {
       select:
         " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity",
     });
+    if (!sessions || sessions.length === 0) {
+      throw createError(404, "No gym sessions found for the selected period");
+    }
+    return sessions;
   }
 
   async cancelGymSession(sessionId: string): Promise<void> {
