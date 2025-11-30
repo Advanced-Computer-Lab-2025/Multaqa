@@ -32,6 +32,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   attended,
   archived,
   allowedUsers,
+  datePassed,
   registrationPassed,
   registrationDeadline,
   userInfo
@@ -119,7 +120,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                    <Trash2 size={18} />
                  </IconButton>
                </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+      ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
      registerButton={ user == "vendor" &&
           (
             // if not requested -> show Apply
@@ -259,7 +260,8 @@ const BazarView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditBazaar  
+      <EditBazaar
+        registrationPassed={registrationPassed}  
         setRefresh={setRefresh} bazaarId={id} bazaarName={name} 
         location={details["Location"]}  description={description} 
         startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)} 

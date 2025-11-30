@@ -116,7 +116,7 @@ const TripView: React.FC<BazarViewProps> = ({
                 <Trash2 size={18} />
               </IconButton>
             </Tooltip>
-          ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background} /> : null)
+          ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background} /> : null)
         }
         registerButton={
           (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
@@ -236,7 +236,7 @@ const TripView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditTrip setRefresh={setRefresh!} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)} endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)} registrationDeadline={new Date(registrationDeadline)} capacity={parseInt(details["Capacity"], 10)} color={theme.palette.tertiary.main} open={edit} onClose={() => { setEdit(false) }} />
+      <EditTrip registrationPassed={registrationPassed} setRefresh={setRefresh!} tripId={id} tripName={name} location={details["Location"]} price={finalPrice} description={description} startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)} endDate={new Date(`${details["End Date"]}T${details["End Time"]}`)} registrationDeadline={new Date(registrationDeadline)} capacity={parseInt(details["Capacity"], 10)} color={theme.palette.tertiary.main} open={edit} onClose={() => { setEdit(false) }} />
       <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
       <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable} />
       <ArchiveEvent setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"trip"} open={archive} onClose={() => setArchive(false)} />

@@ -13,7 +13,7 @@ import { wrapperContainerStyles, detailTitleStyles, modalFooterStyles, horizonta
 import theme from '@/themes/lightTheme';
 import { toast } from 'react-toastify';
 
-import { bazaarSchema } from "../CreateBazaar/schemas/bazaar";
+import * as yup from 'yup';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import { CustomModalLayout } from '@/components/shared/modals';
@@ -73,9 +73,10 @@ interface EditBazaarProps {
   onClose: () => void;
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
   color: string;
+  registrationPassed?: boolean;
 }
 
-const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline, open, onClose, setRefresh, color }: EditBazaarProps) => {
+const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, endDate, registrationDeadline, open, onClose, setRefresh, color , registrationPassed}: EditBazaarProps) => {
 
   const [loading, setLoading] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -199,6 +200,13 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
     await handleCallApi(payload);
   };
 
+  const bazaarSchema = yup.object().shape({
+    bazaarName: yup.string().required('Bazaar name is required'),
+    description: yup.string().required('Description is required'),
+    location: yup.string().required('Location is required'),
+    startDate: yup.date().required('Start date is required').min(new Date(), "Start date can't be in the past"),
+    endDate: yup.date().required('End date is required').min(yup.ref('startDate'), "End date must be after start date"),
+  });
 
   const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched } = useFormik({
     initialValues,
@@ -384,6 +392,7 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                       }}
                       value={values.registrationDeadline}
                       onChange={(value) => setFieldValue('registrationDeadline', value)}
+                      disabled={registrationPassed}
                     />
                     {errors.registrationDeadline && touched.registrationDeadline ?
                       <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mb: 2 }}>{errors.registrationDeadline}</Typography>
