@@ -131,11 +131,11 @@ const BoothForm: React.FC = () => {
           validationSchema={validationSchema}
           validateOnChange={true}
           validateOnBlur={true}
-          onSubmit={(values, { setSubmitting, resetForm }) => {
+          onSubmit={(values, { setSubmitting }) => {
             const vendorId = String(user?._id);
             submitBoothForm(
               values,
-              { setSubmitting, resetForm },
+              { setSubmitting },
               vendorId,
               attendeeIdStatuses
             );

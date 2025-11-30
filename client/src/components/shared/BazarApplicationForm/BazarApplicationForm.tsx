@@ -89,7 +89,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting, resetForm }) => {
+        onSubmit={(values, { setSubmitting }) => {
           const vendorId = String(user?._id);
           if (!vendorId || vendorId === "undefined") {
             console.error("No valid vendor ID found!", { user });
@@ -98,7 +98,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
           }
           submitBazarForm(
             values,
-            { setSubmitting, resetForm },
+            { setSubmitting },
             eventId,
             attendeeIdStatuses
           );
@@ -688,7 +688,6 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                               name="boothSize"
                               label="Booth Size"
                               fieldType="single"
-                              neumorphicBox
                               options={[
                                 { label: "2x2m", value: "2x2" },
                                 { label: "4x4m", value: "4x4" },
@@ -703,7 +702,6 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({ eventId }) => {
                               onFocus={() =>
                                 formik.setFieldTouched("boothSize", true)
                               }
-                              neumorphicBox={false}
                             />
                             {formik.touched.boothSize &&
                               formik.errors.boothSize && (
