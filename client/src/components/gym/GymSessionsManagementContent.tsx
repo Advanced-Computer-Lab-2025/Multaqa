@@ -31,6 +31,8 @@ import SessionTypeDropdown from "./SessionTypeDropdown";
 import { GymSession, GymSessionType, SESSION_LABEL } from "./types";
 import { fetchGymSessions } from "./utils";
 import CloseIcon from '@mui/icons-material/Close';
+import { GymSessionsTableSkeleton } from "./utils/GymSessionTableSkeleton";
+import { delay } from "framer-motion";
 
 
 
@@ -183,20 +185,11 @@ const handleDeleteSession = (session: GymSession) => {
         </Alert>
       )}
 
-      {/* Loading State */}
-      {loading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "300px",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      ) : (
-        <>
+    {loading ? (
+        // Replace the Box with CircularProgress with your new Table Skeleton
+        <GymSessionsTableSkeleton rowCount={8} /> // Display 8 rows of skeleton
+      ) : (
+        <>
           {/* Header with Create Button */}
           <Box
             sx={{
@@ -373,7 +366,7 @@ const handleDeleteSession = (session: GymSession) => {
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteSession(session)}
-                              sx={{
+                              sx={
                                 color: theme.palette.grey[700],
                                 "&:hover": {
                                   backgroundColor: `${theme.palette.grey[600]}20`,
