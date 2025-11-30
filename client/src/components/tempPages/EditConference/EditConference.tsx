@@ -86,6 +86,7 @@ interface EditConferenceProps {
     websiteLink: string;
     agenda: string;
     extraRequiredResources: any;
+    startDatePassed?: boolean;
 }
 
 const Edit: React.FC<EditConferenceProps> = ({
@@ -102,6 +103,7 @@ const Edit: React.FC<EditConferenceProps> = ({
     websiteLink,
     agenda = "",
     extraRequiredResources = [],
+    startDatePassed = false,
 }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
@@ -153,8 +155,7 @@ const Edit: React.FC<EditConferenceProps> = ({
             })
         } catch (err: any) {
             setError(err?.message || "API call failed");
-            window.alert(err.response.data.error);
-            toast.error("Failed to edit conference. Please try again.", {
+            toast.error(err?.response.data.error || "Failed to edit conference. Please try again.", {
                 position: "bottom-right",
                 autoClose: 3000,
                 theme: "colored",
@@ -370,65 +371,67 @@ const Edit: React.FC<EditConferenceProps> = ({
                                         : <></>}
 
                                     {/* Date/Time Pickers section */}
-                                    <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}>
-                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                <DateTimePicker
-                                                    name="eventStartDate"
-                                                    label="Start Date and Time"
-                                                    slotProps={{
-                                                        textField: {
-                                                            variant: "standard",
-                                                            fullWidth: true,
-                                                            sx: tertiaryInputStyles,
-                                                            InputLabelProps: {
-                                                                sx: {
-                                                                    color: theme.palette.grey[500],
-                                                                    '&.Mui-focused': {
-                                                                        color: accentColor,
+                                    {!startDatePassed ?
+                                        <Box sx={{ display: "flex", gap: 2, marginBottom: "12px" }}>
+                                            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                    <DateTimePicker
+                                                        name="eventStartDate"
+                                                        label="Start Date and Time"
+                                                        slotProps={{
+                                                            textField: {
+                                                                variant: "standard",
+                                                                fullWidth: true,
+                                                                sx: tertiaryInputStyles,
+                                                                InputLabelProps: {
+                                                                    sx: {
+                                                                        color: theme.palette.grey[500],
+                                                                        '&.Mui-focused': {
+                                                                            color: accentColor,
+                                                                        },
                                                                     },
                                                                 },
                                                             },
-                                                        },
-                                                    }}
-                                                    value={values.eventStartDate}
-                                                    onChange={(value) => setFieldValue("eventStartDate", value)}
-                                                />
-                                            </LocalizationProvider>
-                                            {errors.eventStartDate && touched.eventStartDate && (
-                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.eventStartDate}</Typography>
-                                            )}
-                                        </Box>
+                                                        }}
+                                                        value={values.eventStartDate}
+                                                        onChange={(value) => setFieldValue("eventStartDate", value)}
+                                                    />
+                                                </LocalizationProvider>
+                                                {errors.eventStartDate && touched.eventStartDate && (
+                                                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.eventStartDate}</Typography>
+                                                )}
+                                            </Box>
 
-                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                <DateTimePicker
-                                                    label="End Date and Time"
-                                                    name="eventEndDate"
-                                                    slotProps={{
-                                                        textField: {
-                                                            variant: "standard",
-                                                            fullWidth: true,
-                                                            sx: tertiaryInputStyles,
-                                                            InputLabelProps: {
-                                                                sx: {
-                                                                    color: theme.palette.grey[500],
-                                                                    '&.Mui-focused': {
-                                                                        color: accentColor,
+                                            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                    <DateTimePicker
+                                                        label="End Date and Time"
+                                                        name="eventEndDate"
+                                                        slotProps={{
+                                                            textField: {
+                                                                variant: "standard",
+                                                                fullWidth: true,
+                                                                sx: tertiaryInputStyles,
+                                                                InputLabelProps: {
+                                                                    sx: {
+                                                                        color: theme.palette.grey[500],
+                                                                        '&.Mui-focused': {
+                                                                            color: accentColor,
+                                                                        },
                                                                     },
                                                                 },
                                                             },
-                                                        },
-                                                    }}
-                                                    value={values.eventEndDate}
-                                                    onChange={(value) => setFieldValue("eventEndDate", value)}
-                                                />
-                                            </LocalizationProvider>
-                                            {errors.eventEndDate && touched.eventEndDate && (
-                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.eventEndDate}</Typography>
-                                            )}
+                                                        }}
+                                                        value={values.eventEndDate}
+                                                        onChange={(value) => setFieldValue("eventEndDate", value)}
+                                                    />
+                                                </LocalizationProvider>
+                                                {errors.eventEndDate && touched.eventEndDate && (
+                                                    <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.eventEndDate}</Typography>
+                                                )}
+                                            </Box>
                                         </Box>
-                                    </Box>
+                                    :<></>}
 
                                     <CustomTextField
                                         name='websiteLink'
@@ -473,7 +476,7 @@ const Edit: React.FC<EditConferenceProps> = ({
                                             fieldType="single"
                                             options={[
                                                 { label: 'GUC', value: 'GUC' },
-                                                { label: 'External', value: 'External' },
+                                                { label: 'External', value: 'external' },
                                             ]}
                                             value={values.fundingSource}
                                             onChange={(e: any) => setFieldValue('fundingSource', e.target ? e.target.value : e)}

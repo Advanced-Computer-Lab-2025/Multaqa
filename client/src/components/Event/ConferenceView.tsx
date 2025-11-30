@@ -31,6 +31,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   attended,
   archived,
   allowedUsers,
+  datePassed,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -208,6 +209,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
           extraRequiredResources={details["Extra Required Resources"]}
           eventStartTime={details["Start Time"]}
           eventEndTime={details["End Time"]}
+          startDatePassed={datePassed}
         />
       )}
       {setRefresh && (
