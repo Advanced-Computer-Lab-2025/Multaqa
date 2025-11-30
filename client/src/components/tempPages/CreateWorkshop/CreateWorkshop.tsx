@@ -189,7 +189,6 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
             fundingSource: values.fundingSource,
             price: 5,
         };
-        actions.resetForm();
         handleCallApi(payload);
     };
 
@@ -706,7 +705,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                                 label={res}
                                                 onDelete={() =>
                                                     setFieldValue(
-                                                        "extraRequiredResources",
+                                                        "extraResources",
                                                         values.extraResources.filter((r) => r !== res)
                                                     )
                                                 }

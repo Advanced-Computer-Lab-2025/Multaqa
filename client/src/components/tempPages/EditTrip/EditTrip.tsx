@@ -145,11 +145,7 @@ const EditTrip = ({ tripId, tripName, location, price,
       registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null,
       capacity: values.capacity,
     };
-    console.log("payload before call");
-    console.log(payload)
     const res = await handleCallApi(payload);
-    console.log("response");
-    console.log(res);
     onClose();
   };
 

@@ -328,7 +328,6 @@ const EditWorkshop = ({
             fundingSource: values.fundingSource,
             price: 5,
         };
-        actions.resetForm();
         await handleCallApi(payload);
         onClose();
     };
