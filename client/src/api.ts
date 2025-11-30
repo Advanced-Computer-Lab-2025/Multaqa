@@ -96,7 +96,9 @@ api.interceptors.response.use(
             withCredentials: true,
           }
         );
-        window.location.href = "/login";
+        if (!window.location.pathname.endsWith("/login")) {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
