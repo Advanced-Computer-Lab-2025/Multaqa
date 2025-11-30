@@ -250,7 +250,7 @@ export const fetchAllUsers = async (): Promise<User[]> => {
       id: user._id,
       name: user.firstName && user.lastName
         ? `${user.firstName} ${user.lastName}`
-        : user.name || 'Unknown',
+        : user.companyName || user.name || 'Unknown',
       email: user.email,
       role: mapBackendRoleToFrontend(user.role, user.position, user.roleType) as UserRole,
       status: user.status === 'active' ? 'Active' : 'Blocked',
