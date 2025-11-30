@@ -8,7 +8,6 @@ import {
 } from "./utils";
 import { CustomTextField } from "../input-fields";
 import CustomButton from "../Buttons/CustomButton";
-import { Link } from "@/i18n/navigation";
 import {
   Box,
   Typography,
@@ -21,26 +20,21 @@ import { useTheme } from "@mui/material/styles";
 import { FileUpload } from "../FileUpload";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
-import { SignupResponse } from "../../../../../backend/interfaces/responses/authResponses.interface";
 import type { UploadStatus } from "../FileUpload/types";
 import { IFileInfo } from "../../../../../backend/interfaces/fileData.interface";
 import { capitalizeName } from "../input-fields/utils";
+import { useRouter } from "@/i18n/navigation";
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
   const theme = useTheme();
   const { signup } = useAuth();
+  const router = useRouter();
   const [taxCardStatus, setTaxCardStatus] = useState<UploadStatus>("idle");
   const [logoStatus, setLogoStatus] = useState<UploadStatus>("idle");
   const [currentTaxCardFile, setCurrentTaxCardFile] = useState<File | null>(
     null
   );
   const [currentLogoFile, setCurrentLogoFile] = useState<File | null>(null);
-
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleRegistration = async (data: any) => {
-    const result = await signup(data);
-    return result as unknown as SignupResponse;
-  };
 
   interface StudentSignupData {
     type: "studentOrStaff";
@@ -84,7 +78,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
     <Formik
       initialValues={initialValues}
       validationSchema={getValidationSchema(UserType)}
-      onSubmit={async (values, { setSubmitting, resetForm }) => {
+      onSubmit={async (values, { setSubmitting }) => {
         try {
           let signupData: SignupData;
 
@@ -122,18 +116,21 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             } as SignupData;
           }
 
-          await handleRegistration(signupData);
+          await signup(signupData);
+          const message =
+            UserType !== "vendor"
+              ? "Registration successful! Please wait for your verification email."
+              : "Registration successful! redirecting to login page...";
 
-          resetForm();
-
-          toast.success(
-            "Registration successful! Please check your email for verification.",
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              theme: "colored",
-            }
-          );
+          toast.success(message, {
+            position: "bottom-right",
+            autoClose: 5000,
+            theme: "colored",
+          });
+          if (UserType === "vendor") {
+            router.replace("/login");
+          }
+          //eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           const message =
             error?.response?.data?.error ||
@@ -158,7 +155,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
               maxWidth: "600px",
               mx: "auto",
               px: { xs: 3, sm: 5 },
-              py: { xs: 4, sm: 3 }, 
+              py: { xs: 4, sm: 3 },
             }}
           >
             <Stack spacing={4}>
@@ -478,7 +475,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
               </Stack>
 
               {/* Submit Button - Increased margin to 4 */}
-              <Box sx={{ position: "relative"}}>
+              <Box sx={{ position: "relative" }}>
                 <CustomButton
                   type="submit"
                   variant="contained"

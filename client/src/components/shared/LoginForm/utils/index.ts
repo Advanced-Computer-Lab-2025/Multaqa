@@ -26,14 +26,13 @@ export const getValidationSchema = () =>
 
 export const handleLoginSubmit = async (
   values: LoginValues,
-  { setSubmitting, resetForm }: FormikHelpers<LoginValues>,
+  { setSubmitting }: FormikHelpers<LoginValues>,
   login: (credentials: LoginValues) => Promise<LoginResponse | undefined>,
   router: AppRouterInstance,
   getRedirectPath: (role: string) => string
 ) => {
   try {
     const response = await login(values);
-    resetForm();
 
     // Get user info from login response
     let userRole;
@@ -44,7 +43,6 @@ export const handleLoginSubmit = async (
     } else {
       userRole = response?.user?.role;
     }
-    console.log("Logged in user role:", userRole);
 
     toast.success("Login successful! Redirecting...", {
       position: "bottom-right",
@@ -60,27 +58,29 @@ export const handleLoginSubmit = async (
     // Short delay for toast to be visible before redirect
     setTimeout(() => {
       const redirectPath = getRedirectPath(String(userRole));
-      console.log("Redirecting to:", redirectPath);
       router.push(redirectPath!);
     }, 1500);
-  } catch (err) {
-    console.log("Login error:", err);
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
 
-    const error = err as { response?: { data?: { error?: string } } };
-    toast.error(
-      error.response?.data?.error || "An error occurred during login",
-      {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      }
-    );
+    const message =
+      err?.response?.data?.error ||
+      err?.message ||
+      "Something went wrong. Please try again.";
+
+    toast.error(message, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+
   } finally {
+
     setSubmitting(false);
   }
 };
