@@ -40,6 +40,7 @@ import dayjs from "dayjs";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
 import { useNotifications } from "@/context/NotificationContext";
+import { toast } from "react-toastify";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -263,12 +264,40 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   const handleDeleteEvent = async (eventId: string) => {
     try {
-      await deleteEvent(eventId);
+      const response = await deleteEvent(eventId);
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-    } catch (error: any) {
-      window.alert(error.response.data.error);
+       toast.success(
+            response.data.message || "Event deleted successfully!",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+    } catch (err: any) {
+       const errorMessage =
+            err?.response?.data?.error ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Failed to delete event. Please try again.";
+      
+          toast.error(errorMessage, {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
     }
   };
 
