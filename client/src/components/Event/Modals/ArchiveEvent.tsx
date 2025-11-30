@@ -39,7 +39,7 @@ const ArchiveEvent = ({eventId, eventName, eventType, open, onClose, setRefresh}
     } catch (err: any) {
     setError(err?.message || "API call failed");
     toast.error(
-      "Event Archiving Failed",
+      err?.response?.data?.error || err?.response?.data?.message || "Event Archiving Failed",
       {
         position: "bottom-right",
         autoClose: 5000,
