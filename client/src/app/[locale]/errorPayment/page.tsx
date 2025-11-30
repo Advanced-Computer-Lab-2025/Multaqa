@@ -22,7 +22,7 @@ const PaymentError: React.FC = () => {
   useEffect(() => {
     if(role==="staff"||role==="student"||role==="professor"||role==="ta"){
       const timer = setTimeout(() => {
-        router.push(`/en/${role}/events/browse-events`);
+        router.push(`/${role}/events/browse-events`);
       }, 3000); // Redirect after 3 seconds
 
       // Countdown effect
@@ -37,7 +37,7 @@ const PaymentError: React.FC = () => {
     }
     else  if(role==="vendor"){
       const timer = setTimeout(() => {
-        router.push(`/en/${role}/opportunities/available`);
+        router.push(`/${role}/opportunities/available`);
       }, 3000); // Redirect after 3 seconds
 
       // Countdown effect

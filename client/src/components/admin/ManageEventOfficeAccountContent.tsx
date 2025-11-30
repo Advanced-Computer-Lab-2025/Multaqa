@@ -410,6 +410,7 @@ export default function ManageEventOfficeAccountContent() {
               />
 
               <CustomSelectField
+              name="accountType"
                 label="Account Type"
                 fieldType="single"
                 options={accountTypeOptions}

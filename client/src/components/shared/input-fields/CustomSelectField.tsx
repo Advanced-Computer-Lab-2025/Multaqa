@@ -32,7 +32,7 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
   required = false,
   isError = false,
   helperText,
-  usePortalPositioning = false, // Default to new simple positioning
+  usePortalPositioning = true, // Default to new simple positioning
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -88,7 +88,7 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
       portalRoot.current.style.left = "0";
       portalRoot.current.style.width = "100%";
       portalRoot.current.style.height = "0";
-      portalRoot.current.style.zIndex = "99999";
+      portalRoot.current.style.zIndex = "2147483647";
       portalRoot.current.style.pointerEvents = "none";
       document.body.appendChild(portalRoot.current);
 
@@ -347,7 +347,7 @@ const CustomSelectField: React.FC<CustomSelectFieldV2Props> = ({
               left: 0,
               right: 0,
             }),
-          zIndex: 999999,
+          zIndex: 2147483647,
         }}
       >
         {options.map((option) => {

@@ -253,7 +253,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
   };
 
   const renderGeneral = () => (
-    <Box>
+    <Box sx={{ p: 4 }}>
       <Typography
         variant="h5"
         sx={{ mb: 2, color: "text.primary", fontWeight: 600 }}
@@ -319,7 +319,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
     </Box>
   );
   const renderAgenda = () => (
-    <Box>
+    <Box sx={{ p: 4 }}>
       <Typography
         variant="h5"
         sx={{ mb: 6, color: "text.primary", fontWeight: 600 }}
@@ -463,6 +463,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({
                   border: `2px solid ${color}`,
                   color: "#fff",
                   minWidth: "150px",
+                  mt: 5,
                   "&:hover": {
                     backgroundColor: `${color}CC`,
                   },
@@ -493,7 +494,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({
               position: "relative",
               width: "2px",
               alignSelf: "stretch",
-              my: 2,
+              mt: 2,
+              mb: 4,
             }}
           >
             {/* Gradient background */}

@@ -14,6 +14,7 @@ type BasicProps = {
   datePassed?: boolean;
   registrationPassed?: boolean;
   archived?: boolean;
+  allowedUsers?: string[];
 }
 export type BazarViewProps = BasicProps & {
   details: Record<string, string>;

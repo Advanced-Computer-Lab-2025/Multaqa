@@ -172,7 +172,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     const fetchProfessors = async () => {
       try {
         const res = await api.get("/users/professors");
-        const professors = res.data.data.map((prof: any) => ({
+        // filter only isVerified = true
+        const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+        const professors = verifiedProfessors.map((prof: any) => ({
           firstName: prof.firstName,
           lastName: prof.lastName,
         }));
@@ -593,10 +595,10 @@ switch (sortBy) {
             attended={event.attended}
             archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.WORKSHOP:
-        console.log(event);
         return (
           <WorkshopView
             id={event.id}
@@ -624,6 +626,7 @@ switch (sortBy) {
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.BAZAAR:
@@ -652,6 +655,7 @@ switch (sortBy) {
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             registrationDeadline={event.registrationDeadline}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.BOOTH:
@@ -676,6 +680,7 @@ switch (sortBy) {
             attended={event.attended}
             archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.TRIP:
@@ -703,6 +708,7 @@ switch (sortBy) {
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             registrationDeadline={event.registrationDeadline}
+            allowedUsers={event.allowedUsers}
           />
         );
       default:
@@ -711,13 +717,11 @@ switch (sortBy) {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
-      <ContentWrapper
-        title={pageTitle}
-        description={pageDescription}
-        padding={{ xs: 0 }}
-        horizontalPadding={{ xs: 1 }}
-      >
+    <ContentWrapper
+      title={pageTitle}
+      description={pageDescription}
+      padding={{ xs: 2, md: 4 }}
+    >
         {/* Search and Filter Row */}
         <Box
           sx={{
@@ -861,7 +865,6 @@ switch (sortBy) {
           color={theme.palette.tertiary.main}
         />
       </ContentWrapper>
-    </Container>
   );
 };
 
