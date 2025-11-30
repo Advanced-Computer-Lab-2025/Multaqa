@@ -104,6 +104,13 @@ export default function GymSessionsManagementContent() {
     }
   };
 
+  const calculateDurationInMinutes = (start: string, end: string) => {
+    const startTime = new Date(start);
+    const endTime = new Date(end);
+    const durationMs = endTime.getTime() - startTime.getTime();
+    return Math.round(durationMs / (1000 * 60));
+  };
+
   const getSessionTypeColor = (type: GymSessionType) => {
     const colors = {
       YOGA: "#4caf50", // Green - matches SessionTypeDropdown
@@ -430,10 +437,10 @@ export default function GymSessionsManagementContent() {
           // Converts ISO string (session.start) to Date object
           initialStartDateTime={new Date(sessionToEdit.start)}
           // Calculates the duration in minutes from start and end times
-          initialDuration={calculateDuration(
+          initialDuration={calculateDurationInMinutes(
             sessionToEdit.start,
             sessionToEdit.end
-          )}
+          ).toString()}
           initialType={sessionToEdit.type}
           // Maps 'spotsTotal' to 'maxParticipants'
           initialMaxParticipants={sessionToEdit.spotsTotal || 0}
