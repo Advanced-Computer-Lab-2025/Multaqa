@@ -342,8 +342,12 @@ setActiveTab('general');
                                       label="Location"
                                       fieldType="single"
                                       options={[
-                                        { label: "GUC Cairo", value: "GUC Cairo" },
-                                        { label: "GUC Berlin", value: "GUC Berlin" },
+                                      { label: "Platform", value: "Platform" },
+                                      { label: "B Building", value: "B Building" },
+                                      { label: "D Building", value: "D Building" },
+                                      { label: "A Building", value: "A Building" },
+                                      { label: "C Building", value: "C Building" },
+                                      { label: "Football Court", value: "Football Court" },
                                       ]}
                                       value={values.location}
                                       onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)} 

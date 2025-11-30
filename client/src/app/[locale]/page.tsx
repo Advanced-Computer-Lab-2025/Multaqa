@@ -1252,7 +1252,7 @@ function HomePageContent() {
         component="section"
         sx={{
           position: "relative",
-          overflow: "hidden",
+          overflow: "visible",
           // Force full viewport height, minus a little for visual balance
           minHeight: "100vh",
           display: "flex",
@@ -1270,6 +1270,7 @@ function HomePageContent() {
             pt: { xs: 14, md: 0 },
             pb: { xs: 8, md: 0 },
             flexGrow: 1,
+            overflow: "visible",
           }}
         >
           {/* Shapes Layer (Background) */}
@@ -1786,6 +1787,7 @@ const HeroContent = ({
           md: "flex-start",
         },
         justifyContent: { xs: "center", md: "flex-start" },
+        overflow: "visible",
       }}
     >
       <CustomButton
@@ -1892,7 +1894,7 @@ const HeroContent = ({
               : "translateY(-10px)",
             pointerEvents: showSignUpOptions ? "auto" : "none",
             transition: "all 0.28s ease",
-            zIndex: 60,
+            zIndex: 9999,
           }}
         >
           <Stack spacing={1.5}>
@@ -2060,7 +2062,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "260px",
           borderRadius: "12px",
-          rotate: 5, // Slight tilt in auth mode for variety
+          rotate: 0, 
           transition: authTransition(0.2),
         },
       }}
@@ -2124,7 +2126,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "130px",
           borderRadius: "16px",
-          rotate: -10,
+          rotate: 0,
           transition: authTransition(0.15),
         },
       }}
@@ -2156,7 +2158,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "120px",
           height: "210px",
           borderRadius: "999px",
-          rotate: 15,
+          rotate: 0,
           transition: authTransition(0.25),
         },
       }}

@@ -9,7 +9,7 @@ export const BAZAR_PRICING = {
   SIZE_2X2: 1500,
   SIZE_4X4: 2500,
   LOCATIONS: {
-    platform: 500,
+    "platform": 500,
     "b building": 300,
     "d building": 300,
     "a building": 400,
