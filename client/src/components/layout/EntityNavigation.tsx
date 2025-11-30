@@ -35,6 +35,7 @@ interface CurrentUser {
   firstName?: string;
   lastName?: string;
   companyName?: string;
+  logoUrl?: string;
 }
 
 interface EntityNavigationProps {
@@ -106,6 +107,7 @@ const formatUserData = (user: any): CurrentUser => {
     return {
       name: user.companyName,
       companyName: user.companyName,
+      logoUrl: user.logo?.url, // Extract logo URL from IFileInfo
     };
   }
 
@@ -396,12 +398,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       { key: "archive", label: "Archive", icon: Archive, tabs: [] },
-      {
-        key: "notifications",
-        label: "Notifications",
-        icon: ClipboardList,
-        tabs: [],
-      },
+      // {
+      //   key: "notifications",
+      //   label: "Notifications",
+      //   icon: ClipboardList,
+      //   tabs: [],
+      // },
     ],
   },
   admin: {
@@ -759,8 +761,8 @@ export default function EntityNavigation({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
               padding: "20px 28px",
               border: "1px solid #e5e7eb",
-              minHeight: "90vh",
-              maxHeight: "90vh",
+              maxHeight: "calc(100vh - 100px)",
+              height: "fit-content",
             }}
           >
             {tabItems.length > 0 && (
