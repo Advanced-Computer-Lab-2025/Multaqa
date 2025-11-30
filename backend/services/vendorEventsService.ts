@@ -94,18 +94,7 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Calculate participation fee for platform booth
-    const BASE_PRICE = 50;
-    const duration = data.value.boothSetupDuration || 1; // in weeks (1-4)
-    const location = data.value.boothLocation || "";
-
-    // Extract booth number from location (e.g., "Booth 15" -> 15)
-    const boothNumberMatch = location.match(/(\d+)/);
-    const boothNumber = boothNumberMatch
-      ? parseInt(boothNumberMatch[1], 10)
-      : 1;
-
-    const participationFee = BASE_PRICE * duration * boothNumber;
+    const participationFee = data.value.participationFee;
 
     // Create a new platform booth event for this vendor
     const event = await this.eventRepo.create({

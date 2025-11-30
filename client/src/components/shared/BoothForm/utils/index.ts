@@ -85,7 +85,7 @@ export const submitBoothForm = async (
       boothLocation: values.boothLocation,
       boothAttendees: processedAttendees,
       boothSize: values.boothSize,
-      price: values.price,
+      participationFee: values.price,
     };
 
     const response = await api.post(`/vendorEvents/booth`, boothData);

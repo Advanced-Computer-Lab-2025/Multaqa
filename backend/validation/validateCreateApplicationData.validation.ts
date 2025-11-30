@@ -24,6 +24,7 @@ const platformBoothSchema = Joi.object({
     .required(),
   boothLocation: Joi.string().required(),
   boothSetupDuration: Joi.number().integer().min(1).max(4).required(),
+  participationFee: Joi.number().required(),
 });
 
 export function validateCreateApplicationData(data: any) {
