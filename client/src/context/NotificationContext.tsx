@@ -137,7 +137,7 @@ export const NotificationProvider = ({
           </p>
         </div>,
         {
-          position: "top-right",
+          position: "bottom-right",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,

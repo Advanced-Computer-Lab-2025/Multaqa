@@ -5,6 +5,7 @@ import Image from "next/image";
 import ScaledLogo from "../shared/MultaqaLogos/ScaledLogo";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
 import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
+import newMultaqaIcon from "../../../public/assets/images/new-multaqa-logo.png";
 import { Box, Typography } from "@mui/material";
 
 interface HeaderProps {
@@ -167,7 +168,7 @@ export default function TopNavigation({
             }}
           >
             <ScaledLogo
-              image={multaqaIcon}
+              image={newMultaqaIcon}
               transparent
               iconOnly
               small
