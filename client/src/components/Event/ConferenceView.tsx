@@ -30,6 +30,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
   setRefresh,
   attended,
   archived,
+  allowedUsers,
   userInfo
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -210,7 +211,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         />
       )}
       {setRefresh && (
-        <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+        <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"conference"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
       )}
       {setRefresh && (
         <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"conference"} open={archive} onClose={() => setArchive(false)} />

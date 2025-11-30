@@ -31,6 +31,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   setRefresh,
   attended,
   archived,
+  allowedUsers,
   registrationDeadline,
   userInfo
 }) => {
@@ -265,7 +266,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         registrationDeadline={new Date(registrationDeadline)} open={edit} 
         onClose={()=> {setEdit(false)}} color={theme.palette.tertiary.main}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
       <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}

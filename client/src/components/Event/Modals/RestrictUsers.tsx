@@ -1,4 +1,4 @@
-import React , {useState}from "react";
+import React , {useState, useEffect}from "react";
 import {api} from "../../../api";
 import { CustomModalLayout } from "@/components/shared/modals";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
@@ -13,6 +13,7 @@ interface RestrictUsersProps {
   eventName?: string;
   eventType: string;
   open: boolean;
+  allowedUsers?: string[];
   onClose: () => void;
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -22,6 +23,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   eventName,
   eventType,
   open,
+  allowedUsers,
   onClose,
   setRefresh,
 }) => {
@@ -58,7 +60,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
           if (setRefresh) setRefresh((p) => !p);
           } catch (err: any) {
           setError(err?.message || "API call failed");
-          toast.error("Updating Allowed Users Failed",
+          toast.error(err?.response?.data?.error || err?.response?.data?.message ||"Updating Allowed Users Failed",
           {
             position: "bottom-right",
             autoClose: 5000,
@@ -83,9 +85,13 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
     { label: "student", value: "student" },
   ];
 
-  // start with ALL options allowed so checkboxes are NOT checked in the UI (flip logic)
+  // Initialize formik with allowedUsers from props if available, otherwise all options
   const formik = useFormik({
-    initialValues: { allowedUsers: options.map(o => o.value) as string[] },
+    initialValues: { 
+      allowedUsers: (allowedUsers && allowedUsers.length > 0) 
+        ? allowedUsers 
+        : options.map(o => o.value) as string[] 
+    },
     validationSchema: Yup.object({
       allowedUsers: Yup.array()
         .test(
@@ -102,6 +108,13 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
       onClose();
     },
   });
+
+  // Update formik values when allowedUsers prop changes
+  useEffect(() => {
+    if (allowedUsers && allowedUsers.length > 0) {
+      formik.setFieldValue("allowedUsers", allowedUsers);
+    }
+  }, [allowedUsers]);
 
   // Flip logic: CustomCheckboxGroup 'selected' will represent the items the user CHOSE TO REMOVE.
   // So checked state passed to the checkbox group is the inverse of allowedUsers.

@@ -591,10 +591,10 @@ switch (sortBy) {
             attended={event.attended}
             archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.WORKSHOP:
-        console.log(event);
         return (
           <WorkshopView
             id={event.id}
@@ -622,6 +622,7 @@ switch (sortBy) {
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.BAZAAR:
@@ -650,6 +651,7 @@ switch (sortBy) {
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             registrationDeadline={event.registrationDeadline}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.BOOTH:
@@ -674,6 +676,7 @@ switch (sortBy) {
             attended={event.attended}
             archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.TRIP:
@@ -701,6 +704,7 @@ switch (sortBy) {
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             registrationDeadline={event.registrationDeadline}
+            allowedUsers={event.allowedUsers}
           />
         );
       default:
