@@ -896,7 +896,7 @@ export class EventsService {
 
     // Get all upcoming events (events that haven't started yet)
     const allEvents = await this.eventRepo.findAll({
-      eventStartDate: { $gte: new Date(now.setHours(0, 0, 0, 0)) },
+      eventStartDate: { $gte: new Date().setHours(0, 0, 0, 0) },
     });
 
     // Filter events for 1-day and 1-hour reminders by combining date and time
@@ -926,11 +926,13 @@ export class EventsService {
     // Send 1-day reminders
     for (const event of oneDayEvents) {
       await this.sendReminderToAttendees(event, "1 day");
+      console.log(`Sent 1-day reminder for event: ${event.eventName}`);
     }
 
     // Send 1-hour reminders
     for (const event of oneHourEvents) {
       await this.sendReminderToAttendees(event, "1 hour");
+      console.log(`Sent 1-hour reminder for event: ${event.eventName}`);
     }
   }
 

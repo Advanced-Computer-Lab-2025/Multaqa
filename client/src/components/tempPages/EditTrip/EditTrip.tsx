@@ -10,8 +10,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 import CustomButton from '@/components/shared/Buttons/CustomButton';
-
-import { tripSchema } from "../CreateTrip/schemas/trip";
+import * as yup from 'yup';
 
 import { api } from "../../../api";
 import { CustomModalLayout } from '@/components/shared/modals';
@@ -74,10 +73,11 @@ interface EditTripProps {
   onClose: () => void;
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   color?: string;
+  registrationPassed?: boolean;
 }
 
 const EditTrip = ({ tripId, tripName, location, price,
-  description, startDate, endDate, registrationDeadline, capacity, open, onClose, setRefresh, color }: EditTripProps) => {
+  description, startDate, endDate, registrationDeadline, capacity, open, onClose, setRefresh, color , registrationPassed}: EditTripProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -145,13 +145,19 @@ const EditTrip = ({ tripId, tripName, location, price,
       registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null,
       capacity: values.capacity,
     };
-    console.log("payload before call");
-    console.log(payload)
     const res = await handleCallApi(payload);
-    console.log("response");
-    console.log(res);
     onClose();
   };
+
+  const tripSchema = yup.object().shape({
+    tripName: yup.string().required('Trip name is required'),
+    location: yup.string().required('Location is required'),
+    price: yup.number().required('Price is required').min(0, 'Price must be a positive number'),
+    startDate: yup.date().required('Start date is required').min(new Date(), "Start date can't be in the past"),
+    endDate: yup.date().required('End date is required').min(new Date(), "End Date can't be in the past").min(yup.ref('startDate'), "End date must be after start date"),
+    description: yup.string().required('Description is required'),
+    capacity: yup.number().required('Capacity is required').min(1, 'Capacity must be at least 1'),
+  });
 
   const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched } = useFormik({
     initialValues,
@@ -371,6 +377,7 @@ const EditTrip = ({ tripId, tripName, location, price,
                       }}
                       value={values.registrationDeadline}
                       onChange={(value) => setFieldValue('registrationDeadline', value)}
+                      disabled={registrationPassed}
                     />
                     {errors.registrationDeadline && touched.registrationDeadline ? <p style={{ color: "#db3030", fontSize: '0.875rem', marginBottom: 2 }}>{errors.registrationDeadline}</p> : <></>}
                   </LocalizationProvider>

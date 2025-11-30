@@ -1,9 +1,9 @@
-import React , {useState}from "react";
+import React , {useState, useEffect}from "react";
 import {api} from "../../../api";
 import { CustomModalLayout } from "@/components/shared/modals";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import CustomCheckboxGroup from "@/components/shared/input-fields/CustomCheckboxGroup";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme, lighten } from "@mui/material";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -13,6 +13,7 @@ interface RestrictUsersProps {
   eventName?: string;
   eventType: string;
   open: boolean;
+  allowedUsers?: string[];
   onClose: () => void;
   setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -22,11 +23,23 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   eventName,
   eventType,
   open,
+  allowedUsers,
   onClose,
   setRefresh,
 }) => {
+   const theme = useTheme();
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState<string | null>(null);
+
+   const tertiary = (theme.palette as unknown as { tertiary?: { main?: string } }).tertiary;
+   const baseBorderColor = tertiary?.main ?? theme.palette.primary.main;
+   
+   let accentColor = baseBorderColor;
+   try {
+     accentColor = lighten(String(baseBorderColor), 0.35);
+   } catch {
+     // keep baseBorderColor if lighten isn't applicable
+   }
 
    const handleCallApi = async (payload:any) => {
           setLoading(true);
@@ -47,7 +60,7 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
           if (setRefresh) setRefresh((p) => !p);
           } catch (err: any) {
           setError(err?.message || "API call failed");
-          toast.error("Updating Allowed Users Failed",
+          toast.error(err?.response?.data?.error || err?.response?.data?.message ||"Updating Allowed Users Failed",
           {
             position: "bottom-right",
             autoClose: 5000,
@@ -72,9 +85,13 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
     { label: "student", value: "student" },
   ];
 
-  // start with ALL options allowed so checkboxes are NOT checked in the UI (flip logic)
+  // Initialize formik with allowedUsers from props if available, otherwise all options
   const formik = useFormik({
-    initialValues: { allowedUsers: options.map(o => o.value) as string[] },
+    initialValues: { 
+      allowedUsers: (allowedUsers && allowedUsers.length > 0) 
+        ? allowedUsers 
+        : options.map(o => o.value) as string[] 
+    },
     validationSchema: Yup.object({
       allowedUsers: Yup.array()
         .test(
@@ -92,6 +109,13 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
     },
   });
 
+  // Update formik values when allowedUsers prop changes
+  useEffect(() => {
+    if (allowedUsers && allowedUsers.length > 0) {
+      formik.setFieldValue("allowedUsers", allowedUsers);
+    }
+  }, [allowedUsers]);
+
   // Flip logic: CustomCheckboxGroup 'selected' will represent the items the user CHOSE TO REMOVE.
   // So checked state passed to the checkbox group is the inverse of allowedUsers.
   const checkedValuesForComponent = options
@@ -107,19 +131,50 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
   };
 
   return (
-    <CustomModalLayout title={`Restrict Users for ${eventName ?? ""}`} open={open} onClose={onClose} width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[45vw]'>
-      {/* <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }} color="primary.dark" className="text-center">
-          {`Restrict Users for ${eventName ?? ""}`}
-      </Typography> */}
-      <Box sx={{ p: 3, width: { xs: "90vw", sm: 560 } }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 , borderBottom:"2px solid #E0E0E0", pb:1}}>
-          <Typography variant="body1" sx={{ fontWeight: 600 , mr:2}}>
-            Select which users to restrict from viewing this {eventType}:
-          </Typography>
-          {/* removed "Check all" control as requested */}
+    <CustomModalLayout 
+      title={`Restrict Users for ${eventName ?? ""}`} 
+      open={open} 
+      onClose={onClose} 
+      width='w-[95vw] md:w-[80vw] lg:w-[70vw] xl:w-[50vw]'
+    >
+      <Box sx={{ px: 4, py: 3 }}>
+        {/* Styled Header similar to CustomModalLayout */}
+        <Box sx={{ mt: 3 }}>
+          <Box sx={{ position: 'relative', display: 'inline-block' }}>
+            <Typography
+              variant="h6"
+              sx={{
+                margin: 0,
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: '#1a1a1a',
+                fontFamily: 'var(--font-jost), system-ui, sans-serif',
+                letterSpacing: '0.02em',
+                paddingBottom: '8px',
+              }}
+            >
+              <Box component="span" sx={{ color: '#1a1a1a' }}>
+                Select which users to restrict from viewing this {eventType}
+              </Box>
+            </Typography>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '3px',
+                width: '40%',
+                background: `linear-gradient(135deg, grey, grey)`,
+                borderRadius: '2px',
+                transition: 'width 0.3s ease-in-out',
+                '&:hover': {
+                  width: '100%',
+                },
+              }}
+            />
+          </Box>
         </Box>
-
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 5 }}>
           {/* CustomCheckboxGroup expects selected values; we pass the inverted checkedValuesForComponent */}
           <CustomCheckboxGroup
             key={formik.values.allowedUsers.join(",")}
@@ -130,21 +185,21 @@ const RestrictUsers: React.FC<RestrictUsersProps> = ({
             error={Boolean(formik.touched.allowedUsers && formik.errors.allowedUsers)}
           />
         </Box>
-      </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3 }}>
-        <CustomButton
-          label="Submit"
-          variant="contained"
-          onClick={() => formik.handleSubmit()}
-          sx={{ width: 160, height: 44 }}
-          disabled={loading}
-        />
-        <CustomButton
-          label="Cancel"
-          variant="outlined"
-          onClick={onClose}
-          sx={{ width: 160, height: 44 }}
-        />
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, pt: 2 }}>
+          <CustomButton
+            label="Submit"
+            variant="contained"
+            onClick={() => formik.handleSubmit()}
+            sx={{ width: 160, height: 44 }}
+            disabled={loading}
+          />
+          <CustomButton
+            label="Cancel"
+            variant="outlined"
+            onClick={onClose}
+            sx={{ width: 160, height: 44 }}
+          />
+        </Box>
       </Box>
     </CustomModalLayout>
   );
