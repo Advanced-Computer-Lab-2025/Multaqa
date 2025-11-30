@@ -455,7 +455,7 @@ export const getApplicationStatusTemplate = (
 // External Visitor QR Email Template
 export const getExternalVisitorQREmailTemplate = (
   companyName: string,
-  eventName: string,
+  eventName: string
 ): string => {
   return `
     <div style="${baseStyles.container}">
@@ -494,6 +494,102 @@ export const getExternalVisitorQREmailTemplate = (
     </div>
   `;
 };
+/**
+ * Helper function to format the restriction reason message
+ * @param allowedRolesAndPositions - Array of allowed roles and positions
+ * @returns A simple formatted string stating the event has been restricted
+ */
+const formatRestrictionReason = (
+  allowedRolesAndPositions: string[]
+): string => {
+  if (allowedRolesAndPositions.length === 0) {
+    return "The event access has been restricted.";
+  }
+
+  const formattedRoles = allowedRolesAndPositions
+    .map((role) => role.toLowerCase().replace(/_/g, " "))
+    .map((role) => role.charAt(0).toUpperCase() + role.slice(1) + "s");
+
+  if (formattedRoles.length === 1) {
+    return `The event has been restricted to ${formattedRoles[0]} only.`;
+  } else if (formattedRoles.length === 2) {
+    return `The event has been restricted to ${formattedRoles[0]} and ${formattedRoles[1]} only.`;
+  } else {
+    const lastRole = formattedRoles.pop();
+    return `The event has been restricted to ${formattedRoles.join(
+      ", "
+    )}, and ${lastRole} only.`;
+  }
+};
+
+// Event Access Removed Email Template
+export const getEventAccessRemovedTemplate = (
+  username: string,
+  eventName: string,
+  allowedRolesAndPositions: string[],
+  refundAmount?: number
+): string => {
+  const restrictionMessage = formatRestrictionReason(allowedRolesAndPositions);
+
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerWarning}">
+          <h2 style="margin: 0; font-size: 22px;">🚫 Event Registration Update</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Dear ${username},<br><br>
+            We regret to inform you that your registration for <strong>${eventName}</strong> has been cancelled due to updated access restrictions.
+          </p>
+          
+          <div style="${baseStyles.warningBox}">
+            <h3 style="margin: 0 0 10px 0; color: #ea580c;">Reason for Removal</h3>
+            <p style="margin: 0; color: #333;">
+              ${restrictionMessage}
+            </p>
+          </div>
+          
+          ${
+            refundAmount
+              ? `
+          <div style="${baseStyles.successBox}">
+            <h3 style="margin: 0 0 10px 0; color: #16a34a;">💰 Refund Processed</h3>
+            <p style="margin: 0; color: #333;">
+              A refund of <strong>$${refundAmount.toFixed(
+                2
+              )}</strong> has been automatically added to your wallet.
+              You can use this balance for future event registrations.
+            </p>
+          </div>
+          `
+              : ""
+          }
+          
+          <div style="${baseStyles.infoBox}">
+            <p style="margin: 0; color: #333;">
+              <strong style="color: #2563eb;">What's Next?</strong><br><br>
+              You can browse other available events that match your profile. We apologize for any inconvenience this may cause.
+              ${
+                refundAmount
+                  ? "<br><br>Your wallet balance has been updated and is ready to use for other events."
+                  : ""
+              }
+            </p>
+          </div>
+          
+          <p style="font-size: 14px; color: #555;">
+            If you believe this removal was made in error or have any questions, please don't hesitate to contact the Events Office or our support team.
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 export const getGymSessionNotificationTemplate = (
   username: string,
   sessionName: string,
@@ -503,93 +599,168 @@ export const getGymSessionNotificationTemplate = (
     time: string;
     location: string;
     instructor?: string;
+    duration?: number;
   },
   newDetails?: {
     date: Date;
     time: string;
     location: string;
     instructor?: string;
+    duration?: number;
   }
 ) => {
-  const actionMessage =
-    actionType === "cancelled"
-      ? `<p style="color: #dc3545; font-weight: bold;">This session has been cancelled.</p>`
-      : `<p style="color: #ffc107; font-weight: bold;">This session has been updated with new details.</p>`;
-
-  const detailsSection =
-    actionType === "cancelled"
-      ? `
-      <div style="background-color: #f8d7da; padding: 15px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="color: #721c24; margin-top: 0;">Cancelled Session Details:</h3>
-        <p><strong>Date:</strong> ${oldDetails?.date.toLocaleDateString()}</p>
-        <p><strong>Time:</strong> ${oldDetails?.time}</p>
-        <p><strong>Location:</strong> ${oldDetails?.location}</p>
-        ${
-          oldDetails?.instructor
-            ? `<p><strong>Instructor:</strong> ${oldDetails.instructor}</p>`
-            : ""
-        }
-      </div>
-      <p>We apologize for any inconvenience. Please check our schedule for alternative sessions.</p>
-    `
-      : `
-      <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="color: #856404; margin-top: 0;">Original Details:</h3>
-        <p><strong>Date:</strong> ${oldDetails?.date.toLocaleDateString()}</p>
-        <p><strong>Time:</strong> ${oldDetails?.time}</p>
-        <p><strong>Location:</strong> ${oldDetails?.location}</p>
-        ${
-          oldDetails?.instructor
-            ? `<p><strong>Instructor:</strong> ${oldDetails.instructor}</p>`
-            : ""
-        }
-      </div>
-      <div style="background-color: #d4edda; padding: 15px; border-radius: 8px; margin: 20px 0;">
-        <h3 style="color: #155724; margin-top: 0;">New Details:</h3>
-        <p><strong>Date:</strong> ${newDetails?.date.toLocaleDateString()}</p>
-        <p><strong>Time:</strong> ${newDetails?.time}</p>
-        <p><strong>Location:</strong> ${newDetails?.location}</p>
-        ${
-          newDetails?.instructor
-            ? `<p><strong>Instructor:</strong> ${newDetails.instructor}</p>`
-            : ""
-        }
-      </div>
-      <p>Your registration has been automatically transferred to the updated session.</p>
-    `;
+  const isCancelled = actionType === "cancelled";
+  const headerStyle = isCancelled
+    ? baseStyles.headerDanger
+    : baseStyles.headerWarning;
+  const title = isCancelled ? "Gym Session Cancelled" : "Gym Session Updated";
+  const emoji = isCancelled ? "❌" : "⚠️";
 
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { background: white; padding: 30px; border: 1px solid #ddd; border-top: none; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>🏋️ Gym Session ${
-            actionType === "cancelled" ? "Cancelled" : "Updated"
-          }</h1>
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${headerStyle}">
+          <h2 style="margin: 0; font-size: 22px;">${emoji} ${title}</h2>
         </div>
-        <div class="content">
-          <p>Hello <strong>${username}</strong>,</p>
-          ${actionMessage}
-          <p>The gym session "<strong>${sessionName}</strong>" that you registered for has been ${actionType}.</p>
-          ${detailsSection}
-          <p>If you have any questions, please contact our support team.</p>
-          <p>Best regards,<br>The Multaqa Team</p>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username},<br><br>
+            The gym session "<strong>${sessionName}</strong>" that you registered for has been ${actionType}.
+          </p>
+          
+          ${
+            isCancelled
+              ? `<div style="${baseStyles.dangerBox}">
+                <h3 style="margin: 0 0 10px 0; color: #dc2626;">Cancelled Session Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Date:</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.date.toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.time
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.duration
+                        ? oldDetails.duration + " mins"
+                        : "N/A"
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.location
+                    }</td>
+                  </tr>
+                  ${
+                    oldDetails?.instructor
+                      ? `
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails.instructor}</td>
+                  </tr>`
+                      : ""
+                  }
+                </table>
+               </div>
+               <p style="font-size: 14px; color: #555;">
+                 We apologize for any inconvenience. Please check our schedule for alternative sessions.
+               </p>`
+              : `<div style="${baseStyles.warningBox}">
+                <h3 style="margin: 0 0 10px 0; color: #ea580c;">Original Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Date:</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.date.toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.time
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.duration
+                        ? oldDetails.duration + " mins"
+                        : "N/A"
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.location
+                    }</td>
+                  </tr>
+                  ${
+                    oldDetails?.instructor
+                      ? `
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails.instructor}</td>
+                  </tr>`
+                      : ""
+                  }
+                </table>
+               </div>
+               
+               <div style="${baseStyles.successBox}">
+                <h3 style="margin: 0 0 10px 0; color: #16a34a;">New Details</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Date:</td>
+                    <td style="padding: 5px 0; color: #333;">${newDetails?.date.toLocaleDateString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      newDetails?.time
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      newDetails?.duration
+                        ? newDetails.duration + " mins"
+                        : "N/A"
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      newDetails?.location
+                    }</td>
+                  </tr>
+                  ${
+                    newDetails?.instructor
+                      ? `
+                  <tr>
+                    <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
+                    <td style="padding: 5px 0; color: #333;">${newDetails.instructor}</td>
+                  </tr>`
+                      : ""
+                  }
+                </table>
+               </div>
+               <p style="font-size: 14px; color: #555;">
+                 Your registration has been automatically transferred to the updated session.
+               </p>`
+          }
+          
+          <p style="font-size: 14px; color: #555;">
+            If you have any questions, please contact our support team.
+          </p>
         </div>
-        <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} Multaqa. All rights reserved.</p>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
         </div>
       </div>
-    </body>
-    </html>
+    </div>
   `;
 };

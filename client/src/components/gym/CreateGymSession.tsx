@@ -319,7 +319,7 @@ export default function CreateGymSession({
                       isError={formik.touched.type ? Boolean(formik.errors.type) : false}
                       helperText={formik.touched.type ? formik.errors.type : ""}
                       placeholder="Select session type"
-                      neumorphicBox
+                      neumorphicBox = {false}
                       required
                       fullWidth
                       size="small"

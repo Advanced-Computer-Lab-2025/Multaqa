@@ -166,7 +166,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         people: event.RequestData.boothAttendees,
         description: event.description,
         details: {
-          "Setup Duration": `${event.RequestData.boothSetupDuration} weeks`,
+          "Setup Duration": event.RequestData.boothSetupDuration,
           Location: event.RequestData.boothLocation,
           "Booth Size": event.RequestData.boothSize,
         },
