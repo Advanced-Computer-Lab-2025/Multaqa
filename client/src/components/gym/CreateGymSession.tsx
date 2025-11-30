@@ -9,8 +9,7 @@ import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import { CustomModalLayout } from "../shared/modals";
-import { DateTimePicker } from "../shared/DateTimePicker";
-import { formatDuration } from "../shared/DateTimePicker/utils";
+import GymSessionCalendar from "./GymSessionCalendar";
 import { GymSessionType, SESSION_LABEL } from "./types";
 import { createGymSession } from "./utils";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -342,10 +341,7 @@ export default function CreateGymSession({
 
                   {/* Start Date and Time */}
                   <Box sx={{ mb: 3 }}>
-                    <DateTimePicker
-                      id="startDateTime"
-                      label="Start Date & Time"
-                      name="startDateTime"
+                    <GymSessionCalendar
                       value={formik.values.startDateTime}
                       onChange={(dateTime) =>
                         formik.setFieldValue("startDateTime", dateTime, true)
@@ -359,8 +355,6 @@ export default function CreateGymSession({
                         formik.touched.startDateTime ? formik.errors.startDateTime : ""
                       }
                       minDate={new Date()}
-                      containerType="inwards"
-                      touched={formik.touched.startDateTime}
                       labelColor={accentColor}
                     />
                   </Box>
@@ -384,7 +378,7 @@ export default function CreateGymSession({
                       formik.touched.duration
                         ? formik.errors.duration
                         : formik.values.duration
-                          ? `Duration: ${formatDuration(formik.values.duration)}`
+                          ? `Duration: ${formik.values.duration} minutes`
                           : "Enter duration in minutes (10-180 min)"
                     }
                     placeholder="Enter duration in minutes"
@@ -463,7 +457,7 @@ export default function CreateGymSession({
               )}
 
               {/* Submit Button */}
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              <Box sx={{ my: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <CustomButton
                   disabled={!(formik.isValid && formik.dirty) || isSubmitting}
                   label={isSubmitting ? "Creating..." : 'Create'}
