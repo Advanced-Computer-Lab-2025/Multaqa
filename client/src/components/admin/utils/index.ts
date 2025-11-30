@@ -14,6 +14,7 @@ import { CreateAdminResponse, GetAllAdminsResponse } from "../../../../../backen
 import { AxiosError } from "axios";
 import { GetAllUnAssignedStaffMembersResponse, GetAllUsersResponse, GetAllProfessorsResponse, GetAllStaffResponse, GetAllTAsResponse } from "../../../../../backend/interfaces/responses/userResponses.interface";
 import { capitalizeName } from "../../shared/input-fields/utils";
+import { toast } from "react-toastify";
 
 export const userCreationSchema = Yup.object().shape({
   fullName: rigorousValidationSchema.fields.fullName,
@@ -99,10 +100,36 @@ export const handleCreateAccount = async (
 
     setAccounts((prev) => [newAccount, ...prev]);
     handleCloseCreate();
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Failed to create admin account";
-    console.error("Failed to create admin account:", error);
-    throw new Error(errorMessage);
+     toast.success(
+          response.data.message || "Admin account created successfully!",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+  } catch (err: any) {
+     const errorMessage =
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to create admin account. Please try again.";
+    
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
   }
 };
 
@@ -115,13 +142,40 @@ export const handleDeleteAccount = async (
 ) => {
   if (accountToDelete) {
     try {
-      await api.delete(`/admins/${accountToDelete.id}`);
+      const response = await api.delete(`/admins/${accountToDelete.id}`);
       setAccounts(accounts.filter((acc) => acc.id !== accountToDelete.id));
       handleCloseDeleteModal();
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to delete admin account";
-      console.error("Failed to delete admin account:", error);
-      throw new Error(errorMessage);
+        toast.success(
+          response.data.message ||
+            "Admin account deleted successfully!",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+    } catch (err: any) {
+     const errorMessage =
+       err?.response?.data?.error ||
+       err?.response?.data?.message ||
+       err?.message ||
+        "Failed to delete admin account. Please try again.";
+
+     toast.error(errorMessage, {
+       position: "bottom-right",
+       autoClose: 5000,
+       hideProgressBar: false,
+       closeOnClick: true,
+       pauseOnHover: true,
+       draggable: true,
+       progress: undefined,
+       theme: "colored",
+     });
     }
   }
 };
@@ -204,12 +258,7 @@ export const handleToggleBlock = async (
 ) => {
   try {
     const action = currentStatus === "Active" ? "block" : "unblock";
-    console.log(`🔒 ${action === "block" ? "Blocking" : "Unblocking"} user:`, userId);
-
     const response = await api.post(`/users/${userId}/${action}`);
-
-    console.log('✅ Action successful:', response.data.message);
-
     // Update local state
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
@@ -221,17 +270,31 @@ export const handleToggleBlock = async (
           : user
       )
     );
-  } catch (error: unknown) {
-    if (error instanceof AxiosError) {
-      const errorMessage = error.response?.data?.error || error.message;
-      console.error('❌ Failed to toggle block status:', errorMessage);
-      throw new Error(errorMessage);
-    }
-    if (error instanceof Error) {
-      console.error('❌ Failed to toggle block status:', error.message);
-      throw new Error(error.message);
-    }
-    throw new Error("Failed to toggle block status");
+    toast.success(response.data.message, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
+  } catch (err: any) {
+     const errorMessage =
+       err?.response?.data?.error ||
+       err?.response?.data?.message ||
+       err?.message
+     toast.error(errorMessage, {
+       position: "bottom-right",
+       autoClose: 5000,
+       hideProgressBar: false,
+       closeOnClick: true,
+       pauseOnHover: true,
+       draggable: true,
+       progress: undefined,
+       theme: "colored",
+     });
   }
 };
 
@@ -243,7 +306,6 @@ export const fetchAllUsers = async (): Promise<User[]> => {
     const response = await api.get<GetAllUsersResponse>('/users');
     const users = response.data.data;
 
-    console.log(`✅ Found ${users.length} user(s)`);
 
     // Map backend data to User interface
     return users.map((user: any) => ({
@@ -434,23 +496,30 @@ export const handleAssignRole = async (
       position: position, // Backend expects : TA, professor, staff
     });
 
-    console.log('✅ Role assigned successfully:', response.data.message);
 
     // Keep the optimistic update that was already done
     // The assignment was already moved visually, we just confirm it worked
 
     return response.data;
-  } catch (error: unknown) {
+  } catch (err: any) {
     // If it fails, revert the optimistic update
-    let errorMessage = "Failed to assign role";
+     const errorMessage =
+       err?.response?.data?.error ||
+       err?.response?.data?.message ||
+       err?.message ||
+        "Failed to assign role. Please try again.";
 
-    if (error instanceof AxiosError) {
-      errorMessage = error.response?.data?.error || error.message;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
+     toast.error(errorMessage, {
+       position: "bottom-right",
+       autoClose: 5000,
+       hideProgressBar: false,
+       closeOnClick: true,
+       pauseOnHover: true,
+       draggable: true,
+       progress: undefined,
+       theme: "colored",
+     });
 
-    console.error('❌ Failed to assign role:', errorMessage);
 
     // Revert: move applicant back to pending
     setAssigned((prev) => ({

@@ -118,18 +118,30 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
       }
       toast.success("Bazaar edited successfully", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
-      })
+      });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.message || "API call failed");
-      window.alert(err.response.data.error);
-      toast.error("Failed to edit bazaar. Please try again.", {
-        position: "bottom-right",
-        autoClose: 3000,
-        theme: "colored",
-      });
+      toast.error(
+        err.response.data.error || "Failed to edit bazaar. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } finally {
       setLoading(false);
     }

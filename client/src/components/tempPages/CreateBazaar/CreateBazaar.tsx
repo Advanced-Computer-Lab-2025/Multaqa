@@ -105,18 +105,31 @@ const CreateBazaar = ({open, onClose, setRefresh, color}: CreateBazaarProps) => 
         setResponse(res.data);
         setRefresh((prev)=> !prev);
         toast.success("Bazaar created successfully", {
-            position:"bottom-right",
-            autoClose:3000,
-            theme: "colored",
-        })
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
     } catch (err: any) {
         setError(err?.message || "API call failed");
-        window.alert(err.response.data.error);
-        toast.error("Failed to create bazaar. Please try again.", {
-            position:"bottom-right",
-            autoClose:3000,
+        toast.error(
+          err.response.data.error ||
+            "Failed to create bazaar. Please try again.",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
             theme: "colored",
-            });
+          }
+        );
     } finally {
         setLoading(false);
     }

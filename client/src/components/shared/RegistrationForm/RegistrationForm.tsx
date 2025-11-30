@@ -125,6 +125,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
           toast.success(message, {
             position: "bottom-right",
             autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
             theme: "colored",
           });
           if (UserType === "vendor") {
@@ -140,6 +145,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
           toast.error(message, {
             position: "bottom-right",
             autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
             theme: "colored",
           });
         } finally {

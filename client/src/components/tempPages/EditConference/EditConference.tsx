@@ -153,8 +153,7 @@ const Edit: React.FC<EditConferenceProps> = ({
             })
         } catch (err: any) {
             setError(err?.message || "API call failed");
-            window.alert(err.response.data.error);
-            toast.error("Failed to edit conference. Please try again.", {
+            toast.error(err.response.data.error || "Failed to edit conference. Please try again.", {
                 position: "bottom-right",
                 autoClose: 3000,
                 theme: "colored",
@@ -200,9 +199,14 @@ const Edit: React.FC<EditConferenceProps> = ({
             if (errorTab) {
                 setActiveTab(errorTab);
                 toast.error("Please fill out all required fields.", {
-                    position: "bottom-right",
-                    autoClose: 3000,
-                    theme: "colored",
+                  position: "bottom-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "colored",
                 });
             }
             return;

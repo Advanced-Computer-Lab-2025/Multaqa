@@ -211,7 +211,13 @@ export default function CourtsBookingContent() {
 
       toast.success("Court slot reserved successfully!", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
       });
     } catch (err: unknown) {
       console.error("Error reserving court slot:", err);
@@ -226,7 +232,13 @@ export default function CourtsBookingContent() {
       
       toast.error(message, {
         position: "bottom-right",
-        autoClose: 4000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
       });
       setInlineError(message);
     }

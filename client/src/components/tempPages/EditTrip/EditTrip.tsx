@@ -105,18 +105,30 @@ const EditTrip = ({ tripId, tripName, location, price,
       setRefresh((refresh) => !refresh);
       toast.success("Trip edited successfully", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
-      })
+      });
       return res.data;
     } catch (err: any) {
       setError(err?.message || "API call failed");
-      window.alert(err.response.data.error);
-      toast.error("Failed to edit trip. Please try again.", {
-        position: "bottom-right",
-        autoClose: 3000,
-        theme: "colored",
-      });
+      toast.error(
+        err.response.data.error || "Failed to edit trip. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } finally {
       setLoading(false);
     }

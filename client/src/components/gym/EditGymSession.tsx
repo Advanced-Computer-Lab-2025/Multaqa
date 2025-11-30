@@ -129,10 +129,15 @@ export default function EditGymSession({
         // Close modal and show success toast only upon success
         onClose(); 
         toast.success("Gym session edited successfully", {
-          position: "bottom-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
 
         // Notify parent to refresh data
         setRefresh((prev) => !prev);
@@ -147,11 +152,17 @@ export default function EditGymSession({
           err?.message || "Failed to update gym session"; // The utils function throws a clean Error object
 
         setError(errorMessage);
-        toast.error(errorMessage, { // Use the actual error message in the toast
-          position: "bottom-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
+        toast.error(errorMessage, {
+          // Use the actual error message in the toast
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
       } finally {
         setIsSubmitting(false);
       }

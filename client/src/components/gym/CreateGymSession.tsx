@@ -101,11 +101,16 @@ export default function CreateGymSession({
           maxParticipants: parseInt(values.maxParticipants),
           trainer: trainerName || undefined,
         });
-        toast.success("Gym session created successfully",{
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
+        toast.success("Gym session created successfully", {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
         console.log("✅ Gym session created successfully");
 
         // Notify parent to refresh data
@@ -119,10 +124,15 @@ export default function CreateGymSession({
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create gym session";
             toast.error(err?.response?.data?.error, {
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
         setError(errorMessage);
         console.error("Error creating session:", err);
       } finally {

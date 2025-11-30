@@ -133,14 +133,24 @@ const EventDetails: React.FC<EventDetailsProps> = ({
       await api.delete(`/events/${eventId}/reviews/${reviewerId}`);
       toast.success("Comment deleted successfully.", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
       });
     } catch (error) {
       console.error("Failed to delete comment:", error);
       toast.error("Failed to delete comment. Please try again.", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
       });
     } finally {

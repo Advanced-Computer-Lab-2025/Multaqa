@@ -148,19 +148,32 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
             const res = await api.post("/workshops/", payload);
             setResponse(res.data);
             toast.success("Workshop created successfully", {
-                position: "bottom-right",
-                autoClose: 3000,
-                theme: "colored",
-            })
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
             if (setRefresh) setRefresh((prev) => !prev);
         } catch (err: any) {
             setError(err?.message || "API call failed");
-            window.alert(err.response.data.error);
-            toast.error("Failed to create workshop. Please try again.", {
+            toast.error(
+              err.response.data.error ||
+                "Failed to create workshop. Please try again.",
+              {
                 position: "bottom-right",
-                autoClose: 3000,
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
                 theme: "colored",
-            });
+              }
+            );
         } finally {
             setLoading(false);
         }
