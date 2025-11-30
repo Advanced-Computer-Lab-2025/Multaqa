@@ -108,8 +108,9 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
         try {
             setLoadingProfessors(true);
             const res = await api.get("/users/professors");
+            console.log(res);
             // filter only isVerified = true
-            const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+            const verifiedProfessors = res?.data?.data
             const options = verifiedProfessors
                 .filter((prof: any) => prof._id !== creatingProfessor)
                 .map((prof: any) => ({
@@ -611,7 +612,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
 
                                     <Typography sx={{ ...detailTitleStyles(theme), fontSize: '16px', mb: 1 }}>Participating Professors</Typography>
                                     <CustomSelectField
-                                        label="Participating Professors"
+                                        label={availableProfessors.length === 0 ? "No available professors" : "Participating Professors"}
                                         fieldType="single"
                                         options={availableProfessors}
                                         value={selectedProf}
@@ -629,6 +630,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                         }}
                                         name="professors"
                                         usePortalPositioning={true}
+                                        disabled={availableProfessors.length === 0}
                                     />
                                     {errors.professors && touched.professors ?
                                         <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.professors.toString()}</Typography>
