@@ -70,7 +70,7 @@ export const submitBazarForm = async (
       eventType: "bazaar",
       bazaarAttendees: processedAttendees, // Use processed attendees
       boothSize: values.boothSize,
-      price: values.price,
+      participationFee: values.price,
     };
 
     const response = await api.post(

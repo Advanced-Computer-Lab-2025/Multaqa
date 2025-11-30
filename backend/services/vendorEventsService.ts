@@ -187,14 +187,8 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Calculate participation fee for bazaar
-    const BASE_PRICE = 50;
-    const location = data.value.bazaarLocation || "";
-    const boothSize = data.value.boothSize || "2x2";
-    const sizeMatch = boothSize.match(/(\d+)/);
-    const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
-    const locationFactor = Math.max(1, Math.floor(location.length / 10));
-    const participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
+    // Use provided participation fee
+    const participationFee = data.value.participationFee;
 
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({

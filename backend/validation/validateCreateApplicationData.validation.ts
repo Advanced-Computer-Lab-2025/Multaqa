@@ -14,6 +14,7 @@ const bazaarSchema = Joi.object({
   boothSize: Joi.string()
     .valid(...BoothSizeEnum)
     .required(),
+  participationFee: Joi.number().required(),
 });
 
 const platformBoothSchema = Joi.object({
