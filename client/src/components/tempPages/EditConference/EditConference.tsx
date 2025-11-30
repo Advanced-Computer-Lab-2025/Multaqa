@@ -126,6 +126,8 @@ const Edit: React.FC<EditConferenceProps> = ({
     const [activeTab, setActiveTab] = useState('general');
     const [resourceInput, setResourceInput] = useState<string>("");
 
+    const extraResourcesMarginBottom = startDatePassed ? '24px' : '12px';
+
     const initialFormData: EventFormData = {
         eventName: eventName,
         eventStartDate: eventStartDate ? dayjs(eventStartDate) : null,
@@ -489,7 +491,7 @@ const Edit: React.FC<EditConferenceProps> = ({
                                     </Box>
 
                                     <Typography sx={{ ...detailTitleStyles(theme), fontSize: '16px', mb: 1 }}>Extra Resources</Typography>
-                                    <Box sx={{ display: "flex", gap: 1, marginBottom: "12px", alignItems: "center" }}>
+                                    <Box sx={{ display: "flex", gap: 1, marginBottom: extraResourcesMarginBottom, alignItems: "center" }}>
                                         <CustomTextField
                                             label='Extra Resources'
                                             name='extraResources'
@@ -524,7 +526,7 @@ const Edit: React.FC<EditConferenceProps> = ({
                                         </IconButton>
                                     </Box>
 
-                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: "12px" }}>
+                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, marginBottom: extraResourcesMarginBottom }}>
                                         {values.extraRequiredResources.map((res: string) => (
                                             <Chip
                                                 key={res}
