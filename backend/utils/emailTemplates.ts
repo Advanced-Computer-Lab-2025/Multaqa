@@ -455,7 +455,7 @@ export const getApplicationStatusTemplate = (
 // External Visitor QR Email Template
 export const getExternalVisitorQREmailTemplate = (
   companyName: string,
-  eventName: string,
+  eventName: string
 ): string => {
   return `
     <div style="${baseStyles.container}">
@@ -494,6 +494,102 @@ export const getExternalVisitorQREmailTemplate = (
     </div>
   `;
 };
+/**
+ * Helper function to format the restriction reason message
+ * @param allowedRolesAndPositions - Array of allowed roles and positions
+ * @returns A simple formatted string stating the event has been restricted
+ */
+const formatRestrictionReason = (
+  allowedRolesAndPositions: string[]
+): string => {
+  if (allowedRolesAndPositions.length === 0) {
+    return "The event access has been restricted.";
+  }
+
+  const formattedRoles = allowedRolesAndPositions
+    .map((role) => role.toLowerCase().replace(/_/g, " "))
+    .map((role) => role.charAt(0).toUpperCase() + role.slice(1) + "s");
+
+  if (formattedRoles.length === 1) {
+    return `The event has been restricted to ${formattedRoles[0]} only.`;
+  } else if (formattedRoles.length === 2) {
+    return `The event has been restricted to ${formattedRoles[0]} and ${formattedRoles[1]} only.`;
+  } else {
+    const lastRole = formattedRoles.pop();
+    return `The event has been restricted to ${formattedRoles.join(
+      ", "
+    )}, and ${lastRole} only.`;
+  }
+};
+
+// Event Access Removed Email Template
+export const getEventAccessRemovedTemplate = (
+  username: string,
+  eventName: string,
+  allowedRolesAndPositions: string[],
+  refundAmount?: number
+): string => {
+  const restrictionMessage = formatRestrictionReason(allowedRolesAndPositions);
+
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerWarning}">
+          <h2 style="margin: 0; font-size: 22px;">🚫 Event Registration Update</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Dear ${username},<br><br>
+            We regret to inform you that your registration for <strong>${eventName}</strong> has been cancelled due to updated access restrictions.
+          </p>
+          
+          <div style="${baseStyles.warningBox}">
+            <h3 style="margin: 0 0 10px 0; color: #ea580c;">Reason for Removal</h3>
+            <p style="margin: 0; color: #333;">
+              ${restrictionMessage}
+            </p>
+          </div>
+          
+          ${
+            refundAmount
+              ? `
+          <div style="${baseStyles.successBox}">
+            <h3 style="margin: 0 0 10px 0; color: #16a34a;">💰 Refund Processed</h3>
+            <p style="margin: 0; color: #333;">
+              A refund of <strong>$${refundAmount.toFixed(
+                2
+              )}</strong> has been automatically added to your wallet.
+              You can use this balance for future event registrations.
+            </p>
+          </div>
+          `
+              : ""
+          }
+          
+          <div style="${baseStyles.infoBox}">
+            <p style="margin: 0; color: #333;">
+              <strong style="color: #2563eb;">What's Next?</strong><br><br>
+              You can browse other available events that match your profile. We apologize for any inconvenience this may cause.
+              ${
+                refundAmount
+                  ? "<br><br>Your wallet balance has been updated and is ready to use for other events."
+                  : ""
+              }
+            </p>
+          </div>
+          
+          <p style="font-size: 14px; color: #555;">
+            If you believe this removal was made in error or have any questions, please don't hesitate to contact the Events Office or our support team.
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 export const getGymSessionNotificationTemplate = (
   username: string,
   sessionName: string,
@@ -514,9 +610,11 @@ export const getGymSessionNotificationTemplate = (
   }
 ) => {
   const isCancelled = actionType === "cancelled";
-  const headerStyle = isCancelled ? baseStyles.headerDanger : baseStyles.headerWarning;
-  const title = isCancelled ? 'Gym Session Cancelled' : 'Gym Session Updated';
-  const emoji = isCancelled ? '❌' : '⚠️';
+  const headerStyle = isCancelled
+    ? baseStyles.headerDanger
+    : baseStyles.headerWarning;
+  const title = isCancelled ? "Gym Session Cancelled" : "Gym Session Updated";
+  const emoji = isCancelled ? "❌" : "⚠️";
 
   return `
     <div style="${baseStyles.container}">
@@ -530,8 +628,9 @@ export const getGymSessionNotificationTemplate = (
             The gym session "<strong>${sessionName}</strong>" that you registered for has been ${actionType}.
           </p>
           
-          ${isCancelled
-            ? `<div style="${baseStyles.dangerBox}">
+          ${
+            isCancelled
+              ? `<div style="${baseStyles.dangerBox}">
                 <h3 style="margin: 0 0 10px 0; color: #dc2626;">Cancelled Session Details</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
@@ -540,27 +639,39 @@ export const getGymSessionNotificationTemplate = (
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
-                    <td style="padding: 5px 0; color: #333;">${oldDetails?.time}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.time
+                    }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
-                    <td style="padding: 5px 0; color: #333;">${oldDetails?.duration ? oldDetails.duration + ' mins' : 'N/A'}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.duration
+                        ? oldDetails.duration + " mins"
+                        : "N/A"
+                    }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px 0; color: #333;">${oldDetails?.location}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.location
+                    }</td>
                   </tr>
-                  ${oldDetails?.instructor ? `
+                  ${
+                    oldDetails?.instructor
+                      ? `
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
                     <td style="padding: 5px 0; color: #333;">${oldDetails.instructor}</td>
-                  </tr>` : ''}
+                  </tr>`
+                      : ""
+                  }
                 </table>
                </div>
                <p style="font-size: 14px; color: #555;">
                  We apologize for any inconvenience. Please check our schedule for alternative sessions.
                </p>`
-            : `<div style="${baseStyles.warningBox}">
+              : `<div style="${baseStyles.warningBox}">
                 <h3 style="margin: 0 0 10px 0; color: #ea580c;">Original Details</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
@@ -569,21 +680,33 @@ export const getGymSessionNotificationTemplate = (
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
-                    <td style="padding: 5px 0; color: #333;">${oldDetails?.time}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.time
+                    }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
-                    <td style="padding: 5px 0; color: #333;">${oldDetails?.duration ? oldDetails.duration + ' mins' : 'N/A'}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.duration
+                        ? oldDetails.duration + " mins"
+                        : "N/A"
+                    }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px 0; color: #333;">${oldDetails?.location}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      oldDetails?.location
+                    }</td>
                   </tr>
-                  ${oldDetails?.instructor ? `
+                  ${
+                    oldDetails?.instructor
+                      ? `
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
                     <td style="padding: 5px 0; color: #333;">${oldDetails.instructor}</td>
-                  </tr>` : ''}
+                  </tr>`
+                      : ""
+                  }
                 </table>
                </div>
                
@@ -596,21 +719,33 @@ export const getGymSessionNotificationTemplate = (
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
-                    <td style="padding: 5px 0; color: #333;">${newDetails?.time}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      newDetails?.time
+                    }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
-                    <td style="padding: 5px 0; color: #333;">${newDetails?.duration ? newDetails.duration + ' mins' : 'N/A'}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      newDetails?.duration
+                        ? newDetails.duration + " mins"
+                        : "N/A"
+                    }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px 0; color: #333;">${newDetails?.location}</td>
+                    <td style="padding: 5px 0; color: #333;">${
+                      newDetails?.location
+                    }</td>
                   </tr>
-                  ${newDetails?.instructor ? `
+                  ${
+                    newDetails?.instructor
+                      ? `
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
                     <td style="padding: 5px 0; color: #333;">${newDetails.instructor}</td>
-                  </tr>` : ''}
+                  </tr>`
+                      : ""
+                  }
                 </table>
                </div>
                <p style="font-size: 14px; color: #555;">
