@@ -124,9 +124,14 @@ export default function GymSchedule({ month, sessions }: Props) {
     today.setHours(0, 0, 0, 0);
 
     return all.filter((s) => {
-      const d = new Date(s.start);
+      const sessionDate = new Date(s.start);
+      // Set session date to midnight for date-only comparison
+      const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+
       // Check if session is in the selected month AND not in the past
-      return d.getFullYear() === y && d.getMonth() === m && d >= today;
+      return sessionDateOnly.getFullYear() === y &&
+        sessionDateOnly.getMonth() === m &&
+        sessionDateOnly >= today;
     });
   }, [all, current]);
 
