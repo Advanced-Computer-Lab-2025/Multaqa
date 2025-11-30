@@ -19,6 +19,7 @@ import { RegisterBoxProps } from "./types";
 import { TruncatedText } from "./utils";
 import { useState, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
+import { capitalizeFullName } from "../../../shared/utils/nameUtils";
 
 const RegisterBox: React.FC<RegisterBoxProps> = ({
   name = "Salma Tarek",
@@ -149,7 +150,7 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
             }}
           >
             <TruncatedText fontSize="16px" fontWeight="600" maxChars={15}>
-              {name}
+              {capitalizeFullName(name)}
             </TruncatedText>
           </Box>
         </Stack>
