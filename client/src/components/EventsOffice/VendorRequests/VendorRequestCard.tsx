@@ -66,10 +66,10 @@ const STATUS_CONFIG: Record<
   rejected: { label: "Rejected", color: "error", bg: "#fef2f2", fg: "#b91c1c" },
 };
 
-const EVENT_TYPE_CONFIG: Record<string, { label: string; bg: string; fg: string }> = {
-  bazaar: { label: "Bazaar", bg: "#f3e8ff", fg: "#6b21a8" },
-  platform_booth: { label: "Platform Booth", bg: "#eff6ff", fg: "#1e40af" },
-  unknown: { label: "Event", bg: "#f3f4f6", fg: "#374151" },
+const EVENT_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
+  bazaar: { label: "Bazaar", color: "#e91e63" },
+  platform_booth: { label: "Platform Booth", color: "#2196f3" },
+  unknown: { label: "Event", color: "#374151" },
 };
 
 function formatDate(value?: string) {
@@ -233,9 +233,13 @@ export default function VendorRequestCard({
                     sx={{
                       height: 20,
                       fontSize: "0.65rem",
-                      bgcolor: eventConfig.bg,
-                      color: eventConfig.fg,
+                      backgroundColor: `${eventConfig.color}08`,
+                      color: eventConfig.color,
                       fontWeight: 600,
+                      border: `1px solid ${eventConfig.color}`,
+                      "&:hover": {
+                        backgroundColor: `${eventConfig.color}15`,
+                      },
                     }}
                   />
                 </Stack>
