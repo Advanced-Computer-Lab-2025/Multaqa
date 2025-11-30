@@ -59,7 +59,7 @@ export class GymSessionsService {
 
     const sessions = await this.gymSessionRepo.findAll(filter, {
       select:
-        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity",
+        " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity attendees",
     });
     if (!sessions || sessions.length === 0) {
       throw createError(404, "No gym sessions found for the selected period");
@@ -196,6 +196,7 @@ export class GymSessionsService {
       throw createError(404, "Gym session not found");
     }
     if(new Date(session.registrationDeadline) < new Date()) {
+      console.log(session.registrationDeadline, new Date());
       throw createError(400, "Session has already started or passed");
     }
     if (session.attendees.length >= session.capacity) {
