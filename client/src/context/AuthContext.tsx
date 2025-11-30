@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem("token");
         await api
           .post("/auth/logout", {}, { withCredentials: true })
-          .catch(() => { });
+          .catch(() => {});
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -180,7 +180,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         pathname.endsWith(route + "/")
     );
 
-    if (isCurrentPublic) {
+    if (isCurrentPublic && !pathname.endsWith("/login")) {
       router.replace("/login");
     }
 

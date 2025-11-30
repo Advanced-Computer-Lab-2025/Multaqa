@@ -149,11 +149,10 @@ export default function SidebarNavigation({
                 <button
                   key={item.id}
                   onClick={() => onItemClick?.(item.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all font-sans text-sm ${
-                    isActive
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all font-sans text-sm ${isActive
                       ? "bg-[#598bbd] text-white font-semibold shadow-md"
                       : "text-[#1E1E1E] hover:bg-[#b2cee2] hover:shadow-sm hover:scale-[1.02]"
-                  }`}
+                    }`}
                   style={{
                     transition: "all 0.3s ease-in-out",
                   }}
@@ -170,55 +169,7 @@ export default function SidebarNavigation({
       {sectionItems.length === 0 ? (
         <div className="flex flex-col justify-end flex-1">
           {/* User Profile Section */}
-          {currentUser && (
-            <div className="mb-4">
-              <div
-                className="w-full px-4 py-2 rounded-xl border-2"
-                style={{
-                  backgroundColor: "#f9fbfc",
-                  borderColor: "#6299d0",
-                  boxShadow: "0 2px 6px rgba(98, 153, 208, 0.15)",
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Profile Avatar */}
-                  <div className="flex-shrink-0">
-                    {currentUser.profileImage ? (
-                      <Image
-                        src={currentUser.profileImage}
-                        alt={displayName}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-[#6299d0] text-white flex items-center justify-center font-bold text-xs">
-                        {initials}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* User Info */}
-                  <div className="flex-1 min-w-0">
-                    <h1
-                      className="font-bold font-heading tracking-wide"
-                      style={{
-                        color: "#6299d0",
-                        margin: 0,
-                        fontSize: "0.9rem",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      {displayName}
-                    </h1>
-                    <p className="text-xs text-[#6299d0] font-medium mt-0.5">
-                      {roleLabel}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* IN NOTES */}
 
           {/* Logout Button */}
           {onLogout && (
@@ -253,55 +204,7 @@ export default function SidebarNavigation({
         /* When sections exist, render profile and logout normally */
         <>
           {/* User Profile Section */}
-          {currentUser && (
-            <div className="mb-4">
-              <div
-                className="w-full px-4 py-2 rounded-xl border-2"
-                style={{
-                  backgroundColor: "#f9fbfc",
-                  borderColor: "#6299d0",
-                  boxShadow: "0 2px 6px rgba(98, 153, 208, 0.15)",
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Profile Avatar */}
-                  <div className="flex-shrink-0">
-                    {currentUser.profileImage ? (
-                      <Image
-                        src={currentUser.profileImage}
-                        alt={displayName}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-[#6299d0] text-white flex items-center justify-center font-bold text-xs">
-                        {initials}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* User Info */}
-                  <div className="flex-1 min-w-0">
-                    <h1
-                      className="font-bold font-heading tracking-wide"
-                      style={{
-                        color: "#6299d0",
-                        margin: 0,
-                        fontSize: "0.9rem",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      {displayName}
-                    </h1>
-                    <p className="text-xs text-[#6299d0] font-medium mt-0.5">
-                      {roleLabel}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* IN NOTES */}
 
           {/* Logout Button */}
           {onLogout && (

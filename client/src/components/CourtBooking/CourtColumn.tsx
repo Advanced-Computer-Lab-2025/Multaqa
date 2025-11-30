@@ -36,13 +36,13 @@ const CourtColumn: React.FC<Props> = ({
     () => Array.from(grouped.keys()).sort(),
     [grouped]
   );
-  
+
   // Auto-load today's date if no date is selected
   const todayIso = React.useMemo(() => {
     const today = new Date();
     return today.toISOString().slice(0, 10);
   }, []);
-  
+
   const activeDay = selectedDate ?? todayIso;
   const filteredSlots = React.useMemo(() => {
     if (!activeDay) return [];
@@ -85,8 +85,10 @@ const CourtColumn: React.FC<Props> = ({
           )}, 0 0 22px ${alpha(courtColor, 0.18)}`,
           transition:
             "box-shadow 0.35s ease, transform 0.35s ease, background-color 0.35s ease",
-          maxHeight: { xs: 520, sm: 560, md: 600 },
-          minHeight: { xs: 520, sm: 560, md: 600 },
+          // Use viewport height to constrain the column height
+          // Subtract approximate header/navigation height (adjust as needed)
+          maxHeight: "calc(100vh - 320px)",
+          minHeight: "calc(100vh - 320px)",
           overflow: "hidden",
           "&:hover": {
             backgroundColor: alpha(courtColor, 0.1),

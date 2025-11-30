@@ -1,6 +1,6 @@
 import { Box, Typography, Paper } from '@mui/material';
 import theme from "@/themes/lightTheme";
-import { User, ArrowUp, ArrowDown } from 'lucide-react';
+import { User, ArrowUp, ArrowDown , CreditCard, Wallet} from 'lucide-react';
 import WalletBalance from './WalletBalance';
 import React from 'react'
 
@@ -82,17 +82,19 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 </Typography>
 
                 <Typography variant="body2" color="text.secondary">
-                  Total: ${total}
+                  Total: EGP {total}
                 </Typography>
 
                 {!isRefund ?
                 <>
-                  <Typography variant="body2" color="text.secondary">
-                    Paid by card: ${card}
+                  <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CreditCard size={16} />
+                    Card: EGP {card}
                   </Typography>
 
-                  <Typography variant="body2" color="text.secondary">
-                    Paid by wallet: ${wallet}
+                  <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Wallet size={16} />
+                    Wallet: EGP {wallet}
                   </Typography>
                 </>  
                 :<></>} 
@@ -108,7 +110,7 @@ const PreviousTransactions = ({transactions}:TransactionsProps) => {
                 fontWeight="bold"
                 sx={{ color: amountColor, minWidth: '80px', textAlign: 'right' }}
               >
-                {amountPrefix}${Number(transaction.amount ?? 0).toFixed(2)}
+                {amountPrefix}EGP {Number(transaction.amount ?? 0).toFixed(2)}
               </Typography>
             </Paper>
           );

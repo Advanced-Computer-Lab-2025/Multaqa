@@ -33,7 +33,21 @@ const gymSessionValidationSchema = Yup.object({
   startDateTime: Yup.date()
     .nullable()
     .required("Start date and time is required")
-    .min(new Date(), "Date and time cannot be in the past"),
+    .min(new Date(), "Date and time cannot be in the past")
+    .test(
+      "max-next-month",
+      "Sessions can only be created for the current month and next month",
+      function (value) {
+        if (!value) return true;
+        const selectedDate = new Date(value);
+        const today = new Date();
+
+        // Get the last day of next month
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
+        return selectedDate <= nextMonth;
+      }
+    ),
   duration: Yup.number()
     .typeError("Duration must be a number")
     .required("Duration is required")
@@ -105,11 +119,11 @@ export default function CreateGymSession({
           maxParticipants: parseInt(values.maxParticipants),
           trainer: trainerName || undefined,
         });
-        toast.success("Gym session created successfully",{
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
+        toast.success("Gym session created successfully", {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
         console.log("✅ Gym session created successfully");
 
         // Notify parent to refresh data
@@ -119,14 +133,14 @@ export default function CreateGymSession({
 
         formik.resetForm();
         onClose();
-      } catch (err:any) {
+      } catch (err: any) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create gym session";
-            toast.error(err?.response?.data?.error, {
-                  position: "bottom-right",
-                  autoClose: 3000,
-                  theme: "colored",
-                });
+        toast.error(err?.response?.data?.error, {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
         setError(errorMessage);
         console.error("Error creating session:", err);
       } finally {
@@ -204,7 +218,7 @@ export default function CreateGymSession({
       borderColor={accentColor}
       title="Create Gym Session"
     >
-      <Box sx={{ 
+      <Box sx={{
         background: '#fff',
         borderRadius: '32px',
         p: 3,
@@ -212,7 +226,7 @@ export default function CreateGymSession({
         display: 'flex',
         flexDirection: 'column'
       }}>
-        
+
         <form onSubmit={formik.handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* Error Alert */}
           {error && (
@@ -235,7 +249,7 @@ export default function CreateGymSession({
             {/* Sidebar - Fixed width */}
             <Box
               sx={{
-                width: '220px', 
+                width: '220px',
                 flexShrink: 0,
                 background: theme.palette.background.paper,
                 borderRadius: '32px',
@@ -246,14 +260,14 @@ export default function CreateGymSession({
                 alignItems: 'flex-start',
                 boxShadow: '0 4px 24px 0 rgba(110, 138, 230, 0.08)',
                 transition: 'box-shadow 0.2s',
-                height: 'fit-content', 
-                alignSelf: 'flex-start', 
+                height: 'fit-content',
+                alignSelf: 'flex-start',
               }}
             >
               <List sx={{ width: '100%', height: '100%' }}>
                 {tabSections.map((section) => {
                   const hasError = section.key === 'general' ? generalHasErrors : section.key === 'details' ? detailsHasErrors : false;
-                  
+
                   return (
                     <ListItem key={section.key} disablePadding>
                       <ListItemButton
@@ -276,21 +290,21 @@ export default function CreateGymSession({
                           },
                         }}
                       >
-                        <ListItemIcon sx={{ 
-                          minWidth: 36, 
-                          color: activeTab === section.key ? accentColor : theme.palette.text.primary, 
-                          '&:hover': { color: accentColor } 
+                        <ListItemIcon sx={{
+                          minWidth: 36,
+                          color: activeTab === section.key ? accentColor : theme.palette.text.primary,
+                          '&:hover': { color: accentColor }
                         }}>
                           {section.icon}
                         </ListItemIcon>
                         <ListItemText primary={section.label} primaryTypographyProps={{ fontWeight: 700 }} />
                         {hasError && (
-                          <ErrorOutlineIcon 
-                            sx={{ 
-                              color: '#db3030', 
+                          <ErrorOutlineIcon
+                            sx={{
+                              color: '#db3030',
                               fontSize: '20px',
                               ml: 'auto'
-                            }} 
+                            }}
                           />
                         )}
                       </ListItemButton>
@@ -301,9 +315,9 @@ export default function CreateGymSession({
             </Box>
 
             {/* Content Area - Takes remaining space */}
-            <Box sx={{ 
-              flex: 1, 
-              display: 'flex', 
+            <Box sx={{
+              flex: 1,
+              display: 'flex',
               flexDirection: 'column',
               minWidth: 0,
             }}>
@@ -323,7 +337,7 @@ export default function CreateGymSession({
                       isError={formik.touched.type ? Boolean(formik.errors.type) : false}
                       helperText={formik.touched.type ? formik.errors.type : ""}
                       placeholder="Select session type"
-                      neumorphicBox
+                      neumorphicBox={false}
                       required
                       fullWidth
                       size="small"
@@ -396,8 +410,8 @@ export default function CreateGymSession({
                       formik.touched.duration
                         ? formik.errors.duration
                         : formik.values.duration
-                        ? `Duration: ${formatDuration(formik.values.duration)}`
-                        : "Enter duration in minutes (10-180 min)"
+                          ? `Duration: ${formik.values.duration} minutes`
+                          : "Enter duration in minutes (10-180 min)"
                     }
                     placeholder="Enter duration in minutes"
                     neumorphicBox
@@ -456,7 +470,7 @@ export default function CreateGymSession({
                   {/* Trainer Name (Optional) */}
                   <CustomTextField
                     label="Trainer Name (Optional)"
-                    fieldType="text"
+                    fieldType="name"
                     name="trainer"
                     value={formik.values.trainer}
                     onChange={formik.handleChange}
@@ -475,20 +489,20 @@ export default function CreateGymSession({
               )}
 
               {/* Submit Button */}
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                <CustomButton 
-                  disabled={!(formik.isValid && formik.dirty) || isSubmitting} 
-                  label={isSubmitting ? "Creating..." : 'Create'} 
-                  variant='contained' 
-                  color='primary' 
-                  type='submit' 
-                  sx={{ 
-                    px: 3, 
-                    width: "180px", 
-                    height: "40px", 
-                    fontWeight: 700, 
-                    fontSize: "16px", 
-                    borderRadius: '20px', 
+              <Box sx={{ my: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <CustomButton
+                  disabled={!(formik.isValid && formik.dirty) || isSubmitting}
+                  label={isSubmitting ? "Creating..." : 'Create'}
+                  variant='contained'
+                  color='primary'
+                  type='submit'
+                  sx={{
+                    px: 3,
+                    width: "180px",
+                    height: "40px",
+                    fontWeight: 700,
+                    fontSize: "16px",
+                    borderRadius: '20px',
                     boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
                     background: accentColor,
                     '&:hover': {
