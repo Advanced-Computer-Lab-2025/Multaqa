@@ -5,6 +5,7 @@ import Image from "next/image";
 import ScaledLogo from "../shared/MultaqaLogos/ScaledLogo";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
 import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
+import newMultaqaIcon from "../../../public/assets/images/new-multaqa-logo.png";
 import { Box, Typography } from "@mui/material";
 
 interface HeaderProps {
@@ -28,6 +29,7 @@ interface CurrentUser {
   profileImage?: string;
   firstName?: string;
   lastName?: string;
+  logoUrl?: string;
 }
 interface TopNavigationProps {
   companyName?: string;
@@ -51,11 +53,23 @@ const getRoleLabel = (role?: string): string => {
   return roleLabels[role || ""] || "User";
 };
 
+// Generic roles that use initials (name-based)
+const GENERIC_ROLES = ["events-office", "admin", "vendor", "company"];
+
 // Generate initials from name or role
 const getInitials = (user?: CurrentUser, role?: string): string => {
   if (!user) return "?";
 
-  // Always try to use first and last name if available
+  // Check if it's a generic role
+  const isGenericRole = GENERIC_ROLES.includes(role || "");
+
+  // For personal roles, if first name is available, use only its initial
+  // This matches getDisplayName which shows only the first name
+  if (!isGenericRole && user.firstName) {
+    return user.firstName.charAt(0).toUpperCase();
+  }
+
+  // Otherwise try to use first and last name if available
   if (user.firstName && user.lastName) {
     return `${user.firstName.charAt(0)}${user.lastName.charAt(
       0
@@ -66,10 +80,18 @@ const getInitials = (user?: CurrentUser, role?: string): string => {
   if (user.name) {
     const parts = user.name.trim().split(/\s+/);
     if (parts.length >= 2) {
+      // Multiple words: use first letter of first and last word
       return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(
         0
       )}`.toUpperCase();
     }
+    // Single word: extract capital letters or use first letter
+    const capitals = user.name.match(/[A-Z]/g);
+    if (capitals && capitals.length >= 2) {
+      // If there are multiple capitals (e.g., "EventsOffice"), use first two
+      return capitals.slice(0, 2).join("");
+    }
+    // Otherwise just use the first letter
     return user.name.charAt(0).toUpperCase();
   }
 
@@ -87,8 +109,7 @@ const getInitials = (user?: CurrentUser, role?: string): string => {
   return roleInitials[role || ""] || "?";
 };
 
-// Generic roles that use initials (name-based)
-const GENERIC_ROLES = ["events-office", "admin", "vendor", "company"];
+
 
 const capitalizeFirstLetter = (str: string): string => {
   if (!str) return "";
@@ -158,7 +179,7 @@ export default function TopNavigation({
             }}
           >
             <ScaledLogo
-              image={multaqaIcon}
+              image={newMultaqaIcon}
               transparent
               iconOnly
               small
@@ -183,7 +204,16 @@ export default function TopNavigation({
                 <div className="flex items-center gap-3">
                   {/* Profile Avatar */}
                   <div className="flex-shrink-0">
-                    {currentUser.profileImage ? (
+                    {/* Show logo for vendors, otherwise show initials */}
+                    {userRole === "vendor" && currentUser.logoUrl ? (
+                      <Image
+                        src={currentUser.logoUrl}
+                        alt={displayName}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : currentUser.profileImage ? (
                       <Image
                         src={currentUser.profileImage}
                         alt={displayName}
@@ -234,11 +264,10 @@ export default function TopNavigation({
                 <button
                   key={index}
                   onClick={() => header.onTabChange?.(index)}
-                  className={`py-3 px-6 text-sm font-medium font-heading transition-all relative ${
-                    isActive
-                      ? "text-[#6299d0] font-bold"
-                      : "text-gray-600 hover:text-[#6299d0]"
-                  }`}
+                  className={`py-3 px-6 text-sm font-medium font-heading transition-all relative ${isActive
+                    ? "text-[#6299d0] font-bold"
+                    : "text-gray-600 hover:text-[#6299d0]"
+                    }`}
                   style={{
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   }}

@@ -156,15 +156,13 @@ export default function CreationHubDropdown({
     <Box sx={{ position: "relative", display: "inline-flex" }}>
       <CustomButton
         onClick={handleToggle}
-        startIcon={<AddIcon />}
         variant="contained"
         color="primary"
         label={buttonLabel}
+        createButtonStyle
         sx={{
           fontWeight: 700,
           textTransform: "none",
-          px: 3,
-          py: 1,
           whiteSpace: "nowrap",
           ...(buttonTextColor && { color: `${buttonTextColor} !important` }),
           boxShadow: open

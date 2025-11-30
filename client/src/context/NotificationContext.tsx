@@ -14,6 +14,8 @@ import {
 } from "@/types/notifications";
 import { toast } from "react-toastify";
 import { api } from "@/api";
+import { getNotificationIcon, getNotificationColor } from "@/components/notifications/utils";
+import { Box } from "@mui/material";
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
@@ -126,6 +128,10 @@ export const NotificationProvider = ({
     // Add notification to state (sort by newest first)
     setNotifications((prev) => [notification, ...prev]);
 
+    // Get icon and color for the notification type
+    const Icon = getNotificationIcon(notification.type);
+    const color = getNotificationColor(notification.type);
+
     // Show toast notification only if toasts are enabled
     toast.info(
       <div>
@@ -135,12 +141,24 @@ export const NotificationProvider = ({
         </p>
       </div>,
       {
-        position: "top-right",
+        position: "top-right", // Updated to match user preference from previous edits
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        icon: (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: color,
+            }}
+          >
+            <Icon sx={{ fontSize: 24 }} />
+          </Box>
+        ),
       }
     );
 
