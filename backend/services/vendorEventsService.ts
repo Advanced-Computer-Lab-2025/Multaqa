@@ -176,6 +176,10 @@ export class VendorEventsService {
       throw createError(400, "Event is not a bazaar");
     }
 
+    if (new Date() > event.eventStartDate) {
+      throw createError(400, "Cannot apply to an event that has already started");
+    }
+
     const applied =
       Array.isArray(event.vendors) &&
       event.vendors.some((v: any) => v.vendor.toString() === vendorId);
