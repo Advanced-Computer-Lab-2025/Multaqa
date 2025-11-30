@@ -53,11 +53,23 @@ const getRoleLabel = (role?: string): string => {
   return roleLabels[role || ""] || "User";
 };
 
+// Generic roles that use initials (name-based)
+const GENERIC_ROLES = ["events-office", "admin", "vendor", "company"];
+
 // Generate initials from name or role
 const getInitials = (user?: CurrentUser, role?: string): string => {
   if (!user) return "?";
 
-  // Always try to use first and last name if available
+  // Check if it's a generic role
+  const isGenericRole = GENERIC_ROLES.includes(role || "");
+
+  // For personal roles, if first name is available, use only its initial
+  // This matches getDisplayName which shows only the first name
+  if (!isGenericRole && user.firstName) {
+    return user.firstName.charAt(0).toUpperCase();
+  }
+
+  // Otherwise try to use first and last name if available
   if (user.firstName && user.lastName) {
     return `${user.firstName.charAt(0)}${user.lastName.charAt(
       0
@@ -97,8 +109,7 @@ const getInitials = (user?: CurrentUser, role?: string): string => {
   return roleInitials[role || ""] || "?";
 };
 
-// Generic roles that use initials (name-based)
-const GENERIC_ROLES = ["events-office", "admin", "vendor", "company"];
+
 
 const capitalizeFirstLetter = (str: string): string => {
   if (!str) return "";
@@ -254,8 +265,8 @@ export default function TopNavigation({
                   key={index}
                   onClick={() => header.onTabChange?.(index)}
                   className={`py-3 px-6 text-sm font-medium font-heading transition-all relative ${isActive
-                      ? "text-[#6299d0] font-bold"
-                      : "text-gray-600 hover:text-[#6299d0]"
+                    ? "text-[#6299d0] font-bold"
+                    : "text-gray-600 hover:text-[#6299d0]"
                     }`}
                   style={{
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
