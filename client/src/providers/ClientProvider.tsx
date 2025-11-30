@@ -11,23 +11,21 @@ import "react-toastify/dist/ReactToastify.css";
 
 const MINIMUM_LOADING_TIME = 3000; // 3 seconds
 
-// Define Public Routes 
+// Define Public Routes
 const publicRoutes = ["/", "/login", "/register", "/test-events", "/support"];
 
 // Helper to check if a specific path is public
 const checkIsPublic = (path: string) => {
+  if (/^\/[a-z]{2}\/?$/.test(path)) return true;
   return publicRoutes.some((route) => {
-    return (
-      path === route ||
-      path.endsWith(route) ||
-      path.endsWith(route + "/")
-    );
+    return path === route || path.endsWith(route) || path.endsWith(route + "/");
   });
 };
 
 // "No Loading" routes for the landing pages
 const noLoadingRoutes = ["/", "/login", "/register"];
 const isNoLoadingRoute = (path: string) => {
+  if (/^\/[a-z]{2}\/?$/.test(path)) return true;
   return noLoadingRoutes.some(
     (route) =>
       path === route || path.endsWith(route) || path.endsWith(route + "/")
@@ -40,7 +38,7 @@ export default function ClientProviders({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isNoLoadingRoute(pathname));
   const [loadingStartTime, setLoadingStartTime] = useState(Date.now());
   const prevPathRef = useRef(pathname);
 
@@ -69,8 +67,8 @@ export default function ClientProviders({
     // CONDITION 2: Transitioning between Protected internal pages (Tabs/Sidebar)
     // If both previous and current are NOT public, we are just switching tabs inside the app.
     if (!isPrevPublic && !isCurrentPublic) {
-        prevPathRef.current = pathname;
-        return;
+      prevPathRef.current = pathname;
+      return;
     }
 
     // Otherwise (e.g., Login -> Dashboard, or Dashboard -> Logout), show loading screen
@@ -101,7 +99,7 @@ export default function ClientProviders({
       <NotificationProvider>
         {/* ✅ Only wrap in ProtectedRoute when route is NOT public */}
         {isPublic ? children : <ProtectedRoute>{children}</ProtectedRoute>}
-        
+
         {/* Toast Container for notifications */}
         <ToastContainer
           position="top-right"
