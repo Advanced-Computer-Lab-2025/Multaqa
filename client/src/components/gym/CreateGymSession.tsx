@@ -30,7 +30,21 @@ const gymSessionValidationSchema = Yup.object({
   startDateTime: Yup.date()
     .nullable()
     .required("Start date and time is required")
-    .min(new Date(), "Date and time cannot be in the past"),
+    .min(new Date(), "Date and time cannot be in the past")
+    .test(
+      "max-next-month",
+      "Sessions can only be created for the current month and next month",
+      function (value) {
+        if (!value) return true;
+        const selectedDate = new Date(value);
+        const today = new Date();
+
+        // Get the last day of next month
+        const nextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
+        return selectedDate <= nextMonth;
+      }
+    ),
   duration: Yup.number()
     .typeError("Duration must be a number")
     .required("Duration is required")
@@ -319,7 +333,7 @@ export default function CreateGymSession({
                       isError={formik.touched.type ? Boolean(formik.errors.type) : false}
                       helperText={formik.touched.type ? formik.errors.type : ""}
                       placeholder="Select session type"
-                      neumorphicBox = {false}
+                      neumorphicBox={false}
                       required
                       fullWidth
                       size="small"
