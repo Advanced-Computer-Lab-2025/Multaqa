@@ -56,10 +56,20 @@ export const fetchGymSessions = async (date?: Date): Promise<GymSession[]> => {
     // Build query params
     const params = date ? { date: date.toISOString() } : {};
 
-    const response = await api.get<GetAllGymSessionsResponse>("/gymsessions", { params });
-    const sessions = response.data.data;
+    // Fetch both all sessions and user's registered sessions in parallel
+    const [sessionsResponse, registeredResponse] = await Promise.all([
+      api.get<GetAllGymSessionsResponse>("/gymsessions", { params }),
+      api.get<GetAllGymSessionsResponse>("/gymsessions/registered").catch(() => ({ data: { data: [] } })),
+    ]);
 
-    console.log(`✅ Found ${sessions.length} gym session(s)`);
+    const sessions = sessionsResponse.data.data;
+    const registeredSessions = registeredResponse.data.data || [];
+    
+    // Create a Set of registered session IDs for quick lookup
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const registeredIds = new Set(registeredSessions.map((s: any) => s._id));
+
+    console.log(`✅ Found ${sessions.length} gym session(s), ${registeredIds.size} registered`);
 
     // Map backend data to GymSession interface
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +93,7 @@ export const fetchGymSessions = async (date?: Date): Promise<GymSession[]> => {
         end: endDateTime,
         spotsTotal: session.capacity || 0,
         spotsTaken: session.attendees?.length || 0,
+        isRegistered: registeredIds.has(session._id), // Check if user is registered
       };
     });
   } catch (error: unknown) {
