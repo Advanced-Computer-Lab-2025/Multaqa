@@ -9,7 +9,10 @@ import { ITrip } from "../interfaces/models/trip.interface";
 import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import Stripe from "stripe";
-import { sendCommentDeletionWarningEmail } from "./emailService";
+import {
+  sendCommentDeletionWarningEmail,
+  sendEventAccessRemovedEmail,
+} from "./emailService";
 import { UserService } from "./userService";
 import mongoose from "mongoose";
 import { IReview } from "../interfaces/models/review.interface";
@@ -256,12 +259,23 @@ export class EventsService {
         createdEvent = await this.eventRepo.create(mappedData);
       }
 
-      await this.ensureStripeProductForPricedEvent(createdEvent)
+      await this.ensureStripeProductForPricedEvent(createdEvent);
 
       await NotificationService.sendNotification({
-        role: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.ADMINISTRATION],
-        staffPosition: [StaffPosition.PROFESSOR, StaffPosition.STAFF, StaffPosition.TA],
-        adminRole: [AdministrationRoleType.EVENTS_OFFICE, AdministrationRoleType.ADMIN],
+        role: [
+          UserRole.STUDENT,
+          UserRole.STAFF_MEMBER,
+          UserRole.ADMINISTRATION,
+        ],
+        staffPosition: [
+          StaffPosition.PROFESSOR,
+          StaffPosition.STAFF,
+          StaffPosition.TA,
+        ],
+        adminRole: [
+          AdministrationRoleType.EVENTS_OFFICE,
+          AdministrationRoleType.ADMIN,
+        ],
         type: "EVENT_NEW",
         title: "New Event Added",
         message: `A new event titled "${createdEvent.eventName}" has been added. Check it out!`,
@@ -388,6 +402,15 @@ export class EventsService {
       }
     }
 
+    // Check if allowedUsers is being restricted and remove ineligible attendees
+    if (
+      updateData.allowedUsers &&
+      Array.isArray(updateData.allowedUsers) &&
+      updateData.allowedUsers.length > 0
+    ) {
+      await this.removeIneligibleAttendees(event, updateData.allowedUsers);
+    }
+
     let updatedEvent;
 
     if (event.type === EVENT_TYPES.TRIP) {
@@ -447,7 +470,6 @@ export class EventsService {
     }
 
     // Add user to attendees
-    console.log(userId);
     event.attendees?.push(userId);
     await event.save();
 
@@ -499,6 +521,110 @@ export class EventsService {
       .filter((oid: any) => oid && oid.toString() !== userOid.toString());
     await event.save();
     return event;
+  }
+
+  /**
+   * Removes attendees from an event who no longer have access based on allowedUsers restrictions
+   * This method is called when the allowedUsers field is updated before the event starts
+   * Also handles refunds for paid events and can send email notifications
+   * @param event - The event document to check
+   * @param allowedRolesAndPositions - Array of allowed roles and positions
+   */
+  async removeIneligibleAttendees(
+    event: IEvent,
+    allowedRolesAndPositions: string[]
+  ): Promise<void> {
+    // Early return if no attendees to check
+    if (!event.attendees || event.attendees.length === 0) {
+      return;
+    }
+
+    const now = new Date();
+    const eventStartDate = new Date(event.eventStartDate);
+
+    // Only remove attendees if event hasn't started yet
+    if (eventStartDate <= now) {
+      return;
+    }
+
+    const attendeesToRemove: string[] = [];
+
+    // Populate attendees to check their roles/positions and get user details
+    await event.populate({
+      path: "attendees",
+      select: "role position firstName lastName email",
+    });
+
+    for (const attendee of event.attendees as any[]) {
+      if (!attendee || !attendee._id) continue;
+
+      const userId = attendee._id.toString();
+      const userRole = attendee.role;
+      const userPosition = attendee.position;
+
+      // Check if user's role or position is in the allowed list
+      const hasAccess =
+        allowedRolesAndPositions.includes(userRole) ||
+        (userPosition && allowedRolesAndPositions.includes(userPosition));
+
+      if (!hasAccess) {
+        attendeesToRemove.push(userId);
+      }
+    }
+
+    // Remove ineligible users from event attendees and their registeredEvents
+    if (attendeesToRemove.length > 0) {
+      const eventId = event._id?.toString();
+      if (!eventId) {
+        throw createError(500, "Event ID is missing");
+      }
+
+      const eventPrice = event.price || 0;
+      const hasPrice = eventPrice > 0;
+
+      for (const userId of attendeesToRemove) {
+        try {
+          // Get attendee details before removal for email
+          const attendee = (event.attendees as any[]).find(
+            (a: any) => a._id?.toString() === userId
+          );
+
+          // Remove user from event attendees and event from user's registeredEvents
+          await this.userService.removeEventFromUserRegistrations(
+            userId,
+            eventId
+          );
+          await this.removeAttendeeFromEvent(eventId, userId);
+
+          // Refund to wallet if event has a price
+          if (hasPrice) {
+            await this.userService.addToWallet(userId, eventPrice);
+
+            // Log refund transaction
+            await this.userService.addTransaction(userId, {
+              eventName: event.eventName,
+              amount: eventPrice,
+              walletAmount: eventPrice,
+              type: "refund",
+              date: new Date(),
+            });
+          }
+
+          // Send email notification about removal
+          if (attendee) {
+            await sendEventAccessRemovedEmail(
+              attendee.email,
+              `${attendee.firstName} ${attendee.lastName}`,
+              event.eventName,
+              allowedRolesAndPositions,
+              hasPrice ? eventPrice : undefined
+            );
+          }
+        } catch (error) {
+          console.warn(`Could not remove user ${userId} from event:`, error);
+        }
+      }
+    }
   }
 
   // one-time comment or rating
@@ -621,8 +747,8 @@ export class EventsService {
     await sendCommentDeletionWarningEmail(
       user.email,
       (event.reviews[reviewIndex].reviewer as any).firstName +
-      " " +
-      (event.reviews[reviewIndex].reviewer as any).lastName,
+        " " +
+        (event.reviews[reviewIndex].reviewer as any).lastName,
       event.reviews[reviewIndex].comment || "No comment text",
       "Admin action",
       event.eventName,
@@ -759,39 +885,26 @@ export class EventsService {
           firstName: attendee.firstName,
           lastName: attendee.lastName,
         });
-
       });
     }
-    return await workbook.xlsx.writeBuffer() as any;
-  }
-
-  private async getEventsBetween(startDate: Date, endDate: Date) {
-    return await this.getEvents(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      startDate.toISOString(),
-      endDate.toISOString()
-    );
+    return (await workbook.xlsx.writeBuffer()) as any;
   }
 
   async checkUpcomingEvents() {
     const now = new Date();
+    now.setSeconds(0, 0);
     const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
 
-    // Get events happening in 1 day (±30 minutes window)
-    const oneDayEvents = await this.getEventsBetween(
-      new Date(oneDayLater.getTime() - 30 * 60 * 1000),
-      new Date(oneDayLater.getTime() + 30 * 60 * 1000)
-    );
+    // Get events happening in 1 day
+    const oneDayEvents = await this.eventRepo.findAll({
+      eventStartDate: oneDayLater,
+    });
 
-    // Get events happening in 1 hour (±5 minutes window)
-    const oneHourEvents = await this.getEventsBetween(
-      new Date(oneHourLater.getTime() - 5 * 60 * 1000),
-      new Date(oneHourLater.getTime() + 5 * 60 * 1000)
-    );
+    // Get events happening in 1 hour
+    const oneHourEvents = await this.eventRepo.findAll({
+      eventStartDate: oneHourLater,
+    });
 
     // Send 1-day reminders
     for (const event of oneDayEvents) {

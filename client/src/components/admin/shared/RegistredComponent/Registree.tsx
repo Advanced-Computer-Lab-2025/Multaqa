@@ -17,7 +17,7 @@ import IdChip from "./IdChip";
 import NeumorphicBox from "../../../shared/containers/NeumorphicBox";
 import { RegisterBoxProps } from "./types";
 import { TruncatedText } from "./utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
 
 const RegisterBox: React.FC<RegisterBoxProps> = ({
@@ -33,6 +33,11 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
   const [selectedRole, setSelectedRole] = useState(role);
   const [isExpanded, setIsExpanded] = useState(false);
   const theme = useTheme();
+
+  // Update selectedRole when role prop changes
+  useEffect(() => {
+    setSelectedRole(role);
+  }, [role]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRoleChange = (event: any) => {

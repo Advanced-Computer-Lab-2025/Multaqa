@@ -98,13 +98,15 @@ const getFilterGroups = (
         { label: "Trip", value: EventType.TRIP },
       ],
     },
-    ...(userRole !== "vendor"
+    ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
       ? [
         {
           id: "attendance",
           title: "My Status",
           type: "chip" as const,
-          options: [{ label: "Attended", value: "attended" }],
+          options: [
+            { label: "Attended", value: "attended" },
+          ],
         },
       ]
       : []),
@@ -164,20 +166,15 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
   const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
-  const { enableToasts } = useNotifications();
-
-  // Enable notification toasts when browse events page mounts
-  useEffect(() => {
-    enableToasts();
-    console.log("✅ Notification toasts enabled on browse events page");
-  }, [enableToasts]);
 
   // Fetch all professors once on mount for filtering
   useEffect(() => {
     const fetchProfessors = async () => {
       try {
         const res = await api.get("/users/professors");
-        const professors = res.data.data.map((prof: any) => ({
+        // filter only isVerified = true
+        const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+        const professors = verifiedProfessors.map((prof: any) => ({
           firstName: prof.firstName,
           lastName: prof.lastName,
         }));
@@ -432,7 +429,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       filters.attendance &&
       (filters.attendance as string[]).includes("attended")
     ) {
-      filtered = filtered.filter((event) => event.attended === true);
+      filtered = filtered.filter((event) => userInfo.attendedEvents.includes(event.id));
     }
     // Apply Date Filter
     const dateFilterValue = filters.date;
@@ -460,27 +457,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       return isNaN(parsedDate) ? 0 : parsedDate; // Fallback to 0 if parsing fails
     };
 
-    switch (sortBy) {
-      case "start_asc":
-        filtered.sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateA - dateB;
-        });
-        break;
+switch (sortBy) {
+      case "start_asc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateA - dateB;
+        });
 
-      case "start_desc":
-        filtered.sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateB - dateA;
-        });
-        break;
-      default:
-        break;
-    }
+      case "start_desc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateB - dateA;
+        });
+
+      case "none": // Explicitly handle "none" or "default"
+      default:
+        // Return the filtered array without sorting
+        return filtered;
+    }
 
     return filtered;
   }, [searchQuery, filters, events, sortBy]);
@@ -715,13 +713,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
-      <ContentWrapper
-        title={pageTitle}
-        description={pageDescription}
-        padding={{ xs: 0 }}
-        horizontalPadding={{ xs: 1 }}
-      >
+    <ContentWrapper
+      title={pageTitle}
+      description={pageDescription}
+      padding={{ xs: 2, md: 4 }}
+    >
         {/* Search and Filter Row */}
         <Box
           sx={{
@@ -865,7 +861,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           color={theme.palette.tertiary.main}
         />
       </ContentWrapper>
-    </Container>
   );
 };
 

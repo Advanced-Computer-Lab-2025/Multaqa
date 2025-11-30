@@ -76,6 +76,17 @@ export class WorkshopService {
       throw createError(404, "Workshop not found");
     }
 
+    // Prevent edits if workshop has been approved or rejected by events office
+    if (
+      workshop.approvalStatus === Event_Request_Status.APPROVED ||
+      workshop.approvalStatus === Event_Request_Status.REJECTED
+    ) {
+      throw createError(
+        403,
+        `Cannot edit workshop that has been ${workshop.approvalStatus.toLowerCase()} by the events office`
+      );
+    }
+
     // If workshop is AWAITING_REVIEW, reset to PENDING and clear comments when professor makes edits
     if (workshop.approvalStatus === Event_Request_Status.AWAITING_REVIEW) {
       updateData.approvalStatus = Event_Request_Status.PENDING;
@@ -229,13 +240,16 @@ export class WorkshopService {
     }
 
     if (workshop.certificatesSent) {
-      throw createError(409, "Certificates have already been sent for this workshop");
+      throw createError(
+        409,
+        "Certificates have already been sent for this workshop"
+      );
     }
 
     const now = new Date();
     const endTime = this.calculateWorkshopEndTime(workshop);
     if (now < endTime) {
-      throw createError(400, 'Workshop has not ended yet');
+      throw createError(400, "Workshop has not ended yet");
     }
 
     await this.sendCertificatesToAllAttendees(workshopId);
@@ -255,7 +269,7 @@ export class WorkshopService {
       throw createError(404, "Workshop not found");
     }
     if (!workshop.attendees || workshop.attendees.length === 0) {
-      throw createError(400, "No attendees found for this workshop");
+      return;
     }
 
     // Send certificates to all attendees
@@ -266,9 +280,8 @@ export class WorkshopService {
           lastName: attendee.lastName,
           workshopName: workshop.eventName,
           startDate: workshop.eventStartDate,
-          endDate: workshop.eventEndDate
+          endDate: workshop.eventEndDate,
         });
-    
 
         await sendCertificateOfAttendanceEmail(
           attendee.email,

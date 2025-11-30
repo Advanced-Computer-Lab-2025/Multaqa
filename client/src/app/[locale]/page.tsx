@@ -1253,7 +1253,7 @@ function HomePageContent() {
         component="section"
         sx={{
           position: "relative",
-          overflow: "hidden",
+          overflow: "visible",
           // Force full viewport height, minus a little for visual balance
           minHeight: "100vh",
           display: "flex",
@@ -1271,6 +1271,7 @@ function HomePageContent() {
             pt: { xs: 14, md: 0 },
             pb: { xs: 8, md: 0 },
             flexGrow: 1,
+            overflow: "visible",
           }}
         >
           {/* Shapes Layer (Background) */}
@@ -1787,6 +1788,7 @@ const HeroContent = ({
           md: "flex-start",
         },
         justifyContent: { xs: "center", md: "flex-start" },
+        overflow: "visible",
       }}
     >
       <CustomButton
@@ -1893,7 +1895,7 @@ const HeroContent = ({
               : "translateY(-10px)",
             pointerEvents: showSignUpOptions ? "auto" : "none",
             transition: "all 0.28s ease",
-            zIndex: 60,
+            zIndex: 9999,
           }}
         >
           <Stack spacing={1.5}>
