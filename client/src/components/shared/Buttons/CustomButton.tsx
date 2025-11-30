@@ -33,7 +33,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         sx={{
-          maxWidth: isExpanded ? "200px" : "48px", // Tighter max-width for smoother open animation
+          maxWidth: isExpanded ? "300px !important" : "48px !important", // Force override
+          width: "auto", // Ensure it can grow
           height: height || "48px",
           minWidth: "48px",
           padding: isExpanded ? "0 16px 0 12px" : "0 0 0 9px",
@@ -56,16 +57,17 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           <AddIcon
             sx={{
               fontSize: "24px",
-              transition: "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)",
+              transition: "transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
               flexShrink: 0,
             }}
           />
           <Box
             sx={{
-              maxWidth: isExpanded ? "200px" : "0px",
+              maxWidth: isExpanded ? "400px" : "0px",
               opacity: isExpanded ? 1 : 0,
-              transition: "all 0.6s cubic-bezier(0.25, 1, 0.5, 1)",
+              transition: "all 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
               overflow: "hidden",
+              whiteSpace: "nowrap", // Prevent wrapping
             }}
           >
             {label || children || "Create"}
