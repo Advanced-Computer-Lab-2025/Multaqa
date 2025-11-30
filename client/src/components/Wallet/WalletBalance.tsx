@@ -139,7 +139,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                     variant="h6"
                     sx={{ color: "#fff", fontWeight: 600 }}
                   >
-                    {fullName ?? "User"}&apos;s Account
+                    {fullName ?? "User"}
                   </Typography>
                 </Box>
               </Box>
@@ -171,7 +171,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                   letterSpacing: "-0.02em",
                 }}
               >
-                ${currentBalance.toFixed(2)}
+                EGP {currentBalance.toFixed(2)}
               </Typography>
 
               {/* Subtle separator */}
@@ -213,7 +213,7 @@ const WalletBalance: React.FC<WalletBalanceProps> = ({
                     sx={{ color: "#fff", fontWeight: 600, mt: 0.5 }}
                   >
                     {/* sum transactions with their signs and check this month's date */}
-                    {isMonthPositive ? "+" : "-"}$
+                    {isMonthPositive ? "+" : "-"}EGP {" "} 
                     {Math.abs(parseFloat(monthTransactions)).toFixed(2)}
                   </Typography>
                 </Box>
