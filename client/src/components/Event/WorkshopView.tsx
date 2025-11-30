@@ -182,7 +182,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               </IconButton>
             </Tooltip>
           </Stack>
-        ) : user === "professor" ? (
+        ) : (user === "professor" && !(details["Status"] === "approved" || details["Status"] === "rejected"))? (
           <Tooltip title="Edit Workshop">
             <IconButton
               size="medium"
