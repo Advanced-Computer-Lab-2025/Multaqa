@@ -126,7 +126,8 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({
             values,
             { setSubmitting, resetForm },
             eventId,
-            attendeeIdStatuses
+            attendeeIdStatuses,
+            location.toLowerCase() // the constants are in lower case thats why we need this here lol
           );
         }}
       >

@@ -53,7 +53,8 @@ export const submitBazarForm = async (
     resetForm,
   }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
   eventId: string,
-  attendeeIdStatuses: UploadStatus[] // Add attendeeIdStatuses
+  attendeeIdStatuses: UploadStatus[], // Add attendeeIdStatuses
+  location: string // Add location
 ) => {
   try {
     // Process attendees to clear nationalId if upload was not successful
@@ -71,6 +72,7 @@ export const submitBazarForm = async (
       bazaarAttendees: processedAttendees, // Use processed attendees
       boothSize: values.boothSize,
       participationFee: values.price,
+      location,
     };
 
     const response = await api.post(
