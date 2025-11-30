@@ -308,3 +308,74 @@ export const registerForGymSession = async (sessionId: string): Promise<void> =>
   }
 };
 
+// Fetch user's registered gym sessions
+export const fetchMyRegisteredSessions = async (): Promise<GymSession[]> => {
+  try {
+    console.log("📋 Fetching my registered gym sessions...");
+
+    const response = await api.get<GetAllGymSessionsResponse>("/gymsessions/registered");
+    const sessions = response.data.data;
+
+    console.log(`✅ Found ${sessions.length} registered gym session(s)`);
+
+    // Map backend data to GymSession interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return sessions.map((session: any) => {
+      const startDateTime = combineDateTime(
+        session.eventStartDate,
+        session.eventStartTime
+      );
+      const endDateTime = combineDateTime(
+        session.eventEndDate || session.eventStartDate,
+        session.eventEndTime
+      );
+
+      return {
+        id: session._id,
+        title: session.eventName || `${session.sessionType} Session`,
+        type: mapSessionTypeToFrontend(session.sessionType),
+        instructor: session.trainer || undefined,
+        location: session.location || "Gym",
+        start: startDateTime,
+        end: endDateTime,
+        spotsTotal: session.capacity || 0,
+        spotsTaken: session.attendees?.length || 0,
+        isRegistered: true, // User is registered for these sessions
+      };
+    });
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error("❌ Failed to fetch registered gym sessions:", errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error("❌ Failed to fetch registered gym sessions:", error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch registered gym sessions");
+  }
+};
+
+// Unregister from a gym session
+export const unregisterFromGymSession = async (sessionId: string): Promise<void> => {
+  try {
+    console.log(`🚫 Unregistering from gym session ${sessionId}...`);
+
+    const response = await api.delete(`/gymsessions/${sessionId}/unregister`);
+
+    console.log("✅ Successfully unregistered from gym session:", response.data.message);
+    
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error(`❌ Failed to unregister from gym session ${sessionId}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error(`❌ Failed to unregister from gym session ${sessionId}:`, error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to unregister from gym session");
+  }
+};

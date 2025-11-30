@@ -10,6 +10,7 @@ export type GymSession = {
   end: string; // ISO timestamp
   spotsTotal?: number;
   spotsTaken?: number;
+  isRegistered?: boolean; // Whether current user is registered for this session
 };
 
 export const SESSION_LABEL: Record<GymSessionType, string> = {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Button, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Button, Chip, Skeleton, Stack, Typography } from "@mui/material";
 import type { StackProps } from "@mui/material/Stack";
 import { alpha } from "@mui/material/styles";
 import ActionCard from "@/components/shared/cards/ActionCard";
@@ -12,6 +12,7 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import SportsMmaIcon from "@mui/icons-material/SportsMma";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { registerForGymSession } from "./utils";
 
 const SESSION_ICONS: Record<GymSession["type"], React.ElementType> = {
@@ -41,14 +42,17 @@ type Props = {
   session: GymSession;
   showSpots?: boolean;
   layout?: GymSessionCardLayout;
+  onRegisterSuccess?: () => void;
 };
 
 export default function GymSessionCard({
   session,
   showSpots = true,
   layout = "compact",
+  onRegisterSuccess,
 }: Props) {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [localIsRegistered, setLocalIsRegistered] = useState(session.isRegistered ?? false);
   const baseColor = SESSION_COLORS[session.type];
   const start = new Date(session.start).toLocaleTimeString([], {
     hour: "2-digit",
@@ -77,8 +81,8 @@ export default function GymSessionCard({
     setIsRegistering(true);
     try {
       await registerForGymSession(session.id);
-      // You might want to show a success message or refresh the session data here
-      alert("Successfully registered for the session!");
+      setLocalIsRegistered(true);
+      onRegisterSuccess?.();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to register";
       alert(errorMessage);
@@ -115,8 +119,8 @@ export default function GymSessionCard({
     </Typography>,
   ];
 
-  // Only show spots for upcoming sessions
-  if (showSpots && isUpcoming) {
+  // Only show spots for upcoming sessions that user is not registered for
+  if (showSpots && isUpcoming && !localIsRegistered) {
     metaNodesArray.push(
       <Typography
         key="spots"
@@ -157,6 +161,27 @@ export default function GymSessionCard({
       >
         Session Ongoing
       </Typography>
+    );
+  } else if (localIsRegistered) {
+    // Show registered chip for upcoming sessions where user is already registered
+    metaNodesArray.push(
+      <Chip
+        key="registered"
+        icon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
+        label="Registered"
+        size="small"
+        sx={{
+          mt: 1,
+          backgroundColor: alpha("#22c55e", 0.15),
+          color: "#16a34a",
+          fontWeight: 600,
+          fontSize: "0.75rem",
+          borderRadius: "8px",
+          "& .MuiChip-icon": {
+            color: "#16a34a",
+          },
+        }}
+      />
     );
   } else {
     metaNodesArray.push(
