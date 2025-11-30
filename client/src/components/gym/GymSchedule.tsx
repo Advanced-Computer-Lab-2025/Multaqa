@@ -119,9 +119,19 @@ export default function GymSchedule({ month, sessions }: Props) {
   const inMonth = useMemo(() => {
     const y = current.getFullYear();
     const m = current.getMonth();
+    const today = new Date();
+    // Set to start of today (midnight) for accurate comparison
+    today.setHours(0, 0, 0, 0);
+
     return all.filter((s) => {
-      const d = new Date(s.start);
-      return d.getFullYear() === y && d.getMonth() === m;
+      const sessionDate = new Date(s.start);
+      // Set session date to midnight for date-only comparison
+      const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+
+      // Check if session is in the selected month AND not in the past
+      return sessionDateOnly.getFullYear() === y &&
+        sessionDateOnly.getMonth() === m &&
+        sessionDateOnly >= today;
     });
   }, [all, current]);
 
@@ -317,7 +327,7 @@ export default function GymSchedule({ month, sessions }: Props) {
                 variant="outlined"
                 sx={{
                   fontFamily: "var(--font-poppins)",
-                  fontWeight: isActive?600:500,
+                  fontWeight: isActive ? 600 : 500,
                   borderRadius: "28px",
                   px: 1.75,
                   height: 28,
