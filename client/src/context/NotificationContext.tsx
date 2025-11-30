@@ -159,7 +159,6 @@ export const NotificationProvider = ({
             <Icon sx={{ fontSize: 24 }} />
           </Box>
         ),
-        progressStyle: { background: color },
       }
     );
 
