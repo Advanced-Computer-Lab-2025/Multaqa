@@ -2063,7 +2063,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "260px",
           borderRadius: "12px",
-          rotate: 5, // Slight tilt in auth mode for variety
+          rotate: 0, 
           transition: authTransition(0.2),
         },
       }}
@@ -2127,7 +2127,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "130px",
           borderRadius: "16px",
-          rotate: -10,
+          rotate: 0,
           transition: authTransition(0.15),
         },
       }}
@@ -2159,7 +2159,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "120px",
           height: "210px",
           borderRadius: "999px",
-          rotate: 15,
+          rotate: 0,
           transition: authTransition(0.25),
         },
       }}

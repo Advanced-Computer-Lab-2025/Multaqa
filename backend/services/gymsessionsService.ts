@@ -30,7 +30,7 @@ export class GymSessionsService {
       type: EVENT_TYPES.GYM_SESSION,
       eventName: `Gym Session - ${data.sessionType} Class`,
       eventStartDate: sessionDate,
-      eventEndDate: sessionDate,
+      eventEndDate: new Date(sessionDate.getTime() + durationMinutes * 60 * 1000),
       eventStartTime: data.time,
       location: "GUC Gym",
       eventEndTime: new Date(0, 0, 0, h, m + data.duration)
@@ -48,14 +48,19 @@ export class GymSessionsService {
   async getAllGymSessions(dateParam?: string): Promise<IGymSessionEvent[]> {
     const filter: any = { type: EVENT_TYPES.GYM_SESSION };
 
-    // Use provided date or default to today
-    const date = dateParam ? new Date(dateParam) : new Date();
-
-    // Get all sessions for the month of the provided/current date
-    filter.eventStartDate = {
-      $gte: new Date(date.getFullYear(), date.getMonth(), 1),
-      $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),
-    };
+    if (dateParam) {
+      // If date provided, get all sessions for that specific month
+      const date = new Date(dateParam);
+      filter.eventStartDate = {
+        $gte: new Date(date.getFullYear(), date.getMonth(), 1),
+        $lt: new Date(date.getFullYear(), date.getMonth() + 1, 1),
+      };
+    } else {
+      // If no date provided, get all sessions in the furture
+      filter.eventEndDate = {
+        $gte: new Date(),
+      };
+    }
 
     const sessions = await this.gymSessionRepo.findAll(filter, {
       select:

@@ -20,6 +20,7 @@ import {
 } from "./utils";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
+import { capitalizeFullName } from "@/components/shared/utils/nameUtils";
 
 // Droppable zone component
 function DroppableZone({
@@ -45,7 +46,7 @@ export default function RoleAssignmentContent() {
     ta: "TA",
     professor: "Professor",
   };
-  
+
   // Backend expects lowercase for staff and professor, uppercase for TA
   const roleBackendValues: Record<(typeof roleKeys)[number], string> = {
     staff: "staff",
@@ -539,7 +540,7 @@ export default function RoleAssignmentContent() {
           }}
         >
           Are you sure you want to assign{" "}
-          <strong>{pendingAssignment?.applicant.name}</strong> to the role of{" "}
+          <strong>{capitalizeFullName(pendingAssignment?.applicant.name)}</strong> to the role of{" "}
           <strong>
             {pendingAssignment?.role &&
               roleLabels[pendingAssignment.role as keyof typeof roleLabels]}

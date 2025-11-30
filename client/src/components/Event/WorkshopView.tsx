@@ -37,6 +37,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   userInfo,
   attended,
   archived,
+  allowedUsers,
   datePassed,
   registrationPassed,
   professorStatus,
@@ -181,7 +182,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               </IconButton>
             </Tooltip>
           </Stack>
-        ) : user === "professor" ? (
+        ) : (user === "professor" && !(details["Status"] === "approved" || details["Status"] === "rejected"))? (
           <Tooltip title="Edit Workshop">
             <IconButton
               size="medium"
@@ -351,7 +352,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         userInfo={userInfo}
         eventId={id}
         color={background} paymentOpen={() => setPaymentDrawerOpen(true)} />
-      <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"workshop"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"workshop"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
       <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"workshop"} open={archive} onClose={() => setArchive(false)} />
       <CancelRegistration setRefresh={setRefresh!} eventId={id} open={cancelRegisteration} onClose={() => setCancelRegisteration(false)} isRefundable={isRefundable} />
       <CustomModalLayout

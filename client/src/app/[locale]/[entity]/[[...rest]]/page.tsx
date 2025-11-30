@@ -35,6 +35,7 @@ import NotificationsPageContent from "@/components/notifications/NotificationsPa
 import PollsManagement from "@/components/EventsOffice/Polls/PollsManagement";
 import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
+import ReportTable from '../../../../components/shared/Report/reportTable';
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -359,6 +360,20 @@ export default function EntityCatchAllPage() {
 
     if (["student", "staff","professor","ta","events-office","admin"].includes(entity) && section === "loyalty-partners"){
       return <VendorsList/>
+    }  
+    // Vendor - Loyalty Program
+    if (entity === "vendor" && tab === "loyalty") {
+      if (section === "program-status") {
+        return (
+          <LoyaltyProgram
+            isSubscribed={!!user?.loyaltyProgram}
+            discountRate={user?.loyaltyProgram?.discountRate}
+            promoCode={user?.loyaltyProgram?.promoCode}
+            termsAndConditions={user?.loyaltyProgram?.termsAndConditions}
+            onStatusChange={() => window.location.reload()}
+          />
+        );
+      }
     }
 
     // Courts booking page for stakeholders
@@ -477,6 +492,14 @@ export default function EntityCatchAllPage() {
         );
       }
     }
+
+    if (entity==="events-office" || entity=== "admin"){
+      if (section === "attendee-reports")
+        return <ReportTable reportType="attendees" />
+      else if (section === "sales-reports")
+        return <ReportTable reportType="sales" />
+    }
+
 
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
