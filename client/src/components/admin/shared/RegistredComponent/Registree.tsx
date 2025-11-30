@@ -211,14 +211,44 @@ const RegisterBox: React.FC<RegisterBoxProps> = ({
                   sx={{
                     height: "30px",
                     fontSize: "12px",
+                    borderRadius: "50px",
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: theme.palette.grey[400],
+                      borderWidth: "2px",
+                      borderRadius: "50px",
                     },
                     "&:hover .MuiOutlinedInput-notchedOutline": {
                       borderColor: theme.palette.primary.main,
+                      borderWidth: "2px",
                     },
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: theme.palette.primary.main,
+                      borderColor: theme.palette.tertiary.main,
+                      borderWidth: "2px",
+                    },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        borderRadius: "16px",
+                        border: `2px solid ${theme.palette.tertiary.main}`,
+                        mt: 1,
+                        maxHeight: "250px",
+                        "& .MuiMenuItem-root": {
+                          fontSize: "12px",
+                          fontWeight: 500,
+                          "&:hover": {
+                            backgroundColor: "rgba(58, 79, 153, 0.08)",
+                            borderLeft: `3px solid ${theme.palette.tertiary.main}`,
+                          },
+                          "&.Mui-selected": {
+                            backgroundColor: "rgba(58, 79, 153, 0.1)",
+                            borderLeft: `3px solid ${theme.palette.tertiary.main}`,
+                            "&:hover": {
+                              backgroundColor: "rgba(58, 79, 153, 0.15)",
+                            },
+                          },
+                        },
+                      },
                     },
                   }}
                 >
