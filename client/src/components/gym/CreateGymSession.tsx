@@ -9,13 +9,17 @@ import * as Yup from "yup";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { CustomTextField, CustomSelectField } from "../shared/input-fields";
 import { CustomModalLayout } from "../shared/modals";
-import GymSessionCalendar from "./GymSessionCalendar";
+import { formatDuration } from "../shared/DateTimePicker/utils";
 import { GymSessionType, SESSION_LABEL } from "./types";
 import { createGymSession } from "./utils";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { toast } from "react-toastify";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import dayjs, { Dayjs } from "dayjs";
 
 interface CreateGymSessionProps {
   open: boolean;
@@ -91,7 +95,7 @@ export default function CreateGymSession({
 
   const formik = useFormik({
     initialValues: {
-      startDateTime: null as Date | null,
+      startDateTime: null as Dayjs | null,
       duration: "",
       type: preselectedType || "",
       maxParticipants: "",
@@ -107,8 +111,9 @@ export default function CreateGymSession({
           ? capitalizeName(String(values.trainer), false)
           : undefined;
         // Create gym session via API
+        const startDateTimeForAPI = values.startDateTime!.toDate();
         await createGymSession({
-          startDateTime: values.startDateTime!,
+          startDateTime:startDateTimeForAPI,
           duration: parseInt(values.duration),
           type: values.type as GymSessionType,
           maxParticipants: parseInt(values.maxParticipants),
@@ -340,23 +345,50 @@ export default function CreateGymSession({
                   </Box>
 
                   {/* Start Date and Time */}
-                  <Box sx={{ mb: 3 }}>
-                    <GymSessionCalendar
-                      value={formik.values.startDateTime}
-                      onChange={(dateTime) =>
-                        formik.setFieldValue("startDateTime", dateTime, true)
-                      }
-                      onBlur={() => formik.setFieldTouched("startDateTime", true)}
-                      error={
-                        formik.touched.startDateTime &&
-                        Boolean(formik.errors.startDateTime)
-                      }
-                      errorMessage={
-                        formik.touched.startDateTime ? formik.errors.startDateTime : ""
-                      }
-                      minDate={new Date()}
-                      labelColor={accentColor}
-                    />
+                  <Box sx={{ mb: 3 , ml:1}}>
+                  <Box sx={{ flex: 1 }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                        name="startDateTime"
+                        label="Start Date & Time"
+                        slotProps={{
+                          textField: {
+                            variant: "standard",
+                            fullWidth: true,
+                            InputLabelProps: {
+                              sx: {
+                                color: theme.palette.grey[500],
+                                '&.Mui-focused': { color: accentColor },
+                              },
+                            },
+                            sx: {
+                              color: accentColor,
+                              '& .MuiInput-underline:before': {
+                                borderBottomColor: theme.palette.grey[400],
+                              },
+                              '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                                borderBottomColor: accentColor,
+                              },
+                              '& .MuiInput-underline:after': {
+                                borderBottomColor: accentColor,
+                              },
+                            },
+                          },
+                        }}
+                        minDate={dayjs(new Date())}
+                        value={formik.values.startDateTime}
+                        onChange={(dateTime) =>
+                          formik.setFieldValue("startDateTime", dateTime, true)
+                        } 
+                          onClose={() => formik.setFieldTouched("startDateTime", true)}
+                      />
+                    </LocalizationProvider>
+                  {formik.touched.startDateTime && Boolean(formik.errors.startDateTime) && (
+                     <Typography sx={{ color: "#db3030", fontSize: '0.875rem', fontFamily:"var(--font-poppins), system-ui, sans-serif" }}>
+                         {formik.touched.startDateTime ? formik.errors.startDateTime : ""}
+                      </Typography>
+                  )}
+                  </Box>
                   </Box>
 
                   {/* Duration */}
