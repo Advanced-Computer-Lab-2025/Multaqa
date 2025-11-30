@@ -32,6 +32,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   attended,
   archived,
   allowedUsers,
+  registrationPassed,
   registrationDeadline,
   userInfo
 }) => {
@@ -122,7 +123,7 @@ const BazarView: React.FC<BazarViewProps> = ({
      registerButton={ user == "vendor" &&
           (
             // if not requested -> show Apply
-            !isRequested ? (
+            (!isRequested && !registrationPassed) ? (
               <CustomButton
                 size="small"
                 variant="contained"
@@ -150,7 +151,7 @@ const BazarView: React.FC<BazarViewProps> = ({
               </CustomButton>
             ) : (
               // if requested and status is approved but not paid -> show Pay button
-              requestStatus === "approved" && !hasPaid ? (
+              (requestStatus === "approved" && !hasPaid ) ? (
                 <CustomButton
                   size="small"
                   variant="contained"
@@ -173,7 +174,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                 </CustomButton>
               ) : 
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" && !hasPaid ? (
+              (requestStatus !== "approved" && !hasPaid && !registrationPassed) ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
@@ -284,7 +285,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           button={ user == "vendor" &&
           (
             // if not requested -> show Apply
-            !isRequested ? (
+            (!isRequested && !registrationPassed) ? (
               <CustomButton
                 size="small"
                 variant="contained"
@@ -335,7 +336,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                 </CustomButton>
               ) :
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" && !hasPaid ? (
+              requestStatus !== "approved" && !hasPaid && !registrationPassed ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
