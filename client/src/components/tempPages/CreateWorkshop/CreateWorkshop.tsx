@@ -108,8 +108,9 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
         try {
             setLoadingProfessors(true);
             const res = await api.get("/users/professors");
-
-            const options = res.data.data
+            // filter only isVerified = true
+            const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+            const options = verifiedProfessors
                 .filter((prof: any) => prof._id !== creatingProfessor)
                 .map((prof: any) => ({
                     label: `${prof.firstName} ${prof.lastName}`,

@@ -195,7 +195,9 @@ const EditWorkshop = ({
         try {
             setLoadingProfessors(true);
             const res = await api.get("/users/professors");
-            const options = (res.data.data as Professor[])
+            // filter only isVerified = true
+            const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+            const options = (verifiedProfessors as Professor[])
                 .filter((prof: Professor) => prof._id !== creatingProfessor)
                 .map((prof: Professor) => ({
                     label: `${prof.firstName} ${prof.lastName}`,
