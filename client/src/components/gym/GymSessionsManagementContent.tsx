@@ -43,7 +43,7 @@ export default function GymSessionsManagementContent() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [sessionToEdit, setSessionToEdit] = useState<GymSession | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [sessionToDelete, setSessionToDelete] = useState<GymSession | null>(null);
+  const [sessionToDelete, setSessionToDelete] = useState<GymSession | null>(null);
   const [selectedSessionType, setSelectedSessionType] = useState<
     GymSessionType | undefined
   >();
@@ -140,33 +140,33 @@ export default function GymSessionsManagementContent() {
     await loadGymSessions();
   };
 
-const handleEditSession = (session: GymSession) => {
-  // 1. Store the data of the session to be edited
-  setSessionToEdit(session);
-  // 2. Open the edit modal
-  setEditModalOpen(true);
-};
+  const handleEditSession = (session: GymSession) => {
+    // 1. Store the data of the session to be edited
+    setSessionToEdit(session);
+    // 2. Open the edit modal
+    setEditModalOpen(true);
+  };
 
-const handleCloseEditModal = () => {
-  // 1. Close the modal
-  setEditModalOpen(false);
-  // 2. Clear the session data
-  setSessionToEdit(null);
-};
+  const handleCloseEditModal = () => {
+    // 1. Close the modal
+    setEditModalOpen(false);
+    // 2. Clear the session data
+    setSessionToEdit(null);
+  };
 
-const handleDeleteSession = (session: GymSession) => {
-    // 1. Store the data of the session to be deleted
-    setSessionToDelete(session);
-    // 2. Open the delete modal
-    setDeleteModalOpen(true);
-  };
+  const handleDeleteSession = (session: GymSession) => {
+    // 1. Store the data of the session to be deleted
+    setSessionToDelete(session);
+    // 2. Open the delete modal
+    setDeleteModalOpen(true);
+  };
 
-  const handleCloseDeleteModal = () => {
-    // 1. Close the modal
-    setDeleteModalOpen(false);
-    // 2. Clear the session data
-    setSessionToDelete(null);
-  };
+  const handleCloseDeleteModal = () => {
+    // 1. Close the modal
+    setDeleteModalOpen(false);
+    // 2. Clear the session data
+    setSessionToDelete(null);
+  };
 
   const handleViewSession = (session: GymSession) => {
     // TODO: Implement view session details modal
@@ -185,11 +185,11 @@ const handleDeleteSession = (session: GymSession) => {
         </Alert>
       )}
 
-    {loading ? (
-        // Replace the Box with CircularProgress with your new Table Skeleton
-        <GymSessionsTableSkeleton rowCount={8} /> // Display 8 rows of skeleton
-      ) : (
-        <>
+      {loading ? (
+        // Replace the Box with CircularProgress with your new Table Skeleton
+        <GymSessionsTableSkeleton rowCount={8} /> // Display 8 rows of skeleton
+      ) : (
+        <>
           {/* Header with Create Button */}
           <Box
             sx={{
@@ -366,7 +366,7 @@ const handleDeleteSession = (session: GymSession) => {
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteSession(session)}
-                              sx={
+                              sx={{
                                 color: theme.palette.grey[700],
                                 "&:hover": {
                                   backgroundColor: `${theme.palette.grey[600]}20`,
@@ -421,34 +421,34 @@ const handleDeleteSession = (session: GymSession) => {
 
       {/* Edit Session Modal */}
       {sessionToEdit && (
-          <EditGymSession
-              sessionId={sessionToEdit.id}
-              open={editModalOpen} // Ensure 'editModalOpen' state is defined
-              onClose={handleCloseEditModal} // Ensure 'handleCloseEditModal' handler is defined
-              setRefresh={loadGymSessions} // Uses your load function to refresh the list
-              // Data Mapping:
-              // Converts ISO string (session.start) to Date object
-              initialStartDateTime={new Date(sessionToEdit.start)}
-              // Calculates the duration in minutes from start and end times
-              initialDuration={calculateDuration(
-                  sessionToEdit.start, 
-                  sessionToEdit.end
-              )} 
-              initialType={sessionToEdit.type}
-              // Maps 'spotsTotal' to 'maxParticipants'
-              initialMaxParticipants={sessionToEdit.spotsTotal || 0} 
-              // Maps 'instructor' to 'trainer'
-              initialTrainer={sessionToEdit.instructor || ""} 
-          />
+        <EditGymSession
+          sessionId={sessionToEdit.id}
+          open={editModalOpen} // Ensure 'editModalOpen' state is defined
+          onClose={handleCloseEditModal} // Ensure 'handleCloseEditModal' handler is defined
+          setRefresh={loadGymSessions} // Uses your load function to refresh the list
+          // Data Mapping:
+          // Converts ISO string (session.start) to Date object
+          initialStartDateTime={new Date(sessionToEdit.start)}
+          // Calculates the duration in minutes from start and end times
+          initialDuration={calculateDuration(
+            sessionToEdit.start,
+            sessionToEdit.end
+          )}
+          initialType={sessionToEdit.type}
+          // Maps 'spotsTotal' to 'maxParticipants'
+          initialMaxParticipants={sessionToEdit.spotsTotal || 0}
+          // Maps 'instructor' to 'trainer'
+          initialTrainer={sessionToEdit.instructor || ""}
+        />
       )}
 
-    {sessionToDelete && (
+      {sessionToDelete && (
         <CancelGymSession
-            sessionId={sessionToDelete.id}
-            open={deleteModalOpen}
-            onClose={handleCloseDeleteModal}
-            // Use your existing load function to refresh the table after deletion
-            setRefresh={loadGymSessions} 
+          sessionId={sessionToDelete.id}
+          open={deleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          // Use your existing load function to refresh the table after deletion
+          setRefresh={loadGymSessions}
         />
       )}
     </ContentWrapper>
