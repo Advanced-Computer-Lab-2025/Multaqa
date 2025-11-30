@@ -338,7 +338,7 @@ setActiveTab('general');
                                 </LocalizationProvider>
 
                                 <Box sx={{ display: "flex", flexDirection: "column", flex: 1, marginTop: "24px" }}>
-                                    <CustomSelectField
+                              <CustomSelectField
                                       label="Location"
                                       fieldType="single"
                                       options={[

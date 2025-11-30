@@ -104,7 +104,7 @@ export default function ClientProviders({
         
         {/* Toast Container for notifications */}
         <ToastContainer
-          position="top-right"
+          position="bottom-right"
           autoClose={5000}
           hideProgressBar={false}
           newestOnTop

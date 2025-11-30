@@ -286,7 +286,7 @@ export class UserService {
 
   async getAllTAs(): Promise<IStaffMember[]> {
     const staffMembers = await this.staffMemberRepo.findAll(
-      { position: StaffPosition.TA, isVerified: true },
+      { position: StaffPosition.TA},
       {
         select:
           "firstName lastName name email role gucId position roleType status myWorkshops",
@@ -299,7 +299,7 @@ export class UserService {
 
   async getAllStaff(): Promise<IStaffMember[]> {
     const staffMembers = await this.staffMemberRepo.findAll(
-      { position: StaffPosition.STAFF, isVerified: true },
+      { position: StaffPosition.STAFF},
       {
         select:
           "firstName lastName name email role gucId position roleType status myWorkshops",
@@ -312,7 +312,7 @@ export class UserService {
 
   async getAllProfessors(): Promise<IStaffMember[]> {
     const professors = await this.staffMemberRepo.findAll(
-      { position: StaffPosition.PROFESSOR, isVerified: true },
+      { position: StaffPosition.PROFESSOR},
       {
         select:
           "firstName lastName name email role gucId position roleType status myWorkshops",

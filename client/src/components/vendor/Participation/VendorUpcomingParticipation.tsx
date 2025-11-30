@@ -92,7 +92,7 @@ export default function VendorUpcomingParticipation() {
     key: "ALL" | "BAZAAR" | "PLATFORM_BOOTH";
     label: string;
   }> = [
-    { key: "ALL", label: "All Types" },
+    { key: "ALL", label: "All" },
     { key: "BAZAAR", label: "Bazaars" },
     { key: "PLATFORM_BOOTH", label: "Platform Booths" },
   ];

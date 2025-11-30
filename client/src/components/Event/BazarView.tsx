@@ -31,6 +31,9 @@ const BazarView: React.FC<BazarViewProps> = ({
   setRefresh,
   attended,
   archived,
+  allowedUsers,
+  datePassed,
+  registrationPassed,
   registrationDeadline,
   userInfo
 }) => {
@@ -117,11 +120,11 @@ const BazarView: React.FC<BazarViewProps> = ({
                    <Trash2 size={18} />
                  </IconButton>
                </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+      ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
      registerButton={ user == "vendor" &&
           (
             // if not requested -> show Apply
-            !isRequested ? (
+            (!isRequested && !registrationPassed) ? (
               <CustomButton
                 size="small"
                 variant="contained"
@@ -150,7 +153,7 @@ const BazarView: React.FC<BazarViewProps> = ({
               </CustomButton>
             ) : (
               // if requested and status is approved but not paid -> show Pay button
-              requestStatus === "approved" && !hasPaid ? (
+              (requestStatus === "approved" && !hasPaid ) ? (
                 <CustomButton
                   size="small"
                   variant="contained"
@@ -173,7 +176,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                 </CustomButton>
               ) : 
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" && !hasPaid ? (
+              (requestStatus !== "approved" && !hasPaid && !registrationPassed) ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
@@ -258,7 +261,8 @@ const BazarView: React.FC<BazarViewProps> = ({
           </Typography>
         </Box>
       </CustomModal>
-      <EditBazaar  
+      <EditBazaar
+        registrationPassed={registrationPassed}  
         setRefresh={setRefresh} bazaarId={id} bazaarName={name} 
         location={details["Location"]}  description={description} 
         startDate={new Date(`${details["Start Date"]}T${details["Start Time"]}`)} 
@@ -266,7 +270,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         registrationDeadline={new Date(registrationDeadline)} open={edit} 
         onClose={()=> {setEdit(false)}} color={theme.palette.tertiary.main}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
       <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}
@@ -284,7 +288,7 @@ const BazarView: React.FC<BazarViewProps> = ({
           button={ user == "vendor" &&
           (
             // if not requested -> show Apply
-            !isRequested ? (
+            (!isRequested && !registrationPassed) ? (
               <CustomButton
                 size="small"
                 variant="contained"
@@ -336,7 +340,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                 </CustomButton>
               ) :
               // if requested and NOT approved -> show Cancel Application
-              requestStatus !== "approved" && !hasPaid ? (
+              requestStatus !== "approved" && !hasPaid && !registrationPassed ? (
                 <CustomButton
                   size="small"
                   variant="outlined"

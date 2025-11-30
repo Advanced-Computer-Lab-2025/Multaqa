@@ -37,6 +37,7 @@ import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationF
 import HomeIcon from "@mui/icons-material/Home";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
 import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
+import newMultaqaIcon from "../../../public/assets/images/new-multaqa-logo.png";
 import ScaledLogo from "@/components/shared/MultaqaLogos/ScaledLogo";
 
 const MotionBox = motion(Box);
@@ -442,7 +443,7 @@ function HomePageContent() {
             }}
           >
             <ScaledLogo
-              image={multaqaIcon}
+              image={newMultaqaIcon}
               transparent
               iconOnly
             />
