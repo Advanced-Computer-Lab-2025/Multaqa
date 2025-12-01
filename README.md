@@ -179,7 +179,7 @@ cd client && npm run dev
 - **Event Registration**: Seamless registration with automatic confirmation
 - **Event Creation**: Role-based event creation and management
 - **Event Analytics**: Visual charts and statistics using Recharts
-- **Real-time Updates**: Live event status and capacity tracking
+- **Real-time Updates**: Live Updates & Notifications
 
 ### 👥 User Management
 
