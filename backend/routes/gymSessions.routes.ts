@@ -51,13 +51,9 @@ async function getAllGymSessions(
     const date= req.query.date as string | undefined;
     const sessions = await gymSessionsService.getAllGymSessions(date);
 
-    if (!sessions || sessions.length === 0) {
-      throw createError(404, "No gym sessions found");
-    }
-
     res.json({
       success: true,
-      data: sessions,
+      data: sessions || [],
       message: "Gym sessions retrieved successfully",
     });
   } catch (err: any) {

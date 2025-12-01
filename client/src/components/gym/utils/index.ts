@@ -56,10 +56,20 @@ export const fetchGymSessions = async (date?: Date): Promise<GymSession[]> => {
     // Build query params
     const params = date ? { date: date.toISOString() } : {};
 
-    const response = await api.get<GetAllGymSessionsResponse>("/gymsessions", { params });
-    const sessions = response.data.data;
+    // Fetch both all sessions and user's registered sessions in parallel
+    const [sessionsResponse, registeredResponse] = await Promise.all([
+      api.get<GetAllGymSessionsResponse>("/gymsessions", { params }),
+      api.get<GetAllGymSessionsResponse>("/gymsessions/registered").catch(() => ({ data: { data: [] } })),
+    ]);
 
-    console.log(`✅ Found ${sessions.length} gym session(s)`);
+    const sessions = sessionsResponse.data.data;
+    const registeredSessions = registeredResponse.data.data || [];
+    
+    // Create a Set of registered session IDs for quick lookup
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const registeredIds = new Set(registeredSessions.map((s: any) => s._id));
+
+    console.log(`✅ Found ${sessions.length} gym session(s), ${registeredIds.size} registered`);
 
     // Map backend data to GymSession interface
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +93,7 @@ export const fetchGymSessions = async (date?: Date): Promise<GymSession[]> => {
         end: endDateTime,
         spotsTotal: session.capacity || 0,
         spotsTaken: session.attendees?.length || 0,
+        isRegistered: registeredIds.has(session._id), // Check if user is registered
       };
     });
   } catch (error: unknown) {
@@ -283,6 +294,77 @@ export const cancelGymSession = async (sessionId: string): Promise<void> => {
       throw new Error(error.message);
     }
     throw new Error("Failed to cancel gym session");
+  }
+};
+
+export const registerForGymSession = async (sessionId: string): Promise<void> => {
+  try {
+    console.log(`📝 Registering for gym session ${sessionId}...`);
+
+    const response = await api.post(`/gymsessions/${sessionId}/register`);
+
+    console.log("✅ Successfully registered for gym session:", response.data.message);
+    
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error(`❌ Failed to register for gym session ${sessionId}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error(`❌ Failed to register for gym session ${sessionId}:`, error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to register for gym session");
+  }
+};
+
+// Fetch user's registered gym sessions
+export const fetchMyRegisteredSessions = async (): Promise<GymSession[]> => {
+  try {
+    console.log("📋 Fetching my registered gym sessions...");
+
+    const response = await api.get<GetAllGymSessionsResponse>("/gymsessions/registered");
+    const sessions = response.data.data;
+
+    console.log(`✅ Found ${sessions.length} registered gym session(s)`);
+
+    // Map backend data to GymSession interface
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return sessions.map((session: any) => {
+      const startDateTime = combineDateTime(
+        session.eventStartDate,
+        session.eventStartTime
+      );
+      const endDateTime = combineDateTime(
+        session.eventEndDate || session.eventStartDate,
+        session.eventEndTime
+      );
+
+      return {
+        id: session._id,
+        title: session.eventName || `${session.sessionType} Session`,
+        type: mapSessionTypeToFrontend(session.sessionType),
+        instructor: session.trainer || undefined,
+        location: session.location || "Gym",
+        start: startDateTime,
+        end: endDateTime,
+        spotsTotal: session.capacity || 0,
+        spotsTaken: session.attendees?.length || 0,
+        isRegistered: true, // User is registered for these sessions
+      };
+    });
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.error("❌ Failed to fetch registered gym sessions:", errorMessage);
+      throw new Error(errorMessage);
+    }
+    if (error instanceof Error) {
+      console.error("❌ Failed to fetch registered gym sessions:", error.message);
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to fetch registered gym sessions");
   }
 };
 

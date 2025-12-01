@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Chip, Divider, Stack, Typography, Skeleton } from "@mui/material";
+import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import theme from "@/themes/lightTheme";
-import CustomButton from "@/components/shared/Buttons/CustomButton";
 import GymSessionCard, { GymSessionCardSkeleton } from "./GymSessionCard";
 import {
   GymSession,
@@ -14,17 +11,10 @@ import {
   SESSION_LABEL,
   SESSION_COLORS,
 } from "./types";
-import { fetchGymSessions } from "./utils";
+import { fetchMyRegisteredSessions } from "./utils";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
 import ContentWrapper from "../shared/containers/ContentWrapper";
-
-// colors handled by `GymSessionCard`
-
-type Props = {
-  month?: Date; // initial month
-  sessions?: GymSession[]; // optional external data, else use demo
-};
 
 // Skeleton Loading Component (matches GymSessionCard layout)
 const GymSessionsSkeleton = () => {
@@ -50,7 +40,6 @@ const GymSessionsSkeleton = () => {
               )}, 0 0 22px ${alpha(accent, 0.18)}`,
             }}
           >
-            <Skeleton variant="text" width="30%" height={32} sx={{ mb: 1.5 }} />
             <Box
               sx={{
                 display: "flex",
@@ -82,26 +71,37 @@ const GymSessionsSkeleton = () => {
   );
 };
 
-export default function GymSchedule({ month, sessions }: Props) {
-  const [current, setCurrent] = useState<Date>(month ?? new Date());
-  const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
-  const [fetched, setFetched] = useState<GymSession[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+type SessionStatus = "upcoming" | "ongoing" | "past";
 
-  // Fetch sessions from API (students like Browse Events)
+const getSessionStatus = (start: string, end: string): SessionStatus => {
+  const now = new Date();
+  const startTime = new Date(start);
+  const endTime = new Date(end);
+  
+  if (now < startTime) return "upcoming";
+  if (now >= startTime && now <= endTime) return "ongoing";
+  return "past";
+};
+
+export default function MyRegisteredSessions() {
+  const [sessions, setSessions] = useState<GymSession[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
+  const [statusFilter, setStatusFilter] = useState<SessionStatus | "ALL">("ALL");
+
+  // Fetch registered sessions from API
   useEffect(() => {
     let mounted = true;
     const run = async () => {
       try {
         setLoading(true);
         setError(null);
-        // Pass current  date to fetch sessions for that date
-        const data = await fetchGymSessions(current);
-        if (mounted) setFetched(data);
+        const data = await fetchMyRegisteredSessions();
+        if (mounted) setSessions(data);
       } catch {
         if (mounted)
-          setError("Failed to load gym sessions. Please try again later.");
+          setError("Failed to load your registered sessions. Please try again later.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -110,38 +110,22 @@ export default function GymSchedule({ month, sessions }: Props) {
     return () => {
       mounted = false;
     };
-  }, [current]);
-
-  // Prefer prop sessions when provided (tests/SSR), else use fetched
-  const all = useMemo(() => sessions ?? fetched, [sessions, fetched]);
-
-  // Filter by selected calendar month
-  const inMonth = useMemo(() => {
-    const y = current.getFullYear();
-    const m = current.getMonth();
-    const today = new Date();
-    // Set to start of today (midnight) for accurate comparison
-    today.setHours(0, 0, 0, 0);
-
-    return all.filter((s) => {
-      const sessionDate = new Date(s.start);
-      // Set session date to midnight for date-only comparison
-      const sessionDateOnly = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
-
-      // Check if session is in the selected month AND not in the past
-      return sessionDateOnly.getFullYear() === y &&
-        sessionDateOnly.getMonth() === m &&
-        sessionDateOnly >= today;
-    });
-  }, [all, current]);
+  }, []);
 
   // Filter by type
-  const filtered = useMemo(
+  const filteredByType = useMemo(
     () =>
-      filter === "ALL" ? inMonth : inMonth.filter((s) => s.type === filter),
-    [inMonth, filter]
+      filter === "ALL" ? sessions : sessions.filter((s) => s.type === filter),
+    [sessions, filter]
   );
 
+  // Filter by status
+  const filtered = useMemo(() => {
+    if (statusFilter === "ALL") return filteredByType;
+    return filteredByType.filter((s) => getSessionStatus(s.start, s.end) === statusFilter);
+  }, [filteredByType, statusFilter]);
+
+  // Group sessions by day
   const byDay = useMemo(() => {
     const groups = new Map<string, GymSession[]>();
     filtered.forEach((s) => {
@@ -167,41 +151,19 @@ export default function GymSchedule({ month, sessions }: Props) {
     return entries;
   }, [filtered]);
 
-  const monthLabel = current.toLocaleString(undefined, {
-    month: "long",
-    year: "numeric",
-  });
-
-  // Calculate max allowed month (current month + 1 month ahead)
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const currentMonthIndex = today.getMonth();
-  const selectedYear = current.getFullYear();
-  const selectedMonthIndex = current.getMonth();
-
-  // Calculate month as a comparable number (year * 12 + month)
-  const currentMonthNum = currentYear * 12 + currentMonthIndex;
-  const selectedMonthNum = selectedYear * 12 + selectedMonthIndex;
-  const maxAllowedMonthNum = currentMonthNum + 1;
-
-  // Check if we can navigate (can go back to current month, can go forward to next month)
-  const canGoPrev = selectedMonthNum > currentMonthNum;
-  const canGoNext = selectedMonthNum < maxAllowedMonthNum;
-
-  const goPrev = () => {
-    if (canGoPrev) {
-      setCurrent((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-    }
-  };
-  const goNext = () => {
-    if (canGoNext) {
-      setCurrent((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  // Refresh sessions after registration changes
+  const handleRefresh = async () => {
+    try {
+      const data = await fetchMyRegisteredSessions();
+      setSessions(data);
+    } catch {
+      // Silent fail on refresh
     }
   };
 
   type FilterKey = GymSessionType | "ALL";
   const filterChips: Array<{ key: FilterKey; label: string }> = [
-    { key: "ALL", label: "All" },
+    { key: "ALL", label: "All Types" },
     { key: "YOGA", label: SESSION_LABEL.YOGA },
     { key: "PILATES", label: SESSION_LABEL.PILATES },
     { key: "AEROBICS", label: SESSION_LABEL.AEROBICS },
@@ -210,105 +172,71 @@ export default function GymSchedule({ month, sessions }: Props) {
     { key: "KICK_BOXING", label: SESSION_LABEL.KICK_BOXING },
   ];
 
+  const statusChips: Array<{ key: SessionStatus | "ALL"; label: string; color: string }> = [
+    { key: "ALL", label: "All Status", color: "#6299d0" },
+    { key: "upcoming", label: "Upcoming", color: "#22c55e" },
+    { key: "ongoing", label: "Ongoing", color: "#f59e0b" },
+    { key: "past", label: "Past", color: "#9ca3af" },
+  ];
+
   return (
     <ContentWrapper
-      title="Gym Sessions"
-      description="Browse sessions by month and filter by type."
+      title="My Registered Sessions"
+      description="View and manage your registered gym sessions."
       headerMarginBottom={2}
     >
-      {/* Month Pagination */}
-      <Box
-        sx={{
-          mb: 4,
-          display: "flex",
-          justifyContent: "flex-end",
-          alignSelf: "flex-end",
-        }}
-      >
-        <Stack
-          direction="row"
-          spacing={2}
-          alignItems="center"
-          alignSelf="flex-end"
+      {/* Status Filter */}
+      <Box sx={{ mb: 2 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 600, color: theme.palette.text.secondary, mb: 1 }}
         >
-          <CustomButton
-            variant="contained"
-            onClick={goPrev}
-            disabled={!canGoPrev}
-            width="42px"
-            height="42px"
-            aria-label="Previous month"
-            sx={{
-              minWidth: "42px",
-              width: 42,
-              height: 42,
-              borderRadius: "999px",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              opacity: !canGoPrev ? 0.5 : 1,
-              cursor: !canGoPrev ? "not-allowed" : "pointer",
-              "&:hover": {
-                backgroundColor: !canGoPrev ? "#fff" : "#f5f5f5",
-              },
-            }}
-          >
-            <ArrowBackIosNewIcon fontSize="small" sx={{ color: "#000" }} />
-          </CustomButton>
+          Filter by Status
+        </Typography>
+        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+          {statusChips.map(({ key, label, color }) => {
+            const isActive = statusFilter === key;
 
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 600, color: theme.palette.text.primary }}
-          >
-            {monthLabel}
-          </Typography>
-
-          <CustomButton
-            variant="contained"
-            onClick={goNext}
-            disabled={!canGoNext}
-            width="42px"
-            height="42px"
-            aria-label="Next month"
-            sx={{
-              minWidth: "42px",
-              width: 42,
-              height: 42,
-              borderRadius: "999px",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#fff",
-              color: "#000",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              opacity: !canGoNext ? 0.5 : 1,
-              cursor: !canGoNext ? "not-allowed" : "pointer",
-              "&:hover": {
-                backgroundColor: !canGoNext ? "#fff" : "#f5f5f5",
-              },
-            }}
-          >
-            <ArrowForwardIosIcon fontSize="small" sx={{ color: "#000" }} />
-          </CustomButton>
+            return (
+              <Chip
+                key={key}
+                label={label}
+                size="medium"
+                onClick={() => setStatusFilter(key)}
+                variant="outlined"
+                sx={{
+                  fontFamily: "var(--font-poppins)",
+                  fontWeight: isActive ? 600 : 500,
+                  borderRadius: "28px",
+                  px: 1.75,
+                  height: 28,
+                  borderWidth: isActive ? 2 : 1,
+                  borderColor: color,
+                  color: color,
+                  backgroundColor: alpha(color, isActive ? 0.12 : 0.08),
+                  boxShadow: isActive
+                    ? `0 6px 16px ${alpha(color, 0.28)}`
+                    : `0 1px 3px ${alpha(color, 0.18)}`,
+                  transition:
+                    "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+                  "&:hover": {
+                    borderWidth: 2,
+                  },
+                }}
+              />
+            );
+          })}
         </Stack>
       </Box>
 
-      {/* Filters and Date Switcher */}
-      <Box
-        sx={{
-          mb: 2,
-          display: "flex",
-          flexDirection: { xs: "column-reverse", md: "row" },
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 2,
-        }}
-      >
+      {/* Type Filter */}
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 600, color: theme.palette.text.secondary, mb: 1 }}
+        >
+          Filter by Type
+        </Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {filterChips.map(({ key, label }) => {
             const isActive = filter === key;
@@ -356,18 +284,34 @@ export default function GymSchedule({ month, sessions }: Props) {
       <Stack spacing={2}>
         {loading ? (
           <GymSessionsSkeleton />
+        ) : error ? (
+          <ErrorState
+            title="Failed to load your sessions"
+            description={
+              error ??
+              "An error has occurred while loading your registered sessions. Please try again later."
+            }
+            onCtaClick={() => window.location.reload()}
+          />
         ) : byDay.length === 0 ? (
           <EmptyState
-            title="No sessions available for this month"
-            description="There are no gym sessions scheduled for the selected month. Please check back later or try a different month."
+            title={
+              sessions.length === 0
+                ? "No registered sessions yet"
+                : "No sessions match your filters"
+            }
+            description={
+              sessions.length === 0
+                ? "You haven't registered for any gym sessions yet. Browse available sessions and register to get started!"
+                : "Try adjusting your filters to see more sessions."
+            }
             imageAlt="No sessions illustration"
           />
         ) : (
           byDay.map(([day, list], index) => (
             <React.Fragment key={day}>
-              {index !== 0 && <Divider sx={{ my: 3 }} />}{" "}
-              {/* divider between days */}
-              {/** Day container with glow (moved from individual cards) */}
+              {index !== 0 && <Divider sx={{ my: 3 }} />}
+              {/* Day container with glow */}
               <Box
                 sx={() => {
                   // Use blue (#6299d0) when "All" is selected, otherwise use the session type color
@@ -386,32 +330,28 @@ export default function GymSchedule({ month, sessions }: Props) {
                       accent,
                       0.18
                     )}`,
-                    transition:
-                      "box-shadow 0.35s ease, transform 0.35s ease, background-color 0.35s ease",
-                    "&:hover": {
-                      backgroundColor: alpha(accent, 0.1),
-                      boxShadow: `0 0 0 2px ${alpha(
-                        accent,
-                        0.55
-                      )}, 0 6px 18px ${alpha(accent, 0.28)}, 0 0 28px ${alpha(
-                        accent,
-                        0.28
-                      )}`,
-                      transform: "translateY(-3px)",
-                    },
                   };
                 }}
               >
+                {/* Day Header */}
                 <Typography
-                  variant="subtitle2"
+                  variant="h6"
                   sx={{
-                    color: theme.palette.text.primary,
                     fontWeight: 700,
-                    mb: 1,
+                    color: theme.palette.text.primary,
+                    mb: 2,
+                    fontFamily: "var(--font-jost)",
                   }}
                 >
-                  {day}
+                  {new Date(day).toLocaleDateString(undefined, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </Typography>
+
+                {/* Session Cards - Horizontal scroll */}
                 <Box
                   sx={{
                     display: "flex",
@@ -433,7 +373,12 @@ export default function GymSchedule({ month, sessions }: Props) {
                   }}
                 >
                   {list.map((s) => (
-                    <GymSessionCard key={s.id} session={s} showSpots />
+                    <GymSessionCard 
+                      key={s.id} 
+                      session={s} 
+                      showSpots 
+                      onRegisterSuccess={handleRefresh}
+                    />
                   ))}
                 </Box>
               </Box>
