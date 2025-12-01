@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import VectorFloating from "../shared/VectorFloating";
 
@@ -56,15 +56,19 @@ export default function InitialLoader() {
         <VectorFloating triggerExit={exiting} />
       </Box>
 
-      {/* Logo */}
+      {/* Logo & Text */}
       <Box
         sx={{
           position: "relative",
           zIndex: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 2,
           animation: "pulse 2s infinite ease-in-out",
           "@keyframes pulse": {
             "0%": { transform: "scale(1)", opacity: 0.8 },
-            "50%": { transform: "scale(1.1)", opacity: 1 },
+            "50%": { transform: "scale(1.05)", opacity: 1 },
             "100%": { transform: "scale(1)", opacity: 0.8 },
           },
         }}
@@ -77,6 +81,18 @@ export default function InitialLoader() {
           style={{ objectFit: "contain" }}
           priority
         />
+        <Typography
+          variant="h3"
+          sx={{
+            fontFamily: "var(--font-jost)",
+            fontWeight: 700,
+            letterSpacing: "0.15em",
+            color: "text.primary",
+            textTransform: "uppercase",
+          }}
+        >
+          Multaqa
+        </Typography>
       </Box>
     </Box>
   );
