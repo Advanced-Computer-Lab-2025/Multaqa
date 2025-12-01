@@ -35,6 +35,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoginForm from "@/components/shared/LoginForm/LoginForm";
 import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationForm";
 import HomeIcon from "@mui/icons-material/Home";
+import LoginIcon from "@mui/icons-material/Login";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
 import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
 import newMultaqaIcon from "../../../public/assets/images/new-multaqa-logo.png";
@@ -503,6 +505,96 @@ function HomePageContent() {
                       }}
                     >
                       Home
+                    </Typography>
+                  </IconButton>
+                </motion.div>
+              )}
+
+              {currentView === "login" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <IconButton
+                    onClick={(e) => handleRegisterClick("", e)}
+                    aria-label="Register"
+                    sx={{
+                      height: 40,
+                      borderRadius: 14,
+                      px: 2,
+                      border: `1px solid ${alpha(
+                        theme.palette.text.primary,
+                        0.12
+                      )}`,
+                      backgroundColor: alpha(theme.palette.common.white, 0.75),
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.9,
+                      "&:hover": {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      },
+                    }}
+                  >
+                    <PersonAddIcon
+                      sx={{
+                        fontSize: 18,
+                        color: alpha(theme.palette.text.primary, 0.7),
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      Register
+                    </Typography>
+                  </IconButton>
+                </motion.div>
+              )}
+
+              {currentView === "register" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                >
+                  <IconButton
+                    onClick={(e) => handleLoginClick(e)}
+                    aria-label="Login"
+                    sx={{
+                      height: 40,
+                      borderRadius: 14,
+                      px: 2,
+                      border: `1px solid ${alpha(
+                        theme.palette.text.primary,
+                        0.12
+                      )}`,
+                      backgroundColor: alpha(theme.palette.common.white, 0.75),
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.9,
+                      "&:hover": {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      },
+                    }}
+                  >
+                    <LoginIcon
+                      sx={{
+                        fontSize: 18,
+                        color: alpha(theme.palette.text.primary, 0.7),
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      Login
                     </Typography>
                   </IconButton>
                 </motion.div>
