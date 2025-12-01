@@ -92,7 +92,7 @@ export const getRedirectPath = (role: string) => {
     student: "/student/events/browse-events",
     staff: "/staff/events/browse-events",
     TA: "/ta/events/browse-events",
-    professor: "/professor/workshops/my-workshops",
+    professor: "/professor/workshops/overview",
     eventsOffice: "/events-office/events/all-events",
     vendor: "/vendor/opportunities/bazaars",
   };

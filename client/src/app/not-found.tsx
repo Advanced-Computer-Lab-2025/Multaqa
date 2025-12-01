@@ -17,7 +17,7 @@ const getDefaultRoute = (user: any): string => {
     vendor: { entity: "vendor", tab: "opportunities", section: "bazaars" },
     staff: { entity: "staff", tab: "events", section: "browse-events" },
     ta: { entity: "ta", tab: "events", section: "browse-events" },
-    professor: { entity: "professor", tab: "workshops", section: "my-workshops" },
+    professor: { entity: "professor", tab: "workshops", section: "overview" },
     "events-office": { entity: "events-office", tab: "events", section: "all-events" },
     admin: { entity: "admin", tab: "users", section: "all-users" },
   };
