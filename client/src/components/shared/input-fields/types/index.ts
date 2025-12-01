@@ -88,6 +88,7 @@ export interface CustomTextFieldProps
   separateLabels?: boolean; // Separate labels for first and last name when fieldType is "text" and label contains "name"
   disableIcon?: boolean; // Disable the label and icon - default false (label shown by default)
   borderRadius?: string; // Custom border radius for neumorphic box
+  disableEndAdornment?: boolean; // Disable end adornment (email domain or password toggle) - default false
 }
 
 export interface CustomRatingProps {
