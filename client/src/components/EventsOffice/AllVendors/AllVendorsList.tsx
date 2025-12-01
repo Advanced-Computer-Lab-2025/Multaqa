@@ -95,26 +95,26 @@ export default function AllVendorsList() {
   const content = () => {
     if (loading) {
       return (
-        <Stack spacing={3}>
-          <Box>
-            <Skeleton width={200} height={24} sx={{ mb: 1.5 }} />
-            <Stack spacing={2.5}>
-              {[1, 2, 3].map((i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    borderRadius: 3,
-                    border: "1px solid #e5e7eb",
-                    background: "#ffffff",
-                    p: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+            <Box
+              key={i}
+              sx={{
+                width: { xs: "100%", md: "calc((100% - 32px) / 3)" },
+              }}
+            >
+              <Box
+                sx={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "12px",
+                  background: "#ffffff",
+                  overflow: "hidden",
+                }}
+              >
+                <Box sx={{ px: 3, py: 2.5 }}>
                   <Stack
                     direction="row"
-                    spacing={2.5}
+                    spacing={2}
                     alignItems="center"
                     width="100%"
                   >
@@ -124,16 +124,16 @@ export default function AllVendorsList() {
                       height={56}
                       sx={{ flexShrink: 0 }}
                     />
-                    <Stack spacing={1} width="60%">
-                      <Skeleton variant="text" width="40%" height={32} />
-                      <Skeleton variant="text" width="30%" height={24} />
+                    <Stack spacing={0.5} width="100%">
+                      <Skeleton variant="text" width="60%" height={32} />
+                      <Skeleton variant="text" width="40%" height={24} />
                     </Stack>
                   </Stack>
                 </Box>
-              ))}
-            </Stack>
-          </Box>
-        </Stack>
+              </Box>
+            </Box>
+          ))}
+        </Box>
       );
     }
 
