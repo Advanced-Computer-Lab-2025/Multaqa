@@ -371,10 +371,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
-          { id: "all-vendors", label: "All Vendors" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
-          { id: "documents", label: "View Documents" },
           { id: "vendor-polls", label: "Vendor Polls" },
         ],
       },
@@ -396,13 +394,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           // { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
-      { key: "archive", label: "Archive", icon: Archive, tabs: [] },
-      // {
-      //   key: "notifications",
-      //   label: "Notifications",
-      //   icon: ClipboardList,
-      //   tabs: [],
-      // },
     ],
   },
   admin: {
