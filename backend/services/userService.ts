@@ -292,7 +292,7 @@ export class UserService {
       { position: StaffPosition.TA},
       {
         select:
-          "firstName lastName name email role gucId position roleType status myWorkshops",
+          "firstName lastName name email role gucId position roleType status myWorkshops isVerified",
       }
     );
 
@@ -305,7 +305,7 @@ export class UserService {
       { position: StaffPosition.STAFF},
       {
         select:
-          "firstName lastName name email role gucId position roleType status myWorkshops",
+          "firstName lastName name email role gucId position roleType status myWorkshops isVerified",
       }
     );
 
@@ -318,7 +318,7 @@ export class UserService {
       { position: StaffPosition.PROFESSOR},
       {
         select:
-          "firstName lastName name email role gucId position roleType status myWorkshops",
+          "firstName lastName name email role gucId position roleType status myWorkshops isVerified",
       }
     );
 
