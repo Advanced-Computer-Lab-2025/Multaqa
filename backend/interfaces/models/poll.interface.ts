@@ -16,7 +16,7 @@ export interface IPollVote {
 
 export interface IPoll extends Document{
   title: string;
-  description: string;
+  description?: string;
   startDate: Date; 
   deadlineDate: Date;  
   options: IPollOption[];
