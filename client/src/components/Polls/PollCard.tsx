@@ -25,25 +25,6 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
 
     setVoting(true);
 
-    // Handle test/mock polls without backend
-    if (poll.id.startsWith("test-poll-")) {
-      setTimeout(() => {
-        toast.success("Vote submitted successfully! (Demo)");
-        setHasVoted(true);
-        
-        setLocalPoll(prev => ({
-          ...prev,
-          options: prev.options.map(opt => 
-            opt.vendorId === selectedVendorId 
-              ? { ...opt, voteCount: opt.voteCount + 1 } 
-              : opt
-          )
-        }));
-        setVoting(false);
-      }, 1000);
-      return;
-    }
-
     try {
       await votePoll(poll.id, selectedVendorId);
       toast.success("Vote submitted successfully!");
