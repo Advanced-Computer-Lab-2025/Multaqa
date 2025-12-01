@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
 import Alert from "@mui/material/Alert";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
+import Skeleton from "@mui/material/Skeleton";
 import { alpha } from "@mui/material/styles";
 import { Poll } from "@/types/poll";
 import { getAllPolls } from "@/services/pollService";
@@ -14,7 +14,90 @@ import { useAuth } from "@/context/AuthContext";
 import EmptyState from "@/components/shared/states/EmptyState";
 import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 
-type FilterType = "all" | "running" | "ended";
+type FilterType = "all" | "running" | "ended" | "voted";
+
+// Skeleton component for poll card loading state
+const PollCardSkeleton: React.FC = () => (
+  <Box
+    sx={{
+      borderRadius: "12px",
+      p: 2,
+      border: "1px solid",
+      borderColor: "divider",
+      bgcolor: "background.paper",
+      width: "100%",
+      minHeight: 320,
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    {/* Header */}
+    <Box sx={{ mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
+        <Skeleton variant="text" width="70%" height={24} />
+        <Skeleton variant="rounded" width={50} height={20} />
+      </Box>
+      <Skeleton variant="text" width="100%" height={16} sx={{ mb: 0.5 }} />
+      <Skeleton variant="text" width="80%" height={16} sx={{ mb: 1.5 }} />
+      {/* Date info skeletons */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Skeleton variant="circular" width={14} height={14} />
+          <Skeleton variant="text" width="45%" height={14} />
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Skeleton variant="circular" width={14} height={14} />
+          <Skeleton variant="text" width="55%" height={14} />
+        </Box>
+      </Box>
+    </Box>
+
+    {/* Options */}
+    <Box sx={{ flex: 1 }}>
+      {[1, 2, 3].map((i) => (
+        <Box
+          key={i}
+          sx={{
+            mb: 1,
+            p: 0.75,
+            borderRadius: 1.5,
+            border: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Skeleton variant="circular" width={16} height={16} sx={{ mr: 0.5 }} />
+            <Skeleton variant="circular" width={20} height={20} sx={{ mr: 1 }} />
+            <Skeleton variant="text" width="50%" height={18} />
+          </Box>
+        </Box>
+      ))}
+      <Skeleton variant="rounded" width="100%" height={36} sx={{ mt: 2 }} />
+    </Box>
+  </Box>
+);
+
+// Grid of skeleton cards
+const PollListSkeleton: React.FC = () => (
+  <Box
+    sx={{
+      display: "grid",
+      gap: 2,
+      gridTemplateColumns: {
+        xs: "repeat(auto-fill, minmax(240px, 1fr))",
+        sm: "repeat(auto-fill, minmax(260px, 1fr))",
+        md: "repeat(3, minmax(0, 1fr))",
+      },
+      alignItems: "stretch",
+    }}
+  >
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <Box key={i} sx={{ display: "flex" }}>
+        <PollCardSkeleton />
+      </Box>
+    ))}
+  </Box>
+);
 
 interface PollListProps {
   showHeader?: boolean;
@@ -75,18 +158,21 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
     const isExpired = new Date() > new Date(poll.endDate);
     if (filter === "running") return !isExpired;
     if (filter === "ended") return isExpired;
+    if (filter === "voted") return poll.hasVoted;
     return true;
   });
 
   // Count polls for each filter
   const runningCount = polls.filter((poll) => new Date() <= new Date(poll.endDate)).length;
   const endedCount = polls.filter((poll) => new Date() > new Date(poll.endDate)).length;
+  const votedCount = polls.filter((poll) => poll.hasVoted).length;
 
   // Define colors for filter chips
   const filterColors = {
     all: "#6299d0",     // Primary blue
     running: "#4caf50", // Green for active
     ended: "#f57c00",   // Orange for ended (warm, readable, indicates completion)
+    voted: "#9c27b0",   // Purple for voted
   };
 
   const filterChips = (
@@ -154,6 +240,29 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
           "&:hover": { borderWidth: 2 },
         }}
       />
+      {!isEventsOffice && (
+        <Chip
+          label={`Voted (${votedCount})`}
+          onClick={() => setFilter("voted")}
+          variant="outlined"
+          sx={{
+            fontFamily: "var(--font-poppins)",
+            fontWeight: filter === "voted" ? 600 : 500,
+            borderRadius: "28px",
+            px: 1.75,
+            height: 32,
+            borderWidth: filter === "voted" ? 2 : 1,
+            borderColor: filterColors.voted,
+            color: filterColors.voted,
+            backgroundColor: alpha(filterColors.voted, filter === "voted" ? 0.12 : 0.08),
+            boxShadow: filter === "voted"
+              ? `0 6px 16px ${alpha(filterColors.voted, 0.28)}`
+              : `0 1px 3px ${alpha(filterColors.voted, 0.18)}`,
+            transition: "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
+            "&:hover": { borderWidth: 2 },
+          }}
+        />
+      )}
     </Stack>
   );
 
@@ -170,6 +279,12 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
       return {
         title: "No Ended Polls",
         description: "There are no concluded polls yet.",
+      };
+    }
+    if (filter === "voted") {
+      return {
+        title: "No Voted Polls",
+        description: "You haven't voted in any polls yet. Cast your vote in an active poll!",
       };
     }
     return {
@@ -219,9 +334,14 @@ const PollList: React.FC<PollListProps> = ({ showHeader = true }) => {
           Events Office users can monitor poll progress but cannot cast votes.
         </Alert>
       )}
-      {loading && <LinearProgress sx={{ mb: 2 }} />}
-      {!loading && filterChips}
-      {pollsGrid}
+      {loading ? (
+        <PollListSkeleton />
+      ) : (
+        <>
+          {filterChips}
+          {pollsGrid}
+        </>
+      )}
     </Box>
   );
 

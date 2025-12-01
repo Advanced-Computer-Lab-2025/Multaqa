@@ -7,7 +7,7 @@ import CustomRadio from "@/components/shared/input-fields/CustomRadio";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { votePoll } from "@/services/pollService";
 import { toast } from "react-toastify";
-import { Clock, CheckCircle, Trophy } from "lucide-react";
+import { Clock, CheckCircle, Trophy, Calendar } from "lucide-react";
 
 interface PollCardProps {
   poll: Poll;
@@ -27,7 +27,11 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
 
     try {
       await votePoll(poll.id, selectedVendorId);
-      toast.success("Vote submitted successfully!");
+      toast.success("Vote submitted successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
       setHasVoted(true);
       
       // Optimistically update the UI
@@ -46,9 +50,17 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
       // If user has already voted, update the UI state
       if (errorMessage.toLowerCase().includes("already voted")) {
         setHasVoted(true);
-        toast.info("You have already voted in this poll");
+        toast.info("You have already voted in this poll", {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
       } else {
-        toast.error(errorMessage);
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
       }
     } finally {
       setVoting(false);
@@ -89,11 +101,19 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
           {localPoll.description}
         </Typography>
         
-        <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary", fontSize: "0.75rem" }}>
-          <Clock size={14} style={{ marginRight: 4 }} />
-          <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
-            Ends: {endDate.toLocaleDateString()}
-          </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary", fontSize: "0.75rem" }}>
+            <Calendar size={14} style={{ marginRight: 4 }} />
+            <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+              Started: {new Date(localPoll.startDate).toLocaleDateString()}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", color: isExpired ? "error.main" : "text.secondary", fontSize: "0.75rem" }}>
+            <Clock size={14} style={{ marginRight: 4 }} />
+            <Typography variant="caption" sx={{ fontSize: "0.75rem", color: isExpired ? "error.main" : "text.secondary" }}>
+              {isExpired ? "Ended" : "Ends"}: {endDate.toLocaleDateString()} at {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
