@@ -134,6 +134,16 @@ const getDisplayName = (user?: CurrentUser, role?: string): string => {
   return capitalizeFirstLetter(displayName);
 };
 
+function isImageUrl(url: string) {
+  if (!url) return false;
+  const cleanUrl = url.split("?")[0];
+  return (
+    /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(cleanUrl) ||
+    url.includes("format=png") ||
+    url.includes("format=jpg")
+  );
+}
+
 export default function TopNavigation({
   companyName = "Multaqa",
   header,
@@ -205,7 +215,9 @@ export default function TopNavigation({
                   {/* Profile Avatar */}
                   <div className="flex-shrink-0">
                     {/* Show logo for vendors, otherwise show initials */}
-                    {userRole === "vendor" && currentUser.logoUrl ? (
+                    {userRole === "vendor" &&
+                    currentUser.logoUrl &&
+                    isImageUrl(currentUser.logoUrl) ? (
                       <Image
                         src={currentUser.logoUrl}
                         alt={displayName}
