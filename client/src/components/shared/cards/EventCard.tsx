@@ -623,7 +623,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
               {/* Show Register/Evaluate/Comment button in the same spot */}
               {!utilities && (
-                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center" , mb:-2}}>
                   {registerButton}
                 </Box>
               )}
