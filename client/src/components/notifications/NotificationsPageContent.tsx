@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { Typography, Box, Tabs, Tab, Stack, Pagination } from "@mui/material";
+import { Typography, Box, Stack, Pagination } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNotifications } from "@/context/NotificationContext";
 import NotificationItem from "./NotificationItem";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -37,22 +38,13 @@ export default function NotificationsPageContent() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Page Header */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-          <NotificationsIcon sx={{ fontSize: 32, color: "#6299d0" }} />
-          <Typography variant="h4" sx={{ fontWeight: 600, color: "#333" }}>
-            Notifications
-          </Typography>
-        </Box>
-        <Typography variant="body2" sx={{ color: "#666", ml: 6 }}>
-          View and manage all your notifications
-        </Typography>
-      </Box>
-
-      {/* Tabs for filtering */}
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+    <ContentWrapper
+      title="Notifications"
+      description="View and manage all your notifications"
+      padding={{ xs: 2, md: 3 }}
+    >
+      {/* Tabs for filtering - COMMENTED OUT FOR SPECIAL PAGE */}
+      {/* <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
@@ -74,7 +66,7 @@ export default function NotificationsPageContent() {
           <Tab label="Unread" value="unread" />
           <Tab label="Read" value="read" />
         </Tabs>
-      </Box>
+      </Box> */}
 
       {/* Notifications Count */}
       <Box sx={{ mb: 3 }}>
@@ -169,6 +161,6 @@ export default function NotificationsPageContent() {
           )}
         </>
       )}
-    </Box>
+    </ContentWrapper>
   );
 }

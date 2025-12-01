@@ -797,6 +797,12 @@ export class VendorEventsService {
         event.RequestData.QRCodeGenerated = true;
         event.markModified("RequestData");
       } else {
+        if (event.RequestData.hasPaid !== true) {
+          throw createError(
+            400,
+            "Vendor has not completed payment for this platform booth event"
+          );
+        }
         throw createError(
           400,
           "QR Code has already been generated for this platform booth event"
@@ -829,7 +835,7 @@ export class VendorEventsService {
       if (!isNotEmpty) {
         throw createError(
           400,
-          "QR Codes have already been generated for all vendors in this bazaar event"
+          "QR Codes have already been generated for all eligible vendors in this bazaar event"
         );
       }
     }
@@ -849,10 +855,11 @@ export class VendorEventsService {
 
     const qrCodeData: any[] = [];
     for (const attendee of attendees) {
+      const eventDateRange = `${eventStartDate.toLocaleDateString()} - ${eventEndDate.toLocaleDateString()}`;
       const qrCodeBuffer = await generateQrCodeBuffer(
         eventName,
         location,
-        new Date().toISOString(),
+        eventDateRange,
         attendee.name,
       );
       qrCodeData.push({

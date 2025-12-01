@@ -187,6 +187,11 @@ router.post(
       UserRole.STAFF_MEMBER,
       UserRole.ADMINISTRATION,
     ],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
   }),
   createCheckoutSession
 );

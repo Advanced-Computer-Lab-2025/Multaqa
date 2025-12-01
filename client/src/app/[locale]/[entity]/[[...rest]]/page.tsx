@@ -359,9 +359,9 @@ export default function EntityCatchAllPage() {
       }
     }
 
-    if (["student", "staff","professor","ta","events-office","admin"].includes(entity) && section === "loyalty-partners"){
-      return <VendorsList/>
-    }  
+    if (["student", "staff", "professor", "ta", "events-office", "admin"].includes(entity) && section === "loyalty-partners") {
+      return <VendorsList />
+    }
     // Vendor - Loyalty Program
     if (entity === "vendor" && tab === "loyalty") {
       if (section === "program-status") {
@@ -502,7 +502,7 @@ export default function EntityCatchAllPage() {
       }
     }
 
-    if (entity==="events-office" || entity=== "admin"){
+    if (entity === "events-office" || entity === "admin") {
       if (section === "attendee-reports")
         return <ReportTable reportType="attendees" />
       else if (section === "sales-reports")
@@ -637,7 +637,7 @@ export default function EntityCatchAllPage() {
     }
 
     // Notifications - Available for all entities
-    if (tab === "notifications") {
+    if (tab === "notifications" && (section === "overview" || section === "")) {
       console.log("✅ Notifications tab accessed for entity:", entity);
       return <NotificationsPageContent />;
     }
