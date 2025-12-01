@@ -248,8 +248,8 @@ const EventCard: React.FC<EventCardProps> = ({
         overflow: "hidden",
         transition: "all 0.3s ease",
         position: "relative",
-        minHeight: 250,
-        maxHeight: 250,
+        minHeight: 270,
+        maxHeight: 270,
         "&:hover": {
           borderColor: color,
           transform: "translateY(-2px)",
@@ -614,7 +614,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 alignItems: "center",
               }}
             >
-              
+
               {duration && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Clock size={16} color={color} />

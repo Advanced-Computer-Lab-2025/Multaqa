@@ -248,7 +248,13 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
               label="Cancel"
               variant="outlined"
               onClick={onClose}
-              sx={{ width: "160px", height: "44px", color:color, borderColor:color}}
+              sx={{color:color, borderColor:color,
+              transition: "all 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-2px)",
+              },
+              }}
+              
             />
             <CustomButton
               disabled={isSubmitting}
@@ -256,13 +262,19 @@ const RegisterEventModal: React.FC<RegisterEventModalProps> = ({
               type="submit"
               variant="contained"
               color="primary"
-              sx={{
-                width: "160px",
-                borderRadius: 999, 
-                backgroundColor: `${color}40`,
-                color: color, 
-                borderColor: color
-              }}
+             sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${color}`,
+                      backgroundColor: `${color}`,
+                       color: "background.default",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
             />
           </Box>
         </Box>
