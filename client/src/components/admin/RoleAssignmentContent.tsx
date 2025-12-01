@@ -21,6 +21,7 @@ import {
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { capitalizeFullName } from "@/components/shared/utils/nameUtils";
+import { toast } from "react-toastify";
 
 // Droppable zone component
 function DroppableZone({
@@ -148,15 +149,27 @@ export default function RoleAssignmentContent() {
       // Assignment successful, close modal
       setModalOpen(false);
       setPendingAssignment(null);
-    } catch (error: unknown) {
+    } catch (err: any) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to assign role";
-      console.error("Error assigning role:", errorMessage);
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err.message||
+          "Failed to assign role";
+    
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
       // The revert has already been handled in handleAssignRole
       setModalOpen(false);
       setPendingAssignment(null);
       // You might want to show an error toast/notification here
-      alert(`Failed to assign role: ${errorMessage}`);
     }
   };
 

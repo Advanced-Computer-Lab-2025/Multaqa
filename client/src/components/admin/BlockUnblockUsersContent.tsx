@@ -12,6 +12,7 @@ import ManagementCard from "../shared/containers/ManagementCard";
 import { User } from "./types";
 import { handleToggleBlock, fetchAllUsers } from "./utils";
 import { useTheme } from "@mui/material/styles";
+import { toast } from "react-toastify";
 
 export default function BlockUnblockUsersContent() {
   const theme = useTheme();
@@ -69,17 +70,23 @@ export default function BlockUnblockUsersContent() {
           onClick={async () => {
             try {
               await handleToggleBlock(user.id, user.status, setUsers);
-            } catch (error: unknown) {
+            } catch (err: any) {
               const errorMessage =
-                error instanceof Error
-                  ? error.message
-                  : "Failed to toggle block status";
-              console.error("Error toggling block status:", errorMessage);
-              alert(
-                `Failed to ${
-                  user.status === "Active" ? "block" : "unblock"
-                } user: ${errorMessage}`
-              );
+                    err?.response?.data?.error ||
+                    err?.response?.data?.message ||
+                    err.message||
+                   "Failed to toggle block status";
+             
+                 toast.error(errorMessage, {
+                   position: "bottom-right",
+                   autoClose: 5000,
+                   hideProgressBar: false,
+                   closeOnClick: true,
+                   pauseOnHover: true,
+                   draggable: true,
+                   progress: undefined,
+                   theme: "colored",
+                 });
             }
           }}
           startIcon={
