@@ -430,7 +430,7 @@ export default function VendorParticipationRequests() {
         message:
           status === "approved"
             ? `${request.vendorName} has been approved for ${request.eventName}.`
-            : `${request.vendorName}&apos;s request has been rejected.`,
+            : `${request.vendorName}'s request has been rejected.`,
       });
     } catch (err: any) {
       const message =
