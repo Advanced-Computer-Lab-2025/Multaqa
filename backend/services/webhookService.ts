@@ -203,6 +203,8 @@ export class WebhookService {
           }
 
           event.markModified("RequestData");
+          event.markModified("eventStartDate");
+          event.markModified("eventEndDate");
           await event.save();
         } else {
           console.error(

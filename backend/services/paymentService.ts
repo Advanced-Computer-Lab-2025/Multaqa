@@ -469,7 +469,7 @@ export class PaymentService {
       currency: DEFAULT_CURRENCY,
       customer_email: customerEmail,
       line_items: lineItems,
-      success_url: DEFAULT_SUCCESS_URL,
+      success_url: `${DEFAULT_SUCCESS_URL}?paymentType=vendor_participation&eventType=${event.type}`,
       cancel_url: DEFAULT_CANCEL_URL,
       metadata: sanitizedMetadata,
     });
