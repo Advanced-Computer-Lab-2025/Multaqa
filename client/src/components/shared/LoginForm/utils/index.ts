@@ -56,12 +56,16 @@ export const handleLoginSubmit = async (
     });
 
     // Short delay for toast to be visible before redirect
-    setTimeout(() => {
-      const redirectPath = getRedirectPath(String(userRole));
-      router.push(redirectPath!);
-    }, 1500);
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const redirectPath = getRedirectPath(String(userRole));
+        router.push(redirectPath!);
+        resolve();
+      }, 1500);
+    });
     //eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
+    setSubmitting(false);
 
     const message =
       err?.response?.data?.error ||
@@ -78,10 +82,6 @@ export const handleLoginSubmit = async (
       progress: undefined,
       theme: "colored",
     });
-
-  } finally {
-
-    setSubmitting(false);
   }
 };
 export const getRedirectPath = (role: string) => {
@@ -94,7 +94,7 @@ export const getRedirectPath = (role: string) => {
     TA: "/ta/events/browse-events",
     professor: "/professor/workshops/my-workshops",
     eventsOffice: "/events-office/events/all-events",
-    vendor: "/vendor/opportunities/available",
+    vendor: "/vendor/opportunities/bazaars",
   };
 
   return roleRedirects[role] || "/student/events/browse-events";
