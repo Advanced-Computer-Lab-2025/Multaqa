@@ -27,7 +27,10 @@ const BoothView: React.FC<BoothViewProps> = ({
   archived,
   allowedUsers,
   id,
-  userInfo
+  userInfo, 
+  payButton,
+  vendorStatus, 
+  isRequested = false
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -57,7 +60,8 @@ const BoothView: React.FC<BoothViewProps> = ({
 
   return (
     <>
-    <EventCard eventId={id} isFavorite={isFavorited} title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
+    <EventCard eventId={id}       payButton={payButton}
+        vendorStatus={vendorStatus} isFavorite={isFavorited} title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
          (user === "events-office" ||   user === "admin")? (
          <Stack direction="row" spacing={1}>
           {(user === "events-office" && !archived)?
@@ -126,7 +130,7 @@ const BoothView: React.FC<BoothViewProps> = ({
         }
           registerButton={
           !registered &&
-          user == "vendor" && (
+          user == "vendor" && !isRequested? (
             <CustomButton
               size="small"
               variant="contained"
@@ -148,7 +152,7 @@ const BoothView: React.FC<BoothViewProps> = ({
               Apply
             </CustomButton>
           )
-        } expanded={expanded} archived={archived}/>
+        :null} expanded={expanded} archived={archived}/>
       {/* Delete Confirmation Modal */}
       <CustomModal
         open={eventToDelete}

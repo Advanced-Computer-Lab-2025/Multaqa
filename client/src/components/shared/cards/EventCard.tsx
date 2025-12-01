@@ -47,6 +47,8 @@ interface EventCardProps {
   createdBy?: string;
   professors?: string[]; // Array of professor names for workshops
   archived?: boolean;
+  payButton?: React.ReactNode;
+  vendorStatus?: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -79,6 +81,8 @@ const EventCard: React.FC<EventCardProps> = ({
   createdBy,
   professors = [],
   archived = false,
+  payButton,
+  vendorStatus
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
@@ -107,6 +111,20 @@ const EventCard: React.FC<EventCardProps> = ({
           size="small"
           label="Pending"
           color="warning"
+          variant="outlined"
+          sx={{
+            fontWeight: 600,
+            fontSize: "0.7rem",
+            height: 24,
+          }}
+        />
+      );
+       if (status === "pending_payment")
+      return (
+        <Chip
+          size="small"
+          label="Pending Payment"
+          color="info"
           variant="outlined"
           sx={{
             fontWeight: 600,
@@ -332,6 +350,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 />
               )}
               {professorStatus && statusChip(professorStatus)}
+               {vendorStatus && statusChip(vendorStatus)}
               {archived && (
                 <Chip
                   label="Archived"
@@ -530,6 +549,9 @@ const EventCard: React.FC<EventCardProps> = ({
                {commentButton && professorStatus === "awaiting_review" && (
                     <>{commentButton}</>
                   )}
+                  {payButton  && (
+                    <>{payButton}</>
+                  )}
             </Box>
 
             {/* Location Row */}
@@ -563,7 +585,7 @@ const EventCard: React.FC<EventCardProps> = ({
                     gap: 0.5,
                   }}
                 >
-                  {duration} weeks
+                  {duration} {duration=="1"?"week":"weeks"}
                 </Typography>
               </Box>
             )}

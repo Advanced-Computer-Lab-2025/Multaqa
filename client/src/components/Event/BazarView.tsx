@@ -35,7 +35,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   datePassed,
   registrationPassed,
   registrationDeadline,
-  userInfo
+  userInfo, 
+  vendorStatus, 
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -98,6 +99,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         endTime={details["End Time"]} 
         color={background} 
         leftIcon={<IconComponent />} 
+        vendorStatus={vendorStatus=="approved"&&!hasPaid?"pending_payment":vendorStatus}
         eventType={"Bazaar"} 
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
@@ -122,7 +124,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                </Tooltip>
       ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
      registerButton={ user == "vendor" &&
-          (
+           (
             // if not requested -> show Apply
             (!isRequested && !registrationPassed) ? (
               <CustomButton
@@ -132,7 +134,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                       borderRadius: 999,
                       border: `1px solid ${background}`,
                       backgroundColor: `${background}`,
-                      color: background,
+                       color: "background.paper",
                       fontWeight: 600,
                       px: 3,
                       textTransform: "none",
@@ -161,7 +163,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.success.dark}`,
                       backgroundColor: `${theme.palette.success.main}`,
-                      color: theme.palette.primary.contrastText,
+                      color: "background.paper",
                       fontWeight: 600,
                       px: 3,
                       textTransform: "none",
@@ -174,25 +176,25 @@ const BazarView: React.FC<BazarViewProps> = ({
                 >
                   Pay
                 </CustomButton>
-              ) : 
+              ) :
               // if requested and NOT approved -> show Cancel Application
               (requestStatus !== "approved" && !hasPaid && !registrationPassed) ? (
                 <CustomButton
                   size="small"
                   variant="outlined"
-                  sx={{
+                 sx={{
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.error.dark}`,
                       backgroundColor: `${theme.palette.error.main}`,
-                      color: theme.palette.primary.contrastText,
+                      color: "background.paper",
                       fontWeight: 600,
                       px: 3,
-                      width: 'fit-content',
                       textTransform: "none",
                       transition: "all 0.3s ease",
                       "&:hover": {
                         transform: "translateY(-2px)",
                       },
+                        width: 'fit-content'
                     }}
                   onClick={() => setCancelApplication(true)}
                 >
@@ -334,7 +336,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                         transform: "translateY(-2px)",
                       },
                     }}
-                  onClick={() => {}}
+                  onClick={() => setPaymentDrawerOpen(true)}
                 >
                   Pay
                 </CustomButton>
