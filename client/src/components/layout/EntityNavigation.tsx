@@ -158,7 +158,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Trophy,
         tabs: [
           { id: "reserve", label: "Reserve Courts" },
-          { id: "my-reserved", label: "My Reservations" },
         ],
       },
       {
@@ -391,7 +390,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Dumbbell,
         tabs: [
           { id: "sessions-management", label: "Sessions Management" },
-          // { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
     ],
