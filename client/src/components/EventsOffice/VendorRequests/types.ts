@@ -28,6 +28,7 @@ export interface VendorParticipationRequest {
   attendees?: VendorContact[];
   submittedAt?: string;
   notes?: string;
+  isInPoll?: boolean;
   raw?: unknown;
 }
 
