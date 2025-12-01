@@ -506,7 +506,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "apply-booth", label: "Booth Hub" },
         ],
       },
-      { key: "qr-codes", label: "QR Codes", icon: QrCode, tabs: [] },
       {
         key: "loyalty",
         label: "Loyalty Program",
