@@ -27,13 +27,32 @@ const BazaarDetails: React.FC<BazaarDetailsType> = ({
   console.log(vendors);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const detailItems = [
+  const detailItems = userRole=="vendor"? [
       {
         icon: <CalendarToday color="primary" />,
         label: "Registration Deadline",
         value: registrationDeadline,
         customColor: "#6299d0"
       },
+      {
+        icon: <EventAvailable sx={{ color: "#9c27b0" }} />,
+        label: "Event Period",
+        value: `${startDate} - ${endDate}`,
+        customColor: "#6e8ae6"
+      },
+      {
+        icon: <AccessTime sx={{ color: '#FF6B35' }} />,
+        label: "Time",
+        value: `${startTime} - ${endTime}`,
+        customColor: '#FF6B35'
+      },
+      {
+        icon: <LocationOn sx={{ color: '#4CAF50' }} />,
+        label: "Location",
+        value: location,
+        customColor: '#4CAF50'
+      },
+    ]:[
       {
         icon: <EventAvailable sx={{ color: "#9c27b0" }} />,
         label: "Event Period",
