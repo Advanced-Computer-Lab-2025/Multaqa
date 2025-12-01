@@ -135,10 +135,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     console.log(payload);
 
     try {
-      await api.patch(
-        `/workshops/${workshop.id}/status`,
-        payload
-      );
+      await api.patch(`/workshops/${workshop.id}/status`, payload);
       toast.success("Your evaluation has been recieved. Thank you !", {
         position: "bottom-right",
         autoClose: 5000,
@@ -197,12 +194,12 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
     const commentArray: CommentWithoutId[] =
       comment.trim() && confirmed === "awaiting_review"
         ? [
-          {
-            commenter: eventsOfficeId,
-            text: comment,
-            timestamp: new Date().toISOString(),
-          },
-        ]
+            {
+              commenter: eventsOfficeId,
+              text: comment,
+              timestamp: new Date().toISOString(),
+            },
+          ]
         : [];
 
     const payload = {
@@ -249,7 +246,9 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
       <Typography
         variant="body2"
         sx={{
-          color: highlight ? theme.palette.error.main : theme.palette.text.primary,
+          color: highlight
+            ? theme.palette.error.main
+            : theme.palette.text.primary,
           fontWeight: highlight ? 600 : 500,
           pl: 3.5,
         }}
@@ -261,7 +260,9 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
 
   return (
     <>
-      <Box sx={{ minHeight: "100vh", bgcolor: `${theme.palette.primary.main}25` }}>
+      <Box
+        sx={{ minHeight: "100vh", bgcolor: `${theme.palette.primary.main}25` }}
+      >
         {/* Header */}
         <Box
           sx={{
@@ -538,6 +539,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
                     onChange={(e) => setComment(e.target.value)}
                     disabled={status !== "awaiting_review" && status !== "N/A"}
                     neumorphicBox={false}
+                    autoCapitalizeName={false}
                   />
                 </Grid>
 
@@ -607,13 +609,20 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
         }}
       >
         <Box sx={{ textAlign: "center", mt: 2 }}>
-          <Typography sx={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
+          <Typography
+            sx={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}
+          >
             Set status to{" "}
             <strong>{getStatusLabel(pendingStatus || "N/A")}</strong>?
           </Typography>
           <Typography
             variant="body2"
-            sx={{ mt: 2, color: theme.palette.error.main, fontWeight: 500, fontFamily: "var(--font-poppins), system-ui, sans-serif" }}
+            sx={{
+              mt: 2,
+              color: theme.palette.error.main,
+              fontWeight: 500,
+              fontFamily: "var(--font-poppins), system-ui, sans-serif",
+            }}
           >
             ⚠️ This action cannot be undone.
           </Typography>

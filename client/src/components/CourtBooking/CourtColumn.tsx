@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Stack, Typography, Divider } from "@mui/material";
+import { Box, Stack, Typography, Divider, CircularProgress } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import SportsTennisIcon from "@mui/icons-material/SportsTennis";
@@ -20,6 +20,7 @@ interface Props {
   onCancel?: (slot: CourtSlot) => void;
   onSelectDate?: (courtId: string) => void;
   selectedDate?: string | null;
+  loading?: boolean;
 }
 
 const CourtColumn: React.FC<Props> = ({
@@ -30,6 +31,7 @@ const CourtColumn: React.FC<Props> = ({
   onCancel,
   onSelectDate,
   selectedDate,
+  loading = false,
 }) => {
   const grouped = groupSlotsByDay(slots);
   const uniqueDays = React.useMemo(
@@ -101,6 +103,25 @@ const CourtColumn: React.FC<Props> = ({
         };
       }}
     >
+      {loading && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: "rgba(255, 255, 255, 0.6)",
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backdropFilter: "blur(2px)",
+          }}
+        >
+          <CircularProgress size={40} sx={{ color: (t) => t.palette[court.colorKey].main }} />
+        </Box>
+      )}
       <Stack
         direction="row"
         alignItems="center"

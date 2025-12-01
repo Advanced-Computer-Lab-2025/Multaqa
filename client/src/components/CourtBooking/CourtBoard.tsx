@@ -14,6 +14,7 @@ const CourtBoard: React.FC<CourtBoardProps> = ({
   onCancel,
   embedded = false,
   onChangeCourtDate,
+  loadingCourtId,
 }) => {
   const [localSlots, setLocalSlots] = useState<CourtSlot[]>(slots);
 
@@ -134,6 +135,7 @@ const CourtBoard: React.FC<CourtBoardProps> = ({
               onCancel={handleCancel}
               onSelectDate={handleOpenDateModal}
               selectedDate={selectedDates[c.id]}
+              loading={loadingCourtId === c.id}
             />
           ))}
         </Box>
