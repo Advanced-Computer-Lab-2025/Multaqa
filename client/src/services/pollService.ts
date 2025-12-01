@@ -41,6 +41,7 @@ interface BackendPoll {
   startDate: string;
   deadlineDate: string;
   options: Array<{
+    boothId: string;
     vendorId: string;
     vendorName: string;
     vendorLogo?: string;
@@ -159,7 +160,7 @@ export const createPoll = async (data: CreatePollDTO): Promise<Poll> => {
       title: data.title,
       description: data.description,
       deadlineDate: data.endDate.toISOString(),
-      vendorIds: data.vendorRequestIds, // These are now vendor IDs, not request IDs
+      vendorData: data.vendorData,
     });
     
     return transformPoll(response.data.data);

@@ -9,6 +9,7 @@ const pollSchema = new Schema<IPoll>({
   options: [
     new Schema(
       {
+        boothId: { type: String, required: true },
         vendorId: { type: String, required: true },
         vendorName: { type: String, required: true },
         vendorLogo: { type: String },

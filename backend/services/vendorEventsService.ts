@@ -880,7 +880,7 @@ export class VendorEventsService {
 
   async getVendorsWithOverlappingBooths(): Promise<any[]> {
     // Get all pending platform booth events
-    const platformBoothEvents = await this.eventRepo.findAll(
+    let platformBoothEvents = await this.eventRepo.findAll(
       {
         type: EVENT_TYPES.PLATFORM_BOOTH,
         "RequestData.status": Event_Request_Status.PENDING,
@@ -889,6 +889,15 @@ export class VendorEventsService {
         populate: [{ path: "vendor", select: "companyName logo email" }] as any[],
       }
     );
+
+    // Booths that had poll before
+    const boothsAlreadyHadPoll = await this.getBoothsAlreadyHadPoll();
+
+    // filter out booths already had polls before
+    platformBoothEvents = platformBoothEvents.filter(event => {
+      const boothId = String(event._id);
+      return !boothsAlreadyHadPoll.includes(boothId);
+    });
 
     // Group vendors by booth location
     const locationGroups = new Map<string, any[]>();
@@ -956,7 +965,7 @@ export class VendorEventsService {
     title: string;
     description: string;
     deadlineDate: Date;
-    vendorIds: string[];
+    vendorData: Array<{ vendorId: string; boothId: string }>;
   }): Promise<IPoll> {
     // Validate dates
     const deadlineDate = new Date(pollData.deadlineDate);
@@ -965,27 +974,34 @@ export class VendorEventsService {
       throw createError(400, "End date must be in the future");
     }
 
+    console.log("Creating poll with data:", pollData);
     // Validate vendors exist
-    if (!pollData.vendorIds || pollData.vendorIds.length < 2) {
+    if (!pollData.vendorData || pollData.vendorData.length < 2) {
       throw createError(400, "At least 2 vendors are required for a poll");
     }
 
+    const vendorIds = pollData.vendorData.map(v => v.vendorId);
+
     // Fetch vendor details
     const vendors = await this.vendorRepo.findAll({
-      _id: { $in: pollData.vendorIds },
+      _id: { $in: vendorIds },
     });
 
-    if (vendors.length !== pollData.vendorIds.length) {
+    if (vendors.length !== pollData.vendorData.length) {
       throw createError(404, "One or more vendors not found");
     }
 
-    // Create poll options from vendors
-    const options = vendors.map((vendor) => ({
-      vendorId: (vendor as any)._id.toString(),
-      vendorName: vendor.companyName,
-      vendorLogo: vendor.logo?.url,
-      voteCount: 0,
-    }));
+    // Create poll options from vendors with their booth IDs
+    const options = pollData.vendorData.map((data) => {
+      const vendor = vendors.find(v => (v as any)._id.toString() === data.vendorId);
+      return {
+        boothId: data.boothId,
+        vendorId: data.vendorId,
+        vendorName: vendor!.companyName,
+        vendorLogo: vendor!.logo?.url,
+        voteCount: 0,
+      };
+    });
 
     // Create the poll
     const poll = await this.pollRepo.create({
@@ -1045,20 +1061,39 @@ export class VendorEventsService {
     return poll;
   }
 
-  async getVendorsInActivePolls(): Promise<string[]> {
-    // Query by deadlineDate since isActive is a virtual property
-    const polls = await this.pollRepo.findAll({
-      deadlineDate: { $gt: new Date() }
-    });
+  // To prevent these booths applications from being in a future poll
+  async getBoothsAlreadyHadPoll(): Promise<string[]> {
+    const polls = await this.pollRepo.findAll({});
 
-    const vendorIdSet = new Set<string>();
+    const boothIdSet = new Set<string>();
     for (const poll of polls) {
       for (const option of poll.options) {
-        vendorIdSet.add(option.vendorId);
+        if (option.boothId) {
+          boothIdSet.add(option.boothId);
+        }
       }
     }
 
-    const vendorIds = Array.from(vendorIdSet);
-    return vendorIds;
+    return Array.from(boothIdSet);
   }
+
+
+  // To mark them inPoll
+  async getBoothsHavingPolls(): Promise<string[]> {
+    const polls = await this.pollRepo.findAll({
+      deadlineDate: { $gte: new Date() },
+    });
+
+    const boothIdSet = new Set<string>();
+    for (const poll of polls) {
+      for (const option of poll.options) {
+        if (option.boothId) {
+          boothIdSet.add(option.boothId);
+        }
+      }
+    }
+
+    return Array.from(boothIdSet);
+  }
+
 }

@@ -1,6 +1,7 @@
 import { Document, Schema } from "mongoose";
 
 export interface IPollOption {
+  boothId: string;
   vendorId: string;
   vendorName: string;
   vendorLogo?: string;
