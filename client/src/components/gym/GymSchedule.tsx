@@ -356,19 +356,10 @@ export default function GymSchedule({ month, sessions }: Props) {
       <Stack spacing={2}>
         {loading ? (
           <GymSessionsSkeleton />
-        ) : error ? (
-          <ErrorState
-            title="Failed to load gym sessions"
-            description={
-              error ??
-              "An error has occured on our end while loading the gym sessions. Please try again later."
-            }
-            onCtaClick={() => window.location.reload()}
-          />
         ) : byDay.length === 0 ? (
           <EmptyState
-            title="No sessions for the selected activity for this month"
-            description="There are no gym sessions scheduled for the selected month or activity. Please check back later or try a different month or activity."
+            title="No sessions available for this month"
+            description="There are no gym sessions scheduled for the selected month. Please check back later or try a different month."
             imageAlt="No sessions illustration"
           />
         ) : (
