@@ -234,14 +234,28 @@ const EditWorkshop = ({
             const res = await api.patch("/workshops/" + workshopId, payload);
             setResponse(res.data);
             toast.success("Workshop edited successfully", {
-                position: "bottom-right",
-                autoClose: 3000,
-                theme: "colored",
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
             });
             if (setRefresh) setRefresh((prev) => !prev);
         } catch (err: any) {
             setError(err?.message || "API call failed");
-            toast.error(err.response?.data?.error || "Failed to edit workshop. Please try again.");
+            toast.error(err.response?.data?.error || "Failed to edit workshop. Please try again.", {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
         } finally {
             setLoading(false);
         }
@@ -291,9 +305,14 @@ const EditWorkshop = ({
             if (errorTab) {
                 setActiveTab(errorTab);
                 toast.error("Please fill out all required fields.", {
-                    position: "bottom-right",
-                    autoClose: 3000,
-                    theme: "colored",
+                  position: "bottom-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "colored",
                 });
             }
             return;
@@ -302,9 +321,14 @@ const EditWorkshop = ({
         // Check if dates are available before formatting
         if (!values.startDate || !values.endDate || !values.registrationDeadline) {
             toast.error("Please fill in all date fields.", {
-                position: "bottom-right",
-                autoClose: 3000,
-                theme: "colored",
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
             });
             return;
         }

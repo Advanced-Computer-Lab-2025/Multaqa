@@ -60,8 +60,7 @@ export const submitBoothForm = async (
   values: any,
   {
     setSubmitting,
-    resetForm,
-  }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
+  }: { setSubmitting: (isSubmitting: boolean) => void },
   vendorId: string,
   attendeeIdStatuses: UploadStatus[]
 ) => {
@@ -93,8 +92,6 @@ export const submitBoothForm = async (
     const result = response.data;
 
     if (response.status === 200 && result.success) {
-      // Reset the form and show success toast
-      resetForm();
       toast.success("Booth application submitted successfully!", {
         position: "bottom-right",
         autoClose: 5000,

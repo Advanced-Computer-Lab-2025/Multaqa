@@ -1,6 +1,6 @@
 export type VendorEventType = 'BAZAAR' | 'PLATFORM_BOOTH';
 
-export type VendorRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+export type VendorRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'PENDING_PAYMENT';
 
 export interface VendorParticipationItem {
   id: string;

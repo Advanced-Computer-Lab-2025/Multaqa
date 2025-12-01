@@ -358,7 +358,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         tabs: [
           { id: "all-events", label: "All Events" },
-          { id: "my-creations", label: "Creation Hub" },
         ],
       },
       {

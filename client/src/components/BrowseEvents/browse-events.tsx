@@ -40,6 +40,7 @@ import dayjs from "dayjs";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
 import { useNotifications } from "@/context/NotificationContext";
+import { toast } from "react-toastify";
 
 interface BrowseEventsProps {
   registered: boolean;
@@ -265,12 +266,40 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
   const handleDeleteEvent = async (eventId: string) => {
     try {
-      await deleteEvent(eventId);
+      const response = await deleteEvent(eventId);
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-    } catch (error: any) {
-      window.alert(error.response.data.error);
+       toast.success(
+            response.data.message || "Event deleted successfully!",
+            {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            }
+          );
+    } catch (err: any) {
+       const errorMessage =
+            err?.response?.data?.error ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Failed to delete event. Please try again.";
+      
+          toast.error(errorMessage, {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
     }
   };
 
@@ -288,11 +317,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-    if (user === "events-only") {
-      filtered = filtered.filter((event) =>
-        ["bazaar", "trip", "conference"].includes(event.type)
-      );
-    }
     // Apply attendance filter
     if (
       filters.attendance &&
@@ -554,22 +578,18 @@ switch (sortBy) {
 
   // Calculate title and description based on user role
   const pageTitle =
-    user !== "events-only"
-      ? user === "events-office"
+      user === "events-office"
         ? "Manage Events"
         : registered
           ? " My Registered Events"
           : "Browse Events"
-      : "Create Events";
 
   const pageDescription =
-    user !== "events-only"
-      ? user === "events-office"
-        ? "Manage all events that are on the system"
+   user === "events-office"
+        ? "Manage and create events on the system"
         : registered
           ? "Keep track of which events you have registered for"
           : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
-      : "Create and keep track of events you have created";
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -765,7 +785,7 @@ switch (sortBy) {
           }}
         >
           <SortByDate value={sortBy} onChange={handleSortChange} />
-          {user === "events-only" && (
+          {user === "events-office" && (
             <CreationHubDropdown
               options={creationHubOptions}
               helperText="Choose what you would like to create"

@@ -115,7 +115,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting, resetForm }) => {
+        onSubmit={(values, { setSubmitting }) => {
           const vendorId = String(user?._id);
           if (!vendorId || vendorId === "undefined") {
             console.error("No valid vendor ID found!", { user });
@@ -124,7 +124,7 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({
           }
           submitBazarForm(
             values,
-            { setSubmitting, resetForm },
+            { setSubmitting },
             eventId,
             attendeeIdStatuses,
             location.toLowerCase() // the constants are in lower case thats why we need this here lol

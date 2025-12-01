@@ -13,7 +13,8 @@ import {
   Grid,
   Paper,
   alpha,
-  AccordionDetails
+  AccordionDetails,
+  CircularProgress,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -59,10 +60,25 @@ type Props = {
 
 const STATUS_CONFIG: Record<
   VendorRequestStatus,
-  { label: string; color: "success" | "error" | "warning"; bg: string; fg: string }
+  {
+    label: string;
+    color: "success" | "error" | "warning";
+    bg: string;
+    fg: string;
+  }
 > = {
-  pending: { label: "Pending Review", color: "warning", bg: "#fffbeb", fg: "#b45309" },
-  approved: { label: "Approved", color: "success", bg: "#f0fdf4", fg: "#15803d" },
+  pending: {
+    label: "Pending Review",
+    color: "warning",
+    bg: "#fffbeb",
+    fg: "#b45309",
+  },
+  approved: {
+    label: "Approved",
+    color: "success",
+    bg: "#f0fdf4",
+    fg: "#15803d",
+  },
   rejected: { label: "Rejected", color: "error", bg: "#fef2f2", fg: "#b91c1c" },
 };
 
@@ -93,7 +109,13 @@ function initials(name: string) {
 }
 
 function isImageUrl(url: string) {
-  return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url) || url.includes("format=png") || url.includes("format=jpg");
+  if (!url) return false;
+  const cleanUrl = url.split("?")[0];
+  return (
+    /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(cleanUrl) ||
+    url.includes("format=png") ||
+    url.includes("format=jpg")
+  );
 }
 
 const downloadFile = async (url: string, desiredName: string) => {
@@ -101,9 +123,9 @@ const downloadFile = async (url: string, desiredName: string) => {
     const response = await fetch(url);
     const blob = await response.blob();
 
-    let extension = blob.type.split('/')[1];
-    if (!extension || extension === 'plain') {
-      extension = url.split('.').pop()?.split('?')[0] || 'file';
+    let extension = blob.type.split("/")[1];
+    if (!extension || extension === "plain") {
+      extension = url.split(".").pop()?.split("?")[0] || "file";
     }
 
     const fileName = `${desiredName}.${extension}`;
@@ -128,33 +150,48 @@ export default function VendorRequestCard({
   loadingStatus = null,
   setRefresh,
 }: Props) {
-  const [viewDoc, setViewDoc] = useState<{ url: string; title: string } | null>(null);
+  const [viewDoc, setViewDoc] = useState<{ url: string; title: string } | null>(
+    null
+  );
+  const [isDocLoading, setIsDocLoading] = useState(false);
 
   const statusConfig = STATUS_CONFIG[request.status] ?? STATUS_CONFIG.pending;
-  const eventConfig = EVENT_TYPE_CONFIG[request.eventType] ?? EVENT_TYPE_CONFIG.unknown;
+  const eventConfig =
+    EVENT_TYPE_CONFIG[request.eventType] ?? EVENT_TYPE_CONFIG.unknown;
   const isPending = request.status === "pending";
   const attendees = request.attendees ?? [];
 
-  const handleViewDocument = (url: string, title: string, e?: React.MouseEvent) => {
+  const handleViewDocument = (
+    url: string,
+    title: string,
+    e?: React.MouseEvent
+  ) => {
     e?.stopPropagation();
     setViewDoc({ url, title });
+    setIsDocLoading(true);
   };
 
   const handleCloseModal = () => {
     setViewDoc(null);
   };
 
-  const handleDownloadClick = (url: string, docTitle: string, e?: React.MouseEvent) => {
+  const handleDownloadClick = (
+    url: string,
+    docTitle: string,
+    e?: React.MouseEvent
+  ) => {
     e?.stopPropagation();
-    const cleanVendorName = request.vendorName.replace(/[^a-z0-9]/gi, '_');
-    const cleanDocTitle = docTitle.replace(/[^a-z0-9]/gi, '_');
+    const cleanVendorName = request.vendorName.replace(/[^a-z0-9]/gi, "_");
+    const cleanDocTitle = docTitle.replace(/[^a-z0-9]/gi, "_");
     const fileName = `${cleanVendorName}_${cleanDocTitle}`;
     downloadFile(url, fileName);
   };
 
   // Helper to construct Google Docs Viewer URL
   const getEmbedUrl = (url: string) => {
-    return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+    return `https://docs.google.com/gview?url=${encodeURIComponent(
+      url
+    )}&embedded=true`;
   };
 
   return (
@@ -567,12 +604,20 @@ export default function VendorRequestCard({
                         <Box
                           sx={{
                             p: 1,
-                            bgcolor: "#f0fdf4",
+                            bgcolor: isImageUrl(request.vendorLogo)
+                              ? "#f0fdf4"
+                              : "#eff6ff",
                             borderRadius: 1,
-                            color: "#22c55e",
+                            color: isImageUrl(request.vendorLogo)
+                              ? "#22c55e"
+                              : "#3b82f6",
                           }}
                         >
-                          <ImageIcon size={20} />
+                          {isImageUrl(request.vendorLogo) ? (
+                            <ImageIcon size={20} />
+                          ) : (
+                            <FileText size={20} />
+                          )}
                         </Box>
                         <Box minWidth={0}>
                           <Typography variant="body2" fontWeight={600} noWrap>
@@ -785,19 +830,27 @@ export default function VendorRequestCard({
               sx={{
                 width: "100%",
                 height: isImageUrl(viewDoc.url) ? "auto" : "60vh",
+                minHeight: "200px",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                bgcolor: "#fffff",
+                bgcolor: "#ffffff",
                 borderRadius: 2,
                 overflow: "hidden",
                 position: "relative",
               }}
             >
+              {isDocLoading && (
+                <Box sx={{ position: "absolute", zIndex: 10 }}>
+                  <CircularProgress />
+                </Box>
+              )}
               {isImageUrl(viewDoc.url) ? (
                 <img
                   src={viewDoc.url}
                   alt={viewDoc.title}
+                  onLoad={() => setIsDocLoading(false)}
+                  onError={() => setIsDocLoading(false)}
                   style={{
                     maxWidth: "100%",
                     maxHeight: "60vh",
@@ -807,16 +860,21 @@ export default function VendorRequestCard({
                     display: "block",
                     border: "3px solid #e5e7eb",
                     borderRadius: "10%",
+                    opacity: isDocLoading ? 0 : 1,
+                    transition: "opacity 0.3s",
                   }}
                 />
               ) : (
                 <iframe
                   src={getEmbedUrl(viewDoc.url)}
                   title={viewDoc.title}
+                  onLoad={() => setIsDocLoading(false)}
                   style={{
                     width: "100%",
                     height: "100%",
                     border: "none",
+                    opacity: isDocLoading ? 0 : 1,
+                    transition: "opacity 0.3s",
                   }}
                 />
               )}

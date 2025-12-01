@@ -38,7 +38,7 @@ const CancelApplicationVendor = ({eventId = "", open, onClose, setRefresh}: Canc
           setRefresh((prev)=> !prev);
         } catch (err: any) {
           setError(err?.message || "API call failed");
-          toast.error("Failed to cancel application",
+          toast.error(err?.response?.data?.error || err?.response?.data?.message || "Failed to cancel application",
                 {
                 position: "bottom-right",
                 autoClose: 5000,

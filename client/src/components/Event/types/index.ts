@@ -22,6 +22,7 @@ export type BazarViewProps = BasicProps & {
   vendors?: any;
   description: string;
   registrationDeadline?: any;
+    vendorStatus?: string;
 };
 
 //names and emails of a max of 5 individuals attending, duration of booth set up, location of booth setup, booth size 
@@ -30,6 +31,9 @@ export type BoothViewProps = BasicProps & {
   people?: { name: string; email: string }[];
   description: string,
   details: Record<string, string>,
+    payButton?: React.ReactNode;
+    vendorStatus?: string;
+     isRequested?:boolean;
 }
 
 //create conferences by adding the  start and end dates and times, full agenda, conference website link, required budget, source of funding (extrernal or GUC), extra required resources

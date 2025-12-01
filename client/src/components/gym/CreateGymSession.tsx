@@ -121,7 +121,12 @@ export default function CreateGymSession({
         });
         toast.success("Gym session created successfully", {
           position: "bottom-right",
-          autoClose: 3000,
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
           theme: "colored",
         });
         console.log("✅ Gym session created successfully");
@@ -136,11 +141,16 @@ export default function CreateGymSession({
       } catch (err: any) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to create gym session";
-        toast.error(err?.response?.data?.error, {
-          position: "bottom-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
+            toast.error(err?.response?.data?.error, {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
         setError(errorMessage);
         console.error("Error creating session:", err);
       } finally {

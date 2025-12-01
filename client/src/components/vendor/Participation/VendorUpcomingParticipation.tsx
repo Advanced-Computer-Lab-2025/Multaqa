@@ -1,257 +1,235 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { Typography, Stack, Alert, Chip, Box } from "@mui/material";
-import { alpha } from "@mui/material/styles";
+import React, { useState, useEffect } from "react";
+import { Typography, Stack, Chip, Alert } from "@mui/material";
 import VendorItemCard from "./VendorItemCard";
-import { VendorParticipationItem } from "./types";
+import { VendorRequestItem } from "./types";
 import { api } from "@/api";
 import { useAuth } from "@/context/AuthContext";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import CancelApplicationVendor from "@/components/Event/Modals/CancelApplicationVendor";
+import VendorPaymentDrawer from "@/components/Event/helpers/VendorPaymentDrawer";
 import ContentWrapper from "../../shared/containers/ContentWrapper";
+import theme from "@/themes/lightTheme";
+import { toast } from "react-toastify";
+import BazarView from "@/components/Event/BazarView";
+import BoothView from "@/components/Event/BoothView";
+import { frameData } from "@/components/BrowseEvents/utils";
+import SellIcon from "@mui/icons-material/Sell";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import { EventCardsListSkeleton } from "@/components/BrowseEvents/utils/EventCardSkeleton";
+import EmptyState from "@/components/shared/states/EmptyState";
 
-const STATUS_MAP: Record<string, string> = {
+const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
   approved: "ACCEPTED",
   rejected: "REJECTED",
+  pending_payment: "PENDING_PAYMENT",
 };
 
-const mapRequestedEventToVendorParticipation = (
-  item: any,
-  vendorId: string
-): VendorParticipationItem => {
-  const eventValue = item?.event;
-  const event = eventValue && typeof eventValue === "object" ? eventValue : {};
-  const eventId = typeof eventValue === "string" ? eventValue : event?._id;
-  const vendorEntry = Array.isArray(event?.vendors)
-    ? event.vendors.find((vendor: any) => vendor?.vendor === vendorId)
-    : undefined;
-  const requestData = item?.RequestData ?? vendorEntry?.RequestData ?? {};
-
-  const typeRaw =
-    typeof event?.type === "string" ? event.type.toLowerCase() : "";
-  const isBazaar = typeRaw === "bazaar";
-
-  const rawStartDate = event?.eventStartDate;
-  const startDate =
-    typeof rawStartDate === "string" ? rawStartDate : new Date().toISOString();
-
-  const rawEndDate = event?.eventEndDate;
-  const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
-
-  const rawDuration =
-    requestData?.boothSetupDuration ??
-    requestData?.value?.boothSetupDuration ??
-    vendorEntry?.RequestData?.boothSetupDuration;
-  let setupDurationWeeks: number | undefined;
-  if (rawDuration !== undefined) {
-    const numeric = Number(rawDuration);
-    if (!Number.isNaN(numeric)) {
-      setupDurationWeeks = numeric;
-    }
-  }
-
-  const rawId = item?._id ?? eventId ?? Math.random().toString(36).slice(2);
-  const id = typeof rawId === "string" ? rawId : String(rawId);
-
-  const title = typeof event?.eventName === "string" ? event.eventName : "";
-  const location = typeof event?.location === "string" ? event.location : "";
-
-  const mapped: VendorParticipationItem = {
-    id,
-    title,
-    type: isBazaar ? "BAZAAR" : "PLATFORM_BOOTH",
-    location,
-    startDate,
-  };
-
-  if (isBazaar && endDate) {
-    mapped.endDate = endDate;
-  }
-
-  if (!isBazaar && setupDurationWeeks !== undefined) {
-    mapped.setupDurationWeeks = setupDurationWeeks;
-  }
-
-  return mapped;
-};
-
-export default function VendorUpcomingParticipation() {
+export default function VendorRequestsList() {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [participations, setParticipations] = useState<
-    VendorParticipationItem[]
-  >([]);
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState<
-    "ALL" | "BAZAAR" | "PLATFORM_BOOTH"
-  >("ALL");
-
-  const toggle = (id: string) => setOpenId((prev) => (prev === id ? null : id));
-
-  const typeFilters: Array<{
-    key: "ALL" | "BAZAAR" | "PLATFORM_BOOTH";
-    label: string;
-  }> = [
-    { key: "ALL", label: "All" },
-    { key: "BAZAAR", label: "Bazaars" },
-    { key: "PLATFORM_BOOTH", label: "Platform Booths" },
-  ];
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const vendorId = user?._id;
-
-    if (!vendorId) {
-      setError("Unable to find vendor information. Please sign in again.");
-      return;
-    }
-
-    const fetchParticipations = async () => {
+  const [requests, setRequests] = useState<any[]>([]);
+  const [cancelApplication, setCancelApplication] = useState(false);
+  const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  // track which request (vendorEvent) was selected
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedParticipationFee, setSelectedParticipationFee] = useState<number>(0);
+  const vendorId = user?._id;
+  
+  // toggle to trigger refetch after cancel or payment
+  const [refreshToggle, setRefreshToggle] = useState(false);
+  const fetchRequests = async () => {
+     setLoading(true);
       setError(null);
 
       try {
         const response = await api.get(`/vendorEvents`);
         const requestedEventsRaw = response.data?.data || [];
-        console.log("Fetched vendor events for upcoming:", requestedEventsRaw);
-        
-        const mapped = (requestedEventsRaw as any[])
-          .filter((entry: any) => {
-            // Filter 1: Only show items where hasPaid is true
-            const hasPaid = entry?.hasPaid ?? false;
-            if (!hasPaid) return false;
+        const framedData = requestedEventsRaw.map(item => {
+        const framed = frameData([item.event], vendorId);
+      return {
+        ...framed[0], // Spread the framed event data
+        hasPaid: item.hasPaid,
+        participationFee: item.participationFee,
+        status: item.status
+      };
+    });
 
-            // Filter 2: Only show items where status is approved/accepted
-            const rawStatus = entry?.status ?? "pending";
-            const statusKey = String(rawStatus ?? "").toLowerCase();
-            const status = STATUS_MAP[statusKey] ?? "PENDING";
-            
-            return status === "ACCEPTED";
-          })
-          .map((entry) =>
-            mapRequestedEventToVendorParticipation(entry, vendorId as string)
-          );
-
-        if (!cancelled) {
-          const unique = new Map<string, VendorParticipationItem>();
-          mapped.forEach((participation: VendorParticipationItem) => {
-            if (!unique.has(participation.id)) {
-              unique.set(participation.id, participation);
-            }
-          });
-          setParticipations(Array.from(unique.values()));
-        }
+   const filteredRequests = framedData.filter((item) => item.status === "approved" && item.hasPaid === true);
+   setRequests(filteredRequests);
+        console.log(framedData);
+        console.log("Fetched vendor events:", requestedEventsRaw);
       } catch (err: any) {
-        if (cancelled) return;
-        if (err?.response?.status === 404) {
-          setParticipations([]);
-          setError(null);
-          return;
-        }
-        const message =
-          err?.response?.data?.message ??
-          err?.message ??
-          "Something went wrong";
-        setError(message);
-        setParticipations([]);
+        toast.error(err?.response?.data?.error, {
+                         position: "bottom-right",
+                         autoClose: 3000,
+                         theme: "colored",
+                       });
+        setRequests([]);
+      }
+      finally{
+        setLoading(false);
       }
     };
 
-    fetchParticipations();
+  useEffect(() => {
+    if (!vendorId) {
+      setError("Unable to find vendor information. Please sign in again.");
+      return;
+    }
+    fetchRequests();
+   // refetch when user or refreshToggle change
+  }, [user, refreshToggle]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
+  const renderActionButton = (item:any) => {
+    // If approved and not paid -> show Pay button
+    if (item.status === "approved" && !item.hasPaid) {
+      return (
+        <CustomButton
+          size="small"
+          variant="contained"
+          sx={{
+            borderRadius: 999,
+            border: `1px solid ${theme.palette.success.dark}`,
+            backgroundColor: `${theme.palette.success.main}`,
+            color: theme.palette.primary.contrastText,
+            fontWeight: 600,
+            px: 3,
+            textTransform: "none",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+          }}
+          onClick={() => {
+            setSelectedEventId(item.eventId ?? null);
+            setSelectedParticipationFee(item.participationFee ?? 0);
+            setPaymentDrawerOpen(true);
+          }}
+        >
+          Pay
+        </CustomButton>
+      );
+    }
 
-  const filteredParticipations = useMemo(() => {
-    if (typeFilter === "ALL") return participations;
-    return participations.filter((item) => item.type === typeFilter);
-  }, [participations, typeFilter]);
+    // If pending (not approved) and not paid -> show Cancel Application
+    if (item.status === "pending" && !item.hasPaid) {
+      return (
+        <CustomButton
+          size="small"
+          variant="outlined"
+          sx={{
+            borderRadius: 999,
+            border: `1px solid ${theme.palette.error.dark}`,
+            backgroundColor: `${theme.palette.error.main}`,
+            color: "background.paper",
+            fontWeight: 600,
+            px: 3,
+            textTransform: "none",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+            width: 'fit-content'
+          }}
+          onClick={() => {
+            setSelectedEventId(item.eventId ?? null);
+            setCancelApplication(true);
+          }}
+        >
+          Cancel Application
+        </CustomButton>
+      );
+    }
 
-  const renderDetails = (item: VendorParticipationItem) => (
-    <Stack spacing={1}>
-      <Typography variant="body2" sx={{ color: "#1E1E1E" }}>
-        {item.type === "BAZAAR"
-          ? "You're accepted for this bazaar. Prepare your booth, inventory, and team."
-          : `Setup duration: ${
-              item.setupDurationWeeks ?? 1
-            } week(s). Coordinate with venue staff for access.`}
-      </Typography>
-      <Typography variant="body2" sx={{ color: "#6b7280" }}>
-        Contact: events-office@guc.edu.eg
-      </Typography>
-    </Stack>
-  );
+    // If paid or rejected, render nothing
+    return null;
+  };
 
   return (
     <ContentWrapper
-      title="My Upcoming Participations"
-      description="Here are the bazaars or platform booths you're participating in."
+      title="My Requests"
+      description="Review the status of your requests for upcoming bazaars or booth setups."
     >
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
-
-      {/* Filter Pills */}
-      <Box sx={{ mb: 3 }}>
-        <Stack direction="row" spacing={1} flexWrap="wrap">
-          {typeFilters.map(({ key, label }) => {
-            const isActive = typeFilter === key;
-            const baseColor =
-              key === "ALL"
-                ? "#6299d0"
-                : key === "BAZAAR"
-                ? "#e91e63"
-                : "#2196f3";
-
-            return (
-              <Chip
-                key={key}
-                label={label}
-                size="medium"
-                onClick={() => setTypeFilter(key)}
-                variant="outlined"
-                sx={{
-                  fontFamily: "var(--font-poppins)",
-                  fontWeight: 700,
-                  letterSpacing: 0.2,
-                  borderRadius: "28px",
-                  px: 1.75,
-                  height: 28,
-                  borderWidth: isActive ? 3 : 1,
-                  borderColor: baseColor,
-                  color: baseColor,
-                  backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
-                  boxShadow: isActive
-                    ? `0 6px 16px ${alpha(baseColor, 0.28)}`
-                    : `0 1px 3px ${alpha(baseColor, 0.18)}`,
-                  transition:
-                    "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                  transform: isActive ? "translateY(-1px)" : "none",
-                  "&:hover": {
-                    backgroundColor: alpha(baseColor, 0.16),
-                    borderWidth: isActive ? 3 : 2,
-                    transform: "translateY(-1px)",
-                  },
-                }}
-              />
-            );
-          })}
-        </Stack>
-      </Box>
-
       <Stack spacing={2}>
-        {filteredParticipations.map((item) => (
-          <VendorItemCard
-            key={item.id}
-            item={item}
-            expanded={openId === item.id}
-            details={renderDetails(item)}
-          />
-        ))}
+       {!loading&&(requests.length ? requests : []).filter((item) => (item.status === "approved" && item.hasPaid === true)).map((item) => {
+  switch(item.type) {
+    case "bazaar":
+      return (
+        <BazarView 
+          id={item.id} 
+          background={"#e91e63"} 
+          details={item.details} 
+          name={item.name} 
+          description={item.description} 
+          vendorStatus={item.status}
+          vendors={item.vendors} 
+          icon={SellIcon} 
+          attended={item.attended} 
+          archived={item.archived} 
+          registrationDeadline={item.details?.["Registration Deadline"]}
+          userInfo={user}
+          user={"vendor"}
+        />
+      );
+    case "booth":
+      return (
+        <BoothView 
+          id={item.id} 
+          background={"#2196f3"} 
+          icon={StorefrontIcon} 
+          company={item.company} 
+          description={item.description} 
+          details={item.details}
+          payButton={renderActionButton(item)} 
+          vendorStatus={item.status}
+          attended={item.attended} 
+          archived={item.archived}  
+          userInfo={user}
+          user={"vendor"}
+          isRequested={true}
+        />
+      );
+    default:
+      return null;
+  }
+})}
+   {loading && (
+      <EventCardsListSkeleton />
+    )}
+       {!loading && requests.length === 0 && (
+        <EmptyState
+         title = "No vendor requests found"
+         description = "Browse upcoming bazaars and platform booths to submit your requests!"
+        />
+       )}
+        <CancelApplicationVendor
+          eventId={selectedEventId ?? ""}
+          open={cancelApplication}
+          onClose={() => {
+            setCancelApplication(false);
+            setSelectedEventId(null);
+          }}
+          setRefresh={setRefreshToggle}
+        />
+        <VendorPaymentDrawer
+          open={paymentDrawerOpen}
+          onClose={() => {
+            setPaymentDrawerOpen(false);
+            setSelectedEventId(null);
+          }}
+          eventId={selectedEventId ?? ""}
+          totalAmount={selectedParticipationFee}
+          email={user?.email ?? ""}
+        />
       </Stack>
     </ContentWrapper>
   );
