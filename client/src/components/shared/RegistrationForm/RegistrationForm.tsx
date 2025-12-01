@@ -120,7 +120,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
           const message =
             UserType !== "vendor"
               ? "Registration successful! Please wait for your verification email."
-              : "Registration successful! redirecting to login page...";
+              : "Registration successful!";
 
           toast.success(message, {
             position: "bottom-right",
@@ -132,9 +132,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ UserType }) => {
             progress: undefined,
             theme: "colored",
           });
-          if (UserType === "vendor") {
-            router.replace("/login");
-          }
+       
           //eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           const message =
