@@ -9,7 +9,7 @@ interface CancelEventApplicationVendorProps {
     eventId?: string;
     open: boolean;
     onClose: () => void;
-    setRefresh:React.Dispatch<React.SetStateAction<boolean>>;
+    setRefresh?:React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const CancelApplicationVendor = ({eventId = "", open, onClose, setRefresh}: CancelEventApplicationVendorProps) => {
@@ -35,7 +35,7 @@ const CancelApplicationVendor = ({eventId = "", open, onClose, setRefresh}: Canc
             progress: undefined,
             theme: "colored",
           });  
-          setRefresh((prev)=> !prev);
+          if (setRefresh) setRefresh((prev)=> !prev);
         } catch (err: any) {
           setError(err?.message || "API call failed");
           toast.error(err?.response?.data?.error || err?.response?.data?.message || "Failed to cancel application",
