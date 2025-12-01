@@ -178,8 +178,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key:"vendors",
-        label:"Loyalty Program",
+        key: "vendors",
+        label: "Loyalty Program",
         icon: Store,
         tabs: [
           { id: "loyalty-partners", label: "Loyalty Program Partners" }
@@ -229,8 +229,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [{ id: "overview", label: "Overview" }],
       },
       {
-        key:"vendors",
-        label:"Loyalty Program",
+        key: "vendors",
+        label: "Loyalty Program",
         icon: Store,
         tabs: [
           { id: "loyalty-partners", label: "Loyalty Program Partners" }
@@ -269,13 +269,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [{ id: "overview", label: "Overview" }],
       },
       {
-      key:"vendors",
-      label:"Loyalty Program",
-      icon: Store,
-      tabs: [
-        { id: "loyalty-partners", label: "Loyalty Program Partners" }
-      ],
-    }
+        key: "vendors",
+        label: "Loyalty Program",
+        icon: Store,
+        tabs: [
+          { id: "loyalty-partners", label: "Loyalty Program Partners" }
+        ],
+      }
     ],
   },
   professor: {
@@ -324,13 +324,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Wallet,
       },
       {
-      key:"vendors",
-      label:"Loyalty Program",
-      icon: Store,
-      tabs: [
-        { id: "loyalty-partners", label: "Loyalty Program Partners" }
-      ],
-    }
+        key: "vendors",
+        label: "Loyalty Program",
+        icon: Store,
+        tabs: [
+          { id: "loyalty-partners", label: "Loyalty Program Partners" }
+        ],
+      }
     ],
   },
   "events-office": {
@@ -398,10 +398,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
     defaultTab: "",
-    defaultSection: "users",
+    defaultSection: "events-office",
     tabs: [
-      { id: "all-events", label: "All Events" },
       { id: "all-users", label: "All Users" },
+      { id: "all-events", label: "All Events" },
       { id: "block-users", label: "Block/Unblock Users" },
       { id: "assign-roles", label: "Assign Roles" },
       { id: "manage-eo-account", label: "Manage Accounts" },
@@ -414,10 +414,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     ],
     sections: [
       {
-        key: "events",
-        label: "Events Management",
+        key: "event-office",
+        label: "Accounts Hub",
         icon: Calendar,
-        tabs: [{ id: "all-events", label: "All Events" }],
+        tabs: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
       {
         key: "users",
@@ -435,10 +435,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [{ id: "assign-roles", label: "Assign Roles" }],
       },
       {
-        key: "event-office",
-        label: "Accounts Hub",
+        key: "events",
+        label: "Events Management",
         icon: Calendar,
-        tabs: [{ id: "manage-eo-account", label: "Manage Accounts" }],
+        tabs: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "reports",
@@ -449,7 +449,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
         ],
       },
-        {
+      {
         key: "sales-attendance",
         label: "Reports",
         icon: BarChart3,
