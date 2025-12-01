@@ -46,6 +46,7 @@ const getFilterGroups = (): FilterGroup[] => [
       { label: "Pending", value: "pending" },
       { label: "Approved", value: "approved" },
       { label: "Rejected", value: "rejected" },
+      { label: "In Poll", value: "inPoll" },
     ],
   },
   {
@@ -336,7 +337,8 @@ export default function VendorParticipationRequests() {
       const statusMatch =
         filters.status.length === 0 ||
         filters.status.includes("ALL") ||
-        filters.status.includes(request.status);
+        filters.status.includes(request.status) ||
+        (filters.status.includes("inPoll") && request.isInPoll);
 
       // Event type filter
       const typeMatch =
