@@ -414,12 +414,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     ],
     sections: [
       {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        tabs: [],
-      },
-      {
         key: "events",
         label: "Events Management",
         icon: Calendar,
@@ -451,10 +445,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
-          { id: "all-vendors", label: "All Vendors" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
-          { id: "documents", label: "View Documents" },
         ],
       },
         {

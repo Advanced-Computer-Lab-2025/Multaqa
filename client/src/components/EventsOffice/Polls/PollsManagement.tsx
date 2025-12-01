@@ -26,7 +26,7 @@ const PollsManagement = () => {
           onClick={() => setIsCreateModalOpen(true)}
           variant="contained"
           label="Create Poll"
-          startIcon={<Plus size={20} />}
+          createButtonStyle
         />
       </Box>
 
