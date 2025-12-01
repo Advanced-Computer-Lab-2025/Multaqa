@@ -850,6 +850,14 @@ const BazarForm: React.FC<BazarApplicationFormProps> = ({
                           EGP
                         </Typography>
                       </Box>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 2, display: "block", fontStyle: "italic" }}
+                      >
+                        Disclaimer: These costs will only be paid on the condition
+                        that your application is accepted
+                      </Typography>
                     </Card>
                   </Box>
                   {/* Submit */}
