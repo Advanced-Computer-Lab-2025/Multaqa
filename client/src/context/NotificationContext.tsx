@@ -5,17 +5,20 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { socketService } from "@/services/socketService";
 import { useAuth } from "./AuthContext";
-import {
-  INotification,
-  NotificationContextType,
-} from "@/types/notifications";
+import { usePathname } from "@/i18n/navigation";
+import { INotification, NotificationContextType } from "@/types/notifications";
 import { toast } from "react-toastify";
 import { api } from "@/api";
-import { getNotificationIcon, getNotificationColor } from "@/components/notifications/utils";
+import {
+  getNotificationIcon,
+  getNotificationColor,
+} from "@/components/notifications/utils";
 import { Box } from "@mui/material";
+import { time } from "console";
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
@@ -29,6 +32,52 @@ export const NotificationProvider = ({
   const { user, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const pathname = usePathname();
+  const pathnameRef = useRef(pathname);
+  const [pendingToasts, setPendingToasts] = useState<INotification[]>([]);
+
+  // Keep pathnameRef updated
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
+
+  // Helper to show toast
+  const showNotificationToast = useCallback((notification: INotification) => {
+    const Icon = getNotificationIcon(notification.type);
+    const color = getNotificationColor(notification.type);
+
+    setTimeout(() => {
+      toast.info(
+        <div>
+          <strong>{notification.title}</strong>
+          <p style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            {notification.message}
+          </p>
+        </div>,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          icon: (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: color,
+              }}
+            >
+              <Icon sx={{ fontSize: 24 }} />
+            </Box>
+          ),
+        }
+      );
+    }, 5000);
+  }, []);
 
   // Computed unread count
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -84,9 +133,7 @@ export const NotificationProvider = ({
 
     // Optimistically update local state
     setNotifications((prev) =>
-      prev.map((n) =>
-        n._id === notificationId ? { ...n, read: false } : n
-      )
+      prev.map((n) => (n._id === notificationId ? { ...n, read: false } : n))
     );
 
     // Emit to backend
@@ -116,53 +163,59 @@ export const NotificationProvider = ({
     // Emit each unread notification to backend
     unreadNotifications.forEach((notification) => {
       if (notification._id) {
-        socketService.emit("notification:read", { notificationId: notification._id });
+        socketService.emit("notification:read", {
+          notificationId: notification._id,
+        });
       }
     });
   }, [notifications]);
 
   // Handle incoming notifications
-  const handleNewNotification = useCallback((notification: INotification) => {
-    console.log("🔔 New notification received:", notification);
+  const handleNewNotification = useCallback(
+    (notification: INotification) => {
+      console.log("🔔 New notification received:", notification);
 
-    // Add notification to state (sort by newest first)
-    setNotifications((prev) => [notification, ...prev]);
+      // Add notification to state (sort by newest first)
+      setNotifications((prev) => [notification, ...prev]);
 
-    // Get icon and color for the notification type
-    const Icon = getNotificationIcon(notification.type);
-    const color = getNotificationColor(notification.type);
+      // Check if we are on a public route (like login)
+      const currentPathname = pathnameRef.current;
+      const publicRoutes = ["/login", "/register", "/signup", "/"];
 
-    // Show toast notification only if toasts are enabled
-    toast.info(
-      <div>
-        <strong>{notification.title}</strong>
-        <p style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>
-          {notification.message}
-        </p>
-      </div>,
-      {
-        position: "top-right", // Updated to match user preference from previous edits
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        icon: (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: color,
-            }}
-          >
-            <Icon sx={{ fontSize: 24 }} />
-          </Box>
-        ),
+      const isPublic = publicRoutes.some((route) => {
+        if (route === "/") return currentPathname === "/";
+        return currentPathname.startsWith(route);
+      });
+
+      if (isPublic) {
+        console.log(
+          "⏳ Queuing notification toast (on public route):",
+          notification.title
+        );
+        setPendingToasts((prev) => [...prev, notification]);
+      } else {
+        showNotificationToast(notification);
       }
-    );
+    },
+    [showNotificationToast]
+  );
 
-  }, []);
+  // Flush pending toasts when leaving public routes
+  useEffect(() => {
+    const publicRoutes = ["/login", "/register", "/signup", "/"];
+    const isPublic = publicRoutes.some((route) => {
+      if (route === "/") return pathname === "/";
+      return pathname.startsWith(route);
+    });
+
+    if (!isPublic && pendingToasts.length > 0) {
+      console.log(`🚀 Flushing ${pendingToasts.length} pending notifications`);
+      pendingToasts.forEach((notification) => {
+        showNotificationToast(notification);
+      });
+      setPendingToasts([]);
+    }
+  }, [pathname, pendingToasts, showNotificationToast]);
 
   // Handle notification read event from backend (sync across tabs)
   const handleNotificationRead = useCallback(
@@ -302,5 +355,3 @@ export const useNotifications = () => {
   }
   return context;
 };
-
-
