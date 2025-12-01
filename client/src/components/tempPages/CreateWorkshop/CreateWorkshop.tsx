@@ -202,10 +202,11 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
             fundingSource: values.fundingSource,
             price: 5,
         };
+        actions.resetForm();
         handleCallApi(payload);
     };
 
-    const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched } = useFormik({
+    const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched, resetForm } = useFormik({
         initialValues,
         validationSchema: workshopSchema,
         onSubmit: onSubmit,
@@ -232,6 +233,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
 
     const handleClose = () => {
         onClose();
+        resetForm();
         setActiveTab('general');
     };
 

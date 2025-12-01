@@ -158,6 +158,7 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, co
             extraRequiredResources: values.extraRequiredResources,
             registrationDeadline: "2025-1-1"
         }
+        actions.resetForm();
         await handleCallApi(payload);
     }
 
@@ -187,6 +188,7 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, co
 
     const handleClose = () => {
         onClose();
+        formik.resetForm();
         setActiveTab('general');
     };
 
