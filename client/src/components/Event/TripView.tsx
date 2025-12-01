@@ -95,6 +95,7 @@ const TripView: React.FC<BazarViewProps> = ({
         spotsLeft={details['Spots Left']}
         totalSpots={details["Capacity"]}
         isUpcoming={!datePassed}
+        registrationDeadline={user!=="events-office"&& user!=="vendor" && user!=="admin"?details["Registration Deadline"]:undefined}
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={
           user === "admin" ? (

@@ -96,7 +96,7 @@ export class UserService {
       { isVerified: true },
       {
         select:
-          "firstName lastName name email role gucId position roleType status companyName registeredAt verifiedAt updatedAt",
+          "firstName lastName name email role gucId position roleType status companyName registeredAt verifiedAt updatedAt taxCard logo",
       }
     );
 
