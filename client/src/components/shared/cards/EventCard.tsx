@@ -107,31 +107,40 @@ const EventCard: React.FC<EventCardProps> = ({
     const deadline = new Date(deadlineString);
     const now = new Date();
     const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
     if (daysLeft <= 3) return "#EF4444"; // Red - 3 days or less
     if (daysLeft <= 7) return "#F97316"; // Orange - 1 week or less
     return color; // Purple - more than a week
   };
 
-  const formatDeadlineText = (deadlineString: string) => {
+  const formatDeadlineText = (deadlineString: string, eventType: string) => {
     if (!deadlineString) return "";
     
     const deadline = new Date(deadlineString);
     const now = new Date();
-    const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    console.log(title)
-    console.log(daysLeft)
-    if (daysLeft <= 0 || deadline<now) return "Registration closed";
-    if (daysLeft === 1) return "Registration closes tomorrow";
-    return `Registration closes in ${daysLeft} days`;
-  };
+    // Calculate difference in milliseconds
+    const diffTime = deadline.getTime() - now.getTime();
+    // Calculate days remaining (rounding up)
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // 1. Determine the prefix word based on eventType
+    const prefix = eventType === "Bazaar" ? "Applying" : "Registration";
+    // 2. Apply time logic once
+    if (diffTime <= 0) {
+        return `${prefix} closed`;
+    }
+    
+    if (daysLeft === 1) {
+        return `${prefix} closes tomorrow`;
+    }
+
+    return `${prefix} closes in ${daysLeft} days`;
+};
   const normalizedTitle = title?.toLowerCase?.() ?? "";
   const normalizedCreatedBy = createdBy?.toLowerCase?.() ?? "";
   const normalizedLocation = location?.toLowerCase?.() ?? "";
   const normalizedEventType = eventType?.toLowerCase?.() ?? "";
   const isFuture = new Date(startDate) > new Date();
   const attendance = total-spots;
-  console.log("typeof event:", eventType);
 
   const handleOpenModal = () => {
     if (onOpenDetails) {
@@ -551,7 +560,7 @@ const EventCard: React.FC<EventCardProps> = ({
             {registrationDeadline && (
               <Chip
                 icon={<Calendar size={14} />}
-                label={formatDeadlineText(registrationDeadline)}
+                label={formatDeadlineText(registrationDeadline, eventType)}
                 size="small"
                 sx={{
                   backgroundColor: getDeadlineColor(registrationDeadline),

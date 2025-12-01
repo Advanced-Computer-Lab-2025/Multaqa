@@ -645,7 +645,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       ? "Manage Events"
       : registered
         ? " My Registered Events"
-        : "Browse Events"
+        : user=="vendor"?"Browse Bazaars":"Browse Events"
 
   const pageDescription =
     user === "events-office"
@@ -824,16 +824,18 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               onChange={handleSearchChange}
               storageKey="browseEventsSearchHistory"
               autoSaveDelay={2000}
+              label={user!=="vendor"?"Search Events...":"Search Bazaars..."}
             />
           </Box>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
+            {userInfo.role!=="vendor" &&(
             <FilterPanel
               filterGroups={getFilterGroups(user, professorOptions,locationOptions)}
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}
               matchSearchBar
-            />
+            />)}
           </LocalizationProvider>
         </Box>
 
