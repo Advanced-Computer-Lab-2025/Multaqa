@@ -958,6 +958,13 @@ npm run start
 3. **Testing**: Manual testing of new features
 4. **Documentation**: Update relevant documentation
 
+### Sprint Task Boards
+
+You can view the detailed breakdown of tasks, assignments, and progress for each sprint:
+
+- **Sprint 1 (Jira)**: [View Sprint 1 Board](https://new-guc-scad.atlassian.net/jira/software/projects/SCAD/boards/1/backlog?selectedIssue=SCAD-24)
+- **Sprint 2 (Excel)**: [View Sprint 2 Board](https://1drv.ms/x/c/cfee3a69d7cca41e/EfILJosU9TRDhJYiWVs--qEBpFFKvRReVI_MvAltaDXHBQ?e=VdgNZr)
+
 ### Issue Reporting
 
 When reporting issues, please include a clear description of the problem, detailed steps to recreate it, what you expected to happen versus what actually happened, your environment details (browser, OS, Node.js version), and relevant screenshots.
