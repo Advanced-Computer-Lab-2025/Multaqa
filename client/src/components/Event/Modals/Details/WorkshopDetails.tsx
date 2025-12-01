@@ -33,6 +33,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsType> = ({
   funding,
   budget,
   professors,
+  userRole
 }) => {
   const detailItems = [
     {

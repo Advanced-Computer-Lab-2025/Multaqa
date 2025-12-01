@@ -30,6 +30,7 @@ export interface WorkshopDetails extends BaseEventDetails {
   funding:string,
   budget:string,
   professors:string[];
+  userRole?: string;
 }
 export interface VendorLogo {
   url: string;
@@ -79,4 +80,5 @@ export interface TripDetails extends BaseEventDetails {
   cost: string;
   capacity: number;
   spotsLeft: number;
+  userRole?: string;
 }

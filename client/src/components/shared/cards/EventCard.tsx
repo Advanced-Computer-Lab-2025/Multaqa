@@ -51,6 +51,7 @@ interface EventCardProps {
   payButton?: React.ReactNode;
   vendorStatus?: string;
   isUpcoming?: boolean;
+  registrationDeadline?:string
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -86,6 +87,7 @@ const EventCard: React.FC<EventCardProps> = ({
   payButton,
   vendorStatus,
   isUpcoming = false,
+  registrationDeadline,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
@@ -97,6 +99,32 @@ const EventCard: React.FC<EventCardProps> = ({
     (user as any).roleType === "eventsOffice";
   const [fav, setFav] = useState<boolean>(isFavorite);
   const [animateFav, setAnimateFav] = useState<boolean>(false);
+
+  // Calculate deadline color based on urgency
+  const getDeadlineColor = (deadlineString: string) => {
+    if (!deadlineString) return "#6B7280"; // Default gray
+    
+    const deadline = new Date(deadlineString);
+    const now = new Date();
+    const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysLeft <= 3) return "#EF4444"; // Red - 3 days or less
+    if (daysLeft <= 7) return "#F97316"; // Orange - 1 week or less
+    return color; // Purple - more than a week
+  };
+
+  const formatDeadlineText = (deadlineString: string) => {
+    if (!deadlineString) return "";
+    
+    const deadline = new Date(deadlineString);
+    const now = new Date();
+    const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    console.log(title)
+    console.log(daysLeft)
+    if (daysLeft <= 0 || deadline<now) return "Registration closed";
+    if (daysLeft === 1) return "Registration closes tomorrow";
+    return `Registration closes in ${daysLeft} days`;
+  };
   const normalizedTitle = title?.toLowerCase?.() ?? "";
   const normalizedCreatedBy = createdBy?.toLowerCase?.() ?? "";
   const normalizedLocation = location?.toLowerCase?.() ?? "";
@@ -248,8 +276,8 @@ const EventCard: React.FC<EventCardProps> = ({
         overflow: "hidden",
         transition: "all 0.3s ease",
         position: "relative",
-        minHeight: 250,
-        maxHeight: 250,
+        minHeight: 280,
+        maxHeight: 280,
         "&:hover": {
           borderColor: color,
           transform: "translateY(-2px)",
@@ -506,18 +534,42 @@ const EventCard: React.FC<EventCardProps> = ({
           </Box>
 
           {/* Title Row */}
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              color: "text.primary",
-              fontSize: "1.1rem",
-              mb: 1.5,
-              lineHeight: 1.3,
-            }}
-          >
-            {title}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, justifyContent: "space-between" }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                color: "text.primary",
+                fontSize: "1.1rem",
+                lineHeight: 1.3,
+              }}
+            >
+              {title}
+            </Typography>
+            
+            {/* Registration Deadline Chip */}
+            {registrationDeadline && (
+              <Chip
+                icon={<Calendar size={14} />}
+                label={formatDeadlineText(registrationDeadline)}
+                size="small"
+                sx={{
+                  backgroundColor: getDeadlineColor(registrationDeadline),
+                  color: "white",
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  height: "24px",
+                  mt:2,
+                  p:2,
+                  "& .MuiChip-icon": {
+                    color: "white",
+                    fontSize: "14px",
+                    marginLeft: "4px",
+                  },
+                }}
+              />
+            )}
+          </Box>
 
           {/* Date, Time, and Location Info */}
           <Box
@@ -614,7 +666,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 alignItems: "center",
               }}
             >
-              
+
               {duration && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Clock size={16} color={color} />

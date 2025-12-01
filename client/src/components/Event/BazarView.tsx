@@ -102,6 +102,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         vendorStatus={vendorStatus=="approved"&&!hasPaid?"pending_payment":vendorStatus}
         isUpcoming={!datePassed}
         eventType={"Bazaar"} 
+        registrationDeadline={user=="vendor"?details["Registration Deadline"]:undefined}
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
         <Tooltip title="Delete Bazaar">
