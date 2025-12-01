@@ -203,9 +203,14 @@ const Edit: React.FC<EditConferenceProps> = ({
             if (errorTab) {
                 setActiveTab(errorTab);
                 toast.error("Please fill out all required fields.", {
-                    position: "bottom-right",
-                    autoClose: 3000,
-                    theme: "colored",
+                  position: "bottom-right",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "colored",
                 });
             }
             return;

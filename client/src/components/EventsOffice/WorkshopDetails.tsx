@@ -141,13 +141,23 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = ({
       );
       toast.success("Your evaluation has been recieved. Thank you !", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
       });
     } catch (err: any) {
       toast.error(err?.response?.data?.error, {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
       });
       setStatus("N/A");

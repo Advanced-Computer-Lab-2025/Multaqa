@@ -91,7 +91,16 @@ const VendorPaymentDrawer: React.FC<VendorPaymentDrawerProps> = ({
         window.location.href = stripeResponse.data.data.url;
       } catch (error) {
         setPaymentError('Payment processing failed');
-        toast.error('Payment processing failed');
+        toast.error("Payment processing failed", {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
         onClose();
       } finally {
         setIsProcessing(false);

@@ -16,6 +16,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { api } from "@/api";
 import theme from "@/themes/lightTheme";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 
 interface EventCardProps {
   title: string;
@@ -217,7 +218,16 @@ const EventCard: React.FC<EventCardProps> = ({
       setFav(prev);
       setAnimateFav(false);
       console.error("Failed to toggle favorite:", err);
-      window.alert(err?.response?.data?.error || "Failed to update favorites");
+      toast.error(err?.response?.data?.error || "Failed to update favorites", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     }
   };
 

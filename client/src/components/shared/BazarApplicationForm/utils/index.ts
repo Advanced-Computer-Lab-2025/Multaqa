@@ -50,8 +50,7 @@ export const submitBazarForm = async (
   values: BazarFormValues, // Use specific type
   {
     setSubmitting,
-    resetForm,
-  }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void },
+  }: { setSubmitting: (isSubmitting: boolean) => void },
   eventId: string,
   attendeeIdStatuses: UploadStatus[], // Add attendeeIdStatuses
   location: string // Add location
@@ -69,19 +68,16 @@ export const submitBazarForm = async (
 
     const bazarData = {
       eventType: "bazaar",
-      bazaarAttendees: processedAttendees, // Use processed attendees
+      bazaarAttendees: processedAttendees,
       boothSize: values.boothSize,
       participationFee: values.price,
       location,
     };
 
-    const response = await api.post(
+    await api.post(
       `/vendorEvents/${eventId}/bazaar`,
       bazarData
     );
-    console.log("Bazar submission response:", response);
-    // const result = response.data; // Not used, but good to have
-    resetForm();
     toast.success("Bazar application submitted successfully!", {
       position: "bottom-right",
       autoClose: 5000,

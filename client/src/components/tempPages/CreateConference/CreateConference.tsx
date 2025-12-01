@@ -107,18 +107,31 @@ const Create: React.FC<CreateConferenceProps> = ({ open, onClose, setRefresh, co
             setResponse(res.data);
             setRefresh((prev) => !prev);
             toast.success("Conference created successfully", {
-                position: "bottom-right",
-                autoClose: 3000,
-                theme: "colored",
-            })
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
         } catch (err: any) {
             setError(err?.message || "API call failed");
-            window.alert(err.response.data.error);
-            toast.error("Failed to create conference. Please try again.", {
+            toast.error(
+              err.response.data.error ||
+                "Failed to create conference. Please try again.",
+              {
                 position: "bottom-right",
-                autoClose: 3000,
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
                 theme: "colored",
-            });
+              }
+            );
         } finally {
             setLoading(false);
         }

@@ -26,9 +26,14 @@ const CancelGymSession = ({ sessionId, open, onClose, setRefresh }: CancelGymSes
 
             // Success feedback
             toast.success("Gym session permanently canceled.", {
-                position: "bottom-right",
-                autoClose: 3000,
-                theme: "colored",
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
             });
             
             // Close modal and refresh the parent list
@@ -40,9 +45,14 @@ const CancelGymSession = ({ sessionId, open, onClose, setRefresh }: CancelGymSes
             const errorMessage = err?.message || "Failed to cancel gym session.";
             
             toast.error(errorMessage, {
-                position: "bottom-right",
-                autoClose: 5000,
-                theme: "colored",
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
             });
             // Keep the modal open for user to acknowledge or retry
             

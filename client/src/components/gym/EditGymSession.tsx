@@ -119,9 +119,14 @@ export default function EditGymSession({
 
         // Close modal and show success toast only upon success
         onClose(); 
-        toast.success("Gym session updated successfully", { // Changed text from 'created' to 'updated'
+        toast.success("Gym session edited successfully", {
           position: "bottom-right",
-          autoClose: 3000,
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
           theme: "colored",
         });
 
@@ -132,18 +137,23 @@ export default function EditGymSession({
         const errorMessage =
           err?.message || "Failed to update gym session";
 
-        setError(errorMessage);
-        window.alert(errorMessage);
-        toast.error(errorMessage, {
+        setError(errorMessage);
+        toast.error(errorMessage, {
+          // Use the actual error message in the toast
           position: "bottom-right",
-          autoClose: 3000,
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
           theme: "colored",
         });
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-  });
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+  });
 
   const handleClose = () => {
     formik.resetForm();

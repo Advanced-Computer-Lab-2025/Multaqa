@@ -50,17 +50,29 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
       setRefresh((prev) => !prev);
       toast.success("Trip created successfully", {
         position: "bottom-right",
-        autoClose: 3000,
-        theme: "colored",
-      })
-    } catch (err: any) {
-      setError(err?.message || "API call failed");
-      window.alert(err.response.data.error);
-      toast.error("Failed to create trip. Please try again.", {
-        position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
         theme: "colored",
       });
+    } catch (err: any) {
+      setError(err?.message || "API call failed");
+      toast.error(
+        err.response.data.error || "Failed to create trip. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } finally {
       setLoading(false);
     }
