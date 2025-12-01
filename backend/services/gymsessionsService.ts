@@ -200,8 +200,7 @@ export class GymSessionsService {
     if (!session) {
       throw createError(404, "Gym session not found");
     }
-    if(new Date(session.registrationDeadline) < new Date()) {
-      console.log(session.registrationDeadline, new Date());
+    if(new Date(session.eventStartDate) < new Date()) {
       throw createError(400, "Session has already started or passed");
     }
     if (session.attendees.length >= session.capacity) {
@@ -211,11 +210,33 @@ export class GymSessionsService {
       const attendeeId = attendee._id || attendee;
       return attendeeId.toString() === userId;
     });
+
     if (isAlreadyRegistered) {
       throw createError(400, "User is already registered for this session");
     }
+
+    // Check for overlapping sessions
+    const userSessions = await this.getUserRegisteredSessions(userId);
+    const newSessionStart = new Date(session.eventStartDate);
+    const newSessionEnd = new Date(session.eventEndDate);
+
+    for (const existingSession of userSessions) {
+      const existingStart = new Date(existingSession.eventStartDate);
+      const existingEnd = new Date(existingSession.eventEndDate);
+
+      // Check if time ranges overlap
+      const hasOverlap = newSessionStart < existingEnd && newSessionEnd > existingStart;
+      
+      if (hasOverlap) {
+        throw createError(
+          400,
+          `This session Overlaps with one of your registered sessions: "${existingSession.eventName}"`
+        );
+      }
+    }
+
     console.log("Registering user", userId, "to session", sessionId);
-     session.attendees?.push(userId as any);
+    session.attendees?.push(userId as any);
      
     await session.save();
     return session;
@@ -229,7 +250,7 @@ export class GymSessionsService {
       },
       {
         select:
-          " sessionType eventName trainer eventStartDate eventStartTime duration eventEndTime location description capacity",
+          " sessionType eventName trainer eventStartDate eventEndDate eventStartTime duration eventEndTime location description capacity",
       }
     );
   }

@@ -133,7 +133,6 @@ export default function EditGymSession({
           err?.message || "Failed to update gym session";
 
         setError(errorMessage);
-        window.alert(errorMessage);
         toast.error(errorMessage, {
           position: "bottom-right",
           autoClose: 3000,

@@ -19,6 +19,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { registerForGymSession } from "./utils";
 import { useAuth } from "@/hooks/useAuth"; // Assuming useAuth is available from a hooks directory
+import { toast } from "react-toastify";
 
 const SESSION_ICONS: Record<GymSession["type"], React.ElementType> = {
   YOGA: SelfImprovementIcon,
@@ -90,7 +91,11 @@ export default function GymSessionCard({
 
   const confirmRegistration = async () => {
     if (!user) {
-      alert("Please log in to register.");
+      toast.error("Please log in to register.", {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
       return;
     }
     try {
@@ -104,7 +109,11 @@ export default function GymSessionCard({
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Failed to register for session";
-      alert(msg);
+      toast.error(msg, {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
     } finally {
       setIsRegistering(false);
     }
