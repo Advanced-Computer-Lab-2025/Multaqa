@@ -11,6 +11,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useAuth } from "@/context/AuthContext";
 import { toast } from 'react-toastify';
 import { useTheme } from '@mui/material/styles';
+import { useSearchParams } from 'next/navigation';
 
 const PaymentSuccess: React.FC = () => {
   const router = useRouter();
@@ -18,6 +19,11 @@ const PaymentSuccess: React.FC = () => {
   const { user } = useAuth();
   const role = String(user?.role);
   const theme = useTheme();
+  const searchParams = useSearchParams();
+  const paymentType = searchParams.get('paymentType');
+  const eventType = searchParams.get('eventType');
+
+  const toastShown = React.useRef(false);
 
   useEffect(() => {
     if (role === "staff" || role === "student" || role === "professor" || role === "ta") {
@@ -34,8 +40,26 @@ const PaymentSuccess: React.FC = () => {
         clearTimeout(timer);
         clearInterval(countdownTimer);
       };
+
     }
     else if (role === "vendor") {
+      if (paymentType === 'vendor_participation' && eventType === 'platform_booth' && !toastShown.current) {
+        toastShown.current = true;
+        toast.success(
+          "Your payment was successful! You have 1 day to get everything ready, and we’re excited to see you on the platform..",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+      }
+
       const timer = setTimeout(() => {
         router.push(`/${role}/opportunities/available`);
       }, 3000); // Redirect after 3 seconds
