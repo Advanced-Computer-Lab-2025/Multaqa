@@ -254,7 +254,8 @@ const ReportTable: React.FC<ReportTableProps> = ({ reportType }) => {
                     { label: "Trip", value: "Trip" },
                     { label: "Booth", value: "Booth" },
                     { label: "Bazaar", value: "Bazaar" },
-                    { label: "Workshop", value: "Workshop" }
+                    { label: "Workshop", value: "Workshop" },
+                    { label: "Conference", value: "Conference"}
                 ]
             },
             { 

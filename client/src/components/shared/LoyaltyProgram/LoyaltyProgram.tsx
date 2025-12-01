@@ -241,19 +241,19 @@ const LoyaltyProgram: React.FC<LoyaltyProgramProps> = ({
 
         <CustomModal
           title="Confirm Cancellation"
-          modalType="warning"
+          modalType="delete"
           open={isConfirmModalOpen}
           onClose={handleCloseConfirmModal}
           buttonOption1={{
             label: "Confirm",
             variant: "contained",
-            color: "warning",
+            color: "error",
             onClick: handleConfirmCancel,
           }}
           buttonOption2={{
             label: "Cancel",
             variant: "outlined",
-            color: "warning",
+            color: "error",
             onClick: handleCloseConfirmModal,
           }}
         >

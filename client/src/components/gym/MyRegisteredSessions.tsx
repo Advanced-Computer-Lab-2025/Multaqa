@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import theme from "@/themes/lightTheme";
 import GymSessionCard, { GymSessionCardSkeleton } from "./GymSessionCard";
@@ -15,6 +15,8 @@ import { fetchMyRegisteredSessions } from "./utils";
 import EmptyState from "../shared/states/EmptyState";
 import ErrorState from "../shared/states/ErrorState";
 import ContentWrapper from "../shared/containers/ContentWrapper";
+import FilterPanel from "@/components/shared/FilterCard/FilterPanel";
+import { FilterGroup } from "@/components/shared/FilterCard/types";
 
 // Skeleton Loading Component (matches GymSessionCard layout)
 const GymSessionsSkeleton = () => {
@@ -77,18 +79,51 @@ const getSessionStatus = (start: string, end: string): SessionStatus => {
   const now = new Date();
   const startTime = new Date(start);
   const endTime = new Date(end);
-  
+
   if (now < startTime) return "upcoming";
   if (now >= startTime && now <= endTime) return "ongoing";
   return "past";
 };
 
+const getFilterGroups = (): FilterGroup[] => [
+  {
+    id: "status",
+    title: "Status",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: "Upcoming", value: "upcoming" },
+      { label: "Ongoing", value: "ongoing" },
+      { label: "Past", value: "past" },
+    ],
+  },
+  {
+    id: "type",
+    title: "Type",
+    type: "chip",
+    options: [
+      { label: "All", value: "ALL" },
+      { label: SESSION_LABEL.YOGA, value: "YOGA" },
+      { label: SESSION_LABEL.PILATES, value: "PILATES" },
+      { label: SESSION_LABEL.AEROBICS, value: "AEROBICS" },
+      { label: SESSION_LABEL.ZUMBA, value: "ZUMBA" },
+      { label: SESSION_LABEL.CROSS_CIRCUIT, value: "CROSS_CIRCUIT" },
+      { label: SESSION_LABEL.KICK_BOXING, value: "KICK_BOXING" },
+    ],
+  },
+];
+
 export default function MyRegisteredSessions() {
   const [sessions, setSessions] = useState<GymSession[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
-  const [statusFilter, setStatusFilter] = useState<SessionStatus | "ALL">("ALL");
+  const [filters, setFilters] = useState<{
+    status: string[];
+    type: string[];
+  }>({
+    status: ["ALL"],
+    type: ["ALL"],
+  });
 
   // Fetch registered sessions from API
   useEffect(() => {
@@ -112,18 +147,23 @@ export default function MyRegisteredSessions() {
     };
   }, []);
 
-  // Filter by type
-  const filteredByType = useMemo(
-    () =>
-      filter === "ALL" ? sessions : sessions.filter((s) => s.type === filter),
-    [sessions, filter]
-  );
-
-  // Filter by status
+  // Filter sessions
   const filtered = useMemo(() => {
-    if (statusFilter === "ALL") return filteredByType;
-    return filteredByType.filter((s) => getSessionStatus(s.start, s.end) === statusFilter);
-  }, [filteredByType, statusFilter]);
+    return sessions.filter((s) => {
+      // Type Filter
+      const typeMatch =
+        filters.type.includes("ALL") ||
+        filters.type.includes(s.type);
+
+      // Status Filter
+      const status = getSessionStatus(s.start, s.end);
+      const statusMatch =
+        filters.status.includes("ALL") ||
+        filters.status.includes(status);
+
+      return typeMatch && statusMatch;
+    });
+  }, [sessions, filters]);
 
   // Group sessions by day
   const byDay = useMemo(() => {
@@ -161,23 +201,35 @@ export default function MyRegisteredSessions() {
     }
   };
 
-  type FilterKey = GymSessionType | "ALL";
-  const filterChips: Array<{ key: FilterKey; label: string }> = [
-    { key: "ALL", label: "All Types" },
-    { key: "YOGA", label: SESSION_LABEL.YOGA },
-    { key: "PILATES", label: SESSION_LABEL.PILATES },
-    { key: "AEROBICS", label: SESSION_LABEL.AEROBICS },
-    { key: "ZUMBA", label: SESSION_LABEL.ZUMBA },
-    { key: "CROSS_CIRCUIT", label: SESSION_LABEL.CROSS_CIRCUIT },
-    { key: "KICK_BOXING", label: SESSION_LABEL.KICK_BOXING },
-  ];
+  const handleFilterChange = (groupId: string, value: any) => {
+    setFilters((prev) => {
+      const currentVal = prev[groupId as keyof typeof prev];
+      // If clicking ALL, clear others and set ALL
+      if (value === "ALL") {
+        return { ...prev, [groupId]: ["ALL"] };
+      }
 
-  const statusChips: Array<{ key: SessionStatus | "ALL"; label: string; color: string }> = [
-    { key: "ALL", label: "All Status", color: "#6299d0" },
-    { key: "upcoming", label: "Upcoming", color: "#22c55e" },
-    { key: "ongoing", label: "Ongoing", color: "#f59e0b" },
-    { key: "past", label: "Past", color: "#9ca3af" },
-  ];
+      // If clicking something else, remove ALL if present
+      let newVals = currentVal.filter(v => v !== "ALL");
+
+      if (newVals.includes(value)) {
+        newVals = newVals.filter(v => v !== value);
+      } else {
+        newVals.push(value);
+      }
+
+      // If nothing left, set back to ALL
+      if (newVals.length === 0) {
+        newVals = ["ALL"];
+      }
+
+      return { ...prev, [groupId]: newVals };
+    });
+  };
+
+  const handleResetFilters = () => {
+    setFilters({ status: ["ALL"], type: ["ALL"] });
+  };
 
   return (
     <ContentWrapper
@@ -185,97 +237,21 @@ export default function MyRegisteredSessions() {
       description="View and manage your registered gym sessions."
       headerMarginBottom={2}
     >
-      {/* Status Filter */}
-      <Box sx={{ mb: 2 }}>
-        <Typography
-          variant="subtitle2"
-          sx={{ fontWeight: 600, color: theme.palette.text.secondary, mb: 1 }}
-        >
-          Filter by Status
-        </Typography>
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-          {statusChips.map(({ key, label, color }) => {
-            const isActive = statusFilter === key;
-
-            return (
-              <Chip
-                key={key}
-                label={label}
-                size="medium"
-                onClick={() => setStatusFilter(key)}
-                variant="outlined"
-                sx={{
-                  fontFamily: "var(--font-poppins)",
-                  fontWeight: isActive ? 600 : 500,
-                  borderRadius: "28px",
-                  px: 1.75,
-                  height: 28,
-                  borderWidth: isActive ? 2 : 1,
-                  borderColor: color,
-                  color: color,
-                  backgroundColor: alpha(color, isActive ? 0.12 : 0.08),
-                  boxShadow: isActive
-                    ? `0 6px 16px ${alpha(color, 0.28)}`
-                    : `0 1px 3px ${alpha(color, 0.18)}`,
-                  transition:
-                    "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                  "&:hover": {
-                    borderWidth: 2,
-                  },
-                }}
-              />
-            );
-          })}
-        </Stack>
-      </Box>
-
-      {/* Type Filter */}
-      <Box sx={{ mb: 3 }}>
-        <Typography
-          variant="subtitle2"
-          sx={{ fontWeight: 600, color: theme.palette.text.secondary, mb: 1 }}
-        >
-          Filter by Type
-        </Typography>
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-          {filterChips.map(({ key, label }) => {
-            const isActive = filter === key;
-            const isAll = key === "ALL";
-
-            // All button uses sidebar blue (#6299d0)
-            // Other buttons keep their session colors
-            const baseColor = isAll ? "#6299d0" : SESSION_COLORS[key];
-
-            return (
-              <Chip
-                key={key}
-                label={label}
-                size="medium"
-                onClick={() => setFilter(key)}
-                variant="outlined"
-                sx={{
-                  fontFamily: "var(--font-poppins)",
-                  fontWeight: isActive ? 600 : 500,
-                  borderRadius: "28px",
-                  px: 1.75,
-                  height: 28,
-                  borderWidth: isActive ? 2 : 1,
-                  borderColor: baseColor,
-                  color: baseColor,
-                  backgroundColor: alpha(baseColor, isActive ? 0.12 : 0.08),
-                  boxShadow: isActive
-                    ? `0 6px 16px ${alpha(baseColor, 0.28)}`
-                    : `0 1px 3px ${alpha(baseColor, 0.18)}`,
-                  transition:
-                    "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.25s ease",
-                  "&:hover": {
-                    borderWidth: 2,
-                  },
-                }}
-              />
-            );
-          })}
-        </Stack>
+      <Box
+        sx={{
+          mt: 2,
+          mb: 2,
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+        }}
+      >
+        <FilterPanel
+          filterGroups={getFilterGroups()}
+          onFilterChange={handleFilterChange}
+          currentFilters={filters}
+          onReset={handleResetFilters}
+        />
       </Box>
 
       <Divider sx={{ mb: 2 }} />
@@ -314,9 +290,11 @@ export default function MyRegisteredSessions() {
               {/* Day container with glow */}
               <Box
                 sx={() => {
-                  // Use blue (#6299d0) when "All" is selected, otherwise use the session type color
+                  // Use blue (#6299d0) when "ALL" is selected in type filter, otherwise use the session type color
+                  // If multiple types are selected, we might want to default to blue or use the first one.
+                  // For now, if "ALL" is in type filters, use blue. If specific types, use the color of the first item in the list.
                   const accent =
-                    filter === "ALL" ? "#6299d0" : SESSION_COLORS[list[0].type];
+                    filters.type.includes("ALL") ? "#6299d0" : SESSION_COLORS[list[0].type];
                   return {
                     p: { xs: 2, md: 3 },
                     borderRadius: "16px",
@@ -373,10 +351,10 @@ export default function MyRegisteredSessions() {
                   }}
                 >
                   {list.map((s) => (
-                    <GymSessionCard 
-                      key={s.id} 
-                      session={s} 
-                      showSpots 
+                    <GymSessionCard
+                      key={s.id}
+                      session={s}
+                      showSpots
                       onRegisterSuccess={handleRefresh}
                     />
                   ))}
