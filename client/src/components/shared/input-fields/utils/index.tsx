@@ -151,11 +151,12 @@ export const handleEmailInputChange = (
   fieldType: FieldType,
   stakeholderType?: StakeholderType,
   setEmailUsername?: (value: string) => void,
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void,
+  disableEndAdornment?: boolean
 ) => {
   const inputValue = event.target.value;
 
-  if (fieldType === "email" && stakeholderType !== "vendor") {
+  if (fieldType === "email" && stakeholderType !== "vendor" && !disableEndAdornment) {
     // Remove any @ symbols and everything after them
     const cleanValue = inputValue.split("@")[0];
     if (setEmailUsername) {
@@ -174,7 +175,7 @@ export const handleEmailInputChange = (
       onChange(syntheticEvent);
     }
   } else {
-    // For non-email fields or vendor users, use normal onChange
+    // For non-email fields, vendor users, or when disableEndAdornment is true, use normal onChange
     if (onChange) {
       onChange(event);
     }
@@ -188,11 +189,13 @@ export const handleEmailKeyPress = (
   event: React.KeyboardEvent<HTMLInputElement>,
   fieldType: FieldType,
   stakeholderType?: StakeholderType,
-  onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+  onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void,
+  disableEndAdornment?: boolean
 ) => {
   if (
     fieldType === "email" &&
     stakeholderType !== "vendor" &&
+    !disableEndAdornment &&
     event.key === "@"
   ) {
     event.preventDefault();
@@ -211,9 +214,10 @@ export const getEmailDisplayValue = (
   value: unknown,
   fieldType: FieldType,
   stakeholderType?: StakeholderType,
-  emailUsername?: string
+  emailUsername?: string,
+  disableEndAdornment?: boolean
 ) => {
-  if (fieldType === "email" && stakeholderType !== "vendor") {
+  if (fieldType === "email" && stakeholderType !== "vendor" && !disableEndAdornment) {
     return emailUsername;
   }
   return value;
@@ -371,7 +375,8 @@ export const createBlurHandler = (
   value?: unknown,
   emailUsername?: string,
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  autoCapitalizeName?: boolean
+  autoCapitalizeName?: boolean,
+  disableEndAdornment?: boolean
 ) => {
   return (event: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false);
@@ -388,7 +393,8 @@ export const createBlurHandler = (
         "admin",
         "events-office",
       ].includes(stakeholderType) &&
-      onChange
+      onChange &&
+      !disableEndAdornment
     ) {
       const currentValue = String(value || "");
       const username = emailUsername || currentValue.split("@")[0];

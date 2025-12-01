@@ -352,7 +352,7 @@ export default function ManageEventOfficeAccountContent() {
               <CustomTextField
                 label="Email"
                 fieldType="email"
-                placeholder="Enter GUC email (name@guc.edu.eg)"
+                placeholder="Enter email"
                 name="email"
                 value={formik.values.email}
                 onChange={(event) => {
@@ -366,6 +366,7 @@ export default function ManageEventOfficeAccountContent() {
                 required
                 fullWidth
                 stakeholderType="staff"
+                disableEndAdornment={true}
               />
 
               <CustomTextField

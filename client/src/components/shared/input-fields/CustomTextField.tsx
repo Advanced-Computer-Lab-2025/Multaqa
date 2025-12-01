@@ -30,6 +30,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   separateLabels = false,
   disableIcon = false,
   borderRadius = "50px",
+  disableEndAdornment = false,
   value,
   onChange,
   ...props
@@ -52,6 +53,11 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
         ? (getEmailDomain(stakeholderType) as string)
         : "";
     const current = String(value || "");
+
+    // If disableEndAdornment is true, treat like vendor (no domain handling)
+    if (disableEndAdornment) {
+      return;
+    }
 
     // If switching to vendor: remove any domain from the stored value and notify parent
     if (stakeholderType === "vendor") {
@@ -77,7 +83,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
       const username = current.split("@")[0];
       setEmailUsername(username);
     }
-  }, [stakeholderType, value, fieldType, onChange]);
+  }, [stakeholderType, value, fieldType, onChange, disableEndAdornment]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -96,7 +102,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
         fieldType,
         stakeholderType,
         setEmailUsername,
-        onChange
+        onChange,
+        disableEndAdornment
       );
     }
     // Handle text fields with name capitalization
@@ -132,7 +139,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
   // Handle key input to prevent @ symbol for non-vendor email fields
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    handleEmailKeyPress(event, fieldType, stakeholderType, props.onKeyPress);
+    handleEmailKeyPress(event, fieldType, stakeholderType, props.onKeyPress, disableEndAdornment);
   };
 
   // Create label with icon
@@ -140,6 +147,9 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 
   // Get the appropriate endAdornment based on field type
   const getEndAdornment = () => {
+    if (disableEndAdornment) {
+      return undefined;
+    }
     if (fieldType === "email" && stakeholderType !== "vendor") {
       return getEmailEndAdornment(
         stakeholderType,
@@ -165,7 +175,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
     value,
     emailUsername,
     onChange,
-    autoCapitalizeName
+    autoCapitalizeName,
+    disableEndAdornment
   );
 
   const isErrorState = Boolean(props.error || props.isError);
@@ -217,7 +228,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
       value,
       fieldType,
       stakeholderType,
-      emailUsername
+      emailUsername,
+      disableEndAdornment
     );
   };
 
@@ -267,8 +279,8 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
                   disableDynamicMorphing
                     ? "outwards"
                     : isFocused
-                    ? "inwards"
-                    : "outwards"
+                      ? "inwards"
+                      : "outwards"
                 }
                 padding="2px"
                 borderRadius={borderRadius}
