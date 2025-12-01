@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack, Typography, Box } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -41,7 +41,6 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
   }, [availableDates, selectedDate]);
 
   const [value, setValue] = useState<Dayjs>(dayjs(fallbackIso));
-
   useEffect(() => {
     setValue(dayjs(fallbackIso));
   }, [fallbackIso, open]);
@@ -59,38 +58,55 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
     <CustomModalLayout
       open={open}
       onClose={onClose}
-      width="w-[95vw] sm:w-[360px]"
+      width="w-[95vw] sm:w-[400px]"
     >
-      <Stack spacing={2}>
-        <Typography variant="h6" fontWeight={700}>
-          {courtName ? `Choose a date for ${courtName}` : "Choose a date"}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {selectedDate
-            ? `Currently viewing ${formatDayLabel(selectedDate)}`
-            : "Pick a day to see that court's availability."}
-        </Typography>
+      <Stack spacing={3} sx={{ p: 3 }}>
+        <Stack spacing={0.5}>
+          <Typography variant="h6" fontWeight={700}>
+            {courtName ? `Choose a date for ${courtName}` : "Choose a date"}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {selectedDate
+              ? `Currently viewing ${formatDayLabel(selectedDate)}`
+              : "Pick a day to see that court's availability."}
+          </Typography>
+        </Stack>
+
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateCalendar
-            value={value}
-            onChange={(newValue) => {
-              if (newValue) {
-                setValue(newValue);
-              }
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              "& .MuiDateCalendar-root": {
+                width: "100%",
+                maxHeight: "none",
+                m: 0,
+              },
             }}
-            disablePast
-          />
+          >
+            <DateCalendar
+              value={value}
+              onChange={(newValue) => {
+                if (newValue) {
+                  setValue(newValue);
+                }
+              }}
+              disablePast
+              views={["day"]}
+            />
+          </Box>
         </LocalizationProvider>
+
         <Stack
           direction="row"
           spacing={2}
           justifyContent="space-between"
           alignItems="center"
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", pt: 1 }}
         >
           <CustomButton
             variant="outlined"
-            color="secondary"
             size="small"
             label="Reset"
             onClick={handleReset}
@@ -98,7 +114,6 @@ const SlotDatePickerModal: React.FC<SlotDatePickerModalProps> = ({
           />
           <CustomButton
             variant="contained"
-            color="tertiary"
             size="small"
             label="Apply"
             onClick={handleConfirm}

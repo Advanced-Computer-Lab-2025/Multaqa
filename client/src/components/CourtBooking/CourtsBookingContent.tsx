@@ -103,6 +103,7 @@ export default function CourtsBookingContent() {
   const [error, setError] = useState<string | null>(null);
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [courtDetails, setCourtDetails] = useState<Record<string, Court>>({});
+  const [loadingCourtId, setLoadingCourtId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCourts();
@@ -164,6 +165,7 @@ export default function CourtsBookingContent() {
     const targetDate = nextDate ?? getTodayISO();
 
     try {
+      setLoadingCourtId(courtId);
       setInlineError(null);
       const response = await api.get<SingleCourtAvailabilityResponse>(
         `/courts/${courtId}/available-slots`,
@@ -185,11 +187,14 @@ export default function CourtsBookingContent() {
       setInlineError(
         "We couldn't load that day's slots. Please try another date or refresh."
       );
+    } finally {
+      setLoadingCourtId(null);
     }
   };
 
   const handleReserve = async (slot: CourtSlot) => {
     try {
+      setLoadingCourtId(slot.courtTypeId);
       setInlineError(null);
       
       await api.post(`/courts/${slot.courtTypeId}/reserve`, {
@@ -238,6 +243,8 @@ export default function CourtsBookingContent() {
         theme: "colored",
       });
       setInlineError(message);
+    } finally {
+      setLoadingCourtId(null);
     }
   };
 
@@ -282,6 +289,7 @@ export default function CourtsBookingContent() {
         embedded
         onChangeCourtDate={handleChangeCourtDate}
         onReserve={handleReserve}
+        loadingCourtId={loadingCourtId}
       />
     </ContentWrapper>
   );

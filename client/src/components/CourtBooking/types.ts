@@ -35,4 +35,5 @@ export interface CourtBoardProps {
    * The callback receives the court id and the selected date (or null when cleared).
    */
   onChangeCourtDate?: (courtId: string, nextDate: string | null) => void;
+  loadingCourtId?: string | null;
 }
