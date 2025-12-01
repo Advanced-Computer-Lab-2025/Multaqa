@@ -5,7 +5,17 @@ import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import VectorFloating from "../shared/VectorFloating";
 
-export default function InitialLoader() {
+interface InitialLoaderProps {
+  logoSrc?: string;
+  text?: string;
+  showText?: boolean;
+}
+
+export default function InitialLoader({
+  logoSrc = "/assets/images/new-multaqa-logo.png",
+  text = "Multaqa",
+  showText = false,
+}: InitialLoaderProps) {
   const [show, setShow] = useState(true);
   const [exiting, setExiting] = useState(false);
 
@@ -74,25 +84,27 @@ export default function InitialLoader() {
         }}
       >
         <Image
-          src="/assets/images/new-multaqa-logo.png"
+          src={logoSrc}
           alt="Multaqa Logo"
           width={180}
           height={180}
           style={{ objectFit: "contain" }}
           priority
         />
-        <Typography
-          variant="h3"
-          sx={{
-            fontFamily: "var(--font-jost)",
-            fontWeight: 700,
-            letterSpacing: "0.15em",
-            color: "text.primary",
-            textTransform: "uppercase",
-          }}
-        >
-          Multaqa
-        </Typography>
+        {showText && (
+          <Typography
+            variant="h3"
+            sx={{
+              fontFamily: "var(--font-jost)",
+              fontWeight: 700,
+              letterSpacing: "0.15em",
+              color: "text.primary",
+              textTransform: "uppercase",
+            }}
+          >
+            {text}
+          </Typography>
+        )}
       </Box>
     </Box>
   );

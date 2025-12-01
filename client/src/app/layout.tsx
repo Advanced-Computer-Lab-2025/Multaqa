@@ -45,7 +45,7 @@ export default async function RootLayout({
       >
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <InitialLoader />
+          <InitialLoader showText />
           {children}
         </ThemeProvider>
       </body>
