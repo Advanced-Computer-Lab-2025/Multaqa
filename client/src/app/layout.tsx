@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "../themes/lightTheme";
+import InitialLoader from "@/components/layout/InitialLoader";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -30,6 +31,8 @@ export const metadata: Metadata = {
   // ... keep the rest of your metadata unchanged
 };
 
+
+
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -42,6 +45,7 @@ export default async function RootLayout({
       >
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <InitialLoader showText />
           {children}
         </ThemeProvider>
       </body>

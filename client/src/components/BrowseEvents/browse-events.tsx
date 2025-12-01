@@ -79,13 +79,20 @@ type Event =
 
 const getFilterGroups = (
   userRole: string,
-  professorOptions: FilterOption[]
+  professorOptions: FilterOption[],
+  locationOptions: FilterOption []
 ): FilterGroup[] => [
     {
       id: "professorName",
       title: "Professor Name",
       type: "text",
       options: professorOptions,
+    },
+    {
+      id: "location",
+      title:"Location",
+      type: "text",
+      options: locationOptions,
     },
     {
       id: "eventType",
@@ -105,7 +112,7 @@ const getFilterGroups = (
       type: "chip" as const,
       options: [
         { label: "Upcoming", value: "upcoming" },
-        ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
+        ...((userRole !== "vendor" && userRole !== "admin " && userRole !== "events-office")
           ? [{ label: "Attended", value: "attended" }]
           : []),
         ...((userRole === "admin" || userRole === "events-office")
@@ -118,6 +125,7 @@ const getFilterGroups = (
       title: "Date",
       type: "date", // <--- NEW TYPE
     },
+
   ];
 
 const EventColor = [
@@ -167,6 +175,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
+  const [locationOptions, setlocationOptions] = useState<FilterOption[]>([]);
   const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
 
@@ -177,6 +186,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const res = await api.get("/users/professors");
         // filter only isVerified = true
         const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+        console.log("Verified Professors count:", verifiedProfessors.length);
         const professors = verifiedProfessors.map((prof: any) => ({
           firstName: prof.firstName,
           lastName: prof.lastName,
@@ -189,6 +199,32 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     };
     fetchProfessors();
   }, []);
+
+  useEffect(() => {
+  if (events.length === 0) {
+    setlocationOptions([]);
+    return;
+  }
+
+  const uniqueLocations = new Set<string>();
+
+  events.forEach((event) => {
+    const location = event.details.Location;
+    if (typeof location === "string" && location.trim()) {
+      uniqueLocations.add(location.trim().toLowerCase());
+    }
+  });
+
+  const options: FilterOption[] = Array.from(uniqueLocations)
+    .sort() // Sort alphabetically
+    .map((loc) => ({
+      label: capitalizeNamePart(loc), // Use your existing utility to format the label
+      value: loc, // Lowercase value for filtering
+    }));
+
+  setlocationOptions(options);
+  console.log("📍 Generated location filter options:", options);
+}, [events]);
 
   // Separate effect for loading events
   useEffect(() => {
@@ -272,36 +308,36 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-       toast.success(
-            response.data.message || "Event deleted successfully!",
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-            }
-          );
+      toast.success(
+        response.data.message || "Event deleted successfully!",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } catch (err: any) {
-       const errorMessage =
-            err?.response?.data?.error ||
-            err?.response?.data?.message ||
-            err?.message ||
-            "Failed to delete event. Please try again.";
-      
-          toast.error(errorMessage, {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
+      const errorMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to delete event. Please try again.";
+
+      toast.error(errorMessage, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     }
   };
 
@@ -322,11 +358,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     // Apply attendance/status filter
     if (filters.attendance && (filters.attendance as string[]).length > 0) {
       const statusFilters = filters.attendance as string[];
-      
+
       if (statusFilters.includes("attended")) {
         filtered = filtered.filter((event) => event.attended === true);
       }
-      
+
       if (statusFilters.includes("upcoming")) {
         const now = new Date();
         filtered = filtered.filter((event) => {
@@ -496,28 +532,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       return isNaN(parsedDate) ? 0 : parsedDate; // Fallback to 0 if parsing fails
     };
 
-switch (sortBy) {
-      case "start_asc":
-        return [...filtered].sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateA - dateB;
-        });
+    switch (sortBy) {
+      case "start_asc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateA - dateB;
+        });
 
-      case "start_desc":
-        return [...filtered].sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateB - dateA;
-        });
+      case "start_desc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateB - dateA;
+        });
 
-      case "none": // Explicitly handle "none" or "default"
-      default:
-        // Return the filtered array without sorting
-        return filtered;
-    }
+      case "none": // Explicitly handle "none" or "default"
+      default:
+        // Return the filtered array without sorting
+        return filtered;
+    }
 
     return filtered;
   }, [searchQuery, filters, events, sortBy]);
@@ -529,21 +565,33 @@ switch (sortBy) {
 
       if (
         (groupId === "eventType" ||
-          groupId === "location" ||
           groupId === "attendance") &&
         Array.isArray(currentVal)
       ) {
-        if (currentVal.includes(value)) {
+        const filterValue = String(value).toLowerCase();
+        if (currentVal.includes(filterValue)) {
           return {
             ...prev,
-            [groupId]: currentVal.filter((v) => v !== value),
+            [groupId]: currentVal.filter((v) => v !== filterValue),
           };
         } else {
           return {
             ...prev,
-            [groupId]: [...currentVal, value],
+            [groupId]: [...currentVal, filterValue],
           };
         }
+      }
+      if (
+         ( groupId === "location" ||
+          groupId === "professorName" )
+      ) {
+          // If value is an array (from TextSelector), accept it directly after lowercasing
+          if (Array.isArray(value)) {
+              const finalValue = value.map((v: string) => v.toLowerCase());
+              return { ...prev, [groupId]: finalValue };
+          }
+          // If not an array, treat it as a reset or invalid call (should be array or empty string/null for reset)
+          return { ...prev, [groupId]: [] };
       }
       return {
         ...prev,
@@ -593,18 +641,18 @@ switch (sortBy) {
 
   // Calculate title and description based on user role
   const pageTitle =
-      user === "events-office"
-        ? "Manage Events"
-        : registered
-          ? " My Registered Events"
-          : "Browse Events"
+    user === "events-office"
+      ? "Manage Events"
+      : registered
+        ? " My Registered Events"
+        : "Browse Events"
 
   const pageDescription =
-   user === "events-office"
-        ? "Manage and create events on the system"
-        : registered
-          ? "Keep track of which events you have registered for"
-          : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+    user === "events-office"
+      ? "Manage and create events on the system"
+      : registered
+        ? "Keep track of which events you have registered for"
+        : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -780,7 +828,7 @@ switch (sortBy) {
           </Box>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <FilterPanel
-              filterGroups={getFilterGroups(user, professorOptions)}
+              filterGroups={getFilterGroups(user, professorOptions,locationOptions)}
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}
@@ -809,64 +857,74 @@ switch (sortBy) {
             />
           )}
         </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <FilterPanel
+            filterGroups={getFilterGroups(user, professorOptions)}
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+            onReset={handleResetFilters}
+            matchSearchBar
+          />
+        </LocalizationProvider>
+      </Box>
 
-        {/* Loading State */}
-        {loading && <EventCardsListSkeleton />}
-
-        {/* Error State */}
-        {error && (
-          <ErrorState
-            title={error}
-            description="Oops! Something has occurred on our end. Please try again"
-            imageAlt="Server error illustration"
+      {/* Sort By and Creation Hub Row */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <SortByDate value={sortBy} onChange={handleSortChange} />
+        {user === "events-office" && (
+          <CreationHubDropdown
+            options={creationHubOptions}
+            helperText="Choose what you would like to create"
+            dropdownSide="right"
+            buttonTextColor="#fff"
           />
         )}
+      </Box>
 
-        {/* Events Grid */}
-        {!loading && !error && (
-          <>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "repeat(1, 1fr)",
-                gap: 3,
-                width: "100%",
-              }}
-            >
-              {filteredEvents.map((event) => (
-                <Box key={event.id} sx={{ width: "100%" }}>
-                  {renderEventComponent(event, registered)}
-                </Box>
-              ))}
+      {/* Loading State */}
+      {loading && <EventCardsListSkeleton />}
 
-              {/* No results message */}
-              {filteredEvents.length === 0 && events.length === 0 && (
-                <EmptyState
-                  title="No events available"
-                  description="There are no events in our archives yet. Check back later!"
-                  imageAlt="No events illustration"
-                />
-              )}
+      {/* Error State */}
+      {error && (
+        <ErrorState
+          title={error}
+          description="Oops! Something has occurred on our end. Please try again"
+          imageAlt="Server error illustration"
+        />
+      )}
 
-              {/* No results message */}
-              {filteredEvents.length === 0 && events.length > 0 && (
-                <EmptyState
-                  title="No events found"
-                  description="Try adjusting your search or filters"
-                  imageAlt="Empty search results illustration"
-                />
-              )}
-            </Box>
-
-            {/* Results counter */}
-            {events.length > 0 && (
-              <Box sx={{ mt: 2, textAlign: "center" }}>
-                <Typography variant="caption" color="text.secondary">
-                  {registered
-                    ? `Viewing ${filteredEvents.length} of ${events.length} events`
-                    : `Browsing ${filteredEvents.length} of ${events.length} events`}
-                </Typography>
+      {/* Events Grid */}
+      {!loading && !error && (
+        <>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(1, 1fr)",
+              gap: 3,
+              width: "100%",
+            }}
+          >
+            {filteredEvents.map((event) => (
+              <Box key={event.id} sx={{ width: "100%" }}>
+                {renderEventComponent(event, registered)}
               </Box>
+            ))}
+
+            {/* No results message */}
+            {filteredEvents.length === 0 && events.length === 0 && (
+              <EmptyState
+                title="No events available"
+                description="There are no events in our archives yet. Check back later!"
+                imageAlt="No events illustration"
+              />
             )}
 
             {/* No results message */}
@@ -877,29 +935,43 @@ switch (sortBy) {
                 imageAlt="Empty search results illustration"
               />
             )}
-          </>
-        )}
+          </Box>
 
-        <CreateTrip
-          open={createTrip}
-          onClose={() => setTrip(false)}
-          setRefresh={setRefresh}
-          color={theme.palette.tertiary.main}
-        />
-        <CreateBazaar
-          open={createBazaar}
-          onClose={() => setBazaar(false)}
-          setRefresh={setRefresh}
-          color={theme.palette.tertiary.main}
-        />
-        {/* Create Conference Form */}
-        <Create
-          open={createconference}
-          onClose={() => setConference(false)}
-          setRefresh={setRefresh}
-          color={theme.palette.tertiary.main}
-        />
-      </ContentWrapper>
+          {/* Results counter */}
+          {events.length > 0 && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                {registered
+                  ? `Viewing ${filteredEvents.length} of ${events.length} events`
+                  : `Browsing ${filteredEvents.length} of ${events.length} events`}
+              </Typography>
+            </Box>
+          )}
+
+
+        </>
+      )}
+
+      <CreateTrip
+        open={createTrip}
+        onClose={() => setTrip(false)}
+        setRefresh={setRefresh}
+        color={theme.palette.tertiary.main}
+      />
+      <CreateBazaar
+        open={createBazaar}
+        onClose={() => setBazaar(false)}
+        setRefresh={setRefresh}
+        color={theme.palette.tertiary.main}
+      />
+      {/* Create Conference Form */}
+      <Create
+        open={createconference}
+        onClose={() => setConference(false)}
+        setRefresh={setRefresh}
+        color={theme.palette.tertiary.main}
+      />
+    </ContentWrapper>
   );
 };
 

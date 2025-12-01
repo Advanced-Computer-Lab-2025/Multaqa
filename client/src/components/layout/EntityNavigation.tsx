@@ -178,8 +178,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
-        key:"vendors",
-        label:"Loyalty Program",
+        key: "vendors",
+        label: "Loyalty Program",
         icon: Store,
         tabs: [
           { id: "loyalty-partners", label: "Loyalty Program Partners" }
@@ -229,8 +229,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [{ id: "overview", label: "Overview" }],
       },
       {
-        key:"vendors",
-        label:"Loyalty Program",
+        key: "vendors",
+        label: "Loyalty Program",
         icon: Store,
         tabs: [
           { id: "loyalty-partners", label: "Loyalty Program Partners" }
@@ -269,13 +269,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [{ id: "overview", label: "Overview" }],
       },
       {
-      key:"vendors",
-      label:"Loyalty Program",
-      icon: Store,
-      tabs: [
-        { id: "loyalty-partners", label: "Loyalty Program Partners" }
-      ],
-    }
+        key: "vendors",
+        label: "Loyalty Program",
+        icon: Store,
+        tabs: [
+          { id: "loyalty-partners", label: "Loyalty Program Partners" }
+        ],
+      }
     ],
   },
   professor: {
@@ -324,13 +324,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Wallet,
       },
       {
-      key:"vendors",
-      label:"Loyalty Program",
-      icon: Store,
-      tabs: [
-        { id: "loyalty-partners", label: "Loyalty Program Partners" }
-      ],
-    }
+        key: "vendors",
+        label: "Loyalty Program",
+        icon: Store,
+        tabs: [
+          { id: "loyalty-partners", label: "Loyalty Program Partners" }
+        ],
+      }
     ],
   },
   "events-office": {
@@ -370,6 +370,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
+          { id: "all-vendors", label: "Vendors Details" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
           { id: "vendor-polls", label: "Vendor Polls" },
@@ -398,10 +399,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     headerTitle: "Admin Panel",
     icon: <Settings size={32} className="text-[#6299d0]" />,
     defaultTab: "",
-    defaultSection: "users",
+    defaultSection: "events-office",
     tabs: [
-      { id: "all-events", label: "All Events" },
       { id: "all-users", label: "All Users" },
+      { id: "all-events", label: "All Events" },
       { id: "block-users", label: "Block/Unblock Users" },
       { id: "assign-roles", label: "Assign Roles" },
       { id: "manage-eo-account", label: "Manage Accounts" },
@@ -414,10 +415,10 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     ],
     sections: [
       {
-        key: "events",
-        label: "Events Management",
+        key: "event-office",
+        label: "Accounts Hub",
         icon: Calendar,
-        tabs: [{ id: "all-events", label: "All Events" }],
+        tabs: [{ id: "manage-eo-account", label: "Manage Accounts" }],
       },
       {
         key: "users",
@@ -435,21 +436,22 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [{ id: "assign-roles", label: "Assign Roles" }],
       },
       {
-        key: "event-office",
-        label: "Accounts Hub",
+        key: "events",
+        label: "Events Management",
         icon: Calendar,
-        tabs: [{ id: "manage-eo-account", label: "Manage Accounts" }],
+        tabs: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "reports",
         label: "Vendor Management",
         icon: Store,
         tabs: [
+          { id: "all-vendors", label: "Vendors Details" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
         ],
       },
-        {
+      {
         key: "sales-attendance",
         label: "Reports",
         icon: BarChart3,
@@ -633,6 +635,11 @@ export default function EntityNavigation({
       stakeholder === userRoleKey &&
       config.defaultSection
     ) {
+      // Clear session storage to ensure we start fresh on root visit
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("lastValidRoute");
+      }
+
       const defaultSection = config.sections.find(
         (s) => s.key === config.defaultSection
       );
@@ -674,8 +681,23 @@ export default function EntityNavigation({
   const handleSectionChange = (index: number) => {
     const newSection = sectionItems[index];
     const hasTabs = newSection?.tabs && newSection.tabs.length > 0;
-    const tabSeg =
-      hasTabs && newSection.tabs ? `/${newSection.tabs[0].id}` : "/overview";
+
+    let tabId = "overview";
+    if (hasTabs && newSection.tabs) {
+      // If switching to the default section, try to use the default tab
+      if (newSection.key === config.defaultSection && config.defaultTab) {
+        const defaultTabExists = newSection.tabs.some(t => t.id === config.defaultTab);
+        if (defaultTabExists) {
+          tabId = config.defaultTab;
+        } else {
+          tabId = newSection.tabs[0].id;
+        }
+      } else {
+        tabId = newSection.tabs[0].id;
+      }
+    }
+
+    const tabSeg = hasTabs ? `/${tabId}` : "/overview";
 
     // No locale prefix needed - i18n router adds it
     const newPath = `/${userRoleKey}/${newSection.key}${tabSeg}`;
