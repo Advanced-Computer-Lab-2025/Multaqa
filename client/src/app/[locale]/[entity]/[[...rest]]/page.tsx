@@ -581,6 +581,9 @@ export default function EntityCatchAllPage() {
       if (section === "sessions-management") {
         return <GymSessionsManagementContent />;
       }
+      if (section === "browse-sessions" || section === "") {
+        return <GymSchedule eventsOffice={true}/>;
+      }
     }
 
     // Events Office - Gym Management

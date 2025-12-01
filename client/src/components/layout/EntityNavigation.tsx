@@ -156,9 +156,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "courts",
         label: "Courts",
         icon: Trophy,
-        tabs: [
-          { id: "reserve", label: "Reserve Courts" },
-        ],
+        tabs: [{ id: "reserve", label: "Reserve Courts" }],
       },
       {
         key: "gym",
@@ -173,18 +171,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "wallet",
         label: "Wallet",
         icon: Wallet,
-        tabs: [
-          { id: "overview", label: "Overview" }
-        ],
+        tabs: [{ id: "overview", label: "Overview" }],
       },
       {
         key: "vendors",
         label: "Loyalty Program",
         icon: Store,
-        tabs: [
-          { id: "loyalty-partners", label: "Loyalty Program Partners" }
-        ],
-      }
+        tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
     ],
   },
   staff: {
@@ -199,7 +193,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "browse-sessions", label: "Browse Sessions" },
       { id: "my-sessions", label: "My Registered Sessions" },
       { id: "overview", label: "Overview" },
-      { id: "loyalty-partners", label: "Loyalty Program Partners" }
+      { id: "loyalty-partners", label: "Loyalty Program Partners" },
     ],
     sections: [
       {
@@ -232,10 +226,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "vendors",
         label: "Loyalty Program",
         icon: Store,
-        tabs: [
-          { id: "loyalty-partners", label: "Loyalty Program Partners" }
-        ],
-      }
+        tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
     ],
   },
   ta: {
@@ -248,7 +240,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "my-registered", label: "My Registered Events" },
       { id: "favorites", label: "My Favorites" },
       { id: "overview", label: "Overview" },
-      { id: "loyalty-partners", label: "Loyalty Program Partners" }
+      { id: "loyalty-partners", label: "Loyalty Program Partners" },
     ],
     sections: [
       {
@@ -263,6 +255,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         ],
       },
       {
+        key: "gym",
+        label: "Gym Sessions",
+        icon: Dumbbell,
+        tabs: [
+          { id: "browse-sessions", label: "Browse Sessions" },
+          { id: "my-sessions", label: "My Registered Sessions" },
+        ],
+      },
+      {
         key: "wallet",
         label: "Wallet",
         icon: Wallet,
@@ -272,10 +273,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "vendors",
         label: "Loyalty Program",
         icon: Store,
-        tabs: [
-          { id: "loyalty-partners", label: "Loyalty Program Partners" }
-        ],
-      }
+        tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
     ],
   },
   professor: {
@@ -289,7 +288,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "favorites", label: "My Favorites" },
       { id: "browse-sessions", label: "Browse Sessions" },
       { id: "my-sessions", label: "My Registered Sessions" },
-      { id: "loyalty-partners", label: "Loyalty Program Partners" }
+      { id: "loyalty-partners", label: "Loyalty Program Partners" },
     ],
     sections: [
       {
@@ -327,10 +326,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "vendors",
         label: "Loyalty Program",
         icon: Store,
-        tabs: [
-          { id: "loyalty-partners", label: "Loyalty Program Partners" }
-        ],
-      }
+        tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
     ],
   },
   "events-office": {
@@ -355,9 +352,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         key: "events",
         label: "Events Management",
         icon: Calendar,
-        tabs: [
-          { id: "all-events", label: "All Events" },
-        ],
+        tabs: [{ id: "all-events", label: "All Events" }],
       },
       {
         key: "workshop-requests",
@@ -391,6 +386,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Dumbbell,
         tabs: [
           { id: "sessions-management", label: "Sessions Management" },
+          { id: "browse-sessions", label: "Browse Sessions" },
         ],
       },
     ],
@@ -459,7 +455,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "attendee-reports", label: "Attendee Reports" },
           { id: "sales-reports", label: "Sales Reports" },
         ],
-
       },
     ],
   },

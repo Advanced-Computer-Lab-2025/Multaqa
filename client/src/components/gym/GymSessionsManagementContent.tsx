@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import ContentWrapper from "../shared/containers/ContentWrapper";
+import EmptyState from "../shared/states/EmptyState";
 import CreateGymSession from "./CreateGymSession";
 import EditGymSession from "./EditGymSession";
 import CancelGymSession from "./CancelGymSession";
@@ -393,27 +394,10 @@ export default function GymSessionsManagementContent() {
           </TableContainer>
 
           {sessions.length === 0 && (
-            <Box
-              sx={{
-                textAlign: "center",
-                py: 8,
-                color: theme.palette.text.secondary,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontFamily: "var(--font-jost), system-ui, sans-serif",
-                  fontWeight: 600,
-                  mb: 1,
-                }}
-              >
-                No Sessions Found
-              </Typography>
-              <Typography variant="body2">
-                Create your first gym session to get started.
-              </Typography>
-            </Box>
+            <EmptyState
+              title="No Sessions Found"
+              description="Create your first gym session to get started."
+            />
           )}
         </>
       )}

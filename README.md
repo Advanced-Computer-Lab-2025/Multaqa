@@ -6,6 +6,11 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
+![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)
+![Express](https://img.shields.io/badge/Express-5.1.0-lightgrey)
+![MongoDB](https://img.shields.io/badge/MongoDB-6.20.0-green)
+![Redis](https://img.shields.io/badge/Redis-5.8.3-red)
+![MUI](https://img.shields.io/badge/MUI-7.3.2-007FFF)
 
 ## 📋 Table of Contents
 
@@ -16,6 +21,7 @@
 - [Installation & Setup](#-installation--setup)
 - [Environment Configuration](#-environment-configuration)
 - [Running the Application](#-running-the-application)
+- [Troubleshooting](#-troubleshooting)
 - [API Reference](#-api-reference)
 - [Project Structure](#-project-structure)
 - [User Roles & Permissions](#-user-roles--permissions)
@@ -24,6 +30,7 @@
 - [Testing](#-testing)
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
+- [FAQ](#-frequently-asked-questions-faq)
 - [Credits](#-credits)
 - [License](#-license)
 
@@ -47,13 +54,37 @@ The motivation behind developing Multaqa stems from the need for a centralized, 
 
 ### Prerequisites
 
-- **Node.js** >= 18.0.0
-- **npm** >= 8.0.0
-- **MongoDB** (Atlas or local instance)
-- **Redis** (Docker recommended)
-- **Git**
-- **Docker** (for Redis)
-- **Linux Environment** (WSL for Windows users, native Terminal for Mac)
+Ensure you have the following installed on your system:
+
+| Requirement | Version | Verification Command | Expected Output |
+|------------|---------|---------------------|-----------------|
+| **Node.js** | >= 18.0.0 | `node --version` | `v18.x.x` or higher |
+| **npm** | >= 8.0.0 | `npm --version` | `8.x.x` or higher |
+| **MongoDB** | Atlas or local | - | MongoDB Atlas account or local instance |
+| **Redis** | Latest | `docker --version` | Docker installed for Redis |
+| **Git** | Latest | `git --version` | `git version 2.x.x` |
+| **Docker** | Latest | `docker --version` | `Docker version 20.x.x` or higher |
+
+> **💡 Tip:** For Windows users, all commands should be executed in **WSL (Windows Subsystem for Linux)** terminal, not CMD or PowerShell.
+
+#### Quick Verification
+
+Run these commands to verify your setup:
+
+```bash
+# Verify Node.js and npm
+node --version  # Should show v18.0.0 or higher
+npm --version   # Should show 8.0.0 or higher
+
+# Verify Git
+git --version
+
+# Verify Docker (required for Redis)
+docker --version
+docker ps  # Should run without errors
+```
+
+If any command fails, please install the missing prerequisite before continuing.
 
 ### 60-Second Setup
 
@@ -101,10 +132,14 @@ cd client && npm run dev
   "ui": "Material-UI (MUI) 7.3.2",
   "styling": "Tailwind CSS 3.4.18",
   "state": "Redux Toolkit 2.9.0",
-  "forms": "Formik 2.4.6",
-  "animations": "Framer Motion 12.23.22",
+  "forms": "Formik 2.4.6 + Yup 1.7.1",
+  "animations": "Framer Motion 12.23.24",
   "charts": "Recharts 3.2.1",
-  "i18n": "next-intl 4.3.9"
+  "i18n": "next-intl 4.3.9",
+  "realtime": "Socket.io Client 4.8.1",
+  "http": "Axios 1.12.2",
+  "dates": "Day.js 1.11.18",
+  "dnd": "@dnd-kit/core 6.3.1"
 }
 ```
 
@@ -115,11 +150,17 @@ cd client && npm run dev
   "runtime": "Node.js",
   "framework": "Express.js 5.1.0",
   "language": "TypeScript 5.9.3",
-  "database": "MongoDB 8.18.3",
+  "database": "MongoDB 6.20.0 + Mongoose 8.18.3",
   "cache": "Redis 5.8.3",
-  "auth": "JWT + bcrypt",
+  "auth": "JWT (jsonwebtoken 9.0.2) + bcrypt 6.0.0",
   "validation": "Joi 18.0.1",
-  "email": "Nodemailer 7.0.9"
+  "email": "Gmail API (googleapis 165.0.0)",
+  "realtime": "Socket.io 4.8.1",
+  "payments": "Stripe 19.3.0",
+  "storage": "Cloudinary 1.41.3",
+  "pdf": "PDFKit 0.17.2",
+  "qr": "QRCode 1.5.4",
+  "excel": "ExcelJS 4.4.0"
 }
 ```
 
@@ -336,6 +377,142 @@ cd client && npm run dev
 1. **Backend**: Open `http://localhost:4000` - should display "Backend Initialized!"
 2. **Frontend**: Open `http://localhost:3000` - should load the Multaqa application
 3. **Redis**: Run `docker ps | grep redis` - should show the redis container running
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues and Solutions
+
+#### ❌ Redis Connection Error
+
+**Problem:** `Error: connect ECONNREFUSED 127.0.0.1:6379`
+
+**Solutions:**
+```bash
+# Check if Redis container is running
+docker ps | grep redis
+
+# If not running, start it
+docker start redis
+
+# If container doesn't exist, create it
+docker run --name redis -p 6379:6379 -d redis
+docker update --restart always redis
+
+# Verify Redis is accessible
+docker exec -it redis redis-cli ping  # Should return "PONG"
+```
+
+#### ❌ MongoDB Connection Error
+
+**Problem:** `MongooseServerSelectionError: connect ECONNREFUSED`
+
+**Solutions:**
+```bash
+# 1. Check your MONGO_URI in backend/.env
+# 2. Verify MongoDB Atlas IP whitelist (add 0.0.0.0/0 for development)
+# 3. Ensure username/password are correct and URL-encoded
+# 4. Check network connectivity
+
+# Test connection string format:
+# mongodb+srv://username:password@cluster.mongodb.net/MultaqaDB
+```
+
+#### ❌ Port Already in Use
+
+**Problem:** `Error: listen EADDRINUSE: address already in use :::4000`
+
+**Solutions:**
+```bash
+# Find and kill the process using the port
+# macOS/Linux:
+lsof -ti:4000 | xargs kill -9
+lsof -ti:3000 | xargs kill -9
+
+# Or use the built-in kill script
+cd backend && npm run kill-port
+
+# Then restart the server
+npm run dev
+```
+
+#### ❌ CORS Error in Browser
+
+**Problem:** `Access to XMLHttpRequest blocked by CORS policy`
+
+**Solutions:**
+1. Verify backend is running on `http://localhost:4000`
+2. Verify frontend is running on `http://localhost:3000`
+3. Check `backend/app.ts` has correct CORS configuration:
+   ```typescript
+   app.use(cors({ origin: "http://localhost:3000", credentials: true }))
+   ```
+4. Clear browser cache and cookies
+5. Try in incognito/private browsing mode
+
+#### ❌ Docker Not Running
+
+**Problem:** `Cannot connect to the Docker daemon`
+
+**Solutions:**
+```bash
+# macOS: Start Docker Desktop application
+# Linux: Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Verify Docker is running
+docker --version
+docker ps
+```
+
+#### ❌ Environment Variables Not Loading
+
+**Problem:** Application can't find environment variables
+
+**Solutions:**
+1. Ensure `.env` file exists in `/backend` directory
+2. Verify `.env` file has no syntax errors
+3. Restart the backend server after changing `.env`
+4. Check for typos in variable names
+5. Ensure no spaces around `=` in `.env` file
+
+```env
+# ✅ Correct
+PORT=4000
+
+# ❌ Incorrect
+PORT = 4000
+```
+
+#### ❌ Module Not Found Errors
+
+**Problem:** `Error: Cannot find module 'xyz'`
+
+**Solutions:**
+```bash
+# Delete node_modules and reinstall
+cd backend
+rm -rf node_modules package-lock.json
+npm install
+
+cd ../client
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### ⚠️ Gmail API Not Sending Emails
+
+**Problem:** Emails not being sent
+
+**Solutions:**
+1. Verify Gmail API credentials in backend `.env`
+2. Check Google Cloud Console for API enablement
+3. Verify service account permissions
+4. Check backend logs for specific error messages
+
+---
 
 ## 📚 API Reference
 
@@ -555,7 +732,7 @@ npm run test         # Run test suite
 npm run test:e2e     # Run end-to-end tests
 ```
 
-## 🧪 Testing (Coming Soon)
+## 🧪 Testing
 
 ### Testing Strategy
 
@@ -653,7 +830,7 @@ npm run build
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Multaqa.git
+git clone https://github.com/Advanced-Computer-Lab-2025/Multaqa
 cd Multaqa
 
 # Install dependencies
@@ -662,6 +839,13 @@ cd ../client && npm install
 
 # Start development servers
 npm run dev
+
+# To clear cache always
+npm run dev --clear
+
+# To start production server
+npm run build
+npm run start
 ```
 
 ### Code Review Process
@@ -698,6 +882,139 @@ When reporting issues, please include a clear description of the problem, detail
 - **Modern Web Standards**: Following current best practices in web development
 - **User Experience**: Focus on intuitive and accessible design
 
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+### General Setup
+
+**Q: Do I need to use MongoDB Atlas or can I use a local MongoDB instance?**
+
+A: You can use either! For local MongoDB:
+```bash
+# Install MongoDB locally
+brew install mongodb-community  # macOS
+sudo apt install mongodb         # Linux
+
+# Update backend/.env
+MONGO_URI=mongodb://localhost:27017/MultaqaDB
+```
+
+**Q: How do I reset my database?**
+
+A: To reset your MongoDB database:
+```bash
+# Option 1: Drop database via MongoDB shell
+mongosh "your-connection-string"
+> use MultaqaDB
+> db.dropDatabase()
+
+# Option 2: Delete and recreate in MongoDB Atlas dashboard
+```
+
+**Q: How do I stop/restart Redis?**
+
+A:
+```bash
+# Stop Redis
+docker stop redis
+
+# Start Redis
+docker start redis
+
+# Restart Redis
+docker restart redis
+
+# Check Redis status
+docker ps | grep redis
+```
+
+### Development Issues
+
+**Q: What if port 3000 or 4000 is already in use?**
+
+A: You have two options:
+
+1. **Kill the process using the port:**
+```bash
+# macOS/Linux
+lsof -ti:4000 | xargs kill -9
+lsof -ti:3000 | xargs kill -9
+
+# Or use the backend script
+cd backend && npm run kill-port
+```
+
+2. **Change the port:**
+```bash
+# Backend: Update backend/.env
+PORT=5000
+
+# Frontend: Next.js will automatically use 3001 if 3000 is busy
+# Or specify: npm run dev -- -p 3001
+```
+
+**Q: How do I add a new admin user?**
+
+A: You can create an admin user through the registration endpoint with admin role, or update an existing user in MongoDB:
+```javascript
+// In MongoDB shell or Compass
+db.users.updateOne(
+  { email: "user@example.com" },
+  { $set: { role: "ADMIN", verified: true } }
+)
+```
+
+**Q: Why am I getting CORS errors?**
+
+A: Ensure:
+1. Backend runs on `http://localhost:4000`
+2. Frontend runs on `http://localhost:3000`
+3. Both servers are running simultaneously
+4. Check `backend/app.ts` CORS configuration matches these URLs
+
+### Deployment
+
+**Q: How do I deploy this application?**
+
+A: Recommended deployment setup:
+- **Frontend**: Vercel (optimized for Next.js)
+- **Backend**: Railway, Render, or DigitalOcean
+- **Database**: MongoDB Atlas (already cloud-based)
+- **Redis**: Redis Cloud or Upstash
+
+See the [Deployment](#-deployment) section for detailed instructions.
+
+**Q: Do I need to configure anything for production?**
+
+A: Yes, update these for production:
+1. Change `MONGO_URI` to production database
+2. Update `REDIS_URL` to production Redis instance
+3. Set strong `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`
+4. Update CORS origin to your production frontend URL
+5. Configure Gmail API credentials for production
+6. Set up environment variables on your hosting platform
+
+### Features
+
+**Q: How do I enable email notifications?**
+
+A: Configure Gmail API in your backend `.env`:
+1. Create a Google Cloud project
+2. Enable Gmail API
+3. Create service account credentials
+4. Add credentials to `.env` file
+5. Restart backend server
+
+**Q: Can I add more event types?**
+
+A: Yes! The system is designed to be extensible. You can add new event types by:
+1. Creating a new schema in `backend/schemas/event-schemas/`
+2. Adding routes in `backend/routes/`
+3. Creating frontend components in `client/src/components/`
+
+---
+
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
@@ -717,5 +1034,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 **Made with ❤️ by the CSEN 704 Team at German University in Cairo**
 
 _Bringing the campus community together, one event at a time_ 🎓✨
+
+---
+
+**📅 Last Updated:** December 2025 | **Version:** 1.0.0
 
 </div>

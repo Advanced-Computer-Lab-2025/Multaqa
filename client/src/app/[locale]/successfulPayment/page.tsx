@@ -18,17 +18,22 @@ const PaymentSuccess: React.FC = () => {
   const [countdown, setCountdown] = useState(3);
   const { user } = useAuth();
   const role = String(user?.role);
+  const position = String((user as any)?.position || "");
   const theme = useTheme();
   const searchParams = useSearchParams();
   const paymentType = searchParams.get('paymentType');
   const eventType = searchParams.get('eventType');
-
+  
   const toastShown = React.useRef(false);
+  console.log(user);
 
   useEffect(() => {
-    if (role === "staff" || role === "student" || role === "professor" || role === "ta") {
+    // Determine which role/position to use for redirect
+    const redirectRole = role === "staffMember" ? position : role;
+    
+    if (role === "staffMember" || role === "student") {
       const timer = setTimeout(() => {
-        router.push(`/${role}/events/browse-events`);
+        router.push(`/${redirectRole}/events/browse-events`);
       }, 3000); // Redirect after 3 seconds
 
       // Countdown effect

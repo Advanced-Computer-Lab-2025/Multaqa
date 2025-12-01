@@ -424,7 +424,6 @@ export default function CreateGymSession({
                           : "Enter duration in minutes (10-180 min)"
                     }
                     placeholder="Enter duration in minutes"
-                    neumorphicBox
                     required
                     fullWidth
                     inputProps={{
@@ -504,7 +503,6 @@ export default function CreateGymSession({
                   disabled={!(formik.isValid && formik.dirty) || isSubmitting}
                   label={isSubmitting ? "Creating..." : 'Create'}
                   variant='contained'
-                  color='primary'
                   type='submit'
                   sx={{
                     px: 3,
@@ -514,10 +512,6 @@ export default function CreateGymSession({
                     fontSize: "16px",
                     borderRadius: '20px',
                     boxShadow: '0 2px 8px 0 rgba(110, 138, 230, 0.15)',
-                    background: accentColor,
-                    '&:hover': {
-                      background: '#5a7ae0',
-                    }
                   }}
                 />
               </Box>

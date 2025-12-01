@@ -49,6 +49,7 @@ type Props = {
   showSpots?: boolean;
   layout?: GymSessionCardLayout;
   onRegisterSuccess?: () => void;
+  eventsOffice?: boolean;
 };
 
 export default function GymSessionCard({
@@ -56,6 +57,7 @@ export default function GymSessionCard({
   showSpots = true,
   layout = "compact",
   onRegisterSuccess,
+  eventsOffice = false,
 }: Props) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -225,7 +227,7 @@ export default function GymSessionCard({
         }}
       />
     );
-  } else {
+  } else if (!eventsOffice) {
     bottomRow.push(
       <CustomButton
         key="register"

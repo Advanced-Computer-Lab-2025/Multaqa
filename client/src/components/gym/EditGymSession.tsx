@@ -385,6 +385,16 @@ export default function EditGymSession({
                       size="small"
                       disabled // 🎯 DISABLED
                     />
+                    <Typography
+                      sx={{
+                        color: theme.palette.grey[600],
+                        mb: 1,
+                        ml: 1,
+                        fontSize: "0.755rem",
+                      }}
+                    >
+                      Session type cannot be changed.
+                    </Typography>
                   </Box>
 
                   {/* Start Date and Time (EDITABLE) */}
@@ -469,7 +479,6 @@ export default function EditGymSession({
                         : "Enter duration in minutes (10-180 min)"
                     }
                     placeholder="Enter duration in minutes"
-                    neumorphicBox
                     required
                     fullWidth
                     inputProps={{
@@ -486,7 +495,7 @@ export default function EditGymSession({
               {activeTab === "details" && (
                 <Paper elevation={0} sx={contentPaperStyles}>
                   {/* Max Participants (DISABLED) */}
-                  <Box sx={{ mb: 3 }}>
+                  <Box sx={{ mb: 3, cursor: "not-allowed" }}>
                     <CustomTextField
                       label="Max Participants"
                       fieldType="numeric"
@@ -519,31 +528,33 @@ export default function EditGymSession({
                         pattern: "[0-9]*",
                         inputMode: "numeric",
                       }}
-                      disabled // 🎯 DISABLED
+                      sx={{ pointerEvents: "none", opacity: 0.6 }} // 🎯 DISABLED
                     />
                   </Box>
 
                   {/* Trainer Name (DISABLED) */}
-                  <CustomTextField
-                    label="Trainer Name (Optional)"
-                    fieldType="text"
-                    name="trainer"
-                    value={formik.values.trainer}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.trainer && Boolean(formik.errors.trainer)
-                    }
-                    helperText={
-                      formik.touched.trainer
-                        ? formik.errors.trainer
-                        : "Trainer name cannot be changed."
-                    }
-                    placeholder="Enter trainer name"
-                    neumorphicBox
-                    fullWidth
-                    disabled // 🎯 DISABLED
-                  />
+                  <Box sx={{ cursor: "not-allowed" }}>
+                    <CustomTextField
+                      label="Trainer Name (Optional)"
+                      fieldType="text"
+                      name="trainer"
+                      value={formik.values.trainer}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.trainer && Boolean(formik.errors.trainer)
+                      }
+                      helperText={
+                        formik.touched.trainer
+                          ? formik.errors.trainer
+                          : "Trainer name cannot be changed."
+                      }
+                      placeholder="Enter trainer name"
+                      neumorphicBox
+                      fullWidth
+                      sx={{ pointerEvents: "none", opacity: 0.6 }} // 🎯 DISABLED
+                    />
+                  </Box>
                 </Paper>
               )}
 
@@ -571,10 +582,6 @@ export default function EditGymSession({
                     fontSize: "16px",
                     borderRadius: "20px",
                     boxShadow: "0 2px 8px 0 rgba(110, 138, 230, 0.15)",
-                    background: accentColor,
-                    "&:hover": {
-                      background: "#5a7ae0",
-                    },
                   }}
                 />
               </Box>

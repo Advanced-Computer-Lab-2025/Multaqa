@@ -117,7 +117,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         createdBy={details['Created by']}
         professors={professors}
         onOpenDetails={() => setDetailsModalOpen(true)}
-
+        registrationDeadline={user!=="events-office"&& user!=="vendor" && user!=="admin"?details["Registration Deadline"]:undefined}
         isUpcoming={!datePassed}
         utilities={(user === "events-office" || user === "admin") ? (
           <Stack direction="row" spacing={1}>
@@ -214,20 +214,20 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 <CustomButton
                   size="small"
                   variant="outlined"
-                 sx={{
-                                       borderRadius: 999,
-                                       backgroundColor: `${theme.palette.error.main}`,
-                                       color: background,
-                                       border: `1px solid ${theme.palette.error.dark}`,
-                                       fontWeight: 600,
-                                       px: 3,
-                                       textTransform: "none",
-                                       transition: "all 0.3s ease",
-                                       "&:hover": {
-                                         transform: "translateY(-2px)",
-                                       },
-                                       width: 'fit-content'
-                                     }}
+                sx={{
+                                  borderRadius: 999,
+                                  backgroundColor: `${theme.palette.error.main}`,
+                                  color:  "#fff",
+                                  border: `1px solid ${theme.palette.error.dark}`,
+                                  fontWeight: 600,
+                                  px: 3,
+                                  textTransform: "none",
+                                  transition: "all 0.3s ease",
+                                  "&:hover": {
+                                    transform: "translateY(-2px)",
+                                  },
+                                  width: 'fit-content'
+                                }}
                   onClick={() => setCancelRegisteration(true)}
                 >
                   Cancel Registration
@@ -382,23 +382,20 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                             <CustomButton
                               size="small"
                               variant="outlined"
-                              sx={{ 
-                                borderRadius: 999,
-                                backgroundColor: `${background}40`,
-                                color: "background.paper",
-                                borderColor: background,
-                                fontWeight: 600,
-                                px: 3,
-                                textTransform: "none",
-                                boxShadow: `0 4px 14px ${background}40`,
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  backgroundColor: `${background}50`,
-                                  transform: "translateY(-2px)",
-                                  boxShadow: `0 6px 20px ${background}50`,
-                                },
-                                width: 'fit-content'
-                              }}
+                             sx={{
+                                  borderRadius: 999,
+                                  backgroundColor: `${theme.palette.error.main}`,
+                                  color:  "#fff",
+                                  border: `1px solid ${theme.palette.error.dark}`,
+                                  fontWeight: 600,
+                                  px: 3,
+                                  textTransform: "none",
+                                  transition: "all 0.3s ease",
+                                  "&:hover": {
+                                    transform: "translateY(-2px)",
+                                  },
+                                  width: 'fit-content'
+                                }}
                               onClick={() => setCancelRegisteration(true)}
                             >
                               Cancel Registration
@@ -412,7 +409,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                                 sx={{ 
                                   borderRadius: 999,
                                   backgroundColor: `${background}40`,
-                                  color: "background.paper",
+                                  color:  "#fff",
                                   borderColor: background,
                                   fontWeight: 600,
                                   px: 3,
