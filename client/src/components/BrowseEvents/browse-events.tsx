@@ -99,18 +99,17 @@ const getFilterGroups = (
         { label: "Trip", value: EventType.TRIP },
       ],
     },
-    ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
-      ? [
-        {
-          id: "attendance",
-          title: "My Status",
-          type: "chip" as const,
-          options: [
-            { label: "Attended", value: "attended" },
-          ],
-        },
-      ]
-      : []),
+    {
+      id: "attendance",
+      title: "Status",
+      type: "chip" as const,
+      options: [
+        { label: "Upcoming", value: "upcoming" },
+        ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
+          ? [{ label: "Attended", value: "attended" }]
+          : []),
+      ],
+    },
     {
       id: "date",
       title: "Date",
@@ -317,12 +316,21 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-    // Apply attendance filter
-    if (
-      filters.attendance &&
-      (filters.attendance as string[]).includes("attended")
-    ) {
-      filtered = filtered.filter((event) => event.attended === true);
+    // Apply attendance/status filter
+    if (filters.attendance && (filters.attendance as string[]).length > 0) {
+      const statusFilters = filters.attendance as string[];
+      
+      if (statusFilters.includes("attended")) {
+        filtered = filtered.filter((event) => event.attended === true);
+      }
+      
+      if (statusFilters.includes("upcoming")) {
+        const now = new Date();
+        filtered = filtered.filter((event) => {
+          const startDate = new Date(event.details["Start Date"]);
+          return startDate > now;
+        });
+      }
     }
 
     // Apply search filter
@@ -448,13 +456,13 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         );
       });
     }
-    //Apply Attendance Filter
-    if (
-      filters.attendance &&
-      (filters.attendance as string[]).includes("attended")
-    ) {
-      filtered = filtered.filter((event) => userInfo.attendedEvents.includes(event.id));
-    }
+    // Apply Attendance Filter - Already handled above, removing duplicate block
+    // if (
+    //   filters.attendance &&
+    //   (filters.attendance as string[]).includes("attended")
+    // ) {
+    //   filtered = filtered.filter((event) => userInfo.attendedEvents.includes(event.id));
+    // }
     // Apply Date Filter
     const dateFilterValue = filters.date;
     if (typeof dateFilterValue === "string" && dateFilterValue) {

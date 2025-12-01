@@ -105,6 +105,7 @@ const ConferenceView: React.FC<ConferenceViewProps> = ({
         eventType={"Conference"}
         spotsLeft={details["Spots Left"]}
         createdBy={professorName}
+        isUpcoming={!datePassed}
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
           <Tooltip title="Delete Conference">

@@ -50,6 +50,7 @@ interface EventCardProps {
   archived?: boolean;
   payButton?: React.ReactNode;
   vendorStatus?: string;
+  isUpcoming?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -83,7 +84,8 @@ const EventCard: React.FC<EventCardProps> = ({
   professors = [],
   archived = false,
   payButton,
-  vendorStatus
+  vendorStatus,
+  isUpcoming = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
@@ -342,6 +344,23 @@ const EventCard: React.FC<EventCardProps> = ({
                   },
                 }}
               />
+              {isUpcoming && (
+                <Chip
+                  label="Upcoming"
+                  size="small"
+                  sx={{
+                    backgroundColor: "#ffff", // Green-50
+                    color: "#047857", // Green-700
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    height: 24,
+                    border: "1px solid #10b981", // Emerald-500
+                    "&:hover": {
+                      backgroundColor: "#d1fae5", // Green-100
+                    },
+                  }}
+                />
+              )}
               {attended && (
                 <Chip
                   label="Attended"
