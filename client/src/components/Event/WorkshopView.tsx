@@ -117,6 +117,8 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         createdBy={details['Created by']}
         professors={professors}
         onOpenDetails={() => setDetailsModalOpen(true)}
+
+        isUpcoming={!datePassed}
         utilities={(user === "events-office" || user === "admin") ? (
           <Stack direction="row" spacing={1}>
             {(user === "events-office" && !archived) ? (
