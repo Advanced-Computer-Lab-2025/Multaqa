@@ -609,7 +609,7 @@ export default function EntityNavigation({
 
     // Special routes that are always valid (not in navigation config)
     const specialRoutes = ["notifications"];
-    const isSpecialRoute = specialRoutes.includes(tab) || specialRoutes.includes(section);
+    const isSpecialRoute = specialRoutes.includes(section);
 
     // Fallback: if section or tab is not found, redirect to not-found page
     const sectionExists =
@@ -778,7 +778,7 @@ export default function EntityNavigation({
               height: "fit-content",
             }}
           >
-            {tabItems.length > 0 && (
+            {tabItems.length > 0 && !["notifications"].includes(section) && (
               <div className="bg-white border-b border-gray-300">
                 <div className="px-6">
                   <Tabs
