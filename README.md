@@ -502,6 +502,44 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
+#### ⚠️ Backend Server Crashing After Changes (macOS)
+
+**Problem:** Backend server crashes or fails to start after modifying code or adding new environment variables, especially on macOS
+
+**Solutions:**
+```bash
+# This is particularly common on macOS when:
+# - Backend code has been modified
+# - New environment variables are introduced
+# - Dependencies have been updated
+
+# Solution: Delete and recreate the virtual environment
+cd backend
+
+# 1. Stop the backend server (Ctrl+C)
+
+# 2. Remove node_modules and lock file
+rm -rf node_modules package-lock.json
+
+# 3. Clear npm cache (optional but recommended)
+npm cache clean --force
+
+# 4. Reinstall dependencies
+npm install
+
+# 5. Restart the backend server
+npm run dev
+
+# 6. Remove .env and recreate it
+rm .env
+```
+
+> [!TIP]
+> If you're still experiencing issues after reinstalling dependencies, try:
+> - Restarting your terminal session
+> - Checking for any running Node processes: `ps aux | grep node`
+> - Killing any orphaned processes: `killall node`
+
 #### ⚠️ Gmail API Not Sending Emails
 
 **Problem:** Emails not being sent
@@ -758,11 +796,64 @@ npm run test:coverage
 
 ### Component Testing (Storybook)
 
-Some component tests are already implemented in `client/src/stories/` using Storybook. You can view and interact with these components by running:
+We use **Storybook** for isolated component development and testing. Component stories are implemented in `client/src/stories/` and allow you to:
+- View components in isolation
+- Test different component states and props
+- Interact with components without running the full application
+- Document component usage and variations
+
+#### Running Storybook
 
 ```bash
 cd client
 npm run storybook
+
+# Expected output:
+# ╭─────────────────────────────────────────────────╮
+# │                                                 │
+# │   Storybook 8.x.x for react-vite started        │
+# │   X.X s for preview                             │
+# │                                                 │
+# │    Local:            http://localhost:6006/     │
+# │    On your network:  http://192.168.x.x:6006/   │
+# │                                                 │
+# ╰─────────────────────────────────────────────────╯
+```
+
+Once running, open `http://localhost:6006` in your browser to access the Storybook interface.
+
+#### Available Stories
+
+Current component stories include:
+- **UI Components**: Buttons, inputs, cards, and other reusable components
+- **Layout Components**: Navigation, headers, footers
+- **Feature Components**: Event cards, user profiles, registration forms
+
+Explore the stories in the Storybook sidebar to see all available components and their variations.
+
+#### Creating New Stories
+
+To add a new component story:
+
+```typescript
+// client/src/stories/YourComponent.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { YourComponent } from '../components/YourComponent';
+
+const meta: Meta<typeof YourComponent> = {
+  title: 'Components/YourComponent',
+  component: YourComponent,
+  tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<typeof YourComponent>;
+
+export const Default: Story = {
+  args: {
+    // Your component props
+  },
+};
 ```
 
 Additional unit, integration, and E2E tests are coming soon.
@@ -1012,6 +1103,20 @@ A: Yes! The system is designed to be extensible. You can add new event types by:
 1. Creating a new schema in `backend/schemas/event-schemas/`
 2. Adding routes in `backend/routes/`
 3. Creating frontend components in `client/src/components/`
+
+**Q: Why does my backend server crash after making changes (especially on macOS)?**
+
+A: This is a common issue on macOS when backend code is modified or new environment variables are introduced. The solution is to delete and recreate the environment:
+
+```bash
+cd backend
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+npm run dev
+```
+
+See the [Backend Server Crashing After Changes (macOS)](#️-backend-server-crashing-after-changes-macos) troubleshooting section for more details.
 
 ---
 
