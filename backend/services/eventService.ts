@@ -338,26 +338,7 @@ export class EventsService {
         }
       }
     }
-     if (event.type === EVENT_TYPES.CONFERENCE) {
-      const now = new Date();
-      const eventStarted = new Date(event.eventStartDate) < now;
-      const eventEnded = new Date(event.eventEndDate) < now;
-      const isOngoing = eventStarted && !eventEnded;
-
-      if (isOngoing) {
-        if (
-          updateData.eventStartDate ||
-          updateData.eventStartTime ||
-          updateData.eventEndDate ||
-          updateData.eventEndTime
-        ) {
-          throw createError(
-            400,
-            "Cannot update conference start or end date/time while it is ongoing"
-          );
-        }
-      }
-    }
+   
     // If event has a price and its being changed, reflect that in Stripe before saving to DB
     if (
       Object.prototype.hasOwnProperty.call(updateData, "price") &&
