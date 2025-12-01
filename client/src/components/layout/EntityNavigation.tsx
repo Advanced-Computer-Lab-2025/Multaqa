@@ -158,7 +158,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Trophy,
         tabs: [
           { id: "reserve", label: "Reserve Courts" },
-          { id: "my-reserved", label: "My Reservations" },
         ],
       },
       {
@@ -371,10 +370,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
-          { id: "all-vendors", label: "All Vendors" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
-          { id: "documents", label: "View Documents" },
           { id: "vendor-polls", label: "Vendor Polls" },
         ],
       },
@@ -393,16 +390,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Dumbbell,
         tabs: [
           { id: "sessions-management", label: "Sessions Management" },
-          // { id: "vendor-polls", label: "Create Vendor Polls" },
         ],
       },
-      { key: "archive", label: "Archive", icon: Archive, tabs: [] },
-      // {
-      //   key: "notifications",
-      //   label: "Notifications",
-      //   icon: ClipboardList,
-      //   tabs: [],
-      // },
     ],
   },
   admin: {
@@ -424,12 +413,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "sales-reports", label: "Sales Reports" },
     ],
     sections: [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        tabs: [],
-      },
       {
         key: "events",
         label: "Events Management",
@@ -462,10 +445,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
-          { id: "all-vendors", label: "All Vendors" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
-          { id: "documents", label: "View Documents" },
         ],
       },
         {
@@ -506,7 +487,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "apply-booth", label: "Booth Hub" },
         ],
       },
-      { key: "qr-codes", label: "QR Codes", icon: QrCode, tabs: [] },
       {
         key: "loyalty",
         label: "Loyalty Program",
