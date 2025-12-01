@@ -922,17 +922,31 @@ export class VendorEventsService {
     const result: any[] = [];
     for (const [location, vendors] of locationGroups.entries()) {
       if (vendors.length > 1) {
-        result.push({
-          location,
-          vendorCount: vendors.length,
-          vendors: vendors.map((v) => ({
-            eventId: v.eventId,
-            eventName: v.eventName,
-            vendor: v.vendor,
-            boothSize: v.boothSize,
-            boothSetupDuration: v.boothSetupDuration,
-          })),
+        // Remove duplicate vendors within the same clash group
+        const seenVendorIdsInGroup = new Set<string>();
+        const uniqueVendors = vendors.filter(v => {
+          const vendorId = v.vendor?._id?.toString() || v.vendor?.toString();
+          if (!vendorId || seenVendorIdsInGroup.has(vendorId)) {
+            return false;
+          }
+          seenVendorIdsInGroup.add(vendorId);
+          return true;
         });
+
+        // Only add if we still have at least 2 unique vendors
+        if (uniqueVendors.length > 1) {
+          result.push({
+            location,
+            vendorCount: uniqueVendors.length,
+            vendors: uniqueVendors.map((v) => ({
+              eventId: v.eventId,
+              eventName: v.eventName,
+              vendor: v.vendor,
+              boothSize: v.boothSize,
+              boothSetupDuration: v.boothSetupDuration,
+            })),
+          });
+        }
       }
     }
 
@@ -1077,7 +1091,6 @@ export class VendorEventsService {
     return Array.from(boothIdSet);
   }
 
-
   // To mark them inPoll
   async getBoothsHavingPolls(): Promise<string[]> {
     const polls = await this.pollRepo.findAll({
@@ -1095,5 +1108,4 @@ export class VendorEventsService {
 
     return Array.from(boothIdSet);
   }
-
 }

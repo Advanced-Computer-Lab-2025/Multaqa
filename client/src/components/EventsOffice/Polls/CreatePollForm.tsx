@@ -545,7 +545,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
               )}
 
               {/* Submit Button */}
-              <Box sx={{ mt: 2, textAlign: "right", width: "100%", display: "flex", justifyContent: "flex-end", gap: 2 }}>
+              <Box sx={{ mt: 2, mb: 2, textAlign: "right", width: "100%", display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <CustomButton 
                   disabled={submitting || clashGroups.length === 0} 
                   label={submitting ? "Creating..." : "Create Poll"} 
