@@ -412,14 +412,20 @@ const EditBazaar = ({ bazaarId, bazaarName, location, description, startDate, en
                   </LocalizationProvider>
 
                   <Box sx={{ display: "flex", flexDirection: "column", flex: 1, marginTop: "24px" }}>
-                    <TextField
+                    <CustomSelectField
                       label="Location"
-                      name="location"
-                      variant="standard"
+                      fieldType="single"
+                      options={[
+                        { label: "Platform", value: "Platform" },
+                        { label: "B Building", value: "B Building" },
+                        { label: "D Building", value: "D Building" },
+                        { label: "A Building", value: "A Building" },
+                        { label: "C Building", value: "C Building" },
+                        { label: "Football Court", value: "Football Court" },
+                      ]}
                       value={values.location}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      sx={{ ...tertiaryInputStyles, border: "none" }}
+                      onChange={(e: any) => setFieldValue("location", e.target ? e.target.value : e)}
+                      name="location"
                     />
                     {errors.location && touched.location && (
                       <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.location}</Typography>
