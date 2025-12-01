@@ -5,6 +5,31 @@ import type { UploadStatus } from "../../FileUpload/types";
 import { BazarFormValues } from "../types"; // Import BazarFormValues
 import { capitalizeName } from "../../input-fields/utils";
 
+export const BAZAR_PRICING = {
+  SIZE_2X2: 1500,
+  SIZE_4X4: 2500,
+  LOCATIONS: {
+    "platform": 500,
+    "b building": 300,
+    "d building": 300,
+    "a building": 400,
+    "c building": 400,
+    "football court": 600,
+  } as Record<string, number>,
+};
+
+export const calculateBazarTotal = (size: string, location: string) => {
+  let total = 0;
+
+  if (size === "2x2") total += BAZAR_PRICING.SIZE_2X2;
+  if (size === "4x4") total += BAZAR_PRICING.SIZE_4X4;
+
+  const locationPrice = BAZAR_PRICING.LOCATIONS[location?.toLowerCase()] || 0;
+  total += locationPrice;
+
+  return total;
+};
+
 export const validationSchema = Yup.object({
   bazaarAttendees: Yup.array()
     .of(
@@ -27,7 +52,8 @@ export const submitBazarForm = async (
     setSubmitting,
   }: { setSubmitting: (isSubmitting: boolean) => void },
   eventId: string,
-  attendeeIdStatuses: UploadStatus[] // Add attendeeIdStatuses
+  attendeeIdStatuses: UploadStatus[], // Add attendeeIdStatuses
+  location: string // Add location
 ) => {
   try {
     // Process attendees to clear nationalId if upload was not successful
@@ -36,9 +62,7 @@ export const submitBazarForm = async (
         ...attendee,
         name: capitalizeName(String(attendee.name ?? ""), false),
         nationalId:
-          attendeeIdStatuses[index] === "success"
-            ? attendee.nationalId
-            : null,
+          attendeeIdStatuses[index] === "success" ? attendee.nationalId : null,
       })
     );
 
@@ -46,6 +70,8 @@ export const submitBazarForm = async (
       eventType: "bazaar",
       bazaarAttendees: processedAttendees,
       boothSize: values.boothSize,
+      participationFee: values.price,
+      location,
     };
 
     await api.post(

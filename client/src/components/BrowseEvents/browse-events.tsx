@@ -173,7 +173,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     const fetchProfessors = async () => {
       try {
         const res = await api.get("/users/professors");
-        const professors = res.data.data.map((prof: any) => ({
+        // filter only isVerified = true
+        const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+        const professors = verifiedProfessors.map((prof: any) => ({
           firstName: prof.firstName,
           lastName: prof.lastName,
         }));
@@ -315,11 +317,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   // Filter and search logic
   const filteredEvents = useMemo(() => {
     let filtered = events;
-    if (user === "events-only") {
-      filtered = filtered.filter((event) =>
-        ["bazaar", "trip", "conference"].includes(event.type)
-      );
-    }
     // Apply attendance filter
     if (
       filters.attendance &&
@@ -581,22 +578,18 @@ switch (sortBy) {
 
   // Calculate title and description based on user role
   const pageTitle =
-    user !== "events-only"
-      ? user === "events-office"
+      user === "events-office"
         ? "Manage Events"
         : registered
           ? " My Registered Events"
           : "Browse Events"
-      : "Create Events";
 
   const pageDescription =
-    user !== "events-only"
-      ? user === "events-office"
-        ? "Manage all events that are on the system"
+   user === "events-office"
+        ? "Manage and create events on the system"
         : registered
           ? "Keep track of which events you have registered for"
           : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
-      : "Create and keep track of events you have created";
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -622,10 +615,10 @@ switch (sortBy) {
             attended={event.attended}
             archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.WORKSHOP:
-        console.log(event);
         return (
           <WorkshopView
             id={event.id}
@@ -653,6 +646,7 @@ switch (sortBy) {
             registrationPassed={
               new Date(event.details["Registration Deadline"]) < new Date()
             }
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.BAZAAR:
@@ -681,6 +675,7 @@ switch (sortBy) {
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             registrationDeadline={event.registrationDeadline}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.BOOTH:
@@ -705,6 +700,7 @@ switch (sortBy) {
             attended={event.attended}
             archived={event.archived}
             datePassed={new Date(event.details["Start Date"]) < new Date()}
+            allowedUsers={event.allowedUsers}
           />
         );
       case EventType.TRIP:
@@ -732,6 +728,7 @@ switch (sortBy) {
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             registrationDeadline={event.registrationDeadline}
+            allowedUsers={event.allowedUsers}
           />
         );
       default:
@@ -788,7 +785,7 @@ switch (sortBy) {
           }}
         >
           <SortByDate value={sortBy} onChange={handleSortChange} />
-          {user === "events-only" && (
+          {user === "events-office" && (
             <CreationHubDropdown
               options={creationHubOptions}
               helperText="Choose what you would like to create"

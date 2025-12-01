@@ -338,6 +338,35 @@ export class EventsService {
         }
       }
     }
+     if (event.type === EVENT_TYPES.CONFERENCE) {
+      const now = new Date();
+      const eventStarted = new Date(event.eventStartDate) < now;
+      const eventEnded = new Date(event.eventEndDate) < now;
+      const isOngoing = eventStarted && !eventEnded;
+
+      if (isOngoing) {
+        if ( updateData.eventStartDate || updateData.eventStartTime ) {
+          throw createError(
+            400,
+            "Cannot update conference start date/time while it is ongoing"
+          );
+        }
+        else if ( updateData.eventEndDate || updateData.eventEndTime ) {
+          // Combine end date and time for accurate comparison
+          const newEndDate = new Date(updateData.eventEndDate || event.eventEndDate);
+          const endTime = updateData.eventEndTime || event.eventEndTime;
+          
+          if (endTime) {
+            const [hours, minutes] = endTime.split(":").map(Number);
+            newEndDate.setHours(hours, minutes, 0, 0);
+          }
+          
+          if (newEndDate < now) {
+            throw createError(400, "Cannot set conference end date/time to a past date/time while it is ongoing");
+          }
+        }
+      }
+    }
     // If event has a price and its being changed, reflect that in Stripe before saving to DB
     if (
       Object.prototype.hasOwnProperty.call(updateData, "price") &&
@@ -893,27 +922,46 @@ export class EventsService {
   async checkUpcomingEvents() {
     const now = new Date();
     now.setSeconds(0, 0);
-    const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
 
-    // Get events happening in 1 day
-    const oneDayEvents = await this.eventRepo.findAll({
-      eventStartDate: oneDayLater,
+    // Get all upcoming events (events that haven't started yet)
+    const allEvents = await this.eventRepo.findAll({
+      eventStartDate: { $gte: new Date().setHours(0, 0, 0, 0) },
     });
 
-    // Get events happening in 1 hour
-    const oneHourEvents = await this.eventRepo.findAll({
-      eventStartDate: oneHourLater,
-    });
+    // Filter events for 1-day and 1-hour reminders by combining date and time
+    const oneDayEvents: IEvent[] = [];
+    const oneHourEvents: IEvent[] = [];
+
+    for (const event of allEvents) {
+      // Combine eventStartDate with eventStartTime to get the full datetime
+      const eventDate = new Date(event.eventStartDate);
+      
+      if (event.eventStartTime) {
+        const [hours, minutes] = event.eventStartTime.split(':').map(Number);
+        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+      }
+
+      // Check for 1-day reminder
+      if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
+        oneDayEvents.push(event);
+      }
+      
+      // Check for 1-hour reminder
+      if (eventDate.getTime() - now.getTime() == 60 * 60 * 1000) {
+        oneHourEvents.push(event);
+      }
+    }
 
     // Send 1-day reminders
     for (const event of oneDayEvents) {
       await this.sendReminderToAttendees(event, "1 day");
+      console.log(`Sent 1-day reminder for event: ${event.eventName}`);
     }
 
     // Send 1-hour reminders
     for (const event of oneHourEvents) {
       await this.sendReminderToAttendees(event, "1 hour");
+      console.log(`Sent 1-hour reminder for event: ${event.eventName}`);
     }
   }
 

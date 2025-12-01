@@ -6,8 +6,8 @@ export class WorkshopScheduler {
 
   // Schedule a cron job to check for completed workshops every hour
   start(): void {
-    // Run every hour at minute 0, so it runs once every hour at HH:00 (e.g., 1:00, 2:00, 3:00…).
-    cron.schedule("0 * * * *", async () => {
+    // Run every minute
+    cron.schedule("* * * * *", async () => {
       console.log("Running workshop completion check...");
       await this.workshopService.processCompletedWorkshops();
     });

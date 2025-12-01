@@ -14,6 +14,17 @@ const bazaarSchema = Joi.object({
   boothSize: Joi.string()
     .valid(...BoothSizeEnum)
     .required(),
+  participationFee: Joi.number().required(),
+  location: Joi.string()
+    .valid(
+      "platform",
+      "b building",
+      "d building",
+      "a building",
+      "c building",
+      "football court"
+    )
+    .required(),
 });
 
 const platformBoothSchema = Joi.object({
@@ -24,6 +35,7 @@ const platformBoothSchema = Joi.object({
     .required(),
   boothLocation: Joi.string().required(),
   boothSetupDuration: Joi.number().integer().min(1).max(4).required(),
+  participationFee: Joi.number().required(),
 });
 
 export function validateCreateApplicationData(data: any) {

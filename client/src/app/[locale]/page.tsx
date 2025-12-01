@@ -37,6 +37,7 @@ import RegistrationForm from "@/components/shared/RegistrationForm/RegistrationF
 import HomeIcon from "@mui/icons-material/Home";
 import multaqaLogo from "../../../public/assets/images/multaqa-top-nav.png";
 import multaqaIcon from "../../../public/assets/images/multaqa-icon-only.png";
+import newMultaqaIcon from "../../../public/assets/images/new-multaqa-logo.png";
 import ScaledLogo from "@/components/shared/MultaqaLogos/ScaledLogo";
 
 const MotionBox = motion(Box);
@@ -442,7 +443,7 @@ function HomePageContent() {
             }}
           >
             <ScaledLogo
-              image={multaqaIcon}
+              image={newMultaqaIcon}
               transparent
               iconOnly
             />
@@ -2062,7 +2063,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "260px",
           borderRadius: "12px",
-          rotate: 5, // Slight tilt in auth mode for variety
+          rotate: 0, 
           transition: authTransition(0.2),
         },
       }}
@@ -2126,7 +2127,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "130px",
           height: "130px",
           borderRadius: "16px",
-          rotate: -10,
+          rotate: 0,
           transition: authTransition(0.15),
         },
       }}
@@ -2158,7 +2159,7 @@ const Shapes = ({ theme, isHome }: { theme: Theme; isHome: boolean }) => (
           width: "120px",
           height: "210px",
           borderRadius: "999px",
-          rotate: 15,
+          rotate: 0,
           transition: authTransition(0.25),
         },
       }}

@@ -11,224 +11,82 @@ import CancelApplicationVendor from "@/components/Event/Modals/CancelApplication
 import VendorPaymentDrawer from "@/components/Event/helpers/VendorPaymentDrawer";
 import ContentWrapper from "../../shared/containers/ContentWrapper";
 import theme from "@/themes/lightTheme";
+import { toast } from "react-toastify";
+import BazarView from "@/components/Event/BazarView";
+import BoothView from "@/components/Event/BoothView";
+import { frameData } from "@/components/BrowseEvents/utils";
+import SellIcon from "@mui/icons-material/Sell";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import { EventCardsListSkeleton } from "@/components/BrowseEvents/utils/EventCardSkeleton";
+import EmptyState from "@/components/shared/states/EmptyState";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
   approved: "ACCEPTED",
   rejected: "REJECTED",
-};
-
-interface ExtendedVendorRequest extends VendorRequestItem {
-  hasPaid?: boolean;
-  participationFee?: number;
-  rawStatus?: string;
-}
-
-const mapRequestedEventToVendorRequest = (
-  item: any,
-  vendorId: string
-): ExtendedVendorRequest => {
-  const eventValue = item?.event;
-  const event = eventValue && typeof eventValue === "object" ? eventValue : {};
-  const eventId = typeof eventValue === "string" ? eventValue : event?._id;
-  const vendorEntry = Array.isArray(event?.vendors)
-    ? event.vendors.find((vendor: any) => vendor?.vendor === vendorId)
-    : undefined;
-
-  const requestData = item?.RequestData ?? vendorEntry?.RequestData ?? {};
-  const rawStatus =
-    item?.status ??
-    requestData?.status ??
-    vendorEntry?.RequestData?.status ??
-    "pending";
-  const statusKey = String(rawStatus ?? "").toLowerCase();
-  const status = STATUS_MAP[statusKey] ?? "PENDING";
-
-  // Get hasPaid and participationFee from the item (top-level vendorEvent)
-  const hasPaid = item?.hasPaid ?? false;
-  const participationFee = item?.participationFee ?? 0;
-
-  const typeRaw =
-    typeof event?.type === "string" ? event.type.toLowerCase() : "";
-  const isBazaar = typeRaw === "bazaar";
-
-  const rawSubmittedAt =
-    item?.createdAt ?? requestData?.submittedAt ?? event?.registrationDeadline;
-  const submittedAt =
-    typeof rawSubmittedAt === "string"
-      ? rawSubmittedAt
-      : new Date().toISOString();
-
-  const rawStartDate = event?.eventStartDate;
-  const startDate =
-    typeof rawStartDate === "string" ? rawStartDate : new Date().toISOString();
-
-  const rawEndDate = event?.eventEndDate;
-  const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
-
-  const rawDuration =
-    requestData?.boothSetupDuration ??
-    requestData?.value?.boothSetupDuration ??
-    vendorEntry?.RequestData?.boothSetupDuration;
-  let setupDurationWeeks: number | undefined;
-  if (rawDuration !== undefined) {
-    const numeric = Number(rawDuration);
-    if (!Number.isNaN(numeric)) {
-      setupDurationWeeks = numeric;
-    }
-  }
-
-  const rawId = item?._id ?? eventId ?? Math.random().toString(36).slice(2);
-  const id = typeof rawId === "string" ? rawId : String(rawId);
-
-  const title = typeof event?.eventName === "string" ? event.eventName : "";
-  const location = typeof event?.location === "string" ? event.location : "";
-
-  const mapped: ExtendedVendorRequest = {
-    id,
-    title,
-    type: isBazaar ? "BAZAAR" : "PLATFORM_BOOTH",
-    location,
-    startDate,
-    status,
-    submittedAt,
-    eventId,
-    hasPaid,
-    participationFee,
-    rawStatus: statusKey,
-  };
-
-  if (isBazaar && endDate) {
-    mapped.endDate = endDate;
-  }
-
-  if (!isBazaar && setupDurationWeeks !== undefined) {
-    mapped.setupDurationWeeks = setupDurationWeeks;
-  }
-
-  return mapped;
+  pending_payment: "PENDING_PAYMENT",
 };
 
 export default function VendorRequestsList() {
   const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [requests, setRequests] = useState<ExtendedVendorRequest[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [cancelApplication, setCancelApplication] = useState(false);
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   // track which request (vendorEvent) was selected
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedParticipationFee, setSelectedParticipationFee] = useState<number>(0);
+  const vendorId = user?._id;
   
+
   // toggle to trigger refetch after cancel or payment
   const [refreshToggle, setRefreshToggle] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const vendorId = user?._id;
-
-    if (!vendorId) {
-      setError("Unable to find vendor information. Please sign in again.");
-      return;
-    }
-
-    const fetchRequests = async () => {
+  const fetchRequests = async () => {
+     setLoading(true);
       setError(null);
 
       try {
         const response = await api.get(`/vendorEvents`);
         const requestedEventsRaw = response.data?.data || [];
+        const framedData = requestedEventsRaw.map(item => {
+      const framed = frameData([item.event], vendorId);
+      return {
+        ...framed[0], // Spread the framed event data
+        hasPaid: item.hasPaid,
+        participationFee: item.participationFee,
+        status: item.status
+      };
+    });
+
+setRequests(framedData);
+        console.log(framedData);
         console.log("Fetched vendor events:", requestedEventsRaw);
-
-        const mapped = (requestedEventsRaw as any[])
-          .map((entry) =>
-            mapRequestedEventToVendorRequest(entry, vendorId as string)
-          )
-          .filter(
-            (item) => !item.hasPaid && (item.status === "PENDING" || item.status === "REJECTED" || item.status === "ACCEPTED")
-          );
-
-        if (!cancelled) {
-          const unique = new Map<string, ExtendedVendorRequest>();
-          mapped.forEach((request) => {
-            if (!unique.has(request.id)) {
-              unique.set(request.id, request);
-            }
-          });
-          setRequests(Array.from(unique.values()));
-        }
       } catch (err: any) {
-        if (cancelled) return;
-        if (err?.response?.status === 404) {
-          setRequests([]);
-          setError(null);
-          return;
-        }
-        const message =
-          err?.response?.data?.message ??
-          err?.message ??
-          "Something went wrong";
-        setError(message);
+        toast.error(err?.response?.data?.error, {
+                         position: "bottom-right",
+                         autoClose: 3000,
+                         theme: "colored",
+                       });
         setRequests([]);
+      }
+      finally{
+        setLoading(false);
       }
     };
 
+  useEffect(() => {
+    if (!vendorId) {
+      setError("Unable to find vendor information. Please sign in again.");
+      return;
+    }
     fetchRequests();
-
-    return () => {
-      cancelled = true;
-    };
    // refetch when user or refreshToggle change
   }, [user, refreshToggle]);
 
-  const renderDetails = (item: ExtendedVendorRequest) => (
-    <Stack spacing={1}>
-      <Typography variant="body2" sx={{ color: "#1E1E1E" }}>
-        {item.status === "PENDING"
-          ? "Your request is under review. You will be notified once a decision is made."
-          : item.status === "REJECTED"
-          ? `Reason: ${item.notes ?? "Not provided."}`
-          : item.status === "ACCEPTED" && !item.hasPaid
-          ? "Approved! Please complete payment to confirm your participation."
-          : item.status === "ACCEPTED" && item.hasPaid
-          ? "Payment completed. Thank you!"
-          : ""}
-      </Typography>
-      <Typography variant="body2" sx={{ color: "#6b7280" }}>
-        Submitted: {new Date(item.submittedAt).toLocaleString()}
-      </Typography>
-      {item.status === "ACCEPTED" && item.participationFee && (
-        <Typography variant="body2" sx={{ color: "#6b7280", fontWeight: 600 }}>
-          Participation Fee: EGP {item.participationFee.toFixed(2)}
-        </Typography>
-      )}
-    </Stack>
-  );
-
-  const statusChip = (item: ExtendedVendorRequest) => {
-    if (item.status === "PENDING")
-      return (
-        <Chip size="small" label="Pending" color="warning" variant="outlined" />
-      );
-    if (item.status === "REJECTED")
-      return (
-        <Chip size="small" label="Rejected" color="error" variant="outlined" />
-      );
-    // If approved but not paid, show "Pending Payment"
-    if (item.rawStatus === "approved" && !item.hasPaid)
-      return (
-        <Chip size="small" label="Pending Payment" color="info" variant="outlined" />
-      );
-    return (
-      <Chip size="small" label="Accepted" color="success" variant="outlined" />
-    );
-  };
-
-  const renderActionButton = (item: ExtendedVendorRequest) => {
+  const renderActionButton = (item:any) => {
     // If approved and not paid -> show Pay button
-    if (item.rawStatus === "approved" && !item.hasPaid) {
+    if (item.status === "approved" && !item.hasPaid) {
       return (
         <CustomButton
           size="small"
@@ -247,7 +105,7 @@ export default function VendorRequestsList() {
             },
           }}
           onClick={() => {
-            setSelectedEventId(item.eventId ?? null);
+            setSelectedEventId(item.id ?? null);
             setSelectedParticipationFee(item.participationFee ?? 0);
             setPaymentDrawerOpen(true);
           }}
@@ -258,7 +116,7 @@ export default function VendorRequestsList() {
     }
 
     // If pending (not approved) and not paid -> show Cancel Application
-    if (item.status === "PENDING" && !item.hasPaid) {
+    if (item.status === "pending" && !item.hasPaid) {
       return (
         <CustomButton
           size="small"
@@ -278,7 +136,7 @@ export default function VendorRequestsList() {
             width: 'fit-content'
           }}
           onClick={() => {
-            setSelectedEventId(item.eventId ?? null);
+            setSelectedEventId(item.id ?? null);  // Use item.id, not item.eventId
             setCancelApplication(true);
           }}
         >
@@ -293,8 +151,8 @@ export default function VendorRequestsList() {
 
   return (
     <ContentWrapper
-      title="My Participation Requests"
-      description="Review the status of your submissions for upcoming bazaars or booth setups."
+      title="My Requests"
+      description="Review the status of your requests for upcoming bazaars or booth setups."
     >
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -302,20 +160,59 @@ export default function VendorRequestsList() {
         </Alert>
       )}
       <Stack spacing={2}>
-        {(requests.length ? requests : []).map((item) => (
-          <VendorItemCard
-            key={item.id}
-            item={item}
-            details={renderDetails(item)}
-            rightSlot={
-              <Stack direction="column" spacing={2} alignItems="center">
-                {statusChip(item)}
-                {renderActionButton(item)}
-              </Stack>
-            }
-          />
-        ))}
-        <CancelApplicationVendor
+       {!loading&&(requests.length ? requests : []).filter((item) => !(item.status === "approved" && item.hasPaid === true)).map((item) => {
+  switch(item.type) {
+    case "bazaar":
+      return (
+        <BazarView 
+          id={item.id} 
+          background={"#e91e63"} 
+          details={item.details} 
+          name={item.name} 
+          description={item.description} 
+          vendorStatus={item.status}
+          vendors={item.vendors} 
+          icon={SellIcon} 
+          attended={item.attended} 
+          archived={item.archived} 
+          registrationDeadline={item.details?.["Registration Deadline"]}
+          userInfo={user}
+          user={"vendor"}
+          setRefresh={setRefreshToggle}
+        />
+      );
+    case "booth":
+      return (
+        <BoothView 
+          id={item.id} 
+          background={"#2196f3"} 
+          icon={StorefrontIcon} 
+          company={item.company} 
+          description={item.description} 
+          details={item.details}
+          payButton={renderActionButton(item)} 
+          vendorStatus={item.status}
+          attended={item.attended} 
+          archived={item.archived}  
+          userInfo={user}
+          user={"vendor"}
+          isRequested={true}
+        />
+      );
+    default:
+      return null;
+  }
+})}
+{loading && (
+      <EventCardsListSkeleton />
+    )}
+       {!loading && requests.length === 0 && (
+        <EmptyState
+         title = "No vendor requests found"
+         description = "Browse upcoming bazaars and platform booths to submit your requests!"
+        />
+       )}
+       <CancelApplicationVendor
           eventId={selectedEventId ?? ""}
           open={cancelApplication}
           onClose={() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import RegisterBox from "@/components/admin/shared/RegistredComponent/Registree";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import NeumorphicBox from "@/components/shared/containers/NeumorphicBox";
@@ -20,6 +20,7 @@ import {
 } from "./utils";
 import CustomModal from "@/components/shared/modals/CustomModal";
 import type { DragEndEvent } from "@dnd-kit/core";
+import { capitalizeFullName } from "@/components/shared/utils/nameUtils";
 
 // Droppable zone component
 function DroppableZone({
@@ -41,6 +42,13 @@ export default function RoleAssignmentContent() {
 
   const roleKeys = ["staff", "ta", "professor"] as const;
   const roleLabels: Record<(typeof roleKeys)[number], string> = {
+    staff: "Staff",
+    ta: "TA",
+    professor: "Professor",
+  };
+
+  // Backend expects lowercase for staff and professor, uppercase for TA
+  const roleBackendValues: Record<(typeof roleKeys)[number], string> = {
     staff: "staff",
     ta: "TA",
     professor: "professor",
@@ -54,6 +62,8 @@ export default function RoleAssignmentContent() {
 
   const [activeRoleIndex, setActiveRoleIndex] = useState<number>(0);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [assignedBoxHeight, setAssignedBoxHeight] = useState<number>(100);
+  const assignedBoxRef = useRef<HTMLDivElement>(null);
 
   // Modal state for confirmation
   const [modalOpen, setModalOpen] = useState(false);
@@ -61,6 +71,23 @@ export default function RoleAssignmentContent() {
     role: string;
     applicant: Applicant;
   } | null>(null);
+
+  // Track assigned box height changes dynamically
+  useEffect(() => {
+    if (!assignedBoxRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setAssignedBoxHeight(entry.contentRect.height);
+      }
+    });
+
+    resizeObserver.observe(assignedBoxRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [activeRoleIndex, assigned]);
 
   // Fetch unassigned staff members and assigned roles on component mount
   useEffect(() => {
@@ -112,7 +139,7 @@ export default function RoleAssignmentContent() {
       // Call the API to assign the role
       await handleAssignRole(
         pendingAssignment.applicant.id,
-        roleLabels[pendingAssignment.role as keyof typeof roleLabels],
+        roleBackendValues[pendingAssignment.role as keyof typeof roleBackendValues],
         pendingAssignment.applicant,
         setAssigned,
         setApplicants
@@ -183,27 +210,8 @@ export default function RoleAssignmentContent() {
     }
   };
 
-  // Calculate the height for both boxes to match
-  const currentRoleKey = roleKeys[activeRoleIndex];
-  const assignedCount = (assigned[currentRoleKey] || []).length;
-  const pendingCount = applicants.length;
-
-  // Calculate height for assigned users box
-  const calculateAssignedBoxHeight = () => {
-    const maxCount = Math.max(assignedCount, pendingCount);
-    if (maxCount === 0) return "100px";
-    return `${maxCount * 180}px`;
-  };
-
-  // Calculate height for pending applicants box (taller than assigned)
-  const calculatePendingBoxHeight = () => {
-    const maxCount = Math.max(assignedCount, pendingCount);
-    if (maxCount === 0) return "150px";
-    return `${maxCount * 180 + 40}px`;
-  };
-
-  const assignedBoxHeight = calculateAssignedBoxHeight();
-  const pendingBoxHeight = calculatePendingBoxHeight();
+  // Calculate pending box height based on measured assigned box height
+  const pendingBoxHeight = assignedBoxHeight > 100 ? `${assignedBoxHeight + 50}px` : "150px";
 
   return (
     <DndContext
@@ -227,6 +235,8 @@ export default function RoleAssignmentContent() {
               border: "2px solid #3a4f99",
               borderRadius: "16px",
               padding: "24px",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <Box
@@ -276,6 +286,7 @@ export default function RoleAssignmentContent() {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
+                flex: 1,
                 minHeight: pendingBoxHeight,
                 justifyContent: applicants.length === 0 && !loading ? "center" : "flex-start",
                 alignItems: applicants.length === 0 && !loading ? "center" : "stretch",
@@ -435,6 +446,7 @@ export default function RoleAssignmentContent() {
                 <DroppableZone id={roleKey}>
                   {/* Inner container with background */}
                   <Box
+                    ref={assignedBoxRef}
                     sx={{
                       backgroundColor: "rgba(98, 153, 208, 0.05)",
                       borderRadius: "12px",
@@ -442,7 +454,7 @@ export default function RoleAssignmentContent() {
                       display: "flex",
                       flexDirection: "column",
                       gap: 2,
-                      minHeight: assignedBoxHeight,
+                      minHeight: "100px",
                       justifyContent: (assigned[roleKey] || []).length === 0 ? "center" : "flex-start",
                       alignItems: (assigned[roleKey] || []).length === 0 ? "center" : "stretch",
                     }}
@@ -528,7 +540,7 @@ export default function RoleAssignmentContent() {
           }}
         >
           Are you sure you want to assign{" "}
-          <strong>{pendingAssignment?.applicant.name}</strong> to the role of{" "}
+          <strong>{capitalizeFullName(pendingAssignment?.applicant.name)}</strong> to the role of{" "}
           <strong>
             {pendingAssignment?.role &&
               roleLabels[pendingAssignment.role as keyof typeof roleLabels]}

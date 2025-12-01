@@ -41,6 +41,7 @@ export const capitalizeNamePart = (namePart?: string | null): string => {
 function transformEvent(event: any, attendedEvents?: string[]) {
   const id = event._id?.$oid || event._id || "";
   const registrationDeadline = event.registrationDeadline;
+  const allowedUsers = event.allowedUsers;
   const startDate = event.eventStartDate;
   const endDate = event.eventEndDate;
   const attended = attendedEvents ? attendedEvents.includes(id) : false;
@@ -67,6 +68,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         attended,
         archived,
         registrationDeadline,
+        allowedUsers,
       };
 
     case "workshop":
@@ -76,13 +78,14 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       const nameParts = [firstName, lastName];
       const nonEmptyNameParts = nameParts.filter(part => part);
       const fullName = nonEmptyNameParts.join(' ');
+      const profs = [...flattenName(event.associatedProfs), fullName];
       return {
         id,
         type: EventType.WORKSHOP,
         name: event.eventName,
         description: event.description,
         agenda: event.fullAgenda,
-        professors: flattenName(event.associatedProfs),
+        professors: profs,
         comments:event.comments,
         attendees:event.attendees,
         professorsId: event.associatedProfs?.map((prof: any) => prof._id || prof) || [],
@@ -108,6 +111,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         },
         attended,
         archived,
+        allowedUsers,
       };
 
     // You can add more cases:
@@ -131,6 +135,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         attended,
         archived,
         registrationDeadline,
+        allowedUsers,
       };
     case "bazaar":
       return {
@@ -152,6 +157,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         attended,
         archived,
         registrationDeadline,
+        allowedUsers,
       };
     case "platform_booth":
       return {
@@ -161,12 +167,14 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         people: event.RequestData.boothAttendees,
         description: event.description,
         details: {
-          "Setup Duration": event.RequestData.boothSetupDuration,
+          "Setup Duration": `${event.RequestData.boothSetupDuration}`,
           Location: event.RequestData.boothLocation,
           "Booth Size": event.RequestData.boothSize,
         },
         attended,
         archived,
+        hasPaid:event.RequestData.hasPaid,
+        allowedUsers,
       };
 
     default:
