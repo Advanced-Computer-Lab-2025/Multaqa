@@ -63,9 +63,8 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
   const [rawWorkshops, setRawWorkshops] = useState<any[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [commentModal, setCommentModal] = useState<boolean>(false);
-  const [selectedWorkshopComments, setSelectedWorkshopComments] = useState<
-    any[]
-  >([]);
+  const [selectedWorkshopComments, setSelectedWorkshopComments] = useState<any[]>([]);
+  const [refreshToggle, setRefreshToggle] = useState<boolean>(false);
 
   const creationHubOptions = [
     {
@@ -101,7 +100,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
     setWorkshops(filteredResults);
     setRawWorkshops(result);
     setLoading(false);
-  }, [userInfo, selectedFilter]);
+  }, [userInfo, selectedFilter, refreshToggle]);
 
   const handleViewComments = (comments: CommentItem[]) => {
     setSelectedWorkshopComments(comments || []);
@@ -220,6 +219,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
         onClose={() => {
           setCreation(false);
         }}
+        setRefresh={setRefreshToggle}
       />
     </ContentWrapper>
   );

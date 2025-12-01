@@ -162,88 +162,90 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({
     }
   };
 
-  const initialValues = {
-    workshopName: "",
-    budget: 0,
-    capacity: 0,
-    startDate: null,
-    endDate: null,
-    registrationDeadline: null,
-    description: "",
-    agenda: "",
-    professors: [] as ProfessorOption[],
-    location: "",
-    faculty: "",
-    fundingSource: "",
-    extraResources: [] as string[],
-  };
-
-  const handleCallApi = async (payload: any) => {
-    setLoading(true);
-    setError(null);
-    setResponse([]);
-    try {
-      const res = await api.post("/workshops/", payload);
-      setResponse(res.data);
-      toast.success("Workshop created successfully", {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      if (setRefresh) setRefresh((prev) => !prev);
-    } catch (err: any) {
-      setError(err?.message || "API call failed");
-      toast.error(
-        err.response.data.error ||
-          "Failed to create workshop. Please try again.",
-        {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = async (values: any, actions: any) => {
-    const payload = {
-      type: "workshop",
-      eventName: values.workshopName,
-      location: values.location,
-      eventStartDate: values.startDate.format("YYYY-MM-DD"),
-      eventEndDate: values.endDate.format("YYYY-MM-DD"),
-      description: values.description,
-      fullAgenda: values.agenda,
-      associatedFaculty: values.faculty,
-      associatedProfs: values.professors.map(
-        (p: { label: string; value: string }) => p.value
-      ),
-      requiredBudget: values.budget,
-      extraRequiredResources: values.extraResources,
-      capacity: values.capacity,
-      registrationDeadline: values.registrationDeadline.format("YYYY-MM-DD"),
-      eventStartTime: values.startDate.format("HH:mm"),
-      eventEndTime: values.endDate.format("HH:mm"),
-      fundingSource: values.fundingSource,
-      price: 5,
+    const initialValues = {
+        workshopName: "",
+        budget: 0,
+        price: 0,
+        capacity: 0,
+        startDate: null,
+        endDate: null,
+        registrationDeadline: null,
+        description: "",
+        agenda: "",
+        professors: [] as ProfessorOption[],
+        location: "",
+        faculty: "",
+        fundingSource: "",
+        extraResources: [] as string[],
     };
-    actions.resetForm();
-    handleCallApi(payload);
-    onClose();
-  };
 
+    const handleCallApi = async (payload: any) => {
+        setLoading(true);
+        setError(null);
+        setResponse([]);
+        try {
+            const res = await api.post("/workshops/", payload);
+            setResponse(res.data);
+            toast.success("Workshop created successfully", {
+              position: "bottom-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
+            // Force a hard page reload after 1 second
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+            if (setRefresh) setRefresh((prev) => !prev);
+        } catch (err: any) {
+            setError(err?.message || "API call failed");
+            toast.error(
+              err.response.data.error ||
+                "Failed to create workshop. Please try again.",
+              {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              }
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onSubmit = async (values: any, actions: any) => {
+        const payload = {
+            type: "workshop",
+            eventName: values.workshopName,
+            location: values.location,
+            eventStartDate: values.startDate.format("YYYY-MM-DD"),
+            eventEndDate: values.endDate.format("YYYY-MM-DD"),
+            description: values.description,
+            fullAgenda: values.agenda,
+            associatedFaculty: values.faculty,
+            associatedProfs: values.professors.map((p: { label: string; value: string }) => p.value),
+            requiredBudget: values.budget,
+            extraRequiredResources: values.extraResources,
+            capacity: values.capacity,
+            registrationDeadline: values.registrationDeadline.format("YYYY-MM-DD"),
+            eventStartTime: values.startDate.format("HH:mm"),
+            eventEndTime: values.endDate.format("HH:mm"),
+            fundingSource: values.fundingSource,
+            price: values.price,
+        };
+        await handleCallApi(payload);
+        actions.resetForm();
+        onClose();
+    };
   const {
     handleSubmit,
     values,
@@ -640,6 +642,23 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({
                       ) : (
                         <></>
                       )}
+                    </Box>
+                    <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                        <TextField
+                            name="price"
+                            id="price"
+                            label="Price"
+                            type="number"
+                            fullWidth
+                            variant="standard"
+                            placeholder="Enter Price"
+                            value={values.price}
+                            onChange={handleChange}
+                            sx={tertiaryInputStyles}
+                        />
+                        {errors.price && touched.price ?
+                            <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.price}</Typography>
+                            : <></>}
                     </Box>
                   </Box>
 
