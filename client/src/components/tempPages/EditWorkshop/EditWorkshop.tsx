@@ -72,6 +72,7 @@ interface EditWorkshopProps {
     workshopId: string;
     workshopName?: string;
     budget?: number;
+    price?: number;
     capacity?: number;
     startDate: Date | null;
     endDate: Date | null;
@@ -103,6 +104,7 @@ interface WorkshopFormValues {
     faculty: string;
     fundingSource: string;
     extraResources: string[];
+    price: number;
 }
 
 const EditWorkshop = ({
@@ -110,6 +112,7 @@ const EditWorkshop = ({
     workshopName = "",
     budget = 0,
     capacity = 0,
+    price = 0,
     startDate = null,
     endDate = null,
     registrationDeadline = null,
@@ -214,6 +217,7 @@ const EditWorkshop = ({
         workshopName,
         budget,
         capacity,
+        price,
         startDate: startDate ? dayjs(startDate) : null,
         endDate: endDate ? dayjs(endDate) : null,
         registrationDeadline: registrationDeadline ? dayjs(registrationDeadline) : null,
@@ -350,7 +354,7 @@ const EditWorkshop = ({
             eventStartTime: values.startDate.format("HH:mm"),
             eventEndTime: values.endDate.format("HH:mm"),
             fundingSource: values.fundingSource,
-            price: 5,
+            price: values.price,
         };
         await handleCallApi(payload);
         onClose();
@@ -613,6 +617,23 @@ const EditWorkshop = ({
                                             />
                                             {errors.capacity && touched.capacity ?
                                                 <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.capacity}</Typography>
+                                                : <></>}
+                                        </Box>
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <TextField
+                                                name="price"
+                                                id="price"
+                                                label="Price"
+                                                type="number"
+                                                fullWidth
+                                                variant="standard"
+                                                placeholder="Enter Price"
+                                                value={values.price}
+                                                onChange={handleChange}
+                                                sx={tertiaryInputStyles}
+                                            />
+                                            {errors.price && touched.price ?
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.price}</Typography>
                                                 : <></>}
                                         </Box>
                                     </Box>

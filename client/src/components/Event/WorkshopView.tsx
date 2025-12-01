@@ -282,6 +282,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         faculty={details["Faculty Responsible"]}
         extraResources={details["Extra Required Resources"] ? [details["Extra Required Resources"]] : []}
         associatedProfs={professorsId}
+        price={parseInt(details["Cost"], 10)}
         onClose={() => {
           setEdit(false);
         }}

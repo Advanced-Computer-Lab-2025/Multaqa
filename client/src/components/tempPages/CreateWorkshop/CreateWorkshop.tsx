@@ -129,6 +129,7 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
     const initialValues = {
         workshopName: "",
         budget: 0,
+        price: 0,
         capacity: 0,
         startDate: null,
         endDate: null,
@@ -159,6 +160,10 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
               progress: undefined,
               theme: "colored",
             });
+            // Force a hard page reload after 1 second
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
             if (setRefresh) setRefresh((prev) => !prev);
         } catch (err: any) {
             setError(err?.message || "API call failed");
@@ -182,7 +187,6 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
     };
 
     const onSubmit = async (values: any, actions: any) => {
-        onClose();
         const payload = {
             type: "workshop",
             eventName: values.workshopName,
@@ -200,10 +204,11 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
             eventStartTime: values.startDate.format("HH:mm"),
             eventEndTime: values.endDate.format("HH:mm"),
             fundingSource: values.fundingSource,
-            price: 5,
+            price: values.price,
         };
+        await handleCallApi(payload);
         actions.resetForm();
-        handleCallApi(payload);
+        onClose();
     };
 
     const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched, resetForm } = useFormik({
@@ -468,6 +473,23 @@ const CreateWorkshop: React.FC<CreateWorkshopProps> = ({ professors, creatingPro
                                             />
                                             {errors.capacity && touched.capacity ?
                                                 <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.capacity}</Typography>
+                                                : <></>}
+                                        </Box>
+                                        <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                                            <TextField
+                                                name="price"
+                                                id="price"
+                                                label="Price"
+                                                type="number"
+                                                fullWidth
+                                                variant="standard"
+                                                placeholder="Enter Price"
+                                                value={values.price}
+                                                onChange={handleChange}
+                                                sx={tertiaryInputStyles}
+                                            />
+                                            {errors.price && touched.price ?
+                                                <Typography sx={{ color: "#db3030", fontSize: '0.875rem', mt: 0.5 }}>{errors.price}</Typography>
                                                 : <></>}
                                         </Box>
                                     </Box>
