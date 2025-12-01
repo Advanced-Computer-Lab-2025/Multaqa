@@ -345,25 +345,16 @@ export class EventsService {
       const isOngoing = eventStarted && !eventEnded;
 
       if (isOngoing) {
-        if ( updateData.eventStartDate || updateData.eventStartTime ) {
+        if (
+          updateData.eventStartDate ||
+          updateData.eventStartTime ||
+          updateData.eventEndDate ||
+          updateData.eventEndTime
+        ) {
           throw createError(
             400,
-            "Cannot update conference start date/time while it is ongoing"
+            "Cannot update conference start or end date/time while it is ongoing"
           );
-        }
-        else if ( updateData.eventEndDate || updateData.eventEndTime ) {
-          // Combine end date and time for accurate comparison
-          const newEndDate = new Date(updateData.eventEndDate || event.eventEndDate);
-          const endTime = updateData.eventEndTime || event.eventEndTime;
-          
-          if (endTime) {
-            const [hours, minutes] = endTime.split(":").map(Number);
-            newEndDate.setHours(hours, minutes, 0, 0);
-          }
-          
-          if (newEndDate < now) {
-            throw createError(400, "Cannot set conference end date/time to a past date/time while it is ongoing");
-          }
         }
       }
     }
