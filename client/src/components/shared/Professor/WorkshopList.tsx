@@ -25,7 +25,7 @@ import EmptyState from "../states/EmptyState";
 
 interface CommentItem {
   commenter: string;
-  name:string;
+  name: string;
   text: string;
   timestamp: string;
 }
@@ -63,7 +63,9 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
   const [rawWorkshops, setRawWorkshops] = useState<any[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [commentModal, setCommentModal] = useState<boolean>(false);
-  const [selectedWorkshopComments, setSelectedWorkshopComments] = useState<any[]>([]);
+  const [selectedWorkshopComments, setSelectedWorkshopComments] = useState<
+    any[]
+  >([]);
 
   const creationHubOptions = [
     {
@@ -173,7 +175,7 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
-                       sx={{
+                    sx={{
                       borderRadius: 999,
                       border: `1px solid ${background}`,
                       backgroundColor: `${background}`,
@@ -185,27 +187,28 @@ const WorkshopList: React.FC<WorkshopListProps> = ({
                       "&:hover": {
                         transform: "translateY(-2px)",
                       },
-                      width: 'fit-content'
+                      width: "fit-content",
                     }}
                     onClick={() => handleViewComments(item.comments)}
                   >
                     View Comments
                   </CustomButton>
                 }
-            />
+              />
             </React.Fragment>
           ))}
 
         {loading && <EventCardsListSkeleton />}
         {!loading && (!workshops || workshops.length === 0) && (
           <EmptyState
-           title = "No workshops to view"
-           description = "Create your first workshop and spread some knowledge!"
-           />
+            title="No workshops to view"
+            description="Create your first workshop and spread some knowledge!"
+          />
         )}
       </Stack>
       <CustomModalLayout
         open={commentModal}
+        title="Events Office Comments"
         onClose={() => setCommentModal(false)}
       >
         <CommentsList comments={selectedWorkshopComments} />
