@@ -179,7 +179,8 @@ cd client && npm run dev
 - **Event Registration**: Seamless registration with automatic confirmation
 - **Event Creation**: Role-based event creation and management
 - **Event Analytics**: Visual charts and statistics using Recharts
-- **Real-time Updates**: Live Updates & Notifications
+- **Real-time Updates**: Live Updates & Notifications via Socket.IO
+- **🔔 Notification System**: Instant alerts for status changes, requests, and reminders
 
 ### 👥 User Management
 
@@ -779,9 +780,19 @@ We implement comprehensive testing across multiple levels: unit tests for compon
 ### Running Tests
 
 ```bash
-# Backend tests (Coming Soon)
+### Running Tests
+
+```bash
+# Backend tests (Jest)
 cd backend
 npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage
+npm run test:coverage
+
 
 # Frontend tests (Coming Soon)
 cd client
@@ -866,6 +877,7 @@ tests/
 ├── integration/       # Integration tests (Coming Soon)
 ├── e2e/              # End-to-end tests (Coming Soon)
 └── fixtures/         # Test data and mocks
+backend/__tests__/     # Backend API tests (Implemented)
 client/src/stories/    # Storybook component tests (Implemented)
 ```
 
