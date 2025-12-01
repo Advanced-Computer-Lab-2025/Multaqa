@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Button, Chip, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Chip, Skeleton, Stack, Typography } from "@mui/material";
 import type { StackProps } from "@mui/material/Stack";
 import { alpha } from "@mui/material/styles";
 import ActionCard from "@/components/shared/cards/ActionCard";
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import CustomModal from "@/components/shared/modals/CustomModal";
 import { GymSession, SESSION_COLORS, SESSION_LABEL } from "./types";
 import SelfImprovementIcon from "@mui/icons-material/SelfImprovement";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
@@ -16,6 +18,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { registerForGymSession } from "./utils";
+import { useAuth } from "@/hooks/useAuth"; // Assuming useAuth is available from a hooks directory
 
 const SESSION_ICONS: Record<GymSession["type"], React.ElementType> = {
   YOGA: SelfImprovementIcon,
@@ -54,7 +57,10 @@ export default function GymSessionCard({
   onRegisterSuccess,
 }: Props) {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const { user } = useAuth();
   const [localIsRegistered, setLocalIsRegistered] = useState(session.isRegistered ?? false);
+  const [spotsLeft, setSpotsLeft] = useState((session.spotsTotal ?? 0) - (session.spotsTaken ?? 0));
   const baseColor = SESSION_COLORS[session.type];
   const start = new Date(session.start).toLocaleTimeString([], {
     hour: "2-digit",
@@ -64,7 +70,6 @@ export default function GymSessionCard({
     hour: "2-digit",
     minute: "2-digit",
   });
-  const spotsLeft = (session.spotsTotal ?? 0) - (session.spotsTaken ?? 0);
   const Icon = SESSION_ICONS[session.type];
   const displayTitle =
     session.title.replace(/^Gym Session\s*-\s*/i, "").trim() ||
@@ -80,14 +85,26 @@ export default function GymSessionCard({
 
   const handleRegister = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsRegistering(true);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmRegistration = async () => {
+    if (!user) {
+      alert("Please log in to register.");
+      return;
+    }
     try {
+      setIsRegistering(true);
       await registerForGymSession(session.id);
+      // Update local state to reflect registration
       setLocalIsRegistered(true);
-      onRegisterSuccess?.();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to register";
-      alert(errorMessage);
+      setSpotsLeft((prev) => Math.max(0, prev - 1));
+      if (onRegisterSuccess) onRegisterSuccess();
+      setIsConfirmModalOpen(false);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to register for session";
+      alert(msg);
     } finally {
       setIsRegistering(false);
     }
@@ -112,22 +129,38 @@ export default function GymSessionCard({
 
   // Build meta nodes based on session status
   const metaNodesArray: React.ReactNode[] = [
-    <Typography
-      key="time"
-      variant="body2"
-      sx={{ fontWeight: 500, color: "#4b5563" }}
-    >
-      {start} – {end} · {session.location ?? "Main Gym"}
-    </Typography>,
+    <Stack key="meta" spacing={0.5}>
+      <Stack direction="row" spacing={0.5} alignItems="center">
+        <AccessTimeIcon sx={{ fontSize: "0.9rem", color: "#9ca3af" }} />
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 500, color: "#4b5563", fontSize: "0.85rem" }}
+        >
+          {start} – {end}
+        </Typography>
+      </Stack>
+      <Stack direction="row" spacing={0.5} alignItems="center">
+        <LocationOnIcon sx={{ fontSize: "0.9rem", color: "#9ca3af" }} />
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 500, color: "#4b5563", fontSize: "0.85rem" }}
+        >
+          {session.location ?? "Main Gym"}
+        </Typography>
+      </Stack>
+    </Stack>,
   ];
+
+  // Group spots and action button/status in a horizontal stack
+  const bottomRow: React.ReactNode[] = [];
 
   // Only show spots for upcoming sessions that user is not registered for
   if (showSpots && isUpcoming && !localIsRegistered) {
-    metaNodesArray.push(
+    bottomRow.push(
       <Typography
         key="spots"
         variant="caption"
-        sx={{ fontWeight: 700, color: baseColor, mt: 0.5 }}
+        sx={{ fontWeight: 700, color: baseColor }}
       >
         {spotsLeft} spots left
       </Typography>
@@ -136,14 +169,13 @@ export default function GymSessionCard({
 
   // Add status indicator or register button
   if (sessionStatus === "ended") {
-    metaNodesArray.push(
+    bottomRow.push(
       <Typography
         key="status"
         variant="caption"
         sx={{ 
           fontWeight: 600, 
           color: "#9ca3af",
-          mt: 0.5,
           fontStyle: "italic"
         }}
       >
@@ -151,14 +183,13 @@ export default function GymSessionCard({
       </Typography>
     );
   } else if (sessionStatus === "ongoing") {
-    metaNodesArray.push(
+    bottomRow.push(
       <Typography
         key="status"
         variant="caption"
         sx={{ 
           fontWeight: 600, 
           color: "#f59e0b",
-          mt: 0.5,
         }}
       >
         Session Ongoing
@@ -166,19 +197,19 @@ export default function GymSessionCard({
     );
   } else if (localIsRegistered) {
     // Show registered chip for upcoming sessions where user is already registered
-    metaNodesArray.push(
+    bottomRow.push(
       <Chip
         key="registered"
-        icon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
+        icon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
         label="Registered"
         size="small"
         sx={{
-          mt: 1,
           backgroundColor: alpha("#22c55e", 0.15),
           color: "#16a34a",
           fontWeight: 600,
-          fontSize: "0.75rem",
-          borderRadius: "8px",
+          fontSize: "0.7rem",
+          height: "24px",
+          borderRadius: "6px",
           "& .MuiChip-icon": {
             color: "#16a34a",
           },
@@ -186,37 +217,48 @@ export default function GymSessionCard({
       />
     );
   } else {
-    metaNodesArray.push(
-      <Button
+    bottomRow.push(
+      <CustomButton
         key="register"
         variant="contained"
-        size="small"
         onClick={handleRegister}
         disabled={isRegistering}
+        label={isRegistering ? "..." : "Register"}
+        height="24px"
         sx={{
-          mt: 1,
           backgroundColor: baseColor,
           color: "#fff",
           fontWeight: 600,
-          fontSize: "0.75rem",
+          fontSize: "0.7rem",
           textTransform: "none",
-          borderRadius: "8px",
-          px: 2,
-          py: 0.5,
-          minWidth: "80px",
-          boxShadow: `0 2px 8px ${alpha(baseColor, 0.3)}`,
+          borderRadius: "6px",
+          minWidth: "auto",
+          boxShadow: `0 2px 4px ${alpha(baseColor, 0.3)}`,
           "&:hover": {
             backgroundColor: alpha(baseColor, 0.85),
-            boxShadow: `0 4px 12px ${alpha(baseColor, 0.4)}`,
+            boxShadow: `0 3px 8px ${alpha(baseColor, 0.4)}`,
           },
           "&:disabled": {
             backgroundColor: alpha(baseColor, 0.5),
             color: "#fff",
           },
         }}
+      />
+    );
+  }
+
+  if (bottomRow.length > 0) {
+    metaNodesArray.push(
+      <Stack
+        key="bottom-row"
+        direction="row"
+        spacing={2}
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mt: 1, width: "100%" }}
       >
-        {isRegistering ? "Registering..." : "Register"}
-      </Button>
+        {bottomRow}
+      </Stack>
     );
   }
 
@@ -241,43 +283,7 @@ export default function GymSessionCard({
           {instructorLabel}
         </Typography>
       }
-      metaNodes={
-        [
-          <Stack key="meta" spacing={0.5}>
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <AccessTimeIcon
-                sx={{ fontSize: "0.9rem", color: "#9ca3af" }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 500, color: "#4b5563", fontSize: "0.85rem" }}
-              >
-                {start} – {end}
-              </Typography>
-            </Stack>
-            <Stack direction="row" spacing={0.5} alignItems="center">
-              <LocationOnIcon
-                sx={{ fontSize: "0.9rem", color: "#9ca3af" }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 500, color: "#4b5563", fontSize: "0.85rem" }}
-              >
-                {session.location ?? "Main Gym"}
-              </Typography>
-            </Stack>
-          </Stack>,
-          showSpots ? (
-            <Typography
-              key="spots"
-              variant="caption"
-              sx={{ fontWeight: 700, color: baseColor, mt: 0.5 }}
-            >
-              {spotsLeft} spots left
-            </Typography>
-          ) : null,
-        ].filter(Boolean) as React.ReactNode[]
-      }
+      metaNodes={metaNodesArray}
       borderColor={baseColor}
       background="#ffffff"
       sx={{
@@ -303,7 +309,27 @@ export default function GymSessionCard({
         flexDirection: isCompact ? "row" : { xs: "column", sm: "row" },
         gap: 1.75,
       }}
-    />
+    >
+      <CustomModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title="Confirm Registration"
+        description="Are you sure you want to register for this session?"
+        modalType="confirm"
+        buttonOption1={{
+          label: "Confirm",
+          onClick: confirmRegistration,
+          variant: "contained",
+          color: "primary",
+        }}
+        buttonOption2={{
+          label: "Cancel",
+          onClick: () => setIsConfirmModalOpen(false),
+          variant: "outlined",
+          color: "primary",
+        }}
+      />
+    </ActionCard>
   );
 }
 
