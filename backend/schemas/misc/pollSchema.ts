@@ -3,12 +3,13 @@ import { IPoll } from '../../interfaces/models/poll.interface';
 
 const pollSchema = new Schema<IPoll>({
   title: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String, required: false },
   startDate: { type: Date, default: Date.now },
   deadlineDate: { type: Date, required: true },
   options: [
     new Schema(
       {
+        boothId: { type: String, required: true },
         vendorId: { type: String, required: true },
         vendorName: { type: String, required: true },
         vendorLogo: { type: String },

@@ -31,6 +31,8 @@ import CustomButton from "@/components/shared/Buttons/CustomButton";
 import ScaledViewport from "@/components/layout/ScaledViewport";
 import LoyaltyProgram from "@/components/shared/LoyaltyProgram/LoyaltyProgram";
 import NotificationsPageContent from "@/components/notifications/NotificationsPageContent";
+import PollsManagement from "@/components/EventsOffice/Polls/PollsManagement";
+import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from '../../../../components/shared/Report/reportTable';
 
@@ -534,6 +536,10 @@ export default function EntityCatchAllPage() {
         return <VendorParticipationRequests />;
       }
 
+      if (section === "vendor-polls") {
+        return <PollsManagement />;
+      }
+
       if (section === "all-vendors") {
         return (
           <div className="p-6 bg-white">
@@ -615,6 +621,9 @@ export default function EntityCatchAllPage() {
       }
       if (section === "favorites") {
         return <FavoritesList userInfo={user} user={entity} />;
+      }
+      if (section === "polls") {
+        return <PollList />;
       }
       if (section === "all-events") {
         return (
