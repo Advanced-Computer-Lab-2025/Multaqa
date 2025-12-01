@@ -105,7 +105,7 @@ const getFilterGroups = (
       type: "chip" as const,
       options: [
         { label: "Upcoming", value: "upcoming" },
-        ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
+        ...((userRole !== "vendor" && userRole !== "admin " && userRole !== "events-office")
           ? [{ label: "Attended", value: "attended" }]
           : []),
         ...((userRole === "admin" || userRole === "events-office")
@@ -272,36 +272,36 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-       toast.success(
-            response.data.message || "Event deleted successfully!",
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-            }
-          );
+      toast.success(
+        response.data.message || "Event deleted successfully!",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } catch (err: any) {
-       const errorMessage =
-            err?.response?.data?.error ||
-            err?.response?.data?.message ||
-            err?.message ||
-            "Failed to delete event. Please try again.";
-      
-          toast.error(errorMessage, {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
+      const errorMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to delete event. Please try again.";
+
+      toast.error(errorMessage, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     }
   };
 
@@ -322,11 +322,11 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     // Apply attendance/status filter
     if (filters.attendance && (filters.attendance as string[]).length > 0) {
       const statusFilters = filters.attendance as string[];
-      
+
       if (statusFilters.includes("attended")) {
         filtered = filtered.filter((event) => event.attended === true);
       }
-      
+
       if (statusFilters.includes("upcoming")) {
         const now = new Date();
         filtered = filtered.filter((event) => {
@@ -496,28 +496,28 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       return isNaN(parsedDate) ? 0 : parsedDate; // Fallback to 0 if parsing fails
     };
 
-switch (sortBy) {
-      case "start_asc":
-        return [...filtered].sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateA - dateB;
-        });
+    switch (sortBy) {
+      case "start_asc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateA - dateB;
+        });
 
-      case "start_desc":
-        return [...filtered].sort((a, b) => {
-          const dateA = parseDate(a.details["Start Date"]);
-          const dateB = parseDate(b.details["Start Date"]);
-          console.log(`Comparing: ${dateA} vs ${dateB}`);
-          return dateB - dateA;
-        });
+      case "start_desc":
+        return [...filtered].sort((a, b) => {
+          const dateA = parseDate(a.details["Start Date"]);
+          const dateB = parseDate(b.details["Start Date"]);
+          console.log(`Comparing: ${dateA} vs ${dateB}`);
+          return dateB - dateA;
+        });
 
-      case "none": // Explicitly handle "none" or "default"
-      default:
-        // Return the filtered array without sorting
-        return filtered;
-    }
+      case "none": // Explicitly handle "none" or "default"
+      default:
+        // Return the filtered array without sorting
+        return filtered;
+    }
 
     return filtered;
   }, [searchQuery, filters, events, sortBy]);
@@ -593,18 +593,18 @@ switch (sortBy) {
 
   // Calculate title and description based on user role
   const pageTitle =
-      user === "events-office"
-        ? "Manage Events"
-        : registered
-          ? " My Registered Events"
-          : "Browse Events"
+    user === "events-office"
+      ? "Manage Events"
+      : registered
+        ? " My Registered Events"
+        : "Browse Events"
 
   const pageDescription =
-   user === "events-office"
-        ? "Manage and create events on the system"
-        : registered
-          ? "Keep track of which events you have registered for"
-          : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+    user === "events-office"
+      ? "Manage and create events on the system"
+      : registered
+        ? "Keep track of which events you have registered for"
+        : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -757,116 +757,95 @@ switch (sortBy) {
       description={pageDescription}
       padding={{ xs: 2, md: 4 }}
     >
-        {/* Search and Filter Row */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            alignItems: "center",
-            mb: 6,
-            flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
-          }}
-        >
-          <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
-            <CustomSearchBar
-              width="100%"
-              type="outwards"
-              icon
-              value={searchQuery}
-              onChange={handleSearchChange}
-              storageKey="browseEventsSearchHistory"
-              autoSaveDelay={2000}
-            />
-          </Box>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <FilterPanel
-              filterGroups={getFilterGroups(user, professorOptions)}
-              onFilterChange={handleFilterChange}
-              currentFilters={filters}
-              onReset={handleResetFilters}
-              matchSearchBar
-            />
-          </LocalizationProvider>
+      {/* Search and Filter Row */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+          mb: 6,
+          flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
+        }}
+      >
+        <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
+          <CustomSearchBar
+            width="100%"
+            type="outwards"
+            icon
+            value={searchQuery}
+            onChange={handleSearchChange}
+            storageKey="browseEventsSearchHistory"
+            autoSaveDelay={2000}
+          />
         </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <FilterPanel
+            filterGroups={getFilterGroups(user, professorOptions)}
+            onFilterChange={handleFilterChange}
+            currentFilters={filters}
+            onReset={handleResetFilters}
+            matchSearchBar
+          />
+        </LocalizationProvider>
+      </Box>
 
-        {/* Sort By and Creation Hub Row */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            mb: 2,
-          }}
-        >
-          <SortByDate value={sortBy} onChange={handleSortChange} />
-          {user === "events-office" && (
-            <CreationHubDropdown
-              options={creationHubOptions}
-              helperText="Choose what you would like to create"
-              dropdownSide="right"
-              buttonTextColor="#fff"
-            />
-          )}
-        </Box>
-
-        {/* Loading State */}
-        {loading && <EventCardsListSkeleton />}
-
-        {/* Error State */}
-        {error && (
-          <ErrorState
-            title={error}
-            description="Oops! Something has occurred on our end. Please try again"
-            imageAlt="Server error illustration"
+      {/* Sort By and Creation Hub Row */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <SortByDate value={sortBy} onChange={handleSortChange} />
+        {user === "events-office" && (
+          <CreationHubDropdown
+            options={creationHubOptions}
+            helperText="Choose what you would like to create"
+            dropdownSide="right"
+            buttonTextColor="#fff"
           />
         )}
+      </Box>
 
-        {/* Events Grid */}
-        {!loading && !error && (
-          <>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "repeat(1, 1fr)",
-                gap: 3,
-                width: "100%",
-              }}
-            >
-              {filteredEvents.map((event) => (
-                <Box key={event.id} sx={{ width: "100%" }}>
-                  {renderEventComponent(event, registered)}
-                </Box>
-              ))}
+      {/* Loading State */}
+      {loading && <EventCardsListSkeleton />}
 
-              {/* No results message */}
-              {filteredEvents.length === 0 && events.length === 0 && (
-                <EmptyState
-                  title="No events available"
-                  description="There are no events in our archives yet. Check back later!"
-                  imageAlt="No events illustration"
-                />
-              )}
+      {/* Error State */}
+      {error && (
+        <ErrorState
+          title={error}
+          description="Oops! Something has occurred on our end. Please try again"
+          imageAlt="Server error illustration"
+        />
+      )}
 
-              {/* No results message */}
-              {filteredEvents.length === 0 && events.length > 0 && (
-                <EmptyState
-                  title="No events found"
-                  description="Try adjusting your search or filters"
-                  imageAlt="Empty search results illustration"
-                />
-              )}
-            </Box>
-
-            {/* Results counter */}
-            {events.length > 0 && (
-              <Box sx={{ mt: 2, textAlign: "center" }}>
-                <Typography variant="caption" color="text.secondary">
-                  {registered
-                    ? `Viewing ${filteredEvents.length} of ${events.length} events`
-                    : `Browsing ${filteredEvents.length} of ${events.length} events`}
-                </Typography>
+      {/* Events Grid */}
+      {!loading && !error && (
+        <>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(1, 1fr)",
+              gap: 3,
+              width: "100%",
+            }}
+          >
+            {filteredEvents.map((event) => (
+              <Box key={event.id} sx={{ width: "100%" }}>
+                {renderEventComponent(event, registered)}
               </Box>
+            ))}
+
+            {/* No results message */}
+            {filteredEvents.length === 0 && events.length === 0 && (
+              <EmptyState
+                title="No events available"
+                description="There are no events in our archives yet. Check back later!"
+                imageAlt="No events illustration"
+              />
             )}
 
             {/* No results message */}
@@ -877,29 +856,43 @@ switch (sortBy) {
                 imageAlt="Empty search results illustration"
               />
             )}
-          </>
-        )}
+          </Box>
 
-        <CreateTrip
-          open={createTrip}
-          onClose={() => setTrip(false)}
-          setRefresh={setRefresh}
-          color={theme.palette.tertiary.main}
-        />
-        <CreateBazaar
-          open={createBazaar}
-          onClose={() => setBazaar(false)}
-          setRefresh={setRefresh}
-          color={theme.palette.tertiary.main}
-        />
-        {/* Create Conference Form */}
-        <Create
-          open={createconference}
-          onClose={() => setConference(false)}
-          setRefresh={setRefresh}
-          color={theme.palette.tertiary.main}
-        />
-      </ContentWrapper>
+          {/* Results counter */}
+          {events.length > 0 && (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Typography variant="caption" color="text.secondary">
+                {registered
+                  ? `Viewing ${filteredEvents.length} of ${events.length} events`
+                  : `Browsing ${filteredEvents.length} of ${events.length} events`}
+              </Typography>
+            </Box>
+          )}
+
+
+        </>
+      )}
+
+      <CreateTrip
+        open={createTrip}
+        onClose={() => setTrip(false)}
+        setRefresh={setRefresh}
+        color={theme.palette.tertiary.main}
+      />
+      <CreateBazaar
+        open={createBazaar}
+        onClose={() => setBazaar(false)}
+        setRefresh={setRefresh}
+        color={theme.palette.tertiary.main}
+      />
+      {/* Create Conference Form */}
+      <Create
+        open={createconference}
+        onClose={() => setConference(false)}
+        setRefresh={setRefresh}
+        color={theme.palette.tertiary.main}
+      />
+    </ContentWrapper>
   );
 };
 
