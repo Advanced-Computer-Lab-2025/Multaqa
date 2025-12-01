@@ -614,6 +614,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 alignItems: "center",
               }}
             >
+              
               {duration && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Clock size={16} color={color} />
