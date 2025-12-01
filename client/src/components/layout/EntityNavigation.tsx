@@ -464,7 +464,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   vendor: {
     headerTitle: "Vendor Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "bazaars",
+    defaultTab: "",
     defaultSection: "opportunities",
     tabs: [
       { id: "bazaars", label: "Browse Bazaars" },
