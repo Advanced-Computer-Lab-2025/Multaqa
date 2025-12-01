@@ -108,6 +108,9 @@ const getFilterGroups = (
         ...((userRole !== "vendor" && userRole!=="admin " && userRole!== "events-office")
           ? [{ label: "Attended", value: "attended" }]
           : []),
+        ...((userRole === "admin" || userRole === "events-office")
+          ? [{ label: "Archived", value: "archived" }]
+          : []),
       ],
     },
     {
@@ -330,6 +333,10 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           const startDate = new Date(event.details["Start Date"]);
           return startDate > now;
         });
+      }
+
+      if (statusFilters.includes("archived")) {
+        filtered = filtered.filter((event) => event.archived === true);
       }
     }
 
