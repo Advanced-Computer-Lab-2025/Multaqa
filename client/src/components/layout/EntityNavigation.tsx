@@ -464,7 +464,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   vendor: {
     headerTitle: "Vendor Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "",
+    defaultTab: "bazaars",
     defaultSection: "opportunities",
     tabs: [
       { id: "bazaars", label: "Browse Bazaars" },
@@ -633,6 +633,11 @@ export default function EntityNavigation({
       stakeholder === userRoleKey &&
       config.defaultSection
     ) {
+      // Clear session storage to ensure we start fresh on root visit
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("lastValidRoute");
+      }
+
       const defaultSection = config.sections.find(
         (s) => s.key === config.defaultSection
       );
@@ -674,8 +679,23 @@ export default function EntityNavigation({
   const handleSectionChange = (index: number) => {
     const newSection = sectionItems[index];
     const hasTabs = newSection?.tabs && newSection.tabs.length > 0;
-    const tabSeg =
-      hasTabs && newSection.tabs ? `/${newSection.tabs[0].id}` : "/overview";
+
+    let tabId = "overview";
+    if (hasTabs && newSection.tabs) {
+      // If switching to the default section, try to use the default tab
+      if (newSection.key === config.defaultSection && config.defaultTab) {
+        const defaultTabExists = newSection.tabs.some(t => t.id === config.defaultTab);
+        if (defaultTabExists) {
+          tabId = config.defaultTab;
+        } else {
+          tabId = newSection.tabs[0].id;
+        }
+      } else {
+        tabId = newSection.tabs[0].id;
+      }
+    }
+
+    const tabSeg = hasTabs ? `/${tabId}` : "/overview";
 
     // No locale prefix needed - i18n router adds it
     const newPath = `/${userRoleKey}/${newSection.key}${tabSeg}`;
