@@ -158,7 +158,7 @@ const CreateBazaar = ({open, onClose, setRefresh, color}: CreateBazaarProps) => 
     handleCallApi(payload);
   };
 
-  const {handleSubmit, values,isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched} = useFormik({
+  const {handleSubmit, values,isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched, resetForm} = useFormik({
     initialValues,
     validationSchema: bazaarSchema,
     onSubmit: onSubmit,
@@ -184,6 +184,7 @@ const handleDescriptionChange = (htmlContent: string) => {
 
 const handleClose = () => {
 onClose();
+resetForm();
 setActiveTab('general');
 };
 
