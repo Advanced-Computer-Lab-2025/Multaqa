@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { Container, Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { api } from "@/api";
 import { frameData } from "./utils";
 import BrowseEvents from "./browse-events";
@@ -14,7 +14,7 @@ import BazarView from "../Event/BazarView";
 import BoothView from "../Event/BoothView";
 import TripView from "../Event/TripView";
 import { EventType } from "./types";
-import theme from "@/themes/lightTheme";
+import ContentWrapper from "../shared/containers/ContentWrapper";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
@@ -120,13 +120,11 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
 
   if (!events || events.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <EmptyState
-          title="No favorites yet"
-          description="Add events to your favorites and they'll show up here."
-          imageAlt="No favorites"
-        />
-      </Container>
+      <EmptyState
+        title="No favorites yet"
+        description="Add events to your favorites and they'll show up here."
+        imageAlt="No favorites"
+      />
     );
   }
 
@@ -232,29 +230,11 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, overflow: "auto" }}>
-      <Box sx={{ mb: 2 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
-          sx={{
-            mb: 2,
-            textAlign: "left",
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-            color: `${theme.palette.tertiary.dark}`,
-          }}
-        >
-          My Favorites
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: "#757575", fontFamily: "var(--font-poppins)", mb: 4 }}
-        >
-          Events you marked as favorites are listed here.
-        </Typography>
-      </Box>
-
+    <ContentWrapper
+      title="My Favorites"
+      description="Events you marked as favorites are listed here."
+      padding={{ xs: 2, md: 4 }}
+    >
       <Box
         sx={{
           display: "grid",
@@ -265,7 +245,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
       >
         {events.map((ev) => renderEvent(ev))}
       </Box>
-    </Container>
+    </ContentWrapper>
   );
 };
 

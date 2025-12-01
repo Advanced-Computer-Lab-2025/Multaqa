@@ -1,0 +1,475 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  Avatar,
+  Box,
+  Divider,
+  Stack,
+  Typography,
+  Tooltip,
+  IconButton,
+  Grid,
+  Paper,
+  AccordionDetails,
+  CircularProgress,
+} from "@mui/material";
+import {
+  ChevronDown,
+  Download,
+  Eye,
+  FileText,
+  Image as ImageIcon,
+} from "lucide-react";
+
+import CustomButton from "@/components/shared/Buttons/CustomButton";
+import { CustomModalLayout } from "@/components/shared/modals";
+import theme from "@/themes/lightTheme";
+import StyledAccordion from "@/components/shared/Accordion/StyledAccordion";
+import StyledAccordionSummary from "@/components/shared/Accordion/StyledAccordionSummary";
+
+export type VendorData = {
+  id: string;
+  companyName: string;
+  email: string;
+  logoUrl?: string;
+  taxCardUrl?: string;
+  status: string;
+};
+
+type Props = {
+  vendor: VendorData;
+};
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase?.() ?? "")
+    .join("")
+    .slice(0, 2);
+}
+
+function isImageUrl(url: string) {
+  if (!url) return false;
+  const cleanUrl = url.split("?")[0];
+  return (
+    /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(cleanUrl) ||
+    url.includes("format=png") ||
+    url.includes("format=jpg")
+  );
+}
+
+const downloadFile = async (url: string, desiredName: string) => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    let extension = blob.type.split("/")[1];
+    if (!extension || extension === "plain") {
+      extension = url.split(".").pop()?.split("?")[0] || "file";
+    }
+
+    const fileName = `${desiredName}.${extension}`;
+
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    window.open(url, "_blank");
+  }
+};
+
+export default function VendorCard({ vendor }: Props) {
+  const [viewDoc, setViewDoc] = useState<{ url: string; title: string } | null>(
+    null
+  );
+  const [isDocLoading, setIsDocLoading] = useState(false);
+
+  const handleViewDocument = (
+    url: string,
+    title: string,
+    e?: React.MouseEvent
+  ) => {
+    e?.stopPropagation();
+    setViewDoc({ url, title });
+    setIsDocLoading(true);
+  };
+
+  const handleCloseModal = () => {
+    setViewDoc(null);
+  };
+
+  const handleDownloadClick = (
+    url: string,
+    docTitle: string,
+    e?: React.MouseEvent
+  ) => {
+    e?.stopPropagation();
+    const cleanVendorName = vendor.companyName.replace(/[^a-z0-9]/gi, "_");
+    const cleanDocTitle = docTitle.replace(/[^a-z0-9]/gi, "_");
+    const fileName = `${cleanVendorName}_${cleanDocTitle}`;
+    downloadFile(url, fileName);
+  };
+
+  // Helper to construct Google Docs Viewer URL
+  const getEmbedUrl = (url: string) => {
+    return `https://docs.google.com/gview?url=${encodeURIComponent(
+      url
+    )}&embedded=true`;
+  };
+
+  return (
+    <>
+      <StyledAccordion
+        disableGutters
+        sx={{
+          border: "1px solid #e5e7eb",
+          borderRadius: "12px !important",
+          background: "#ffffff",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+          overflow: "hidden",
+          "&:before": { display: "none" },
+        }}
+      >
+        <StyledAccordionSummary
+          component="div"
+          expandIcon={null}
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: 2.5,
+            "& .MuiAccordionSummary-content": {
+              margin: "12px 0",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              cursor: "pointer",
+              width: "100%",
+            },
+            "&.Mui-expanded .custom-expand-icon": {
+              transform: "translateX(-50%) rotate(180deg)",
+            },
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            alignItems={{ xs: "flex-start", md: "center" }}
+            justifyContent="space-between"
+            width="100%"
+            spacing={2}
+            sx={{ position: "relative" }}
+          >
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar
+                src={vendor.logoUrl}
+                alt={vendor.companyName}
+                sx={{
+                  width: 56,
+                  height: 56,
+                  bgcolor: theme.palette.primary.light,
+                  fontWeight: 700,
+                  fontSize: "1.1rem",
+                  border: "1px solid #e2e8f0",
+                }}
+              >
+                {initials(vendor.companyName)}
+              </Avatar>
+
+              <Stack spacing={0.5}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700, color: "#111827", lineHeight: 1.2 }}
+                >
+                  {vendor.companyName}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#6b7280", fontWeight: 500 }}
+                >
+                  {vendor.email}
+                </Typography>
+              </Stack>
+            </Stack>
+
+            <Box
+              className="custom-expand-icon"
+              sx={{
+                display: { xs: "none", md: "flex" },
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#9ca3af",
+                transition: "transform 0.3s ease",
+                position: "absolute",
+                left: "50%",
+                bottom: "-34px",
+                transform: "translateX(-50%)",
+                zIndex: 1,
+                p: 0.5,
+              }}
+            >
+              <ChevronDown size={24} />
+            </Box>
+
+            <Box
+              className="custom-expand-icon-mobile"
+              sx={{
+                display: { xs: "flex", md: "none" },
+                color: "#6b7280",
+                transition: "transform 0.3s ease",
+                alignSelf: "flex-end",
+              }}
+            >
+              <ChevronDown size={24} />
+            </Box>
+          </Stack>
+        </StyledAccordionSummary>
+
+        <Divider />
+
+        <AccordionDetails sx={{ p: { xs: 2, sm: 3 }, bgcolor: "#f9fafb" }}>
+          <Box>
+            <Stack spacing={2}>
+              <Typography variant="subtitle2" fontWeight={700} color="#374151">
+                Company Documents
+              </Typography>
+              <Stack spacing={1.5}>
+                {vendor.taxCardUrl ? (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 1.5,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      bgcolor: "#fff",
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      alignItems="center"
+                      overflow="hidden"
+                    >
+                      <Box
+                        sx={{
+                          p: 1,
+                          bgcolor: "#eff6ff",
+                          borderRadius: 1,
+                          color: "#3b82f6",
+                        }}
+                      >
+                        <FileText size={20} />
+                      </Box>
+                      <Box minWidth={0}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          Tax Card
+                        </Typography>
+                      </Box>
+                    </Stack>
+                    <Stack direction="row">
+                      <Tooltip title="View">
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            handleViewDocument(vendor.taxCardUrl!, "Tax Card")
+                          }
+                        >
+                          <Eye size={18} className="text-gray-500" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Download">
+                        <IconButton
+                          size="small"
+                          onClick={(e) =>
+                            handleDownloadClick(
+                              vendor.taxCardUrl!,
+                              "Tax Card",
+                              e
+                            )
+                          }
+                        >
+                          <Download size={18} className="text-gray-500" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </Paper>
+                ) : (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    fontStyle="italic"
+                  >
+                    No Tax Card uploaded
+                  </Typography>
+                )}
+
+                {vendor.logoUrl ? (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 1.5,
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      bgcolor: "#fff",
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      alignItems="center"
+                      overflow="hidden"
+                    >
+                      <Box
+                        sx={{
+                          p: 1,
+                          bgcolor: isImageUrl(vendor.logoUrl)
+                            ? "#f0fdf4"
+                            : "#eff6ff",
+                          borderRadius: 1,
+                          color: isImageUrl(vendor.logoUrl)
+                            ? "#22c55e"
+                            : "#3b82f6",
+                        }}
+                      >
+                        {isImageUrl(vendor.logoUrl) ? (
+                          <ImageIcon size={20} />
+                        ) : (
+                          <FileText size={20} />
+                        )}
+                      </Box>
+                      <Box minWidth={0}>
+                        <Typography variant="body2" fontWeight={600} noWrap>
+                          Vendor Logo
+                        </Typography>
+                      </Box>
+                    </Stack>
+                    <Stack direction="row">
+                      <Tooltip title="View">
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            handleViewDocument(vendor.logoUrl!, "Vendor Logo")
+                          }
+                        >
+                          <Eye size={18} className="text-gray-500" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Download">
+                        <IconButton
+                          size="small"
+                          onClick={(e) =>
+                            handleDownloadClick(vendor.logoUrl!, "Logo", e)
+                          }
+                        >
+                          <Download size={18} className="text-gray-500" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </Paper>
+                ) : null}
+              </Stack>
+            </Stack>
+          </Box>
+        </AccordionDetails>
+      </StyledAccordion>
+
+      <CustomModalLayout
+        open={!!viewDoc}
+        onClose={handleCloseModal}
+        width="w-[90vw] md:w-[800px] lg:w-[1000px]"
+      >
+        {viewDoc && (
+          <Stack spacing={2} sx={{ p: 2 }}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography variant="h6" fontWeight={700}>
+                {viewDoc.title}
+              </Typography>
+            </Stack>
+
+            <Box
+              sx={{
+                width: "100%",
+                height: isImageUrl(viewDoc.url) ? "auto" : "60vh",
+                minHeight: "200px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                bgcolor: "#ffffff",
+                borderRadius: 2,
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              {isDocLoading && (
+                <Box sx={{ position: "absolute", zIndex: 10 }}>
+                  <CircularProgress />
+                </Box>
+              )}
+              {isImageUrl(viewDoc.url) ? (
+                <img
+                  src={viewDoc.url}
+                  alt={viewDoc.title}
+                  onLoad={() => setIsDocLoading(false)}
+                  onError={() => setIsDocLoading(false)}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "60vh",
+                    width: "auto",
+                    height: "auto",
+                    objectFit: "contain",
+                    display: "block",
+                    border: "3px solid #e5e7eb",
+                    borderRadius: "10%",
+                    opacity: isDocLoading ? 0 : 1,
+                    transition: "opacity 0.3s",
+                  }}
+                />
+              ) : (
+                <iframe
+                  src={getEmbedUrl(viewDoc.url)}
+                  title={viewDoc.title}
+                  onLoad={() => setIsDocLoading(false)}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    opacity: isDocLoading ? 0 : 1,
+                    transition: "opacity 0.3s",
+                  }}
+                />
+              )}
+            </Box>
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <CustomButton
+                variant="contained"
+                onClick={(e) =>
+                  handleDownloadClick(viewDoc.url, viewDoc.title, e)
+                }
+                startIcon={<Download size={18} />}
+                sx={{ width: "auto" }}
+              >
+                Download {isImageUrl(viewDoc.url) ? "Image" : "Document"}
+              </CustomButton>
+            </Box>
+          </Stack>
+        )}
+      </CustomModalLayout>
+    </>
+  );
+}

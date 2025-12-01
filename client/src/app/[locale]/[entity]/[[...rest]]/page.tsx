@@ -36,6 +36,7 @@ import PollsManagement from "@/components/EventsOffice/Polls/PollsManagement";
 import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from '../../../../components/shared/Report/reportTable';
+import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -461,12 +462,7 @@ export default function EntityCatchAllPage() {
       }
       if (section === "all-vendors") {
         return (
-          <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Vendor Directory</h2>
-            <p className="text-gray-600">
-              Vendor directory management is coming soon.
-            </p>
-          </div>
+          <AllVendorsList />
         );
       }
       if (section === "loyalty-partners") {
@@ -534,12 +530,7 @@ export default function EntityCatchAllPage() {
 
       if (section === "all-vendors") {
         return (
-          <div className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Vendor Directory</h2>
-            <p className="text-gray-600">
-              Vendor directory management is coming soon.
-            </p>
-          </div>
+          <AllVendorsList />
         );
       }
 

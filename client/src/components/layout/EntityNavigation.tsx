@@ -370,6 +370,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
+          { id: "all-vendors", label: "Vendors Details" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
           { id: "vendor-polls", label: "Vendor Polls" },
@@ -445,6 +446,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Vendor Management",
         icon: Store,
         tabs: [
+          { id: "all-vendors", label: "Vendors Details" },
           { id: "participation-requests", label: "Participation Requests" },
           { id: "loyalty-partners", label: "Loyalty Program Partners" },
         ],

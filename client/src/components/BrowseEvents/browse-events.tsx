@@ -79,13 +79,20 @@ type Event =
 
 const getFilterGroups = (
   userRole: string,
-  professorOptions: FilterOption[]
+  professorOptions: FilterOption[],
+  locationOptions: FilterOption []
 ): FilterGroup[] => [
     {
       id: "professorName",
       title: "Professor Name",
       type: "text",
       options: professorOptions,
+    },
+    {
+      id: "location",
+      title:"Location",
+      type: "text",
+      options: locationOptions,
     },
     {
       id: "eventType",
@@ -118,6 +125,7 @@ const getFilterGroups = (
       title: "Date",
       type: "date", // <--- NEW TYPE
     },
+
   ];
 
 const EventColor = [
@@ -167,6 +175,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createBazaar, setBazaar] = useState(false);
   const [createTrip, setTrip] = useState(false);
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
+  const [locationOptions, setlocationOptions] = useState<FilterOption[]>([]);
   const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
   const registeredEvents = userInfo?.registeredEvents;
 
@@ -177,6 +186,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
         const res = await api.get("/users/professors");
         // filter only isVerified = true
         const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+        console.log("Verified Professors count:", verifiedProfessors.length);
         const professors = verifiedProfessors.map((prof: any) => ({
           firstName: prof.firstName,
           lastName: prof.lastName,
@@ -189,6 +199,32 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     };
     fetchProfessors();
   }, []);
+
+  useEffect(() => {
+  if (events.length === 0) {
+    setlocationOptions([]);
+    return;
+  }
+
+  const uniqueLocations = new Set<string>();
+
+  events.forEach((event) => {
+    const location = event.details.Location;
+    if (typeof location === "string" && location.trim()) {
+      uniqueLocations.add(location.trim().toLowerCase());
+    }
+  });
+
+  const options: FilterOption[] = Array.from(uniqueLocations)
+    .sort() // Sort alphabetically
+    .map((loc) => ({
+      label: capitalizeNamePart(loc), // Use your existing utility to format the label
+      value: loc, // Lowercase value for filtering
+    }));
+
+  setlocationOptions(options);
+  console.log("📍 Generated location filter options:", options);
+}, [events]);
 
   // Separate effect for loading events
   useEffect(() => {
@@ -529,21 +565,33 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
 
       if (
         (groupId === "eventType" ||
-          groupId === "location" ||
           groupId === "attendance") &&
         Array.isArray(currentVal)
       ) {
-        if (currentVal.includes(value)) {
+        const filterValue = String(value).toLowerCase();
+        if (currentVal.includes(filterValue)) {
           return {
             ...prev,
-            [groupId]: currentVal.filter((v) => v !== value),
+            [groupId]: currentVal.filter((v) => v !== filterValue),
           };
         } else {
           return {
             ...prev,
-            [groupId]: [...currentVal, value],
+            [groupId]: [...currentVal, filterValue],
           };
         }
+      }
+      if (
+         ( groupId === "location" ||
+          groupId === "professorName" )
+      ) {
+          // If value is an array (from TextSelector), accept it directly after lowercasing
+          if (Array.isArray(value)) {
+              const finalValue = value.map((v: string) => v.toLowerCase());
+              return { ...prev, [groupId]: finalValue };
+          }
+          // If not an array, treat it as a reset or invalid call (should be array or empty string/null for reset)
+          return { ...prev, [groupId]: [] };
       }
       return {
         ...prev,
@@ -757,26 +805,57 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       description={pageDescription}
       padding={{ xs: 2, md: 4 }}
     >
-      {/* Search and Filter Row */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          alignItems: "center",
-          mb: 6,
-          flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
-        }}
-      >
-        <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
-          <CustomSearchBar
-            width="100%"
-            type="outwards"
-            icon
-            value={searchQuery}
-            onChange={handleSearchChange}
-            storageKey="browseEventsSearchHistory"
-            autoSaveDelay={2000}
-          />
+        {/* Search and Filter Row */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "center",
+            mb: 6,
+            flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
+          }}
+        >
+          <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
+            <CustomSearchBar
+              width="100%"
+              type="outwards"
+              icon
+              value={searchQuery}
+              onChange={handleSearchChange}
+              storageKey="browseEventsSearchHistory"
+              autoSaveDelay={2000}
+            />
+          </Box>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <FilterPanel
+              filterGroups={getFilterGroups(user, professorOptions,locationOptions)}
+              onFilterChange={handleFilterChange}
+              currentFilters={filters}
+              onReset={handleResetFilters}
+              matchSearchBar
+            />
+          </LocalizationProvider>
+        </Box>
+
+        {/* Sort By and Creation Hub Row */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 2,
+            mb: 2,
+          }}
+        >
+          <SortByDate value={sortBy} onChange={handleSortChange} />
+          {user === "events-office" && (
+            <CreationHubDropdown
+              options={creationHubOptions}
+              helperText="Choose what you would like to create"
+              dropdownSide="right"
+              buttonTextColor="#fff"
+            />
+          )}
         </Box>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <FilterPanel
