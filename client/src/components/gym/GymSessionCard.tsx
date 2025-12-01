@@ -227,6 +227,7 @@ export default function GymSessionCard({
         height="24px"
         sx={{
           backgroundColor: baseColor,
+          borderColor: baseColor,
           color: "#fff",
           fontWeight: 600,
           fontSize: "0.7rem",
