@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Typography, Stack, Chip, Alert } from "@mui/material";
+import { Typography, Stack, Chip, Alert, Box } from "@mui/material";
 import VendorItemCard from "./VendorItemCard";
 import { VendorRequestItem } from "./types";
 import { api } from "@/api";
@@ -88,6 +88,31 @@ setRequests(framedData);
     // If approved and not paid -> show Pay button
     if (item.status === "approved" && !item.hasPaid) {
       return (
+        <Box sx={{ display: 'flex', gap: 1 }}>
+        <CustomButton
+          size="small"
+          variant="outlined"
+          sx={{
+            borderRadius: 999,
+            border: `1px solid ${theme.palette.error.dark}`,
+            backgroundColor: `${theme.palette.error.main}`,
+            color: "background.paper",
+            fontWeight: 600,
+            px: 3,
+            textTransform: "none",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+            width: 'fit-content'
+          }}
+          onClick={() => {
+            setSelectedEventId(item.id ?? null);  // Use item.id, not item.eventId
+            setCancelApplication(true);
+          }}
+        >
+          Cancel Application
+        </CustomButton>
         <CustomButton
           size="small"
           variant="contained"
@@ -103,6 +128,7 @@ setRequests(framedData);
             "&:hover": {
               transform: "translateY(-2px)",
             },
+            width: '145px'
           }}
           onClick={() => {
             setSelectedEventId(item.id ?? null);
@@ -112,6 +138,7 @@ setRequests(framedData);
         >
           Pay
         </CustomButton>
+        </Box>
       );
     }
 

@@ -158,6 +158,28 @@ const BazarView: React.FC<BazarViewProps> = ({
             ) : (
               // if requested and status is approved but not paid -> show Pay button
               (requestStatus === "approved" && !hasPaid ) ? (
+                <>
+                <CustomButton
+                  size="small"
+                  variant="outlined"
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                        width: 'fit-content'
+                    }}
+                  onClick={() => setCancelApplication(true)}
+                >
+                  Cancel Application
+                </CustomButton>
                 <CustomButton
                   size="small"
                   variant="contained"
@@ -173,11 +195,13 @@ const BazarView: React.FC<BazarViewProps> = ({
                       "&:hover": {
                         transform: "translateY(-2px)",
                       },
+                      width: '145px',
                     }}
                   onClick={() => setPaymentDrawerOpen(true)}
                 >
                   Pay
                 </CustomButton>
+                </>
               ) :
               // if requested and NOT approved -> show Cancel Application
               (requestStatus !== "approved" && !hasPaid && !registrationPassed) ? (
