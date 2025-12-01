@@ -513,18 +513,18 @@ async function voteInPoll(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-async function getVendorsInActivePolls(req: AuthenticatedRequest, res: Response) {
+async function getBoothsHavingPolls(req: AuthenticatedRequest, res: Response) {
   try {
-    const vendors = await vendorEventsService.getVendorsInActivePolls();
+    const boothIds = await vendorEventsService.getBoothsHavingPolls();
     res.json({
       success: true,
-      data: vendors,
-      message: "Vendors in active polls retrieved successfully",
+      data: boothIds,
+      message: "Booths with active polls retrieved successfully",
     });
   } catch (error: any) {
     throw createError(
       error.status || 500,
-      error.message || "Error retrieving vendors in active polls"
+      error.message || "Error retrieving booths with active polls"
     );
   }
 }
@@ -596,7 +596,7 @@ router.post(
 );
 
 router.get(
-  "/vendors-in-polls",
+  "/booths-with-active-polls",
   authorizeRoles({ 
     userRoles: [
       UserRole.ADMINISTRATION
@@ -605,7 +605,7 @@ router.get(
       AdministrationRoleType.EVENTS_OFFICE
     ]
   }),
-  getVendorsInActivePolls
+  getBoothsHavingPolls
 );
 
 router.get(

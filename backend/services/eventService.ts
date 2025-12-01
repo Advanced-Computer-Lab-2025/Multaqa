@@ -338,6 +338,35 @@ export class EventsService {
         }
       }
     }
+     if (event.type === EVENT_TYPES.CONFERENCE) {
+      const now = new Date();
+      const eventStarted = new Date(event.eventStartDate) < now;
+      const eventEnded = new Date(event.eventEndDate) < now;
+      const isOngoing = eventStarted && !eventEnded;
+
+      if (isOngoing) {
+        if ( updateData.eventStartDate || updateData.eventStartTime ) {
+          throw createError(
+            400,
+            "Cannot update conference start date/time while it is ongoing"
+          );
+        }
+        else if ( updateData.eventEndDate || updateData.eventEndTime ) {
+          // Combine end date and time for accurate comparison
+          const newEndDate = new Date(updateData.eventEndDate || event.eventEndDate);
+          const endTime = updateData.eventEndTime || event.eventEndTime;
+          
+          if (endTime) {
+            const [hours, minutes] = endTime.split(":").map(Number);
+            newEndDate.setHours(hours, minutes, 0, 0);
+          }
+          
+          if (newEndDate < now) {
+            throw createError(400, "Cannot set conference end date/time to a past date/time while it is ongoing");
+          }
+        }
+      }
+    }
     // If event has a price and its being changed, reflect that in Stripe before saving to DB
     if (
       Object.prototype.hasOwnProperty.call(updateData, "price") &&

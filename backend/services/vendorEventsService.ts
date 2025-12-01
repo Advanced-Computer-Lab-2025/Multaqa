@@ -94,18 +94,7 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Calculate participation fee for platform booth
-    const BASE_PRICE = 50;
-    const duration = data.value.boothSetupDuration || 1; // in weeks (1-4)
-    const location = data.value.boothLocation || "";
-
-    // Extract booth number from location (e.g., "Booth 15" -> 15)
-    const boothNumberMatch = location.match(/(\d+)/);
-    const boothNumber = boothNumberMatch
-      ? parseInt(boothNumberMatch[1], 10)
-      : 1;
-
-    const participationFee = BASE_PRICE * duration * boothNumber;
+    const participationFee = data.value.participationFee;
 
     // Create a new platform booth event for this vendor
     const event = await this.eventRepo.create({
@@ -187,6 +176,10 @@ export class VendorEventsService {
       throw createError(400, "Event is not a bazaar");
     }
 
+    if (new Date() > event.eventStartDate) {
+      throw createError(400, "Cannot apply to an event that has already started");
+    }
+
     const applied =
       Array.isArray(event.vendors) &&
       event.vendors.some((v: any) => v.vendor.toString() === vendorId);
@@ -198,14 +191,8 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Calculate participation fee for bazaar
-    const BASE_PRICE = 50;
-    const location = data.value.bazaarLocation || "";
-    const boothSize = data.value.boothSize || "2x2";
-    const sizeMatch = boothSize.match(/(\d+)/);
-    const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
-    const locationFactor = Math.max(1, Math.floor(location.length / 10));
-    const participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
+    // Use provided participation fee
+    const participationFee = data.value.participationFee;
 
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
@@ -880,7 +867,7 @@ export class VendorEventsService {
 
   async getVendorsWithOverlappingBooths(): Promise<any[]> {
     // Get all pending platform booth events
-    const platformBoothEvents = await this.eventRepo.findAll(
+    let platformBoothEvents = await this.eventRepo.findAll(
       {
         type: EVENT_TYPES.PLATFORM_BOOTH,
         "RequestData.status": Event_Request_Status.PENDING,
@@ -889,6 +876,15 @@ export class VendorEventsService {
         populate: [{ path: "vendor", select: "companyName logo email" }] as any[],
       }
     );
+
+    // Booths that had poll before
+    const boothsAlreadyHadPoll = await this.getBoothsAlreadyHadPoll();
+
+    // filter out booths already had polls before
+    platformBoothEvents = platformBoothEvents.filter(event => {
+      const boothId = String(event._id);
+      return !boothsAlreadyHadPoll.includes(boothId);
+    });
 
     // Group vendors by booth location
     const locationGroups = new Map<string, any[]>();
@@ -913,17 +909,31 @@ export class VendorEventsService {
     const result: any[] = [];
     for (const [location, vendors] of locationGroups.entries()) {
       if (vendors.length > 1) {
-        result.push({
-          location,
-          vendorCount: vendors.length,
-          vendors: vendors.map((v) => ({
-            eventId: v.eventId,
-            eventName: v.eventName,
-            vendor: v.vendor,
-            boothSize: v.boothSize,
-            boothSetupDuration: v.boothSetupDuration,
-          })),
+        // Remove duplicate vendors within the same clash group
+        const seenVendorIdsInGroup = new Set<string>();
+        const uniqueVendors = vendors.filter(v => {
+          const vendorId = v.vendor?._id?.toString() || v.vendor?.toString();
+          if (!vendorId || seenVendorIdsInGroup.has(vendorId)) {
+            return false;
+          }
+          seenVendorIdsInGroup.add(vendorId);
+          return true;
         });
+
+        // Only add if we still have at least 2 unique vendors
+        if (uniqueVendors.length > 1) {
+          result.push({
+            location,
+            vendorCount: uniqueVendors.length,
+            vendors: uniqueVendors.map((v) => ({
+              eventId: v.eventId,
+              eventName: v.eventName,
+              vendor: v.vendor,
+              boothSize: v.boothSize,
+              boothSetupDuration: v.boothSetupDuration,
+            })),
+          });
+        }
       }
     }
 
@@ -937,14 +947,38 @@ export class VendorEventsService {
   async getAllPolls(userId?: string): Promise<any[]> {
     const polls = await this.pollRepo.findAll({});
 
-    // Add hasVoted field for each poll based on current user
+    // Collect all booth IDs from all polls
+    const boothIds = polls.flatMap(poll => poll.options.map(opt => opt.boothId));
+    
+    // Fetch all events (booths) in one query
+    const booths = await this.eventRepo.findAll({
+      _id: { $in: boothIds }
+    });
+
+    // Create a map of boothId -> boothLocation for quick lookup
+    const boothLocationMap = new Map();
+    booths.forEach((booth: any) => {
+      const location = booth.RequestData?.boothLocation || booth.RequestData?.bazaarLocation || booth.location;
+      boothLocationMap.set(booth._id.toString(), location);
+    });
+
+    // Add hasVoted field and booth location for each poll
     const pollsWithVoteStatus = polls.map((poll) => {
       const hasVoted = userId 
         ? poll.votes.some(vote => vote.userId.toString() === userId)
         : false;
       
+      const pollObject = poll.toObject();
+      
+      // Add boothNumber to each option
+      const optionsWithBoothNumber = pollObject.options.map((option: any) => ({
+        ...option,
+        boothNumber: boothLocationMap.get(option.boothId) || 'N/A'
+      }));
+      
       return {
-        ...poll.toObject(),
+        ...pollObject,
+        options: optionsWithBoothNumber,
         hasVoted,
       };
     });
@@ -956,7 +990,7 @@ export class VendorEventsService {
     title: string;
     description: string;
     deadlineDate: Date;
-    vendorIds: string[];
+    vendorData: Array<{ vendorId: string; boothId: string }>;
   }): Promise<IPoll> {
     // Validate dates
     const deadlineDate = new Date(pollData.deadlineDate);
@@ -965,27 +999,34 @@ export class VendorEventsService {
       throw createError(400, "End date must be in the future");
     }
 
+    console.log("Creating poll with data:", pollData);
     // Validate vendors exist
-    if (!pollData.vendorIds || pollData.vendorIds.length < 2) {
+    if (!pollData.vendorData || pollData.vendorData.length < 2) {
       throw createError(400, "At least 2 vendors are required for a poll");
     }
 
+    const vendorIds = pollData.vendorData.map(v => v.vendorId);
+
     // Fetch vendor details
     const vendors = await this.vendorRepo.findAll({
-      _id: { $in: pollData.vendorIds },
+      _id: { $in: vendorIds },
     });
 
-    if (vendors.length !== pollData.vendorIds.length) {
+    if (vendors.length !== pollData.vendorData.length) {
       throw createError(404, "One or more vendors not found");
     }
 
-    // Create poll options from vendors
-    const options = vendors.map((vendor) => ({
-      vendorId: (vendor as any)._id.toString(),
-      vendorName: vendor.companyName,
-      vendorLogo: vendor.logo?.url,
-      voteCount: 0,
-    }));
+    // Create poll options from vendors with their booth IDs
+    const options = pollData.vendorData.map((data) => {
+      const vendor = vendors.find(v => (v as any)._id.toString() === data.vendorId);
+      return {
+        boothId: data.boothId,
+        vendorId: data.vendorId,
+        vendorName: vendor!.companyName,
+        vendorLogo: vendor!.logo?.url,
+        voteCount: 0,
+      };
+    });
 
     // Create the poll
     const poll = await this.pollRepo.create({
@@ -1045,20 +1086,37 @@ export class VendorEventsService {
     return poll;
   }
 
-  async getVendorsInActivePolls(): Promise<string[]> {
-    // Query by deadlineDate since isActive is a virtual property
-    const polls = await this.pollRepo.findAll({
-      deadlineDate: { $gt: new Date() }
-    });
+  // To prevent these booths applications from being in a future poll
+  async getBoothsAlreadyHadPoll(): Promise<string[]> {
+    const polls = await this.pollRepo.findAll({});
 
-    const vendorIdSet = new Set<string>();
+    const boothIdSet = new Set<string>();
     for (const poll of polls) {
       for (const option of poll.options) {
-        vendorIdSet.add(option.vendorId);
+        if (option.boothId) {
+          boothIdSet.add(option.boothId);
+        }
       }
     }
 
-    const vendorIds = Array.from(vendorIdSet);
-    return vendorIds;
+    return Array.from(boothIdSet);
+  }
+
+  // To mark them inPoll
+  async getBoothsHavingPolls(): Promise<string[]> {
+    const polls = await this.pollRepo.findAll({
+      deadlineDate: { $gte: new Date() },
+    });
+
+    const boothIdSet = new Set<string>();
+    for (const poll of polls) {
+      for (const option of poll.options) {
+        if (option.boothId) {
+          boothIdSet.add(option.boothId);
+        }
+      }
+    }
+
+    return Array.from(boothIdSet);
   }
 }

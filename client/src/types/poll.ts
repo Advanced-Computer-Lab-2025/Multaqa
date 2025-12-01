@@ -3,6 +3,7 @@ export interface PollOption {
   vendorName: string;
   vendorLogo?: string;
   voteCount: number;
+  boothNumber?: string;
 }
 
 export interface Poll {
@@ -21,5 +22,5 @@ export interface CreatePollDTO {
   title: string;
   description: string;
   endDate: Date;
-  vendorRequestIds: string[]; // IDs of the vendors to include in the poll
+  vendorData: Array<{ vendorId: string; boothId: string }>; // Vendor IDs with their booth/event IDs
 }

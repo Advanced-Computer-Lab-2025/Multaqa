@@ -45,6 +45,7 @@ const mapRequestedEventToVendorRequest = (
   const status = STATUS_MAP[statusKey] ?? "PENDING";
 
   // Get hasPaid and participationFee from the item (top-level vendorEvent)
+  console.log("Item:", item);
   const hasPaid = item?.hasPaid ?? false;
   const participationFee = item?.participationFee ?? 0;
 

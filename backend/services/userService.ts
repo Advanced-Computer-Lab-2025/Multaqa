@@ -255,6 +255,9 @@ export class UserService {
     if (user.status === UserStatus.BLOCKED) {
       throw createError(400, "User is already blocked");
     }
+    if ((user as IAdministration).name ==="Super Admin") {
+      throw createError(400, "Cannot block Super Admin user");
+    }
     user.status = UserStatus.BLOCKED;
     user.updatedAt = new Date();
     await sendBlockUnblockEmail(user.email, true, "admin decision");

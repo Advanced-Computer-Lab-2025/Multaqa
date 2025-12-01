@@ -46,6 +46,7 @@ const getFilterGroups = (): FilterGroup[] => [
       { label: "Pending", value: "pending" },
       { label: "Approved", value: "approved" },
       { label: "Rejected", value: "rejected" },
+      { label: "In Poll", value: "inPoll" },
     ],
   },
   {
@@ -267,7 +268,7 @@ export default function VendorParticipationRequests() {
     Record<string, VendorRequestStatus | null>
   >({});
   const [refresh, setRefresh] = useState(false);
-  const [vendorsInPolls, setVendorsInPolls] = useState<Set<string>>(new Set());
+  const [boothsWithPolls, setBoothsWithPolls] = useState<Set<string>>(new Set());
 
   const [filters, setFilters] = useState<{
     status: string[];
@@ -283,16 +284,16 @@ export default function VendorParticipationRequests() {
     setFeedback(null);
 
     try {
-      // Fetch vendor requests and vendors in polls in parallel
+      // Fetch vendor requests and booth IDs with polls in parallel
       const [requestsResponse, pollsResponse] = await Promise.all([
         api.get("/vendorEvents/vendor-requests"),
-        api.get("/vendorEvents/vendors-in-polls").catch(() => ({ data: { data: [] } }))
+        api.get("/vendorEvents/booths-with-active-polls").catch(() => ({ data: { data: [] } }))
       ]);
 
       const payload = requestsResponse.data?.data ?? requestsResponse.data ?? [];
-      const vendorsInPollsData = pollsResponse.data?.data ?? [];
-      const pollVendorIds = new Set<string>(vendorsInPollsData);
-      setVendorsInPolls(pollVendorIds);
+      const boothsWithPollsData = pollsResponse.data?.data ?? [];
+      const boothIdsWithPolls = new Set<string>(boothsWithPollsData);
+      setBoothsWithPolls(boothIdsWithPolls);
 
       const mapped = (Array.isArray(payload) ? payload : [])
         .map((entry) => {
@@ -300,7 +301,7 @@ export default function VendorParticipationRequests() {
           if (request) {
             return {
               ...request,
-              isInPoll: pollVendorIds.has(request.vendorId)
+              isInPoll: boothIdsWithPolls.has(request.eventId)
             };
           }
           return null;
@@ -336,7 +337,8 @@ export default function VendorParticipationRequests() {
       const statusMatch =
         filters.status.length === 0 ||
         filters.status.includes("ALL") ||
-        filters.status.includes(request.status);
+        filters.status.includes(request.status) ||
+        (filters.status.includes("inPoll") && request.isInPoll);
 
       // Event type filter
       const typeMatch =

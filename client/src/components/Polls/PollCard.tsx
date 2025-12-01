@@ -7,7 +7,7 @@ import CustomRadio from "@/components/shared/input-fields/CustomRadio";
 import CustomButton from "@/components/shared/Buttons/CustomButton";
 import { votePoll } from "@/services/pollService";
 import { toast } from "react-toastify";
-import { Clock, CheckCircle, Trophy } from "lucide-react";
+import { Clock, CheckCircle, Trophy, Calendar } from "lucide-react";
 
 interface PollCardProps {
   poll: Poll;
@@ -25,28 +25,13 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
 
     setVoting(true);
 
-    // Handle test/mock polls without backend
-    if (poll.id.startsWith("test-poll-")) {
-      setTimeout(() => {
-        toast.success("Vote submitted successfully! (Demo)");
-        setHasVoted(true);
-        
-        setLocalPoll(prev => ({
-          ...prev,
-          options: prev.options.map(opt => 
-            opt.vendorId === selectedVendorId 
-              ? { ...opt, voteCount: opt.voteCount + 1 } 
-              : opt
-          )
-        }));
-        setVoting(false);
-      }, 1000);
-      return;
-    }
-
     try {
       await votePoll(poll.id, selectedVendorId);
-      toast.success("Vote submitted successfully!");
+      toast.success("Vote submitted successfully!", {
+        position: "bottom-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
       setHasVoted(true);
       
       // Optimistically update the UI
@@ -65,9 +50,17 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
       // If user has already voted, update the UI state
       if (errorMessage.toLowerCase().includes("already voted")) {
         setHasVoted(true);
-        toast.info("You have already voted in this poll");
+        toast.info("You have already voted in this poll", {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
       } else {
-        toast.error(errorMessage);
+        toast.error(errorMessage, {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
       }
     } finally {
       setVoting(false);
@@ -104,15 +97,28 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
             <Chip label="Ended" color="default" size="small" sx={{ height: 20, fontSize: "0.65rem" }} />
           )}
         </Box>
+        {localPoll.options[0]?.boothNumber && (
+          <Typography variant="caption" color="primary.main" fontWeight="600" sx={{ mb: 0.5, fontSize: "0.75rem", display: "block" }}>
+            {localPoll.options[0].boothNumber}
+          </Typography>
+        )}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontSize: "0.75rem", minHeight: "32px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {localPoll.description}
         </Typography>
         
-        <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary", fontSize: "0.75rem" }}>
-          <Clock size={14} style={{ marginRight: 4 }} />
-          <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
-            Ends: {endDate.toLocaleDateString()}
-          </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", color: "text.secondary", fontSize: "0.75rem" }}>
+            <Calendar size={14} style={{ marginRight: 4 }} />
+            <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+              Started: {new Date(localPoll.startDate).toLocaleDateString()}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", color: isExpired ? "error.main" : "text.secondary", fontSize: "0.75rem" }}>
+            <Clock size={14} style={{ marginRight: 4 }} />
+            <Typography variant="caption" sx={{ fontSize: "0.75rem", color: isExpired ? "error.main" : "text.secondary" }}>
+              {isExpired ? "Ended" : "Ends"}: {endDate.toLocaleDateString()} at {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Typography>
+          </Box>
         </Box>
       </Box>
 

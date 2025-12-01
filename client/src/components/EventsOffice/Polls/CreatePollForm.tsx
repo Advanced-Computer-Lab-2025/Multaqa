@@ -105,25 +105,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
           getAllPolls().catch(() => []),
         ]);
         
-        // Get vendor IDs from active polls
-        const activePolls = allPolls.filter(poll => poll.isActive);
-        const vendorIdsWithActivePolls = new Set<string>();
-        for (const poll of activePolls) {
-          for (const option of poll.options) {
-            vendorIdsWithActivePolls.add(option.vendorId);
-          }
-        }
-        
-        // Filter out clash groups where ANY vendor is already in an active poll
-        const availableClashGroups = overlappingGroups.filter(group => {
-          // Check if all vendors in this group are NOT in an active poll
-          const allVendorsAvailable = group.vendors.every(
-            vendor => !vendorIdsWithActivePolls.has(vendor.vendorId)
-          );
-          return allVendorsAvailable;
-        });
-        
-        setClashGroups(availableClashGroups);
+        setClashGroups(overlappingGroups);
       } catch (error: any) {
         console.error("Failed to fetch data", error);
         if (!error.message?.includes("No conflicting")) {
@@ -204,13 +186,16 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
 
       if (!values.endDate) return;
       
-      // Get vendor IDs from the selected clash group
+      // Get vendor data from the selected clash group
       const selectedClash = clashGroups.find(g => g.location === values.selectedClashLocation);
       if (!selectedClash) {
         toast.error("Please select a valid booth location clash.");
         return;
       }
-      const vendorIds = selectedClash.vendors.map(v => v.vendorId);
+      const vendorData = selectedClash.vendors.map(v => ({
+        vendorId: v.vendorId,
+        boothId: v.eventId
+      }));
       
       setSubmitting(true);
       try {
@@ -218,7 +203,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
           title: values.title,
           description: values.notes || "",
           endDate: values.endDate.toDate(),
-          vendorRequestIds: vendorIds,
+          vendorData: vendorData,
         });
         toast.success("Poll created successfully!", {
           position: "bottom-right",
@@ -560,7 +545,7 @@ const CreatePollForm: React.FC<CreatePollFormProps> = ({ open, onClose, onSucces
               )}
 
               {/* Submit Button */}
-              <Box sx={{ mt: 2, textAlign: "right", width: "100%", display: "flex", justifyContent: "flex-end", gap: 2 }}>
+              <Box sx={{ mt: 2, mb: 2, textAlign: "right", width: "100%", display: "flex", justifyContent: "flex-end", gap: 2 }}>
                 <CustomButton 
                   disabled={submitting || clashGroups.length === 0} 
                   label={submitting ? "Creating..." : "Create Poll"} 
