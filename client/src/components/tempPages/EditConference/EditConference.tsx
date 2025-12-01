@@ -32,6 +32,14 @@ const validationSchema = yup.object({
     websiteLink: yup.string().required('Link is required'),
 });
 
+const validationSchemaLate = yup.object({
+    eventName: yup.string().required('Conference Name is required').min(3, 'Name must be at least 3 characters'),
+    description: yup.string().required('Description is required'),
+    requiredBudget: yup.number().typeError('Budget must be a number').positive('Budget must be positive').required('Budget is required'),
+    fundingSource: yup.string().required('Funding Source is required'),
+    websiteLink: yup.string().required('Link is required'),
+});
+
 // Create tertiaryInputStyles as a function that accepts color
 const createTertiaryInputStyles = (accentColor: string, theme: any) => ({
     '& .MuiInputLabel-root': {
@@ -240,7 +248,7 @@ const Edit: React.FC<EditConferenceProps> = ({
 
     const formik = useFormik<EventFormData>({
         initialValues: initialFormData,
-        validationSchema: validationSchema,
+        validationSchema: startDatePassed ? validationSchemaLate : validationSchema,
         onSubmit: onSubmit,
         validateOnChange: true,
         validateOnBlur: true,
