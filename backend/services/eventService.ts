@@ -858,9 +858,15 @@ export class EventsService {
         worksheet.addRow({ name: attendee.Name });
       });
     } else if (event.type === EVENT_TYPES.BAZAAR) {
-      if (!event.vendors || event.vendors.length === 0) {
-        throw createError(404, "No vendors to export for this bazaar");
+      // Filter only approved vendors
+      const approvedVendors = event.vendors?.filter(
+        (vendorEntry: any) => vendorEntry.RequestData?.status === "approved"
+      ) || [];
+
+      if (approvedVendors.length === 0) {
+        throw createError(404, "No approved vendors to export for this bazaar");
       }
+
       // Create worksheet for bazaar booth attendees
       const worksheet = workbook.addWorksheet("Bazaar Booth Attendees");
       worksheet.columns = [
@@ -871,8 +877,8 @@ export class EventsService {
       headerCell.value = "Vendor/Attendee Name";
       applyHeaderStyle(headerCell);
 
-      // Populate rows with vendors and their attendees
-      event.vendors.forEach((vendorEntry: any) => {
+      // Populate rows with approved vendors and their attendees
+      approvedVendors.forEach((vendorEntry: any) => {
         const vendorName = vendorEntry.vendor?.companyName || "Unknown Vendor";
 
         const vendorRow = worksheet.addRow({ Name: `VENDOR: ${vendorName}` });
