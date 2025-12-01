@@ -78,13 +78,14 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       const nameParts = [firstName, lastName];
       const nonEmptyNameParts = nameParts.filter(part => part);
       const fullName = nonEmptyNameParts.join(' ');
+      const profs = [...flattenName(event.associatedProfs), fullName];
       return {
         id,
         type: EventType.WORKSHOP,
         name: event.eventName,
         description: event.description,
         agenda: event.fullAgenda,
-        professors: flattenName(event.associatedProfs),
+        professors: profs,
         comments:event.comments,
         attendees:event.attendees,
         professorsId: event.associatedProfs?.map((prof: any) => prof._id || prof) || [],
