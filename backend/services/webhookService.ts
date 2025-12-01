@@ -189,6 +189,19 @@ export class WebhookService {
           event.RequestData
         ) {
           event.RequestData.hasPaid = true;
+
+          // Set start date to 1 day after payment
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() + 1);
+          event.eventStartDate = startDate;
+
+          // Update end date based on duration
+          if (event.RequestData.boothSetupDuration) {
+            const durationInWeeks = event.RequestData.boothSetupDuration;
+            const durationInMs = durationInWeeks * 7 * 24 * 60 * 60 * 1000;
+            event.eventEndDate = new Date(startDate.getTime() + durationInMs);
+          }
+
           event.markModified("RequestData");
           await event.save();
         } else {
