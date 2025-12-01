@@ -24,6 +24,7 @@ import ContentWrapper from "../shared/containers/ContentWrapper";
 type Props = {
   month?: Date; // initial month
   sessions?: GymSession[]; // optional external data, else use demo
+  eventsOffice?: boolean;
 };
 
 // Skeleton Loading Component (matches GymSessionCard layout)
@@ -82,7 +83,7 @@ const GymSessionsSkeleton = () => {
   );
 };
 
-export default function GymSchedule({ month, sessions }: Props) {
+export default function GymSchedule({ month, sessions, eventsOffice = false }: Props) {
   const [current, setCurrent] = useState<Date>(month ?? new Date());
   const [filter, setFilter] = useState<GymSessionType | "ALL">("ALL");
   const [fetched, setFetched] = useState<GymSession[]>([]);
@@ -433,7 +434,7 @@ export default function GymSchedule({ month, sessions }: Props) {
                   }}
                 >
                   {list.map((s) => (
-                    <GymSessionCard key={s.id} session={s} showSpots />
+                    <GymSessionCard key={s.id} session={s} showSpots eventsOffice={eventsOffice} />
                   ))}
                 </Box>
               </Box>
