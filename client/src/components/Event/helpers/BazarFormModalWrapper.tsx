@@ -7,12 +7,14 @@ interface BazarFormModalWrapperProps {
   isOpen: boolean;
   onClose: () => void;
   bazarId: string;
+  location: string;
 }
 
 const BazarFormModalWrapper: React.FC<BazarFormModalWrapperProps> = ({
   isOpen,
   onClose,
-  bazarId
+  bazarId,
+  location,
 }) => {
   const theme = useTheme();
   const modalWidthClass = "w-[65vw] md:w-[55vw] lg:w-[45vw] xl:w-[45vw]";
@@ -24,7 +26,7 @@ const BazarFormModalWrapper: React.FC<BazarFormModalWrapperProps> = ({
       width={modalWidthClass}
       borderColor={theme.palette.primary.main}  // Use actual color, not string
     >
-      <BazarForm eventId={bazarId} />
+      <BazarForm eventId={bazarId} location={location} />
     </CustomModalLayout>
   );
 };

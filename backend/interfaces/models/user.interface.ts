@@ -22,4 +22,9 @@ export interface IUser extends Document {
   verifiedAt?: Date;
   updatedAt?: Date;
   isVerified: boolean;
+  loyaltyProgram?: {
+    discountRate: number;
+    promoCode: string;
+    termsAndConditions: string;
+  };
 }

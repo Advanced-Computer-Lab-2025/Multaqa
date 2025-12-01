@@ -225,9 +225,13 @@ async function getAllFavorites(
   }
 }
 
-async function blockUser(req: Request, res: Response<BlockUserResponse>) {
+async function blockUser(req: AuthenticatedRequest, res: Response<BlockUserResponse>) {
   try {
     const userId = req.params.id;
+    const loggedinUserId = req.user?.id;
+    if (userId === loggedinUserId) {
+      throw createError(400, "You cannot block yourself");
+    }
     console.log("🔒 Blocking user:", userId);
 
     await userService.blockUser(userId);

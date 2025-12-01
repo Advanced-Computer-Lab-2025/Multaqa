@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+    ],
+  },
 };
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');

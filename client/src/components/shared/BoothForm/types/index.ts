@@ -11,4 +11,5 @@ export interface BoothFormValues {
   boothSetupDuration: number | string;
   boothSize: string;
   boothLocation: string;
+  price: number;
 }

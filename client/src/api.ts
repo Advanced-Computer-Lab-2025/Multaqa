@@ -67,6 +67,23 @@ api.interceptors.response.use(
 
   async (error) => {
     const originalRequest = error.config;
+
+    // Do NOT attempt refresh flow for auth-related endpoints (login, refresh, logout, signup, me)
+    // This avoids triggering a refresh when the login request itself fails and returning
+    // a misleading "refresh-token" error to the caller.
+    const authEndpointsToSkip = [
+      "/auth/login",
+      "/auth/refresh-token",
+      "/auth/logout",
+      "/auth/signup",
+      "/auth/me",
+    ];
+
+    const requestUrl = originalRequest?.url || "";
+    if (authEndpointsToSkip.some((ep) => requestUrl.includes(ep))) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -96,9 +113,12 @@ api.interceptors.response.use(
             withCredentials: true,
           }
         );
-        window.location.href = "/login";
+        if (!window.location.pathname.endsWith("/login")) {
+          window.location.href = "/login";
+        }
       }
     }
+
     return Promise.reject(error);
   }
 );

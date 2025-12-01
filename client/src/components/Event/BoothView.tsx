@@ -25,6 +25,7 @@ const BoothView: React.FC<BoothViewProps> = ({
   setRefresh,
   attended ,
   archived,
+  allowedUsers,
   id,
   userInfo, 
   payButton,
@@ -256,7 +257,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                     eventId={id}
                     />
                   </CustomModalLayout>
-                  <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={company} eventType={"platform_booth"} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+                  <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={company} eventType={"platform_booth"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
                   <ArchiveEvent setRefresh={setRefresh} eventId={id} eventName={company} eventType="platform_booth" open={archive} onClose={() => setArchive(false)}/>
     </>
   );

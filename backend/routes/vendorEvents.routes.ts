@@ -21,6 +21,8 @@ import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
 import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { GetEventsResponse } from "../interfaces/responses/eventResponses.interface";
 import { StaffPosition } from "../constants/staffMember.constants";
+import { asyncRouter } from "../config/errorHandler";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
 
 const vendorEventsService = new VendorEventsService();
 
@@ -456,7 +458,8 @@ async function getVendorsWithOverlappingBooths(req: Request, res: Response) {
 
 async function getAllPolls(req: AuthenticatedRequest, res: Response) {
   try {
-    const polls = await vendorEventsService.getAllPolls();
+    const userId = req.user?.id;
+    const polls = await vendorEventsService.getAllPolls(userId);
     res.json({
       success: true,
       data: polls,
@@ -510,7 +513,23 @@ async function voteInPoll(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-const router = Router();
+async function getBoothsHavingPolls(req: AuthenticatedRequest, res: Response) {
+  try {
+    const boothIds = await vendorEventsService.getBoothsHavingPolls();
+    res.json({
+      success: true,
+      data: boothIds,
+      message: "Booths with active polls retrieved successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error retrieving booths with active polls"
+    );
+  }
+}
+
+const router = asyncRouter();
 
 router.get(
   "/",
@@ -529,15 +548,21 @@ router.get(
   getVendorsWithOverlappingBooths
 );
 
+// Get all polls
 router.get(
   "/polls",
   authorizeRoles({ 
     userRoles: [
-      UserRole.ADMINISTRATION
+      UserRole.ADMINISTRATION, UserRole.STUDENT, UserRole.STAFF_MEMBER
     ], 
     adminRoles: [
       AdministrationRoleType.EVENTS_OFFICE
-    ]
+    ], 
+    staffPositions: [
+      StaffPosition.PROFESSOR, 
+      StaffPosition.TA, 
+      StaffPosition.STAFF
+    ] 
   }),
   getAllPolls
 );
@@ -568,6 +593,19 @@ router.post(
       StaffPosition.STAFF] 
     }),
   voteInPoll
+);
+
+router.get(
+  "/booths-with-active-polls",
+  authorizeRoles({ 
+    userRoles: [
+      UserRole.ADMINISTRATION
+    ], 
+    adminRoles: [
+      AdministrationRoleType.EVENTS_OFFICE
+    ]
+  }),
+  getBoothsHavingPolls
 );
 
 router.get(
