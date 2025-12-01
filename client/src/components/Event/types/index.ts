@@ -21,9 +21,7 @@ export type BazarViewProps = BasicProps & {
   vendors?: any;
   description: string;
   registrationDeadline?: any;
-    payButton?: React.ReactNode;
     vendorStatus?: string;
-    isRequested?:boolean;
 };
 
 //names and emails of a max of 5 individuals attending, duration of booth set up, location of booth setup, booth size 

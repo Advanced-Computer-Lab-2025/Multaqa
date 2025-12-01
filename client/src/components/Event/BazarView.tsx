@@ -33,9 +33,7 @@ const BazarView: React.FC<BazarViewProps> = ({
   archived,
   registrationDeadline,
   userInfo, 
-  payButton,
   vendorStatus, 
-  isRequested = false
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -58,6 +56,7 @@ const BazarView: React.FC<BazarViewProps> = ({
     const evId = ev?._id ?? ev?.id ?? ev;
     return String(evId) === String(id);
   });
+  const isRequested = Boolean(requestForThisEvent);
   const requestStatus = requestForThisEvent?.status; // 'pending' | 'approved' etc.
   const hasPaid = requestForThisEvent?.hasPaid;
   const participationFee = requestForThisEvent?.participationFee;
@@ -97,7 +96,6 @@ const BazarView: React.FC<BazarViewProps> = ({
         endTime={details["End Time"]} 
         color={background} 
         leftIcon={<IconComponent />} 
-        payButton={payButton}
         vendorStatus={vendorStatus=="approved"&&!hasPaid?"pending_payment":vendorStatus}
         eventType={"Bazaar"} 
         onOpenDetails={() => setDetailsModalOpen(true)}
@@ -123,7 +121,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                </Tooltip>
       ) : (user === "events-office" || user === "events-only" ? <Utilities archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
      registerButton={ user == "vendor" &&
-          (
+           (
             // if not requested -> show Apply
             !isRequested ? (
               <CustomButton
@@ -133,7 +131,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                       borderRadius: 999,
                       border: `1px solid ${background}`,
                       backgroundColor: `${background}`,
-                      color: background,
+                       color: "background.paper",
                       fontWeight: 600,
                       px: 3,
                       textTransform: "none",
@@ -151,7 +149,55 @@ const BazarView: React.FC<BazarViewProps> = ({
                   bazarId={id} 
                 />
               </CustomButton>
-            ) :null
+            ) : (
+              // if requested and status is approved but not paid -> show Pay button
+              requestStatus === "approved" && !hasPaid ? (
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.success.dark}`,
+                      backgroundColor: `${theme.palette.success.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  onClick={() => setPaymentDrawerOpen(true)}
+                >
+                  Pay
+                </CustomButton>
+              ) :
+              // if requested and NOT approved -> show Cancel Application
+              requestStatus !== "approved" && !hasPaid ? (
+                <CustomButton
+                  size="small"
+                  variant="outlined"
+                 sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.error.dark}`,
+                      backgroundColor: `${theme.palette.error.main}`,
+                      color: "background.paper",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                        width: 'fit-content'
+                    }}
+                  onClick={() => setCancelApplication(true)}
+                >
+                  Cancel Application
+                </CustomButton>
+              ) : null // if paid or other status, render nothing
+            )
           )
         } expanded={expanded} archived={archived} location={details["Location"]}  
         />
@@ -284,7 +330,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                         transform: "translateY(-2px)",
                       },
                     }}
-                  onClick={() => {}}
+                  onClick={() => setPaymentDrawerOpen(true)}
                 >
                   Pay
                 </CustomButton>

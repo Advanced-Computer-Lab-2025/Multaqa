@@ -39,6 +39,7 @@ export default function VendorRequestsList() {
   const [selectedParticipationFee, setSelectedParticipationFee] = useState<number>(0);
   const vendorId = user?._id;
   
+
   // toggle to trigger refetch after cancel or payment
   const [refreshToggle, setRefreshToggle] = useState(false);
   const fetchRequests = async () => {
@@ -104,7 +105,7 @@ setRequests(framedData);
             },
           }}
           onClick={() => {
-            setSelectedEventId(item.eventId ?? null);
+            setSelectedEventId(item.id ?? null);
             setSelectedParticipationFee(item.participationFee ?? 0);
             setPaymentDrawerOpen(true);
           }}
@@ -135,7 +136,7 @@ setRequests(framedData);
             width: 'fit-content'
           }}
           onClick={() => {
-            setSelectedEventId(item.eventId ?? null);
+            setSelectedEventId(item.id ?? null);  // Use item.id, not item.eventId
             setCancelApplication(true);
           }}
         >
@@ -169,7 +170,6 @@ setRequests(framedData);
           details={item.details} 
           name={item.name} 
           description={item.description} 
-          payButton={renderActionButton(item)} 
           vendorStatus={item.status}
           vendors={item.vendors} 
           icon={SellIcon} 
@@ -178,7 +178,7 @@ setRequests(framedData);
           registrationDeadline={item.details?.["Registration Deadline"]}
           userInfo={user}
           user={"vendor"}
-          isRequested={true}
+          setRefresh={setRefreshToggle}
         />
       );
     case "booth":
@@ -212,7 +212,7 @@ setRequests(framedData);
          description = "Browse upcoming bazaars and platform booths to submit your requests!"
         />
        )}
-        <CancelApplicationVendor
+       <CancelApplicationVendor
           eventId={selectedEventId ?? ""}
           open={cancelApplication}
           onClose={() => {

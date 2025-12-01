@@ -170,7 +170,6 @@ export default function VendorRequestsList() {
           details={item.details} 
           name={item.name} 
           description={item.description} 
-          payButton={renderActionButton(item)} 
           vendorStatus={item.status}
           vendors={item.vendors} 
           icon={SellIcon} 
@@ -179,7 +178,6 @@ export default function VendorRequestsList() {
           registrationDeadline={item.details?.["Registration Deadline"]}
           userInfo={user}
           user={"vendor"}
-          isRequested={true}
         />
       );
     case "booth":
