@@ -15,6 +15,7 @@ import {
   Avatar,
   IconButton,
   Tooltip,
+  Divider,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -33,6 +34,8 @@ import {
   handleBoothSelection,
   handleAccordionChange,
   checkSectionErrors,
+  BOOTH_PRICING,
+  calculateTotal,
 } from "./utils";
 import type { UploadStatus } from "../FileUpload/types";
 import CustomSelectField from "../input-fields/CustomSelectField";
@@ -42,6 +45,25 @@ import { useAuth } from "../../../context/AuthContext";
 import StyledAccordion from "../Accordion/StyledAccordion";
 import StyledAccordionSummary from "../Accordion/StyledAccordionSummary";
 import { UploadID } from "../FileUpload";
+
+const PriceUpdater = ({
+  size,
+  duration,
+  selectedBooth,
+  setFieldValue,
+}: {
+  size: string;
+  duration: number | string;
+  selectedBooth: number | null;
+  setFieldValue: (field: string, value: unknown) => void;
+}) => {
+  React.useEffect(() => {
+    const total = calculateTotal(size, duration, selectedBooth);
+    setFieldValue("price", total);
+  }, [size, duration, selectedBooth, setFieldValue]);
+
+  return null;
+};
 
 const BoothForm: React.FC = () => {
   const theme = useTheme();
@@ -66,6 +88,7 @@ const BoothForm: React.FC = () => {
     boothSize: "",
     boothSetupDuration: "",
     boothLocation: "",
+    price: 0,
   };
 
   // Ensure arrays match attendees length
@@ -178,6 +201,12 @@ const BoothForm: React.FC = () => {
 
             return (
               <form onSubmit={formik.handleSubmit}>
+                <PriceUpdater
+                  size={formik.values.boothSize}
+                  duration={formik.values.boothSetupDuration}
+                  selectedBooth={selectedBooth}
+                  setFieldValue={formik.setFieldValue}
+                />
                 <Box
                   sx={{
                     display: "grid",
@@ -776,8 +805,14 @@ const BoothForm: React.FC = () => {
                                   label="Select size"
                                   fieldType="single"
                                   options={[
-                                    { label: "2x2m", value: "2x2" },
-                                    { label: "4x4m", value: "4x4" },
+                                    {
+                                      label: `2x2m (${BOOTH_PRICING.SIZE_2X2} EGP/week)`,
+                                      value: "2x2",
+                                    },
+                                    {
+                                      label: `4x4m (${BOOTH_PRICING.SIZE_4X4} EGP/week)`,
+                                      value: "4x4",
+                                    },
                                   ]}
                                   value={formik.values.boothSize}
                                   onChange={(value) =>
@@ -1212,14 +1247,128 @@ const BoothForm: React.FC = () => {
                                     sx={{
                                       display: "flex",
                                       alignItems: "center",
+                                      gridColumn: "1 / -1",
+                                      mt: 1,
                                     }}
-                                  ></Box>
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      * Booths 1-8: Standard Price (+
+                                      {BOOTH_PRICING.LOC_STANDARD} EGP)
+                                      <br />* Booths 9-10: Premium Location (+
+                                      {BOOTH_PRICING.LOC_PREMIUM} EGP)
+                                    </Typography>
+                                  </Box>
                                 </Box>
                               </Box>
                             </Box>
                           </Box>
                         </AccordionDetails>
                       </StyledAccordion>
+                      {/* Receipt Section */}
+                      <Box sx={{ mt: 3 }}>
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            p: 2,
+                            backgroundColor: theme.palette.primary.main + "10",
+                            border: `1px solid ${theme.palette.primary.main}30`,
+                            borderRadius: 2,
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight="600"
+                            gutterBottom
+                            color="primary.main"
+                          >
+                            Estimated Cost
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              mb: 1,
+                            }}
+                          >
+                            <Typography variant="body2" color="text.secondary">
+                              Booth Size ({formik.values.boothSize || "-"}) x{" "}
+                              {formik.values.boothSetupDuration || 0} week(s)
+                            </Typography>
+                            <Typography variant="body2" fontWeight="500">
+                              {formik.values.boothSize === "2x2"
+                                ? BOOTH_PRICING.SIZE_2X2 *
+                                  (Number(formik.values.boothSetupDuration) ||
+                                    0)
+                                : formik.values.boothSize === "4x4"
+                                ? BOOTH_PRICING.SIZE_4X4 *
+                                  (Number(formik.values.boothSetupDuration) ||
+                                    0)
+                                : 0}{" "}
+                              EGP
+                            </Typography>
+                          </Box>
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              mb: 2,
+                            }}
+                          >
+                            <Typography variant="body2" color="text.secondary">
+                              Location Fee{" "}
+                              {selectedBooth ? `(Booth ${selectedBooth})` : ""}
+                            </Typography>
+                            <Typography variant="body2" fontWeight="500">
+                              {selectedBooth
+                                ? selectedBooth >= 9 && selectedBooth <= 10
+                                  ? BOOTH_PRICING.LOC_PREMIUM
+                                  : BOOTH_PRICING.LOC_STANDARD
+                                : 0}{" "}
+                              EGP
+                            </Typography>
+                          </Box>
+
+                          <Divider
+                            sx={{
+                              my: 1,
+                              borderColor: theme.palette.primary.main + "30",
+                            }}
+                          />
+
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              mt: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle1"
+                              fontWeight="700"
+                              color="primary.main"
+                            >
+                              Total
+                            </Typography>
+                            <Typography
+                              variant="subtitle1"
+                              fontWeight="700"
+                              color="primary.main"
+                            >
+                              {calculateTotal(
+                                formik.values.boothSize,
+                                formik.values.boothSetupDuration,
+                                selectedBooth
+                              )}{" "}
+                              EGP
+                            </Typography>
+                          </Box>
+                        </Paper>
+                      </Box>
                     </Paper>
                   </Box>
                 </Box>

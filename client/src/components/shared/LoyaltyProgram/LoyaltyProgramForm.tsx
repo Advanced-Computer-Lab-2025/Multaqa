@@ -45,21 +45,8 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit} className="w-full">
-          <Box className="flex flex-col gap-6 p-4 ">
-            <Typography
-              variant="h4"
-              component="h3"
-              className="font-bold mb-8"
-              color="primary"
-              sx={{
-                textAlign: "center",
-                fontFamily: "var(--font-poppins), system-ui, sans-serif",
-                mb: 4,
-              }}
-            >
-              Loyalty Program
-            </Typography>
-
+          <Box className="flex flex-col gap-6 p-7 ">
+        
             {/* Discount Rate */}
             <div className="w-full">
               <CustomTextField
@@ -164,7 +151,7 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
                   color="text-gray-500"
                   className="font-semibold hover:underline"
                 >
-                  View GUC Loyalty Program Terms & Conditions
+                  GUC Loyalty Program Terms & Conditions
                 </Typography>
                 <IconButton size="small">
                   {showTerms ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -172,7 +159,7 @@ const LoyaltyProgramForm: React.FC<LoyaltyProgramFormProps> = ({
               </Box>
 
               <Collapse in={showTerms}>
-                <Box className="p-4 bg-gray-50 rounded-lg mb-4 border border-gray-200 text-sm text-gray-600 max-h-40 overflow-y-auto">
+                <Box className="p-4 bg-gray-50 rounded-lg mb-4 border border-gray-200 text-sm text-gray-600">
                   <ul className="list-disc pl-4 space-y-1">
                     {LOYALTY_PROGRAM_TERMS.map((term, index) => (
                       <li key={index}>{term}</li>

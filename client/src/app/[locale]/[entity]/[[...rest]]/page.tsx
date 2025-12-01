@@ -372,6 +372,19 @@ export default function EntityCatchAllPage() {
         );
       }
     }
+    if (
+      [
+        "student",
+        "staff",
+        "professor",
+        "ta",
+        "events-office",
+        "admin",
+      ].includes(entity) &&
+      section === "loyalty-partners"
+    ) {
+      return <VendorsList />;
+    }
 
     // Courts booking page for stakeholders
     if (
