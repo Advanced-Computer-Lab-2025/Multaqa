@@ -101,6 +101,24 @@ export class WebhookService {
     console.log(
       `✅ Payment receipt sent for session ${session.id} to ${customerEmail}`
     );
+
+    // Log transaction
+    const walletAmount = parseFloat(session.metadata?.walletBalanceApplied || "0");
+    const cardAmount = (session.amount_total ?? 0) / 100;
+    const totalAmount = walletAmount + cardAmount;
+
+    await this.userService.addTransaction(userId, {
+      eventName: eventDoc.eventName,
+      amount: totalAmount,
+      walletAmount: walletAmount,
+      cardAmount: cardAmount,
+      type: "payment",
+      date: new Date(),
+    });
+
+    console.log(
+      `✅ Transaction logged for user ${userId}: ${totalAmount} (wallet: ${walletAmount}, card: ${cardAmount})`
+    );
   }
 
   /**
