@@ -210,9 +210,29 @@ export const NotificationProvider = ({
 
     if (!isPublic && pendingToasts.length > 0) {
       console.log(`🚀 Flushing ${pendingToasts.length} pending notifications`);
-      pendingToasts.forEach((notification) => {
-        showNotificationToast(notification);
-      });
+
+      if (pendingToasts.length > 3) {
+        toast.info(
+          <div>
+            <strong>New Notifications</strong>
+            <p style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>
+              You've got {pendingToasts.length} new notifications to be checked!
+            </p>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+      } else {
+        pendingToasts.forEach((notification) => {
+          showNotificationToast(notification);
+        });
+      }
       setPendingToasts([]);
     }
   }, [pathname, pendingToasts, showNotificationToast]);
