@@ -132,10 +132,7 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
     capacity: 0,
   };
 
-  const handleClose = () => {
-    onClose();
-    setActiveTab('general');
-  };
+
 
   const onSubmit = async (values: any, actions: any) => {
     onClose();
@@ -160,11 +157,17 @@ const CreateTrip = ({ open, onClose, setRefresh, color }: CreateTripProps) => {
     handleCallApi(payload);
   };
 
-  const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched } = useFormik({
+  const { handleSubmit, values, isSubmitting, handleChange, handleBlur, setFieldValue, errors, touched, resetForm } = useFormik({
     initialValues,
     validationSchema: tripSchema,
     onSubmit: onSubmit,
   });
+
+  const handleClose = () => {
+    onClose();
+    resetForm();
+    setActiveTab('general');
+  };
 
 
   // Tab state for sections

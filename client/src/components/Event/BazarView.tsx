@@ -100,6 +100,7 @@ const BazarView: React.FC<BazarViewProps> = ({
         color={background} 
         leftIcon={<IconComponent />} 
         vendorStatus={vendorStatus=="approved"&&!hasPaid?"pending_payment":vendorStatus}
+        isUpcoming={!datePassed}
         eventType={"Bazaar"} 
         onOpenDetails={() => setDetailsModalOpen(true)}
         utilities={user === "admin" ? (
@@ -272,8 +273,8 @@ const BazarView: React.FC<BazarViewProps> = ({
         registrationDeadline={new Date(registrationDeadline)} open={edit} 
         onClose={()=> {setEdit(false)}} color={theme.palette.tertiary.main}
       />
-      <RestrictUsers setRefresh={setRefresh} eventId={id} eventName={name} eventType={"bazaar"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
-      <ArchiveEvent setRefresh={setRefresh} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
+      <RestrictUsers setRefresh={setRefresh!} eventId={id} eventName={name} eventType={"bazaar"} allowedUsers={allowedUsers} open={restrictUsers} onClose={() => setRestrictUsers(false)} />
+      <ArchiveEvent setRefresh={setRefresh!} eventName={name} eventId={id} eventType={"bazaar"}open={archive} onClose={() => setArchive(false)}/>    
       <CustomModalLayout
         open={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
