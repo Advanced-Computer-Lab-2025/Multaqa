@@ -89,6 +89,7 @@ const EventCard: React.FC<EventCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
+  const total = (totalSpots && parseInt(totalSpots)) || 0;
   const [copySuccess, setCopySuccess] = useState(false);
   const { user } = useAuth();
   const isEventsOffice =
@@ -100,6 +101,9 @@ const EventCard: React.FC<EventCardProps> = ({
   const normalizedCreatedBy = createdBy?.toLowerCase?.() ?? "";
   const normalizedLocation = location?.toLowerCase?.() ?? "";
   const normalizedEventType = eventType?.toLowerCase?.() ?? "";
+  const isFuture = new Date(startDate) > new Date();
+  const attendance = total-spots;
+  console.log("typeof event:", eventType);
 
   const handleOpenModal = () => {
     if (onOpenDetails) {
@@ -578,7 +582,7 @@ const EventCard: React.FC<EventCardProps> = ({
                {commentButton && professorStatus === "awaiting_review" && (
                     <>{commentButton}</>
                   )}
-                  {payButton  && (
+                  {payButton  && (eventType!=="Booth") && (
                     <>{payButton}</>
                   )}
             </Box>
@@ -601,23 +605,38 @@ const EventCard: React.FC<EventCardProps> = ({
                 </Typography>
               </Box>
             )}
-            {duration && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Clock size={16} color={color} />
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: color,
-                    fontSize: "0.875rem",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                  }}
-                >
-                  {duration} {duration=="1"?"week":"weeks"}
-                </Typography>
-              </Box>
-            )}
+
+            {/* Duration and Pay Button Row */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              {duration && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Clock size={16} color={color} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: color,
+                      fontSize: "0.875rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                    }}
+                  >
+                    {duration} {duration=="1"?"week":"weeks"}
+                  </Typography>
+                </Box>
+              )}
+              {payButton && eventType === "Booth" && (
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                  {payButton}
+                </Box>
+              )}
+            </Box>
 
             {link && (
               <Box
@@ -687,7 +706,6 @@ const EventCard: React.FC<EventCardProps> = ({
                 alignItems: "center",
                 mt: "auto",
                 pt: 1.5,
-                // Add padding on right to make room for spots left ribbon if it exists
                 pr: spotsLeft && totalSpots ? "120px" : 0,
               }}
             >
@@ -804,7 +822,8 @@ const EventCard: React.FC<EventCardProps> = ({
       </Box>
 
       {/* Spots Left Ribbon - Bottom Left */}
-      {spotsLeft && totalSpots && (
+      {spotsLeft && totalSpots&& (
+
         <Box
           sx={{
             position: "absolute",
@@ -822,17 +841,22 @@ const EventCard: React.FC<EventCardProps> = ({
           }}
         >
           <Typography
-            sx={{
-              fontWeight: 600,
-              color: spots > 3 ? color : "error.main",
-              fontSize: "0.85rem",
-              lineHeight: 1.2,
-            }}
-          >
-            {spots} {spots === 1 ? "spot" : "spots"} left
-          </Typography>
+          sx={{
+            fontWeight: 600,
+            color: isFuture ? (spots > 3 ? color : "error.main") : color,
+            fontSize: "0.85rem",
+            lineHeight: 1.2,
+          }}
+        >
+          {isFuture ? (
+            `${spots} ${spots === 1 ? " spot" : " spots"} left`
+          ) : (
+            `${attendance}${ attendance === 1 ? " attendee" : " attendees"}`
+          )}
+        </Typography>
         </Box>
       )}
+     
     </Box>
   );
 };
