@@ -217,26 +217,9 @@ export class PaymentService {
       }
     }
 
-    // Deduct wallet balance if being used for hybrid payment
-    if (walletBalance > 0) {
-      await this.userService.deductFromWallet(userId, walletBalance);
-      console.log(
-        `✅ Deducted ${walletBalance} from user ${userId}'s wallet for hybrid payment`
-      );
+    // NOTE: Wallet deduction and transaction logging moved to webhook handler
+    // to ensure they only happen after successful Stripe payment confirmation
 
-      // Log transaction immediately with wallet and card breakdown
-      await this.userService.addTransaction(userId, {
-        eventName: event.eventName,
-        amount: price,
-        walletAmount: walletBalance,
-        cardAmount: amountToPay,
-        type: "payment",
-        date: new Date(),
-      });
-      console.log(
-        `✅ Transaction logged: ${price} (wallet: ${walletBalance}, card: ${amountToPay})`
-      );
-    }
 
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({

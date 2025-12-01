@@ -59,6 +59,14 @@ export class WebhookService {
       return;
     }
 
+    // Verify payment was actually successful
+    if (session.payment_status !== "paid") {
+      console.warn(
+        `⚠️ Session ${session.id} completed but payment_status is ${session.payment_status}, not 'paid'. Skipping.`
+      );
+      return;
+    }
+
     // Fetch event and user details
     const [eventDoc, user] = await Promise.all([
       this.eventsService.getEventById(eventId),
@@ -90,7 +98,7 @@ export class WebhookService {
       userEmail: customerEmail,
       username,
       transactionId: session.payment_intent as string,
-      amount: (session.amount_total ?? 0) / 100,
+      amount: (session.amount_total ?? 0) / 100, 
       currency: (session.currency || DEFAULT_CURRENCY).toUpperCase(),
       itemName: eventDoc.eventName,
       itemType: eventDoc.type === EVENT_TYPES.TRIP ? "Trip" : "Workshop",
@@ -102,11 +110,21 @@ export class WebhookService {
       `✅ Payment receipt sent for session ${session.id} to ${customerEmail}`
     );
 
-    // Log transaction
+    // Deduct wallet balance and log transaction (moved from payment service to ensure
+    // they only happen after successful Stripe payment confirmation)
     const walletAmount = parseFloat(session.metadata?.walletBalanceApplied || "0");
     const cardAmount = (session.amount_total ?? 0) / 100;
     const totalAmount = walletAmount + cardAmount;
 
+    // Deduct wallet if it was used for hybrid payment
+    if (walletAmount > 0) {
+      await this.userService.deductFromWallet(userId, walletAmount);
+      console.log(
+        `✅ Deducted ${walletAmount} from user ${userId}'s wallet after successful payment`
+      );
+    }
+
+    // Log the complete transaction
     await this.userService.addTransaction(userId, {
       eventName: eventDoc.eventName,
       amount: totalAmount,
@@ -142,6 +160,14 @@ export class WebhookService {
       console.warn(
         "⚠️ Missing eventId or vendorId in vendor payment session:",
         session.id
+      );
+      return;
+    }
+
+    // Verify payment was actually successful
+    if (session.payment_status !== "paid") {
+      console.warn(
+        `⚠️ Vendor payment session ${session.id} completed but payment_status is ${session.payment_status}, not 'paid'. Skipping.`
       );
       return;
     }

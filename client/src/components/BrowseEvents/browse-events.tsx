@@ -857,37 +857,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             />
           )}
         </Box>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <FilterPanel
-            filterGroups={getFilterGroups(user, professorOptions)}
-            onFilterChange={handleFilterChange}
-            currentFilters={filters}
-            onReset={handleResetFilters}
-            matchSearchBar
-          />
-        </LocalizationProvider>
-      </Box>
-
-      {/* Sort By and Creation Hub Row */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          gap: 2,
-          mb: 2,
-        }}
-      >
-        <SortByDate value={sortBy} onChange={handleSortChange} />
-        {user === "events-office" && (
-          <CreationHubDropdown
-            options={creationHubOptions}
-            helperText="Choose what you would like to create"
-            dropdownSide="right"
-            buttonTextColor="#fff"
-          />
-        )}
-      </Box>
 
       {/* Loading State */}
       {loading && <EventCardsListSkeleton />}
