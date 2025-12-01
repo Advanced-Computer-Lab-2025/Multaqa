@@ -148,6 +148,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                   isOpen={isModalOpen}
                   onClose={handleCloseModal}
                   bazarId={id} 
+                  location={details["Location"]}
                 />
               </CustomButton>
             ) : (
@@ -311,6 +312,7 @@ const BazarView: React.FC<BazarViewProps> = ({
                   isOpen={isModalOpen}
                   onClose={handleCloseModal}
                   bazarId={id} 
+                  location={details["Location"]}
                 />
               </CustomButton>
             ) : (

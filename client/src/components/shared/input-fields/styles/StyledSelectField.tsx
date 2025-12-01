@@ -134,8 +134,8 @@ export const getDropdownStyles = (
 
   return {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    alignItems: "stretch",
     flexDirection: "column",
     maxHeight: "250px",
     width: "100%",
@@ -144,6 +144,7 @@ export const getDropdownStyles = (
     border: `2px solid  ${theme.palette.tertiary.main}`,
     borderRadius: "16px",
     marginBottom: "16px",
+    padding: "8px 0",
     opacity: isOpen ? 1 : 0,
     visibility: isOpen ? ("visible" as const) : ("hidden" as const),
     transform: isOpen ? "translateY(0)" : "translateY(-10px)",
@@ -171,7 +172,7 @@ export const getOptionStyles = (
     fontWeight: 500,
     color: isDisabled ? "#999" : "#1E1E1E",
     backgroundColor: isSelected
-      ? `2px solid  ${theme.palette.tertiary.light}`
+      ? "rgba(58, 79, 153, 0.1)"
       : "transparent",
     position: "relative" as const,
     width: "100%",

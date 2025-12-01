@@ -8,8 +8,10 @@ interface AttendeeInfo {
 export interface BazarFormValues {
   bazaarAttendees: AttendeeInfo[];
   boothSize: string;
+  price: number;
 }
 
 export interface BazarApplicationFormProps {
   eventId: string;
+  location: string;
 }

@@ -94,18 +94,7 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Calculate participation fee for platform booth
-    const BASE_PRICE = 50;
-    const duration = data.value.boothSetupDuration || 1; // in weeks (1-4)
-    const location = data.value.boothLocation || "";
-
-    // Extract booth number from location (e.g., "Booth 15" -> 15)
-    const boothNumberMatch = location.match(/(\d+)/);
-    const boothNumber = boothNumberMatch
-      ? parseInt(boothNumberMatch[1], 10)
-      : 1;
-
-    const participationFee = BASE_PRICE * duration * boothNumber;
+    const participationFee = data.value.participationFee;
 
     // Create a new platform booth event for this vendor
     const event = await this.eventRepo.create({
@@ -187,6 +176,10 @@ export class VendorEventsService {
       throw createError(400, "Event is not a bazaar");
     }
 
+    if (new Date() > event.eventStartDate) {
+      throw createError(400, "Cannot apply to an event that has already started");
+    }
+
     const applied =
       Array.isArray(event.vendors) &&
       event.vendors.some((v: any) => v.vendor.toString() === vendorId);
@@ -198,14 +191,8 @@ export class VendorEventsService {
     // Default status
     const applicationStatus = Event_Request_Status.PENDING;
 
-    // Calculate participation fee for bazaar
-    const BASE_PRICE = 50;
-    const location = data.value.bazaarLocation || "";
-    const boothSize = data.value.boothSize || "2x2";
-    const sizeMatch = boothSize.match(/(\d+)/);
-    const sizeMultiplier = sizeMatch ? parseInt(sizeMatch[1], 10) : 2;
-    const locationFactor = Math.max(1, Math.floor(location.length / 10));
-    const participationFee = BASE_PRICE * sizeMultiplier * locationFactor;
+    // Use provided participation fee
+    const participationFee = data.value.participationFee;
 
     // Add request to vendor's requestedEvents
     vendor.requestedEvents.push({
