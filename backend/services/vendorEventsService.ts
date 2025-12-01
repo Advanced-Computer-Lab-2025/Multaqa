@@ -960,14 +960,38 @@ export class VendorEventsService {
   async getAllPolls(userId?: string): Promise<any[]> {
     const polls = await this.pollRepo.findAll({});
 
-    // Add hasVoted field for each poll based on current user
+    // Collect all booth IDs from all polls
+    const boothIds = polls.flatMap(poll => poll.options.map(opt => opt.boothId));
+    
+    // Fetch all events (booths) in one query
+    const booths = await this.eventRepo.findAll({
+      _id: { $in: boothIds }
+    });
+
+    // Create a map of boothId -> boothLocation for quick lookup
+    const boothLocationMap = new Map();
+    booths.forEach((booth: any) => {
+      const location = booth.RequestData?.boothLocation || booth.RequestData?.bazaarLocation || booth.location;
+      boothLocationMap.set(booth._id.toString(), location);
+    });
+
+    // Add hasVoted field and booth location for each poll
     const pollsWithVoteStatus = polls.map((poll) => {
       const hasVoted = userId 
         ? poll.votes.some(vote => vote.userId.toString() === userId)
         : false;
       
+      const pollObject = poll.toObject();
+      
+      // Add boothNumber to each option
+      const optionsWithBoothNumber = pollObject.options.map((option: any) => ({
+        ...option,
+        boothNumber: boothLocationMap.get(option.boothId) || 'N/A'
+      }));
+      
       return {
-        ...poll.toObject(),
+        ...pollObject,
+        options: optionsWithBoothNumber,
         hasVoted,
       };
     });

@@ -97,6 +97,11 @@ const PollCard: React.FC<PollCardProps> = ({ poll, readOnly = false }) => {
             <Chip label="Ended" color="default" size="small" sx={{ height: 20, fontSize: "0.65rem" }} />
           )}
         </Box>
+        {localPoll.options[0]?.boothNumber && (
+          <Typography variant="caption" color="primary.main" fontWeight="600" sx={{ mb: 0.5, fontSize: "0.75rem", display: "block" }}>
+            {localPoll.options[0].boothNumber}
+          </Typography>
+        )}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontSize: "0.75rem", minHeight: "32px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {localPoll.description}
         </Typography>

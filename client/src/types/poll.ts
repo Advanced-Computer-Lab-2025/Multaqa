@@ -3,6 +3,7 @@ export interface PollOption {
   vendorName: string;
   vendorLogo?: string;
   voteCount: number;
+  boothNumber?: string;
 }
 
 export interface Poll {
