@@ -5,5 +5,6 @@ export interface IReview {
   reviewer: Types.ObjectId | IUser;
   rating?: number;
   comment?: string;
-  createdAt: Date; 
+  createdAt: Date;
+  flaggedForToxicity?: boolean;
 }

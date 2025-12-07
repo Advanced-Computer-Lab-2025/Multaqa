@@ -30,6 +30,7 @@ const EventSchema = new Schema<IEvent>(
         rating: { type: Number, min: 1, max: 5 },
         comment: { type: String },
         createdAt: { type: Date, default: Date.now },
+        flaggedForToxicity: { type: Boolean, default: false },
       },
     ],
     eventName: { type: String, required: true },

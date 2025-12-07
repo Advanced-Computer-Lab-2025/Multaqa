@@ -23,6 +23,7 @@ import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
 import { Notification } from "./notificationService";
+import { checkToxicityGemini } from "../utils/llms/gemini";
 
 const { Types } = require("mongoose");
 
@@ -649,6 +650,16 @@ export class EventsService {
       throw createError(404, "User not found");
     }
 
+    // Check toxicity BEFORE saving if comment is provided
+    let isToxic = false;
+    if (comment) {
+      const toxicityResult = await checkToxicityGemini(comment);
+      if (toxicityResult && toxicityResult.isToxic) {
+        isToxic = true;
+        console.log(`⚠️ Toxic comment detected: "${comment}" - Score: ${(toxicityResult.score * 100).toFixed(0)}%`);
+      }
+    }
+
     let reviewIndex = event.reviews?.findIndex((review) => {
       return (review.reviewer._id as any).toString() === userId.toString();
     });
@@ -659,6 +670,7 @@ export class EventsService {
         comment: comment,
         rating: rating,
         createdAt: new Date(),
+        flaggedForToxicity: isToxic,
       };
       event.reviews?.push(newReview);
       reviewIndex = (event.reviews?.length || 1) - 1;
@@ -677,7 +689,10 @@ export class EventsService {
         );
       }
 
-      if (comment) event.reviews[reviewIndex].comment = comment;
+      if (comment) {
+        event.reviews[reviewIndex].comment = comment;
+        event.reviews[reviewIndex].flaggedForToxicity = isToxic;
+      }
       if (rating) event.reviews[reviewIndex].rating = rating;
       await event.save();
     }
