@@ -54,6 +54,7 @@ import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import { WorkshopScheduler } from "./services/workshopSchedulerService";
 import { NotificationService } from "./services/notificationService";
 import { EventScheduler } from "./services/eventSchedulerService";
+import { waitlistScheduler } from "./services/waitlistSchedulerService";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -210,6 +211,9 @@ async function startServer() {
     // Start event scheduler
     const eventScheduler = new EventScheduler();
     eventScheduler.start();
+
+    // Start waitlist scheduler
+    waitlistScheduler.start();
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);

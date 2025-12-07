@@ -349,8 +349,6 @@ async function exportEventUsers(req: Request, res: Response) {
   }
 }
 
-
-
 const router = Router();
 
 router.get(
@@ -396,9 +394,6 @@ router.get(
   }),
   findAllWorkshops
 );
-
-
-
 
 router.delete(
   "/:eventId/reviews/:userId",
@@ -503,6 +498,5 @@ router.get(
   }),
   exportEventUsers
 );
-
 
 export default router;

@@ -764,3 +764,217 @@ export const getGymSessionNotificationTemplate = (
     </div>
   `;
 };
+
+// Waitlist Joined Confirmation Email Template
+export const getWaitlistJoinedTemplate = (
+  username: string,
+  eventName: string,
+  eventDate: Date
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.header}">
+          <h2 style="margin: 0; font-size: 22px;">📋 You're on the Waitlist!</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            You've been successfully added to the waitlist for <strong>${eventName}</strong>.
+          </p>
+          <div style="${baseStyles.infoBox}">
+            <strong style="color: #2563eb;">Event Details:</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              📅 <strong>Date:</strong> ${new Date(
+                eventDate
+              ).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}<br>
+              🎯 <strong>Event:</strong> ${eventName}
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            We'll notify you immediately if a spot becomes available. If someone cancels their registration, you'll receive an email with payment instructions.
+          </p>
+          <p style="font-size: 14px; color: #555;">
+            <strong>What happens next?</strong><br>
+            • You'll be notified if a spot opens up<br>
+            • You can leave the waitlist anytime from your dashboard<br>
+            • The waitlist operates on a first-come, first-served basis
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+// Waitlist Promotion Email Template (With Payment Deadline)
+export const getWaitlistPromotionTemplate = (
+  username: string,
+  eventName: string,
+  paymentDeadline: Date,
+  eventId: string
+): string => {
+  const eventUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3000"
+  }/events/${eventId}`;
+  const hoursUntilDeadline = Math.round(
+    (paymentDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60)
+  );
+
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerSuccess}">
+          <h2 style="margin: 0; font-size: 22px;">🎉 Great News! A Spot Opened Up!</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            Exciting news! A spot has become available for <strong>${eventName}</strong>, and you're next in line from the waitlist!
+          </p>
+          <div style="${baseStyles.successBox}">
+            <strong style="color: #16a34a;">✓ Your Spot is Reserved</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              You now have a reserved spot for this event. Complete your payment to secure your registration.
+            </p>
+          </div>
+          <div style="${baseStyles.warningBox}">
+            <strong style="color: #ea580c;">⏰ Action Required - Payment Deadline</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              <strong>Deadline:</strong> ${paymentDeadline.toLocaleDateString(
+                "en-US",
+                {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }
+              )} at ${paymentDeadline.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}<br>
+              <strong>Time Remaining:</strong> Approximately ${hoursUntilDeadline} hours
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            Please complete your payment within <strong>3 days</strong> to confirm your registration. If payment is not received by the deadline, your spot will be offered to the next person on the waitlist.
+          </p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${eventUrl}" target="_blank" style="${
+    baseStyles.buttonSuccess
+  }">
+              Complete Payment Now
+            </a>
+          </div>
+          <p style="font-size: 12px; color: #888; text-align: center;">
+            Or copy this link: <a href="${eventUrl}" style="color: #2563eb;">${eventUrl}</a>
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+// Waitlist Deadline Expired Email Template
+export const getWaitlistDeadlineExpiredTemplate = (
+  username: string,
+  eventName: string
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerWarning}">
+          <h2 style="margin: 0; font-size: 22px;">⏰ Payment Deadline Expired</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            We regret to inform you that the payment deadline for <strong>${eventName}</strong> has passed.
+          </p>
+          <div style="${baseStyles.dangerBox}">
+            <strong style="color: #dc2626;">Registration Not Completed</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              Since payment was not received within the 3-day deadline, your reserved spot has been released and you have been <strong>removed from the waitlist</strong>. Your spot has been offered to the next person in line.
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            <strong>What you can do:</strong><br>
+            • Check if new spots are available and register directly<br>
+            • Join the waitlist again (you'll be placed at the back of the queue)<br>
+            • Browse other upcoming events you might be interested in
+          </p>
+          <p style="font-size: 14px; color: #555;">
+            We understand that circumstances can change. You're welcome to register again if spots become available!
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+// Waitlist Auto-Registration Email Template (Free Events)
+export const getWaitlistAutoRegisteredTemplate = (
+  username: string,
+  eventName: string,
+  eventDate: Date,
+  location: string
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerSuccess}">
+          <h2 style="margin: 0; font-size: 22px;">🎉 You're Registered!</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            Great news! A spot opened up for <strong>${eventName}</strong>, and you've been automatically registered!
+          </p>
+          <div style="${baseStyles.successBox}">
+            <strong style="color: #16a34a;">✓ Registration Confirmed</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              You were promoted from the waitlist and your registration is now complete. No payment required!
+            </p>
+          </div>
+          <div style="${baseStyles.infoBox}">
+            <strong style="color: #2563eb;">Event Details:</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              📅 <strong>Date:</strong> ${new Date(
+                eventDate
+              ).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}<br>
+              📍 <strong>Location:</strong> ${location}<br>
+              🎯 <strong>Event:</strong> ${eventName}
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            You'll receive a reminder closer to the event date. We look forward to seeing you there!
+          </p>
+          <p style="font-size: 14px; color: #555;">
+            If you can no longer attend, please cancel your registration so others on the waitlist can take your spot.
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};

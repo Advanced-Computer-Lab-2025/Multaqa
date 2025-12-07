@@ -120,6 +120,53 @@ export class PaymentService {
     // Validate user registration eligibility
     this.validateUserRegistrationEligibility(event, userId);
 
+    // Check if user is on waitlist and validate payment status
+    if ((event as any).waitlist && Array.isArray((event as any).waitlist)) {
+      const waitlistEntry = (event as any).waitlist.find(
+        (entry: any) => entry.userId.toString() === userId.toString()
+      );
+
+      if (waitlistEntry) {
+        // User is on waitlist - must be in pending_payment status to pay
+        if (waitlistEntry.status !== "pending_payment") {
+          throw createError(
+            400,
+            "You are on the waitlist. Please wait for a spot to become available."
+          );
+        }
+
+        // Check if payment deadline has passed
+        if (
+          waitlistEntry.paymentDeadline &&
+          new Date() > new Date(waitlistEntry.paymentDeadline)
+        ) {
+          throw createError(
+            400,
+            "Payment deadline has expired. Your spot has been released."
+          );
+        }
+      } else {
+        // User is NOT on waitlist - check if slots are reserved for waiting users
+        // Count users with reserved slots (both waiting and pending payment)
+        const reservedSlotsCount = (event as any).waitlist.filter(
+          (entry: any) => entry.status === "waitlist" || entry.status === "pending_payment"
+        ).length || 0;
+
+        // Calculate available slots
+        const capacity = (event as any).capacity;
+        const attendeesCount = event.attendees?.length || 0;
+        const availableSlots = capacity - attendeesCount;
+
+        // Block only if available slots <= reserved slots count (proportional fairness)
+        if (reservedSlotsCount > 0 && availableSlots <= reservedSlotsCount) {
+          throw createError(
+            409,
+            `There are ${reservedSlotsCount} user(s) with reserved spots (on waitlist or pending payment) and only ${availableSlots} slot(s) available. These slots are reserved. Please join the waitlist to register.`
+          );
+        }
+      }
+    }
+
     // Validate event price
     const price = typeof event.price === "number" ? event.price : undefined;
     if (!price || !Number.isFinite(price) || price <= 0) {
@@ -250,6 +297,53 @@ export class PaymentService {
     // Validate user registration eligibility
     this.validateUserRegistrationEligibility(event, userId);
 
+    // Check if user is on waitlist and validate payment status
+    if ((event as any).waitlist && Array.isArray((event as any).waitlist)) {
+      const waitlistEntry = (event as any).waitlist.find(
+        (entry: any) => entry.userId.toString() === userId.toString()
+      );
+
+      if (waitlistEntry) {
+        // User is on waitlist - must be in pending_payment status to pay
+        if (waitlistEntry.status !== "pending_payment") {
+          throw createError(
+            400,
+            "You are on the waitlist. Please wait for a spot to become available."
+          );
+        }
+
+        // Check if payment deadline has passed
+        if (
+          waitlistEntry.paymentDeadline &&
+          new Date() > new Date(waitlistEntry.paymentDeadline)
+        ) {
+          throw createError(
+            400,
+            "Payment deadline has expired. Your spot has been released."
+          );
+        }
+      } else {
+        // User is NOT on waitlist - check if slots are reserved for waiting users
+        // Count users with reserved slots (both waiting and pending payment)
+        const reservedSlotsCount = (event as any).waitlist.filter(
+          (entry: any) => entry.status === "waitlist" || entry.status === "pending_payment"
+        ).length || 0;
+
+        // Calculate available slots
+        const capacity = (event as any).capacity;
+        const attendeesCount = event.attendees?.length || 0;
+        const availableSlots = capacity - attendeesCount;
+
+        // Block only if available slots <= reserved slots count (proportional fairness)
+        if (reservedSlotsCount > 0 && availableSlots <= reservedSlotsCount) {
+          throw createError(
+            409,
+            `There are ${reservedSlotsCount} user(s) with reserved spots (on waitlist or pending payment) and only ${availableSlots} slot(s) available. These slots are reserved. Please join the waitlist to register.`
+          );
+        }
+      }
+    }
+
     // Check if event has a price
     if (event.price === undefined || event.price === null) {
       throw createError(400, "Event does not have a price");
@@ -288,7 +382,25 @@ export class PaymentService {
       paymentMethod: "Wallet",
     });
 
+    // Register user for event
     await this.eventsService.registerUserForEvent(eventId, userId);
+
+    // Remove from waitlist if they were on it
+    const updatedEvent = await this.eventsService.getEventById(eventId);
+    if (
+      updatedEvent &&
+      (updatedEvent as any).waitlist &&
+      Array.isArray((updatedEvent as any).waitlist)
+    ) {
+      const waitlistIndex = (updatedEvent as any).waitlist.findIndex(
+        (entry: any) => entry.userId.toString() === userId.toString()
+      );
+
+      if (waitlistIndex !== -1) {
+        (updatedEvent as any).waitlist.splice(waitlistIndex, 1);
+        await updatedEvent.save();
+      }
+    }
 
     return user;
   }
@@ -335,6 +447,9 @@ export class PaymentService {
       type: "refund",
       date: new Date(),
     });
+
+    // Promote next user from waitlist (1 spot freed up)
+    await this.eventsService.promoteFromWaitlist(eventId, 1);
   }
 
   /**

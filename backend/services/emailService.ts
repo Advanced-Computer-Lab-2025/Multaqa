@@ -10,6 +10,10 @@ import {
   getExternalVisitorQREmailTemplate,
   getGymSessionNotificationTemplate,
   getEventAccessRemovedTemplate,
+  getWaitlistJoinedTemplate,
+  getWaitlistPromotionTemplate,
+  getWaitlistDeadlineExpiredTemplate,
+  getWaitlistAutoRegisteredTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -252,6 +256,77 @@ export const sendGymSessionNotificationEmail = async (params: {
   await sendEmail({
     to: params.userEmail,
     subject: `${emoji} Gym Session ${actionLabel} - Multaqa`,
+    html,
+  });
+};
+
+// Send waitlist joined confirmation email
+export const sendWaitlistJoinedEmail = async (
+  userEmail: string,
+  username: string,
+  eventName: string,
+  eventDate: Date
+) => {
+  const html = getWaitlistJoinedTemplate(username, eventName, eventDate);
+  await sendEmail({
+    to: userEmail,
+    subject: "📋 You're on the Waitlist - Multaqa",
+    html,
+  });
+};
+
+// Send waitlist promotion email (with payment deadline)
+export const sendWaitlistPromotionEmail = async (
+  userEmail: string,
+  username: string,
+  eventName: string,
+  paymentDeadline: Date,
+  eventId: string
+) => {
+  const html = getWaitlistPromotionTemplate(
+    username,
+    eventName,
+    paymentDeadline,
+    eventId
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: "🎉 Great News! A Spot Opened Up - Multaqa",
+    html,
+  });
+};
+
+// Send waitlist deadline expired email
+export const sendWaitlistDeadlineExpiredEmail = async (
+  userEmail: string,
+  username: string,
+  eventName: string
+) => {
+  const html = getWaitlistDeadlineExpiredTemplate(username, eventName);
+  await sendEmail({
+    to: userEmail,
+    subject: "⏰ Payment Deadline Expired - Multaqa",
+    html,
+  });
+};
+
+// Send waitlist auto-registration email (free events)
+export const sendWaitlistAutoRegisteredEmail = async (
+  userEmail: string,
+  username: string,
+  eventName: string,
+  eventDate: Date,
+  location: string
+) => {
+  const html = getWaitlistAutoRegisteredTemplate(
+    username,
+    eventName,
+    eventDate,
+    location
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: "🎉 You're Registered! - Multaqa",
     html,
   });
 };

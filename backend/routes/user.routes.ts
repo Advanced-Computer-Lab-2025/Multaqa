@@ -225,7 +225,10 @@ async function getAllFavorites(
   }
 }
 
-async function blockUser(req: AuthenticatedRequest, res: Response<BlockUserResponse>) {
+async function blockUser(
+  req: AuthenticatedRequest,
+  res: Response<BlockUserResponse>
+) {
   try {
     const userId = req.params.id;
     const loggedinUserId = req.user?.id;
@@ -425,7 +428,10 @@ router.get(
       UserRole.STUDENT,
       UserRole.VENDOR,
     ],
-    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    adminRoles: [
+      AdministrationRoleType.ADMIN,
+      AdministrationRoleType.EVENTS_OFFICE,
+    ],
     staffPositions: [
       StaffPosition.PROFESSOR,
       StaffPosition.TA,
@@ -550,6 +556,7 @@ router.delete(
   }),
   removeFromFavorites
 );
+
 router.get(
   "/:id",
   authorizeRoles({
@@ -557,6 +564,130 @@ router.get(
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
   getUserById
+);
+
+// Waitlist routes - user-centric actions on their own waitlist entries
+// MUST be before /:id route to avoid conflicts
+router.post(
+  "/waitlist/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  async (req: Request, res: Response) => {
+    try {
+      const eventId = req.params.eventId;
+      const userId = (req as any).user?.id;
+
+      if (!userId) {
+        throw createError(401, "User not authenticated");
+      }
+
+      await eventsService.joinWaitlist(eventId, userId);
+
+      // Send confirmation email
+      const event = await eventsService.getEventById(eventId);
+      const user = await userService.getUserById(userId);
+
+      if (event && user) {
+        const { sendWaitlistJoinedEmail } = await import(
+          "../services/emailService"
+        );
+        await sendWaitlistJoinedEmail(
+          user.email,
+          (user as any).firstName && (user as any).lastName
+            ? `${(user as any).firstName} ${(user as any).lastName}`
+            : user.email,
+          event.eventName,
+          event.eventStartDate
+        );
+      }
+
+      res.json({
+        success: true,
+        message: "Successfully joined the waitlist",
+      });
+    } catch (err: any) {
+      throw createError(
+        err.status || 500,
+        err.message || "Error joining waitlist"
+      );
+    }
+  }
+);
+
+router.delete(
+  "/waitlist/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  async (req: Request, res: Response) => {
+    try {
+      const eventId = req.params.eventId;
+      const userId = (req as any).user?.id;
+
+      if (!userId) {
+        throw createError(401, "User not authenticated");
+      }
+
+      await eventsService.leaveWaitlist(eventId, userId);
+
+      res.json({
+        success: true,
+        message: "Successfully left the waitlist",
+      });
+    } catch (err: any) {
+      throw createError(
+        err.status || 500,
+
+        err.message || "Error leaving waitlist"
+      );
+    }
+  }
+);
+
+router.get(
+  "/waitlist/:eventId",
+  authorizeRoles({
+    userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.STAFF,
+      StaffPosition.TA,
+    ],
+  }),
+  async (req: Request, res: Response) => {
+    try {
+      const eventId = req.params.eventId;
+      const userId = (req as any).user?.id;
+
+      if (!userId) {
+        throw createError(401, "User not authenticated");
+      }
+
+      const status = await eventsService.getWaitlistStatus(eventId, userId);
+
+      res.json({
+        success: true,
+        data: status,
+        message: "Waitlist status retrieved successfully",
+      });
+    } catch (err: any) {
+      throw createError(
+        err.status || 500,
+        err.message || "Error retrieving waitlist status"
+      );
+    }
+  }
 );
 
 router.post(
