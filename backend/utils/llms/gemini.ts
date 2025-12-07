@@ -98,15 +98,6 @@ async function analyzeComment(comment: string) {
     return result;
 }
 
-// Test 3 comments with varied languages
-const testComments = [
-    "The UI looks amazing, great job!",  // Safe English
-    "روح موت بقى",                        // Toxic Arabic: "Go die"
-    "Batal habal ya hmar.",
-    "The professor is a worthless excuse for a human being."               // Toxic Franco: "Stop, donkey"
-];
-
-
 
 
 // Export for use in other files

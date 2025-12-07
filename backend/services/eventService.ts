@@ -657,6 +657,19 @@ export class EventsService {
       if (toxicityResult && toxicityResult.isToxic) {
         isToxic = true;
         console.log(`⚠️ Toxic comment detected: "${comment}" - Score: ${(toxicityResult.score * 100).toFixed(0)}%`);
+        
+        // Notify admins about flagged comment
+        await NotificationService.sendNotification({
+          adminRole: [
+            AdministrationRoleType.ADMIN,
+          ],
+          type: "COMMENT_FLAGGED",
+          title: "⚠️ Toxic Comment Flagged",
+          message: `A comment on "${event.eventName}" has been flagged for toxicity (${(toxicityResult.score * 100).toFixed(0)}% toxic). Review required.`,
+          createdAt: new Date(),
+          read: false,
+          delivered: false,
+        } as Notification);
       }
     }
 
