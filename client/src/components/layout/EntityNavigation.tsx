@@ -489,7 +489,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
        {
         key: "bug-reporting",
-        label: "Bug Reporting",
+        label: "Bug Reports",
         icon: Bug,
         tabs: [{ id: "bug-reports", label: "Bug Reports" }],
       },
