@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { Box, TextField, Typography, Paper } from '@mui/material';
 import theme from '@/themes/lightTheme';
 import CustomButton from '@/components/shared/Buttons/CustomButton';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { toast } from 'react-toastify';
 import { api } from '../../api';
 
@@ -186,9 +187,32 @@ const BugReportForms = () => {
       >
         <form onSubmit={handleSubmit}>
           {/* Title Field */}
-          <Typography sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
-            Title:
-          </Typography>
+          <Box sx={{ position: 'relative', display: 'inline-block', mb: 1 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                paddingBottom: '4px',
+              }}
+            >
+              Title:
+            </Typography>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '2px',
+                width: '60%',
+                background: `linear-gradient(135deg, ${accentColor}, ${accentColor})`,
+                borderRadius: '2px',
+                transition: 'width 0.3s ease-in-out',
+                '&:hover': {
+                  width: '100%',
+                },
+              }}
+            />
+          </Box>
           <TextField
             name="title"
             id="title"
@@ -198,18 +222,47 @@ const BugReportForms = () => {
             onChange={handleChange}
             onBlur={handleBlur}
             fullWidth
-            sx={{ ...outlinedSingleLineStyles, mb: 2 }}
+            sx={{ ...outlinedSingleLineStyles}}
           />
           {errors.title && touched.title && (
-            <Typography sx={{ color: '#db3030', fontSize: '0.875rem', mt: -1.5, mb: 1 }}>
-              {errors.title}
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <ErrorOutlineIcon
+                color="error"
+                sx={{ fontSize: 16, mr: 0.5 }}
+              />
+              <Typography variant="caption" color="error">
+                {errors.title}
+              </Typography>
+            </Box>
           )}
 
           {/* Steps to Reproduce Field */}
-          <Typography sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
-            Steps to Reproduce:
-          </Typography>
+          <Box sx={{ position: 'relative', display: 'inline-block', mb: 1, mt: 2 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                paddingBottom: '4px',
+              }}
+            >
+              Steps to Reproduce:
+            </Typography>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '2px',
+                width: '40%',
+                background: `linear-gradient(135deg, ${accentColor}, ${accentColor})`,
+                borderRadius: '2px',
+                transition: 'width 0.3s ease-in-out',
+                '&:hover': {
+                  width: '100%',
+                },
+              }}
+            />
+          </Box>
           <TextField
             name="stepsToReproduce"
             id="stepsToReproduce"
@@ -220,18 +273,47 @@ const BugReportForms = () => {
             fullWidth
             multiline
             rows={6}
-            sx={{ ...outlinedTextAreaStyles, mb: 2 }}
+            sx={{ ...outlinedTextAreaStyles}}
           />
           {errors.stepsToReproduce && touched.stepsToReproduce && (
-            <Typography sx={{ color: '#db3030', fontSize: '0.875rem', mt: -1.5, mb: 1 }}>
-              {errors.stepsToReproduce}
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <ErrorOutlineIcon
+                color="error"
+                sx={{ fontSize: 16, mr: 0.5 }}
+              />
+              <Typography variant="caption" color="error">
+                {errors.stepsToReproduce}
+              </Typography>
+            </Box>
           )}
 
           {/* Expected Result Field */}
-          <Typography sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
-            Expected Result:
-          </Typography>
+          <Box sx={{ position: 'relative', display: 'inline-block', mb: 1, mt: 2 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                paddingBottom: '4px',
+              }}
+            >
+              Expected Result:
+            </Typography>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '2px',
+                width: '40%',
+                background: `linear-gradient(135deg, ${accentColor}, ${accentColor})`,
+                borderRadius: '2px',
+                transition: 'width 0.3s ease-in-out',
+                '&:hover': {
+                  width: '100%',
+                },
+              }}
+            />
+          </Box>
           <TextField
             name="expectedResult"
             id="expectedResult"
@@ -242,18 +324,47 @@ const BugReportForms = () => {
             fullWidth
             multiline
             rows={4}
-            sx={{ ...outlinedTextAreaStyles, mb: 2 }}
+            sx={{ ...outlinedTextAreaStyles}}
           />
           {errors.expectedResult && touched.expectedResult && (
-            <Typography sx={{ color: '#db3030', fontSize: '0.875rem', mt: -1.5, mb: 1 }}>
-              {errors.expectedResult}
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <ErrorOutlineIcon
+                color="error"
+                sx={{ fontSize: 16, mr: 0.5 }}
+              />
+              <Typography variant="caption" color="error">
+                {errors.expectedResult}
+              </Typography>
+            </Box>
           )}
 
           {/* Actual Result Field */}
-          <Typography sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
-            Actual Result:
-          </Typography>
+          <Box sx={{ position: 'relative', display: 'inline-block', mb: 1, mt: 2 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                paddingBottom: '4px',
+              }}
+            >
+              Actual Result:
+            </Typography>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '2px',
+                width: '40%',
+                background: `linear-gradient(135deg, ${accentColor}, ${accentColor})`,
+                borderRadius: '2px',
+                transition: 'width 0.3s ease-in-out',
+                '&:hover': {
+                  width: '100%',
+                },
+              }}
+            />
+          </Box>
           <TextField
             name="actualResult"
             id="actualResult"
@@ -264,18 +375,47 @@ const BugReportForms = () => {
             fullWidth
             multiline
             rows={4}
-            sx={{ ...outlinedTextAreaStyles, mb: 2 }}
+            sx={{ ...outlinedTextAreaStyles}}
           />
           {errors.actualResult && touched.actualResult && (
-            <Typography sx={{ color: '#db3030', fontSize: '0.875rem', mt: -1.5, mb: 1 }}>
-              {errors.actualResult}
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <ErrorOutlineIcon
+                color="error"
+                sx={{ fontSize: 16, mr: 0.5 }}
+              />
+              <Typography variant="caption" color="error">
+                {errors.actualResult}
+              </Typography>
+            </Box>
           )}
 
           {/* Environment Field */}
-          <Typography sx={{ fontWeight: 600, mb: 1, color: theme.palette.text.primary }}>
-            Environment:
-          </Typography>
+          <Box sx={{ position: 'relative', display: 'inline-block', mb: 1, mt: 2 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                paddingBottom: '4px',
+              }}
+            >
+              Environment:
+            </Typography>
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                height: '2px',
+                width: '40%',
+                background: `linear-gradient(135deg, ${accentColor}, ${accentColor})`,
+                borderRadius: '2px',
+                transition: 'width 0.3s ease-in-out',
+                '&:hover': {
+                  width: '100%',
+                },
+              }}
+            />
+          </Box>
           <TextField
             name="environment"
             id="environment"
@@ -285,16 +425,22 @@ const BugReportForms = () => {
             onChange={handleChange}
             onBlur={handleBlur}
             fullWidth
-            sx={{ ...outlinedSingleLineStyles, mb: 3 }}
+            sx={{ ...outlinedSingleLineStyles }}
           />
           {errors.environment && touched.environment && (
-            <Typography sx={{ color: '#db3030', fontSize: '0.875rem', mt: -1.5, mb: 1 }}>
-              {errors.environment}
-            </Typography>
+            <Box display="flex" alignItems="center">
+              <ErrorOutlineIcon
+                color="error"
+                sx={{ fontSize: 16, mr: 0.5 }}
+              />
+              <Typography variant="caption" color="error">
+                {errors.environment}
+              </Typography>
+            </Box>
           )}
 
           {/* Buttons */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 5 }}>
             <CustomButton
               label="Reset Form"
               variant="outlined"
