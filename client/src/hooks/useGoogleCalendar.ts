@@ -14,8 +14,6 @@ export const useGoogleCalendar = () => {
     try {
       await calendarService.connectGoogleCalendar();
       
-      // Refresh user data to get updated calendar tokens
-      // The popup callback should trigger the auto-refresh mechanism in api.ts
       toast.success("Google Calendar connected successfully!", {
         position: "bottom-right",
         autoClose: 2000,

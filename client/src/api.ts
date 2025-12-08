@@ -26,6 +26,7 @@ const autoRefreshEndpoints = [
   "/workshops/:workshopId",
   "/workshops",
   "/workshops/:professorId/:workshopId/status",
+  "/calendar/auth/google/callback"
 ];
 
 // Attach token if present
