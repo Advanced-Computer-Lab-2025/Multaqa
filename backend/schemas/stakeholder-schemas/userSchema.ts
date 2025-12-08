@@ -30,6 +30,13 @@ const userSchema = new Schema<IUser>(
     registeredAt: { type: Date, default: Date.now },
     verifiedAt: { type: Date },
     updatedAt: { type: Date, default: Date.now },
+    googleCalendar: {
+      access_token: { type: String },
+      refresh_token: { type: String },
+      scope: { type: String },
+      token_type: { type: String },
+      expiry_date: { type: Number }
+    }
   },
   { discriminatorKey: "role", collection: "users" }
 );

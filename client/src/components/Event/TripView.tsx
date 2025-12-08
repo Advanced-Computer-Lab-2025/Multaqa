@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Drawer, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 // import { Drawer } from '@heroui/react'; // Adjust import based on your HeroUI version
 import CustomButton from "../shared/Buttons/CustomButton";
 import { BazarViewProps } from "./types";
@@ -12,12 +12,12 @@ import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EditTrip from "../tempPages/EditTrip/EditTrip";
 import EventCard from "../shared/cards/EventCard";
-import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import AddToCalendarButton from "./helpers/AddToCalendarButton";
 
 const TripView: React.FC<BazarViewProps> = ({
   id,
@@ -176,7 +176,24 @@ const TripView: React.FC<BazarViewProps> = ({
             )
           )
         }
-        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]} />
+        expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]}
+        calendarButton={
+          (registered || isRegisteredEvent) && !datePassed && (
+            <AddToCalendarButton
+              eventDetails={{
+                name: name,
+                startDate: details["Start Date"],
+                endDate: details["End Date"],
+                startTime: details["Start Time"],
+                endTime: details["End Time"],
+                description: description,
+                location: details["Location"],
+              }}
+              color={background}
+            />
+          )
+        }
+      />
 
       {/* Modal - Always render when tripToDelete is true */}
       <CustomModal

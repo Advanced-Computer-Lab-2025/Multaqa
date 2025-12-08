@@ -1,12 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { Box, Typography, Avatar, IconButton, Tooltip, Divider, Grid, Stack } from "@mui/material";
-import ActionCard from "../shared/cards/ActionCard";
+import { Box, Typography, IconButton, Tooltip, Stack } from "@mui/material";
 import CustomButton from "../shared/Buttons/CustomButton";
 import { WorkshopViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import EditIcon from "@mui/icons-material/Edit";
-import { Trash2, MapPin, Users, Calendar, Clock, AlertCircle, Ban, Archive } from "lucide-react";
+import { Trash2, Ban, Archive } from "lucide-react";
 import { CustomModal } from "../shared/modals";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EventCard from "../shared/cards/EventCard";
@@ -16,8 +15,8 @@ import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
 import EditWorkshop from "../tempPages/EditWorkshop/EditWorkshop";
-import Utilities from "../shared/Utilities";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import AddToCalendarButton from "./helpers/AddToCalendarButton";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -264,6 +263,22 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         location={details["Location"]}
         professorStatus={professorStatus}
         evaluateButton={evaluateButton}
+        calendarButton={
+          (registered || isRegisteredEvent) && !datePassed && (
+            <AddToCalendarButton
+              eventDetails={{
+                name: name,
+                startDate: details["Start Date"],
+                endDate: details["End Date"],
+                startTime: details["Start Time"],
+                endTime: details["End Time"],
+                description: description,
+                location: details["Location"],
+              }}
+              color={background}
+            />
+          )
+        }
       />
       <EditWorkshop
         workshopId={id}

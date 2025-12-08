@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { Box, Typography, Avatar, IconButton, Tooltip, Stack } from "@mui/material";
-import ActionCard from "../shared/cards/ActionCard";
 import { BoothViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
