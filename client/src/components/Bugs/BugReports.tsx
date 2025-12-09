@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Box, Typography, Stack, Skeleton } from '@mui/material';
+import { Box, Typography, Stack, Skeleton, Chip, Divider } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import theme from '@/themes/lightTheme';
 import { toast } from 'react-toastify';
 import EmptyState from '@/components/shared/states/EmptyState';
@@ -69,8 +70,29 @@ const dummyBugReports: BugReport[] = [
 const BugReports = () => {
   const [loading, setLoading] = useState(false);
   const [bugReports] = useState<BugReport[]>(dummyBugReports);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'resolved'>('all');
 
   const accentColor = theme.palette.tertiary.main;
+
+  // Filter colors
+  const filterColors = {
+    all: "#6299d0",
+    pending: "#f59e0b",
+    resolved: "#10b981",
+  };
+
+  // Filter chips configuration
+  const filterChips: Array<{ key: 'all' | 'pending' | 'resolved'; label: string }> = [
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'resolved', label: 'Resolved' },
+  ];
+
+  // Filter bug reports based on selected status
+  const filteredBugReports = bugReports.filter((bug) => {
+    if (statusFilter === 'all') return true;
+    return bug.status === statusFilter;
+  });
 
   const handleResolve = async (bugId: string) => {
     // Simulate API call
@@ -140,7 +162,7 @@ const BugReports = () => {
     );
   }
 
-  // Empty state
+  // Empty state - no bug reports at all
   if (bugReports.length === 0) {
     return (
       <Box sx={{ p: 4, maxWidth: '1400px', margin: '0 auto' }}>
@@ -160,6 +182,9 @@ const BugReports = () => {
     );
   }
 
+  // Empty state - filtered results
+  const hasFilteredResults = filteredBugReports.length === 0 && bugReports.length > 0;
+
   return (
     <Box sx={{ p: 4, maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
@@ -172,17 +197,63 @@ const BugReports = () => {
         </Typography>
       </Stack>
 
-      {/* Bug Report Cards - Clean mapping */}
-      <Stack spacing={2.5}>
-        {bugReports.map((bug) => (
-          <BugReportCard
-            key={bug.id}
-            bug={bug}
-            accentColor={accentColor}
-            onResolve={handleResolve}
-          />
-        ))}
+      {/* Status Filter Chips */}
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', mb: 2 }}>
+        {filterChips.map(({ key, label }) => {
+          const isActive = statusFilter === key;
+          const baseColor = filterColors[key];
+
+          return (
+            <Chip
+              key={key}
+              label={label}
+              size="medium"
+              onClick={() => setStatusFilter(key)}
+              variant="outlined"
+              sx={{
+                fontFamily: 'var(--font-poppins)',
+                fontWeight: isActive ? 600 : 500,
+                borderRadius: '28px',
+                px: 1.75,
+                height: 28,
+                borderWidth: isActive ? 1.5 : 1,
+                borderColor: baseColor,
+                color: baseColor,
+                backgroundColor: alpha(baseColor, isActive ? 0.1 : 0.06),
+                boxShadow: isActive
+                  ? `0 4px 10px ${alpha(baseColor, 0.18)}`
+                  : `0 1px 2px ${alpha(baseColor, 0.15)}`,
+                transition:
+                  'background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease',
+                '&:hover': {
+                  borderWidth: 2,
+                },
+              }}
+            />
+          );
+        })}
       </Stack>
+
+      <Divider sx={{ mb: 2 }} />
+
+      {/* Bug Report Cards or Empty State */}
+      {hasFilteredResults ? (
+        <EmptyState
+          title="No bug reports match the selected filter"
+          description="Try selecting a different status filter to view more bug reports."
+        />
+      ) : (
+        <Stack spacing={2.5}>
+          {filteredBugReports.map((bug) => (
+            <BugReportCard
+              key={bug.id}
+              bug={bug}
+              accentColor={accentColor}
+              onResolve={handleResolve}
+            />
+          ))}
+        </Stack>
+      )}
     </Box>
   );
 };
