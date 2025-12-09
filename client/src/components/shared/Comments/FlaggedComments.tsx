@@ -289,9 +289,8 @@ export default function FlaggedComments() {
                 ))}
             </Box>
 
-            {/* Delete Confirmation Modal */}
             <CustomModal
-                open={confirmModal?.isOpen && confirmModal?.type === "delete"}
+                open={!!(confirmModal?.isOpen && confirmModal?.type === "delete")}
                 onClose={handleCloseModal}
                 title="Delete Comment"
                 description={`Are you sure you want to delete this comment${confirmModal?.userName ? ` by ${confirmModal.userName}` : ""
@@ -310,9 +309,8 @@ export default function FlaggedComments() {
                 }}
             />
 
-            {/* Block User Confirmation Modal */}
             <CustomModal
-                open={confirmModal?.isOpen && confirmModal?.type === "block"}
+                open={!!(confirmModal?.isOpen && confirmModal?.type === "block")}
                 onClose={handleCloseModal}
                 title="Block User"
                 description={`Are you sure you want to block ${confirmModal?.userName || "this user"
