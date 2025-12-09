@@ -522,6 +522,52 @@ const formatRestrictionReason = (
   }
 };
 
+// Waitlist Removal Email Template
+export const getWaitlistRemovedTemplate = (
+  username: string,
+  eventName: string,
+  allowedRolesAndPositions: string[]
+): string => {
+  const restrictionMessage = formatRestrictionReason(allowedRolesAndPositions);
+
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerWarning}">
+          <h2 style="margin: 0; font-size: 22px;">🚫 Waitlist Update</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Dear ${username},<br><br>
+            We regret to inform you that you have been removed from the waitlist for <strong>${eventName}</strong> due to updated access restrictions.
+          </p>
+          
+          <div style="${baseStyles.warningBox}">
+            <h3 style="margin: 0 0 10px 0; color: #ea580c;">Reason for Removal</h3>
+            <p style="margin: 0; color: #333;">
+              ${restrictionMessage}
+            </p>
+          </div>
+          
+          <div style="${baseStyles.infoBox}">
+            <p style="margin: 0; color: #333;">
+              <strong style="color: #2563eb;">What's Next?</strong><br><br>
+              You can browse other available events that match your profile. Since you were on the waitlist and had not yet registered, no payment or refund is involved.
+            </p>
+          </div>
+          
+          <p style="font-size: 14px; color: #555;">
+            If you believe this removal was made in error or have any questions, please don't hesitate to contact the Events Office or our support team.
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 // Event Access Removed Email Template
 export const getEventAccessRemovedTemplate = (
   username: string,

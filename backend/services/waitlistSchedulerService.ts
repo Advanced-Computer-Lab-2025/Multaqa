@@ -1,4 +1,5 @@
 import * as cron from "node-cron";
+import { WaitlistService } from "./waitlistService";
 import { EventsService } from "./eventService";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IEvent } from "../interfaces/models/event.interface";
@@ -10,10 +11,12 @@ import { IEvent } from "../interfaces/models/event.interface";
  */
 export class WaitlistSchedulerService {
   private eventsService: EventsService;
+  private waitlistService: WaitlistService;
   private cronJob: cron.ScheduledTask | null = null;
 
   constructor() {
     this.eventsService = new EventsService();
+    this.waitlistService = new WaitlistService();
   }
 
   /**
@@ -108,7 +111,7 @@ export class WaitlistSchedulerService {
       let totalRemoved = 0;
       for (const event of eventsWithWaitlists) {
         const eventDoc = event as IEvent & { _id: any };
-        const removed = await this.eventsService.removeExpiredWaitlistEntries(
+        const removed = await this.waitlistService.removeExpiredWaitlistEntries(
           eventDoc._id.toString()
         );
         totalRemoved += removed;

@@ -14,6 +14,7 @@ import Stripe from "stripe";
 import {
   sendCommentDeletionWarningEmail,
   sendEventAccessRemovedEmail,
+  sendWaitlistRemovedEmail,
 } from "./emailService";
 import { UserService } from "./userService";
 import mongoose from "mongoose";
@@ -25,21 +26,12 @@ import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
 import { Notification } from "./notificationService";
+import { WaitlistService } from "./waitlistService";
 
 const { Types } = require("mongoose");
 
 const STRIPE_DEFAULT_CURRENCY = process.env.STRIPE_DEFAULT_CURRENCY || "usd";
 const STRIPE_MIN_AMOUNT_CENTS = 50;
-
-// Waitlist payment deadline configuration
-// For testing: set WAITLIST_DEADLINE_SECONDS in .env (e.g., 30 for 30 seconds)
-// For production: defaults to 3 days (259200 seconds)
-const WAITLIST_DEADLINE_SECONDS = process.env.WAITLIST_DEADLINE_SECONDS
-  ? parseInt(process.env.WAITLIST_DEADLINE_SECONDS)
-  : 3 * 24 * 60 * 60; // 3 days in seconds
-
-console.log("⚙️ [CONFIG] WAITLIST_DEADLINE_SECONDS from env:", process.env.WAITLIST_DEADLINE_SECONDS);
-console.log("⚙️ [CONFIG] WAITLIST_DEADLINE_SECONDS parsed value:", WAITLIST_DEADLINE_SECONDS);
 
 export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
@@ -48,13 +40,19 @@ export class EventsService {
   private workshopRepo: GenericRepository<IWorkshop>;
   private stripe?: Stripe;
   private userService: UserService;
+  private waitlistService: WaitlistService;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
-    this.tripRepo = new GenericRepository(Trip) as unknown as GenericRepository<ITrip>;
+    this.tripRepo = new GenericRepository(
+      Trip
+    ) as unknown as GenericRepository<ITrip>;
     this.conferenceRepo = new GenericRepository(Conference);
-    this.workshopRepo = new GenericRepository(Workshop) as unknown as GenericRepository<IWorkshop>;
+    this.workshopRepo = new GenericRepository(
+      Workshop
+    ) as unknown as GenericRepository<IWorkshop>;
     this.userService = new UserService();
+    this.waitlistService = new WaitlistService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -352,7 +350,7 @@ export class EventsService {
         }
       }
     }
-     if (event.type === EVENT_TYPES.CONFERENCE) {
+    if (event.type === EVENT_TYPES.CONFERENCE) {
       const now = new Date();
       const eventStarted = new Date(event.eventStartDate) < now;
       const eventEnded = new Date(event.eventEndDate) < now;
@@ -455,11 +453,21 @@ export class EventsService {
       ? updateData.capacity - (event as any).capacity
       : 0;
 
-    console.log("[CAPACITY UPDATE] Event ID:", eventId);
-    console.log("[CAPACITY UPDATE] Old capacity:", (event as any).capacity);
-    console.log("[CAPACITY UPDATE] New capacity:", updateData.capacity);
-    console.log("[CAPACITY UPDATE] Capacity increased:", capacityIncreased);
-    console.log("[CAPACITY UPDATE] Additional slots:", additionalSlots);
+    // Validate capacity decrease
+    if (
+      updateData.capacity &&
+      typeof updateData.capacity === "number" &&
+      (event as any).capacity &&
+      updateData.capacity < (event as any).capacity
+    ) {
+      const currentAttendees = event.attendees?.length || 0;
+      if (updateData.capacity < currentAttendees) {
+        throw createError(
+          400,
+          `Cannot reduce capacity to ${updateData.capacity}. There are already ${currentAttendees} registered attendees.`
+        );
+      }
+    }
 
     let updatedEvent;
 
@@ -471,13 +479,13 @@ export class EventsService {
       updatedEvent = await this.eventRepo.update(eventId, updateData);
     }
 
-    // Promote from waitlist AFTER capacity update is saved
-    if (capacityIncreased && additionalSlots > 0) {
-      console.log("[PROMOTION] Calling promoteFromWaitlist with", additionalSlots, "slots");
-      await this.promoteFromWaitlist(eventId, additionalSlots);
-      console.log("[PROMOTION] promoteFromWaitlist completed");
-    } else {
-      console.log("[PROMOTION] Skipping promotion - capacityIncreased:", capacityIncreased, "additionalSlots:", additionalSlots);
+    // Promote from waitlist AFTER capacity update is saved (only for trips/workshops)
+    if (
+      capacityIncreased &&
+      additionalSlots > 0 &&
+      (event.type === EVENT_TYPES.TRIP || event.type === EVENT_TYPES.WORKSHOP)
+    ) {
+      await this.waitlistService.promoteFromWaitlist(eventId, additionalSlots);
     }
 
     return updatedEvent!; //! to assert that updatedEvent is not null (we already checked for existence above)
@@ -528,19 +536,8 @@ export class EventsService {
       throw createError(409, "User already registered for this event");
     }
 
-    // Check if user is on waitlist
-    const waitlistEntry = event.waitlist?.find(
-      (entry) => entry.userId.toString() === userId.toString()
-    );
-
-    // Only block if user is on waitlist with 'waitlist' status
-    // Allow if status is 'pending_payment' (they were promoted and can now pay)
-    if (waitlistEntry && waitlistEntry.status === "waitlist") {
-      throw createError(
-        409,
-        "You are already on the waitlist for this event. Please wait to be promoted."
-      );
-    }
+    // Validate slot availability and waitlist priority
+    await this.waitlistService.validateSlotAvailability(eventId, userId);
 
     // Check capacity before allowing registration
     const capacity = (event as any).capacity;
@@ -557,48 +554,19 @@ export class EventsService {
       );
     }
 
-    // WAITLIST PRIORITY: Reserve slots proportionally for waitlist users
-    // Count users with reserved slots (both waiting and pending payment)
-    const reservedSlotsCount = event.waitlist?.filter(
-      (entry: any) => entry.status === "waitlist" || entry.status === "pending_payment"
-    ).length || 0;
-
-    // Calculate available slots
-    const availableSlots = capacity - attendeesCount;
-
-    console.log("[REGISTRATION CHECK]");
-    console.log("- Event ID:", event._id);
-    console.log("- Capacity:", capacity);
-    console.log("- Current attendees:", attendeesCount);
-    console.log("- Available slots:", availableSlots);
-    console.log("- Reserved slots (waitlist + pending_payment):", reservedSlotsCount);
-    console.log("- User on waitlist?:", !!waitlistEntry);
-    console.log("- User status:", waitlistEntry?.status);
-    console.log("- Should block?:", reservedSlotsCount > 0 && !waitlistEntry && availableSlots <= reservedSlotsCount);
-
-    // If user is NOT on waitlist (or not promoted), check if slots are reserved
-    // Block only if available slots <= reserved slots count (proportional fairness)
-    if (reservedSlotsCount > 0 && !waitlistEntry && availableSlots <= reservedSlotsCount) {
-      console.log("[REGISTRATION CHECK] BLOCKING - slots reserved for waitlist");
-      throw createError(
-        409,
-        `There are ${reservedSlotsCount} user(s) with reserved spots (on waitlist or pending payment) and only ${availableSlots} slot(s) available. These slots are reserved. Please join the waitlist to register.`
-      );
-    }
-    
-    console.log("[REGISTRATION CHECK] ALLOWING registration");
-
     // Add user to attendees
     event.attendees?.push(userId);
-    
+
     // Remove from waitlist if they were promoted (pending_payment status)
+    const waitlistEntry = event.waitlist?.find(
+      (entry) => entry.userId.toString() === userId.toString()
+    );
     if (waitlistEntry && event.waitlist) {
       event.waitlist = event.waitlist.filter(
         (entry: any) => entry.userId.toString() !== userId.toString()
       ) as any;
-      console.log(`✅ User ${userId} removed from waitlist after successful registration`);
     }
-    
+
     await event.save();
 
     // Add event to user's registered events
@@ -648,6 +616,10 @@ export class EventsService {
       })
       .filter((oid: any) => oid && oid.toString() !== userOid.toString());
     await event.save();
+
+    // Promote next user from waitlist since a slot was freed
+    await this.waitlistService.promoteFromWaitlist(eventId, 1);
+
     return event;
   }
 
@@ -655,6 +627,7 @@ export class EventsService {
    * Removes attendees from an event who no longer have access based on allowedUsers restrictions
    * This method is called when the allowedUsers field is updated before the event starts
    * Also handles refunds for paid events and can send email notifications
+   * Additionally removes ineligible users from the waitlist
    * @param event - The event document to check
    * @param allowedRolesAndPositions - Array of allowed roles and positions
    */
@@ -662,41 +635,77 @@ export class EventsService {
     event: IEvent,
     allowedRolesAndPositions: string[]
   ): Promise<void> {
-    // Early return if no attendees to check
-    if (!event.attendees || event.attendees.length === 0) {
+    // Early return if no attendees and no waitlist to check
+    if (
+      (!event.attendees || event.attendees.length === 0) &&
+      (!event.waitlist || event.waitlist.length === 0)
+    ) {
       return;
     }
 
     const now = new Date();
     const eventStartDate = new Date(event.eventStartDate);
 
-    // Only remove attendees if event hasn't started yet
+    // Only remove attendees/waitlist if event hasn't started yet
     if (eventStartDate <= now) {
       return;
     }
 
     const attendeesToRemove: string[] = [];
+    const waitlistToRemove: string[] = [];
 
-    // Populate attendees to check their roles/positions and get user details
-    await event.populate({
-      path: "attendees",
-      select: "role position firstName lastName email",
-    });
+    // Process attendees if any exist
+    if (event.attendees && event.attendees.length > 0) {
+      // Populate attendees to check their roles/positions and get user details
+      await event.populate({
+        path: "attendees",
+        select: "role position firstName lastName email",
+      });
 
-    for (const attendee of event.attendees as any[]) {
-      if (!attendee || !attendee._id) continue;
+      for (const attendee of event.attendees as any[]) {
+        if (!attendee || !attendee._id) continue;
 
-      const userId = attendee._id.toString();
-      const userRole = attendee.role;
-      const userPosition = attendee.position;
+        const userId = attendee._id.toString();
+        const userRole = attendee.role;
+        const userPosition = attendee.position;
 
-      // Check if user's role or position is in the allowed list
-      const hasAccess =
-        allowedRolesAndPositions.includes(userRole) ||
-        (userPosition && allowedRolesAndPositions.includes(userPosition));
+        // Check if user's role or position is in the allowed list
+        const hasAccess =
+          allowedRolesAndPositions.includes(userRole) ||
+          (userPosition && allowedRolesAndPositions.includes(userPosition));
 
-      if (!hasAccess) {
-        attendeesToRemove.push(userId);
+        if (!hasAccess) {
+          attendeesToRemove.push(userId);
+        }
+      }
+    }
+
+    // Process waitlist if exists (only for trips/workshops)
+    if (
+      event.waitlist &&
+      event.waitlist.length > 0 &&
+      (event.type === EVENT_TYPES.TRIP || event.type === EVENT_TYPES.WORKSHOP)
+    ) {
+      // Get user details for each waitlist entry
+      for (const entry of event.waitlist as any[]) {
+        if (!entry || !entry.userId) continue;
+
+        const userId = entry.userId.toString();
+        const user = await this.userService.getUserById(userId);
+
+        if (user) {
+          const userRole = (user as any).role;
+          const userPosition = (user as any).position;
+
+          // Check if user's role or position is in the allowed list
+          const hasAccess =
+            allowedRolesAndPositions.includes(userRole) ||
+            (userPosition && allowedRolesAndPositions.includes(userPosition));
+
+          if (!hasAccess) {
+            waitlistToRemove.push(userId);
+          }
+        }
       }
     }
 
@@ -750,6 +759,37 @@ export class EventsService {
           }
         } catch (error) {
           console.warn(`Could not remove user ${userId} from event:`, error);
+        }
+      }
+    }
+
+    // Remove ineligible users from waitlist
+    if (waitlistToRemove.length > 0) {
+      const eventId = event._id?.toString();
+      if (!eventId) {
+        throw createError(500, "Event ID is missing");
+      }
+
+      for (const userId of waitlistToRemove) {
+        try {
+          // Remove user from waitlist (this will also promote next person if they had pending_payment)
+          await this.waitlistService.leaveWaitlist(eventId, userId);
+
+          // Get user details for email notification
+          const user = await this.userService.getUserById(userId);
+          if (user) {
+            // Send email about waitlist removal
+            await sendWaitlistRemovedEmail(
+              (user as any).email,
+              (user as any).firstName && (user as any).lastName
+                ? `${(user as any).firstName} ${(user as any).lastName}`
+                : (user as any).email,
+              event.eventName,
+              allowedRolesAndPositions
+            );
+          }
+        } catch (error) {
+          console.warn(`Could not remove user ${userId} from waitlist:`, error);
         }
       }
     }
@@ -967,9 +1007,10 @@ export class EventsService {
       });
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       // Filter only approved vendors
-      const approvedVendors = event.vendors?.filter(
-        (vendorEntry: any) => vendorEntry.RequestData?.status === "approved"
-      ) || [];
+      const approvedVendors =
+        event.vendors?.filter(
+          (vendorEntry: any) => vendorEntry.RequestData?.status === "approved"
+        ) || [];
 
       if (approvedVendors.length === 0) {
         throw createError(404, "No approved vendors to export for this bazaar");
@@ -1040,9 +1081,9 @@ export class EventsService {
     for (const event of allEvents) {
       // Combine eventStartDate with eventStartTime to get the full datetime
       const eventDate = new Date(event.eventStartDate);
-      
+
       if (event.eventStartTime) {
-        const [hours, minutes] = event.eventStartTime.split(':').map(Number);
+        const [hours, minutes] = event.eventStartTime.split(":").map(Number);
         eventDate.setHours(hours || 0, minutes || 0, 0, 0);
       }
 
@@ -1050,7 +1091,7 @@ export class EventsService {
       if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
         oneDayEvents.push(event);
       }
-      
+
       // Check for 1-hour reminder
       if (eventDate.getTime() - now.getTime() == 60 * 60 * 1000) {
         oneHourEvents.push(event);
@@ -1072,9 +1113,9 @@ export class EventsService {
     // Clear waitlists for events that have started
     const startedEvents = allEvents.filter((event) => {
       const eventDate = new Date(event.eventStartDate);
-      
+
       if (event.eventStartTime) {
-        const [hours, minutes] = event.eventStartTime.split(':').map(Number);
+        const [hours, minutes] = event.eventStartTime.split(":").map(Number);
         eventDate.setHours(hours || 0, minutes || 0, 0, 0);
       }
 
@@ -1108,406 +1149,5 @@ export class EventsService {
         createdAt: new Date(),
       } as Notification);
     }
-  }
-
-  /**
-   * Add user to event waitlist
-   * @param eventId - Event ID
-   * @param userId - User ID to add to waitlist
-   * @returns Updated event
-   */
-  async joinWaitlist(eventId: string, userId: string): Promise<IEvent> {
-    const event = await this.eventRepo.findById(eventId);
-    if (!event) {
-      throw createError(404, "Event not found");
-    }
-
-    // Only trips and workshops support waitlist
-    if (
-      event.type !== EVENT_TYPES.TRIP &&
-      event.type !== EVENT_TYPES.WORKSHOP
-    ) {
-      throw createError(
-        400,
-        "Waitlist is only available for trips and workshops"
-      );
-    }
-
-    // Check registration deadline
-    if (new Date() > new Date(event.registrationDeadline)) {
-      throw createError(400, "Registration deadline has passed for this event");
-    }
-
-    // Check if user is already an attendee
-    const isAttendee = event.attendees?.some((attendee: any) => {
-      const attendeeId = attendee._id || attendee;
-      return attendeeId.toString() === userId.toString();
-    });
-    if (isAttendee) {
-      throw createError(409, "You are already registered for this event");
-    }
-
-    // Check if user is already on waitlist
-    const isOnWaitlist = event.waitlist?.some(
-      (entry) => entry.userId.toString() === userId.toString()
-    );
-    if (isOnWaitlist) {
-      throw createError(409, "You are already on the waitlist for this event");
-    }
-
-    // Initialize waitlist if it doesn't exist
-    if (!event.waitlist) {
-      event.waitlist = [];
-    }
-
-    // Add user to waitlist
-    event.waitlist.push({
-      userId: new Types.ObjectId(userId),
-      joinedAt: new Date(),
-      status: "waitlist",
-    } as any);
-
-    await event.save();
-    return event;
-  }
-
-  /**
-   * Remove user from event waitlist
-   * @param eventId - Event ID
-   * @param userId - User ID to remove from waitlist
-   * @returns Updated event
-   */
-  async leaveWaitlist(eventId: string, userId: string): Promise<IEvent> {
-    const event = await this.eventRepo.findById(eventId);
-    if (!event) {
-      throw createError(404, "Event not found");
-    }
-
-    if (!event.waitlist || event.waitlist.length === 0) {
-      throw createError(404, "You are not on the waitlist for this event");
-    }
-
-    const waitlistIndex = event.waitlist.findIndex(
-      (entry) => entry.userId.toString() === userId.toString()
-    );
-
-    if (waitlistIndex === -1) {
-      throw createError(404, "You are not on the waitlist for this event");
-    }
-
-    // Remove user from waitlist
-    event.waitlist.splice(waitlistIndex, 1);
-    await event.save();
-    return event;
-  }
-
-  /**
-   * Get user's waitlist status for an event
-   * @param eventId - Event ID
-   * @param userId - User ID
-   * @returns Waitlist status information
-   */
-  async getWaitlistStatus(
-    eventId: string,
-    userId: string
-  ): Promise<{
-    isOnWaitlist: boolean;
-    status?: "waitlist" | "pending_payment";
-    paymentDeadline?: Date;
-    joinedAt?: Date;
-  }> {
-    const event = await this.eventRepo.findById(eventId);
-    if (!event) {
-      throw createError(404, "Event not found");
-    }
-
-    if (!event.waitlist || event.waitlist.length === 0) {
-      return { isOnWaitlist: false };
-    }
-
-    const waitlistEntry = event.waitlist.find(
-      (entry) => entry.userId.toString() === userId.toString()
-    );
-
-    if (!waitlistEntry) {
-      return { isOnWaitlist: false };
-    }
-
-    return {
-      isOnWaitlist: true,
-      status: waitlistEntry.status,
-      paymentDeadline: waitlistEntry.paymentDeadline,
-      joinedAt: waitlistEntry.joinedAt,
-    };
-  }
-
-  /**
-   * Promote users from waitlist to pending payment or direct registration
-   * Handles Cases 1-3 based on available slots
-   * @param eventId - Event ID
-   * @param freedSlots - Number of spots that became available
-   */
-  async promoteFromWaitlist(
-    eventId: string,
-    freedSlots: number
-  ): Promise<void> {
-    console.log("[PROMOTE] Starting promoteFromWaitlist for event:", eventId, "slots:", freedSlots);
-    
-    // First get base event to determine type
-    const baseEvent = await this.eventRepo.findById(eventId);
-    if (!baseEvent) {
-      console.log("[PROMOTE] Base event not found, exiting");
-      return; // Event not found, skip silently
-    }
-
-    console.log("[PROMOTE] Event type:", baseEvent.type);
-
-    // Use correct discriminator repository to access waitlist
-    let event: any;
-    if (baseEvent.type === EVENT_TYPES.TRIP) {
-      event = await this.tripRepo.findById(eventId);
-    } else if (baseEvent.type === EVENT_TYPES.WORKSHOP) {
-      event = await this.workshopRepo.findById(eventId);
-    } else {
-      console.log("[PROMOTE] Event type doesn't support waitlist, exiting");
-      return; // Other event types don't have waitlists
-    }
-
-    if (!event) {
-      console.log("[PROMOTE] Event not found in discriminator repo, exiting");
-      return;
-    }
-
-    console.log("[PROMOTE] Waitlist exists:", !!event.waitlist);
-    console.log("[PROMOTE] Waitlist length:", event.waitlist?.length || 0);
-    console.log("[PROMOTE] Waitlist entries:", JSON.stringify(event.waitlist, null, 2));
-
-    if (!event.waitlist || event.waitlist.length === 0) {
-      console.log("[PROMOTE] No waitlist or empty, exiting");
-      return; // No one on waitlist
-    }
-
-    // Only process users with status 'waitlist' (not already in pending_payment)
-    const waitingUsers = event.waitlist.filter(
-      (entry: any) => entry.status === "waitlist"
-    );
-
-    console.log("[PROMOTE] Waiting users count:", waitingUsers.length);
-
-    if (waitingUsers.length === 0) {
-      console.log("[PROMOTE] No users with 'waitlist' status, exiting");
-      return; // No users waiting
-    }
-
-    // Calculate how many users to promote (min of freed slots and waiting users)
-    const usersToPromote = Math.min(freedSlots, waitingUsers.length);
-
-    console.log("[PROMOTE] Users to promote:", usersToPromote);
-
-    // Get the first X users from waitlist (FIFO)
-    const promotedUsers = waitingUsers.slice(0, usersToPromote);
-
-    // Check if event is free or paid
-    const isFreeEvent = !event.price || event.price === 0;
-
-    console.log("[PROMOTE] Event price:", event.price);
-    console.log("[PROMOTE] Is free event:", isFreeEvent);
-
-    for (const waitlistEntry of promotedUsers) {
-      console.log("[PROMOTE] Processing user:", waitlistEntry.userId);
-      if (isFreeEvent) {
-        // Free event: auto-register immediately
-        await this.autoRegisterFreeEvent(eventId, waitlistEntry.userId.toString());
-      } else {
-        // Paid event: move to pending_payment with configurable deadline
-        console.log("[PROMOTE] Paid event - setting up payment deadline");
-        const paymentDeadline = new Date();
-        paymentDeadline.setTime(paymentDeadline.getTime() + (WAITLIST_DEADLINE_SECONDS * 1000));
-        
-        console.log("[PROMOTE] Payment deadline set to:", paymentDeadline);
-        console.log("[PROMOTE] Deadline in seconds:", WAITLIST_DEADLINE_SECONDS);
-
-        // Update waitlist entry
-        const entryIndex = event.waitlist!.findIndex(
-          (e: any) => e.userId.toString() === waitlistEntry.userId.toString()
-        );
-
-        console.log("[PROMOTE] Entry index found:", entryIndex);
-
-        if (entryIndex !== -1) {
-          event.waitlist![entryIndex].status = "pending_payment";
-          event.waitlist![entryIndex].paymentDeadline = paymentDeadline;
-          event.waitlist![entryIndex].notifiedAt = new Date();
-          console.log("[PROMOTE] Updated entry to pending_payment");
-        } else {
-          console.log("[PROMOTE] WARNING: Entry not found in waitlist");
-        }
-
-        // Send promotion email with payment deadline
-        // This will be handled by email service (to be implemented)
-        const user = await this.userService.getUserById(
-          waitlistEntry.userId.toString()
-        );
-        console.log("[PROMOTE] User found:", !!user, user?.email);
-        if (user) {
-          // Import will be added when email service is implemented
-          try {
-            const { sendWaitlistPromotionEmail } = await import(
-              "./emailService"
-            );
-            console.log("[PROMOTE] Sending promotion email to:", user.email);
-            await sendWaitlistPromotionEmail(
-              user.email,
-              (user as any).firstName && (user as any).lastName
-                ? `${(user as any).firstName} ${(user as any).lastName}`
-                : user.email,
-              event.eventName,
-              paymentDeadline,
-              event._id!.toString()
-            );
-            console.log("[PROMOTE] Email sent successfully");
-          } catch (emailError) {
-            console.error("[PROMOTE] Error sending email:", emailError);
-          }
-        }
-      }
-    }
-
-    console.log("[PROMOTE] Saving event with updated waitlist");
-    await event.save();
-    console.log("[PROMOTE] Event saved successfully");
-  }
-
-  /**
-   * Auto-register user for free events when promoted from waitlist
-   * @param eventId - Event ID
-   * @param userId - User ID to register
-   */
-  async autoRegisterFreeEvent(
-    eventId: string,
-    userId: string
-  ): Promise<void> {
-    // First get base event to determine type
-    const baseEvent = await this.eventRepo.findById(eventId);
-    if (!baseEvent) {
-      return;
-    }
-
-    // Use correct discriminator repository
-    let event: any;
-    if (baseEvent.type === EVENT_TYPES.TRIP) {
-      event = await this.tripRepo.findById(eventId);
-    } else if (baseEvent.type === EVENT_TYPES.WORKSHOP) {
-      event = await this.workshopRepo.findById(eventId);
-    } else {
-      return; // Other event types don't have waitlists
-    }
-
-    if (!event) {
-      return;
-    }
-
-    // Add user to attendees
-    if (!event.attendees) {
-      event.attendees = [];
-    }
-    event.attendees.push(new Types.ObjectId(userId) as any);
-
-    // Remove from waitlist
-    if (event.waitlist) {
-      event.waitlist = event.waitlist.filter(
-        (entry: any) => entry.userId.toString() !== userId.toString()
-      ) as any;
-    }
-
-    // Add event to user's registered events
-    const eventObjectId = event._id as mongoose.Types.ObjectId;
-    await this.userService.addEventToUser(userId, eventObjectId);
-
-    await event.save();
-
-    // Send auto-registration confirmation email
-    const user = await this.userService.getUserById(userId);
-    if (user) {
-      const { sendWaitlistAutoRegisteredEmail } = await import(
-        "./emailService"
-      );
-      await sendWaitlistAutoRegisteredEmail(
-        user.email,
-        (user as any).firstName && (user as any).lastName
-          ? `${(user as any).firstName} ${(user as any).lastName}`
-          : user.email,
-        event.eventName,
-        event.eventStartDate,
-        event.location
-      );
-    }
-  }
-
-  /**
-   * Remove expired pending payment users from waitlist
-   * Called by scheduler service
-   * @param eventId - Event ID
-   * @returns Number of users removed
-   */
-  async removeExpiredWaitlistEntries(eventId: string): Promise<number> {
-    const event = await this.eventRepo.findById(eventId);
-    if (!event || !event.waitlist || event.waitlist.length === 0) {
-      return 0;
-    }
-
-    const now = new Date();
-    const expiredEntries: any[] = [];
-
-    // Find all expired pending_payment entries
-    event.waitlist.forEach((entry) => {
-      if (
-        entry.status === "pending_payment" &&
-        entry.paymentDeadline &&
-        new Date(entry.paymentDeadline) < now
-      ) {
-        expiredEntries.push(entry);
-      }
-    });
-
-    if (expiredEntries.length === 0) {
-      return 0;
-    }
-
-    // Remove expired entries and send notification emails
-    for (const entry of expiredEntries) {
-      const user = await this.userService.getUserById(
-        entry.userId.toString()
-      );
-      if (user) {
-        const { sendWaitlistDeadlineExpiredEmail } = await import(
-          "./emailService"
-        );
-        await sendWaitlistDeadlineExpiredEmail(
-          user.email,
-          (user as any).firstName && (user as any).lastName
-            ? `${(user as any).firstName} ${(user as any).lastName}`
-            : user.email,
-          event.eventName
-        );
-      }
-    }
-
-    // Remove expired entries from waitlist
-    event.waitlist = event.waitlist.filter(
-      (entry) =>
-        !(
-          entry.status === "pending_payment" &&
-          entry.paymentDeadline &&
-          new Date(entry.paymentDeadline) < now
-        )
-    ) as any;
-
-    await event.save();
-
-    // Trigger promotion for the freed slots
-    await this.promoteFromWaitlist(eventId, expiredEntries.length);
-
-    return expiredEntries.length;
   }
 }

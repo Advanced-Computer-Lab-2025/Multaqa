@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { EventsService } from "./eventService";
 import { UserService } from "./userService";
 import { VendorEventsService } from "./vendorEventsService";
+import { WaitlistService } from "./waitlistService";
 import { sendPaymentReceiptEmail } from "./emailService";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { Event_Request_Status } from "../constants/user.constants";
@@ -20,11 +21,13 @@ export class WebhookService {
   private eventsService: EventsService;
   private userService: UserService;
   private vendorEventsService: VendorEventsService;
+  private waitlistService: WaitlistService;
 
   constructor() {
     this.eventsService = new EventsService();
     this.userService = new UserService();
     this.vendorEventsService = new VendorEventsService();
+    this.waitlistService = new WaitlistService();
   }
 
   /**
@@ -94,24 +97,7 @@ export class WebhookService {
     );
 
     // Remove from waitlist if they were on it
-    const updatedEvent = await this.eventsService.getEventById(eventId);
-    if (
-      updatedEvent &&
-      (updatedEvent as any).waitlist &&
-      Array.isArray((updatedEvent as any).waitlist)
-    ) {
-      const waitlistIndex = (updatedEvent as any).waitlist.findIndex(
-        (entry: any) => entry.userId.toString() === userId.toString()
-      );
-
-      if (waitlistIndex !== -1) {
-        (updatedEvent as any).waitlist.splice(waitlistIndex, 1);
-        await updatedEvent.save();
-        console.log(
-          `✅ User ${userId} removed from waitlist after successful payment`
-        );
-      }
-    }
+    await this.waitlistService.removeUserAfterPayment(eventId, userId);
 
     // Send payment receipt email
     await sendPaymentReceiptEmail({

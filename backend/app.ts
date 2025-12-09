@@ -23,6 +23,7 @@ import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
+import waitlistRouter from "./routes/waitlist.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -73,6 +74,7 @@ app.use("/auth", authRouter);
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);
+app.use("/waitlist", waitlistRouter);
 app.use("/gymsessions", gymSessionsRouter);
 app.use("/admins", adminRouter);
 app.use("/vendorEvents", vendorEventsRouter);

@@ -14,6 +14,7 @@ import {
   getWaitlistPromotionTemplate,
   getWaitlistDeadlineExpiredTemplate,
   getWaitlistAutoRegisteredTemplate,
+  getWaitlistRemovedTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -220,6 +221,27 @@ export const sendEventAccessRemovedEmail = async (
     html,
   });
 };
+
+// Send waitlist removal notification email
+export const sendWaitlistRemovedEmail = async (
+  userEmail: string,
+  username: string,
+  eventName: string,
+  allowedRolesAndPositions: string[]
+) => {
+  const html = getWaitlistRemovedTemplate(
+    username,
+    eventName,
+    allowedRolesAndPositions
+  );
+
+  await sendEmail({
+    to: userEmail,
+    subject: `🚫 Waitlist Update - ${eventName}`,
+    html,
+  });
+};
+
 // Send gym session notification email (cancelled or edited)
 export const sendGymSessionNotificationEmail = async (params: {
   userEmail: string;
