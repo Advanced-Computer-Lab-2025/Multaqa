@@ -27,6 +27,7 @@ import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
 import { Notification } from "./notificationService";
 import { WaitlistService } from "./waitlistService";
+import { checkToxicityGemini } from "../utils/llms/gemini";
 
 const { Types } = require("mongoose");
 
@@ -816,6 +817,30 @@ export class EventsService {
       throw createError(404, "User not found");
     }
 
+    // Check toxicity BEFORE saving if comment is provided
+    let isToxic = false;
+    let toxicityResult: any;
+    if (comment) {
+      toxicityResult = await checkToxicityGemini(comment);
+      if (toxicityResult && toxicityResult.isToxic) {
+        isToxic = true;
+        console.log(`⚠️ Toxic comment detected: "${comment}" - Score: ${(toxicityResult.score * 100).toFixed(0)}%`);
+        
+        // Notify admins about flagged comment
+        await NotificationService.sendNotification({
+          adminRole: [
+            AdministrationRoleType.ADMIN,
+          ],
+          type: "COMMENT_FLAGGED",
+          title: "⚠️ Toxic Comment Flagged",
+          message: `A comment on "${event.eventName}" has been flagged for toxicity (${(toxicityResult.score * 100).toFixed(0)}% toxic). Review required.`,
+          createdAt: new Date(),
+          read: false,
+          delivered: false,
+        } as Notification);
+      }
+    }
+
     let reviewIndex = event.reviews?.findIndex((review) => {
       return (review.reviewer._id as any).toString() === userId.toString();
     });
@@ -826,6 +851,11 @@ export class EventsService {
         comment: comment,
         rating: rating,
         createdAt: new Date(),
+        flaggedForToxicity: {
+          isToxic,
+          score: toxicityResult?.score,
+          categories: toxicityResult?.categories,
+        },
       };
       event.reviews?.push(newReview);
       reviewIndex = (event.reviews?.length || 1) - 1;
@@ -844,7 +874,14 @@ export class EventsService {
         );
       }
 
-      if (comment) event.reviews[reviewIndex].comment = comment;
+      if (comment) {
+        event.reviews[reviewIndex].comment = comment;
+        event.reviews[reviewIndex].flaggedForToxicity = {
+          isToxic,
+          score: toxicityResult?.score,
+          categories: toxicityResult?.categories,
+        };
+      }
       if (rating) event.reviews[reviewIndex].rating = rating;
       await event.save();
     }
@@ -925,6 +962,43 @@ export class EventsService {
 
     event.reviews.splice(reviewIndex, 1);
     await event.save();
+  }
+
+
+  //gets all flagged comments in all events
+  async getAllFlaggedComments(): Promise<any[]> {
+    const events = await this.eventRepo.findAll(
+      { "reviews.flaggedForToxicity.isToxic": true },
+      {
+        select: "eventName reviews",
+        populate: [
+          { path: "reviews.reviewer", select: "firstName lastName _id" },
+        ] as any,
+      }
+    );
+
+    const flaggedComments: any[] = [];
+
+    events.forEach((event: IEvent) => {
+      if (event.reviews) {
+        event.reviews.forEach((review: IReview) => {
+          if (review.flaggedForToxicity?.isToxic) {
+            flaggedComments.push({
+              reviewId: (review as any)._id,
+              eventId: event._id,
+              eventName: event.eventName,
+              comment: review.comment,
+              rating: review.rating,
+              reviewer: review.reviewer,
+              createdAt: review.createdAt,
+              flaggedForToxicity: review.flaggedForToxicity,
+            });
+          }
+        });
+      }
+    });
+
+    return flaggedComments;
   }
 
   async getAllReviewsByEvent(eventId: string): Promise<IReview[]> {
