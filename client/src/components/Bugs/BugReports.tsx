@@ -89,11 +89,20 @@ const BugReports = () => {
     { key: 'resolved', label: 'Resolved' },
   ];
 
-  // Filter bug reports based on selected status
-  const filteredBugReports = bugReports.filter((bug) => {
-    if (statusFilter === 'all') return true;
-    return bug.status === statusFilter;
-  });
+  // Filter and sort bug reports - pending first, then resolved
+  const filteredBugReports = bugReports
+    .filter((bug) => {
+      if (statusFilter === 'all') return true;
+      return bug.status === statusFilter;
+    })
+    .sort((a, b) => {
+      // If both have same status, maintain original order
+      if (a.status === b.status) return 0;
+      // Pending comes before resolved
+      if (a.status === 'pending') return -1;
+      if (b.status === 'pending') return 1;
+      return 0;
+    });
 
   const handleResolve = async (bugId: string) => {
     // Simulate API call
