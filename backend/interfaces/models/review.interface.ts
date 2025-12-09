@@ -6,5 +6,14 @@ export interface IReview {
   rating?: number;
   comment?: string;
   createdAt: Date;
-  flaggedForToxicity?: boolean;
+  flaggedForToxicity?: {
+    isToxic: boolean;
+    score: number;
+    categories: {
+      insult: number;
+      threat: number;
+      profanity: number;
+      hateSpeech: number;
+    };
+  };
 }
