@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import EmptyState from '@/components/shared/states/EmptyState';
 import { grey } from '@mui/material/colors';
 import BugReportCard, { BugReport } from './BugReport';
+import ExportReportsButton from './ExportReportsButton';
 
 // Dummy data
 const dummyBugReports: BugReport[] = [
@@ -197,41 +198,54 @@ const BugReports = () => {
         </Typography>
       </Stack>
 
-      {/* Status Filter Chips */}
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', mb: 2 }}>
-        {filterChips.map(({ key, label }) => {
-          const isActive = statusFilter === key;
-          const baseColor = filterColors[key];
+      {/* Status Filter Chips and Export Button */}
+      <Stack 
+        direction="row" 
+        spacing={1} 
+        sx={{ 
+          flexWrap: 'wrap', 
+          mb: 2,
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+          {filterChips.map(({ key, label }) => {
+            const isActive = statusFilter === key;
+            const baseColor = filterColors[key];
 
-          return (
-            <Chip
-              key={key}
-              label={label}
-              size="medium"
-              onClick={() => setStatusFilter(key)}
-              variant="outlined"
-              sx={{
-                fontFamily: 'var(--font-poppins)',
-                fontWeight: isActive ? 600 : 500,
-                borderRadius: '28px',
-                px: 1.75,
-                height: 28,
-                borderWidth: isActive ? 1.5 : 1,
-                borderColor: baseColor,
-                color: baseColor,
-                backgroundColor: alpha(baseColor, isActive ? 0.1 : 0.06),
-                boxShadow: isActive
-                  ? `0 4px 10px ${alpha(baseColor, 0.18)}`
-                  : `0 1px 2px ${alpha(baseColor, 0.15)}`,
-                transition:
-                  'background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease',
-                '&:hover': {
-                  borderWidth: 2,
-                },
-              }}
-            />
-          );
-        })}
+            return (
+              <Chip
+                key={key}
+                label={label}
+                size="medium"
+                onClick={() => setStatusFilter(key)}
+                variant="outlined"
+                sx={{
+                  fontFamily: 'var(--font-poppins)',
+                  fontWeight: isActive ? 600 : 500,
+                  borderRadius: '28px',
+                  px: 1.75,
+                  height: 28,
+                  borderWidth: isActive ? 1.5 : 1,
+                  borderColor: baseColor,
+                  color: baseColor,
+                  backgroundColor: alpha(baseColor, isActive ? 0.1 : 0.06),
+                  boxShadow: isActive
+                    ? `0 4px 10px ${alpha(baseColor, 0.18)}`
+                    : `0 1px 2px ${alpha(baseColor, 0.15)}`,
+                  transition:
+                    'background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease',
+                  '&:hover': {
+                    borderWidth: 2,
+                  },
+                }}
+              />
+            );
+          })}
+        </Stack>
+        
+        <ExportReportsButton onClick={() => { /* Add export logic here */ }} isLoading={loading}/>
       </Stack>
 
       <Divider sx={{ mb: 2 }} />
