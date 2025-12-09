@@ -11,7 +11,7 @@ describe('Backend API Tests - Constants and Enums', () => {
     expect(UserRole.STAFF_MEMBER).toBe('staffMember');
     expect(UserRole.VENDOR).toBe('vendor');
     expect(UserRole.ADMINISTRATION).toBe('administration');
-    
+    ` `
     // Ensure all roles are strings
     Object.values(UserRole).forEach(role => {
       expect(typeof role).toBe('string');

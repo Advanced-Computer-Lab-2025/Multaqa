@@ -26,6 +26,7 @@ import {
 } from "../interfaces/responses/reviewResponses.interface";
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { userInfo } from "os";
+import { GetAllFlaggedCommentsResponse } from "../interfaces/responses/GetAllFlaggedCommentsResponse";
 
 const eventsService = new EventsService();
 
@@ -350,6 +351,29 @@ async function exportEventUsers(req: Request, res: Response) {
 }
 
 
+//Get all flagged comments
+async function getAllFlaggedComments(req: Request, res: Response<GetAllFlaggedCommentsResponse>) {
+  try {
+    console.log('📋 Fetching all flagged comments...');
+    const comments = await eventsService.getAllFlaggedComments();
+
+    console.log(`✅ Found ${comments.length} flagged comment(s)`);
+
+    res.json({
+      success: true,
+      data: comments,
+      message: "Flagged comments retrieved successfully",
+    });
+  } catch (error: any) {
+    console.error('❌ Failed to fetch flagged comments:', error.message);
+    throw createError(
+      error.status || 500,
+      error.message || 'Failed to fetch flagged comments'
+    );
+  }
+}
+
+
 
 const router = Router();
 
@@ -398,6 +422,11 @@ router.get(
 );
 
 
+router.get(
+  "/flagged-comments",
+  authorizeRoles({ userRoles: [UserRole.ADMINISTRATION], adminRoles: [AdministrationRoleType.ADMIN] }),
+  getAllFlaggedComments
+);
 
 
 router.delete(
