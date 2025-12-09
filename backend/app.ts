@@ -23,6 +23,7 @@ import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
+import bugReportRouter from "./routes/bugReport.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -78,6 +79,7 @@ app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
+app.use("/bugreports",bugReportRouter)
 
 // Error handlers
 app.use(errorHandler);
@@ -85,7 +87,7 @@ app.use(notFoundHandler);
 
 const PORT = process.env.PORT || 4000;
 const MONGO_URI =
-  process.env.NEW_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+  process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {
