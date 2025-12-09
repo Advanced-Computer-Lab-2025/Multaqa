@@ -37,6 +37,7 @@ import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from '../../../../components/shared/Report/reportTable';
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
+import FlaggedComments from "@/components/shared/Comments/FlaggedComments";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -509,6 +510,11 @@ export default function EntityCatchAllPage() {
         return <ReportTable reportType="sales" />
     }
 
+    // Admin - Flagged Comments
+    if (entity === "admin" && tab === "flagged-comments") {
+      return <FlaggedComments />;
+    }
+
 
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
@@ -582,7 +588,7 @@ export default function EntityCatchAllPage() {
         return <GymSessionsManagementContent />;
       }
       if (section === "browse-sessions" || section === "") {
-        return <GymSchedule eventsOffice={true}/>;
+        return <GymSchedule eventsOffice={true} />;
       }
     }
 
