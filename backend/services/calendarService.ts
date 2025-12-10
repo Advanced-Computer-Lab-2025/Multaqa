@@ -76,7 +76,31 @@ export class CalendarService {
     }
   }
 
+  async isEventInCalendar(userId: string, eventId: string): Promise<boolean> {
+    try {
+      const user = await this.userRepo.findById(userId, {
+        select: 'calendarEvents'
+      });
+      
+      if (!user || !user.calendarEvents || user.calendarEvents.length === 0) {
+        return false;
+      }
+
+      // Check if eventId exists in calendarEvents array
+      return user.calendarEvents.some((event: any) => {
+        return event.toString() === eventId.toString();
+      });
+    } catch (error: any) {
+      throw createError(
+        error.status || 500,
+        error.message || 'Failed to check calendar events'
+      );
+    }
+  }
+
   async addEvent(
+    userId: string,
+    eventId: string,
     tokens: CalendarTokens,
     title: string,
     description: string,
@@ -95,6 +119,11 @@ export class CalendarService {
         end: { dateTime: endISO },
       },
     });
+
+    // Add event ID to user's calendarEvents array
+    await this.userRepo.update(userId, {
+      $addToSet: { calendarEvents: eventId }
+    } as any);
 
     return event.data;
   }

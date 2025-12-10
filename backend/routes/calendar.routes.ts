@@ -175,13 +175,25 @@ async function addEvent(req: AuthenticatedRequest, res: Response<AddEventRespons
       throw createError(400, 'User not connected to Google Calendar');
     }
 
-    const { title, description, startISO, endISO } = req.body;
+    const { eventId, title, description, startISO, endISO } = req.body;
 
-    if (!title || !startISO || !endISO) {
-      throw createError(400, 'Missing required fields: title, startISO, endISO');
+    if (!eventId || !title || !startISO || !endISO) {
+      throw createError(400, 'Missing required fields: eventId, title, startISO, endISO');
+    }
+
+    // Check if event already added to calendar
+    const alreadyAdded = await calendarService.isEventInCalendar(userId, eventId);
+    if (alreadyAdded) {
+      return res.json({
+        success: true,
+        message: 'Event already exists in Google Calendar',
+        alreadyAdded: true
+      });
     }
 
     const event = await calendarService.addEvent(
+      userId,
+      eventId,
       userTokens,
       title,
       description,
@@ -192,7 +204,8 @@ async function addEvent(req: AuthenticatedRequest, res: Response<AddEventRespons
     res.json({
       success: true,
       message: 'Event added to Google Calendar successfully',
-      event
+      event,
+      alreadyAdded: false
     });
   } catch (error: any) {
     throw createError(

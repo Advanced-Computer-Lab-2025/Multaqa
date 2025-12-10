@@ -2,6 +2,7 @@ import { api } from "@/api";
 import { MeResponse } from "../../../backend/interfaces/responses/authResponses.interface";
 
 export interface CalendarEvent {
+  eventId: string;
   title: string;
   description?: string;
   startISO: string;

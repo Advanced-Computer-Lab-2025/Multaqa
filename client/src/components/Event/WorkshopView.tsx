@@ -266,6 +266,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         calendarButton={
           (registered || isRegisteredEvent) && !datePassed && (
             <AddToCalendarButton
+              eventId={id}
               eventDetails={{
                 name: name,
                 startDate: details["Start Date"],

@@ -12,5 +12,6 @@ export interface CalendarCallbackResponse {
 export interface AddEventResponse {
   success: boolean;
   message: string;
-  event: any;
+  event?: any;
+  alreadyAdded: boolean;
 }

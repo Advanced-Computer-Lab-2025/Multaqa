@@ -180,6 +180,7 @@ const TripView: React.FC<BazarViewProps> = ({
         calendarButton={
           (registered || isRegisteredEvent) && !datePassed && (
             <AddToCalendarButton
+              eventId={id}
               eventDetails={{
                 name: name,
                 startDate: details["Start Date"],

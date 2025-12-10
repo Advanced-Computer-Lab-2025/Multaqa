@@ -6,6 +6,7 @@ import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 import { toast } from "react-toastify";
 
 interface AddToCalendarButtonProps {
+  eventId: string;
   eventDetails: {
     name: string;
     startDate: string;
@@ -20,6 +21,7 @@ interface AddToCalendarButtonProps {
 }
 
 const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
+  eventId,
   eventDetails,
   color = "#6366F1",
   size = "small",
@@ -46,6 +48,7 @@ const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
       };
 
       const calendarEvent = {
+        eventId: eventId,
         title: eventDetails.name,
         description: eventDetails.description || "",
         startISO: formatDateTime(eventDetails.startDate, eventDetails.startTime),

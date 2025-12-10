@@ -39,11 +39,19 @@ export const useGoogleCalendar = () => {
       try {
         const result = await calendarService.addEvent(event);
         
-        toast.success("Event added to Google Calendar!", {
-          position: "bottom-right",
-          autoClose: 2000,
-          theme: "colored",
-        });
+        if (result.alreadyAdded) {
+          toast.info("Event already exists in Google Calendar", {
+            position: "bottom-right",
+            autoClose: 2000,
+            theme: "colored",
+          });
+        } else {
+          toast.success("Event added to Google Calendar!", {
+            position: "bottom-right",
+            autoClose: 2000,
+            theme: "colored",
+          });
+        }
         
         return result;
       } catch (error: any) {

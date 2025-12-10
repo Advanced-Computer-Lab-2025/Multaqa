@@ -1,7 +1,8 @@
-import { Document } from "mongoose";
+import { Document, Schema } from "mongoose";
 import { UserRole } from "../../constants/user.constants";
 import { UserStatus } from "../../constants/user.constants";
 import { NotificationType } from "../../constants/user.constants";
+import { IEvent } from "./event.interface";
 
 export interface INotification extends Document {
   type: NotificationType;
@@ -34,4 +35,5 @@ export interface IUser extends Document {
     token_type?: string;
     expiry_date?: number;
   };
+  calendarEvents?: IEvent[] | Schema.Types.ObjectId[]; // Event IDs that have been added to Google Calendar
 }
