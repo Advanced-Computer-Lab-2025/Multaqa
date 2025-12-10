@@ -1,6 +1,8 @@
 import { google } from 'googleapis';
-import { User } from '../schemas/stakeholder-schemas/userSchema';
 import createError from 'http-errors';
+import GenericRepository from '../repos/genericRepo';
+import { IUser } from '../interfaces/models/user.interface';
+import { User } from '../schemas/stakeholder-schemas/userSchema';
 
 export interface CalendarTokens {
   access_token: string;
@@ -12,6 +14,7 @@ export interface CalendarTokens {
 
 export class CalendarService {
   private oauth2Client;
+  private userRepo: GenericRepository<IUser>;
 
   constructor() {
     this.oauth2Client = new google.auth.OAuth2(
@@ -19,6 +22,7 @@ export class CalendarService {
       process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
       process.env.GOOGLE_CALENDAR_REDIRECT_URI
     );
+    this.userRepo = new GenericRepository(User);
   }
 
   getAuthUrl(userId: string): string {
@@ -38,11 +42,9 @@ export class CalendarService {
 
   async saveUserCalendarTokens(userId: string, tokens: CalendarTokens): Promise<void> {
     try {
-      const user = await User.findByIdAndUpdate(
-        userId,
-        { $set: { googleCalendar: tokens } },
-        { new: true }
-      );
+      const user = await this.userRepo.update(userId, {
+        googleCalendar: tokens
+      });
 
       if (!user) {
         throw createError(404, 'User not found');
@@ -57,7 +59,9 @@ export class CalendarService {
 
   async getUserCalendarTokens(userId: string): Promise<CalendarTokens | null> {
     try {
-      const user = await User.findById(userId).select('googleCalendar');
+      const user = await this.userRepo.findById(userId, {
+        select: 'googleCalendar'
+      });
       
       if (!user) {
         throw createError(404, 'User not found');
