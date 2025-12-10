@@ -110,6 +110,10 @@ async function handleCallback(req: Request, res: Response) {
             <p>You can close this window now.</p>
           </div>
           <script>
+            // Notify parent window that calendar connection succeeded
+            if (window.opener) {
+              window.opener.postMessage({ type: 'CALENDAR_AUTH_SUCCESS' }, '*');
+            }
             setTimeout(() => {
               window.close();
             }, 1500);
