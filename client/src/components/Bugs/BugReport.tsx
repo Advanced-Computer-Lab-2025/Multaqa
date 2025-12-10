@@ -21,6 +21,7 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 import BugReportDetails from './BugReportDetails';
 import { toast } from 'react-toastify';
 import { jsPDF } from 'jspdf';
+import EmailDevForm from './EmailDevForm';
 
 // TypeScript interface for Bug Report
 export interface BugReport {
@@ -44,6 +45,7 @@ interface BugReportProps {
 const BugReportCard: React.FC<BugReportProps> = ({ bug, accentColor, onResolve }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [resolving, setResolving] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -315,7 +317,7 @@ const BugReportCard: React.FC<BugReportProps> = ({ bug, accentColor, onResolve }
           <Stack direction="row" spacing={1} alignItems="center">
             <Tooltip title="Inform Developer">
               <Box
-                onClick={() => {}}
+                onClick={() => setEmailModalOpen(true)}
                 sx={{
                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   width: 40,
@@ -416,6 +418,11 @@ const BugReportCard: React.FC<BugReportProps> = ({ bug, accentColor, onResolve }
         onClose={handleCloseModal}
         bug={bug}
         accentColor={accentColor}
+      />
+      <EmailDevForm
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        color={accentColor}
       />
     </>
   );
