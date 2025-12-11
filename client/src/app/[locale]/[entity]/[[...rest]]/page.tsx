@@ -37,6 +37,7 @@ import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from '../../../../components/shared/Report/reportTable';
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
+import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -521,7 +522,7 @@ export default function EntityCatchAllPage() {
 
     if (entity === "events-office" && tab === "vendors") {
       if (section === "participation-requests") {
-        return <VendorParticipationRequests />;
+        return <TeamsDescription />
       }
 
       if (section === "vendor-polls") {
