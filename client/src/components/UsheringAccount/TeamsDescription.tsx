@@ -16,6 +16,7 @@ export interface Team {
 }
 
 interface TeamsDescriptionProps {
+  user : string ;
   teams?: Team[];
 }
 
@@ -64,9 +65,9 @@ const initialTeamsData: Team[] = [
   },
 ];
 
-const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams }) => {
+const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , user}) => {
   const theme = useTheme();
-  const [teams, setTeams] = useState<Team[]>(initialTeamsData); // [] -> to check the add teams button
+  const [teams, setTeams] = useState<Team[]>([]); // [] -> to check the add teams button
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Edit State
@@ -122,14 +123,14 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams })
           <Typography variant="h3" component="h2" sx={{ fontWeight: 'bold', mb: 2, color: '#1a1a1a' }}>
             Graduation Teams
           </Typography>
-          <Typography variant="subtitle1" sx={{ color: '#666', maxWidth: '600px', mx: 'auto' }}>
+          {user=="student" && <Typography variant="subtitle1" sx={{ color: '#666', maxWidth: '600px', mx: 'auto' }}>
             Only apply once to the team that most suits you. Each individual brings a wealth of experience, creativity, and passion to our organization.
-          </Typography>
+          </Typography>}
         </Box>
 
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-          {teams.length === 0 && (
-           <span>
+          {teams.length === 0 && user=="usher-admin" &&
+           (<span>
                 <CustomButton
                   label="Add Teams' Descriptions"
                   createButtonStyle
@@ -168,7 +169,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams })
                 }}
               >
                 {/* Action Buttons */}
-                <Box
+                {user=="usher-admin"&&<Box
                   sx={{
                     position: 'absolute',
                     top: 8,
@@ -217,7 +218,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams })
                     </IconButton>
                   </Tooltip>
                 </Box>
-
+}
                 <Box
                   sx={{
                     width: '120px',

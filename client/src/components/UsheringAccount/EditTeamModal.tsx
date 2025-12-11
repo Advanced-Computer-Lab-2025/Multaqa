@@ -75,13 +75,13 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, onSa
               onChange={(e) => handleChange('description', e.target.value)}
               multiline
               rows={4}
+              autoCapitalizeName={false}
               neumorphicBox
             />
           </Grid>
         </Grid>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
-          <CustomButton onClick={onClose} variant="text" color="inherit">Cancel</CustomButton>
           <CustomButton
             variant="contained"
             onClick={handleSubmit}

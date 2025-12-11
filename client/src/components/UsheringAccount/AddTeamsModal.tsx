@@ -101,6 +101,7 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, onAddTeams
                   rows={3}
                   neumorphicBox
                   placeholder="Enter team description..."
+                  autoCapitalizeName={false}
                 />
               </Grid>
             </Grid>

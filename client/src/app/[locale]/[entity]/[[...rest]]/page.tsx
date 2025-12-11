@@ -522,7 +522,7 @@ export default function EntityCatchAllPage() {
 
     if (entity === "events-office" && tab === "vendors") {
       if (section === "participation-requests") {
-        return <TeamsDescription />
+        return <TeamsDescription  user="usher-admin"/>
       }
 
       if (section === "vendor-polls") {
