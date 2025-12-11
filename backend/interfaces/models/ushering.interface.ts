@@ -3,6 +3,7 @@ import { Document, Types } from 'mongoose';
 
 
 export interface ISlot {
+  _id?: Types.ObjectId;
   StartDateTime: Date;
   EndDateTime: Date;
   isAvailable: boolean;

@@ -106,6 +106,72 @@ export class UsheringService {
         await ushering.save();
     }
 
+    async deleteSlot(usheringId: string, teamId: string, slotId: string): Promise<void> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        const team = ushering.teams.find(t => t._id?.toString() === teamId);
+        if (!team) {
+            throw createError(404, 'Team not found');
+        }
+        const slotIndex = team.slots.findIndex(s => s._id?.toString() === slotId);
+        if (slotIndex === -1) {
+            throw createError(404, 'Slot not found');
+        }
+        if (!team.slots[slotIndex].isAvailable) {
+            throw createError(400, 'Cannot delete a reserved slot');
+        }
+        team.slots.splice(slotIndex, 1);
+        await ushering.save();
+    }
+
+    async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        const team = ushering.teams.find(t => t._id?.toString() === teamId);
+        if (!team) {
+            throw createError(404, 'Team not found');
+        }
+        const slot = team.slots.find(s => s._id?.toString() === slotId);
+        if (!slot) {
+            throw createError(404, 'Slot not found');
+        }
+        if (!slot.isAvailable) {
+            throw createError(400, 'Slot is already reserved');
+        }
+        slot.isAvailable = false;
+        slot.reservedBy = {
+            studentId: studentId as any,
+            reservedAt: new Date()
+        };
+        await ushering.save();
+    }
+
+    async cancelBooking(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        const team = ushering.teams.find(t => t._id?.toString() === teamId);
+        if (!team) {
+            throw createError(404, 'Team not found');
+        }
+        const slot = team.slots.find(s => s._id?.toString() === slotId);
+        if (!slot) {
+            throw createError(404, 'Slot not found');
+        }
+        if (slot.isAvailable || slot.reservedBy?.studentId.toString() !== studentId) {
+            throw createError(400, 'Slot is not reserved by this student');
+        }
+        slot.isAvailable = true;
+        slot.reservedBy = undefined;
+        await ushering.save();
+    }
+
+
      // Transform frontend slot format to database format
     private transformSlotData(frontendSlot: any): Partial<ISlot> {
         return {
