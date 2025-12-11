@@ -62,6 +62,7 @@ const getUserEntitySegment = (user: any): string => {
   if (user.role === "administration") {
     if (user.roleType === "admin") return "admin";
     if (user.roleType === "eventsOffice") return "events-office";
+    if (user.roleType === "usherAdmin") return "usher-admin";
     return "admin"; // default fallback
   }
 
@@ -187,6 +188,7 @@ export default function EntityCatchAllPage() {
     professor: { tab: "workshops", section: "overview" },
     "events-office": { tab: "events", section: "all-events" },
     admin: { tab: "users", section: "all-users" },
+    "usher-admin": { tab: "graduation", section: "" },
   };
 
   const handleGoToLogin = useCallback(() => {
@@ -220,6 +222,8 @@ export default function EntityCatchAllPage() {
     } else if (user.role === "administration") {
       if ("roleType" in user && user.roleType === "eventsOffice")
         roleKey = "events-office";
+      else if ("roleType" in user && user.roleType === "usherAdmin")
+        roleKey = "usher-admin";
       else roleKey = "admin";
     }
     return roleMap[roleKey] || roleMap["student"];
