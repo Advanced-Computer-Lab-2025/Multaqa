@@ -513,6 +513,15 @@ export default function EntityCatchAllPage() {
       }
     }
 
+    if (entity === "student" && tab === "graduation") {
+      if (section === "teams-description") {
+        return (
+         <TeamsDescription  user ="student"/>
+        );
+      }
+    }
+
+
     if (entity === "events-office" || entity === "admin") {
       if (section === "attendee-reports")
         return <ReportTable reportType="attendees" />
