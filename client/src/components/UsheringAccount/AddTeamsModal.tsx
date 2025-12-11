@@ -6,15 +6,25 @@ import { Team } from './TeamsDescription';
 import { Users } from 'lucide-react'; // Default icon
 import CustomTextField from '../shared/input-fields/CustomTextField';
 import CustomButton from '../shared/Buttons/CustomButton';
+import { api } from '../../api';
+import { toast } from "react-toastify";
 
 interface AddTeamsModalProps {
   open: boolean;
   onClose: () => void;
-  onAddTeams: (teams: Team[]) => void;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, onAddTeams }) => {
+interface TeamPayload {
+  title: string;
+  description: string;
+  color: string;
+};
+
+const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, setRefresh }) => {
   const [newTeams, setNewTeams] = useState<Partial<Team>[]>([{ name: '', description: '', color: '' }]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (index: number, field: keyof Team, value: string) => {
     const updatedTeams = [...newTeams];
@@ -31,19 +41,58 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, onAddTeams
     setNewTeams(updatedTeams);
   };
 
-  const handleSubmit = () => {
+  const handleCallApi = async (payload: any) => {
+     setLoading(true);
+     setError(null);
+     try {
+       // TODO: Replace with your API route
+       await api.post("/ushering", payload);
+       toast.success("Teams added successfully!", {
+         position: "bottom-right",
+         autoClose: 5000,
+         hideProgressBar: false,
+         closeOnClick: true,
+         pauseOnHover: true,
+         draggable: true,
+         progress: undefined,
+         theme: "colored",
+       });
+     } catch (err: any) {
+       setError(err?.message || "API call failed");
+       toast.error(
+         err.response.data.error || "Failed to add teams. Please try again.",
+         {
+           position: "bottom-right",
+           autoClose: 5000,
+           hideProgressBar: false,
+           closeOnClick: true,
+           pauseOnHover: true,
+           draggable: true,
+           progress: undefined,
+           theme: "colored",
+         }
+       );
+     } finally {
+       setLoading(false);
+     }
+   };
+    
+
+  const handleSubmit = async() => {
     // Validate and format teams
-    const teamsToAdd: Team[] = newTeams
+    const teamsToAdd: TeamPayload[] = newTeams
       .filter(t => t.name && t.description) // Basic validation
       .map(t => ({
-        name: t.name!,
+        title: t.name!,
         description: t.description!,
         color: t.color || '#E0E0E0', // Default color if not provided
-        logo: <Users size={40} />, // Default logo for now as we don't have an icon picker yet
       }));
 
     if (teamsToAdd.length > 0) {
-      onAddTeams(teamsToAdd);
+      await handleCallApi({ teams: teamsToAdd });
+      if (setRefresh) {
+        setRefresh(prev => !prev);
+      }
       setNewTeams([{ name: '', description: '', color: '' }]); // Reset form
       onClose();
     }
@@ -77,6 +126,7 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, onAddTeams
                   onChange={(e) => handleChange(index, 'name', e.target.value)}
                   neumorphicBox
                   placeholder="e.g. Graduates"
+                  required
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -88,6 +138,7 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, onAddTeams
                   onChange={(e) => handleChange(index, 'color', e.target.value)}
                   neumorphicBox
                   placeholder="#000000"
+                  required
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>
@@ -102,6 +153,7 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, onAddTeams
                   neumorphicBox
                   placeholder="Enter team description..."
                   autoCapitalizeName={false}
+                  required
                 />
               </Grid>
             </Grid>
