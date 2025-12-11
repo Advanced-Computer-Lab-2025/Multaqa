@@ -4,6 +4,9 @@ import { BugReport } from '../schemas/misc/bugReportSchema';
 import { BUG_REPORT_STATUS } from '../constants/bugReport.constants';
 import { IUser } from "../interfaces/models/user.interface";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
+import mongoose from "mongoose";
+
+const { Types } = require("mongoose");
 
 export class BugReportService {
     private bugReportRepo: GenericRepository<IBugReport>;
@@ -17,11 +20,14 @@ export class BugReportService {
         if (!user) {
             throw new Error('Reporter user not found');
         }
-        const newBugReport = await this.bugReportRepo.create({...bugReportData, reporter: user});
+        const newBugReport = await this.bugReportRepo.create({...bugReportData, createdBy: new mongoose.Types.ObjectId(userId), date: new Date().toISOString() ,status: BUG_REPORT_STATUS.PENDING});
         return newBugReport;
     }
     async getAllBugReports(): Promise<IBugReport[]> {
-        const bugReports = await this.bugReportRepo.findAll();
+        const bugReports = await this.bugReportRepo.findAll({}, { populate: {
+            path: 'createdBy', 
+            select: 'email firstName lastName role gucId companyName ', 
+        } as any});
         return bugReports;
     }
     async updateBugReportStatus(bugReportId: string, status: BUG_REPORT_STATUS): Promise<void> {
@@ -30,7 +36,6 @@ export class BugReportService {
             throw new Error('Bug report not found');
         }
         updatedBugReport.status = status;
-        updatedBugReport.updatedAt = new Date();
         await updatedBugReport.save();
     }
   

@@ -66,7 +66,7 @@ async function updateBugReportStatus(req:Request, res: Response<IUpdateBugReport
 
 router.post('/', createBugReport);
 router.get('/', getAllBugReports);
-router.patch('/:bugReportId/status', updateBugReportStatus);
+router.patch('/:bugReportId', updateBugReportStatus);
 export default router;
 
 
