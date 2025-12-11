@@ -49,7 +49,9 @@ function transformEvent(event: any, attendedEvents?: string[]) {
 
   switch (event.type?.toLowerCase()) {
     case "trip":
-      const tripSpotsLeft = event.capacity - event.attendees.length;
+      const tripWaitlist = event.waitlist || [];
+      const tripPendingPaymentCount = tripWaitlist.filter((e: any) => e.status === "pending_payment").length;
+      const tripSpotsLeft = event.capacity - event.attendees.length - tripPendingPaymentCount;
       return {
         id,
         type: EventType.TRIP,
@@ -64,13 +66,13 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           Location: event.location,
           Cost: `${event.price?.$numberInt || event.price} EGP `,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": tripSpotsLeft,
+          "Spots Left": tripSpotsLeft > 0 ? tripSpotsLeft : 0,
         },
         attended,
         archived,
         registrationDeadline,
         allowedUsers,
-        waitlist: event.waitlist || [],
+        waitlist: tripWaitlist,
         isFull: tripSpotsLeft <= 0,
       };
 
@@ -82,7 +84,9 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       const nonEmptyNameParts = nameParts.filter(part => part);
       const fullName = nonEmptyNameParts.join(' ');
       const profs = [...flattenName(event.associatedProfs), fullName];
-      const workshopSpotsLeft = event.capacity - event.attendees.length;
+      const workshopWaitlist = event.waitlist || [];
+      const workshopPendingPaymentCount = workshopWaitlist.filter((e: any) => e.status === "pending_payment").length;
+      const workshopSpotsLeft = event.capacity - event.attendees.length - workshopPendingPaymentCount;
       return {
         id,
         type: EventType.WORKSHOP,
@@ -109,14 +113,14 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Created by": fullName,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": workshopSpotsLeft,
+          "Spots Left": workshopSpotsLeft > 0 ? workshopSpotsLeft : 0,
           Status: event.approvalStatus,
           Cost: `${event.price?.$numberInt || event.price} EGP `,
         },
         attended,
         archived,
         allowedUsers,
-        waitlist: event.waitlist || [],
+        waitlist: workshopWaitlist,
         isFull: workshopSpotsLeft <= 0,
       };
 

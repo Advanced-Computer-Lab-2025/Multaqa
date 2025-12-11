@@ -3,7 +3,7 @@
 import { CustomModal } from '@/components/shared/modals';
 import { Box, Typography } from '@mui/material';
 import theme from "@/themes/lightTheme";
-import { leaveWaitlist } from "@/services/waitlistService";
+import { api } from "@/api";
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -13,8 +13,6 @@ interface LeaveWaitlistModalProps {
   open: boolean;
   onClose: () => void;
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
-  color?: string;
-  queuePosition?: number;
 }
 
 const LeaveWaitlistModal = ({ 
@@ -22,16 +20,14 @@ const LeaveWaitlistModal = ({
   eventName, 
   open, 
   onClose, 
-  setRefresh, 
-  color = theme.palette.warning.main,
-  queuePosition
+  setRefresh
 }: LeaveWaitlistModalProps) => {
   const [loading, setLoading] = useState(false);
 
-  const handleLeaveWaitlist = async () => {
+  const handleCallApi = async (eventId: string) => {
     setLoading(true);
     try {
-      await leaveWaitlist(eventId);
+      await api.delete("/waitlist/" + eventId);
       setRefresh((prev) => !prev);
 
       toast.success('Successfully left the waitlist.', {
@@ -44,7 +40,7 @@ const LeaveWaitlistModal = ({
         progress: undefined,
         theme: "colored",
       });
-      onClose();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || err?.response?.data?.message || "Failed to leave waitlist. Please try again.";
 
@@ -61,6 +57,11 @@ const LeaveWaitlistModal = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLeaveWaitlist = async () => {
+    await handleCallApi(eventId);
+    onClose();
   };
 
   return (
@@ -95,19 +96,6 @@ const LeaveWaitlistModal = ({
         >
           {eventName}
         </Typography>
-        {queuePosition && (
-          <Typography
-            sx={{
-              fontFamily: "var(--font-poppins), system-ui, sans-serif",
-              color: color,
-              mb: 2,
-              fontSize: "1rem",
-              fontWeight: 500,
-            }}
-          >
-            You are currently #{queuePosition} in line.
-          </Typography>
-        )}
         <Typography
           sx={{
             fontFamily: "var(--font-poppins), system-ui, sans-serif",

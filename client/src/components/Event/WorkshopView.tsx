@@ -70,7 +70,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   // Compute waitlist status for current user
   const waitlistInfo = useMemo(() => {
     if (!waitlist || !userInfo?._id) {
-      return { isOnWaitlist: false, status: null, queuePosition: 0, paymentDeadline: null };
+      return { isOnWaitlist: false, status: null, paymentDeadline: null };
     }
     const userId = userInfo._id;
     const userEntry = waitlist.find((entry) => {
@@ -78,18 +78,11 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
       return String(entryUserId) === String(userId);
     });
     if (!userEntry) {
-      return { isOnWaitlist: false, status: null, queuePosition: 0, paymentDeadline: null };
+      return { isOnWaitlist: false, status: null, paymentDeadline: null };
     }
-    // Calculate queue position (1-indexed, only count users with status 'waitlist')
-    const waitlistOnly = waitlist.filter((e) => e.status === "waitlist");
-    const position = waitlistOnly.findIndex((entry) => {
-      const entryUserId = entry.userId?._id || entry.userId;
-      return String(entryUserId) === String(userId);
-    });
     return {
       isOnWaitlist: true,
       status: userEntry.status,
-      queuePosition: position >= 0 ? position + 1 : 0,
       paymentDeadline: userEntry.paymentDeadline,
     };
   }, [waitlist, userInfo?._id]);
@@ -309,7 +302,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                     }}
                     onClick={() => setLeaveWaitlistOpen(true)}
                   >
-                    Leave Waitlist {waitlistInfo.queuePosition > 0 && `(#${waitlistInfo.queuePosition})`}
+                    Leave Waitlist
                   </CustomButton>
                 )
               ) : isFull ? (
@@ -547,7 +540,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                                 }}
                                 onClick={() => setLeaveWaitlistOpen(true)}
                               >
-                                Leave Waitlist {waitlistInfo.queuePosition > 0 && `(#${waitlistInfo.queuePosition})`}
+                                Leave Waitlist
                               </CustomButton>
                             )
                           ) : isFull ? (
@@ -638,8 +631,6 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
         open={leaveWaitlistOpen}
         onClose={() => setLeaveWaitlistOpen(false)}
         setRefresh={setRefresh!}
-        color={background}
-        queuePosition={waitlistInfo.queuePosition}
       />
     </>
   );

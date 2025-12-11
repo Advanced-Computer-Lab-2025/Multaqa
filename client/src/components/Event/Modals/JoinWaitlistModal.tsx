@@ -3,7 +3,7 @@
 import { CustomModal } from '@/components/shared/modals';
 import { Box, Typography } from '@mui/material';
 import theme from "@/themes/lightTheme";
-import { joinWaitlist } from "@/services/waitlistService";
+import { api } from "@/api";
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -26,10 +26,10 @@ const JoinWaitlistModal = ({
 }: JoinWaitlistModalProps) => {
   const [loading, setLoading] = useState(false);
 
-  const handleJoinWaitlist = async () => {
+  const handleCallApi = async (eventId: string) => {
     setLoading(true);
     try {
-      await joinWaitlist(eventId);
+      await api.post("/waitlist/" + eventId);
       setRefresh((prev) => !prev);
 
       toast.success('Successfully joined the waitlist! You will be notified when a spot becomes available.', {
@@ -42,7 +42,7 @@ const JoinWaitlistModal = ({
         progress: undefined,
         theme: "colored",
       });
-      onClose();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || err?.response?.data?.message || "Failed to join waitlist. Please try again.";
 
@@ -59,6 +59,11 @@ const JoinWaitlistModal = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleJoinWaitlist = async () => {
+    await handleCallApi(eventId);
+    onClose();
   };
 
   return (
