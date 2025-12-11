@@ -3,7 +3,6 @@ import { ITrip } from "../interfaces/models/trip.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
-import { IAdministration } from "../interfaces/models/administration.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import { Trip } from "../schemas/event-schemas/tripSchema";
@@ -292,7 +291,7 @@ export class WaitlistService {
     const reservedSlotsCount =
       event.waitlist?.filter(
         (entry) =>
-          entry.status === "waitlist" || entry.status === "pending_payment"
+          entry.status === "pending_payment"
       ).length || 0;
 
     // If there are people on the waitlist and available slots <= reserved slots, block registration
