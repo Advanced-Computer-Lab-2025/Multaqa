@@ -811,6 +811,49 @@ export const getGymSessionNotificationTemplate = (
   `;
 };
 
+export const getBugReportTemplate = (reportTitle: string) => {
+    const title = "Action Required: New Bug Report";
+    
+
+    return `
+        <div style="${baseStyles.container}">
+            <div style="${baseStyles.card}">
+                <div style="${baseStyles.header}">
+                    <h2 style="margin: 0; font-size: 22px;"> ${title}</h2>
+                </div>
+                <div style="${baseStyles.content}">
+                    <p style="font-size: 16px; color: #333;">
+                        Dear Multaqa Operations Team,<br><br>
+                        A new bug report has been successfully submitted by a user. Please review the details and update us when resolved.
+                    </p>
+                    
+                    <div style="${baseStyles.infoBox}">
+                        <h3 style="margin: 0 0 10px 0; color: #4C63B6;">Report Summary</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 5px 0; color: #555; font-weight: bold; width: 120px;">Reported Title:</td>
+                                <td style="padding: 5px 0; color: #333;"><strong>${reportTitle}</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0; color: #555; font-weight: bold;">Submission Date:</td>
+                                <td style="padding: 5px 0; color: #333;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <p style="font-size: 16px; color: #333; margin-top: 20px;">
+                        The full details are available in the attached PDF file.
+                    </p>
+                    
+                   
+
+                    </div>
+                <div style="${baseStyles.footer}">
+                    © ${new Date().getFullYear()} Multaqa. All rights reserved.
+                </div>
+            </div>
+        </div>
+    `;
 // Waitlist Joined Confirmation Email Template
 export const getWaitlistJoinedTemplate = (
   username: string,
