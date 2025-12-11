@@ -266,7 +266,7 @@ export class WaitlistService {
     const reservedSlotsCount =
       event.waitlist?.filter(
         (entry) =>
-          entry.status === "waitlist" || entry.status === "pending_payment"
+          entry.status === "pending_payment"
       ).length || 0;
 
     // If there are people on the waitlist and available slots <= reserved slots, block registration
