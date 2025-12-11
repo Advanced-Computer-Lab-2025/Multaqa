@@ -4,6 +4,10 @@ import  { AuthenticatedRequest } from '../middleware/verifyJWT.middleware';
 import { Auth } from 'googleapis';
 import { IBugReportResponse, IUpdateBugReportStatusResponse } from '../interfaces/responses/bugReportResponses';
 import createError from 'http-errors';
+import { AdministrationRoleType } from '../constants/administration.constants';
+import { UserRole } from '../constants/user.constants';
+import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
+import { StaffPosition } from '../constants/staffMember.constants';
 
  const router = Router();
 const bugReportService = new BugReportService();
@@ -84,9 +88,9 @@ async function sendBugReportEmail(req:Request, res: Response) {
     }
 }
 
-async function exportUnresolvedBugReports(req: Request, res: Response) {
+async function exportBugReports(req: Request, res: Response) {
     try {
-        const buffer = await bugReportService.exportUnresolvedBugReportsToXLSX();
+        const buffer = await bugReportService.exportBugReportsToXLSX();
         res.setHeader(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -108,11 +112,55 @@ async function exportUnresolvedBugReports(req: Request, res: Response) {
 }
 
 
-router.post('/', createBugReport);
-router.get('/', getAllBugReports);
-router.patch('/:bugReportId', updateBugReportStatus);
-router.post('/send-email/:bugReportId', sendBugReportEmail);
-router.get('/export', exportUnresolvedBugReports);
+router.post('/', authorizeRoles({
+       userRoles: [
+          UserRole.ADMINISTRATION,
+          UserRole.STAFF_MEMBER,
+          UserRole.STUDENT,
+        ],
+        adminRoles: [
+          AdministrationRoleType.EVENTS_OFFICE,
+        ],
+        staffPositions: [
+          StaffPosition.PROFESSOR,
+          StaffPosition.STAFF,
+          StaffPosition.TA,
+        ],
+      }),
+  createBugReport);
+router.get('/' ,authorizeRoles({ 
+        userRoles: [
+          UserRole.ADMINISTRATION,
+        ],
+        adminRoles: [
+          AdministrationRoleType.ADMIN
+        ],
+      }),
+     getAllBugReports);
+router.patch('/:bugReportId',authorizeRoles({ 
+        userRoles: [
+          UserRole.ADMINISTRATION,
+        ],
+        adminRoles: [
+          AdministrationRoleType.ADMIN
+        ],
+      }), updateBugReportStatus);
+router.post('/send-email/:bugReportId',authorizeRoles({ 
+        userRoles: [
+          UserRole.ADMINISTRATION,
+        ],
+        adminRoles: [
+          AdministrationRoleType.ADMIN
+        ],
+      }), sendBugReportEmail);
+router.get('/export' ,authorizeRoles({ 
+        userRoles: [
+          UserRole.ADMINISTRATION,
+        ],
+        adminRoles: [
+          AdministrationRoleType.ADMIN
+        ],
+      }),exportBugReports);
 export default router;
 
 

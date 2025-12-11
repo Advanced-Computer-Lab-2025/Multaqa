@@ -99,7 +99,7 @@ export class BugReportService {
 
     }
 
-    async exportUnresolvedBugReportsToXLSX(): Promise<Buffer> {
+    async exportBugReportsToXLSX(): Promise<Buffer> {
         const BugReports = await this.bugReportRepo.findAll({}, { populate: {
             path: 'createdBy', 
             select: 'email firstName lastName role gucId companyName ', 
