@@ -30,6 +30,16 @@ const EventSchema = new Schema<IEvent>(
         rating: { type: Number, min: 1, max: 5 },
         comment: { type: String },
         createdAt: { type: Date, default: Date.now },
+        flaggedForToxicity: {
+          isToxic: { type: Boolean, default: false },
+          score: { type: Number },
+          categories: {
+            insult: { type: Number },
+            threat: { type: Number },
+            profanity: { type: Number },
+            hateSpeech: { type: Number },
+          },
+        },
       },
     ],
     eventName: { type: String, required: true },

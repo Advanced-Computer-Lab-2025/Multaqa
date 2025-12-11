@@ -30,6 +30,20 @@ const workshopSchema = new Schema<IWorkshop>({
   fundingSource: { type: String, enum: Object.values(FUNDING_SOURCES) },
   extraRequiredResources: [{ type: String }],
   capacity: { type: Number, min: 1, default: 10 },
+  waitlist: [
+    {
+      userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+      joinedAt: { type: Date, required: true, default: Date.now },
+      status: {
+        type: String,
+        enum: ["waitlist", "pending_payment"],
+        required: true,
+        default: "waitlist",
+      },
+      paymentDeadline: { type: Date },
+      notifiedAt: { type: Date },
+    },
+  ],
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "staffMember",
