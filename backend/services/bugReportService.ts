@@ -43,14 +43,12 @@ export class BugReportService {
         if (!updatedBugReport) {
             throw new Error('Bug report not found');
         }
+        if (status!==BUG_REPORT_STATUS.PENDING && status!==BUG_REPORT_STATUS.RESOLVED){
+            throw new Error('Invalid status value');
+        }       
         updatedBugReport.status = status;
-        if (status === BUG_REPORT_STATUS.RESOLVED) {
-            const reporter = await this.userRepo.findById(updatedBugReport.createdBy.toString());
-            if (reporter && reporter.email) {
-                await this.sendEmailToDevelopers(updatedBugReport,reporter.email);
-            }
-        }
         await updatedBugReport.save();
+        
         if (status === BUG_REPORT_STATUS.RESOLVED){
          await NotificationService.sendNotification({
               userId: updatedBugReport.createdBy.toString(), 
