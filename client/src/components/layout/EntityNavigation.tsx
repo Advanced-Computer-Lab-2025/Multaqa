@@ -141,6 +141,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "my-sessions", label: "My Registered Sessions" },
       { id: "overview", label: "Overview" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
+      { id: "teams-description", label: "Teams Description" },
+      { id: "interview-slots", label: "Interview Slots" },
     ],
     sections: [
       {
@@ -152,6 +154,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
           { id: "polls", label: "Polls" },
+        ],
+      },
+       {
+        key: "graduation",
+        label: "Guc Graduation",
+        icon: Calendar,
+        tabs: [
+          { id: "teams-description", label: "Teams Description" },
+          { id: "interview-slots", label: "Interview Slots" },
         ],
       },
       {

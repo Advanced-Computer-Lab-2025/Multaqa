@@ -44,7 +44,7 @@ const getTeamIcon = (title: string): React.ReactNode => {
 
 const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , user}) => {
   const theme = useTheme();
-  const [teams, setTeams] = useState<Team[]>([]); // [] -> to check the add teams button
+  const [teams, setTeams] = useState<Team[]>(initialTeamsData); // [] -> to check the add teams button
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [refreshToggle, setRefreshToggle] = useState(false);
 
@@ -193,7 +193,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
       {(!teams || teams.length==0) &&
       <EmptyState
       title = "No teams have been created yet!"
-      description = "Press the (+) button to add your team description"
+      description = {user=="student"?"You will be notified when the team description's are posted!":"Press the (+) button to add your team description"}
       />
       }
       {teams&&teams.length>0&& <Grid container spacing={3}>
