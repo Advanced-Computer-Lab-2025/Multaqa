@@ -11,6 +11,12 @@ import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import createError from "http-errors";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { UserService } from "./userService";
+import {
+  sendWaitlistJoinedEmail,
+  sendWaitlistPromotionEmail,
+  sendWaitlistAutoRegisteredEmail,
+  sendWaitlistDeadlineExpiredEmail,
+} from "./emailService";
 import mongoose from "mongoose";
 
 const { Types } = require("mongoose");
@@ -103,6 +109,23 @@ export class WaitlistService {
       throw createError(409, "You are already on the waitlist for this event");
     }
 
+    // Verify event is at full capacity before allowing waitlist join
+    const typedEvent = event as ITrip | IWorkshop;
+    const capacity = typedEvent.capacity || 0;
+    const currentAttendees = event.attendees?.length || 0;
+    const pendingPaymentCount =
+      event.waitlist?.filter((entry) => entry.status === "pending_payment")
+        .length || 0;
+    const reservedSlots = currentAttendees + pendingPaymentCount;
+
+    if (reservedSlots < capacity) {
+      const availableSlots = capacity - reservedSlots;
+      throw createError(
+        400,
+        `Cannot join waitlist. There are ${availableSlots} spot(s) still available. Please register directly for the event.`
+      );
+    }
+
     // Initialize waitlist if it doesn't exist
     if (!event.waitlist) {
       event.waitlist = [];
@@ -122,7 +145,6 @@ export class WaitlistService {
       | IStudent
       | IStaffMember;
     if (user) {
-      const { sendWaitlistJoinedEmail } = await import("./emailService");
       await sendWaitlistJoinedEmail(
         user.email,
         user.firstName && user.lastName
@@ -187,6 +209,8 @@ export class WaitlistService {
     userId: string
   ): Promise<{
     isOnWaitlist: boolean;
+    userId?: string;
+    eventId?: string;
     status?: "waitlist" | "pending_payment";
     paymentDeadline?: Date;
     joinedAt?: Date;
@@ -210,6 +234,8 @@ export class WaitlistService {
 
     return {
       isOnWaitlist: true,
+      userId,
+      eventId,
       status: waitlistEntry.status,
       paymentDeadline: waitlistEntry.paymentDeadline,
       joinedAt: waitlistEntry.joinedAt,
@@ -429,9 +455,6 @@ export class WaitlistService {
         )) as IStudent | IStaffMember;
         if (user) {
           try {
-            const { sendWaitlistPromotionEmail } = await import(
-              "./emailService"
-            );
             await sendWaitlistPromotionEmail(
               user.email,
               user.firstName && user.lastName
@@ -501,9 +524,6 @@ export class WaitlistService {
       | IStudent
       | IStaffMember;
     if (user) {
-      const { sendWaitlistAutoRegisteredEmail } = await import(
-        "./emailService"
-      );
       await sendWaitlistAutoRegisteredEmail(
         user.email,
         user.firstName && user.lastName
@@ -514,9 +534,8 @@ export class WaitlistService {
         event.location
       );
     }
-
-    // Promote next user from waitlist since a slot was freed
-    await this.promoteFromWaitlist(eventId, 1);
+    // Note: No need to call promoteFromWaitlist here - the caller (promoteFromWaitlist)
+    // already handles promoting multiple users iteratively, avoiding recursion
   }
 
   /**
@@ -555,9 +574,6 @@ export class WaitlistService {
         entry.userId.toString()
       )) as IStudent | IStaffMember;
       if (user) {
-        const { sendWaitlistDeadlineExpiredEmail } = await import(
-          "./emailService"
-        );
         await sendWaitlistDeadlineExpiredEmail(
           user.email,
           user.firstName && user.lastName
