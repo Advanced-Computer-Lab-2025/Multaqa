@@ -201,7 +201,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ user }) => {
           {teams?.length === 0 && user == "usher-admin" &&
             (<span>
               <CustomButton
-                label="Add Teams' Descriptions"
+                label="Create Teams Post"
                 createButtonStyle
                 onClick={() => setIsAddModalOpen(true)}
               />

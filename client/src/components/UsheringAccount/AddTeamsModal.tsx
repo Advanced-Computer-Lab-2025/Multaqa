@@ -332,7 +332,7 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, setRefresh
                 width: "w-fit"
               }}
             >
-              {loading ? 'Posting...' : 'Post Teams'}
+              {loading ? 'Posting...' : 'Post'}
             </CustomButton>
           </Box>
         </Box>
