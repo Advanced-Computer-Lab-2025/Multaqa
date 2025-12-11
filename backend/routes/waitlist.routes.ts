@@ -3,15 +3,16 @@ import { WaitlistService } from "../services/waitlistService";
 import { authorizeRoles } from "../middleware/authorizeRoles.middleware";
 import { UserRole } from "../constants/user.constants";
 import { StaffPosition } from "../constants/staffMember.constants";
+import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import createError from "http-errors";
 
 const router = Router();
 const waitlistService = new WaitlistService();
 
-async function joinWaitlist(req: Request, res: Response) {
+async function joinWaitlist(req: AuthenticatedRequest, res: Response) {
   try {
     const { eventId } = req.params;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw createError(401, "User not authenticated");
@@ -31,10 +32,10 @@ async function joinWaitlist(req: Request, res: Response) {
   }
 }
 
-async function leaveWaitlist(req: Request, res: Response) {
+async function leaveWaitlist(req: AuthenticatedRequest, res: Response) {
   try {
     const { eventId } = req.params;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw createError(401, "User not authenticated");
@@ -54,10 +55,10 @@ async function leaveWaitlist(req: Request, res: Response) {
   }
 }
 
-async function getWaitlistStatus(req: Request, res: Response) {
+async function getWaitlistStatus(req: AuthenticatedRequest, res: Response) {
   try {
     const { eventId } = req.params;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       throw createError(401, "User not authenticated");

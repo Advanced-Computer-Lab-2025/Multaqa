@@ -10,6 +10,9 @@ import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
+import { IStudent } from "../interfaces/models/student.interface";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
+import { IAdministration } from "../interfaces/models/administration.interface";
 import Stripe from "stripe";
 import {
   sendCommentDeletionWarningEmail,
@@ -444,29 +447,29 @@ export class EventsService {
       await this.removeIneligibleAttendees(event, updateData.allowedUsers);
     }
 
-    // Store capacity increase info before update
-    const capacityIncreased =
-      updateData.capacity &&
-      typeof updateData.capacity === "number" &&
-      (event as any).capacity &&
-      updateData.capacity > (event as any).capacity;
-    const additionalSlots = capacityIncreased
-      ? updateData.capacity - (event as any).capacity
-      : 0;
+    // Store capacity increase info before update (only for trips/workshops)
+    let capacityIncreased = false;
+    let additionalSlots = 0;
 
-    // Validate capacity decrease
     if (
-      updateData.capacity &&
-      typeof updateData.capacity === "number" &&
-      (event as any).capacity &&
-      updateData.capacity < (event as any).capacity
+      event.type === EVENT_TYPES.TRIP ||
+      event.type === EVENT_TYPES.WORKSHOP
     ) {
-      const currentAttendees = event.attendees?.length || 0;
-      if (updateData.capacity < currentAttendees) {
-        throw createError(
-          400,
-          `Cannot reduce capacity to ${updateData.capacity}. There are already ${currentAttendees} registered attendees.`
-        );
+      const typedEvent = event as ITrip | IWorkshop;
+      if (updateData.capacity && typedEvent.capacity) {
+        if (updateData.capacity > typedEvent.capacity) {
+          capacityIncreased = true;
+          additionalSlots = updateData.capacity - typedEvent.capacity;
+        } else if (updateData.capacity < typedEvent.capacity) {
+          // Validate capacity decrease
+          const currentAttendees = event.attendees?.length || 0;
+          if (updateData.capacity < currentAttendees) {
+            throw createError(
+              400,
+              `Cannot reduce capacity to ${updateData.capacity}. There are already ${currentAttendees} registered attendees.`
+            );
+          }
+        }
       }
     }
 
@@ -480,12 +483,8 @@ export class EventsService {
       updatedEvent = await this.eventRepo.update(eventId, updateData);
     }
 
-    // Promote from waitlist AFTER capacity update is saved (only for trips/workshops)
-    if (
-      capacityIncreased &&
-      additionalSlots > 0 &&
-      (event.type === EVENT_TYPES.TRIP || event.type === EVENT_TYPES.WORKSHOP)
-    ) {
+    // Promote from waitlist AFTER capacity update is saved
+    if (capacityIncreased && additionalSlots > 0) {
       await this.waitlistService.promoteFromWaitlist(eventId, additionalSlots);
     }
 
@@ -539,21 +538,6 @@ export class EventsService {
 
     // Validate slot availability and waitlist priority
     await this.waitlistService.validateSlotAvailability(eventId, userId);
-
-    // Check capacity before allowing registration
-    const capacity = (event as any).capacity;
-    const attendeesCount = event.attendees?.length || 0;
-
-    if (
-      capacity !== undefined &&
-      typeof capacity === "number" &&
-      attendeesCount >= capacity
-    ) {
-      throw createError(
-        400,
-        "Event is at full capacity. Please join the waitlist instead."
-      );
-    }
 
     // Add user to attendees
     event.attendees?.push(userId);
@@ -712,11 +696,7 @@ export class EventsService {
 
     // Remove ineligible users from event attendees and their registeredEvents
     if (attendeesToRemove.length > 0) {
-      const eventId = event._id?.toString();
-      if (!eventId) {
-        throw createError(500, "Event ID is missing");
-      }
-
+      const eventId = (event._id as mongoose.Types.ObjectId).toString();
       const eventPrice = event.price || 0;
       const hasPrice = eventPrice > 0;
 
@@ -749,7 +729,7 @@ export class EventsService {
           }
 
           // Send email notification about removal
-          if (attendee) {
+          if (attendee && attendee.firstName && attendee.lastName) {
             await sendEventAccessRemovedEmail(
               attendee.email,
               `${attendee.firstName} ${attendee.lastName}`,
@@ -766,10 +746,7 @@ export class EventsService {
 
     // Remove ineligible users from waitlist
     if (waitlistToRemove.length > 0) {
-      const eventId = event._id?.toString();
-      if (!eventId) {
-        throw createError(500, "Event ID is missing");
-      }
+      const eventId = (event._id as mongoose.Types.ObjectId).toString();
 
       for (const userId of waitlistToRemove) {
         try {
@@ -777,14 +754,16 @@ export class EventsService {
           await this.waitlistService.leaveWaitlist(eventId, userId);
 
           // Get user details for email notification
-          const user = await this.userService.getUserById(userId);
+          const user = (await this.userService.getUserById(userId)) as
+            | IStudent
+            | IStaffMember;
           if (user) {
             // Send email about waitlist removal
             await sendWaitlistRemovedEmail(
-              (user as any).email,
-              (user as any).firstName && (user as any).lastName
-                ? `${(user as any).firstName} ${(user as any).lastName}`
-                : (user as any).email,
+              user.email,
+              user.firstName && user.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : user.email,
               event.eventName,
               allowedRolesAndPositions
             );
@@ -824,16 +803,22 @@ export class EventsService {
       toxicityResult = await checkToxicityGemini(comment);
       if (toxicityResult && toxicityResult.isToxic) {
         isToxic = true;
-        console.log(`⚠️ Toxic comment detected: "${comment}" - Score: ${(toxicityResult.score * 100).toFixed(0)}%`);
-        
+        console.log(
+          `⚠️ Toxic comment detected: "${comment}" - Score: ${(
+            toxicityResult.score * 100
+          ).toFixed(0)}%`
+        );
+
         // Notify admins about flagged comment
         await NotificationService.sendNotification({
-          adminRole: [
-            AdministrationRoleType.ADMIN,
-          ],
+          adminRole: [AdministrationRoleType.ADMIN],
           type: "COMMENT_FLAGGED",
           title: "⚠️ Toxic Comment Flagged",
-          message: `A comment on "${event.eventName}" has been flagged for toxicity (${(toxicityResult.score * 100).toFixed(0)}% toxic). Review required.`,
+          message: `A comment on "${
+            event.eventName
+          }" has been flagged for toxicity (${(
+            toxicityResult.score * 100
+          ).toFixed(0)}% toxic). Review required.`,
           createdAt: new Date(),
           read: false,
           delivered: false,
@@ -963,7 +948,6 @@ export class EventsService {
     event.reviews.splice(reviewIndex, 1);
     await event.save();
   }
-
 
   //gets all flagged comments in all events
   async getAllFlaggedComments(): Promise<any[]> {
@@ -1185,6 +1169,16 @@ export class EventsService {
     }
 
     // Clear waitlists for events that have started
+    await this.clearWaitlistsForStartedEvents(allEvents, now);
+  }
+
+  /**
+   * Clears waitlists for events that have already started
+   */
+  private async clearWaitlistsForStartedEvents(
+    allEvents: IEvent[],
+    now: Date
+  ): Promise<void> {
     const startedEvents = allEvents.filter((event) => {
       const eventDate = new Date(event.eventStartDate);
 
@@ -1197,16 +1191,18 @@ export class EventsService {
       return eventDate.getTime() <= now.getTime();
     });
 
-    // Clear waitlists for started events
     for (const event of startedEvents) {
+      // Only trips and workshops have waitlists
       if (
-        (event as any).waitlist &&
-        Array.isArray((event as any).waitlist) &&
-        (event as any).waitlist.length > 0
+        event.type === EVENT_TYPES.TRIP ||
+        event.type === EVENT_TYPES.WORKSHOP
       ) {
-        (event as any).waitlist = [];
-        await event.save();
-        console.log(`Cleared waitlist for event: ${event.eventName}`);
+        const typedEvent = event as ITrip | IWorkshop;
+        if (typedEvent.waitlist && typedEvent.waitlist.length > 0) {
+          typedEvent.waitlist = [];
+          await event.save();
+          console.log(`Cleared waitlist for event: ${event.eventName}`);
+        }
       }
     }
   }

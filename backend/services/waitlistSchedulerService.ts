@@ -33,7 +33,7 @@ export class WaitlistSchedulerService {
       }
     });
 
-    console.log("✅ Waitlist scheduler started - checking every minute");
+    console.log("✅ Waitlist scheduler started");
   }
 
   /**
@@ -50,26 +50,9 @@ export class WaitlistSchedulerService {
    * Process all events with waitlists and remove expired payment deadlines
    */
   private async processExpiredPaymentDeadlines() {
-    console.log(
-      "🔍 [SCHEDULER] Running waitlist check at",
-      new Date().toISOString()
-    );
     try {
-      // Get all events with waitlists (trips and workshops only)
-      const events = await this.eventsService.getEvents(
-        undefined, // search
-        undefined, // type
-        undefined, // location
-        false, // sort
-        undefined, // startDate
-        undefined, // endDate
-        undefined, // userRole
-        undefined // userPosition
-      );
-
-      console.log(`🔍 [SCHEDULER] Total events found: ${events.length}`);
-
-      // Filter for events with waitlists that have pending_payment entries
+      // Fetch events and process expired waitlist entries
+      const events = await this.eventsService.getEvents();
       const eventsWithWaitlists = events.filter(
         (event: any) =>
           (event.type === EVENT_TYPES.TRIP ||
@@ -82,32 +65,7 @@ export class WaitlistSchedulerService {
           )
       );
 
-      console.log(
-        `🔍 [SCHEDULER] Events with pending payments: ${eventsWithWaitlists.length}`
-      );
-
-      if (eventsWithWaitlists.length === 0) {
-        console.log("🔍 [SCHEDULER] No events with pending payments found");
-        return; // No events with pending payments
-      }
-
-      // Log details of events being processed
-      eventsWithWaitlists.forEach((event: any) => {
-        const pendingEntries = event.waitlist.filter(
-          (e: any) => e.status === "pending_payment"
-        );
-        console.log(`🔍 [SCHEDULER] Event ${event._id}:`, {
-          name: event.eventName,
-          pendingCount: pendingEntries.length,
-          deadlines: pendingEntries.map((e: any) => ({
-            userId: e.userId,
-            deadline: e.paymentDeadline,
-            expired: new Date(e.paymentDeadline) < new Date(),
-          })),
-        });
-      });
-
-      // Process each event
+      // Process each event and count removed entries
       let totalRemoved = 0;
       for (const event of eventsWithWaitlists) {
         const eventDoc = event as IEvent & { _id: any };
@@ -117,18 +75,14 @@ export class WaitlistSchedulerService {
         totalRemoved += removed;
       }
 
+      // Only log when removals actually occurred to keep logs concise
       if (totalRemoved > 0) {
         console.log(
-          `📋 Waitlist scheduler: Removed ${totalRemoved} expired payment deadline(s) and promoted next users`
+          `Waitlist scheduler: removed ${totalRemoved} expired waitlist entries across ${eventsWithWaitlists.length} events.`
         );
-      } else {
-        console.log("🔍 [SCHEDULER] No expired deadlines found to remove");
       }
     } catch (error) {
-      console.error(
-        "❌ [SCHEDULER] Error processing expired payment deadlines:",
-        error
-      );
+      console.error("Waitlist scheduler error:", error);
     }
   }
 }

@@ -1,6 +1,9 @@
 import { IEvent } from "../interfaces/models/event.interface";
 import { ITrip } from "../interfaces/models/trip.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
+import { IStudent } from "../interfaces/models/student.interface";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
+import { IAdministration } from "../interfaces/models/administration.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import { Trip } from "../schemas/event-schemas/tripSchema";
@@ -68,10 +71,11 @@ export class WaitlistService {
       if (user) {
         const userRole = (user as any).role;
         const userPosition = (user as any).position;
+        const allowedList = event.allowedUsers as string[];
 
         const hasAccess =
-          event.allowedUsers.includes(userRole) ||
-          (userPosition && event.allowedUsers.includes(userPosition));
+          allowedList.includes(userRole) ||
+          (userPosition && allowedList.includes(userPosition));
 
         if (!hasAccess) {
           throw createError(
@@ -114,13 +118,15 @@ export class WaitlistService {
     await event.save();
 
     // Send waitlist joined email
-    const user = await this.userService.getUserById(userId);
+    const user = (await this.userService.getUserById(userId)) as
+      | IStudent
+      | IStaffMember;
     if (user) {
       const { sendWaitlistJoinedEmail } = await import("./emailService");
       await sendWaitlistJoinedEmail(
         user.email,
-        (user as any).firstName && (user as any).lastName
-          ? `${(user as any).firstName} ${(user as any).lastName}`
+        user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName}`
           : user.email,
         event.eventName,
         event.eventStartDate
@@ -418,9 +424,9 @@ export class WaitlistService {
         }
 
         // Send promotion email with payment deadline
-        const user = await this.userService.getUserById(
+        const user = (await this.userService.getUserById(
           waitlistEntry.userId.toString()
-        );
+        )) as IStudent | IStaffMember;
         if (user) {
           try {
             const { sendWaitlistPromotionEmail } = await import(
@@ -428,8 +434,8 @@ export class WaitlistService {
             );
             await sendWaitlistPromotionEmail(
               user.email,
-              (user as any).firstName && (user as any).lastName
-                ? `${(user as any).firstName} ${(user as any).lastName}`
+              user.firstName && user.lastName
+                ? `${user.firstName} ${user.lastName}`
                 : user.email,
               event.eventName,
               paymentDeadline,
@@ -491,15 +497,17 @@ export class WaitlistService {
     await event.save();
 
     // Send auto-registration confirmation email
-    const user = await this.userService.getUserById(userId);
+    const user = (await this.userService.getUserById(userId)) as
+      | IStudent
+      | IStaffMember;
     if (user) {
       const { sendWaitlistAutoRegisteredEmail } = await import(
         "./emailService"
       );
       await sendWaitlistAutoRegisteredEmail(
         user.email,
-        (user as any).firstName && (user as any).lastName
-          ? `${(user as any).firstName} ${(user as any).lastName}`
+        user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName}`
           : user.email,
         event.eventName,
         event.eventStartDate,
@@ -543,15 +551,17 @@ export class WaitlistService {
 
     // Remove expired entries and send notification emails
     for (const entry of expiredEntries) {
-      const user = await this.userService.getUserById(entry.userId.toString());
+      const user = (await this.userService.getUserById(
+        entry.userId.toString()
+      )) as IStudent | IStaffMember;
       if (user) {
         const { sendWaitlistDeadlineExpiredEmail } = await import(
           "./emailService"
         );
         await sendWaitlistDeadlineExpiredEmail(
           user.email,
-          (user as any).firstName && (user as any).lastName
-            ? `${(user as any).firstName} ${(user as any).lastName}`
+          user.firstName && user.lastName
+            ? `${user.firstName} ${user.lastName}`
             : user.email,
           event.eventName
         );
