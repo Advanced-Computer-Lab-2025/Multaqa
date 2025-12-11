@@ -3,10 +3,8 @@ import { Document, Types } from 'mongoose';
 
 
 export interface ISlot {
-  StartDate: Date;
-  EndDate: Date;
-  StartTime: string;
-  EndTime: string;
+  StartDateTime: Date;
+  EndDateTime: Date;
   isAvailable: boolean;
   reservedBy?: {
     studentId: Types.ObjectId;

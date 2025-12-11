@@ -5,3 +5,8 @@ export interface UsheringResponse {
     data: Partial<IUshering> | Partial<IUshering>[] | null;
     message: string;
 }
+
+export interface UsheringTeamsResponse {
+    success: boolean;
+    message: string;
+}
