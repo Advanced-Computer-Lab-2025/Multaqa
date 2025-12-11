@@ -5,6 +5,14 @@ import { EVENT_TYPES } from "../../constants/events.constants";
 import { IVendor } from "./vendor.interface";
 import { UserRole } from "../../constants/user.constants";
 
+export interface IWaitlistEntry {
+  userId: IUser | Schema.Types.ObjectId;
+  joinedAt: Date;
+  status: "waitlist" | "pending_payment";
+  paymentDeadline?: Date;
+  notifiedAt?: Date;
+}
+
 export interface IEvent extends Document {
   type: EVENT_TYPES;
   archived: boolean;
@@ -32,6 +40,7 @@ export interface IEvent extends Document {
   fundingSource?: string;
   extraResources?: string;
   capacity?: number;
+  waitlist?: IWaitlistEntry[];
   createdBy: IUser | string;
   createdAt: Date;
   updatedAt: Date;
