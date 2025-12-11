@@ -9,6 +9,7 @@ import { CustomModal } from '../shared/modals';
 import EmptyState from '../shared/states/EmptyState';
 import { api } from '../../api';
 import { toast } from "react-toastify";
+import TeamsLoadingSkeleton from './TeamsLoadingSkeleton';
 
 export interface Team {
   _id: string;
@@ -21,8 +22,7 @@ export interface Team {
 }
 
 interface TeamsDescriptionProps {
-  user : string ;
-  teams?: Team[];
+  user: string;
 }
 
 // Map team titles to lucide-react icons
@@ -40,11 +40,26 @@ const getTeamIcon = (title: string): React.ReactNode => {
   return iconMap[title] || <Users size={40} />; // Default fallback
 };
 
+// Map team titles to colors
+const getTeamColor = (title: string): string => {
+  const colorMap: Record<string, string> = {
+    'Graduates': '#009688',    // Teal
+    'Parents': '#9C27B0',      // Purple
+    'Caps & Gowns': '#2196F3', // Blue
+    'Flow': '#FF9800',         // Orange
+    'Flow Team': '#FF9800',    // Orange
+    'VIP': '#FFC107',          // Amber
+    'HR': '#FF5722',           // Deep Orange
+    'Stage': '#4CAF50',        // Green
+  };
+  return colorMap[title] || '#1a1a1a'; // Default fallback
+};
 
 
-const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , user}) => {
+
+const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ user }) => {
   const theme = useTheme();
-  const [teams, setTeams] = useState<Team[]>([]); // [] -> to check the add teams button
+  const [teams, setTeams] = useState<Team[] | null>(null); // [] -> to check the add teams button
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [refreshToggle, setRefreshToggle] = useState(false);
 
@@ -69,19 +84,19 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
       const res = await api.get("/ushering");
       console.log(res);
       const usheringArray = res.data.data; // This is an array
-      
+
       if (usheringArray && Array.isArray(usheringArray)) {
         // Filter entries where teams array is not empty
         const entriesWithTeams = usheringArray.filter((entry: any) => entry.teams && entry.teams.length > 0);
-        
+
         if (entriesWithTeams.length > 0) {
           // Concatenate all teams from all entries
           const allTeams = entriesWithTeams.flatMap((entry: any) => entry.teams);
           console.log("All Teams:", allTeams);
-          
+
           // Store the first ushering ID (or you might want different logic here)
           setUsheringId(entriesWithTeams[0]._id);
-          
+
           // Map all teams to the Team format
           const mappedTeams: Team[] = allTeams.map((team: any) => ({
             _id: team._id,
@@ -89,10 +104,10 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
             name: team.title,
             title: team.title,
             description: team.description,
-            color: "#1a1a1a",
+            color: getTeamColor(team.title),
             logo: getTeamIcon(team.title),
           }));
-          
+
           setTeams(mappedTeams);
         } else {
           setTeams([]);
@@ -119,25 +134,12 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = (updatedTeam: Team) => {
-    // Mock update - in real app this would call backend
-    // For now, we just close the modal as requested "dont do the edit changes on the actual cards"
-    // But to show it works, I'll log it.
-    console.log('Saving edited team:', updatedTeam);
-    // If we wanted to update locally:
-    // const updatedTeams = [...teams];
-    // updatedTeams[teamToEdit!.index] = updatedTeam;
-    // setTeams(updatedTeams);
-    setIsEditModalOpen(false);
-    setTeamToEdit(null);
-  };
-
   const handleDeleteClick = (teamId: string) => {
     setTeamToDeleteIndex(teamId);
     setIsDeleteModalOpen(true);
   };
 
-  const  handleDeleteTeam = async (teamId: string) => {
+  const handleDeleteTeam = async (teamId: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -152,21 +154,21 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
         draggable: true,
         progress: undefined,
         theme: "colored",
-      });  
+      });
     } catch (err: any) {
       setError(err?.message || "API call failed");
       toast.error(err?.response?.data?.error || err?.response?.data?.message || "Failed to delete team",
-            {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            }
-    );
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -190,30 +192,31 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
           <Typography variant="h3" component="h2" sx={{ fontWeight: 'bold', mb: 2, color: '#1a1a1a' }}>
             Graduation Teams
           </Typography>
-          {user=="student" && <Typography variant="subtitle1" sx={{ color: '#666', maxWidth: '600px', mx: 'auto' }}>
-            Only apply once to the team that most suits you. Each individual brings a wealth of experience, creativity, and passion to our organization.
+          {user == "student" && <Typography variant="subtitle1" sx={{ color: '#666', minWidth: '850px', mx: 'auto' }}>
+            Review the teams below to decide your preference. Interview slots fill up extremely fast once posted, so be ready to book your spot immediately! Each individual brings a wealth of experience, creativity, and passion to our organization. 
           </Typography>}
         </Box>
 
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-          {teams.length === 0 && user=="usher-admin" &&
-           (<span>
-                <CustomButton
-                  label="Add Teams' Descriptions"
-                  createButtonStyle
-                  onClick={() => setIsAddModalOpen(true)}
-                />
+          {teams?.length === 0 && user == "usher-admin" &&
+            (<span>
+              <CustomButton
+                label="Add Teams' Descriptions"
+                createButtonStyle
+                onClick={() => setIsAddModalOpen(true)}
+              />
             </span>
-          )}
+            )}
         </Box>
       </Box>
-      {(!teams || teams.length==0) &&
-      <EmptyState
-      title = "No teams have been created yet!"
-      description = {user=="student"?"You will be notified when the team description's are posted!":"Press the (+) button to add your team description"}
-      />
-      }
-      {teams&&teams.length>0&& <Grid container spacing={3}>
+      {loading && <TeamsLoadingSkeleton />}
+      {!loading && teams && teams.length === 0 && (
+        <EmptyState
+          title="No teams have been created yet!"
+          description={user == "student" ? "You will be notified when the team description's are posted!" : "Press the (+) button to add the teams' descriptions"}
+        />
+      )}
+      {!loading && teams && teams.length > 0 && <Grid container spacing={3}>
         {teams?.map((team, index) => (
           <Grid size={{ xs: 12, md: 6 }} key={index}>
             <motion.div
@@ -236,7 +239,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
                 }}
               >
                 {/* Action Buttons */}
-                {user=="usher-admin"&&<Box
+                {user == "usher-admin" && <Box
                   sx={{
                     position: 'absolute',
                     top: 8,
@@ -285,7 +288,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
                     </IconButton>
                   </Tooltip>
                 </Box>
-}
+                }
                 <Box
                   sx={{
                     width: '120px',
@@ -306,9 +309,6 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
                     <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
                       {team.name}
                     </Typography>
-                    {/* <Typography variant="caption" sx={{ color: team.color, fontWeight: 'bold', textTransform: 'uppercase' }}>
-                      {team.name}
-                    </Typography> */}
                   </Box>
                   <Typography variant="body2" color={team.color} sx={{ lineHeight: 1.6 }}>
                     {team.description}
@@ -319,7 +319,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
           </Grid>
         ))}
       </Grid>}
-     
+
 
       <AddTeamsModal
         open={isAddModalOpen}
