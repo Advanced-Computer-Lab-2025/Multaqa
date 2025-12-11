@@ -8,7 +8,6 @@ const UsheringSchema = new Schema<IUshering>({
   teams: [{
     title: { type: String, required: true },
     description: { type: String, required: true },
-    color: { type: String, required: false },
     slots: [{
       StartDateTime: { type: Date, required: true  },
       EndDateTime: { type: Date, required: true  },   

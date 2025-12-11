@@ -17,7 +17,6 @@ export interface ITeam {
   _id?: Types.ObjectId;
   title: string;
   description: string;
-  color?: string;
   slots: ISlot[];
 }
 
