@@ -38,6 +38,7 @@ import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from '../../../../components/shared/Report/reportTable';
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
 import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
+import InterviewSlotManager from "@/components/UsheringAccount/InterviewSlotManager";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -513,6 +514,11 @@ export default function EntityCatchAllPage() {
       if (section === "teams-description") {
         return (
          <TeamsDescription  user ="student"/>
+        );
+      }
+      if (section === "interview-slots") {
+        return (
+         <InterviewSlotManager />
         );
       }
     }
