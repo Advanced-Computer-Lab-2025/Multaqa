@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import createError from "http-errors";
 import { EventsService } from "./eventService";
 import { UserService } from "./userService";
+import { WaitlistService } from "./waitlistService";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { IEvent } from "../interfaces/models/event.interface";
 import { sendPaymentReceiptEmail } from "./emailService";
@@ -47,10 +48,12 @@ export interface CreateVendorCheckoutParams {
 export class PaymentService {
   private eventsService: EventsService;
   private userService: UserService;
+  private waitlistService: WaitlistService;
 
   constructor() {
     this.eventsService = new EventsService();
     this.userService = new UserService();
+    this.waitlistService = new WaitlistService();
   }
 
   /**
@@ -119,6 +122,9 @@ export class PaymentService {
 
     // Validate user registration eligibility
     this.validateUserRegistrationEligibility(event, userId);
+
+    // Validate slot availability and waitlist priority
+    await this.waitlistService.validateSlotAvailability(eventId, userId);
 
     // Validate event price
     const price = typeof event.price === "number" ? event.price : undefined;
@@ -220,7 +226,6 @@ export class PaymentService {
     // NOTE: Wallet deduction and transaction logging moved to webhook handler
     // to ensure they only happen after successful Stripe payment confirmation
 
-
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -249,6 +254,9 @@ export class PaymentService {
 
     // Validate user registration eligibility
     this.validateUserRegistrationEligibility(event, userId);
+
+    // Validate slot availability and waitlist priority
+    await this.waitlistService.validateSlotAvailability(eventId, userId);
 
     // Check if event has a price
     if (event.price === undefined || event.price === null) {
@@ -288,6 +296,7 @@ export class PaymentService {
       paymentMethod: "Wallet",
     });
 
+    // Register user for event (this also removes them from waitlist automatically)
     await this.eventsService.registerUserForEvent(eventId, userId);
 
     return user;
@@ -335,6 +344,9 @@ export class PaymentService {
       type: "refund",
       date: new Date(),
     });
+
+    // Promote next user from waitlist (1 spot freed up)
+    await this.waitlistService.promoteFromWaitlist(eventId, 1);
   }
 
   /**

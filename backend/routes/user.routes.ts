@@ -225,7 +225,10 @@ async function getAllFavorites(
   }
 }
 
-async function blockUser(req: AuthenticatedRequest, res: Response<BlockUserResponse>) {
+async function blockUser(
+  req: AuthenticatedRequest,
+  res: Response<BlockUserResponse>
+) {
   try {
     const userId = req.params.id;
     const loggedinUserId = req.user?.id;
@@ -425,7 +428,10 @@ router.get(
       UserRole.STUDENT,
       UserRole.VENDOR,
     ],
-    adminRoles: [AdministrationRoleType.ADMIN, AdministrationRoleType.EVENTS_OFFICE],
+    adminRoles: [
+      AdministrationRoleType.ADMIN,
+      AdministrationRoleType.EVENTS_OFFICE,
+    ],
     staffPositions: [
       StaffPosition.PROFESSOR,
       StaffPosition.TA,
@@ -550,6 +556,7 @@ router.delete(
   }),
   removeFromFavorites
 );
+
 router.get(
   "/:id",
   authorizeRoles({
@@ -558,6 +565,9 @@ router.get(
   }),
   getUserById
 );
+
+// NOTE: Waitlist routes have been moved to /api/waitlist
+// See backend/routes/waitlist.routes.ts
 
 router.post(
   "/favorites/:eventId",

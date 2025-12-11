@@ -533,5 +533,4 @@ router.get(
   exportEventUsers
 );
 
-
 export default router;

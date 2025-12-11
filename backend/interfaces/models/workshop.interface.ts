@@ -1,4 +1,4 @@
-import { IEvent } from "./event.interface";
+import { IEvent, IWaitlistEntry } from "./event.interface";
 import { Event_Request_Status } from "../../constants/user.constants";
 
 export interface IWorkshop extends IEvent {
@@ -18,4 +18,5 @@ export interface IWorkshop extends IEvent {
   }>;
   certificatesSent: boolean;
   certificatesSentAt: Date | null;
+  waitlist?: IWaitlistEntry[];
 }
