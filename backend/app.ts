@@ -23,6 +23,7 @@ import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
+import waitlistRouter from "./routes/waitlist.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -54,6 +55,7 @@ import { errorHandler, notFoundHandler } from "./config/errorHandler";
 import { WorkshopScheduler } from "./services/workshopSchedulerService";
 import { NotificationService } from "./services/notificationService";
 import { EventScheduler } from "./services/eventSchedulerService";
+import { waitlistScheduler } from "./services/waitlistSchedulerService";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -72,6 +74,7 @@ app.use("/auth", authRouter);
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);
+app.use("/waitlist", waitlistRouter);
 app.use("/gymsessions", gymSessionsRouter);
 app.use("/admins", adminRouter);
 app.use("/vendorEvents", vendorEventsRouter);
@@ -210,6 +213,9 @@ async function startServer() {
     // Start event scheduler
     const eventScheduler = new EventScheduler();
     eventScheduler.start();
+
+    // Start waitlist scheduler
+    waitlistScheduler.start();
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);
