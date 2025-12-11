@@ -1130,6 +1130,7 @@ export class EventsService {
 
   async checkUpcomingEvents() {
     const now = new Date();
+    console.log(now);
     now.setSeconds(0, 0);
 
     // Get all upcoming events (events that haven't started yet)
@@ -1150,13 +1151,17 @@ export class EventsService {
         eventDate.setHours(hours || 0, minutes || 0, 0, 0);
       }
 
+      console.log(`Checking event: ${event.eventName}, Event DateTime: ${eventDate}`);
+
       // Check for 1-day reminder
       if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
+        console.log(`Event ${event.eventName} is 1 day away.`);
         oneDayEvents.push(event);
       }
 
       // Check for 1-hour reminder
       if (eventDate.getTime() - now.getTime() == 60 * 60 * 1000) {
+        console.log(`Event ${event.eventName} is 1 hour away.`);
         oneHourEvents.push(event);
       }
     }

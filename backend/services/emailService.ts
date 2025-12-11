@@ -168,9 +168,8 @@ export const sendApplicationStatusEmail = async (
 
   const typeLabel = applicationType === "bazaar" ? "Bazaar" : "Booth";
   const statusEmoji = status === "accepted" ? "✅" : "❌";
-  const subject = `${statusEmoji} ${typeLabel} Application ${
-    status === "accepted" ? "Accepted" : "Update"
-  } - Multaqa`;
+  const subject = `${statusEmoji} ${typeLabel} Application ${status === "accepted" ? "Accepted" : "Update"
+    } - Multaqa`;
 
   await sendEmail({
     to: userEmail,
@@ -282,30 +281,32 @@ export const sendGymSessionNotificationEmail = async (params: {
     html,
   });
 };
-export const sendBugReportEmail = async (
-    recipientEmail: string,
-    reportTitle: string,
-    pdfBuffer: Buffer
-) => {
-    const html = getBugReportTemplate(reportTitle);
-    
-    // Generate a clean filename for the attachment
-    const cleanTitle = reportTitle.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-    await sendEmail({
-        to: recipientEmail,
-        subject: `📋 New Bug Report Submitted: ${reportTitle}`,
-        html,
-        attachments: [
-            {
-                filename: `Bug_Report_${cleanTitle}_${today}.pdf`,
-                content: pdfBuffer,
-                contentType: "application/pdf",
-                disposition: "attachment",
-            },
-        ],
-    });
+export const sendBugReportEmail = async (
+  recipientEmail: string,
+  reportTitle: string,
+  pdfBuffer: Buffer
+) => {
+  const html = getBugReportTemplate(reportTitle);
+
+  // Generate a clean filename for the attachment
+  const cleanTitle = reportTitle.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  await sendEmail({
+    to: recipientEmail,
+    subject: `📋 New Bug Report Submitted: ${reportTitle}`,
+    html,
+    attachments: [
+      {
+        filename: `Bug_Report_${cleanTitle}_${today}.pdf`,
+        content: pdfBuffer,
+        contentType: "application/pdf",
+        disposition: "attachment",
+      },
+    ],
+  });
+};
 
 // Send waitlist joined confirmation email
 export const sendWaitlistJoinedEmail = async (
