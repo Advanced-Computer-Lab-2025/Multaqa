@@ -85,6 +85,8 @@ const getUserRoleKey = (user: any): string => {
     return "admin";
   }
 
+  if (user.role === "usherAdmin") return "usher-admin";
+
   return "student";
 };
 
@@ -139,6 +141,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "my-sessions", label: "My Registered Sessions" },
       { id: "overview", label: "Overview" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
+      { id: "teams-description", label: "Teams Description" },
+      { id: "interview-slots", label: "Interview Slots" },
     ],
     sections: [
       {
@@ -150,6 +154,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
           { id: "polls", label: "Polls" },
+        ],
+      },
+       {
+        key: "graduation",
+        label: "Guc Graduation",
+        icon: Calendar,
+        tabs: [
+          { id: "teams-description", label: "Teams Description" },
+          { id: "interview-slots", label: "Interview Slots" },
         ],
       },
       {
@@ -507,7 +520,31 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
     ],
   },
+  "usher-admin": {
+    headerTitle: "Usher Admin Portal",
+    icon: <Store size={32} className="text-[#6299d0]" />,
+    defaultTab: "team-description",
+    defaultSection: "graduation",
+     tabs: [
+          { id: "team-description", label: "Team Description" },
+          { id: "interview-management", label: "Interview Management" },
+          { id: "student-list", label: "Student List" },
+        ],
+    sections: [
+      {
+        key: "graduation",
+        label: "GUC Graduation",
+        icon: LayoutDashboard,
+        tabs: [
+          { id: "team-description", label: "Team Description" },
+          { id: "interview-management", label: "Interview Management" },
+          { id: "student-list", label: "Student List" },
+        ],
+      },
+    ],
+  },
 };
+
 
 // Mock data for different user types
 // const getMockUserData = (role: string) => {
