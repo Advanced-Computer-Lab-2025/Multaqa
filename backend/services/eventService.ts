@@ -1148,11 +1148,9 @@ export class EventsService {
 
       if (event.eventStartTime) {
         const [hours, minutes] = event.eventStartTime.split(":").map(Number);
-        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+        eventDate.setUTCHours(hours || 0, minutes || 0, 0, 0);
       }
-
-      console.log(`Checking event: ${event.eventName}, Event DateTime: ${eventDate}`);
-
+      
       // Check for 1-day reminder
       if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
         console.log(`Event ${event.eventName} is 1 day away.`);
