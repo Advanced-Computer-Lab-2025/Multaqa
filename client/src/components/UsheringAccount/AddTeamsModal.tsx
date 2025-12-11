@@ -18,7 +18,6 @@ interface AddTeamsModalProps {
 interface TeamPayload {
   title: string;
   description: string;
-  color: string;
 };
 
 const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, setRefresh }) => {
@@ -85,7 +84,6 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, setRefresh
       .map(t => ({
         title: t.name!,
         description: t.description!,
-        color: t.color || '#E0E0E0', // Default color if not provided
       }));
 
     if (teamsToAdd.length > 0) {
@@ -126,18 +124,6 @@ const AddTeamsModal: React.FC<AddTeamsModalProps> = ({ open, onClose, setRefresh
                   onChange={(e) => handleChange(index, 'name', e.target.value)}
                   neumorphicBox
                   placeholder="e.g. Graduates"
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField
-                  name={`team-color-${index}`}
-                  label="Color"
-                  fieldType="text"
-                  value={team.color}
-                  onChange={(e) => handleChange(index, 'color', e.target.value)}
-                  neumorphicBox
-                  placeholder="#000000"
                   required
                 />
               </Grid>

@@ -67,20 +67,36 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
     setError(null);
     try {
       const res = await api.get("/ushering");
-      console.log(res)
-      const usheringData = res.data.data[0];
-      if (usheringData) {
-        setUsheringId(usheringData._id);
-        const mappedTeams: Team[] = usheringData.teams.map((team: any) => ({
-          _id: team._id,
-          id: team.id,
-          name: team.title,
-          title: team.title,
-          description: team.description,
-          color: "#1a1a1a",
-          logo: getTeamIcon(team.title),
-        }));
-        setTeams(mappedTeams);
+      console.log(res);
+      const usheringArray = res.data.data; // This is an array
+      
+      if (usheringArray && Array.isArray(usheringArray)) {
+        // Filter entries where teams array is not empty
+        const entriesWithTeams = usheringArray.filter((entry: any) => entry.teams && entry.teams.length > 0);
+        
+        if (entriesWithTeams.length > 0) {
+          // Concatenate all teams from all entries
+          const allTeams = entriesWithTeams.flatMap((entry: any) => entry.teams);
+          console.log("All Teams:", allTeams);
+          
+          // Store the first ushering ID (or you might want different logic here)
+          setUsheringId(entriesWithTeams[0]._id);
+          
+          // Map all teams to the Team format
+          const mappedTeams: Team[] = allTeams.map((team: any) => ({
+            _id: team._id,
+            id: team.id,
+            name: team.title,
+            title: team.title,
+            description: team.description,
+            color: "#1a1a1a",
+            logo: getTeamIcon(team.title),
+          }));
+          
+          setTeams(mappedTeams);
+        } else {
+          setTeams([]);
+        }
       } else {
         setTeams([]);
       }
@@ -290,9 +306,9 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
                     <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold' }}>
                       {team.name}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: team.color, fontWeight: 'bold', textTransform: 'uppercase' }}>
+                    {/* <Typography variant="caption" sx={{ color: team.color, fontWeight: 'bold', textTransform: 'uppercase' }}>
                       {team.name}
-                    </Typography>
+                    </Typography> */}
                   </Box>
                   <Typography variant="body2" color={team.color} sx={{ lineHeight: 1.6 }}>
                     {team.description}
