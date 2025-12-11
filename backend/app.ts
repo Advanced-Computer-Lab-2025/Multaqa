@@ -23,6 +23,7 @@ import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
+import  usheringRouter from "./routes/ushering.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -78,6 +79,7 @@ app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
+app.use("/ushering", usheringRouter)
 
 // Error handlers
 app.use(errorHandler);
