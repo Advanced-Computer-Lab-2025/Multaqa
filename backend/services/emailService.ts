@@ -306,6 +306,7 @@ export const sendBugReportEmail = async (
             },
         ],
     });
+}
 
 // Send waitlist joined confirmation email
 export const sendWaitlistJoinedEmail = async (

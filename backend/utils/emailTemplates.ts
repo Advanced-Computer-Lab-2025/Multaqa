@@ -854,6 +854,7 @@ export const getBugReportTemplate = (reportTitle: string) => {
             </div>
         </div>
     `;
+}
 // Waitlist Joined Confirmation Email Template
 export const getWaitlistJoinedTemplate = (
   username: string,
