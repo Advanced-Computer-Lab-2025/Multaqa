@@ -10,7 +10,7 @@ const bugReportSchema = new Schema<IBugReport>({
     enviroment: { type: String, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     status: { type: String, enum: Object.values(BUG_REPORT_STATUS), default: BUG_REPORT_STATUS.PENDING},
-    date: { type: String, required: true }
+    date: { type: Date, required: true }
 });
 
 bugReportSchema.set("toObject", { virtuals: true });

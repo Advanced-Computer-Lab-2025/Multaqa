@@ -10,5 +10,5 @@ import { BUG_REPORT_STATUS } from "../../constants/bugReport.constants";
     enviroment: string;
     createdBy:  Types.ObjectId;
     status: BUG_REPORT_STATUS;
-    date: String
+    date: Date;
 }
