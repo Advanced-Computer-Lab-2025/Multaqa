@@ -332,7 +332,13 @@ export default function EntityCatchAllPage() {
         <AnimatedLoading />
       );
     }
-
+    
+    if (entity === "usher-admin") {
+      if (tab === "team-description") {
+        return <TeamsDescription user="usher-admin" />;
+      }
+    }
+    
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {
@@ -522,7 +528,7 @@ export default function EntityCatchAllPage() {
 
     if (entity === "events-office" && tab === "vendors") {
       if (section === "participation-requests") {
-        return <TeamsDescription />
+        return <VendorParticipationRequests />;
       }
 
       if (section === "vendor-polls") {
