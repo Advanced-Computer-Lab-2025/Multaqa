@@ -44,7 +44,7 @@ const getTeamIcon = (title: string): React.ReactNode => {
 
 const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , user}) => {
   const theme = useTheme();
-  const [teams, setTeams] = useState<Team[]>(initialTeamsData); // [] -> to check the add teams button
+  const [teams, setTeams] = useState<Team[]>([]); // [] -> to check the add teams button
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [refreshToggle, setRefreshToggle] = useState(false);
 
@@ -67,6 +67,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
     setError(null);
     try {
       const res = await api.get("/ushering");
+      console.log(res)
       const usheringData = res.data.data[0];
       if (usheringData) {
         setUsheringId(usheringData._id);
@@ -76,7 +77,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ teams: propTeams , 
           name: team.title,
           title: team.title,
           description: team.description,
-          color: team.color,
+          color: "#1a1a1a",
           logo: getTeamIcon(team.title),
         }));
         setTeams(mappedTeams);

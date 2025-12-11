@@ -347,10 +347,12 @@ export default function EntityCatchAllPage() {
     }
 
     if (entity === "usher-admin") {
-      if (tab === "team-description") {
-        return <TeamsDescription user="usher-admin" />;
-      }
+      if (tab === "graduation") {
+        if (section === "teams-description") {
+          return <TeamsDescription user="usher-admin" />;
+        }
     }
+  }
 
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
