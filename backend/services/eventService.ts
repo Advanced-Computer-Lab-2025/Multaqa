@@ -1175,29 +1175,35 @@ export class EventsService {
       await this.sendReminderToAttendees(event, "1 hour");
       console.log(`Sent 1-hour reminder for event: ${event.eventName}`);
     }
-
-    // Clear waitlists for events that have started
-    await this.clearWaitlistsForStartedEvents(allEvents, now);
   }
 
   /**
    * Clears waitlists for events that have already started
    */
-  private async clearWaitlistsForStartedEvents(
-    allEvents: IEvent[],
-    now: Date
-  ): Promise<void> {
-    const startedEvents = allEvents.filter((event) => {
+  async clearWaitlistsForStartedEvents(): Promise<void> {
+    const now = new Date();
+    now.setSeconds(0, 0);
+    
+    // Get all events that might have started today or before 
+    const allEvents = await this.eventRepo.findAll({
+      eventStartDate: { $lte: new Date().setHours(23, 59, 59, 999) },
+    });
+
+    const startedEvents: IEvent[] = [];
+
+    for (const event of allEvents) {
       const eventDate = new Date(event.eventStartDate);
 
       if (event.eventStartTime) {
         const [hours, minutes] = event.eventStartTime.split(":").map(Number);
-        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+        eventDate.setUTCHours(hours || 0, minutes || 0, 0, 0);
       }
 
       // Event has started if current time is past event start time
-      return eventDate.getTime() <= now.getTime();
-    });
+      if (eventDate.getTime() <= now.getTime()) {
+        startedEvents.push(event);
+      }
+    }
 
     for (const event of startedEvents) {
       // Only trips and workshops have waitlists
