@@ -1,4 +1,4 @@
-import { Schema,Document } from "mongoose";
+import { Document ,Types} from "mongoose";
 import { IUser } from "./user.interface";
 import { BUG_REPORT_STATUS } from "../../constants/bugReport.constants";
 
@@ -8,8 +8,7 @@ import { BUG_REPORT_STATUS } from "../../constants/bugReport.constants";
     expectedBehavior: string;
     actualBehavior: string;
     enviroment: string;
-    reporter:   IUser | Schema.Types.ObjectId;
-    status:BUG_REPORT_STATUS;
-    createdAt: Date;
-    updatedAt: Date;
+    createdBy:  Types.ObjectId;
+    status: BUG_REPORT_STATUS;
+    date: String
 }
