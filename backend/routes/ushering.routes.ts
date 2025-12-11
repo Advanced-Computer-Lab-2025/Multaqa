@@ -2,6 +2,8 @@ import { Router,Request,Response } from 'express';
 import { UsheringService } from '../services/usheringService';
 import { UsheringResponse } from '../interfaces/responses/usheringResponse';
 import createError from 'http-errors';
+import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
+import { UserRole } from '../constants/user.constants';
 
 const usheringService = new UsheringService();
 
@@ -99,10 +101,20 @@ async function getAllUsheringTeams(req: Request, res: Response<UsheringResponse>
 
 
 
-router.post('/', createUsheringTeams);
-router.get('/', getAllUsheringTeams);
-router.patch('/:id/postTime', setUsheringPostTime);
-router.patch('/:usheringId/teams/:teamId', editUsheringTeam);
-router.delete('/:usheringId/teams/:teamId', deleteUsheringTeam);
+router.post('/', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN], 
+  }), createUsheringTeams);
+router.get('/', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN, UserRole.STUDENT], 
+  }), getAllUsheringTeams);
+router.patch('/:id/postTime', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN], 
+  }), setUsheringPostTime);
+router.patch('/:usheringId/teams/:teamId', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN], 
+  }), editUsheringTeam);
+router.delete('/:usheringId/teams/:teamId', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN], 
+  }), deleteUsheringTeam);
 
 export default router;
