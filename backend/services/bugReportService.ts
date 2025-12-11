@@ -13,6 +13,7 @@ import { BugReportData } from "../utils/pdfGenerator";
 import { sendBugReportEmail } from "./emailService";
 import { NotificationService } from "./notificationService";
 import { Notification } from "./notificationService";
+import ExcelJS from "exceljs";
 
 
 export class BugReportService {
@@ -89,13 +90,86 @@ export class BugReportService {
             stepsToReproduce: bugReport.stepsToReproduce,
             expectedResult: bugReport.expectedBehavior,
             actualResult: bugReport.actualBehavior,
-            environment: bugReport.enviroment,
+            environment: bugReport.environment,
             generationDate: new Date()
        
         }
         const buffer= await pdfGenerator.generateBugReportPDF(bugReportData);
         await sendBugReportEmail(email, bugReport.title, buffer);
 
+    }
+
+    async exportUnresolvedBugReportsToXLSX(): Promise<Buffer> {
+        const BugReports = await this.bugReportRepo.findAll({}, { populate: {
+            path: 'createdBy', 
+            select: 'email firstName lastName role gucId companyName ', 
+        } as any})
+      
+
+        if (BugReports.length === 0) {
+            throw createError(404, "No bug reports found");
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(" Bug Reports");
+
+        const applyHeaderStyle = (cell: ExcelJS.Cell) => {
+            cell.font = { bold: true, size: 12, name: "Calibri" };
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFD9D9D9" },
+            };
+            cell.alignment = { vertical: "middle", horizontal: "center" };
+            cell.border = { bottom: { style: "thin", color: { argb: "FF000000" } } };
+        };
+
+        worksheet.columns = [
+            { header: "Title", key: "title", width: 30 },
+            { header: "Reporter Name", key: "reporterName", width: 25 },
+            { header: "Date Submitted", key: "date", width: 20 },
+            { header: "Steps to Reproduce", key: "stepsToReproduce", width: 40 },
+            { header: "Expected Behavior", key: "expectedBehavior", width: 40 },
+            { header: "Actual Behavior", key: "actualBehavior", width: 40 },
+            { header: "Environment", key: "environment", width: 25 },
+            { header: "Status", key: "status", width: 15 },
+        ];
+
+        const headerRow = worksheet.getRow(1);
+        headerRow.eachCell((cell) => applyHeaderStyle(cell));
+
+        BugReports.forEach((bugReport) => {
+            const reporter = bugReport.createdBy as any;
+            let reporterName = "Unknown";
+            
+            if (reporter) {
+                if (reporter.role === UserRole.ADMINISTRATION) {
+                    reporterName = reporter.name || "Unknown";
+                } else {
+                    reporterName = `${reporter.firstName || ""} ${reporter.lastName || ""}`.trim() || "Unknown";
+                }
+            }
+
+            worksheet.addRow({
+                title: bugReport.title,
+                reporterName: reporterName,
+                date: bugReport.date ? new Date(bugReport.date).toLocaleDateString() : "N/A",
+                stepsToReproduce: bugReport.stepsToReproduce,
+                expectedBehavior: bugReport.expectedBehavior,
+                actualBehavior: bugReport.actualBehavior,
+                environment: bugReport.environment,
+                status: bugReport.status,
+            });
+        });
+
+        // Auto-fit row heights for better readability
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) {
+                row.height = 20;
+            }
+        });
+
+        return (await workbook.xlsx.writeBuffer()) as any;
     }
   
 }

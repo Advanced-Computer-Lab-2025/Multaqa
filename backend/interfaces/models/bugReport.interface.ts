@@ -7,7 +7,7 @@ import { BUG_REPORT_STATUS } from "../../constants/bugReport.constants";
     stepsToReproduce: string;
     expectedBehavior: string;
     actualBehavior: string;
-    enviroment: string;
+    environment: string;
     createdBy:  Types.ObjectId;
     status: BUG_REPORT_STATUS;
     date: Date;

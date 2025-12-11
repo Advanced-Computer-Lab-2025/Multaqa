@@ -7,7 +7,7 @@ const bugReportSchema = new Schema<IBugReport>({
     stepsToReproduce: { type: String, required: true },
     expectedBehavior: { type: String, required: true },
     actualBehavior: { type: String, required: true },
-    enviroment: { type: String, required: true },
+    environment: { type: String, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     status: { type: String, enum: Object.values(BUG_REPORT_STATUS), default: BUG_REPORT_STATUS.PENDING},
     date: { type: Date, required: true }

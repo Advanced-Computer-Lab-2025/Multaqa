@@ -84,11 +84,35 @@ async function sendBugReportEmail(req:Request, res: Response) {
     }
 }
 
+async function exportUnresolvedBugReports(req: Request, res: Response) {
+    try {
+        const buffer = await bugReportService.exportUnresolvedBugReportsToXLSX();
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+         const date = new Date();
+        const dateStr = date.toISOString().split('T')[0]; 
+        const filename = `unresolved-bug-reports-${dateStr}.xlsx`;
+        res.setHeader(
+            'Content-Disposition',
+             `attachment; filename="${filename}"`
+        );
+        res.send(buffer);
+    } catch (err: any) {
+        throw createError(
+            err.status || 500,
+            err.message || "Error exporting bug reports"
+        );
+    }
+}
+
 
 router.post('/', createBugReport);
 router.get('/', getAllBugReports);
 router.patch('/:bugReportId', updateBugReportStatus);
 router.post('/send-email/:bugReportId', sendBugReportEmail);
+router.get('/export', exportUnresolvedBugReports);
 export default router;
 
 
