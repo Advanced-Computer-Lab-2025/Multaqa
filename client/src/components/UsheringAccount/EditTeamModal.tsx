@@ -4,16 +4,22 @@ import CustomModalLayout from '../shared/modals/CustomModalLayout';
 import { Team } from './TeamsDescription';
 import CustomTextField from '../shared/input-fields/CustomTextField';
 import CustomButton from '../shared/Buttons/CustomButton';
+import { api } from '../../api';
+import { toast } from "react-toastify";
 
 interface EditTeamModalProps {
+  usheringId?: string;
+  teamId: string;
   open: boolean;
   onClose: () => void;
   team: Team | null;
-  onSave: (updatedTeam: Team) => void;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, onSave }) => {
+const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, teamId = "0", usheringId = "0", setRefresh }) => {
   const [editedTeam, setEditedTeam] = useState<Team | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (team) {
@@ -27,9 +33,56 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, onSa
     }
   };
 
-  const handleSubmit = () => {
+  const handleCallApi = async (payload: any) => {
+     setLoading(true);
+     setError(null);
+     try {
+       console.log("payload in call");
+       console.log(payload);
+       const res = await api.patch("/ushering/" + usheringId + "/teams/" + teamId, payload);
+       toast.success("Team edited successfully", {
+         position: "bottom-right",
+         autoClose: 5000,
+         hideProgressBar: false,
+         closeOnClick: true,
+         pauseOnHover: true,
+         draggable: true,
+         progress: undefined,
+         theme: "colored",
+       });
+       return res.data;
+     } catch (err: any) {
+       setError(err?.message || "API call failed");
+       toast.error(
+         err.response.data.error || "Failed to edit team. Please try again.",
+         {
+           position: "bottom-right",
+           autoClose: 5000,
+           hideProgressBar: false,
+           closeOnClick: true,
+           pauseOnHover: true,
+           draggable: true,
+           progress: undefined,
+           theme: "colored",
+         }
+       );
+     } finally {
+       setLoading(false);
+     }
+   };
+
+
+  const handleSubmit = async () => {
     if (editedTeam) {
-      onSave(editedTeam);
+      const payload = {
+        title: editedTeam.name,
+        description: editedTeam.description,
+        color: editedTeam.color,
+      };
+      await handleCallApi(payload);
+      if (setRefresh) {
+        setRefresh(prev => !prev);
+      }
       onClose();
     }
   };
@@ -53,6 +106,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, onSa
               value={editedTeam.name}
               onChange={(e) => handleChange('name', e.target.value)}
               neumorphicBox
+              required
             />
           </Grid>
           <Grid size={{ xs: 12 }}>
@@ -64,6 +118,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, onSa
               onChange={(e) => handleChange('color', e.target.value)}
               neumorphicBox
               placeholder="#000000"
+              required
             />
           </Grid>
           <Grid size={{ xs: 12 }}>
@@ -77,6 +132,8 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, onSa
               rows={4}
               autoCapitalizeName={false}
               neumorphicBox
+              required
+              placeholder="Enter team description..."
             />
           </Grid>
         </Grid>
