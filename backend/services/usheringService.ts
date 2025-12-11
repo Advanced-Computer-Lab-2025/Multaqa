@@ -52,9 +52,6 @@ export class UsheringService {
         if (teamData.description !== undefined && teamData.description !== null) {
             ushering.teams[teamIndex].description = teamData.description;
         }
-        if (teamData.color !== undefined && teamData.color !== null) {
-            ushering.teams[teamIndex].color = teamData.color;
-        }
         if (teamData.slots !== undefined && teamData.slots !== null) {
             ushering.teams[teamIndex].slots = teamData.slots;
         }
