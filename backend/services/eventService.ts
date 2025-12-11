@@ -461,12 +461,18 @@ export class EventsService {
           capacityIncreased = true;
           additionalSlots = updateData.capacity - typedEvent.capacity;
         } else if (updateData.capacity < typedEvent.capacity) {
-          // Validate capacity decrease
+          // Validate capacity decrease - must account for both attendees and reserved slots
           const currentAttendees = event.attendees?.length || 0;
-          if (updateData.capacity < currentAttendees) {
+          const pendingPaymentCount =
+            typedEvent.waitlist?.filter(
+              (entry) => entry.status === "pending_payment"
+            ).length || 0;
+          const reservedSlots = currentAttendees + pendingPaymentCount;
+
+          if (updateData.capacity < reservedSlots) {
             throw createError(
               400,
-              `Cannot reduce capacity to ${updateData.capacity}. There are already ${currentAttendees} registered attendees.`
+              `Cannot reduce capacity to ${updateData.capacity}. There are ${currentAttendees} registered attendees and ${pendingPaymentCount} users with reserved slots (pending payment).`
             );
           }
         }
