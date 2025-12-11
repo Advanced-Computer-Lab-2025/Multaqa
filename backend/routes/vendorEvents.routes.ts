@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Request, Response } from "express";
 import { VendorEventsService } from "../services/vendorEventsService";
 import createError from "http-errors";
 import { validateCreateApplicationData } from "../validation/validateCreateApplicationData.validation";
@@ -18,11 +18,9 @@ import { deleteCloudinaryFile } from "../utils/cloudinaryCleanup";
 import { uploadFiles } from "../middleware/upload";
 import { FileUploadResponse } from "../interfaces/responses/fileUploadResponse.interface";
 import { loyaltyProgramSchema } from "../validation/validateLoyaltyProgram";
-import { Vendor } from "../schemas/stakeholder-schemas/vendorSchema";
 import { GetEventsResponse } from "../interfaces/responses/eventResponses.interface";
 import { StaffPosition } from "../constants/staffMember.constants";
 import { asyncRouter } from "../config/errorHandler";
-import { User } from "../schemas/stakeholder-schemas/userSchema";
 
 const vendorEventsService = new VendorEventsService();
 

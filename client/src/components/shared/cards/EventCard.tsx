@@ -636,7 +636,7 @@ const EventCard: React.FC<EventCardProps> = ({
               {!utilities && (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" , mb:-2}}>
                   {registerButton}
-                  {calendarButton}
+                  {eventType !== "Booth" && calendarButton}
                 </Box>
               )}
                {evaluateButton && professorStatus === "pending" && (
@@ -696,9 +696,10 @@ const EventCard: React.FC<EventCardProps> = ({
                   </Typography>
                 </Box>
               )}
-              {payButton && eventType === "Booth" && (
+              {(payButton || calendarButton) && eventType === "Booth" && (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   {payButton}
+                  {calendarButton}
                 </Box>
               )}
             </Box>

@@ -32,6 +32,17 @@ const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
   const handleAddToCalendar = async () => {
     setIsLoading(true);
     try {
+      // Validate required date fields
+      if (!eventDetails.startDate || !eventDetails.startTime) {
+        toast.error("Event is missing required date/time information", {
+          position: "bottom-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // Ensure connected first
       if (!isConnected) {
         const connected = await ensureCalendarConnected();
@@ -43,8 +54,15 @@ const AddToCalendarButton: React.FC<AddToCalendarButtonProps> = ({
 
       // Format datetime to full ISO 8601 format
       const formatDateTime = (dateStr: string, timeStr?: string) => {
+        if (!dateStr) {
+          throw new Error("Missing date");
+        }
         const dateTimeStr = timeStr ? `${dateStr}T${timeStr}` : dateStr;
-        return new Date(dateTimeStr).toISOString();
+        const date = new Date(dateTimeStr);
+        if (isNaN(date.getTime())) {
+          throw new Error("Invalid date format");
+        }
+        return date.toISOString();
       };
 
       const calendarEvent = {

@@ -217,7 +217,7 @@ async function addEvent(req: AuthenticatedRequest, res: Response<AddEventRespons
 
 router.get('/auth/google/url', verifyJWT, 
   authorizeRoles({
-  userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+  userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.VENDOR],
   staffPositions: [
     StaffPosition.PROFESSOR,
     StaffPosition.TA,
@@ -229,7 +229,7 @@ router.get('/auth/google/callback', handleCallback);
 
 router.post('/add-event', verifyJWT, 
   authorizeRoles({
-  userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER],
+  userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.VENDOR],
   staffPositions: [
     StaffPosition.PROFESSOR,
     StaffPosition.TA,

@@ -19,6 +19,7 @@ import SellIcon from "@mui/icons-material/Sell";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import { EventCardsListSkeleton } from "@/components/BrowseEvents/utils/EventCardSkeleton";
 import EmptyState from "@/components/shared/states/EmptyState";
+import AddToCalendarButton from "@/components/Event/helpers/AddToCalendarButton";
 
 const STATUS_MAP: Record<string, VendorRequestItem["status"]> = {
   pending: "PENDING",
@@ -178,9 +179,26 @@ export default function VendorRequestsList() {
           registrationDeadline={item.details?.["Registration Deadline"]}
           userInfo={user}
           user={"vendor"}
+          calendarButton={
+            <AddToCalendarButton
+              eventId={item.id}
+              eventDetails={{
+                name: item.name,
+                startDate: item.details["Start Date"],
+                endDate: item.details["End Date"],
+                startTime: item.details["Start Time"],
+                endTime: item.details["End Time"] ,
+                description: item.description,
+                location: item.details["Location"],
+              }}
+              color={"#e91e63"}
+            />
+          }
         />
       );
     case "booth":
+      // Only show dates if the booth is approved (paid)
+      const isApproved = item.status === "approved";
       return (
         <BoothView 
           id={item.id} 
@@ -188,7 +206,13 @@ export default function VendorRequestsList() {
           icon={StorefrontIcon} 
           company={item.company} 
           description={item.description} 
-          details={item.details}
+          details={{
+            ...item.details,
+            "Start Date": isApproved ? item.details["Start Date"] : undefined,
+            "End Date": isApproved ? item.details["End Date"] : undefined,
+            "Start Time": isApproved ? item.details["Start Time"] : undefined,
+            "End Time": isApproved ? item.details["End Time"] : undefined,
+          }}
           payButton={renderActionButton(item)} 
           vendorStatus={item.status}
           attended={item.attended} 
@@ -196,6 +220,23 @@ export default function VendorRequestsList() {
           userInfo={user}
           user={"vendor"}
           isRequested={true}
+          calendarButton={
+            isApproved ? (
+              <AddToCalendarButton
+                eventId={item.id}
+                eventDetails={{
+                  name: item.company,
+                  startDate: item.details["Start Date"],
+                  endDate: item.details["End Date"],
+                  startTime: item.details["Start Time"],
+                  endTime: item.details["End Time"],
+                  description: item.description,
+                  location: item.details["Location"],
+                }}
+                color={"#2196f3"}
+              />
+            ) : undefined
+          }
         />
       );
     default:

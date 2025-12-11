@@ -216,7 +216,13 @@ setRequests(framedData);
           icon={StorefrontIcon} 
           company={item.company} 
           description={item.description} 
-          details={item.details}
+          details={{
+            ...item.details,
+            "Start Date": undefined,
+            "End Date": undefined,
+            "Start Time": undefined,
+            "End Time": undefined,
+          }}
           payButton={renderActionButton(item)} 
           vendorStatus={item.status}
           attended={item.attended} 

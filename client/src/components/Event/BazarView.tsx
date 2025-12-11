@@ -36,7 +36,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   registrationPassed,
   registrationDeadline,
   userInfo, 
-  vendorStatus, 
+  vendorStatus,
+  calendarButton,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -230,6 +231,7 @@ const BazarView: React.FC<BazarViewProps> = ({
             )
           )
         } expanded={expanded} archived={archived} location={details["Location"]}  
+        calendarButton={calendarButton}
         />
       {/* Delete Confirmation Modal */}
       <CustomModal
