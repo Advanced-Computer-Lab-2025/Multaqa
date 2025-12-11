@@ -148,11 +148,11 @@ const CreateBazaar = ({open, onClose, setRefresh, color}: CreateBazaarProps) => 
         eventName: values.bazaarName,
         location: values.location,
         description: values.description,
-        eventStartDate: startDateObj ? startDateObj.toISOString() : null, // "2025-05-20T07:00:00Z"
-        eventEndDate: endDateObj ? endDateObj.toISOString() : null,       // "2025-05-20T19:00:00Z"
-        eventStartTime: startDateObj ? startDateObj.format("HH:mm") : null, // "07:00"
-        eventEndTime: endDateObj ? endDateObj.format("HH:mm") : null,       // "19:00"
-        registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.toISOString() : null, // "2025-05-15T23:59:59Z"
+        eventStartDate: startDateObj ? startDateObj.utc().format("YYYY-MM-DD") : null, // "2025-05-20"
+        eventEndDate: endDateObj ? endDateObj.utc().format("YYYY-MM-DD") : null,       // "2025-05-20"
+        eventStartTime: startDateObj ? startDateObj.utc().format("HH:mm") : null, // "05:00" (UTC)
+        eventEndTime: endDateObj ? endDateObj.utc().format("HH:mm") : null,       // "17:00" (UTC)
+        registrationDeadline: registrationDeadlineObj ? registrationDeadlineObj.utc() : null,  // "2025-05-15T23:59:59+02:00"
     };
     actions.resetForm();
     handleCallApi(payload);
