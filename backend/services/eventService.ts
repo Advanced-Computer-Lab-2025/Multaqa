@@ -990,6 +990,53 @@ export class EventsService {
     return flaggedComments;
   }
 
+  /**
+   * Marks a comment as not toxic (admin override for false positives)
+   * @param eventId - The event ID containing the review
+   * @param reviewerId - The reviewer's user ID
+   */
+  async markCommentAsNotToxic(
+    eventId: string,
+    reviewerId: string
+  ): Promise<IReview> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [
+        { path: "reviews.reviewer", select: "firstName lastName email" },
+      ] as any[],
+    });
+
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const reviewIndex = event.reviews?.findIndex((review) => {
+      return (review.reviewer._id as any).toString() === reviewerId.toString();
+    });
+
+    if (reviewIndex === undefined || reviewIndex < 0) {
+      throw createError(404, "Review by this user not found for the event");
+    }
+
+    if (!event.reviews[reviewIndex].flaggedForToxicity?.isToxic) {
+      throw createError(400, "This comment is not flagged for toxicity");
+    }
+
+    // Reset the toxicity flag
+    event.reviews[reviewIndex].flaggedForToxicity = {
+      isToxic: false,
+      score: event.reviews[reviewIndex].flaggedForToxicity.score,
+      categories: event.reviews[reviewIndex].flaggedForToxicity.categories,
+    };
+
+    await event.save();
+
+    console.log(
+      `✅ Admin marked comment as not toxic for event ${eventId}, reviewer ${reviewerId}`
+    );
+
+    return event.reviews[reviewIndex];
+  }
+
   async getAllReviewsByEvent(eventId: string): Promise<IReview[]> {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
