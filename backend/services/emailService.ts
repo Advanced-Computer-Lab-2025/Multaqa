@@ -10,15 +10,12 @@ import {
   getExternalVisitorQREmailTemplate,
   getGymSessionNotificationTemplate,
   getEventAccessRemovedTemplate,
-<<<<<<< HEAD
+  getBugReportTemplate,
   getWaitlistJoinedTemplate,
   getWaitlistPromotionTemplate,
   getWaitlistDeadlineExpiredTemplate,
   getWaitlistAutoRegisteredTemplate,
   getWaitlistRemovedTemplate,
-=======
-  getBugReportTemplate,
->>>>>>> 6af2f75f (feature(bigReport):Add bug report email and PDF generation features)
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -285,7 +282,31 @@ export const sendGymSessionNotificationEmail = async (params: {
     html,
   });
 };
-<<<<<<< HEAD
+export const sendBugReportEmail = async (
+    recipientEmail: string,
+    reportTitle: string,
+    pdfBuffer: Buffer
+) => {
+    const html = getBugReportTemplate(reportTitle);
+    
+    // Generate a clean filename for the attachment
+    const cleanTitle = reportTitle.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    await sendEmail({
+        to: recipientEmail,
+        subject: `📋 New Bug Report Submitted: ${reportTitle}`,
+        html,
+        attachments: [
+            {
+                filename: `Bug_Report_${cleanTitle}_${today}.pdf`,
+                content: pdfBuffer,
+                contentType: "application/pdf",
+                disposition: "attachment",
+            },
+        ],
+    });
+}
 
 // Send waitlist joined confirmation email
 export const sendWaitlistJoinedEmail = async (
@@ -356,30 +377,4 @@ export const sendWaitlistAutoRegisteredEmail = async (
     subject: "🎉 You're Registered! - Multaqa",
     html,
   });
-=======
-export const sendBugReportEmail = async (
-    recipientEmail: string,
-    reportTitle: string,
-    pdfBuffer: Buffer
-) => {
-    const html = getBugReportTemplate(reportTitle);
-    
-    // Generate a clean filename for the attachment
-    const cleanTitle = reportTitle.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-    await sendEmail({
-        to: recipientEmail,
-        subject: `📋 New Bug Report Submitted: ${reportTitle}`,
-        html,
-        attachments: [
-            {
-                filename: `Bug_Report_${cleanTitle}_${today}.pdf`,
-                content: pdfBuffer,
-                contentType: "application/pdf",
-                disposition: "attachment",
-            },
-        ],
-    });
->>>>>>> 6af2f75f (feature(bigReport):Add bug report email and PDF generation features)
 };
