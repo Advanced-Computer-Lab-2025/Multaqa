@@ -3,7 +3,6 @@ import { ITrip } from "../interfaces/models/trip.interface";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
-import { IAdministration } from "../interfaces/models/administration.interface";
 import GenericRepository from "../repos/genericRepo";
 import { Event } from "../schemas/event-schemas/eventSchema";
 import { Trip } from "../schemas/event-schemas/tripSchema";
