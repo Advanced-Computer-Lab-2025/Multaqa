@@ -38,6 +38,8 @@ import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from "../../../../components/shared/Report/reportTable";
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
 import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
+import BugReportForms from "@/components/Bugs/BugReportForms";
+import BugReports from "@/components/Bugs/BugReports";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -441,6 +443,24 @@ export default function EntityCatchAllPage() {
       }
       if (section === "my-sessions") {
         return <MyRegisteredSessions />;
+      }
+    }
+
+    if (
+      ["student", "staff", "ta", "professor", "events-office"].includes(entity) &&
+      tab === "bug-reporting"
+    ) {
+      if (section === "bug-reporting" || section === "") {
+        return <BugReportForms />;
+      }
+    }
+
+    if (
+      ["admin"].includes(entity) &&
+      tab === "bug-reporting"
+    ) {
+      if (section === "bug-reports" || section === "") {
+        return <BugReports/>;
       }
     }
 
