@@ -369,8 +369,8 @@ static generateBugReportPDF(data: BugReportData): Promise<Buffer> {
                 .font('Helvetica')
                 .fillColor(colors.textBody);
 
-            stepsArray.forEach((step, index) => {
-                doc.text(`${index + 1}. ${step}`, MARGIN, cursorY, {
+            stepsArray.forEach((step) => {
+                doc.text(step, MARGIN, cursorY, {
                     width: doc.page.width - 2 * MARGIN
                 });
                 cursorY = doc.y + 3;
