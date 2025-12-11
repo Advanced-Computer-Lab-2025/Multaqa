@@ -72,9 +72,11 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
     if (!waitlist || !userInfo?._id) {
       return { isOnWaitlist: false, status: null, paymentDeadline: null };
     }
-    const userId = userInfo._id;
+    // Handle various ID formats: string, ObjectId with $oid, or plain ObjectId
+    const userId = userInfo._id?.$oid || userInfo._id?.toString?.() || userInfo._id;
     const userEntry = waitlist.find((entry) => {
-      const entryUserId = entry.userId?._id || entry.userId;
+      // Handle waitlist userId in various formats
+      const entryUserId = entry.userId?.$oid || entry.userId?._id?.$oid || entry.userId?._id || entry.userId?.toString?.() || entry.userId;
       return String(entryUserId) === String(userId);
     });
     if (!userEntry) {

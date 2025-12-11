@@ -78,7 +78,7 @@ const LeaveWaitlistModal = ({
         onClick: loading ? undefined : handleLeaveWaitlist,
       }}
       buttonOption2={{
-        label: "Stay on Waitlist",
+        label: "Stay",
         variant: "outlined",
         color: "warning",
         onClick: onClose,
