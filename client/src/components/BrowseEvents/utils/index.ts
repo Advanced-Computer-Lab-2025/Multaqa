@@ -90,8 +90,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         description: event.description,
         agenda: event.fullAgenda,
         professors: profs,
-        comments:event.comments,
-        attendees:event.attendees,
+        comments: event.comments,
+        attendees: event.attendees,
         professorsId: event.associatedProfs?.map((prof: any) => prof._id || prof) || [],
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
@@ -179,7 +179,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         },
         attended,
         archived,
-        hasPaid:event.RequestData.hasPaid,
+        hasPaid: event.RequestData.hasPaid,
         allowedUsers,
       };
 

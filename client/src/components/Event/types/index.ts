@@ -42,9 +42,9 @@ export type BoothViewProps = BasicProps & {
   people?: { name: string; email: string }[];
   description: string,
   details: Record<string, string>,
-    payButton?: React.ReactNode;
-    vendorStatus?: string;
-     isRequested?:boolean;
+  payButton?: React.ReactNode;
+  vendorStatus?: string;
+  isRequested?: boolean;
 }
 
 //create conferences by adding the  start and end dates and times, full agenda, conference website link, required budget, source of funding (extrernal or GUC), extra required resources
@@ -77,9 +77,9 @@ export type WorkshopViewProps = BasicProps & {
   professors: string[],
   professorsId: string[],
   details: Record<string, string>,
-  professorStatus?:string;
-  evaluateButton?:React.ReactNode;
-  commentButton?:React.ReactNode;
+  professorStatus?: string;
+  evaluateButton?: React.ReactNode;
+  commentButton?: React.ReactNode;
   attendees?: AttendeesArray;
   registrationDeadline?: any;
   waitlist?: WaitlistEntry[];
