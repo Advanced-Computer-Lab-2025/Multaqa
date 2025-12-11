@@ -16,12 +16,14 @@ export interface ISlot {
 }
 
 export interface ITeam {
+  _id?: Types.ObjectId;
   title: string;
   description: string;
+  color?: string;
   slots: ISlot[];
 }
 
 export interface IUshering extends Document {
-  notes?: string;
+postTime?: Date;
   teams: ITeam[]; 
 }

@@ -4,7 +4,7 @@ import { IUshering } from "../../interfaces/models/ushering.interface";
 
 
 const UsheringSchema = new Schema<IUshering>({
-  notes: { type: String, required: false },
+  postTime: { type: Date, required: false },
   teams: [{
     title: { type: String, required: true },
     description: { type: String, required: true },
