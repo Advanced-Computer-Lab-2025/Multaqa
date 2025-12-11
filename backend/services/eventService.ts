@@ -12,7 +12,6 @@ import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import { IWorkshop } from "../interfaces/models/workshop.interface";
 import { IStudent } from "../interfaces/models/student.interface";
 import { IStaffMember } from "../interfaces/models/staffMember.interface";
-import { IAdministration } from "../interfaces/models/administration.interface";
 import Stripe from "stripe";
 import {
   sendCommentDeletionWarningEmail,
