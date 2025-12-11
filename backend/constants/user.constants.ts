@@ -3,6 +3,7 @@ export enum UserRole {
   STAFF_MEMBER = "staffMember",
   VENDOR = "vendor",
   ADMINISTRATION = "administration",
+  USHER_ADMIN = "usher_admin",
 }
 
 export enum UserStatus {
