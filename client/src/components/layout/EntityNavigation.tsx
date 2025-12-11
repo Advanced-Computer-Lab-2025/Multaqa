@@ -85,6 +85,8 @@ const getUserRoleKey = (user: any): string => {
     return "admin";
   }
 
+  if (user.role === "usherAdmin") return "usher-admin";
+
   return "student";
 };
 
@@ -507,7 +509,31 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
     ],
   },
+  "usher-admin": {
+    headerTitle: "Usher Admin Portal",
+    icon: <Store size={32} className="text-[#6299d0]" />,
+    defaultTab: "team-description",
+    defaultSection: "graduation",
+     tabs: [
+          { id: "team-description", label: "Team Description" },
+          { id: "interview-management", label: "Interview Management" },
+          { id: "student-list", label: "Student List" },
+        ],
+    sections: [
+      {
+        key: "graduation",
+        label: "GUC Graduation",
+        icon: LayoutDashboard,
+        tabs: [
+          { id: "team-description", label: "Team Description" },
+          { id: "interview-management", label: "Interview Management" },
+          { id: "student-list", label: "Student List" },
+        ],
+      },
+    ],
+  },
 };
+
 
 // Mock data for different user types
 // const getMockUserData = (role: string) => {
