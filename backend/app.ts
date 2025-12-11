@@ -25,7 +25,7 @@ import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
 import waitlistRouter from "./routes/waitlist.routes";
 import bugReportRouter from "./routes/bugReport.routes";
-import  usheringRouter from "./routes/ushering.routes";
+import usheringRouter from "./routes/ushering.routes";
 
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
@@ -83,8 +83,8 @@ app.use("/vendorEvents", vendorEventsRouter);
 app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
-app.use("/bugreports",bugReportRouter)
-app.use("/ushering", usheringRouter)
+app.use("/bugreports", bugReportRouter);
+app.use("/ushering", usheringRouter);
 
 // Error handlers
 app.use(errorHandler);
@@ -92,7 +92,7 @@ app.use(notFoundHandler);
 
 const PORT = process.env.PORT || 4000;
 const MONGO_URI =
-  process.env.OLD_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
+  process.env.NEW_MONGO_URI || "mongodb://localhost:27017/MultaqaDB";
 
 async function startServer() {
   try {
