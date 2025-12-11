@@ -10,16 +10,15 @@ const UsheringSchema = new Schema<IUshering>({
     description: { type: String, required: true },
     color: { type: String, required: false },
     slots: [{
-      StartDate: { type: Date, required: true  },
-      EndDate: { type: Date, required: true  },
-      StartTime: { type: String, required: true },
-      EndTime: { type: String, required: true },    
+      StartDateTime: { type: Date, required: true  },
+      EndDateTime: { type: Date, required: true  },   
       isAvailable: { type: Boolean, default: true},
+      location: { type: String, required: false },
       reservedBy: {
         studentId: { type: Schema.Types.ObjectId,   ref: 'User'},
         reservedAt: Date
       },
-      location: String
+    
     }]
   }]
 }) ;
