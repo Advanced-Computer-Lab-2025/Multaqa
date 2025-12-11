@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Box, Typography, Avatar, IconButton, Tooltip, Divider, Grid, Stack } from "@mui/material";
 import ActionCard from "../shared/cards/ActionCard";
 import CustomButton from "../shared/Buttons/CustomButton";
@@ -18,6 +18,8 @@ import RestrictUsers from "./Modals/RestrictUsers";
 import EditWorkshop from "../tempPages/EditWorkshop/EditWorkshop";
 import Utilities from "../shared/Utilities";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import JoinWaitlistModal from "./Modals/JoinWaitlistModal";
+import LeaveWaitlistModal from "./Modals/LeaveWaitlistModal";
 
 const WorkshopView: React.FC<WorkshopViewProps> = ({
   id,
@@ -43,7 +45,9 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   professorStatus,
   evaluateButton,
   commentButton,
-  attendees
+  attendees,
+  waitlist,
+  isFull,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -55,11 +59,40 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
   const updatedDetails = { ...details, professors }
   const [paymentDrawerOpen, setPaymentDrawerOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [joinWaitlistOpen, setJoinWaitlistOpen] = useState(false);
+  const [leaveWaitlistOpen, setLeaveWaitlistOpen] = useState(false);
 
   const isFavorited = Boolean(userInfo?.favorites?.some((f: any) => {
     const fid = f?._id?.$oid || f?._id || f;
     return String(fid) === String(id);
   }));
+
+  // Compute waitlist status for current user
+  const waitlistInfo = useMemo(() => {
+    if (!waitlist || !userInfo?._id) {
+      return { isOnWaitlist: false, status: null, queuePosition: 0, paymentDeadline: null };
+    }
+    const userId = userInfo._id;
+    const userEntry = waitlist.find((entry) => {
+      const entryUserId = entry.userId?._id || entry.userId;
+      return String(entryUserId) === String(userId);
+    });
+    if (!userEntry) {
+      return { isOnWaitlist: false, status: null, queuePosition: 0, paymentDeadline: null };
+    }
+    // Calculate queue position (1-indexed, only count users with status 'waitlist')
+    const waitlistOnly = waitlist.filter((e) => e.status === "waitlist");
+    const position = waitlistOnly.findIndex((entry) => {
+      const entryUserId = entry.userId?._id || entry.userId;
+      return String(entryUserId) === String(userId);
+    });
+    return {
+      isOnWaitlist: true,
+      status: userEntry.status,
+      queuePosition: position >= 0 ? position + 1 : 0,
+      paymentDeadline: userEntry.paymentDeadline,
+    };
+  }, [waitlist, userInfo?._id]);
 
   const handlePaymentSuccess = (paymentDetails: any) => {
     console.log('Payment successful:', paymentDetails);
@@ -232,7 +265,79 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 >
                   Cancel Registration
                 </CustomButton>
+              ) : waitlistInfo.isOnWaitlist ? (
+                // User is on waitlist
+                waitlistInfo.status === "pending_payment" ? (
+                  // User has a reserved slot - show complete payment button
+                  <CustomButton
+                    size="small"
+                    variant="contained"
+                    sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.success.main}`,
+                      backgroundColor: `${theme.palette.success.main}`,
+                      color: "#fff",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                    onClick={() => setRegister(true)}
+                  >
+                    Complete Payment
+                  </CustomButton>
+                ) : (
+                  // User is waiting in queue - show leave waitlist button
+                  <CustomButton
+                    size="small"
+                    variant="contained"
+                    sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.warning.main}`,
+                      backgroundColor: `${theme.palette.warning.main}`,
+                      color: "#fff",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                    onClick={() => setLeaveWaitlistOpen(true)}
+                  >
+                    Leave Waitlist {waitlistInfo.queuePosition > 0 && `(#${waitlistInfo.queuePosition})`}
+                  </CustomButton>
+                )
+              ) : isFull ? (
+                // Event is full and user not on waitlist - show join waitlist button
+                !(registrationPassed) && (
+                  <CustomButton
+                    size="small"
+                    variant="contained"
+                    sx={{
+                      borderRadius: 999,
+                      border: `1px solid ${theme.palette.info.main}`,
+                      backgroundColor: `${theme.palette.info.main}`,
+                      color: "#fff",
+                      fontWeight: 600,
+                      px: 3,
+                      textTransform: "none",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                    onClick={() => setJoinWaitlistOpen(true)}
+                  >
+                    Join Waitlist
+                  </CustomButton>
+                )
               ) : (
+                // User is not registered and event has spots - show register button
                 !(registrationPassed) && (
                   <CustomButton
                     size="small"
@@ -241,7 +346,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                       borderRadius: 999,
                       border: `1px solid ${background}`,
                       backgroundColor: `${background}`,
-                      color: background,
+                      color: "#fff",
                       fontWeight: 600,
                       px: 3,
                       textTransform: "none",
@@ -400,6 +505,74 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                             >
                               Cancel Registration
                             </CustomButton>
+                          ) : waitlistInfo.isOnWaitlist ? (
+                            // User is on waitlist
+                            waitlistInfo.status === "pending_payment" ? (
+                              <CustomButton
+                                size="small"
+                                variant="contained"
+                                sx={{
+                                  borderRadius: 999,
+                                  backgroundColor: `${theme.palette.success.main}`,
+                                  color: "#fff",
+                                  border: `1px solid ${theme.palette.success.dark}`,
+                                  fontWeight: 600,
+                                  px: 3,
+                                  textTransform: "none",
+                                  transition: "all 0.3s ease",
+                                  "&:hover": {
+                                    transform: "translateY(-2px)",
+                                  },
+                                }}
+                                onClick={() => setRegister(true)}
+                              >
+                                Complete Payment
+                              </CustomButton>
+                            ) : (
+                              <CustomButton
+                                size="small"
+                                variant="contained"
+                                sx={{
+                                  borderRadius: 999,
+                                  backgroundColor: `${theme.palette.warning.main}`,
+                                  color: "#fff",
+                                  border: `1px solid ${theme.palette.warning.dark}`,
+                                  fontWeight: 600,
+                                  px: 3,
+                                  textTransform: "none",
+                                  transition: "all 0.3s ease",
+                                  "&:hover": {
+                                    transform: "translateY(-2px)",
+                                  },
+                                }}
+                                onClick={() => setLeaveWaitlistOpen(true)}
+                              >
+                                Leave Waitlist {waitlistInfo.queuePosition > 0 && `(#${waitlistInfo.queuePosition})`}
+                              </CustomButton>
+                            )
+                          ) : isFull ? (
+                            !(registrationPassed) && (
+                              <CustomButton
+                                size="small"
+                                variant="contained"
+                                sx={{
+                                  borderRadius: 999,
+                                  backgroundColor: `${theme.palette.info.main}`,
+                                  color: "#fff",
+                                  border: `1px solid ${theme.palette.info.dark}`,
+                                  fontWeight: 600,
+                                  px: 3,
+                                  textTransform: "none",
+                                  transition: "all 0.3s ease",
+                                  "&:hover": {
+                                    transform: "translateY(-2px)",
+                                  },
+                                }}
+                                onClick={() => setJoinWaitlistOpen(true)}
+                              >
+                                Join Waitlist
+                              </CustomButton>
+                            )
                           ) : (
                             // User is not registered - show register button
                            !(registrationPassed) && (
@@ -449,6 +622,25 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
               eventId={id}
               email={userInfo?.email}
             />
+
+      {/* Waitlist Modals */}
+      <JoinWaitlistModal
+        eventId={id}
+        eventName={name}
+        open={joinWaitlistOpen}
+        onClose={() => setJoinWaitlistOpen(false)}
+        setRefresh={setRefresh!}
+        color={background}
+      />
+      <LeaveWaitlistModal
+        eventId={id}
+        eventName={name}
+        open={leaveWaitlistOpen}
+        onClose={() => setLeaveWaitlistOpen(false)}
+        setRefresh={setRefresh!}
+        color={background}
+        queuePosition={waitlistInfo.queuePosition}
+      />
     </>
   );
 };

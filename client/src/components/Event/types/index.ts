@@ -1,5 +1,14 @@
 import { SvgIconComponent } from "@mui/icons-material";
 
+// Waitlist entry type matching backend schema
+export type WaitlistEntry = {
+  userId: string;
+  joinedAt: string;
+  status: "waitlist" | "pending_payment";
+  paymentDeadline?: string;
+  notifiedAt?: string;
+};
+
 type BasicProps = {
   user?: string,
   registered?: boolean,
@@ -22,7 +31,9 @@ export type BazarViewProps = BasicProps & {
   vendors?: any;
   description: string;
   registrationDeadline?: any;
-    vendorStatus?: string;
+  vendorStatus?: string;
+  waitlist?: WaitlistEntry[];
+  isFull?: boolean;
 };
 
 //names and emails of a max of 5 individuals attending, duration of booth set up, location of booth setup, booth size 
@@ -71,4 +82,6 @@ export type WorkshopViewProps = BasicProps & {
   commentButton?:React.ReactNode;
   attendees?: AttendeesArray;
   registrationDeadline?: any;
+  waitlist?: WaitlistEntry[];
+  isFull?: boolean;
 }

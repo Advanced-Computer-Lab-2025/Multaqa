@@ -710,6 +710,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             allowedUsers={event.allowedUsers}
+            waitlist={event.waitlist}
+            isFull={event.isFull}
           />
         );
       case EventType.BAZAAR:
@@ -792,6 +794,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             }
             registrationDeadline={event.registrationDeadline}
             allowedUsers={event.allowedUsers}
+            waitlist={event.waitlist}
+            isFull={event.isFull}
           />
         );
       default:

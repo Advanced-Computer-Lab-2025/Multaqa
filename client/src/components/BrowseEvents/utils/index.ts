@@ -49,6 +49,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
 
   switch (event.type?.toLowerCase()) {
     case "trip":
+      const tripSpotsLeft = event.capacity - event.attendees.length;
       return {
         id,
         type: EventType.TRIP,
@@ -63,12 +64,14 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           Location: event.location,
           Cost: `${event.price?.$numberInt || event.price} EGP `,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": event.capacity - event.attendees.length,
+          "Spots Left": tripSpotsLeft,
         },
         attended,
         archived,
         registrationDeadline,
         allowedUsers,
+        waitlist: event.waitlist || [],
+        isFull: tripSpotsLeft <= 0,
       };
 
     case "workshop":
@@ -79,6 +82,7 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       const nonEmptyNameParts = nameParts.filter(part => part);
       const fullName = nonEmptyNameParts.join(' ');
       const profs = [...flattenName(event.associatedProfs), fullName];
+      const workshopSpotsLeft = event.capacity - event.attendees.length;
       return {
         id,
         type: EventType.WORKSHOP,
@@ -105,13 +109,15 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Created by": fullName,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
-          "Spots Left": event.capacity - event.attendees.length,
+          "Spots Left": workshopSpotsLeft,
           Status: event.approvalStatus,
           Cost: `${event.price?.$numberInt || event.price} EGP `,
         },
         attended,
         archived,
         allowedUsers,
+        waitlist: event.waitlist || [],
+        isFull: workshopSpotsLeft <= 0,
       };
 
     // You can add more cases:
