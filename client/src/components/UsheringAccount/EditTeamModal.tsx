@@ -106,7 +106,7 @@ const EditTeamModal: React.FC<EditTeamModalProps> = ({ open, onClose, team, team
               value={editedTeam.name}
               onChange={(e) => handleChange('name', e.target.value)}
               neumorphicBox
-              required
+              disabled={true}
             />
           </Grid>
           <Grid size={{ xs: 12 }}>
