@@ -24,5 +24,9 @@ export enum NotificationType {
   EVENT_REMINDER = "EVENT_REMINDER",
   LOYALTY_NEW_PARTNER = "LOYALTY_NEW_PARTNER",
   VENDOR_PENDING_REQUEST = "VENDOR_PENDING_REQUEST",
+<<<<<<< HEAD
   COMMENT_FLAGGED = "COMMENT_FLAGGED",
+=======
+  BUG_RESOLVED = "BUG_RESOLVED",
+>>>>>>> 6af2f75f (feature(bigReport):Add bug report email and PDF generation features)
 }

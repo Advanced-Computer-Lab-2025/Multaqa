@@ -9,6 +9,18 @@ interface CertificateData {
 	issueDate?: Date;
 }
 
+export interface BugReportData {
+    status: string;
+    submittedDate: Date;
+    reportedBy: string;
+    title: string;
+    stepsToReproduce: string;
+    expectedResult: string;
+    actualResult: string;
+    environment: string;
+    generationDate?: Date;
+}
+
 export class pdfGenerator {
 
 	static generateCertificatePDF(data: CertificateData): Promise<Buffer> {
@@ -249,5 +261,183 @@ static buildQrCodePdfBuffer(
         // Finalize the PDF
         doc.end();
     });
-}   
+}
+
+static generateBugReportPDF(data: BugReportData): Promise<Buffer> {
+        const {
+            status,
+            submittedDate,
+            reportedBy,
+            title,
+            stepsToReproduce,
+            expectedResult,
+            actualResult,
+            environment,
+            generationDate = new Date()
+        } = data;
+
+        return new Promise((resolve, reject) => {
+            const doc = new PDFDocument({
+                size: 'A4',
+                margins: { top: 60, bottom: 60, left: 60, right: 60 },
+                info: { Title: 'Bug Report Details' }
+            });
+
+            const chunks: Buffer[] = [];
+            doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
+
+            const MARGIN = 60;
+            let cursorY = MARGIN;
+
+            // --- Styling ---
+            const colors = {
+                title: '#6B5B5A',
+                sectionHeader: '#4A5568',
+                textBody: '#2D3748',
+                textLight: '#718096',
+                divider: '#CBD5E0'
+            };
+
+            const formatDate = (date: Date) => {
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            };
+
+            // --- 1. Main Title ---
+            doc.fontSize(22)
+                .font('Helvetica-Bold')
+                .fillColor(colors.title)
+                .text('Bug Report Details', MARGIN, cursorY);
+
+            cursorY = doc.y + 10;
+
+            // Horizontal divider line
+            doc.moveTo(MARGIN, cursorY)
+                .lineTo(doc.page.width - MARGIN, cursorY)
+                .strokeColor(colors.divider)
+                .lineWidth(1)
+                .stroke();
+
+            cursorY += 20;
+
+            // --- 2. Meta Data Line (Status | Submitted | Reported by) ---
+            doc.fontSize(9)
+                .font('Helvetica')
+                .fillColor(colors.textLight);
+
+            const metaText = `Status: ${status}   |   Submitted: ${formatDate(submittedDate)}   |   Reported by: ${reportedBy}`;
+            doc.text(metaText, MARGIN, cursorY);
+
+            cursorY = doc.y + 25;
+
+            // --- 3. Title Section ---
+            doc.fontSize(11)
+                .font('Helvetica-Bold')
+                .fillColor(colors.sectionHeader)
+                .text('Title:', MARGIN, cursorY);
+            
+            cursorY = doc.y + 5;
+            
+            doc.fontSize(10)
+                .font('Helvetica')
+                .fillColor(colors.textBody)
+                .text(title, MARGIN, cursorY, {
+                    width: doc.page.width - 2 * MARGIN
+                });
+
+            cursorY = doc.y + 20;
+
+            // --- 4. Steps to Reproduce ---
+            doc.fontSize(11)
+                .font('Helvetica-Bold')
+                .fillColor(colors.sectionHeader)
+                .text('Steps to Reproduce:', MARGIN, cursorY);
+            
+            cursorY = doc.y + 5;
+
+            const stepsArray = stepsToReproduce.split('\n').filter(step => step.trim() !== '');
+
+            doc.fontSize(10)
+                .font('Helvetica')
+                .fillColor(colors.textBody);
+
+            stepsArray.forEach((step, index) => {
+                doc.text(`${index + 1}. ${step}`, MARGIN, cursorY, {
+                    width: doc.page.width - 2 * MARGIN
+                });
+                cursorY = doc.y + 3;
+            });
+
+            cursorY += 15;
+
+            // --- 5. Expected Result ---
+            doc.fontSize(11)
+                .font('Helvetica-Bold')
+                .fillColor(colors.sectionHeader)
+                .text('Expected Result:', MARGIN, cursorY);
+            
+            cursorY = doc.y + 5;
+            
+            doc.fontSize(10)
+                .font('Helvetica')
+                .fillColor(colors.textBody)
+                .text(expectedResult, MARGIN, cursorY, {
+                    width: doc.page.width - 2 * MARGIN
+                });
+
+            cursorY = doc.y + 20;
+
+            // --- 6. Actual Result ---
+            doc.fontSize(11)
+                .font('Helvetica-Bold')
+                .fillColor(colors.sectionHeader)
+                .text('Actual Result:', MARGIN, cursorY);
+            
+            cursorY = doc.y + 5;
+            
+            doc.fontSize(10)
+                .font('Helvetica')
+                .fillColor(colors.textBody)
+                .text(actualResult, MARGIN, cursorY, {
+                    width: doc.page.width - 2 * MARGIN
+                });
+
+            cursorY = doc.y + 20;
+
+            // --- 7. Environment ---
+            doc.fontSize(11)
+                .font('Helvetica-Bold')
+                .fillColor(colors.sectionHeader)
+                .text('Environment:', MARGIN, cursorY);
+            
+            cursorY = doc.y + 5;
+            
+            doc.fontSize(10)
+                .font('Helvetica')
+                .fillColor(colors.textBody)
+                .text(environment, MARGIN, cursorY, {
+                    width: doc.page.width - 2 * MARGIN
+                });
+
+            // --- 8. Footer (Generation Timestamp) ---
+            const footerY = doc.page.height - 40;
+            doc.fontSize(8)
+                .font('Helvetica')
+                .fillColor(colors.textLight)
+                .text(`Generated on ${formatDate(generationDate)}`, MARGIN, footerY, {
+                    align: 'center',
+                    width: doc.page.width - 2 * MARGIN
+                });
+
+            doc.end();
+        });
+    }
 }

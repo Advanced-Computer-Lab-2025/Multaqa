@@ -63,10 +63,32 @@ async function updateBugReportStatus(req:Request, res: Response<IUpdateBugReport
     }
 }
 
+async function sendBugReportEmail(req:Request, res: Response) {
+    try {
+        const {bugReportId} = req.params;
+        const { recipientEmail } = req.body;
+        const bugReport = await bugReportService.getBugReportById(bugReportId);
+        if (!bugReport) {
+            throw createError(404, 'Bug report not found');
+        }
+        await bugReportService.sendEmailToDevelopers(bugReport, recipientEmail);
+        res.json({
+            success: true,
+            message: 'Bug report email sent successfully'
+        });
+    } catch (err:any) {
+        throw createError(
+              err.status || 500,
+                err.message || "Error sending bug report email"
+            );
+    }
+}
+
 
 router.post('/', createBugReport);
 router.get('/', getAllBugReports);
 router.patch('/:bugReportId', updateBugReportStatus);
+router.post('/send-email/:bugReportId', sendBugReportEmail);
 export default router;
 
 
