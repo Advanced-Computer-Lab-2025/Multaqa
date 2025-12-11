@@ -1,13 +1,13 @@
 import { IBugReport } from "../models/bugReport.interface";
 
 
-export  interface IBugReportResponse {
+export interface IBugReportResponse {
     success: boolean;
     data:IBugReport | IBugReport[];
     message: string;
 }
 
-export  interface IUpdateBugReportStatusResponse {
+export interface IUpdateBugReportStatusResponse {
     success: boolean;
     message: string;
 }
