@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { EventsService } from "./eventService";
 import { UserService } from "./userService";
 import { VendorEventsService } from "./vendorEventsService";
+import { WaitlistService } from "./waitlistService";
 import { sendPaymentReceiptEmail } from "./emailService";
 import { EVENT_TYPES } from "../constants/events.constants";
 import { Event_Request_Status } from "../constants/user.constants";
@@ -20,11 +21,13 @@ export class WebhookService {
   private eventsService: EventsService;
   private userService: UserService;
   private vendorEventsService: VendorEventsService;
+  private waitlistService: WaitlistService;
 
   constructor() {
     this.eventsService = new EventsService();
     this.userService = new UserService();
     this.vendorEventsService = new VendorEventsService();
+    this.waitlistService = new WaitlistService();
   }
 
   /**
@@ -93,12 +96,15 @@ export class WebhookService {
       `✅ User ${userId} registered for event ${eventId} after payment`
     );
 
+    // Remove from waitlist if they were on it
+    await this.waitlistService.removeUserAfterPayment(eventId, userId);
+
     // Send payment receipt email
     await sendPaymentReceiptEmail({
       userEmail: customerEmail,
       username,
       transactionId: session.payment_intent as string,
-      amount: (session.amount_total ?? 0) / 100, 
+      amount: (session.amount_total ?? 0) / 100,
       currency: (session.currency || DEFAULT_CURRENCY).toUpperCase(),
       itemName: eventDoc.eventName,
       itemType: eventDoc.type === EVENT_TYPES.TRIP ? "Trip" : "Workshop",
@@ -112,7 +118,9 @@ export class WebhookService {
 
     // Deduct wallet balance and log transaction (moved from payment service to ensure
     // they only happen after successful Stripe payment confirmation)
-    const walletAmount = parseFloat(session.metadata?.walletBalanceApplied || "0");
+    const walletAmount = parseFloat(
+      session.metadata?.walletBalanceApplied || "0"
+    );
     const cardAmount = (session.amount_total ?? 0) / 100;
     const totalAmount = walletAmount + cardAmount;
 

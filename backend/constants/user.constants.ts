@@ -3,6 +3,7 @@ export enum UserRole {
   STAFF_MEMBER = "staffMember",
   VENDOR = "vendor",
   ADMINISTRATION = "administration",
+  USHER_ADMIN = "usherAdmin",
 }
 
 export enum UserStatus {
@@ -24,4 +25,6 @@ export enum NotificationType {
   EVENT_REMINDER = "EVENT_REMINDER",
   LOYALTY_NEW_PARTNER = "LOYALTY_NEW_PARTNER",
   VENDOR_PENDING_REQUEST = "VENDOR_PENDING_REQUEST",
+  BUG_RESOLVED = "BUG_RESOLVED",
+  COMMENT_FLAGGED = "COMMENT_FLAGGED",
 }

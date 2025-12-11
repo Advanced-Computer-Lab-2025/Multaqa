@@ -8,10 +8,15 @@ import { Trip } from "../schemas/event-schemas/tripSchema";
 import { ITrip } from "../interfaces/models/trip.interface";
 import { Conference } from "../schemas/event-schemas/conferenceEventSchema";
 import { IConference } from "../interfaces/models/conference.interface";
+import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
+import { IWorkshop } from "../interfaces/models/workshop.interface";
+import { IStudent } from "../interfaces/models/student.interface";
+import { IStaffMember } from "../interfaces/models/staffMember.interface";
 import Stripe from "stripe";
 import {
   sendCommentDeletionWarningEmail,
   sendEventAccessRemovedEmail,
+  sendWaitlistRemovedEmail,
 } from "./emailService";
 import { UserService } from "./userService";
 import mongoose from "mongoose";
@@ -23,6 +28,8 @@ import { UserRole } from "../constants/user.constants";
 import { AdministrationRoleType } from "../constants/administration.constants";
 import { NotificationService } from "./notificationService";
 import { Notification } from "./notificationService";
+import { WaitlistService } from "./waitlistService";
+import { checkToxicityGemini } from "../utils/llms/gemini";
 
 const { Types } = require("mongoose");
 
@@ -33,14 +40,22 @@ export class EventsService {
   private eventRepo: GenericRepository<IEvent>;
   private tripRepo: GenericRepository<ITrip>;
   private conferenceRepo: GenericRepository<IConference>;
+  private workshopRepo: GenericRepository<IWorkshop>;
   private stripe?: Stripe;
   private userService: UserService;
+  private waitlistService: WaitlistService;
 
   constructor() {
     this.eventRepo = new GenericRepository(Event);
-    this.tripRepo = new GenericRepository(Trip);
+    this.tripRepo = new GenericRepository(
+      Trip
+    ) as unknown as GenericRepository<ITrip>;
     this.conferenceRepo = new GenericRepository(Conference);
+    this.workshopRepo = new GenericRepository(
+      Workshop
+    ) as unknown as GenericRepository<IWorkshop>;
     this.userService = new UserService();
+    this.waitlistService = new WaitlistService();
     // Defer Stripe initialization until first priced event creation, to ensure env is loaded
   }
 
@@ -338,7 +353,26 @@ export class EventsService {
         }
       }
     }
-   
+    if (event.type === EVENT_TYPES.CONFERENCE) {
+      const now = new Date();
+      const eventStarted = new Date(event.eventStartDate) < now;
+      const eventEnded = new Date(event.eventEndDate) < now;
+      const isOngoing = eventStarted && !eventEnded;
+
+      if (isOngoing) {
+        if (
+          updateData.eventStartDate ||
+          updateData.eventStartTime ||
+          updateData.eventEndDate ||
+          updateData.eventEndTime
+        ) {
+          throw createError(
+            400,
+            "Cannot update conference start or end date/time while it is ongoing"
+          );
+        }
+      }
+    }
     // If event has a price and its being changed, reflect that in Stripe before saving to DB
     if (
       Object.prototype.hasOwnProperty.call(updateData, "price") &&
@@ -412,6 +446,38 @@ export class EventsService {
       await this.removeIneligibleAttendees(event, updateData.allowedUsers);
     }
 
+    // Store capacity increase info before update (only for trips/workshops)
+    let capacityIncreased = false;
+    let additionalSlots = 0;
+
+    if (
+      event.type === EVENT_TYPES.TRIP ||
+      event.type === EVENT_TYPES.WORKSHOP
+    ) {
+      const typedEvent = event as ITrip | IWorkshop;
+      if (updateData.capacity && typedEvent.capacity) {
+        if (updateData.capacity > typedEvent.capacity) {
+          capacityIncreased = true;
+          additionalSlots = updateData.capacity - typedEvent.capacity;
+        } else if (updateData.capacity < typedEvent.capacity) {
+          // Validate capacity decrease - must account for both attendees and reserved slots
+          const currentAttendees = event.attendees?.length || 0;
+          const pendingPaymentCount =
+            typedEvent.waitlist?.filter(
+              (entry) => entry.status === "pending_payment"
+            ).length || 0;
+          const reservedSlots = currentAttendees + pendingPaymentCount;
+
+          if (updateData.capacity < reservedSlots) {
+            throw createError(
+              400,
+              `Cannot reduce capacity to ${updateData.capacity}. There are ${currentAttendees} registered attendees and ${pendingPaymentCount} users with reserved slots (pending payment).`
+            );
+          }
+        }
+      }
+    }
+
     let updatedEvent;
 
     if (event.type === EVENT_TYPES.TRIP) {
@@ -420,6 +486,11 @@ export class EventsService {
       updatedEvent = await this.conferenceRepo.update(eventId, updateData);
     } else {
       updatedEvent = await this.eventRepo.update(eventId, updateData);
+    }
+
+    // Promote from waitlist AFTER capacity update is saved
+    if (capacityIncreased && additionalSlots > 0) {
+      await this.waitlistService.promoteFromWaitlist(eventId, additionalSlots);
     }
 
     return updatedEvent!; //! to assert that updatedEvent is not null (we already checked for existence above)
@@ -470,8 +541,22 @@ export class EventsService {
       throw createError(409, "User already registered for this event");
     }
 
+    // Validate slot availability and waitlist priority
+    await this.waitlistService.validateSlotAvailability(eventId, userId);
+
     // Add user to attendees
     event.attendees?.push(userId);
+
+    // Remove from waitlist if they were promoted (pending_payment status)
+    const waitlistEntry = event.waitlist?.find(
+      (entry) => entry.userId.toString() === userId.toString()
+    );
+    if (waitlistEntry && event.waitlist) {
+      event.waitlist = event.waitlist.filter(
+        (entry: any) => entry.userId.toString() !== userId.toString()
+      ) as any;
+    }
+
     await event.save();
 
     // Add event to user's registered events
@@ -521,6 +606,10 @@ export class EventsService {
       })
       .filter((oid: any) => oid && oid.toString() !== userOid.toString());
     await event.save();
+
+    // Promote next user from waitlist since a slot was freed
+    await this.waitlistService.promoteFromWaitlist(eventId, 1);
+
     return event;
   }
 
@@ -528,6 +617,7 @@ export class EventsService {
    * Removes attendees from an event who no longer have access based on allowedUsers restrictions
    * This method is called when the allowedUsers field is updated before the event starts
    * Also handles refunds for paid events and can send email notifications
+   * Additionally removes ineligible users from the waitlist
    * @param event - The event document to check
    * @param allowedRolesAndPositions - Array of allowed roles and positions
    */
@@ -535,51 +625,83 @@ export class EventsService {
     event: IEvent,
     allowedRolesAndPositions: string[]
   ): Promise<void> {
-    // Early return if no attendees to check
-    if (!event.attendees || event.attendees.length === 0) {
+    // Early return if no attendees and no waitlist to check
+    if (
+      (!event.attendees || event.attendees.length === 0) &&
+      (!event.waitlist || event.waitlist.length === 0)
+    ) {
       return;
     }
 
     const now = new Date();
     const eventStartDate = new Date(event.eventStartDate);
 
-    // Only remove attendees if event hasn't started yet
+    // Only remove attendees/waitlist if event hasn't started yet
     if (eventStartDate <= now) {
       return;
     }
 
     const attendeesToRemove: string[] = [];
+    const waitlistToRemove: string[] = [];
 
-    // Populate attendees to check their roles/positions and get user details
-    await event.populate({
-      path: "attendees",
-      select: "role position firstName lastName email",
-    });
+    // Process attendees if any exist
+    if (event.attendees && event.attendees.length > 0) {
+      // Populate attendees to check their roles/positions and get user details
+      await event.populate({
+        path: "attendees",
+        select: "role position firstName lastName email",
+      });
 
-    for (const attendee of event.attendees as any[]) {
-      if (!attendee || !attendee._id) continue;
+      for (const attendee of event.attendees as any[]) {
+        if (!attendee || !attendee._id) continue;
 
-      const userId = attendee._id.toString();
-      const userRole = attendee.role;
-      const userPosition = attendee.position;
+        const userId = attendee._id.toString();
+        const userRole = attendee.role;
+        const userPosition = attendee.position;
 
-      // Check if user's role or position is in the allowed list
-      const hasAccess =
-        allowedRolesAndPositions.includes(userRole) ||
-        (userPosition && allowedRolesAndPositions.includes(userPosition));
+        // Check if user's role or position is in the allowed list
+        const hasAccess =
+          allowedRolesAndPositions.includes(userRole) ||
+          (userPosition && allowedRolesAndPositions.includes(userPosition));
 
-      if (!hasAccess) {
-        attendeesToRemove.push(userId);
+        if (!hasAccess) {
+          attendeesToRemove.push(userId);
+        }
+      }
+    }
+
+    // Process waitlist if exists (only for trips/workshops)
+    if (
+      event.waitlist &&
+      event.waitlist.length > 0 &&
+      (event.type === EVENT_TYPES.TRIP || event.type === EVENT_TYPES.WORKSHOP)
+    ) {
+      // Get user details for each waitlist entry
+      for (const entry of event.waitlist as any[]) {
+        if (!entry || !entry.userId) continue;
+
+        const userId = entry.userId.toString();
+        const user = await this.userService.getUserById(userId);
+
+        if (user) {
+          const userRole = (user as any).role;
+          const userPosition = (user as any).position;
+
+          // Check if user's role or position is in the allowed list
+          const hasAccess =
+            allowedRolesAndPositions.includes(userRole) ||
+            (userPosition && allowedRolesAndPositions.includes(userPosition));
+
+          if (!hasAccess) {
+            waitlistToRemove.push(userId);
+          }
+        }
       }
     }
 
     // Remove ineligible users from event attendees and their registeredEvents
     if (attendeesToRemove.length > 0) {
-      const eventId = event._id?.toString();
-      if (!eventId) {
-        throw createError(500, "Event ID is missing");
-      }
-
+      const eventId = (event._id as mongoose.Types.ObjectId).toString();
       const eventPrice = event.price || 0;
       const hasPrice = eventPrice > 0;
 
@@ -612,7 +734,7 @@ export class EventsService {
           }
 
           // Send email notification about removal
-          if (attendee) {
+          if (attendee && attendee.firstName && attendee.lastName) {
             await sendEventAccessRemovedEmail(
               attendee.email,
               `${attendee.firstName} ${attendee.lastName}`,
@@ -623,6 +745,36 @@ export class EventsService {
           }
         } catch (error) {
           console.warn(`Could not remove user ${userId} from event:`, error);
+        }
+      }
+    }
+
+    // Remove ineligible users from waitlist
+    if (waitlistToRemove.length > 0) {
+      const eventId = (event._id as mongoose.Types.ObjectId).toString();
+
+      for (const userId of waitlistToRemove) {
+        try {
+          // Remove user from waitlist (this will also promote next person if they had pending_payment)
+          await this.waitlistService.leaveWaitlist(eventId, userId);
+
+          // Get user details for email notification
+          const user = (await this.userService.getUserById(userId)) as
+            | IStudent
+            | IStaffMember;
+          if (user) {
+            // Send email about waitlist removal
+            await sendWaitlistRemovedEmail(
+              user.email,
+              user.firstName && user.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : user.email,
+              event.eventName,
+              allowedRolesAndPositions
+            );
+          }
+        } catch (error) {
+          console.warn(`Could not remove user ${userId} from waitlist:`, error);
         }
       }
     }
@@ -649,6 +801,36 @@ export class EventsService {
       throw createError(404, "User not found");
     }
 
+    // Check toxicity BEFORE saving if comment is provided
+    let isToxic = false;
+    let toxicityResult: any;
+    if (comment) {
+      toxicityResult = await checkToxicityGemini(comment);
+      if (toxicityResult && toxicityResult.isToxic) {
+        isToxic = true;
+        console.log(
+          `⚠️ Toxic comment detected: "${comment}" - Score: ${(
+            toxicityResult.score * 100
+          ).toFixed(0)}%`
+        );
+
+        // Notify admins about flagged comment
+        await NotificationService.sendNotification({
+          adminRole: [AdministrationRoleType.ADMIN],
+          type: "COMMENT_FLAGGED",
+          title: "⚠️ Toxic Comment Flagged",
+          message: `A comment on "${
+            event.eventName
+          }" has been flagged for toxicity (${(
+            toxicityResult.score * 100
+          ).toFixed(0)}% toxic). Review required.`,
+          createdAt: new Date(),
+          read: false,
+          delivered: false,
+        } as Notification);
+      }
+    }
+
     let reviewIndex = event.reviews?.findIndex((review) => {
       return (review.reviewer._id as any).toString() === userId.toString();
     });
@@ -659,6 +841,11 @@ export class EventsService {
         comment: comment,
         rating: rating,
         createdAt: new Date(),
+        flaggedForToxicity: {
+          isToxic,
+          score: toxicityResult?.score,
+          categories: toxicityResult?.categories,
+        },
       };
       event.reviews?.push(newReview);
       reviewIndex = (event.reviews?.length || 1) - 1;
@@ -677,7 +864,14 @@ export class EventsService {
         );
       }
 
-      if (comment) event.reviews[reviewIndex].comment = comment;
+      if (comment) {
+        event.reviews[reviewIndex].comment = comment;
+        event.reviews[reviewIndex].flaggedForToxicity = {
+          isToxic,
+          score: toxicityResult?.score,
+          categories: toxicityResult?.categories,
+        };
+      }
       if (rating) event.reviews[reviewIndex].rating = rating;
       await event.save();
     }
@@ -760,6 +954,89 @@ export class EventsService {
     await event.save();
   }
 
+  //gets all flagged comments in all events
+  async getAllFlaggedComments(): Promise<any[]> {
+    const events = await this.eventRepo.findAll(
+      { "reviews.flaggedForToxicity.isToxic": true },
+      {
+        select: "eventName reviews",
+        populate: [
+          { path: "reviews.reviewer", select: "firstName lastName _id" },
+        ] as any,
+      }
+    );
+
+    const flaggedComments: any[] = [];
+
+    events.forEach((event: IEvent) => {
+      if (event.reviews) {
+        event.reviews.forEach((review: IReview) => {
+          if (review.flaggedForToxicity?.isToxic) {
+            flaggedComments.push({
+              reviewId: (review as any)._id,
+              eventId: event._id,
+              eventName: event.eventName,
+              comment: review.comment,
+              rating: review.rating,
+              reviewer: review.reviewer,
+              createdAt: review.createdAt,
+              flaggedForToxicity: review.flaggedForToxicity,
+            });
+          }
+        });
+      }
+    });
+
+    return flaggedComments;
+  }
+
+  /**
+   * Marks a comment as not toxic (admin override for false positives)
+   * @param eventId - The event ID containing the review
+   * @param reviewerId - The reviewer's user ID
+   */
+  async markCommentAsNotToxic(
+    eventId: string,
+    reviewerId: string
+  ): Promise<IReview> {
+    const event = await this.eventRepo.findById(eventId, {
+      populate: [
+        { path: "reviews.reviewer", select: "firstName lastName email" },
+      ] as any[],
+    });
+
+    if (!event) {
+      throw createError(404, "Event not found");
+    }
+
+    const reviewIndex = event.reviews?.findIndex((review) => {
+      return (review.reviewer._id as any).toString() === reviewerId.toString();
+    });
+
+    if (reviewIndex === undefined || reviewIndex < 0) {
+      throw createError(404, "Review by this user not found for the event");
+    }
+
+    if (!event.reviews[reviewIndex].flaggedForToxicity?.isToxic) {
+      throw createError(400, "This comment is not flagged for toxicity");
+    }
+
+    // Reset the toxicity flag
+    event.reviews[reviewIndex].flaggedForToxicity = {
+      isToxic: false,
+      score: event.reviews[reviewIndex].flaggedForToxicity.score,
+      categories: event.reviews[reviewIndex].flaggedForToxicity.categories,
+    };
+
+    await event.save();
+
+    console.log(
+      `✅ Admin marked comment as not toxic for event ${eventId}, reviewer ${reviewerId}`
+    );
+
+    return event.reviews[reviewIndex];
+  }
+
   async getAllReviewsByEvent(eventId: string): Promise<IReview[]> {
     const event = await this.eventRepo.findById(eventId, {
       populate: [
@@ -840,9 +1117,10 @@ export class EventsService {
       });
     } else if (event.type === EVENT_TYPES.BAZAAR) {
       // Filter only approved vendors
-      const approvedVendors = event.vendors?.filter(
-        (vendorEntry: any) => vendorEntry.RequestData?.status === "approved"
-      ) || [];
+      const approvedVendors =
+        event.vendors?.filter(
+          (vendorEntry: any) => vendorEntry.RequestData?.status === "approved"
+        ) || [];
 
       if (approvedVendors.length === 0) {
         throw createError(404, "No approved vendors to export for this bazaar");
@@ -913,9 +1191,9 @@ export class EventsService {
     for (const event of allEvents) {
       // Combine eventStartDate with eventStartTime to get the full datetime
       const eventDate = new Date(event.eventStartDate);
-      
+
       if (event.eventStartTime) {
-        const [hours, minutes] = event.eventStartTime.split(':').map(Number);
+        const [hours, minutes] = event.eventStartTime.split(":").map(Number);
         eventDate.setHours(hours || 0, minutes || 0, 0, 0);
       }
 
@@ -923,7 +1201,7 @@ export class EventsService {
       if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
         oneDayEvents.push(event);
       }
-      
+
       // Check for 1-hour reminder
       if (eventDate.getTime() - now.getTime() == 60 * 60 * 1000) {
         oneHourEvents.push(event);
@@ -940,6 +1218,44 @@ export class EventsService {
     for (const event of oneHourEvents) {
       await this.sendReminderToAttendees(event, "1 hour");
       console.log(`Sent 1-hour reminder for event: ${event.eventName}`);
+    }
+
+    // Clear waitlists for events that have started
+    await this.clearWaitlistsForStartedEvents(allEvents, now);
+  }
+
+  /**
+   * Clears waitlists for events that have already started
+   */
+  private async clearWaitlistsForStartedEvents(
+    allEvents: IEvent[],
+    now: Date
+  ): Promise<void> {
+    const startedEvents = allEvents.filter((event) => {
+      const eventDate = new Date(event.eventStartDate);
+
+      if (event.eventStartTime) {
+        const [hours, minutes] = event.eventStartTime.split(":").map(Number);
+        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+      }
+
+      // Event has started if current time is past event start time
+      return eventDate.getTime() <= now.getTime();
+    });
+
+    for (const event of startedEvents) {
+      // Only trips and workshops have waitlists
+      if (
+        event.type === EVENT_TYPES.TRIP ||
+        event.type === EVENT_TYPES.WORKSHOP
+      ) {
+        const typedEvent = event as ITrip | IWorkshop;
+        if (typedEvent.waitlist && typedEvent.waitlist.length > 0) {
+          typedEvent.waitlist = [];
+          await event.save();
+          console.log(`Cleared waitlist for event: ${event.eventName}`);
+        }
+      }
     }
   }
 
