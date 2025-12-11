@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { IUshering, ITeam } from "../interfaces/models/ushering.interface";
+import { IUshering, ITeam, ISlot } from "../interfaces/models/ushering.interface";
 import GenericRepository from "../repos/genericRepo";
 import { ushering } from "../schemas/misc/usheringSchema";
 
@@ -82,5 +82,39 @@ export class UsheringService {
     async getAllTeams(): Promise<IUshering[]> {
         const usheringEvents = await this.usheringRepo.findAll();
         return usheringEvents;
+    }
+
+   
+
+    async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        const team = ushering.teams.find(t => t._id?.toString() === teamId);
+        if (!team) {
+            throw createError(404, 'Team not found');
+        }
+        
+        // Transform slots from frontend format {start, end} to DB format {StartDateTime, EndDateTime}
+        const transformedSlots = slots.map(slot => this.transformSlotData(slot));
+        
+        transformedSlots.forEach(slot => {
+            team.slots.push({
+                StartDateTime: slot.StartDateTime!,
+                EndDateTime: slot.EndDateTime!,
+                location: slot.location ?? ''
+            } as ISlot);
+        });
+        await ushering.save();
+    }
+
+     // Transform frontend slot format to database format
+    private transformSlotData(frontendSlot: any): Partial<ISlot> {
+        return {
+            StartDateTime: new Date(frontendSlot.start),
+            EndDateTime: new Date(frontendSlot.end),
+            location: frontendSlot.location,
+        };
     }
 }

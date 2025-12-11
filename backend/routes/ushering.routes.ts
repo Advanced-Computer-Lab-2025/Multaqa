@@ -1,6 +1,6 @@
 import { Router,Request,Response } from 'express';
 import { UsheringService } from '../services/usheringService';
-import { UsheringResponse } from '../interfaces/responses/usheringResponse';
+import { UsheringResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
 import createError from 'http-errors';
 import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
 import { UserRole } from '../constants/user.constants';
@@ -98,7 +98,22 @@ async function getAllUsheringTeams(req: Request, res: Response<UsheringResponse>
     }
 }
 
-
+async function addTeamReservationSlots(req: Request, res: Response<UsheringTeamsResponse>) {
+    try {
+        const { usheringId, teamId } = req.params;
+        const slots = req.body.slots;
+        await usheringService.addTeamReservationSlots(usheringId, teamId, slots);
+        res.json({
+            success: true,
+            message: 'Reservation slots added successfully'
+        });
+    } catch (error: any) {
+         throw createError(
+              error.status || 500,
+                error.message || "Error adding reservation slots"
+            );
+    }
+}   
 
 
 router.post('/', authorizeRoles({
@@ -116,5 +131,8 @@ router.patch('/:usheringId/teams/:teamId', authorizeRoles({
 router.delete('/:usheringId/teams/:teamId', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
   }), deleteUsheringTeam);
+router.post('/:usheringId/teams/:teamId/slots', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN], 
+  }), addTeamReservationSlots);
 
 export default router;
