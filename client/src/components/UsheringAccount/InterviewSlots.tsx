@@ -122,9 +122,9 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
     cursor: 'pointer',
     transition: 'all 0.2s ease-in-out',
     border: '2px solid',
-    borderColor: isSelected ? teamColor : 'transparent',
+    borderColor: isSelected ? teamColor : 'rgba(0, 0, 0, 0.04)',
     backgroundColor: isSelected ? alpha(teamColor, 0.08) : 'rgba(0, 0, 0, 0.04)',
-    color: isSelected ? teamColor : 'text.secondary',
+    color: isSelected ? teamColor : 'text.primary',
     '&:hover': {
       backgroundColor: alpha(teamColor, 0.12),
       borderColor: teamColor,
@@ -178,16 +178,16 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
       title="Create Interview Slots"
       width="md:w-[650px]"
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '70vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '80vh' }}>
         {/* Scrollable Content */}
-        <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 3, mt: 1, pr: 1 }}>
+        <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 3, mt: 1, pr: 1, pb: 2 }}>
           {/* Mode Selection */}
           <Box>
             <Typography
               variant="subtitle2"
-              sx={{ mb: 1.5, color: 'text.secondary', fontWeight: 500 }}
+              sx={{ mb: 1.5, color: 'text.primary', fontWeight: 600, ml: 2 }}
             >
-              Slot Creation Mode
+              Slot Creation Mode :
             </Typography>
             <Stack direction="row" spacing={2}>
               <Chip
@@ -280,7 +280,7 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
                 <Box
                   sx={{
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: 'flex-start',
                     gap: 1,
                     mb: 2,
                     p: 1.5,
@@ -289,8 +289,8 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
                     border: `1px solid ${alpha(teamColor, 0.2)}`,
                   }}
                 >
-                  <Typography variant="caption" sx={{ color: teamColor }}>
-                    💡 Slots will be generated for each day in the range, from start time to end time.
+                  <Typography variant="caption" sx={{ color: teamColor, lineHeight: 1.5 }}>
+                    ⚠️ <strong>Important:</strong> The <strong>time</strong> you select will be applied to <strong>every day</strong> in the date range. For example, if you select Dec 12 at 9:00 AM → Dec 14 at 5:00 PM, slots will be created from 9:00 AM to 5:00 PM on Dec 12, Dec 13, and Dec 14.
                   </Typography>
                 </Box>
                 <Grid container spacing={3}>

@@ -1,19 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Stack, Skeleton, IconButton, useTheme, Checkbox, CircularProgress } from '@mui/material';
+import { Box, Container, Typography, Stack, Skeleton, IconButton, useTheme, Checkbox, CircularProgress, Tooltip, alpha, Fab } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { format } from 'date-fns';
-import { Plus, Clock, UserCheck, Trash2 } from 'lucide-react';
+import { Plus, Clock, UserCheck, Trash2, CalendarClock, Send } from 'lucide-react';
 
 import CustomButton from '../shared/Buttons/CustomButton';
 import InterviewSlots from './InterviewSlots';
 import TeamSelector from '../shared/UsheringTeamApplications/TeamSelector';
 import EmptyState from '../shared/states/EmptyState';
-import { CustomModal } from '../shared/modals';
+import { CustomModal, CustomModalLayout } from '../shared/modals';
 import { UsheringTeam } from '../shared/UsheringTeamApplications/types';
 import {
   getTeamColor,
@@ -108,6 +109,14 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
   // Multi-select state
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Schedule modal state
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [scheduleStartDate, setScheduleStartDate] = useState<Dayjs | null>(dayjs());
+  const [scheduleEndDate, setScheduleEndDate] = useState<Dayjs | null>(dayjs().add(7, 'day'));
+
+  // Manual post confirmation modal state
+  const [isManualPostModalOpen, setIsManualPostModalOpen] = useState(false);
 
   // Per-team slot storage
   const [teamSlots, setTeamSlots] = useState<Record<string, TeamSlot[]>>({});
@@ -477,15 +486,97 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container maxWidth="xl" sx={mainContainerStyles}>
         {/* Header */}
-        <Box sx={headerStyles}>
-          <Typography variant="h4" sx={headerTitleStyles}>
-            Interview Slots
-          </Typography>
-          <Typography sx={headerSubtitleStyles}>
-            {isAdmin
-              ? 'Create and manage interview slots for each team'
-              : 'View available interview slots for each team'}
-          </Typography>
+        <Box sx={{ ...headerStyles, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography variant="h4" sx={headerTitleStyles}>
+              Interview Slots
+            </Typography>
+            <Typography sx={headerSubtitleStyles}>
+              {isAdmin
+                ? 'Create and manage interview slots for each team'
+                : 'View available interview slots for each team'}
+            </Typography>
+          </Box>
+
+          {/* Post Management Section */}
+          {isAdmin && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+                p: 2,
+                borderRadius: 2,
+                border: `1px solid ${alpha(theme.palette.tertiary.main, 0.3)}`,
+                backgroundColor: alpha(theme.palette.tertiary.main, 0.03),
+              }}
+            >
+              <Typography variant="caption" sx={{ color: theme.palette.tertiary.main, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Post Management
+              </Typography>
+              <Stack direction="row" spacing={1.5}>
+                <Tooltip
+                  title={
+                    <Box sx={{ p: 1 }}>
+                      <Typography variant="body2" fontWeight={600} mb={0.5}>Schedule Interview Posts</Typography>
+                      <Typography variant="caption">
+                        Set when interview slots will be automatically posted for applicants to book,
+                        and when they will be removed after the interview period ends.
+                      </Typography>
+                    </Box>
+                  }
+                  arrow
+                  placement="bottom"
+                >
+                  <CustomButton
+                    variant="outlined"
+                    startIcon={<CalendarClock size={18} />}
+                    sx={{
+                      borderColor: theme.palette.tertiary.main,
+                      color: theme.palette.tertiary.main,
+                      '&:hover': {
+                        borderColor: theme.palette.tertiary.main,
+                        backgroundColor: alpha(theme.palette.tertiary.main, 0.08),
+                      },
+                    }}
+                    onClick={() => setIsScheduleModalOpen(true)}
+                  >
+                    Schedule
+                  </CustomButton>
+                </Tooltip>
+
+                <Tooltip
+                  title={
+                    <Box sx={{ p: 1 }}>
+                      <Typography variant="body2" fontWeight={600} mb={0.5}>Manual Post</Typography>
+                      <Typography variant="caption">
+                        Manually post interview slots now. Use this if automatic scheduling
+                        didn't work or you need to post immediately.
+                      </Typography>
+                    </Box>
+                  }
+                  arrow
+                  placement="bottom"
+                >
+                  <CustomButton
+                    variant="contained"
+                    startIcon={<Send size={18} />}
+                    sx={{
+                      backgroundColor: theme.palette.tertiary.main,
+                      borderColor: 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.tertiary.main,
+                        filter: 'brightness(0.9)',
+                      },
+                    }}
+                    onClick={() => setIsManualPostModalOpen(true)}
+                  >
+                    Post Now
+                  </CustomButton>
+                </Tooltip>
+              </Stack>
+            </Box>
+          )}
         </Box>
 
         {/* Team Selector */}
@@ -536,7 +627,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
                 )}
               </Box>
 
-              {/* Action buttons */}
+
               <Stack direction="row" spacing={1} alignItems="center">
                 {/* Select All / Delete Selected - shown when there are slots */}
                 {!loading && slotsForSelectedDate.length > 0 && isAdmin && (
@@ -655,6 +746,146 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
             onClick: () => setIsDeleteModalOpen(false),
           }}
         />
+
+
+        {/* Schedule Posts Modal */}
+        <CustomModalLayout
+          open={isScheduleModalOpen}
+          onClose={() => setIsScheduleModalOpen(false)}
+          title="Schedule Interview Posts"
+          borderColor={theme.palette.tertiary.main}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, py: 1 }}>
+            {/* Info Box */}
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                backgroundColor: alpha(theme.palette.tertiary.main, 0.08),
+                border: `1px solid ${alpha(theme.palette.tertiary.main, 0.2)}`,
+              }}
+            >
+              <Typography variant="body2" color="text.primary" sx={{ lineHeight: 1.6 }}>
+                <strong>How it works:</strong><br />
+                • <strong>Post Start:</strong> Interview slots will become visible to applicants at this date/time.<br />
+                • <strong>Post End:</strong> Interview slots will be automatically hidden after this date/time.
+              </Typography>
+            </Box>
+
+            {/* Start Date Picker */}
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Post Start Date & Time
+              </Typography>
+              <DateTimePicker
+                value={scheduleStartDate}
+                onChange={(newValue) => setScheduleStartDate(newValue)}
+                minDateTime={dayjs()}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </Box>
+
+            {/* End Date Picker */}
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Post End Date & Time
+              </Typography>
+              <DateTimePicker
+                value={scheduleEndDate}
+                onChange={(newValue) => setScheduleEndDate(newValue)}
+                minDateTime={scheduleStartDate || dayjs()}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Action Buttons */}
+            <Stack direction="row" justifyContent="flex-end" spacing={2} sx={{ pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+              <CustomButton
+                variant="contained"
+                onClick={async () => {
+                  if (!usheringId || !scheduleStartDate || !scheduleEndDate) return;
+
+                  try {
+                    const payload = {
+                      postTime: {
+                        startDateTime: scheduleStartDate.toISOString(),
+                        endDateTime: scheduleEndDate.toISOString(),
+                      },
+                    };
+                    console.log(payload);
+
+                    // await api.patch(`/ushering/${usheringId}/postTime`, payload);
+
+                    toast.success('Post schedule saved successfully', {
+                      position: 'bottom-right',
+                      autoClose: 3000,
+                      theme: 'colored',
+                    });
+
+                    setIsScheduleModalOpen(false);
+                  } catch (error: any) {
+                    console.error('Failed to save schedule:', error);
+                    toast.error(error?.response?.data?.error || 'Failed to save schedule', {
+                      position: 'bottom-right',
+                      autoClose: 5000,
+                      theme: 'colored',
+                    });
+                  }
+                }}
+                disabled={!scheduleStartDate || !scheduleEndDate}
+                sx={{
+                  backgroundColor: theme.palette.tertiary.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.tertiary.main,
+                    filter: 'brightness(0.9)',
+                  },
+                  borderColor: "transparent"
+                }}
+              >
+                Save
+              </CustomButton>
+            </Stack>
+          </Box>
+        </CustomModalLayout>
+
+        {/* Manual Post Confirmation Modal */}
+        <CustomModal
+          open={isManualPostModalOpen}
+          onClose={() => setIsManualPostModalOpen(false)}
+          title="Post Interview Slots Now?"
+          description="Are you sure you want to post all interview slots immediately? Students will be able to see and book these slots right away."
+          borderColor={theme.palette.tertiary.main}
+          buttonOption1={{
+            label: "Post Now",
+            variant: "contained",
+            color: "primary",
+            onClick: () => {
+              // TODO: Handle manual post API call
+              console.log('Manual post confirmed');
+              toast.success('Interview slots posted successfully', {
+                position: 'bottom-right',
+                autoClose: 3000,
+                theme: 'colored',
+              });
+              setIsManualPostModalOpen(false);
+            },
+          }}
+          buttonOption2={{
+            label: "Cancel",
+            variant: "outlined",
+            color: "primary",
+            onClick: () => setIsManualPostModalOpen(false),
+          }} modalType={'warning'} />
       </Container>
     </LocalizationProvider>
   );
