@@ -2,6 +2,7 @@ import createError from "http-errors";
 import { IUshering, ITeam, ISlot } from "../interfaces/models/ushering.interface";
 import GenericRepository from "../repos/genericRepo";
 import { ushering } from "../schemas/misc/usheringSchema";
+import { Types } from "mongoose";
 
 
 
@@ -127,27 +128,59 @@ export class UsheringService {
     }
 
     async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
-        const ushering = await this.usheringRepo.findById(usheringId);
-        if (!ushering) {
-            throw createError(404, 'Ushering event not found');
+        // Perform an atomic update in the database to avoid race conditions.
+        // The query ensures the slot is still available and the student hasn't
+        // already booked any slot inside this ushering document.
+        const result = await ushering.findOneAndUpdate(
+            {
+                _id: usheringId,
+                'teams._id': teamId,
+                'teams.slots._id': slotId,
+                'teams.slots.isAvailable': true,
+                'teams.slots.reservedBy.studentId': { $ne: new Types.ObjectId(studentId) }
+            },
+            {
+                $set: {
+                    'teams.$[team].slots.$[slot].isAvailable': false,
+                    'teams.$[team].slots.$[slot].reservedBy': {
+                        studentId: new Types.ObjectId(studentId),
+                        reservedAt: new Date()
+                    }
+                }
+            },
+            {
+                arrayFilters: [
+                    { 'team._id': teamId },
+                    { 'slot._id': slotId }
+                ],
+                new: true
+            }
+        );
+
+        // If null, the update didn't match — determine why and throw a clear error.
+        if (!result) {
+            const usheringDoc = await this.usheringRepo.findById(usheringId);
+            if (!usheringDoc) throw createError(404, 'Ushering event not found');
+
+            // Has the student already booked anywhere?
+            const hasExistingBooking = usheringDoc.teams.some(team =>
+                team.slots.some(slot => slot.reservedBy?.studentId?.toString() === studentId)
+            );
+            if (hasExistingBooking) {
+                throw createError(400, 'You have already booked an interview slot.');
+            }
+
+            const team = usheringDoc.teams.find(t => t._id?.toString() === teamId);
+            if (!team) throw createError(404, 'Team not found');
+
+            const slot = team.slots.find(s => s._id?.toString() === slotId);
+            if (!slot) throw createError(404, 'Slot not found');
+
+            if (!slot.isAvailable) throw createError(409, 'Slot is already reserved');
+
+            // Fallback
+            throw createError(500, 'Failed to book slot');
         }
-        const team = ushering.teams.find(t => t._id?.toString() === teamId);
-        if (!team) {
-            throw createError(404, 'Team not found');
-        }
-        const slot = team.slots.find(s => s._id?.toString() === slotId);
-        if (!slot) {
-            throw createError(404, 'Slot not found');
-        }
-        if (!slot.isAvailable) {
-            throw createError(400, 'Slot is already reserved');
-        }
-        slot.isAvailable = false;
-        slot.reservedBy = {
-            studentId: studentId as any,
-            reservedAt: new Date()
-        };
-        await ushering.save();
     }
 
     async cancelBooking(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
@@ -187,6 +220,54 @@ export class UsheringService {
             throw createError(404, 'Team not found');
         }
         return team.slots;
+   }
+
+   async getUserRegisteredSlot(usheringId: string, studentId: string): Promise<{
+       team: {
+           title: string;
+           description: string;
+       };
+       slot: ISlot;
+   } | null> {
+       const ushering = await this.usheringRepo.findById(usheringId, {
+           populate: [{
+               path: 'teams.slots.reservedBy.studentId',
+               select: 'firstName lastName gucId email'
+           }] as any
+       });
+       
+       if (!ushering) {
+           throw createError(404, 'Ushering event not found');
+       }
+
+       // Loop through teams to find the user's registration
+       for (const team of ushering.teams) {
+           // Loop through slots in each team
+           for (const slot of team.slots) {
+               // Check if this slot is reserved by the user
+               // Handle both ObjectId and populated user object
+               if (slot.reservedBy && slot.reservedBy.studentId) {
+                   // If studentId is populated (an object), access its _id
+                   const studentIdValue: any = slot.reservedBy.studentId;
+                   const reservedStudentId = studentIdValue._id 
+                       ? studentIdValue._id.toString()
+                       : studentIdValue.toString();
+                   
+                   if (reservedStudentId === studentId) {
+                       return {
+                           team: {
+                               title: team.title,
+                               description: team.description
+                           },
+                           slot: slot
+                       };
+                   }
+               }
+           }
+       }
+
+       // User is not registered to any slot
+       throw createError(404, 'No registered slot found ');
    }
 
      // Transform frontend slot format to database format

@@ -1,6 +1,6 @@
 import { Router,Request,Response } from 'express';
 import { UsheringService } from '../services/usheringService';
-import { UsheringResponse, UsheringSlotResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
+import { StudentBookedSlotsResponse, UsheringResponse, UsheringSlotResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
 import createError from 'http-errors';
 import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
 import { UserRole } from '../constants/user.constants';
@@ -189,6 +189,27 @@ async function viewTeamInterviewSlots(req: Request, res: Response<UsheringSlotRe
     }
 }
 
+async function getStudentUsheringSlot(req: AuthenticatedRequest, res: Response<StudentBookedSlotsResponse>) {
+    try {
+        const usheringId = req.params.usheringId;
+        const studentId = req.user?.id;
+        if (!studentId) {
+            throw createError(401, 'Unauthorized: Student ID not found');
+        }
+        const slots = await usheringService.getUserRegisteredSlot(usheringId,studentId);
+        res.json({
+            success: true,
+            data: slots,
+            message: 'Student ushering slots retrieved successfully'
+        });
+    } catch (error: any) {
+         throw createError(
+              error.status || 500,
+                error.message || "Error retrieving student ushering slots"
+            );
+    }
+}
+
 
 router.post('/', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
@@ -199,6 +220,9 @@ router.get('/', authorizeRoles({
 router.patch('/:id/postTime', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
   }), setUsheringPostTime);
+router.get('/:usheringId/studentSlots', authorizeRoles({
+    userRoles: [UserRole.STUDENT], 
+  }), getStudentUsheringSlot);
 router.patch('/:usheringId/teams/:teamId', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
   }), editUsheringTeam);

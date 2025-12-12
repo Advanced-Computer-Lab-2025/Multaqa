@@ -1,4 +1,4 @@
-import { ISlot, IUshering } from "../models/ushering.interface";
+import { IReservedSlot, ISlot, IUshering } from "../models/ushering.interface";
 
 export interface UsheringResponse {
     success: boolean;
@@ -14,5 +14,11 @@ export interface UsheringTeamsResponse {
 export interface UsheringSlotResponse {
     success: boolean;
     data:ISlot[] | null;
+    message: string;
+}
+
+export interface StudentBookedSlotsResponse {
+    success: boolean;
+    data: IReservedSlot | null
     message: string;
 }

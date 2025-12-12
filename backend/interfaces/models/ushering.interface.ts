@@ -14,11 +14,20 @@ export interface ISlot {
   location?: string;
 }
 
+
 export interface ITeam {
   _id?: Types.ObjectId;
   title: string;
   description: string;
   slots: ISlot[];
+}
+
+export interface IReservedSlot {
+  team: {
+     title: string;
+     description: string;
+      };
+  slot: ISlot; 
 }
 
 export interface IUshering extends Document {
