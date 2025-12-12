@@ -25,3 +25,4 @@ export interface IUshering extends Document {
 postTime?: Date;
   teams: ITeam[]; 
 }
+

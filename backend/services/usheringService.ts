@@ -172,6 +172,23 @@ export class UsheringService {
     }
 
 
+   async viewTeamInterviewSlots(usheringId: string,teamId: string): Promise<ISlot[]> {
+        const ushering = await this.usheringRepo.findById(usheringId, {
+            populate: [{
+                path: 'teams.slots.reservedBy.studentId',
+                select: 'firstName lastName gucId email'
+            }] as any
+        });
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        const team = ushering.teams.find(t => t._id?.toString() === teamId);
+        if (!team) {
+            throw createError(404, 'Team not found');
+        }
+        return team.slots;
+   }
+
      // Transform frontend slot format to database format
     private transformSlotData(frontendSlot: any): Partial<ISlot> {
         return {

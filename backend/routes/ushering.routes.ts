@@ -1,6 +1,6 @@
 import { Router,Request,Response } from 'express';
 import { UsheringService } from '../services/usheringService';
-import { UsheringResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
+import { UsheringResponse, UsheringSlotResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
 import createError from 'http-errors';
 import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
 import { UserRole } from '../constants/user.constants';
@@ -172,6 +172,23 @@ async function cancelBooking(req: AuthenticatedRequest, res: Response<UsheringTe
     }
 }
 
+async function viewTeamInterviewSlots(req: Request, res: Response<UsheringSlotResponse>) {
+    try {
+        const { usheringId, teamId } = req.params;
+        const slots = await usheringService.viewTeamInterviewSlots(usheringId, teamId);
+        res.json({
+            success: true,
+            data: slots,
+            message: 'Team interview slots retrieved successfully'
+        });
+    } catch (error: any) {
+         throw createError(
+              error.status || 500,  
+                error.message || "Error retrieving team interview slots"
+            );
+    }
+}
+
 
 router.post('/', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
@@ -191,6 +208,9 @@ router.delete('/:usheringId/teams/:teamId', authorizeRoles({
 router.post('/:usheringId/teams/:teamId/slots', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
   }), addTeamReservationSlots);
+  router.get('/:usheringId/teams/:teamId/slots', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN, UserRole.STUDENT], 
+  }), viewTeamInterviewSlots);
 router.delete('/:usheringId/teams/:teamId/slots/:slotId', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
   }), deleteSlot);
