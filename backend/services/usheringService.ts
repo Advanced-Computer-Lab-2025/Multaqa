@@ -33,10 +33,14 @@ export class UsheringService {
         if (new Date(postTime.startDateTime) < new Date()) {
             throw createError(400, 'Post time cannot be in the past');
         }
+         if (new Date(usheringToUpdate.postTime?.startDateTime || 0) < new Date()) {
+            throw createError(400, 'Interview post time cannot be updated after it has started');
+        }
         usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
         await usheringToUpdate.save();
 
         // Notify students about the updated post time
+      
         const formattedStartDate = new Date(postTime.startDateTime).toLocaleString('en-US', {
             dateStyle: 'medium',
             timeStyle: 'short'
