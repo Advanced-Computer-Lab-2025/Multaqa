@@ -86,6 +86,9 @@ export class UsheringService {
     }
     async getAllTeams(): Promise<IUshering[]> {
         const usheringEvents = await this.usheringRepo.findAll();
+        if(usheringEvents.length === 0){
+            throw createError(404, 'You have to create teams first');
+        }
         return usheringEvents;
     }
 
@@ -94,7 +97,7 @@ export class UsheringService {
     async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
         const ushering = await this.usheringRepo.findById(usheringId);
         if (!ushering) {
-            throw createError(404, 'Ushering event not found');
+            throw createError(404, 'You have to create teams first');
         }
         const team = ushering.teams.find(t => t._id?.toString() === teamId);
         if (!team) {
