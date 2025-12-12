@@ -37,6 +37,7 @@ import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from '../../../../components/shared/Report/reportTable';
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
+import InterviewBookingPage from "@/components/interviewReservation/InterviewBookingPage";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -643,6 +644,10 @@ export default function EntityCatchAllPage() {
     if (tab === "notifications" && (section === "overview" || section === "")) {
       console.log("✅ Notifications tab accessed for entity:", entity);
       return <NotificationsPageContent />;
+    }
+
+    if (tab === "graduation" && section === "interview-reservation") {
+      return <InterviewBookingPage />;
     }
 
     // Default placeholder content

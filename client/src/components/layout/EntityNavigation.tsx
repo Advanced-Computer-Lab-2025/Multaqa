@@ -139,6 +139,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "my-sessions", label: "My Registered Sessions" },
       { id: "overview", label: "Overview" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
+      { id: "interview-reservation", label: "Interview Reservation" },
     ],
     sections: [
       {
@@ -178,6 +179,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Loyalty Program",
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
+      {
+        key: "graduation",
+        label: "Graduation Ushering Program",
+        icon: Store,
+        tabs: [{ id: "interview-reservation", label: "Interview Reservation" }],
       },
     ],
   },
