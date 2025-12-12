@@ -380,6 +380,20 @@ export const sendWaitlistAutoRegisteredEmail = async (
   });
 };
 
+export const sendSlotOpeningReminderEmail = async (
+  userEmail: string,
+  username: string,
+  startDateTime: Date
+) => {
+  const { getSlotOpeningReminderTemplate } = await import("../utils/emailTemplates");
+  const html = getSlotOpeningReminderTemplate(username, startDateTime);
+  await sendEmail({
+    to: userEmail,
+    subject: `⏰ Interview Slots Opening in 5 Minutes - Multaqa`,
+    html,
+  });
+};
+
 // Send interview reminder email (a day before the interview)
 export const sendInterviewReminderEmail = async (
   userEmail: string,

@@ -67,6 +67,10 @@ export class NotificationService {
         break;
       case "USHERING_BROADCAST_APPLICANTS":
         eventBus.emit("notification:ushering:broadcastApplicants", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOTS_OPENING":
+        eventBus.emit("notification:ushering:slotsOpening", notification, saveToDatabase);
+        break;
       case "BUG_REPORT_SUBMITTED":
         eventBus.emit("notification:bugReport:submitted", notification, saveToDatabase);
         break;

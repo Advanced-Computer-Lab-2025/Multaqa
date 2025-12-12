@@ -8,6 +8,7 @@ import {
   CheckCircle,
   HourglassEmpty,
   EventAvailable,
+  AccessTime,
 } from "@mui/icons-material";
 
 /**
@@ -75,6 +76,8 @@ export const getNotificationIcon = (type: NotificationType): React.ElementType =
       return EventAvailable;
     case NotificationType.WAITLIST_EXPIRED:
       return HourglassEmpty;
+    case NotificationType.USHERING_SLOTS_OPENING:
+      return AccessTime;
     default:
       return Notifications;
   }
@@ -101,6 +104,8 @@ export const getNotificationColor = (type: NotificationType): string => {
       return "#4caf50"; // Success green
     case NotificationType.WAITLIST_EXPIRED:
       return "#ff9800"; // Warning orange
+    case NotificationType.USHERING_SLOTS_OPENING:
+      return "#2196f3"; // Blue
     default:
       return "#6299d0";
   }

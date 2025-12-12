@@ -1037,6 +1037,54 @@ export const getWaitlistAutoRegisteredTemplate = (
 };
 
 // Interview Slot Reminder Email Template
+export const getSlotOpeningReminderTemplate = (
+  username: string,
+  startDateTime: Date
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.header}">
+          <h2 style="margin: 0; font-size: 22px;">⏰ Interview Slots Opening Soon!</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            The interview slots will be opening in <strong>5 minutes</strong>!
+          </p>
+          <div style="${baseStyles.infoBox}">
+            <strong style="color: #2563eb;">Opening Time:</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              📅 <strong>Date:</strong> ${startDateTime.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}<br>
+              ⏰ <strong>Time:</strong> ${startDateTime.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}
+            </p>
+          </div>
+          <div style="${baseStyles.warningBox}">
+            <strong style="color: #ea580c;">⚠️ Reminder:</strong>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              Slots are limited and fill up quickly! Be ready to book your preferred time as soon as they open.
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            Good luck! 🍀
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
+
 export const getInterviewReminderTemplate = (
   username: string,
   teamName: string,

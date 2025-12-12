@@ -370,6 +370,8 @@ export const NotificationProvider = ({
       "notification:waitlist:expired", 
       handleNewNotification
     );
+    socketService.on(
+      ""
 
     // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
