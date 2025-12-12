@@ -4,6 +4,7 @@ import theme from "@/themes/lightTheme";
 import { api } from "../../../api";
 import React, { useState } from 'react'
 import { toast } from 'react-toastify';
+import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 
 interface CancelEventRegisterationProps {
   eventId: string;
@@ -17,6 +18,7 @@ const CancelRegistration = ({ eventId, open, onClose, isRefundable = true, setRe
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { removeEventFromCalendar } = useGoogleCalendar();
 
   const handleCallApi = async (eventId: string) => {
     setLoading(true);
@@ -27,6 +29,9 @@ const CancelRegistration = ({ eventId, open, onClose, isRefundable = true, setRe
       const res = await api.post("/payments/" + eventId + "/refund");
       setResponse(res.data);
       setRefresh((prev) => !prev);
+
+      // Remove event from calendar tracking
+      await removeEventFromCalendar(eventId);
 
       // Show success toast
       toast.success('Registration cancelled successfully! Refund has been issued to your wallet.', {

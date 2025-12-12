@@ -23,6 +23,7 @@ import gymSessionsRouter from "./routes/gymSessions.routes";
 import adminRouter from "./routes/admin.routes";
 import courtRouter from "./routes/court.routes";
 import uploadsRouter from "./routes/upload.routes";
+import calendarRouter from "./routes/calendar.routes";
 import usheringRouter from "./routes/ushering.routes";
 import bugReportRouter from "./routes/bugReport.routes";
 import waitlistRouter from "./routes/waitlist.routes";
@@ -74,6 +75,7 @@ app.use(cookieParser());
 // Mount routers
 app.use("/uploads", uploadsRouter);
 app.use("/auth", authRouter);
+app.use("/calendar", calendarRouter); // Calendar routes handle their own auth
 app.use(verifyJWT); // Protect all routes below this middleware
 app.use("/events", eventRouter);
 app.use("/users", userRouter);

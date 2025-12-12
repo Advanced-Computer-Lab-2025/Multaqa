@@ -231,99 +231,150 @@ async function getStudentUsheringSlot(req: AuthenticatedRequest, res: Response<S
 
 
 router.post(
-  '/', 
+  '/',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN],
-  }), 
+  }),
   createUsheringTeams
 );
 
 router.get(
-  '/', 
+  '/',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN, UserRole.STUDENT],
-  }), 
+  }),
   getAllUsheringTeams
 );
 
 router.patch(
-  '/:id/postTime', 
+  '/:id/postTime',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN],
-  }), 
-  setUsheringPostTime 
+  }),
+  setUsheringPostTime
 );
 
 router.get(
-  '/:id/postTime', 
+  '/:id/postTime',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN, UserRole.STUDENT],
-  }), 
+  }),
   getPostTime
 );
 
 router.get(
-  '/:usheringId/studentSlots', 
+  '/:usheringId/studentSlots',
   authorizeRoles({
     userRoles: [UserRole.STUDENT],
-  }), 
+  }),
   getStudentUsheringSlot
 );
 
 router.patch(
-  '/:usheringId/teams/:teamId', 
+  '/:usheringId/teams/:teamId',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN],
-  }), 
+  }),
   editUsheringTeam
 );
 
 router.delete(
-  '/:usheringId/teams/:teamId', 
+  '/:usheringId/teams/:teamId',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN],
-  }), 
+  }),
   deleteUsheringTeam
-);  
+);
 
 router.post(
-  '/:usheringId/teams/:teamId/slots', 
+  '/:usheringId/teams/:teamId/slots',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN],
-  }), 
+  }),
   addTeamReservationSlots
 );
 
 router.get(
-  '/:usheringId/teams/:teamId/slots', 
+  '/:usheringId/teams/:teamId/slots',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN, UserRole.STUDENT],
-  }), 
+  }),
   viewTeamInterviewSlots
 );
 
 router.delete(
-  '/:usheringId/teams/:teamId/slots/:slotId', 
+  '/:usheringId/teams/:teamId/slots/:slotId',
   authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN],
-  }), 
+  }),
   deleteSlot
 );
 
 router.post(
-  '/:usheringId/teams/:teamId/slots/:slotId/book', 
+  '/:usheringId/teams/:teamId/slots/:slotId/book',
   authorizeRoles({
     userRoles: [UserRole.STUDENT],
-  }),   
+  }),
   bookSlot
 );
 
 router.post(
-  '/:usheringId/teams/:teamId/slots/:slotId/cancel', 
+  '/:usheringId/teams/:teamId/slots/:slotId/cancel',
   authorizeRoles({
     userRoles: [UserRole.STUDENT],
-  }), 
+  }),
   cancelBooking
+);
+
+// Broadcast notification to all students
+async function broadcastToAllStudents(req: Request, res: Response) {
+  try {
+    const { message } = req.body;
+    await usheringService.broadcastToAllStudents(message);
+    res.json({
+      success: true,
+      message: 'Notification sent to all students successfully'
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error broadcasting notification"
+    );
+  }
+}
+
+// Broadcast notification to interview applicants only
+async function broadcastToApplicants(req: Request, res: Response) {
+  try {
+    const { usheringId } = req.params;
+    const { message } = req.body;
+    await usheringService.broadcastToApplicants(usheringId, message);
+    res.json({
+      success: true,
+      message: 'Notification sent to interview applicants successfully'
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Error broadcasting notification to applicants"
+    );
+  }
+}
+
+router.post(
+  '/broadcast/all',
+  authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN],
+  }),
+  broadcastToAllStudents
+);
+
+router.post(
+  '/:usheringId/broadcast/applicants',
+  authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN],
+  }),
+  broadcastToApplicants
 );
 
 export default router;

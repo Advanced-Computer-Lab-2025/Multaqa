@@ -18,17 +18,35 @@ export class UsheringService {
 	}
 
 	async setPostTime(postTime: { startDateTime: string | Date, endDateTime: string | Date }, id: string): Promise<IUshering | null> {
-		const usheringToUpdate = await this.usheringRepo.findById(id);
-		if (!usheringToUpdate) {
-			throw new Error('Ushering event not found');
-		}
-		if (new Date(postTime.startDateTime) < new Date()) {
-			throw createError(400, 'Post time cannot be in the past');
-		}
-		usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
-		await usheringToUpdate.save();
-		return usheringToUpdate;
-	}
+        const usheringToUpdate = await this.usheringRepo.findById(id);
+        if (!usheringToUpdate) {
+            throw new Error('Ushering event not found');
+        }
+        if (new Date(postTime.startDateTime) < new Date()) {
+            throw createError(400, 'Post time cannot be in the past');
+        }
+        usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
+        await usheringToUpdate.save();
+
+        // Notify students about the updated post time
+        const formattedStartDate = new Date(postTime.startDateTime).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+        const formattedEndDate = new Date(postTime.endDateTime).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+        await NotificationService.sendNotification({
+            role: [UserRole.STUDENT],
+            type: "USHERING_POST_TIME_UPDATED",
+            title: "Interview Slots Update",
+            message: `Interview slots will be available from ${formattedStartDate} to ${formattedEndDate}. Mark your calendar!`,
+            createdAt: new Date()
+        } as Notification);
+
+        return usheringToUpdate;
+    }
 
 	async getPostTime(id: string): Promise<{ startDateTime: Date, endDateTime: Date } | null> {
 		const ushering = await this.usheringRepo.findById(id);
@@ -387,4 +405,64 @@ export class UsheringService {
 			location: frontendSlot.location,
 		};
 	}
+
+
+    /**
+     * Broadcast notification to all students
+     */
+	async broadcastToAllStudents(message: string): Promise<void> {
+		if (!message || message.trim().length === 0) {
+			throw createError(400, 'Message cannot be empty');
+		}
+
+		await NotificationService.sendNotification({
+			role: [UserRole.STUDENT],
+			type: "USHERING_BROADCAST_ALL",
+			title: "📢 Ushering Announcement",
+			message: message.trim(),
+			createdAt: new Date(),
+        } as Notification);
+    }
+
+    /**
+     * Broadcast notification to interview applicants only (students who have booked slots)
+     */
+    async broadcastToApplicants(usheringId: string, message: string): Promise<void> {
+        if (!message || message.trim().length === 0) {
+            throw createError(400, 'Message cannot be empty');
+        }
+
+        const usheringDoc = await this.usheringRepo.findById(usheringId);
+        if (!usheringDoc) {
+            throw createError(404, 'Ushering event not found');
+        }
+
+        // Collect all student IDs who have booked slots
+        const applicantIds: string[] = [];
+        for (const team of usheringDoc.teams) {
+            for (const slot of team.slots) {
+                if (slot.reservedBy?.studentId) {
+                    const studentId = slot.reservedBy.studentId.toString();
+                    if (!applicantIds.includes(studentId)) {
+                        applicantIds.push(studentId);
+                    }
+                }
+            }
+        }
+
+        if (applicantIds.length === 0) {
+            throw createError(400, 'No interview applicants found to notify');
+        }
+
+        // Send notification to each applicant
+        for (const studentId of applicantIds) {
+            await NotificationService.sendNotification({
+                userId: studentId,
+                type: "USHERING_BROADCAST_APPLICANTS",
+                title: "📢 Interview Update",
+                message: message.trim(),
+                createdAt: new Date(),
+            } as Notification);
+        }
+    }
 }

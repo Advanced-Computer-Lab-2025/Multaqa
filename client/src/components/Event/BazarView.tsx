@@ -36,7 +36,8 @@ const BazarView: React.FC<BazarViewProps> = ({
   registrationPassed,
   registrationDeadline,
   userInfo, 
-  vendorStatus, 
+  vendorStatus,
+  calendarButton,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -124,7 +125,8 @@ const BazarView: React.FC<BazarViewProps> = ({
                    <Trash2 size={18} />
                  </IconButton>
                </Tooltip>
-      ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : null)}
+      ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => { setEdit(true); } } onDelete={handleOpenDeleteModal} event={"Bazaar"}  color={background}/> : 
+        (user === "vendor" && vendorStatus === "approved" && hasPaid && !datePassed) ? calendarButton : null)}
      registerButton={ user == "vendor" &&
            (
             // if not requested -> show Apply
@@ -230,6 +232,7 @@ const BazarView: React.FC<BazarViewProps> = ({
             )
           )
         } expanded={expanded} archived={archived} location={details["Location"]}  
+        calendarButton={calendarButton}
         />
       {/* Delete Confirmation Modal */}
       <CustomModal
