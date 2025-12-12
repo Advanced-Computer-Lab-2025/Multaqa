@@ -118,7 +118,22 @@ const TripView: React.FC<BazarViewProps> = ({
                 <Trash2 size={18} />
               </IconButton>
             </Tooltip>
-          ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background} /> : null)
+          ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background} /> : 
+            (user === "staff" || user === "student" || user === "ta" || user === "professor") && (registered || isRegisteredEvent) && !datePassed ? (
+              <AddToCalendarButton
+                eventId={id}
+                eventDetails={{
+                  name: name,
+                  startDate: details["Start Date"],
+                  endDate: details["End Date"],
+                  startTime: details["Start Time"],
+                  endTime: details["End Time"],
+                  description: description,
+                  location: details["Location"],
+                }}
+                color={background}
+              />
+            ) : null)
         }
         registerButton={
           (user == "staff" || user == "student" || user == "ta" || user == "professor") && (
@@ -177,23 +192,6 @@ const TripView: React.FC<BazarViewProps> = ({
           )
         }
         expanded={expanded} attended={attended} archived={archived} location={details["Location"]} cost={details["Cost"]}
-        calendarButton={
-          (registered || isRegisteredEvent) && !datePassed && (
-            <AddToCalendarButton
-              eventId={id}
-              eventDetails={{
-                name: name,
-                startDate: details["Start Date"],
-                endDate: details["End Date"],
-                startTime: details["Start Time"],
-                endTime: details["End Time"],
-                description: description,
-                location: details["Location"],
-              }}
-              color={background}
-            />
-          )
-        }
       />
 
       {/* Modal - Always render when tripToDelete is true */}

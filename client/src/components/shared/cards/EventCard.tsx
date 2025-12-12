@@ -52,7 +52,6 @@ interface EventCardProps {
   vendorStatus?: string;
   isUpcoming?: boolean;
   registrationDeadline?:string;
-  calendarButton?: React.ReactNode;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -89,7 +88,6 @@ const EventCard: React.FC<EventCardProps> = ({
   vendorStatus,
   isUpcoming = false,
   registrationDeadline,
-  calendarButton,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
   const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
@@ -636,7 +634,6 @@ const EventCard: React.FC<EventCardProps> = ({
               {!utilities && (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" , mb:-2}}>
                   {registerButton}
-                  {eventType !== "Booth" && calendarButton}
                 </Box>
               )}
                {evaluateButton && professorStatus === "pending" && (
@@ -696,10 +693,9 @@ const EventCard: React.FC<EventCardProps> = ({
                   </Typography>
                 </Box>
               )}
-              {(payButton || calendarButton) && eventType === "Booth" && (
+              {payButton && eventType === "Booth" && (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   {payButton}
-                  {calendarButton}
                 </Box>
               )}
             </Box>

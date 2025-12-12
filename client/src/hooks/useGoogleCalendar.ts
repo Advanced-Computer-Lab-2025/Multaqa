@@ -40,11 +40,8 @@ export const useGoogleCalendar = () => {
         const result = await calendarService.addEvent(event);
         
         if (result.alreadyAdded) {
-          toast.info("Event already exists in Google Calendar", {
-            position: "bottom-right",
-            autoClose: 2000,
-            theme: "colored",
-          });
+          // Return the result for the caller to handle (show confirmation modal)
+          return result;
         } else {
           toast.success("Event added to Google Calendar!", {
             position: "bottom-right",

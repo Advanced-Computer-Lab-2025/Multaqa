@@ -7,6 +7,7 @@ export interface CalendarEvent {
   description?: string;
   startISO: string;
   endISO: string;
+  forceAdd?: boolean;
 }
 
 export const calendarService = {
