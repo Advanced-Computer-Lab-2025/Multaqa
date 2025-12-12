@@ -10,7 +10,6 @@ import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { INotification, IUser } from "../interfaces/models/user.interface";
 import createError from "http-errors";
-import { save } from "pdfkit";
 
 // Helper function to broadcast events to all user's sockets (for sync events like read/unread/delete)
 function broadcastToUserSockets(userId: string, eventName: string, data: any) {
@@ -116,6 +115,9 @@ async function sendSocketNotification(typeNotification: string, notification: No
       if (notification.role.includes(UserRole.STUDENT)) {
         promises.push(userService.getAllStudents());
       }
+      if (notification.role.includes(UserRole.USHER_ADMIN)) {
+        promises.push(userService.getAllUsherAdmins());
+      }
 
       // Await all promises and collect user IDs
       const results = await Promise.all(promises);
@@ -203,6 +205,37 @@ eventBus.on("notification:vendor:pendingRequest", (notification, saveToDatabase)
   sendSocketNotification("notification:vendor:pendingRequest", notification, saveToDatabase);
 });
 
+
+/**
+ * -------------------------------
+ * Ushering Notifications
+ * -------------------------------
+ */
+
+// When an ushering team is updated -> notify students
+eventBus.on("notification:ushering:teamUpdated", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:teamUpdated", notification, saveToDatabase);
+});
+
+// When an ushering team is deleted -> notify students
+eventBus.on("notification:ushering:teamDeleted", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:teamDeleted", notification, saveToDatabase);
+});
+
+// When a student cancels their interview slot -> notify usher admins
+eventBus.on("notification:ushering:slotCancelled", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotCancelled", notification, saveToDatabase);
+});
+
+// When new interview slots are added (after post time) -> notify students
+eventBus.on("notification:ushering:slotsAdded", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotsAdded", notification, saveToDatabase);
+});
+
+// When a student books an interview slot -> notify usher admins
+eventBus.on("notification:ushering:slotBooked", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotBooked", notification, saveToDatabase);
+});
 
 /**
  * -------------------------------

@@ -44,6 +44,21 @@ export class NotificationService {
       case "VENDOR_PENDING_REQUEST":
         eventBus.emit("notification:vendor:pendingRequest", notification, saveToDatabase);
         break;
+      case "USHERING_TEAM_UPDATED":
+        eventBus.emit("notification:ushering:teamUpdated", notification, saveToDatabase);
+        break;
+      case "USHERING_TEAM_DELETED":
+        eventBus.emit("notification:ushering:teamDeleted", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOT_CANCELLED":
+        eventBus.emit("notification:ushering:slotCancelled", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOT_BOOKED":
+        eventBus.emit("notification:ushering:slotBooked", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOTS_ADDED":
+        eventBus.emit("notification:ushering:slotsAdded", notification, saveToDatabase);
+        break;
       default:
         console.warn(`No event bus handler for notification type: ${notification.type}`);
         // Fallback for new generic notifications
@@ -123,7 +138,7 @@ export class NotificationService {
     console.log("Deleting notification:", { userId, notificationId });
     user.notifications = user.notifications.filter((notification) => {
       return (notification._id as any).toString() !== notificationId.toString();
-    }); 
+    });
     await user.save();
 
     // Emit delete event to inform other tabs(sockets)

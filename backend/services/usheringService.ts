@@ -3,6 +3,8 @@ import { IUshering, ITeam, ISlot } from "../interfaces/models/ushering.interface
 import GenericRepository from "../repos/genericRepo";
 import { ushering } from "../schemas/misc/usheringSchema";
 import { Types } from "mongoose";
+import { NotificationService, Notification } from "./notificationService";
+import { UserRole } from "../constants/user.constants";
 
 export class UsheringService {
 	private usheringRepo: GenericRepository<IUshering>;
@@ -36,7 +38,6 @@ export class UsheringService {
 		return ushering.postTime || null;
 	}
 
-	//send notification when teams are edited
 	async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
@@ -51,17 +52,41 @@ export class UsheringService {
 			throw createError(404, 'Team not found');
 		}
 
+		const oldTitle = ushering.teams[teamIndex].title;
+
+		// Track what changed
+		const changes: string[] = [];
+
 		if (teamData.title !== undefined && teamData.title !== null) {
 			ushering.teams[teamIndex].title = teamData.title;
+			changes.push("title");
 		}
 		if (teamData.description !== undefined && teamData.description !== null) {
 			ushering.teams[teamIndex].description = teamData.description;
+			changes.push("description");
 		}
 		if (teamData.slots !== undefined && teamData.slots !== null) {
 			ushering.teams[teamIndex].slots = teamData.slots;
+			changes.push("interview slots");
 		}
 
 		await ushering.save();
+
+		// Build a descriptive message about what changed
+		const changesText = changes.length > 0
+			? `Changes: ${changes.join(", ")}.`
+			: "Team details have been modified.";
+
+		await NotificationService.sendNotification({
+			role: [
+				UserRole.STUDENT,
+			],
+			type: "USHERING_TEAM_UPDATED",
+			title: `Team "${oldTitle}" Updated`,
+			message: changesText,
+			createdAt: new Date(),
+		} as Notification);
+
 		return ushering;
 	}
 
@@ -77,8 +102,20 @@ export class UsheringService {
 		if (teamIndex === -1) {
 			throw createError(404, 'Team not found');
 		}
+
+		// Save team title before deletion for notification
+		const deletedTeamTitle = ushering.teams[teamIndex].title;
+
 		ushering.teams.splice(teamIndex, 1);
 		await ushering.save();
+
+		await NotificationService.sendNotification({
+			role: [UserRole.STUDENT],
+			type: "USHERING_TEAM_DELETED",
+			title: `Team "${deletedTeamTitle}" Removed`,
+			message: `The "${deletedTeamTitle}" team has been removed from the ushering.`,
+			createdAt: new Date(),
+		} as Notification);
 		return ushering;
 	}
 
@@ -100,6 +137,9 @@ export class UsheringService {
 		// Transform slots from frontend format {start, end} to DB format {StartDateTime, EndDateTime}
 		const transformedSlots = slots.map(slot => this.transformSlotData(slot));
 
+		// Track how many slots are actually added
+		let addedSlotsCount = 0;
+
 		// Only add slots that don't overlap with existing slots
 		transformedSlots.forEach(slot => {
 			const hasOverlap = team.slots.some(existingSlot => {
@@ -119,9 +159,22 @@ export class UsheringService {
 					EndDateTime: slot.EndDateTime!,
 					location: slot.location ?? ''
 				} as ISlot);
+				addedSlotsCount++;
 			}
 		});
 		await ushering.save();
+
+		// Only notify students if we're past the post time and slots were actually added
+		const postTime = await this.getPostTime(usheringId);
+		if (postTime && new Date() >= postTime && addedSlotsCount > 0) {
+			await NotificationService.sendNotification({
+				role: [UserRole.STUDENT],
+				type: "USHERING_SLOTS_ADDED",
+				title: `New Interview Slots - ${team.title}`,
+				message: `${addedSlotsCount} new interview slot${addedSlotsCount > 1 ? 's' : ''} added for "${team.title}". Book now!`,
+				createdAt: new Date(),
+			} as Notification);
+		}
 	}
 
 	async deleteSlot(usheringId: string, teamId: string, slotId: string): Promise<void> {
@@ -145,6 +198,7 @@ export class UsheringService {
 	}
 
 	// send an email a day before the booked slot
+	// send a notification to all ushering accounts
 	async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
 		// Perform an atomic update in the database to avoid race conditions.
 		// The query ensures the slot is still available and the student hasn't
@@ -219,9 +273,25 @@ export class UsheringService {
 		}
 		slot.isAvailable = true;
 		slot.reservedBy = undefined;
+
+		// Format slot time for notification
+		const slotTime = new Date(slot.StartDateTime).toLocaleString('en-US', {
+			dateStyle: 'medium',
+			timeStyle: 'short'
+		});
+
+		await NotificationService.sendNotification({
+			role: [UserRole.USHER_ADMIN],
+			type: "USHERING_SLOT_CANCELLED",
+			title: `Slot Cancelled - ${team.title}`,
+			message: `An interview slot for "${team.title}" at ${slotTime} has been cancelled by a student.`,
+			read: false,
+			delivered: false,
+			createdAt: new Date(),
+		} as Notification);
+
 		await ushering.save();
 	}
-
 
 	async viewTeamInterviewSlots(usheringId: string, teamId: string): Promise<ISlot[]> {
 		const ushering = await this.usheringRepo.findById(usheringId, {
