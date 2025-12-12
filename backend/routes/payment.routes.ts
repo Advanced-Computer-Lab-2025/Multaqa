@@ -175,6 +175,11 @@ router.post(
   "/:eventId/refund",
   authorizeRoles({
     userRoles: [UserRole.STAFF_MEMBER, UserRole.STUDENT],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
+    ],
   }),
   refundPayment
 );
@@ -186,6 +191,11 @@ router.post(
       UserRole.STUDENT,
       UserRole.STAFF_MEMBER,
       UserRole.ADMINISTRATION,
+    ],
+    staffPositions: [
+      StaffPosition.PROFESSOR,
+      StaffPosition.TA,
+      StaffPosition.STAFF,
     ],
   }),
   createCheckoutSession
