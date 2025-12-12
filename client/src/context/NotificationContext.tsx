@@ -348,6 +348,9 @@ export const NotificationProvider = ({
     );
     socketService.on(
       "notification:ushering:broadcastApplicants",
+      handleNewNotification
+    );
+    socketService.on( 
       "notification:comment:flagged",
       handleNewNotification
     );
