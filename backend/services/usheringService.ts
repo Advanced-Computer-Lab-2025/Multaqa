@@ -5,12 +5,17 @@ import { ushering } from "../schemas/misc/usheringSchema";
 import { Types } from "mongoose";
 import { NotificationService, Notification } from "./notificationService";
 import { UserRole } from "../constants/user.constants";
+import { sendInterviewBookingConfirmationEmail } from "./emailService";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
+import { IUser } from "../interfaces/models/user.interface";
 
 export class UsheringService {
-	private usheringRepo: GenericRepository<IUshering>;
-	constructor() {
-		this.usheringRepo = new GenericRepository<IUshering>(ushering);
-	}
+    private usheringRepo: GenericRepository<IUshering>;
+    private userRepo: GenericRepository<IUser>;
+    constructor() {
+        this.usheringRepo = new GenericRepository<IUshering>(ushering);
+        this.userRepo = new GenericRepository<IUser>(User);
+    }
 
 	async createUshering(usheringData: Partial<IUshering>): Promise<IUshering> {
 		const newUshering = await this.usheringRepo.create(usheringData);
@@ -291,6 +296,22 @@ export class UsheringService {
 			} as Notification);
 
 			// Note: Interview reminder emails are handled by the UsheringSchedulerService cron job
+
+            // Send confirmation email to the student
+            try {
+                const student = await this.userRepo.findById(studentId);
+                if (student && student.email) {
+                    await sendInterviewBookingConfirmationEmail(
+                        student.email,
+                        (student as any).firstName || 'Student',
+                        team.title,
+                        new Date(slot.StartDateTime),
+                        slot.location || 'To be announced'
+                    );
+                }
+            } catch (emailError) {
+                console.error('Failed to send booking confirmation email:', emailError);
+            }
 		}
 	}
 
