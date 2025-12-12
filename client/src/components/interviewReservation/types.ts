@@ -7,22 +7,24 @@ export type StudentDetails = {
 };
 
 export interface InterviewSlot {
-  id: string;
-  teamId: string; // Matched your provided interface
-  date: string;        // "2025-03-12"
-  start: string;       // "10:00" <-- Matched your provided interface (start)
-  end: string;         // "10:30" <-- Matched your provided interface (end)
-  isBooked: boolean;
-  reservedBy: string | null; // Changed to allow null for unbooked slots (string for 'currentUser' or other IDs)
+  id: string;                 // Unique slot ID
+  teamId: string;             // The team this slot belongs to
 
-  // --- NEW FIELDS FOR REQUIREMENT 6 (Booking Confirmation) ---
-  interviewDetails: string; // e.g., "Zoom Link: https://zoom.us/j/1234567890"
-  contactEmail: string; // e.g., "teamlead@usher.com"
-  
-  // --- NEW FIELDS FOR DETAIL ENTRY FORM (Student Data) ---
-  studentEmail: string | null; 
-  studentId: string | null;
+  startDateTime: string;      // ISO string of slot start time
+  endDateTime: string;        // ISO string of slot end time
+  isAvailable: boolean;       // True if the slot is available for booking
+
+  reservedBy?: {              // Optional info about who reserved the slot
+    studentId: string;
+    reservedAt: string;
+  } | null;
+
+  studentId: string | null;   // ID of the student who booked it (or null)
+  studentEmail: string | null; // Email of the student who booked it (or null)
+
+  location: string;           // Slot location, e.g., "TBD" or room name
 }
+
 
 export interface UsherTeam {
   id: string;
