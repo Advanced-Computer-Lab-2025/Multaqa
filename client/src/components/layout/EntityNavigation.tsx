@@ -20,6 +20,7 @@ import {
   QrCode,
   Award,
   Wallet,
+  Bug,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserRoleKey } from "@/types";
@@ -156,7 +157,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "polls", label: "Polls" },
         ],
       },
-       {
+      {
         key: "graduation",
         label: "Guc Graduation",
         icon: Calendar,
@@ -191,6 +192,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Loyalty Program",
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -241,6 +248,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
+      },
     ],
   },
   ta: {
@@ -287,6 +300,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Loyalty Program",
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -340,6 +359,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Loyalty Program",
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -401,6 +426,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "sessions-management", label: "Sessions Management" },
           { id: "browse-sessions", label: "Browse Sessions" },
         ],
+      },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -469,6 +500,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "sales-reports", label: "Sales Reports" },
         ],
       },
+      {
+        key: "bug-reporting",
+        label: "Bug Reports",
+        icon: Bug,
+        tabs: [{ id: "bug-reports", label: "Bug Reports" }],
+      },
     ],
   },
   vendor: {
@@ -523,21 +560,23 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   "usher-admin": {
     headerTitle: "Usher Admin Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "team-description",
+    defaultTab: "teams-description",
     defaultSection: "graduation",
-     tabs: [
-          { id: "team-description", label: "Team Description" },
-          { id: "interview-management", label: "Interview Management" },
-          { id: "student-list", label: "Student List" },
-        ],
+    tabs: [
+      { id: "teams-description", label: "Teams' Description" },
+      { id: "interview-management", label: "Interview Management" },
+      { id: "applications", label: "Applications" },
+      { id: "student-list", label: "Student List" },
+    ],
     sections: [
       {
         key: "graduation",
         label: "GUC Graduation",
         icon: LayoutDashboard,
         tabs: [
-          { id: "team-description", label: "Team Description" },
+          { id: "teams-description", label: "Teams' Description" },
           { id: "interview-management", label: "Interview Management" },
+          { id: "applications", label: "Applications" },
           { id: "student-list", label: "Student List" },
         ],
       },

@@ -44,9 +44,8 @@ export const getVerificationEmailTemplate = (
             Thanks for joining <strong>Multaqa</strong>! To complete your registration, please verify your email address by clicking the button below.
           </p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationLink}" target="_blank" style="${
-    baseStyles.button
-  }">
+            <a href="${verificationLink}" target="_blank" style="${baseStyles.button
+    }">
               Verify My Email
             </a>
           </div>
@@ -83,29 +82,26 @@ export const getBlockUnblockEmailTemplate = (
         <div style="${baseStyles.content}">
           <p style="font-size: 16px; color: #333;">
             Hi,<br><br>
-            ${
-              isBlocked
-                ? "We regret to inform you that your Multaqa account has been suspended."
-                : "Good news! Your Multaqa account has been restored and you can now access all platform features."
-            }
+            ${isBlocked
+      ? "We regret to inform you that your Multaqa account has been suspended."
+      : "Good news! Your Multaqa account has been restored and you can now access all platform features."
+    }
           </p>
-          ${
-            isBlocked
-              ? `<div style="${baseStyles.dangerBox}">
+          ${isBlocked
+      ? `<div style="${baseStyles.dangerBox}">
                 <strong style="color: #dc2626;">Reason for suspension:</strong><br>
-                <p style="margin: 10px 0 0 0; color: #333;">${
-                  reason || "Violation of platform policies"
-                }</p>
+                <p style="margin: 10px 0 0 0; color: #333;">${reason || "Violation of platform policies"
+      }</p>
               </div>
               <p style="font-size: 14px; color: #555;">
                 If you believe this action was taken in error or would like to appeal, please contact our support team.
               </p>`
-              : `<div style="${baseStyles.successBox}">
+      : `<div style="${baseStyles.successBox}">
                 <p style="margin: 0; color: #333;">
                   You can now log in and continue using all Multaqa services. We appreciate your cooperation and adherence to our community guidelines.
                 </p>
               </div>`
-          }
+    }
         </div>
         <div style="${baseStyles.footer}">
           © ${new Date().getFullYear()} Multaqa. All rights reserved.
@@ -155,9 +151,8 @@ export const getStaffRoleAssignmentTemplate = (
             </p>
           </div>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationLink}" target="_blank" style="${
-    baseStyles.buttonSuccess
-  }">
+            <a href="${verificationLink}" target="_blank" style="${baseStyles.buttonSuccess
+    }">
               Accept Staff Role
             </a>
           </div>
@@ -193,21 +188,19 @@ export const getCommentDeletionWarningTemplate = (
             Hi ${username},<br><br>
             One of your comments has been removed for violating our community guidelines.
           </p>
-          ${
-            eventName
-              ? `<p style="font-size: 14px; color: #666;">
+          ${eventName
+      ? `<p style="font-size: 14px; color: #666;">
                 <strong>Event:</strong> ${eventName}
               </p>`
-              : ""
-          }
+      : ""
+    }
           <div style="${baseStyles.warningBox}">
             <strong style="color: #ea580c;">Deleted Comment:</strong>
             <p style="margin: 10px 0; padding: 10px; background-color: #fff; border-radius: 4px; color: #333; font-style: italic;">
-              "${
-                commentText.length > 200
-                  ? commentText.substring(0, 200) + "..."
-                  : commentText
-              }"
+              "${commentText.length > 200
+      ? commentText.substring(0, 200) + "..."
+      : commentText
+    }"
             </p>
           </div>
           <div style="${baseStyles.dangerBox}">
@@ -217,11 +210,10 @@ export const getCommentDeletionWarningTemplate = (
           <div style="${baseStyles.infoBox}">
             <p style="margin: 0; color: #333;">
               <strong>Warning Count:</strong> ${warningCount}/3<br><br>
-              ${
-                warningCount >= 3
-                  ? '⚠️ <strong style="color: #dc2626;">Your account may be subject to suspension.</strong>'
-                  : "Please ensure future comments comply with our community guidelines to avoid account suspension."
-              }
+              ${warningCount >= 3
+      ? '⚠️ <strong style="color: #dc2626;">Your account may be subject to suspension.</strong>'
+      : "Please ensure future comments comply with our community guidelines to avoid account suspension."
+    }
             </p>
           </div>
           <p style="font-size: 14px; color: #555;">
@@ -370,11 +362,10 @@ export const getApplicationStatusTemplate = (
         <div style="${baseStyles.content}">
           <p style="font-size: 16px; color: #333;">
             Hi ${username},<br><br>
-            We have reviewed your application to ${
-              applicationType === "bazaar"
-                ? "join the bazaar"
-                : "apply for a booth"
-            }.
+            We have reviewed your application to ${applicationType === "bazaar"
+      ? "join the bazaar"
+      : "apply for a booth"
+    }.
           </p>
           <div style="${baseStyles.infoBox}">
             <h3 style="margin: 0 0 15px 0; color: #2563eb;">Application Details</h3>
@@ -389,25 +380,22 @@ export const getApplicationStatusTemplate = (
               </tr>
               <tr>
                 <td style="padding: 8px 0; color: #555; font-weight: bold;">Status:</td>
-                <td style="padding: 8px 0; color: ${
-                  isAccepted ? "#16a34a" : "#dc2626"
-                }; font-weight: bold; text-transform: uppercase;">
+                <td style="padding: 8px 0; color: ${isAccepted ? "#16a34a" : "#dc2626"
+    }; font-weight: bold; text-transform: uppercase;">
                   ${status}
                 </td>
               </tr>
             </table>
           </div>
-          ${
-            isAccepted
-              ? `<div style="${baseStyles.successBox}">
+          ${isAccepted
+      ? `<div style="${baseStyles.successBox}">
                 <p style="margin: 0; color: #333;">
                   <strong style="color: #16a34a;">Congratulations!</strong><br><br>
                   Your application has been approved. We're excited to have you participate in our ${typeLabel.toLowerCase()}.
                 </p>
               </div>
-              ${
-                paymentDeadline
-                  ? `<div style="${baseStyles.warningBox}">
+              ${paymentDeadline
+        ? `<div style="${baseStyles.warningBox}">
                     <strong style="color: #ea580c;">⏰ Payment Required:</strong>
                     <p style="margin: 10px 0 0 0; color: #333;">
                       Please complete your participation fee payment by <strong>${paymentDeadline.toLocaleDateString()} at ${paymentDeadline.toLocaleTimeString()}</strong>.
@@ -415,34 +403,32 @@ export const getApplicationStatusTemplate = (
                       Failure to complete payment by this deadline may result in your application being cancelled.
                     </p>
                   </div>`
-                  : ""
-              }
-              ${
-                nextSteps
-                  ? `<div style="${baseStyles.infoBox}">
+        : ""
+      }
+              ${nextSteps
+        ? `<div style="${baseStyles.infoBox}">
                     <strong style="color: #2563eb;">Next Steps:</strong>
                     <p style="margin: 10px 0 0 0; color: #333;">${nextSteps}</p>
                   </div>`
-                  : ""
-              }`
-              : `<div style="${baseStyles.dangerBox}">
+        : ""
+      }`
+      : `<div style="${baseStyles.dangerBox}">
                 <strong style="color: #dc2626;">Application Not Approved</strong>
                 <p style="margin: 10px 0 0 0; color: #333;">
                   We regret to inform you that your application was not approved at this time.
                 </p>
               </div>
-              ${
-                rejectionReason
-                  ? `<div style="${baseStyles.warningBox}">
+              ${rejectionReason
+        ? `<div style="${baseStyles.warningBox}">
                     <strong style="color: #ea580c;">Reason:</strong>
                     <p style="margin: 10px 0 0 0; color: #333;">${rejectionReason}</p>
                   </div>`
-                  : ""
-              }
+        : ""
+      }
               <p style="font-size: 14px; color: #555;">
                 You're welcome to reapply in the future. If you have questions about this decision, please contact our support team.
               </p>`
-          }
+    }
         </div>
         <div style="${baseStyles.footer}">
           © ${new Date().getFullYear()} Multaqa. All rights reserved.
@@ -596,31 +582,29 @@ export const getEventAccessRemovedTemplate = (
             </p>
           </div>
           
-          ${
-            refundAmount
-              ? `
+          ${refundAmount
+      ? `
           <div style="${baseStyles.successBox}">
             <h3 style="margin: 0 0 10px 0; color: #16a34a;">💰 Refund Processed</h3>
             <p style="margin: 0; color: #333;">
               A refund of <strong>$${refundAmount.toFixed(
-                2
-              )}</strong> has been automatically added to your wallet.
+        2
+      )}</strong> has been automatically added to your wallet.
               You can use this balance for future event registrations.
             </p>
           </div>
           `
-              : ""
-          }
+      : ""
+    }
           
           <div style="${baseStyles.infoBox}">
             <p style="margin: 0; color: #333;">
               <strong style="color: #2563eb;">What's Next?</strong><br><br>
               You can browse other available events that match your profile. We apologize for any inconvenience this may cause.
-              ${
-                refundAmount
-                  ? "<br><br>Your wallet balance has been updated and is ready to use for other events."
-                  : ""
-              }
+              ${refundAmount
+      ? "<br><br>Your wallet balance has been updated and is ready to use for other events."
+      : ""
+    }
             </p>
           </div>
           
@@ -674,9 +658,8 @@ export const getGymSessionNotificationTemplate = (
             The gym session "<strong>${sessionName}</strong>" that you registered for has been ${actionType}.
           </p>
           
-          ${
-            isCancelled
-              ? `<div style="${baseStyles.dangerBox}">
+          ${isCancelled
+      ? `<div style="${baseStyles.dangerBox}">
                 <h3 style="margin: 0 0 10px 0; color: #dc2626;">Cancelled Session Details</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
@@ -685,39 +668,35 @@ export const getGymSessionNotificationTemplate = (
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      oldDetails?.time
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.time
+      }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      oldDetails?.duration
-                        ? oldDetails.duration + " mins"
-                        : "N/A"
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.duration
+        ? oldDetails.duration + " mins"
+        : "N/A"
+      }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      oldDetails?.location
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.location
+      }</td>
                   </tr>
-                  ${
-                    oldDetails?.instructor
-                      ? `
+                  ${oldDetails?.instructor
+        ? `
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
                     <td style="padding: 5px 0; color: #333;">${oldDetails.instructor}</td>
                   </tr>`
-                      : ""
-                  }
+        : ""
+      }
                 </table>
                </div>
                <p style="font-size: 14px; color: #555;">
                  We apologize for any inconvenience. Please check our schedule for alternative sessions.
                </p>`
-              : `<div style="${baseStyles.warningBox}">
+      : `<div style="${baseStyles.warningBox}">
                 <h3 style="margin: 0 0 10px 0; color: #ea580c;">Original Details</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
@@ -726,33 +705,29 @@ export const getGymSessionNotificationTemplate = (
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      oldDetails?.time
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.time
+      }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      oldDetails?.duration
-                        ? oldDetails.duration + " mins"
-                        : "N/A"
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.duration
+        ? oldDetails.duration + " mins"
+        : "N/A"
+      }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      oldDetails?.location
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${oldDetails?.location
+      }</td>
                   </tr>
-                  ${
-                    oldDetails?.instructor
-                      ? `
+                  ${oldDetails?.instructor
+        ? `
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
                     <td style="padding: 5px 0; color: #333;">${oldDetails.instructor}</td>
                   </tr>`
-                      : ""
-                  }
+        : ""
+      }
                 </table>
                </div>
                
@@ -765,39 +740,35 @@ export const getGymSessionNotificationTemplate = (
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Time:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      newDetails?.time
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${newDetails?.time
+      }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Duration:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      newDetails?.duration
-                        ? newDetails.duration + " mins"
-                        : "N/A"
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${newDetails?.duration
+        ? newDetails.duration + " mins"
+        : "N/A"
+      }</td>
                   </tr>
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Location:</td>
-                    <td style="padding: 5px 0; color: #333;">${
-                      newDetails?.location
-                    }</td>
+                    <td style="padding: 5px 0; color: #333;">${newDetails?.location
+      }</td>
                   </tr>
-                  ${
-                    newDetails?.instructor
-                      ? `
+                  ${newDetails?.instructor
+        ? `
                   <tr>
                     <td style="padding: 5px 0; color: #555; font-weight: bold;">Instructor:</td>
                     <td style="padding: 5px 0; color: #333;">${newDetails.instructor}</td>
                   </tr>`
-                      : ""
-                  }
+        : ""
+      }
                 </table>
                </div>
                <p style="font-size: 14px; color: #555;">
                  Your registration has been automatically transferred to the updated session.
                </p>`
-          }
+    }
           
           <p style="font-size: 14px; color: #555;">
             If you have any questions, please contact our support team.
@@ -809,6 +780,48 @@ export const getGymSessionNotificationTemplate = (
       </div>
     </div>
   `;
+};
+
+export const getBugReportTemplate = (reportTitle: string) => {
+  const title = "Action Required: New Bug Report";
+
+  return `
+        <div style="${baseStyles.container}">
+            <div style="${baseStyles.card}">
+                <div style="${baseStyles.header}">
+                    <h2 style="margin: 0; font-size: 22px;"> ${title}</h2>
+                </div>
+                <div style="${baseStyles.content}">
+                    <p style="font-size: 16px; color: #333;">
+                        Dear Multaqa Operations Team,<br><br>
+                        A new bug report has been successfully submitted by a user. Please review the details and update us when resolved.
+                    </p>
+                    
+                    <div style="${baseStyles.infoBox}">
+                        <h3 style="margin: 0 0 10px 0; color: #4C63B6;">Report Summary</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 5px 0; color: #555; font-weight: bold; width: 120px;">Reported Title:</td>
+                                <td style="padding: 5px 0; color: #333;"><strong>${reportTitle}</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0; color: #555; font-weight: bold;">Submission Date:</td>
+                                <td style="padding: 5px 0; color: #333;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <p style="font-size: 16px; color: #333; margin-top: 20px;">
+                        The full details are available in the attached PDF file.
+                    </p>
+
+                    </div>
+                <div style="${baseStyles.footer}">
+                    © ${new Date().getFullYear()} Multaqa. All rights reserved.
+                </div>
+            </div>
+        </div>
+    `;
 };
 
 // Waitlist Joined Confirmation Email Template
@@ -832,13 +845,13 @@ export const getWaitlistJoinedTemplate = (
             <strong style="color: #2563eb;">Event Details:</strong><br>
             <p style="margin: 10px 0 0 0; color: #333;">
               📅 <strong>Date:</strong> ${new Date(
-                eventDate
-              ).toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}<br>
+    eventDate
+  ).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}<br>
               🎯 <strong>Event:</strong> ${eventName}
             </p>
           </div>
@@ -867,9 +880,8 @@ export const getWaitlistPromotionTemplate = (
   paymentDeadline: Date,
   eventId: string
 ): string => {
-  const eventUrl = `${
-    process.env.FRONTEND_URL || "http://localhost:3000"
-  }/events/${eventId}`;
+  const eventUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"
+    }/events/${eventId}`;
   const hoursUntilDeadline = Math.round(
     (paymentDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60)
   );
@@ -895,14 +907,14 @@ export const getWaitlistPromotionTemplate = (
             <strong style="color: #ea580c;">⏰ Action Required - Payment Deadline</strong><br>
             <p style="margin: 10px 0 0 0; color: #333;">
               <strong>Deadline:</strong> ${paymentDeadline.toLocaleDateString(
-                "en-US",
-                {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              )} at ${paymentDeadline.toLocaleTimeString("en-US", {
+    "en-US",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  )} at ${paymentDeadline.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   })}<br>
@@ -913,9 +925,8 @@ export const getWaitlistPromotionTemplate = (
             Please complete your payment within <strong>3 days</strong> to confirm your registration. If payment is not received by the deadline, your spot will be offered to the next person on the waitlist.
           </p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${eventUrl}" target="_blank" style="${
-    baseStyles.buttonSuccess
-  }">
+            <a href="${eventUrl}" target="_blank" style="${baseStyles.buttonSuccess
+    }">
               Complete Payment Now
             </a>
           </div>
@@ -999,13 +1010,13 @@ export const getWaitlistAutoRegisteredTemplate = (
             <strong style="color: #2563eb;">Event Details:</strong><br>
             <p style="margin: 10px 0 0 0; color: #333;">
               📅 <strong>Date:</strong> ${new Date(
-                eventDate
-              ).toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}<br>
+    eventDate
+  ).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}<br>
               📍 <strong>Location:</strong> ${location}<br>
               🎯 <strong>Event:</strong> ${eventName}
             </p>
