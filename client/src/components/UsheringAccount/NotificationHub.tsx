@@ -240,6 +240,7 @@ const NotificationHub: React.FC = () => {
                   multiline
                   rows={5}
                   fieldType={'text'}
+                  autoCapitalizeName={false}
                 />
                 <Typography variant="caption" sx={{ color: 'text.secondary', mt: 1, display: 'block' }}>
                   {message.length} characters

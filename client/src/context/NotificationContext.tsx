@@ -362,6 +362,14 @@ export const NotificationProvider = ({
       "notification:bugReport:resolved",
       handleNewNotification
     );
+    socketService.on(
+      "notification:waitlist:promoted", 
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:waitlist:expired", 
+      handleNewNotification
+    );
 
     // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
@@ -388,6 +396,8 @@ export const NotificationProvider = ({
       socketService.off("notification:comment:flagged");
       socketService.off("notification:bugReport:submitted");
       socketService.off("notification:bugReport:resolved");
+      socketService.off("notification:waitlist:promoted");
+      socketService.off("notification:waitlist:expired");
       socketService.off("notification:read");
       socketService.off("notification:unread");
       socketService.off("notification:delete");

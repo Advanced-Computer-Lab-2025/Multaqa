@@ -76,6 +76,12 @@ export class NotificationService {
       case "COMMENT_FLAGGED":
         eventBus.emit("notification:comment:flagged", notification, saveToDatabase);
         break;
+      case "WAITLIST_PROMOTED":
+        eventBus.emit("notification:waitlist:promoted", notification, saveToDatabase);
+        break;
+      case "WAITLIST_EXPIRED":
+        eventBus.emit("notification:waitlist:expired", notification, saveToDatabase);
+        break;
       default:
         console.warn(`No event bus handler for notification type: ${notification.type}`);
         // Fallback for new generic notifications
