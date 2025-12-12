@@ -163,7 +163,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         tabs: [
           { id: "teams-description", label: "Teams Description" },
-          { id: "interview-slots", label: "Interview Slots" },
+          { id: "interview-reservation", label: "Interview Reservation" },
         ],
       },
       {
@@ -198,12 +198,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bug Reporting",
         icon: Bug,
         tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
-      },
-      {
-        key: "graduation",
-        label: "GUC Graduation",
-        icon: Store,
-        tabs: [{ id: "interview-reservation", label: "Interview Reservation" }],
       },
     ],
   },
