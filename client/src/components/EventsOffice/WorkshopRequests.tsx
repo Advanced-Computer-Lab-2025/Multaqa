@@ -218,6 +218,15 @@ const WorkshopRequests: React.FC<WorkshopRequestsProps> = ({
                 registered={true}
                 datePassed={true}
                 professorStatus={item.details["Status"]}
+                attendees={item.attendees}
+                waitlist={item.waitlist}
+                isFull={
+                  (item.attendees?.length || 0) +
+                    (item.waitlist?.filter(
+                      (w: any) => w.status === "pending_payment"
+                    ).length || 0) >=
+                  Number(item.details.Capacity)
+                }
                 evaluateButton={
                   <CustomButton
                     size="small"

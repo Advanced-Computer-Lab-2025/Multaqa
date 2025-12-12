@@ -162,6 +162,15 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             user={user}
             userInfo={updatedUserInfo}
             attended={event.attended}
+            attendees={event.attendees}
+            waitlist={event.waitlist}
+            isFull={
+              (event.attendees?.length || 0) +
+                (event.waitlist?.filter(
+                  (w: any) => w.status === "pending_payment"
+                ).length || 0) >=
+              Number(event.details.Capacity)
+            }
           />
         );
       case EventType.BAZAAR:
@@ -209,6 +218,14 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ userInfo, user }) => {
             user={user}
             userInfo={updatedUserInfo}
             attended={event.attended}
+            waitlist={event.waitlist}
+            isFull={
+              (event.attendees?.length || 0) +
+                (event.waitlist?.filter(
+                  (w: any) => w.status === "pending_payment"
+                ).length || 0) >=
+              Number(event.details.Capacity)
+            }
           />
         );
       default:
