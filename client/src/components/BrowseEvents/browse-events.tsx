@@ -68,6 +68,7 @@ interface BoothEvent extends BaseEvent, BoothViewProps {
 
 interface TripEvent extends BaseEvent, BazarViewProps {
   type: EventType.TRIP;
+  attendees?: any[];
 }
 
 type Event =
@@ -80,53 +81,54 @@ type Event =
 const getFilterGroups = (
   userRole: string,
   professorOptions: FilterOption[],
-  locationOptions: FilterOption []
+  locationOptions: FilterOption[]
 ): FilterGroup[] => [
-    {
-      id: "professorName",
-      title: "Professor Name",
-      type: "text",
-      options: professorOptions,
-    },
-    {
-      id: "location",
-      title:"Location",
-      type: "text",
-      options: locationOptions,
-    },
-    {
-      id: "eventType",
-      title: "Event Type",
-      type: "chip",
-      options: [
-        { label: "Conference", value: EventType.CONFERENCE },
-        { label: "Workshop", value: EventType.WORKSHOP },
-        { label: "Bazaar", value: EventType.BAZAAR },
-        { label: "Booth", value: EventType.BOOTH },
-        { label: "Trip", value: EventType.TRIP },
-      ],
-    },
-    {
-      id: "attendance",
-      title: "Status",
-      type: "chip" as const,
-      options: [
-        { label: "Upcoming", value: "upcoming" },
-        ...((userRole !== "vendor" && userRole !== "admin " && userRole !== "events-office")
-          ? [{ label: "Attended", value: "attended" }]
-          : []),
-        ...((userRole === "admin" || userRole === "events-office")
-          ? [{ label: "Archived", value: "archived" }]
-          : []),
-      ],
-    },
-    {
-      id: "date",
-      title: "Date",
-      type: "date", // <--- NEW TYPE
-    },
-
-  ];
+  {
+    id: "professorName",
+    title: "Professor Name",
+    type: "text",
+    options: professorOptions,
+  },
+  {
+    id: "location",
+    title: "Location",
+    type: "text",
+    options: locationOptions,
+  },
+  {
+    id: "eventType",
+    title: "Event Type",
+    type: "chip",
+    options: [
+      { label: "Conference", value: EventType.CONFERENCE },
+      { label: "Workshop", value: EventType.WORKSHOP },
+      { label: "Bazaar", value: EventType.BAZAAR },
+      { label: "Booth", value: EventType.BOOTH },
+      { label: "Trip", value: EventType.TRIP },
+    ],
+  },
+  {
+    id: "attendance",
+    title: "Status",
+    type: "chip" as const,
+    options: [
+      { label: "Upcoming", value: "upcoming" },
+      ...(userRole !== "vendor" &&
+      userRole !== "admin " &&
+      userRole !== "events-office"
+        ? [{ label: "Attended", value: "attended" }]
+        : []),
+      ...(userRole === "admin" || userRole === "events-office"
+        ? [{ label: "Archived", value: "archived" }]
+        : []),
+    ],
+  },
+  {
+    id: "date",
+    title: "Date",
+    type: "date", // <--- NEW TYPE
+  },
+];
 
 const EventColor = [
   {
@@ -176,7 +178,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   const [createTrip, setTrip] = useState(false);
   const [professorOptions, setProfessorOptions] = useState<FilterOption[]>([]);
   const [locationOptions, setlocationOptions] = useState<FilterOption[]>([]);
-  const [cachedProfessors, setCachedProfessors] = useState<{ firstName: string, lastName: string }[]>([]);
+  const [cachedProfessors, setCachedProfessors] = useState<
+    { firstName: string; lastName: string }[]
+  >([]);
   const registeredEvents = userInfo?.registeredEvents;
 
   // Fetch all professors once on mount for filtering
@@ -185,7 +189,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       try {
         const res = await api.get("/users/professors");
         // filter only isVerified = true
-        const verifiedProfessors = res.data.data.filter((prof: any) => prof.isVerified === true);
+        const verifiedProfessors = res.data.data.filter(
+          (prof: any) => prof.isVerified === true
+        );
         console.log("Verified Professors count:", verifiedProfessors.length);
         const professors = verifiedProfessors.map((prof: any) => ({
           firstName: prof.firstName,
@@ -201,30 +207,30 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
   }, []);
 
   useEffect(() => {
-  if (events.length === 0) {
-    setlocationOptions([]);
-    return;
-  }
-
-  const uniqueLocations = new Set<string>();
-
-  events.forEach((event) => {
-    const location = event.details.Location;
-    if (typeof location === "string" && location.trim()) {
-      uniqueLocations.add(location.trim().toLowerCase());
+    if (events.length === 0) {
+      setlocationOptions([]);
+      return;
     }
-  });
 
-  const options: FilterOption[] = Array.from(uniqueLocations)
-    .sort() // Sort alphabetically
-    .map((loc) => ({
-      label: capitalizeNamePart(loc), // Use your existing utility to format the label
-      value: loc, // Lowercase value for filtering
-    }));
+    const uniqueLocations = new Set<string>();
 
-  setlocationOptions(options);
-  console.log("📍 Generated location filter options:", options);
-}, [events]);
+    events.forEach((event) => {
+      const location = event.details.Location;
+      if (typeof location === "string" && location.trim()) {
+        uniqueLocations.add(location.trim().toLowerCase());
+      }
+    });
+
+    const options: FilterOption[] = Array.from(uniqueLocations)
+      .sort() // Sort alphabetically
+      .map((loc) => ({
+        label: capitalizeNamePart(loc), // Use your existing utility to format the label
+        value: loc, // Lowercase value for filtering
+      }));
+
+    setlocationOptions(options);
+    console.log("📍 Generated location filter options:", options);
+  }, [events]);
 
   // Separate effect for loading events
   useEffect(() => {
@@ -249,7 +255,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     };
 
     const options = cachedProfessors.map((prof) => {
-      const fullName = `${formatProfessorName(prof.firstName)} ${formatProfessorName(prof.lastName)}`;
+      const fullName = `${formatProfessorName(
+        prof.firstName
+      )} ${formatProfessorName(prof.lastName)}`;
       return {
         label: fullName,
         value: fullName.toLowerCase(),
@@ -308,19 +316,16 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== eventId)
       );
-      toast.success(
-        response.data.message || "Event deleted successfully!",
-        {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        }
-      );
+      toast.success(response.data.message || "Event deleted successfully!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.error ||
@@ -387,8 +392,8 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             (event.details?.Description?.toLowerCase() || "").includes(query) ||
             (Array.isArray(event.people)
               ? event.people.some((p) =>
-                (p?.toString().toLowerCase() || "").includes(query)
-              )
+                  (p?.toString().toLowerCase() || "").includes(query)
+                )
               : false) ||
             Object.values(event.details ?? {}).some((value) =>
               String(value ?? "")
@@ -444,10 +449,9 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           const createdByDetail =
             (event.details?.["Created by"] ||
               event.details?.["Created By"] ||
-              "") ?? "";
-          const createdByText = createdByDetail
-            .toString()
-            .toLowerCase();
+              "") ??
+            "";
+          const createdByText = createdByDetail.toString().toLowerCase();
 
           return selectedProfessors.some((query) => {
             const lowerQuery = query.toLowerCase();
@@ -564,8 +568,7 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       const currentVal = prev[groupId as keyof Filters]; // 1. Handle Multi-Select Filters (eventType and location)
 
       if (
-        (groupId === "eventType" ||
-          groupId === "attendance") &&
+        (groupId === "eventType" || groupId === "attendance") &&
         Array.isArray(currentVal)
       ) {
         const filterValue = String(value).toLowerCase();
@@ -581,17 +584,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
           };
         }
       }
-      if (
-         ( groupId === "location" ||
-          groupId === "professorName" )
-      ) {
-          // If value is an array (from TextSelector), accept it directly after lowercasing
-          if (Array.isArray(value)) {
-              const finalValue = value.map((v: string) => v.toLowerCase());
-              return { ...prev, [groupId]: finalValue };
-          }
-          // If not an array, treat it as a reset or invalid call (should be array or empty string/null for reset)
-          return { ...prev, [groupId]: [] };
+      if (groupId === "location" || groupId === "professorName") {
+        // If value is an array (from TextSelector), accept it directly after lowercasing
+        if (Array.isArray(value)) {
+          const finalValue = value.map((v: string) => v.toLowerCase());
+          return { ...prev, [groupId]: finalValue };
+        }
+        // If not an array, treat it as a reset or invalid call (should be array or empty string/null for reset)
+        return { ...prev, [groupId]: [] };
       }
       return {
         ...prev,
@@ -644,15 +644,17 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
     user === "events-office"
       ? "Manage Events"
       : registered
-        ? " My Registered Events"
-        : user=="vendor"?"Browse Bazaars":"Browse Events"
+      ? " My Registered Events"
+      : user == "vendor"
+      ? "Browse Bazaars"
+      : "Browse Events";
 
   const pageDescription =
     user === "events-office"
       ? "Manage and create events on the system"
       : registered
-        ? "Keep track of which events you have registered for"
-        : "Take a look at all the opportunities we have to offer and find your perfect match(es)"
+      ? "Keep track of which events you have registered for"
+      : "Take a look at all the opportunities we have to offer and find your perfect match(es)";
 
   // Render event component based on type
   const renderEventComponent = (event: Event, registered: boolean) => {
@@ -710,6 +712,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               new Date(event.details["Registration Deadline"]) < new Date()
             }
             allowedUsers={event.allowedUsers}
+            waitlist={event.waitlist}
+            isFull={
+              (event.attendees?.length || 0) +
+                (event.waitlist?.filter(
+                  (w: any) => w.status === "pending_payment"
+                ).length || 0) >=
+              Number(event.details.Capacity)
+            }
           />
         );
       case EventType.BAZAAR:
@@ -792,6 +802,14 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
             }
             registrationDeadline={event.registrationDeadline}
             allowedUsers={event.allowedUsers}
+            waitlist={event.waitlist}
+            isFull={
+              (event.attendees?.length || 0) +
+                (event.waitlist?.filter(
+                  (w: any) => w.status === "pending_payment"
+                ).length || 0) >=
+              Number(event.details.Capacity)
+            }
           />
         );
       default:
@@ -805,60 +823,65 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
       description={pageDescription}
       padding={{ xs: 2, md: 4 }}
     >
-        {/* Search and Filter Row */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            alignItems: "center",
-            mb: 6,
-            flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
-          }}
-        >
-          <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
-            <CustomSearchBar
-              width="100%"
-              type="outwards"
-              icon
-              value={searchQuery}
-              onChange={handleSearchChange}
-              storageKey="browseEventsSearchHistory"
-              autoSaveDelay={2000}
-              label={user!=="vendor"?"Search Events...":"Search Bazaars..."}
-            />
-          </Box>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            {userInfo.role!=="vendor" &&(
+      {/* Search and Filter Row */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+          mb: 6,
+          flexWrap: { xs: "wrap", sm: "nowrap" }, // Only wrap on phones
+        }}
+      >
+        <Box sx={{ flexGrow: 1, minWidth: { xs: "100%", sm: "300px" } }}>
+          <CustomSearchBar
+            width="100%"
+            type="outwards"
+            icon
+            value={searchQuery}
+            onChange={handleSearchChange}
+            storageKey="browseEventsSearchHistory"
+            autoSaveDelay={2000}
+            label={user !== "vendor" ? "Search Events..." : "Search Bazaars..."}
+          />
+        </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          {userInfo.role !== "vendor" && (
             <FilterPanel
-              filterGroups={getFilterGroups(user, professorOptions,locationOptions)}
+              filterGroups={getFilterGroups(
+                user,
+                professorOptions,
+                locationOptions
+              )}
               onFilterChange={handleFilterChange}
               currentFilters={filters}
               onReset={handleResetFilters}
               matchSearchBar
-            />)}
-          </LocalizationProvider>
-        </Box>
-
-        {/* Sort By and Creation Hub Row */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            gap: 2,
-            mb: 2,
-          }}
-        >
-          <SortByDate value={sortBy} onChange={handleSortChange} />
-          {user === "events-office" && (
-            <CreationHubDropdown
-              options={creationHubOptions}
-              helperText="Choose what you would like to create"
-              dropdownSide="right"
-              buttonTextColor="#fff"
             />
           )}
-        </Box>
+        </LocalizationProvider>
+      </Box>
+
+      {/* Sort By and Creation Hub Row */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <SortByDate value={sortBy} onChange={handleSortChange} />
+        {user === "events-office" && (
+          <CreationHubDropdown
+            options={creationHubOptions}
+            helperText="Choose what you would like to create"
+            dropdownSide="right"
+            buttonTextColor="#fff"
+          />
+        )}
+      </Box>
 
       {/* Loading State */}
       {loading && <EventCardsListSkeleton />}
@@ -918,8 +941,6 @@ const BrowseEvents: React.FC<BrowseEventsProps> = ({
               </Typography>
             </Box>
           )}
-
-
         </>
       )}
 
