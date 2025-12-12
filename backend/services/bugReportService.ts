@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import { pdfGenerator } from "../utils/pdfGenerator";
 import createError from "http-errors";
 import { UserRole } from "../constants/user.constants";
+import { AdministrationRoleType } from "../constants/administration.constants";
 import { IAdministration } from "../interfaces/models/administration.interface";
 import { BugReportData } from "../utils/pdfGenerator";
 import { sendBugReportEmail } from "./emailService";
@@ -19,6 +20,7 @@ import ExcelJS from "exceljs";
 export class BugReportService {
   private bugReportRepo: GenericRepository<IBugReport>;
   private userRepo: GenericRepository<IUser>;
+
   constructor() {
     this.bugReportRepo = new GenericRepository<IBugReport>(BugReport);
     this.userRepo = new GenericRepository(User);
@@ -30,6 +32,21 @@ export class BugReportService {
       throw new Error('Reporter user not found');
     }
     const newBugReport = await this.bugReportRepo.create({ ...bugReportData, createdBy: new mongoose.Types.ObjectId(userId), date: new Date(), status: BUG_REPORT_STATUS.PENDING });
+
+    // notify admins about new bug report
+    await NotificationService.sendNotification({
+      role: [
+        UserRole.ADMINISTRATION
+      ],
+      adminRole: [
+        AdministrationRoleType.ADMIN
+      ],
+      type: "BUG_REPORT_SUBMITTED",
+      title: "New Bug Report",
+      message: `A new bug report titled "${bugReportData.title}" has been submitted and requires your attention.`,
+      createdAt: new Date()
+    } as Notification);
+
     return newBugReport;
   }
 

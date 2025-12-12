@@ -427,6 +427,7 @@ router.get(
       UserRole.STAFF_MEMBER,
       UserRole.STUDENT,
       UserRole.VENDOR,
+      UserRole.USHER_ADMIN
     ],
     adminRoles: [
       AdministrationRoleType.ADMIN,

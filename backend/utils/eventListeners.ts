@@ -116,6 +116,9 @@ async function sendSocketNotification(typeNotification: string, notification: No
       if (notification.role.includes(UserRole.STUDENT)) {
         promises.push(userService.getAllStudents());
       }
+      if (notification.role.includes(UserRole.USHER_ADMIN)) {
+        promises.push(userService.getAllUsherAdmins());
+      }
 
       // Await all promises and collect user IDs
       const results = await Promise.all(promises);
@@ -212,6 +215,16 @@ eventBus.on("notification:vendor:pendingRequest", (notification, saveToDatabase)
 // Flagged comments -> notify Admins
 eventBus.on("notification:comment:flagged", (notification, saveToDatabase) => {
   sendSocketNotification("notification:comment:flagged", notification, saveToDatabase);
+});
+
+/**
+ * -------------------------------
+ * Bug Report Notifications
+ * -------------------------------
+ */
+// Bug report submitted -> notify Admins
+eventBus.on("notification:bugReport:submitted", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:bugReport:submitted", notification, saveToDatabase);
 });
 
 /**

@@ -90,8 +90,7 @@ export const NotificationProvider = ({
       setIsLoading(true);
       console.log("📥 Fetching notifications from API...");
 
-      if (user?.role !== "usherAdmin"){
-        const response = await api.get("/users/notifications");
+      const response = await api.get("/users/notifications");
 
       if (response.data.success) {
         const fetchedNotifications = response.data.data || [];
@@ -104,7 +103,7 @@ export const NotificationProvider = ({
         );
 
         setNotifications(sortedNotifications);
-      }}
+      }
     } catch (error) {
       console.error("❌ Error fetching notifications:", error);
     } finally {
@@ -323,6 +322,10 @@ export const NotificationProvider = ({
       "notification:comment:flagged",
       handleNewNotification
     );
+    socketService.on(
+      "notification:bugReport:submitted",
+      handleNewNotification
+    );
 
     // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
@@ -339,6 +342,7 @@ export const NotificationProvider = ({
       socketService.off("notification:loyalty:newPartner");
       socketService.off("notification:vendor:pendingRequest");
       socketService.off("notification:comment:flagged");
+      socketService.off("notification:bugReport:submitted");
       socketService.off("notification:read");
       socketService.off("notification:unread");
       socketService.off("notification:delete");

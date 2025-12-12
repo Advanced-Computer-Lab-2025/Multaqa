@@ -44,6 +44,9 @@ export class NotificationService {
       case "VENDOR_PENDING_REQUEST":
         eventBus.emit("notification:vendor:pendingRequest", notification, saveToDatabase);
         break;
+      case "BUG_REPORT_SUBMITTED":
+        eventBus.emit("notification:bugReport:submitted", notification, saveToDatabase);
+        break;
       case "COMMENT_FLAGGED":
         eventBus.emit("notification:comment:flagged", notification, saveToDatabase);
         break;
@@ -126,7 +129,7 @@ export class NotificationService {
     console.log("Deleting notification:", { userId, notificationId });
     user.notifications = user.notifications.filter((notification) => {
       return (notification._id as any).toString() !== notificationId.toString();
-    }); 
+    });
     await user.save();
 
     // Emit delete event to inform other tabs(sockets)
