@@ -332,15 +332,15 @@ export default function InterviewBookingPage() {
     try {
       await api.post(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${selectedSlotId}/book`);
       toast.success("Interview Slot Booked Successfully", {
-                position: "bottom-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-              });
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
 
       const updatedSlot = {
         ...slotToBook,
@@ -363,7 +363,7 @@ export default function InterviewBookingPage() {
       setSlotsError(error.message || "An unknown error occurred during booking.");
       toast.error(
         error.response.data.error ||
-          "Failed to book interview slot . Please try again.",
+        "Failed to book interview slot . Please try again.",
         {
           position: "bottom-right",
           autoClose: 5000,
@@ -389,15 +389,15 @@ export default function InterviewBookingPage() {
     try {
       await api.post(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${slotId}/cancel`, {});
       toast.success("Your reservation was successfully cancelled", {
-                position: "bottom-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "colored",
-              });
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
       setSlotsData(prev =>
         prev.map(slot =>
           slot.id === slotId
@@ -414,9 +414,9 @@ export default function InterviewBookingPage() {
     } catch (error: any) {
       console.error("Cancel Error:", error);
       setSlotsError(error.message || "An unknown error occurred during cancellation.");
-            toast.error(
+      toast.error(
         error.response.data.error ||
-          "Failed to cancel reservation. Please try again.",
+        "Failed to cancel reservation. Please try again.",
         {
           position: "bottom-right",
           autoClose: 5000,
@@ -443,17 +443,7 @@ export default function InterviewBookingPage() {
   const isTeamSelectorDisabled = !!confirmedSlotId;
 
   if (loading) {
-        return <BookingSkeleton />;
-    }
-
-  if (teamsError) {
-    return (
-      <ContentWrapper title="Booking Error" description="Failed to load necessary data.">
-        <Box sx={{ p: 4 }}>
-          <Alert severity="error">{teamsError}</Alert>
-        </Box>
-      </ContentWrapper>
-    );
+    return <BookingSkeleton />;
   }
 
   if (teamsError) {

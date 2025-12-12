@@ -454,7 +454,7 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
               '&:disabled': {
                 backgroundColor: alpha(teamColor, 0.3),
               },
-              borderColor: 'none',
+              borderColor: teamColor,
             }}
           >
             Add Slots
