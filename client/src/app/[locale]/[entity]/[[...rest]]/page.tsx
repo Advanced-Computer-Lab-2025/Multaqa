@@ -42,6 +42,8 @@ import BugReportForms from "@/components/Bugs/BugReportForms";
 import BugReports from "@/components/Bugs/BugReports";
 import UsheringApplications from "@/components/shared/UsheringTeamApplications/UsheringApplications";
 import InterviewSlotManager from "@/components/UsheringAccount/InterviewSlotManager";
+import Guidelines from "@/components/UsheringAccount/Guidelines";
+import NotificationHub from "@/components/UsheringAccount/NotificationHub";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -360,6 +362,12 @@ export default function EntityCatchAllPage() {
         }
         if (section === "applications") {
           return <UsheringApplications />;
+        }
+        if (section === "guidelines") {
+          return <Guidelines/>;
+        }
+        if(section ==="notification-service"){
+          return <NotificationHub />
         }
       }
     }
