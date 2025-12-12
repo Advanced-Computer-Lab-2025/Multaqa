@@ -158,7 +158,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "polls", label: "Polls" },
         ],
       },
-       {
+      {
         key: "graduation",
         label: "Guc Graduation",
         icon: Calendar,
@@ -249,7 +249,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -302,7 +302,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -361,7 +361,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -428,7 +428,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-sessions", label: "Browse Sessions" },
         ],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -568,22 +568,25 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   "usher-admin": {
     headerTitle: "Usher Admin Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "teams-description",
+    defaultTab: "guidelines",
     defaultSection: "graduation",
-     tabs: [
-          { id: "teams-description", label: "Teams' Description" },
-          { id: "interview-management", label: "Interview Management" },
-          { id: "student-list", label: "Student List" },
-        ],
+    tabs: [
+      { id: "teams-description", label: "Teams' Description" },
+      { id: "interview-management", label: "Interview Management" },
+      { id: "applications", label: "Applications" },
+      { id: "student-list", label: "Student List" },
+    ],
     sections: [
       {
         key: "graduation",
         label: "GUC Graduation",
         icon: LayoutDashboard,
         tabs: [
+          { id: "guidelines", label: "Guidelines" },
           { id: "teams-description", label: "Teams' Description" },
           { id: "interview-management", label: "Interview Management" },
-          { id: "student-list", label: "Student List" },
+          { id: "applications", label: "Applications" },
+          { id: "notification-service", label: "Notification Broadcast" },
         ],
       },
       {

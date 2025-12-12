@@ -10,7 +10,6 @@ import GenericRepository from "../repos/genericRepo";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { INotification, IUser } from "../interfaces/models/user.interface";
 import createError from "http-errors";
-import { save } from "pdfkit";
 
 // Helper function to broadcast events to all user's sockets (for sync events like read/unread/delete)
 function broadcastToUserSockets(userId: string, eventName: string, data: any) {
@@ -209,6 +208,48 @@ eventBus.on("notification:vendor:pendingRequest", (notification, saveToDatabase)
 
 /**
  * -------------------------------
+ * Ushering Notifications
+ * -------------------------------
+ */
+
+// When an ushering team is updated -> notify students
+eventBus.on("notification:ushering:teamUpdated", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:teamUpdated", notification, saveToDatabase);
+});
+
+// When an ushering team is deleted -> notify students
+eventBus.on("notification:ushering:teamDeleted", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:teamDeleted", notification, saveToDatabase);
+});
+
+// When a student cancels their interview slot -> notify usher admins
+eventBus.on("notification:ushering:slotCancelled", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotCancelled", notification, saveToDatabase);
+});
+
+// When new interview slots are added (after post time) -> notify students
+eventBus.on("notification:ushering:slotsAdded", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotsAdded", notification, saveToDatabase);
+});
+
+// When a student books an interview slot -> notify usher admins
+eventBus.on("notification:ushering:slotBooked", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotBooked", notification, saveToDatabase);
+});
+
+// When post time is updated -> notify students
+eventBus.on("notification:ushering:postTimeUpdated", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:postTimeUpdated", notification, saveToDatabase);
+});
+
+// Broadcast message to all students
+eventBus.on("notification:ushering:broadcastAll", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:broadcastAll", notification, saveToDatabase);
+});
+
+// Broadcast message to interview applicants only
+eventBus.on("notification:ushering:broadcastApplicants", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:broadcastApplicants", notification, saveToDatabase);
  * Comment Moderation Notifications
  * -------------------------------
  */

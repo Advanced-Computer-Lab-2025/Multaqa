@@ -141,7 +141,7 @@ export class UserService {
 
     return user.notifications || [];
   }
-  
+
   async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {

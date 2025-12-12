@@ -55,10 +55,11 @@ import "./utils/eventListeners";
 
 import verifyJWT from "./middleware/verifyJWT.middleware";
 import { errorHandler, notFoundHandler } from "./config/errorHandler";
-import { WorkshopScheduler } from "./services/workshopSchedulerService";
+import { workshopScheduler } from "./services/workshopSchedulerService";
 import { NotificationService } from "./services/notificationService";
-import { EventScheduler } from "./services/eventSchedulerService";
+import { eventScheduler } from "./services/eventSchedulerService";
 import { waitlistScheduler } from "./services/waitlistSchedulerService";
+import { usheringScheduler } from "./services/usheringSchedulerService";
 
 const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -86,7 +87,7 @@ app.use("/workshops", workshopsRouter);
 app.use("/courts", courtRouter);
 app.use("/payments", paymentRouter);
 app.use("/ushering", usheringRouter)
-app.use("/bugreports",bugReportRouter)
+app.use("/bugreports", bugReportRouter)
 
 // Error handlers
 app.use(errorHandler);
@@ -213,15 +214,16 @@ async function startServer() {
     server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
     // Start workshop scheduler
-    const workshopScheduler = new WorkshopScheduler();
     workshopScheduler.start();
 
     // Start event scheduler
-    const eventScheduler = new EventScheduler();
     eventScheduler.start();
 
     // Start waitlist scheduler
     waitlistScheduler.start();
+
+    // Start ushering interview reminder scheduler
+    usheringScheduler.start();
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);

@@ -57,7 +57,7 @@ export const StyledModalBox = styled(Box)(({ theme }) => ({
   // `,
   transition: "all 0.3s ease-in-out",
   maxHeight: "90vh",
-  overflow: "hidden",
+  overflow: "auto",
 }));
 
 // Scrollable content container with padding
@@ -79,7 +79,7 @@ export const StyledModalContent = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
     padding: "32px",
   },
-    [theme.breakpoints.up("xs")]: {
+  [theme.breakpoints.up("xs")]: {
     padding: "12px",
   },
 

@@ -319,6 +319,35 @@ export const NotificationProvider = ({
       handleNewNotification
     );
     socketService.on(
+      "notification:ushering:teamUpdated",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:teamDeleted",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:slotCancelled",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:slotsAdded",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:slotBooked",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:postTimeUpdated",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:broadcastAll",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:broadcastApplicants",
       "notification:comment:flagged",
       handleNewNotification
     );
@@ -345,6 +374,14 @@ export const NotificationProvider = ({
       socketService.off("notification:event:reminder");
       socketService.off("notification:loyalty:newPartner");
       socketService.off("notification:vendor:pendingRequest");
+      socketService.off("notification:ushering:teamUpdated");
+      socketService.off("notification:ushering:teamDeleted");
+      socketService.off("notification:ushering:slotCancelled");
+      socketService.off("notification:ushering:slotsAdded");
+      socketService.off("notification:ushering:slotBooked");
+      socketService.off("notification:ushering:postTimeUpdated");
+      socketService.off("notification:ushering:broadcastAll");
+      socketService.off("notification:ushering:broadcastApplicants");
       socketService.off("notification:comment:flagged");
       socketService.off("notification:bugReport:submitted");
       socketService.off("notification:bugReport:resolved");

@@ -44,6 +44,29 @@ export class NotificationService {
       case "VENDOR_PENDING_REQUEST":
         eventBus.emit("notification:vendor:pendingRequest", notification, saveToDatabase);
         break;
+      case "USHERING_TEAM_UPDATED":
+        eventBus.emit("notification:ushering:teamUpdated", notification, saveToDatabase);
+        break;
+      case "USHERING_TEAM_DELETED":
+        eventBus.emit("notification:ushering:teamDeleted", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOT_CANCELLED":
+        eventBus.emit("notification:ushering:slotCancelled", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOT_BOOKED":
+        eventBus.emit("notification:ushering:slotBooked", notification, saveToDatabase);
+        break;
+      case "USHERING_SLOTS_ADDED":
+        eventBus.emit("notification:ushering:slotsAdded", notification, saveToDatabase);
+        break;
+      case "USHERING_POST_TIME_UPDATED":
+        eventBus.emit("notification:ushering:postTimeUpdated", notification, saveToDatabase);
+        break;
+      case "USHERING_BROADCAST_ALL":
+        eventBus.emit("notification:ushering:broadcastAll", notification, saveToDatabase);
+        break;
+      case "USHERING_BROADCAST_APPLICANTS":
+        eventBus.emit("notification:ushering:broadcastApplicants", notification, saveToDatabase);
       case "BUG_REPORT_SUBMITTED":
         eventBus.emit("notification:bugReport:submitted", notification, saveToDatabase);
         break;
