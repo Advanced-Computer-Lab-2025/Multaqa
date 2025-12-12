@@ -182,7 +182,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
       {
         key: "graduation",
-        label: "Graduation Ushering Program",
+        label: "GUC Graduation",
         icon: Store,
         tabs: [{ id: "interview-reservation", label: "Interview Reservation" }],
       },
