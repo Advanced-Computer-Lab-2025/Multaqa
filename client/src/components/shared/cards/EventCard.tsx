@@ -51,7 +51,7 @@ interface EventCardProps {
   payButton?: React.ReactNode;
   vendorStatus?: string;
   isUpcoming?: boolean;
-  registrationDeadline?:string;
+  registrationDeadline?: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -90,8 +90,10 @@ const EventCard: React.FC<EventCardProps> = ({
   registrationDeadline,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
-  const spots = (spotsLeft && parseInt(spotsLeft)) || 0;
-  const total = (totalSpots && parseInt(totalSpots)) || 0;
+  const spots =
+    spotsLeft !== undefined && spotsLeft !== null ? parseInt(spotsLeft) : 0;
+  const total =
+    totalSpots !== undefined && totalSpots !== null ? parseInt(totalSpots) : 0;
   const [copySuccess, setCopySuccess] = useState(false);
   const { user } = useAuth();
   const isEventsOffice =
@@ -103,10 +105,12 @@ const EventCard: React.FC<EventCardProps> = ({
   // Calculate deadline color based on urgency
   const getDeadlineColor = (deadlineString: string) => {
     if (!deadlineString) return "#6B7280"; // Default gray
-    
+
     const deadline = new Date(deadlineString);
     const now = new Date();
-    const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeft = Math.ceil(
+      (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
     if (daysLeft <= 3) return "#EF4444"; // Red - 3 days or less
     if (daysLeft <= 7) return "#F97316"; // Orange - 1 week or less
     return color; // Purple - more than a week
@@ -114,7 +118,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   const formatDeadlineText = (deadlineString: string, eventType: string) => {
     if (!deadlineString) return "";
-    
+
     const deadline = new Date(deadlineString);
     const now = new Date();
     // Calculate difference in milliseconds
@@ -126,21 +130,21 @@ const EventCard: React.FC<EventCardProps> = ({
     const prefix = eventType === "Bazaar" ? "Applying" : "Registration";
     // 2. Apply time logic once
     if (diffTime <= 0) {
-        return `${prefix} closed`;
+      return `${prefix} closed`;
     }
-    
+
     if (daysLeft === 1) {
-        return `${prefix} closes tomorrow`;
+      return `${prefix} closes tomorrow`;
     }
 
     return `${prefix} closes in ${daysLeft} days`;
-};
+  };
   const normalizedTitle = title?.toLowerCase?.() ?? "";
   const normalizedCreatedBy = createdBy?.toLowerCase?.() ?? "";
   const normalizedLocation = location?.toLowerCase?.() ?? "";
   const normalizedEventType = eventType?.toLowerCase?.() ?? "";
   const isFuture = new Date(startDate) > new Date();
-  const attendance = total-spots;
+  const attendance = total - spots;
 
   const handleOpenModal = () => {
     if (onOpenDetails) {
@@ -163,7 +167,7 @@ const EventCard: React.FC<EventCardProps> = ({
           }}
         />
       );
-       if (status === "pending_payment")
+    if (status === "pending_payment")
       return (
         <Chip
           size="small"
@@ -420,7 +424,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 />
               )}
               {professorStatus && statusChip(professorStatus)}
-               {vendorStatus && statusChip(vendorStatus)}
+              {vendorStatus && statusChip(vendorStatus)}
               {archived && (
                 <Chip
                   label="Archived"
@@ -543,7 +547,15 @@ const EventCard: React.FC<EventCardProps> = ({
           </Box>
 
           {/* Title Row */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              mb: 1.5,
+              justifyContent: "space-between",
+            }}
+          >
             <Typography
               variant="h6"
               sx={{
@@ -555,7 +567,7 @@ const EventCard: React.FC<EventCardProps> = ({
             >
               {title}
             </Typography>
-            
+
             {/* Registration Deadline Chip */}
             {registrationDeadline && (
               <Chip
@@ -568,8 +580,8 @@ const EventCard: React.FC<EventCardProps> = ({
                   fontWeight: 600,
                   fontSize: "0.75rem",
                   height: "24px",
-                  mt:2,
-                  p:2,
+                  mt: 2,
+                  p: 2,
                   "& .MuiChip-icon": {
                     color: "white",
                     fontSize: "14px",
@@ -632,20 +644,20 @@ const EventCard: React.FC<EventCardProps> = ({
 
               {/* Show Register/Evaluate/Comment button in the same spot */}
               {!utilities && (
-                <Box sx={{ display: "flex", gap: 1, alignItems: "center" , mb:-2}}>
+                <Box
+                  sx={{ display: "flex", gap: 1, alignItems: "center", mb: -2 }}
+                >
                   {registerButton}
                 </Box>
               )}
-               {evaluateButton && professorStatus === "pending" && (
-                    <>{evaluateButton}</>
-                  )}
+              {evaluateButton && professorStatus === "pending" && (
+                <>{evaluateButton}</>
+              )}
 
-               {commentButton && professorStatus === "awaiting_review" && (
-                    <>{commentButton}</>
-                  )}
-                  {payButton  && (eventType!=="Booth") && (
-                    <>{payButton}</>
-                  )}
+              {commentButton && professorStatus === "awaiting_review" && (
+                <>{commentButton}</>
+              )}
+              {payButton && eventType !== "Booth" && <>{payButton}</>}
             </Box>
 
             {/* Location Row */}
@@ -675,7 +687,6 @@ const EventCard: React.FC<EventCardProps> = ({
                 alignItems: "center",
               }}
             >
-
               {duration && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Clock size={16} color={color} />
@@ -689,7 +700,7 @@ const EventCard: React.FC<EventCardProps> = ({
                       gap: 0.5,
                     }}
                   >
-                    {duration} {duration=="1"?"week":"weeks"}
+                    {duration} {duration == "1" ? "week" : "weeks"}
                   </Typography>
                 </Box>
               )}
@@ -768,7 +779,13 @@ const EventCard: React.FC<EventCardProps> = ({
                 alignItems: "center",
                 mt: "auto",
                 pt: 1.5,
-                pr: spotsLeft && totalSpots ? "120px" : 0,
+                pr:
+                  spotsLeft !== undefined &&
+                  spotsLeft !== null &&
+                  totalSpots !== undefined &&
+                  totalSpots !== null
+                    ? "120px"
+                    : 0,
               }}
             >
               <Box
@@ -884,41 +901,42 @@ const EventCard: React.FC<EventCardProps> = ({
       </Box>
 
       {/* Spots Left Ribbon - Bottom Left */}
-      {spotsLeft && totalSpots&& (
-
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            right: 0,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 0.5,
-            py: 0.75,
-            px: 1.75,
-            backgroundColor: spots > 0 ? `${color}15` : "error.lighter",
-            borderTopLeftRadius: "8px",
-            borderBottomRightRadius: "8px", // Matches card border radius (3 * 8px)
-            border: "none",
-          }}
-        >
-          <Typography
-          sx={{
-            fontWeight: 600,
-            color: isFuture ? (spots > 3 ? color : "error.main") : color,
-            fontSize: "0.85rem",
-            lineHeight: 1.2,
-          }}
-        >
-          {isFuture ? (
-            `${spots} ${spots === 1 ? " spot" : " spots"} left`
-          ) : (
-            `${attendance}${ attendance === 1 ? " attendee" : " attendees"}`
-          )}
-        </Typography>
-        </Box>
-      )}
-     
+      {spotsLeft !== undefined &&
+        spotsLeft !== null &&
+        totalSpots !== undefined &&
+        totalSpots !== null && (
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              py: 0.75,
+              px: 1.75,
+              backgroundColor: spots > 0 ? `${color}15` : "#ffebee",
+              borderTopLeftRadius: "8px",
+              borderBottomRightRadius: "8px", // Matches card border radius (3 * 8px)
+              border: "none",
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: isFuture ? (spots > 3 ? color : "error.main") : color,
+                fontSize: "0.85rem",
+                lineHeight: 1.2,
+              }}
+            >
+              {isFuture
+                ? `${spots} ${spots === 1 ? " spot" : " spots"} left`
+                : `${attendance}${
+                    attendance === 1 ? " attendee" : " attendees"
+                  }`}
+            </Typography>
+          </Box>
+        )}
     </Box>
   );
 };

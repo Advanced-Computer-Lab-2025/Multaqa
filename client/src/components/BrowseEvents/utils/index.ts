@@ -15,17 +15,17 @@ export const frameData = (data: any, userInfo: any) => {
 };
 
 const flattenName = (profs: { firstName: string; lastName: string }[]) => {
-  return profs.map(prof => `${prof.firstName} ${prof.lastName}`);
-}
+  return profs.map((prof) => `${prof.firstName} ${prof.lastName}`);
+};
 const flattenVendors = (vendors: { RequestData: any; vendor: any }[]) => {
   console.log(vendors);
-  return vendors.map(vendor => vendor.vendor);
-}
+  return vendors.map((vendor) => vendor.vendor);
+};
 // Helper to clean ISO date strings (like "2025-12-31T22:00:00.000Z")
 const cleanDateString = (isoDate: string | undefined): string => {
-  if (!isoDate) return '';
+  if (!isoDate) return "";
   // Splits the string at 'T' and returns the first element (the date part)
-  return isoDate.split('T')[0];
+  return isoDate.split("T")[0];
 };
 export const capitalizeNamePart = (namePart?: string | null): string => {
   if (!namePart) return "";
@@ -36,7 +36,6 @@ export const capitalizeNamePart = (namePart?: string | null): string => {
   // Capitalize the first letter
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
-
 
 function transformEvent(event: any, attendedEvents?: string[]) {
   const id = event._id?.$oid || event._id || "";
@@ -54,6 +53,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         type: EventType.TRIP,
         name: event.eventName,
         description: event.description,
+        attendees: event.attendees,
+        waitlist: event.waitlist || [],
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
           "Start Date": cleanDateString(startDate),
@@ -76,8 +77,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
       const firstName = capitalizeNamePart(event.createdBy.firstName);
       const lastName = capitalizeNamePart(event.createdBy.lastName);
       const nameParts = [firstName, lastName];
-      const nonEmptyNameParts = nameParts.filter(part => part);
-      const fullName = nonEmptyNameParts.join(' ');
+      const nonEmptyNameParts = nameParts.filter((part) => part);
+      const fullName = nonEmptyNameParts.join(" ");
       const profs = [...flattenName(event.associatedProfs), fullName];
       return {
         id,
@@ -86,9 +87,11 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         description: event.description,
         agenda: event.fullAgenda,
         professors: profs,
-        comments:event.comments,
-        attendees:event.attendees,
-        professorsId: event.associatedProfs?.map((prof: any) => prof._id || prof) || [],
+        comments: event.comments,
+        attendees: event.attendees,
+        waitlist: event.waitlist || [],
+        professorsId:
+          event.associatedProfs?.map((prof: any) => prof._id || prof) || [],
         details: {
           "Registration Deadline": cleanDateString(registrationDeadline),
           "Start Date": cleanDateString(startDate),
@@ -100,8 +103,8 @@ function transformEvent(event: any, attendedEvents?: string[]) {
           "Extra Required Resources": event.extraRequiredResources,
           "Funding Source": event.fundingSource,
           "Required Budget": event.requiredBudget,
-          "CreatedId": event.createdBy.id,
-          "Deadline": event.registrationDeadline,
+          CreatedId: event.createdBy.id,
+          Deadline: event.registrationDeadline,
           "Created by": fullName,
           Location: event.location,
           Capacity: event.capacity?.$numberInt || event.capacity,
