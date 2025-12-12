@@ -115,7 +115,7 @@ async function getAllUsheringTeams(req: Request, res: Response<UsheringResponse>
             );
     }
 }
-
+// notify when a slot is added AFTER POST TIME ONLY
 async function addTeamReservationSlots(req: Request, res: Response<UsheringTeamsResponse>) {
     try {
         const { usheringId, teamId } = req.params;

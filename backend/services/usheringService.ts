@@ -39,7 +39,7 @@ export class UsheringService {
         return ushering.postTime || null;
     }
 
-
+    //send notification when teams are edited
     async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {
         const ushering = await this.usheringRepo.findById(usheringId);
         if (!ushering) {
@@ -104,12 +104,26 @@ export class UsheringService {
         // Transform slots from frontend format {start, end} to DB format {StartDateTime, EndDateTime}
         const transformedSlots = slots.map(slot => this.transformSlotData(slot));
         
+        // Only add slots that don't overlap with existing slots
         transformedSlots.forEach(slot => {
-            team.slots.push({
-                StartDateTime: slot.StartDateTime!,
-                EndDateTime: slot.EndDateTime!,
-                location: slot.location ?? ''
-            } as ISlot);
+            const hasOverlap = team.slots.some(existingSlot => {
+                const newStart = new Date(slot.StartDateTime!).getTime();
+                const newEnd = new Date(slot.EndDateTime!).getTime();
+                const existingStart = new Date(existingSlot.StartDateTime).getTime();
+                const existingEnd = new Date(existingSlot.EndDateTime).getTime();
+                
+                // Check for any overlap: new slot starts before existing ends AND new slot ends after existing starts
+                return newStart < existingEnd && newEnd > existingStart;
+            });
+            
+            // Only add if there's no overlap
+            if (!hasOverlap) {
+                team.slots.push({
+                    StartDateTime: slot.StartDateTime!,
+                    EndDateTime: slot.EndDateTime!,
+                    location: slot.location ?? ''
+                } as ISlot);
+            }
         });
         await ushering.save();
     }
@@ -134,6 +148,7 @@ export class UsheringService {
         await ushering.save();
     }
 
+    // send an email a day before the booked slot
     async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
         // Perform an atomic update in the database to avoid race conditions.
         // The query ensures the slot is still available and the student hasn't
@@ -228,7 +243,7 @@ export class UsheringService {
         }
         return team.slots;
    }
-
+   
    async getUserRegisteredSlot(usheringId: string, studentId: string): Promise<{
        team: {
            title: string;
