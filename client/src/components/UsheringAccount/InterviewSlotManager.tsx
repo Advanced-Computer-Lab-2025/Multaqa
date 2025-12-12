@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Container, Typography, Stack, Skeleton, IconButton } from '@mui/material';
+import { Box, Container, Typography, Stack, Skeleton, IconButton, useTheme } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
@@ -13,6 +13,7 @@ import CustomButton from '../shared/Buttons/CustomButton';
 import InterviewSlots from './InterviewSlots';
 import TeamSelector from '../shared/UsheringTeamApplications/TeamSelector';
 import EmptyState from '../shared/states/EmptyState';
+import { CustomModal } from '../shared/modals';
 import { UsheringTeam } from '../shared/UsheringTeamApplications/types';
 import {
   getTeamColor,
@@ -30,6 +31,7 @@ import {
   cardsGridStyles,
 } from '../shared/UsheringTeamApplications/styles';
 import { api } from '../../api';
+import { toast } from 'react-toastify';
 
 // ============================================================================
 // Types
@@ -88,6 +90,8 @@ const TEAM_NAMES = [
 const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
   isAdmin = true,
 }) => {
+  const theme = useTheme();
+
   // State
   const [teams, setTeams] = useState<UsheringTeam[]>([]);
   const [usheringId, setUsheringId] = useState<string>('');
@@ -95,6 +99,10 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Delete confirmation state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [slotToDelete, setSlotToDelete] = useState<string | null>(null);
 
   // Per-team slot storage
   const [teamSlots, setTeamSlots] = useState<Record<string, TeamSlot[]>>({});
@@ -259,15 +267,59 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
     </Box>
   );
 
-  // Handle delete slot (placeholder - will integrate with backend later)
-  const handleDeleteSlot = (slotId: string) => {
-    console.log('Delete slot:', slotId);
-    // TODO: Integrate with backend API
-    // For now, remove from local state
-    setTeamSlots((prev) => ({
-      ...prev,
-      [selectedTeamId]: (prev[selectedTeamId] || []).filter((s) => s._id !== slotId),
-    }));
+  // Handle delete click - opens confirmation modal
+  const handleDeleteClick = (slotId: string) => {
+    setSlotToDelete(slotId);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handle actual delete after confirmation
+  const handleDeleteSlot = async (slotId: string) => {
+    if (!usheringId || !selectedTeamId) return;
+
+    try {
+      console.log(`Deleting slot: /ushering/${usheringId}/teams/${selectedTeamId}/slots/${slotId}`);
+
+      await api.delete(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${slotId}`);
+
+      // Remove from local state after successful delete
+      setTeamSlots((prev) => ({
+        ...prev,
+        [selectedTeamId]: (prev[selectedTeamId] || []).filter((s) => s._id !== slotId),
+      }));
+      toast.success("Slot deleted successfully", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } catch (error:any) {
+      toast.error(error?.response?.data?.error || error?.response?.data?.message,
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
+    }
+  };
+
+  // Handle confirm delete
+  const handleConfirmDelete = async () => {
+    if (slotToDelete !== null) {
+      await handleDeleteSlot(slotToDelete);
+      setIsDeleteModalOpen(false);
+      setSlotToDelete(null);
+    }
   };
 
   // Render slot cards
@@ -317,7 +369,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
             {/* Right: Delete icon */}
             <IconButton
               size="small"
-              onClick={() => handleDeleteSlot(slot._id)}
+              onClick={() => handleDeleteClick(slot._id)}
               sx={{
                 color: '#9ca3af',
                 '&:hover': {
@@ -451,6 +503,28 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
           onSave={handleSaveSlots}
           teamColor={selectedTeam?.color || '#009688'}
           teamName={selectedTeam?.title || 'Team'}
+        />
+
+        {/* Delete Confirmation Modal */}
+        <CustomModal
+          open={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Confirm Deletion"
+          description="Are you sure you want to delete this interview slot? This action cannot be undone."
+          modalType="delete"
+          borderColor={theme.palette.error.main}
+          buttonOption1={{
+            label: "Delete",
+            variant: "contained",
+            color: "error",
+            onClick: handleConfirmDelete,
+          }}
+          buttonOption2={{
+            label: "Cancel",
+            variant: "outlined",
+            color: "primary",
+            onClick: () => setIsDeleteModalOpen(false),
+          }}
         />
       </Container>
     </LocalizationProvider>
