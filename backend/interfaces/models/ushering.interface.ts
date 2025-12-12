@@ -1,7 +1,5 @@
 import { Document, Types } from 'mongoose';
 
-
-
 export interface ISlot {
   _id?: Types.ObjectId;
   StartDateTime: Date;
@@ -14,7 +12,6 @@ export interface ISlot {
   location?: string;
 }
 
-
 export interface ITeam {
   _id?: Types.ObjectId;
   title: string;
@@ -24,17 +21,17 @@ export interface ITeam {
 
 export interface IReservedSlot {
   team: {
-     title: string;
-     description: string;
-      };
-  slot: ISlot; 
+    title: string;
+    description: string;
+  };
+  slot: ISlot;
 }
 
 export interface IUshering extends Document {
-postTime?: {
-  startDateTime: Date;
-  endDateTime: Date;
-}
-  teams: ITeam[]; 
+  postTime?: {
+    startDateTime: Date;
+    endDateTime: Date;
+  }
+  teams: ITeam[];
 }
 

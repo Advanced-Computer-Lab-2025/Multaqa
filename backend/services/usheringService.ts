@@ -197,9 +197,6 @@ export class UsheringService {
 		await ushering.save();
 	}
 
-
-
-
 	// send an email a day before the booked slot
 	// send a notification to all ushering accounts
 	async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
@@ -255,6 +252,28 @@ export class UsheringService {
 
 			// Fallback
 			throw createError(500, 'Failed to book slot');
+		}
+
+		// Booking successful - get team and slot info for notifications
+		const team = result.teams.find(t => t._id?.toString() === teamId);
+		const slot = team?.slots.find(s => s._id?.toString() === slotId);
+
+		if (team && slot) {
+			const slotTime = new Date(slot.StartDateTime).toLocaleString('en-US', {
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			});
+
+			// Send notification to all usher admins
+			await NotificationService.sendNotification({
+				role: [UserRole.USHER_ADMIN],
+				type: "USHERING_SLOT_BOOKED",
+				title: `New Booking - ${team.title}`,
+				message: `A student booked an interview slot for "${team.title}" at ${slotTime}.`,
+				createdAt: new Date(),
+			} as Notification);
+
+			// Note: Interview reminder emails are handled by the UsheringSchedulerService cron job
 		}
 	}
 

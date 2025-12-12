@@ -16,6 +16,7 @@ import {
   getWaitlistDeadlineExpiredTemplate,
   getWaitlistAutoRegisteredTemplate,
   getWaitlistRemovedTemplate,
+  getInterviewReminderTemplate,
 } from "../utils/emailTemplates";
 
 // Send verification email to new users
@@ -375,6 +376,27 @@ export const sendWaitlistAutoRegisteredEmail = async (
   await sendEmail({
     to: userEmail,
     subject: "🎉 You're Registered! - Multaqa",
+    html,
+  });
+};
+
+// Send interview reminder email (a day before the interview)
+export const sendInterviewReminderEmail = async (
+  userEmail: string,
+  username: string,
+  teamName: string,
+  interviewDate: Date,
+  location: string
+) => {
+  const html = getInterviewReminderTemplate(
+    username,
+    teamName,
+    interviewDate,
+    location
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: `🗓️ Interview Reminder: ${teamName} - Multaqa`,
     html,
   });
 };
