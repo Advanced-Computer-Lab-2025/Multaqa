@@ -14,6 +14,7 @@ import {
     BookedSlot,
     Applicant,
 } from '../types';
+import { api } from '../../../../api';
 
 // ============================================================================
 // Team Color Mapping (from TeamsDescription.tsx)
@@ -327,38 +328,30 @@ export const fetchTeams = async (
     setLoading(true);
 
     try {
-        // TODO: Remove mock data and uncomment API call for integration
-        // ----------------------------------------------------------------
-        // import { api } from '../../../../api';
-        // 
-        // const response = await api.get('/ushering');
-        // const usheringArray = response.data.data;
-        // 
-        // // Extract teams from the nested structure
-        // const allTeams: UsheringTeam[] = [];
-        // if (usheringArray && Array.isArray(usheringArray)) {
-        //   for (const entry of usheringArray) {
-        //     if (entry.teams && Array.isArray(entry.teams)) {
-        //       for (const team of entry.teams) {
-        //         allTeams.push({
-        //           _id: team._id,
-        //           id: team.id,
-        //           title: team.title,
-        //           description: team.description,
-        //           color: team.color || getTeamColor(team.title),
-        //           icon: getTeamIcon(team.title),
-        //         });
-        //       }
-        //     }
-        //   }
-        // }
-        // 
-        // return allTeams;
-        // ----------------------------------------------------------------
-
-        // MOCK DATA - Remove for integration
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return MOCK_TEAMS;
+        // API call for integration
+        const response = await api.get('/ushering');
+        const usheringArray = response.data.data;
+        
+        // Extract teams from the nested structure
+        const allTeams: UsheringTeam[] = [];
+        if (usheringArray && Array.isArray(usheringArray)) {
+          for (const entry of usheringArray) {
+            if (entry.teams && Array.isArray(entry.teams)) {
+              for (const team of entry.teams) {
+                allTeams.push({
+                  _id: team._id,
+                  id: team.id,
+                  title: team.title,
+                  description: team.description,
+                  color: team.color || getTeamColor(team.title),
+                  icon: getTeamIcon(team.title),
+                });
+              }
+            }
+          }
+        }
+        
+        return allTeams;
 
     } catch (err: unknown) {
         const error = err as { response?: { data?: { error?: string; message?: string } }; message?: string };

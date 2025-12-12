@@ -10,22 +10,13 @@ import TeamSelector from "../shared/UsheringTeamApplications/TeamSelector";
 import TimeSlotList from "./TimeSlotList";
 import BookingDetailsView from "./BookingDetailsView";
 import { InterviewSlot } from "./types";
+import { IStudent } from "../../../../backend/interfaces/models/student.interface";
 
 import { Box, Typography, Paper, Button, Alert, CircularProgress } from "@mui/material";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import { api } from "@/api";
+import { useAuth } from "@/context/AuthContext";
 
-const USHERING_ID = "693b84b51aa5b3b97cf30733"; 
-const BASE_URL = "{{baseUrl}}"; 
-
-const CURRENT_USER_DETAILS = {
-    email: "john.doe@university.edu",
-    id: "S1234567",
-    firstName: "John",
-    lastName: "Doe",
-};
-
-// Fetch slots for a specific team
 // Define the raw API slot structure
 interface RawSlot {
   _id: string;
@@ -37,77 +28,89 @@ interface RawSlot {
   location?: string;
 }
 
-const fetchTeamSlots = async (teamId: string): Promise<InterviewSlot[]> => {
-  if (!teamId) return [];
-
-  try {
-    console.log("[DEBUG] Fetching slots for team:", teamId);
-
-    const response = await api.get(`/ushering/`);
-    console.log("[DEBUG] API response:", response.data);
-    const teamsData = response.data?.data?.[0]?.teams;
-
-    if (!teamsData || !Array.isArray(teamsData)) {
-      console.error("[DEBUG] Invalid teams structure:", teamsData);
-      return [];
-    }
-
-    const selectedTeam = teamsData.find((team: any) => team._id === teamId);
-
-    if (!selectedTeam) {
-      console.warn(`[DEBUG] Team ID ${teamId} not found in API response`);
-      return [];
-    }
-
-    const slots: RawSlot[] = selectedTeam.slots;
-    console.log("[DEBUG] Raw slots fetched:", slots);
-
-    const mappedSlots: InterviewSlot[] = slots
-      .map((slot: RawSlot, index: number) => {
-        if (!slot.StartDateTime || !slot.EndDateTime) {
-          console.warn(`[DEBUG] Slot missing StartDateTime or EndDateTime`, slot);
-          return null;
-        }
-
-        const startDate = new Date(slot.StartDateTime);
-        const endDate = new Date(slot.EndDateTime);
-
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-          console.warn(`[DEBUG] Invalid dates for slot`, slot);
-          return null;
-        }
-
-        return {
-          id: slot.id || slot._id || `${teamId}-${index}`,
-          teamId,
-          startDateTime: slot.StartDateTime,
-          endDateTime: slot.EndDateTime,
-          isAvailable: slot.isAvailable,
-          reservedBy: slot.reservedBy ?? null,
-          studentId: slot.reservedBy?.studentId ?? null,
-          studentEmail: slot.reservedBy?.studentId
-            ? `${slot.reservedBy.studentId}@university.edu`
-            : null,
-          location: slot.location || "TBD",
-        } as InterviewSlot;
-      })
-      .filter((slot): slot is InterviewSlot => slot !== null);
-
-    console.log("[DEBUG] Mapped slots:", mappedSlots);
-    return mappedSlots;
-
-  } catch (error: any) {
-    console.error("[DEBUG] Failed to fetch slots:", error);
-    const statusText = error.response?.statusText || "Unknown Error";
-    throw new Error(`Failed to fetch slots for team ${teamId}: ${statusText}`);
-  }
-};
-
-
 export default function InterviewBookingPage() {
+    const { user } = useAuth();
     const [teams, setTeams] = useState<UsheringTeam[]>([]);
-    const [teamsLoading, setTeamsLoading] = useState<boolean>(true);
+    const [teamsLoading, setTeamsLoading] = useState(true);
     const [teamsError, setTeamsError] = useState<string | null>(null);
+    const [usheringId, setUsheringId] = useState<string | null>(null);
+    const [bookingInProgress, setBookingInProgress] = useState(false);
+
+    // Fetch slots for a specific team
+    const fetchTeamSlots = useCallback(async (teamId: string): Promise<InterviewSlot[]> => {
+      if (!teamId) return [];
+
+      try {
+        console.log("[DEBUG] Fetching slots for team:", teamId);
+
+        const response = await api.get(`/ushering/`);
+        console.log("[DEBUG] API response:", response.data);
+        const usheringData = response.data?.data[0];
+        
+        // Store ushering ID for booking operations
+        if (usheringData?._id) {
+          setUsheringId(usheringData._id);
+        }
+        
+        const teamsData = usheringData?.teams;
+        console.log("[DEBUG] Teams data extracted:", teamsData);
+
+        if (!teamsData || !Array.isArray(teamsData)) {
+          console.error("[DEBUG] Invalid teams structure:", teamsData);
+          return [];
+        }
+
+        const selectedTeam = teamsData.find((team: any) => team._id === teamId);
+        console.log("[DEBUG] Selected team:", selectedTeam);
+
+        if (!selectedTeam) {
+          console.warn(`[DEBUG] Team ID ${teamId} not found in API response`);
+          return [];
+        }
+
+        const slots: RawSlot[] = selectedTeam.slots;
+        console.log("[DEBUG] Raw slots fetched:", slots);
+
+        const mappedSlots: InterviewSlot[] = slots
+          .map((slot: RawSlot, index: number) => {
+            if (!slot.StartDateTime || !slot.EndDateTime) {
+              console.warn(`[DEBUG] Slot missing StartDateTime or EndDateTime`, slot);
+              return null;
+            }
+
+            const startDate = new Date(slot.StartDateTime);
+            const endDate = new Date(slot.EndDateTime);
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+              console.warn(`[DEBUG] Invalid dates for slot`, slot);
+              return null;
+            }
+
+            return {
+              id: slot.id || slot._id || `${teamId}-${index}`,
+              teamId,
+              startDateTime: slot.StartDateTime,
+              endDateTime: slot.EndDateTime,
+              isAvailable: slot.isAvailable,
+              reservedBy: slot.reservedBy ?? null,
+              studentId: slot.reservedBy?.studentId ?? null,
+              studentEmail: slot.reservedBy?.studentId
+                ? `${slot.reservedBy.studentId}@university.edu`
+                : null,
+              location: slot.location || "TBD",
+            } as InterviewSlot;
+          })
+          .filter((slot): slot is InterviewSlot => slot !== null);
+
+        console.log("[DEBUG] Mapped slots:", mappedSlots);
+        return mappedSlots;
+
+      } catch (error: any) {
+        console.error("[DEBUG] Failed to fetch slots:", error);
+        const statusText = error.response?.statusText || "Unknown Error";
+        throw new Error(`Failed to fetch slots for team ${teamId}: ${statusText}`);
+      }
+    }, []);
 
     const [selectedTeamId, setSelectedTeamId] = useState<string>(''); 
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -151,8 +154,9 @@ export default function InterviewBookingPage() {
                 const fetchedSlots = await fetchTeamSlots(selectedTeamId);
                 setSlotsData(fetchedSlots);
 
+                const student = user as IStudent | null;
                 const existingBooking = fetchedSlots.find(
-                    (slot) => slot.reservedBy?.studentId === CURRENT_USER_DETAILS.id
+                    (slot) => slot.reservedBy?.studentId === student?.gucId
                 );
                 if (existingBooking) setConfirmedSlotId(existingBooking.id);
 
@@ -165,12 +169,7 @@ export default function InterviewBookingPage() {
         };
 
         loadSlots();
-    }, [selectedTeamId]);
-
-    const currentBooking = slotsData.find(
-        (s) => s.reservedBy?.studentId === CURRENT_USER_DETAILS.id
-    );
-    const hasCurrentBooking = !!currentBooking;
+    }, [selectedTeamId, fetchTeamSlots, user]);
 
     const teamSlots = useMemo(() => slotsData, [slotsData]);
 
@@ -178,15 +177,16 @@ export default function InterviewBookingPage() {
 const availableDates = useMemo(() => {
     const dates = new Set<string>();
 
+    const student = user as IStudent | null;
     teamSlots.forEach((slot) => {
         const slotDate = new Date(slot.startDateTime);
-        const yyyy = slotDate.getFullYear();
-        const mm = String(slotDate.getMonth() + 1).padStart(2, "0");
-        const dd = String(slotDate.getDate()).padStart(2, "0");
+        const yyyy = slotDate.getUTCFullYear();
+        const mm = String(slotDate.getUTCMonth() + 1).padStart(2, "0");
+        const dd = String(slotDate.getUTCDate()).padStart(2, "0");
         const dateStr = `${yyyy}-${mm}-${dd}`;
 
         // Include the slot if available or reserved by current user
-        if (slot.isAvailable || slot.reservedBy?.studentId === CURRENT_USER_DETAILS.id) {
+        if (slot.isAvailable || slot.reservedBy?.studentId === student?.gucId) {
             dates.add(dateStr);
         }
     });
@@ -195,7 +195,7 @@ const availableDates = useMemo(() => {
         const [year, month, day] = d.split("-").map(Number);
         return new Date(Date.UTC(year, month - 1, day));
     });
-}, [teamSlots]);
+}, [teamSlots, user]);
 
 // ------------------------------------------------------------
 // 2. Selected date string in YYYY-MM-DD for filtering
@@ -228,8 +228,29 @@ const slotsForDate = useMemo(() => {
     return filteredSlots;
 }, [selectedDate, teamSlots, dateStr]);
 
+    // ------------------------------------------------------------
+    // Check if user has a current booking
+    // ------------------------------------------------------------
+    const hasCurrentBooking = useMemo(
+        () => {
+            const student = user as IStudent | null;
+            return slotsData.some(
+                (slot) => slot.reservedBy?.studentId === student?.gucId
+            );
+        },
+        [slotsData, user]
+    );
+
+    const currentBooking = useMemo(() => {
+        const student = user as IStudent | null;
+        return slotsData.find(
+        (s) => s.reservedBy?.studentId === student?.gucId
+        );
+    }, [slotsData, user]);
+
     const selectedSlot = slotsData.find((s) => s.id === selectedSlotId);
-    const isBookedByOther = selectedSlot && !selectedSlot.isAvailable && selectedSlot.reservedBy?.studentId !== CURRENT_USER_DETAILS.id;
+    const student = user as IStudent | null;
+    const isBookedByOther = selectedSlot && !selectedSlot.isAvailable && selectedSlot.reservedBy?.studentId !== student?.gucId;
 
     const handleSlotSelect = (slotId: string) => {
         setSelectedSlotId(slotId);
@@ -237,7 +258,12 @@ const slotsForDate = useMemo(() => {
     };
 
     const handleFinalizeBookingAutomatic = async () => {
-        if (!selectedSlotId || !selectedTeamId) return;
+        if (!selectedSlotId || !selectedTeamId || !usheringId || !user) {
+            setSlotsError("Missing required information for booking.");
+            return;
+        }
+
+        const student = user as IStudent;
 
         const slotToBook = slotsData.find(s => s.id === selectedSlotId);
         if (!slotToBook || !slotToBook.isAvailable) {
@@ -245,36 +271,31 @@ const slotsForDate = useMemo(() => {
             return;
         }
 
+        setBookingInProgress(true);
+        const previousSlotsData = [...slotsData];
+
+        // Optimistic update
+        setSlotsData(prev =>
+            prev.map(slot =>
+                slot.id === selectedSlotId
+                    ? {
+                        ...slot,
+                        isAvailable: false,
+                        reservedBy: { studentId: student.gucId, reservedAt: new Date().toISOString() },
+                        studentEmail: student.email,
+                        studentId: student.gucId,
+                    }
+                    : slot
+            )
+        );
+
         try {
-            const bookResponse = await fetch(`${BASE_URL}/ushering/${USHERING_ID}/teams/${selectedTeamId}/slots/${selectedSlotId}/book`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    studentId: CURRENT_USER_DETAILS.id,
-                    studentEmail: CURRENT_USER_DETAILS.email,
-                    firstName: CURRENT_USER_DETAILS.firstName,
-                    lastName: CURRENT_USER_DETAILS.lastName,
-                }),
+            await api.post(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${selectedSlotId}/book`, {
+                studentId: student.gucId,
+                studentEmail: student.email,
+                firstName: student.firstName,
+                lastName: student.lastName,
             });
-
-            if (!bookResponse.ok) {
-                const errorData = await bookResponse.json().catch(() => ({}));
-                throw new Error(errorData.message || "Booking failed. The slot may have been taken by another user.");
-            }
-
-            setSlotsData(prev =>
-                prev.map(slot =>
-                    slot.id === selectedSlotId
-                        ? {
-                            ...slot,
-                            isAvailable: false,
-                            reservedBy: { studentId: CURRENT_USER_DETAILS.id, reservedAt: new Date().toISOString() },
-                            studentEmail: CURRENT_USER_DETAILS.email,
-                            studentId: CURRENT_USER_DETAILS.id,
-                        }
-                        : slot
-                )
-            );
 
             setConfirmedSlotId(selectedSlotId);
             setSelectedSlotId(null);
@@ -282,41 +303,62 @@ const slotsForDate = useMemo(() => {
 
         } catch (error: any) {
             console.error("Booking Finalization Error:", error);
-            setSlotsError(error.message || "An unknown error occurred during booking.");
+            
+            // Rollback optimistic update
+            setSlotsData(previousSlotsData);
+            
+            // Handle specific error cases
+            if (error.response?.status === 400 && error.response?.data?.message?.includes('already booked')) {
+                setSlotsError("You have already booked a slot for this event.");
+            } else if (error.response?.status === 409) {
+                setSlotsError("This slot was just taken by another user. Please select a different slot.");
+                // Refresh slots to get latest state
+                if (selectedTeamId) {
+                    const refreshedSlots = await fetchTeamSlots(selectedTeamId);
+                    setSlotsData(refreshedSlots);
+                }
+            } else {
+                setSlotsError(error.response?.data?.message || error.message || "An unknown error occurred during booking.");
+            }
+        } finally {
+            setBookingInProgress(false);
         }
     };
 
     const handleReserve = () => {
-        if (!selectedSlotId || hasCurrentBooking) return;
+        if (!selectedSlotId || hasCurrentBooking || bookingInProgress) return;
         handleFinalizeBookingAutomatic();
     };
 
     const handleCancel = async (slotId: string) => {
+        if (!usheringId || !selectedTeamId || !user) {
+            setSlotsError("Missing required information for cancellation.");
+            return;
+        }
+
+        const student = user as IStudent;
+        setBookingInProgress(true);
+        const previousSlotsData = [...slotsData];
+
+        // Optimistic update
+        setSlotsData(prev =>
+            prev.map(slot =>
+                slot.id === slotId
+                    ? {
+                        ...slot,
+                        isAvailable: true,
+                        reservedBy: null,
+                        studentEmail: null,
+                        studentId: null,
+                    }
+                    : slot
+            )
+        );
+
         try {
-            const cancelResponse = await fetch(`${BASE_URL}/ushering/${USHERING_ID}/teams/${selectedTeamId}/slots/${slotId}/unbook`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studentId: CURRENT_USER_DETAILS.id }),
+            await api.post(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${slotId}/cancel`, {
+                studentId: student.gucId,
             });
-
-            if (!cancelResponse.ok) {
-                const errorData = await cancelResponse.json().catch(() => ({}));
-                throw new Error(errorData.message || "Cancellation failed.");
-            }
-
-            setSlotsData(prev =>
-                prev.map(slot =>
-                    slot.id === slotId
-                        ? {
-                            ...slot,
-                            isAvailable: true,
-                            reservedBy: null,
-                            studentEmail: null,
-                            studentId: null,
-                        }
-                        : slot
-                )
-            );
 
             setConfirmedSlotId(null);
             setSelectedSlotId(null);
@@ -324,7 +366,19 @@ const slotsForDate = useMemo(() => {
 
         } catch (error: any) {
             console.error("Cancellation Error:", error);
-            setSlotsError(error.message || "An unknown error occurred during cancellation.");
+            
+            // Rollback optimistic update
+            setSlotsData(previousSlotsData);
+            
+            setSlotsError(error.response?.data?.message || error.message || "An unknown error occurred during cancellation.");
+            
+            // Refresh slots to get latest state
+            if (selectedTeamId) {
+                const refreshedSlots = await fetchTeamSlots(selectedTeamId);
+                setSlotsData(refreshedSlots);
+            }
+        } finally {
+            setBookingInProgress(false);
         }
     };
 
@@ -397,7 +451,12 @@ const slotsForDate = useMemo(() => {
 
                                 {hasCurrentBooking && currentBooking ? (
                                     <BookingDetailsView
-                                        booking={currentBooking}
+                                        booking={{
+                                            ...currentBooking,
+                                            date: currentBooking.startDateTime,
+                                            start: new Date(currentBooking.startDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                                            end: new Date(currentBooking.endDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+                                        } as any}
                                         onCancel={() => handleCancel(currentBooking.id)}
                                     />
                                 ) : (
@@ -434,10 +493,17 @@ const slotsForDate = useMemo(() => {
                                                 variant="contained"
                                                 fullWidth
                                                 onClick={handleReserve} 
-                                                disabled={!selectedSlotId || isBookedByOther}
-                                                sx={{ py: "14px", fontWeight: 600, fontSize: "1.1rem", borderRadius: "8px" }}
+                                                disabled={!selectedSlotId || isBookedByOther || bookingInProgress}
+                                                sx={{ py: "14px", fontWeight: 600, fontSize: "1.1rem", borderRadius: "8px" , width: '100%', backgroundColor: '#2563EB', '&:hover': { backgroundColor: '#1d4ed8' } }}
                                             >
-                                                Reserve Slot
+                                                {bookingInProgress ? (
+                                                    <>
+                                                        <CircularProgress size={20} sx={{ mr: 1 }} />
+                                                        Processing...
+                                                    </>
+                                                ) : (
+                                                    "Reserve Slot"
+                                                )}
                                             </Button>
                                         )}
                                     </>

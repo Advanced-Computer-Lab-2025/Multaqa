@@ -16,16 +16,8 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
   selectedSlotId,
   onSelectSlot,
 }) => {
-  // Convert slot.startDateTime to local "YYYY-MM-DD" for comparison
-  const daySlots = slots.filter((slot) => {
-    const slotDate = new Date(slot.startDateTime);
-    const yyyy = slotDate.getFullYear();
-    const mm = String(slotDate.getMonth() + 1).padStart(2, "0");
-    const dd = String(slotDate.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}` === date;
-  });
-
-  if (daySlots.length === 0) {
+  // Slots are already filtered by parent component using UTC dates
+  if (slots.length === 0) {
     return (
       <p className="text-center text-gray-500 mt-4">
         No slots defined on this date.
@@ -35,7 +27,7 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
 
   return (
     <div className="space-y-3 max-w-60 mx-auto">
-      {daySlots.map((slot) => {
+      {slots.map((slot) => {
         const start = new Date(slot.startDateTime).toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
