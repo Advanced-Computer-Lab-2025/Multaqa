@@ -58,16 +58,14 @@ const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCanc
           {start} - {end}
         </Typography>
 
-        <Divider sx={{ mb: 2 }} />
+         <Divider sx={{ mb: 2 }} />
 
         <Typography variant="subtitle2" color="textSecondary">
-          Location:
+          Your Details:
         </Typography>
         <Typography variant="body1" sx={{ mb: 2, fontWeight: 500, color: "#1e293b" }}>
-          {booking.location || "TBD"}
+          {booking.studentEmail || "N/A"}
         </Typography>
-
-        <Divider sx={{ mb: 2 }} />
 
         <Typography variant="caption" sx={{ color: "red", fontWeight: 500 }}>
           *You must cancel this slot before reserving another.
