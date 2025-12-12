@@ -14,6 +14,7 @@ export class EventScheduler {
     cron.schedule("* * * * *", async () => {
       console.log("Running upcoming event reminder check...");
       await this.eventService.checkUpcomingEvents();
+      await this.eventService.clearWaitlistsForStartedEvents();
     });
 
     console.log("Event reminder scheduler started");
