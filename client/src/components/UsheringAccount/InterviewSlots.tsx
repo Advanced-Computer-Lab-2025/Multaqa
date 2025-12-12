@@ -247,6 +247,7 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
                     <DateTimePicker
                       value={singleDate}
                       onChange={(newValue) => setSingleDate(newValue)}
+                      minDateTime={dayjs()}
                       slotProps={{
                         textField: {
                           fullWidth: true,
@@ -307,6 +308,7 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
                       <DateTimePicker
                         value={startDate}
                         onChange={(newValue) => setStartDate(newValue)}
+                        minDateTime={dayjs()}
                         slotProps={{
                           textField: {
                             fullWidth: true,
@@ -452,9 +454,10 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
               '&:disabled': {
                 backgroundColor: alpha(teamColor, 0.3),
               },
+              borderColor: 'none',
             }}
           >
-            Save Slots
+            Add Slots
           </CustomButton>
         </Stack>
       </Box>
