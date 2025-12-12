@@ -28,6 +28,8 @@ interface RawSlot {
   location?: string;
 }
 
+
+
 const fetchTeamSlots = async (teamId: string): Promise<InterviewSlot[]> => {
   if (!teamId) return [];
 
@@ -35,7 +37,7 @@ const fetchTeamSlots = async (teamId: string): Promise<InterviewSlot[]> => {
     const response = await api.get(`/ushering/`);
     const teamsData = response.data?.data?.[0]?.teams;
     if (!teamsData || !Array.isArray(teamsData)) return [];
-
+  
     const selectedTeam = teamsData.find((team: any) => team._id === teamId);
     if (!selectedTeam) return [];
 
@@ -77,6 +79,8 @@ export default function InterviewBookingPage() {
   const [teams, setTeams] = useState<UsheringTeam[]>([]);
   const [teamsLoading, setTeamsLoading] = useState<boolean>(true);
   const [teamsError, setTeamsError] = useState<string | null>(null);
+  const [show, setShow] = useState<boolean>(false);
+
 
   const [selectedTeamId, setSelectedTeamId] = useState<string>(''); 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -88,6 +92,25 @@ export default function InterviewBookingPage() {
 
   const [confirmedSlotId, setConfirmedSlotId] = useState<string | null>(null);
   const [bookingDetails, setBookingDetails] = useState<InterviewSlot | null>(null);
+
+  useEffect(() => {
+    const checkAvailability = async () => {
+      try {
+        const response = await api.get(`/ushering/`);
+        if (response.data?.data?.postTime) {
+          const postDate = new Date(response.data.data.postTime.startDateTime);
+          const deletionDate = new Date(response.data.data.postTime.endDateTime);
+          const isAvailable = new Date() >= postDate && new Date() <= deletionDate;
+          console.log("Start Date:",postDate);
+          console.log("End Date:",deletionDate);
+          setShow(isAvailable);
+        }
+      } catch (error) {
+        console.error("Failed to check availability:", error);
+      }
+    };
+    checkAvailability();
+  }, []);
 
   // Fetch teams on mount
   useEffect(() => {
@@ -115,9 +138,29 @@ useEffect(() => {
 
       const slotData = response.data?.data?.slot;
       if (slotData) {
+        // First, fetch all teams to find which team this slot belongs to
+        const teamsResponse = await api.get(`/ushering/`);
+        const teamsData = teamsResponse.data?.data?.[0]?.teams;
+        
+        let foundTeamId = '';
+        if (teamsData && Array.isArray(teamsData)) {
+          // Search through all teams to find which one has this slot
+          for (const team of teamsData) {
+            const slotExists = team.slots?.some((slot: any) => 
+              (slot._id === slotData._id || slot.id === slotData.id)
+            );
+            if (slotExists) {
+              foundTeamId = team._id;
+              break;
+            }
+          }
+        }
+        
+        console.log("[DEBUG] Found teamId:", foundTeamId);
+        
         const mappedSlot: InterviewSlot = {
           id: slotData.id || slotData._id,
-          teamId: "", // optional if needed
+          teamId: foundTeamId,
           startDateTime: slotData.StartDateTime,
           endDateTime: slotData.EndDateTime,
           isAvailable: slotData.isAvailable,
@@ -129,6 +172,7 @@ useEffect(() => {
 
         setConfirmedSlotId(mappedSlot.id);
         setBookingDetails(mappedSlot);
+        setSelectedTeamId(foundTeamId); // Set the correct teamId
 
         console.log("[DEBUG] Mapped booked slot:", mappedSlot);
       } else {
@@ -142,7 +186,7 @@ useEffect(() => {
 
   fetchStudentBooking();
 }, []);
-;
+
 
   // Fetch slots when selected team changes
   useEffect(() => {
@@ -171,31 +215,34 @@ useEffect(() => {
   const teamSlots = useMemo(() => slotsData, [slotsData]);
 
   const availableDates = useMemo(() => {
-    const dates = new Set<string>();
-    teamSlots.forEach(slot => {
-      const slotDate = new Date(slot.startDateTime);
-      const dateStr = `${slotDate.getUTCFullYear()}-${String(slotDate.getUTCMonth() + 1).padStart(2, "0")}-${String(slotDate.getUTCDate()).padStart(2, "0")}`;
-      if (slot.isAvailable) dates.add(dateStr);
-    });
-    return Array.from(dates).map(d => {
-      const [year, month, day] = d.split("-").map(Number);
-      return new Date(Date.UTC(year, month - 1, day));
-    });
-  }, [teamSlots]);
+  const dates = new Set<string>();
+  teamSlots.forEach(slot => {
+    const slotDate = new Date(slot.startDateTime);
+    // Use local time for date extraction to match calendar display
+    const dateStr = `${slotDate.getFullYear()}-${String(slotDate.getMonth() + 1).padStart(2, "0")}-${String(slotDate.getDate()).padStart(2, "0")}`;
+    if (slot.isAvailable) dates.add(dateStr);
+  });
+  return Array.from(dates).map(d => {
+    const [year, month, day] = d.split("-").map(Number);
+    return new Date(year, month - 1, day); // Use local date, not UTC
+  });
+}, [teamSlots]);
 
-  const dateStr = useMemo(() => {
-    if (!selectedDate) return "";
-    return `${selectedDate.getUTCFullYear()}-${String(selectedDate.getUTCMonth() + 1).padStart(2, "0")}-${String(selectedDate.getUTCDate()).padStart(2, "0")}`;
-  }, [selectedDate]);
+const dateStr = useMemo(() => {
+  if (!selectedDate) return "";
+  // Use local time for consistency with calendar selection
+  return `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+}, [selectedDate]);
 
-  const slotsForDate = useMemo(() => {
-    if (!selectedDate) return [];
-    return teamSlots.filter(slot => {
-      const slotDate = new Date(slot.startDateTime);
-      const slotDateStr = `${slotDate.getUTCFullYear()}-${String(slotDate.getUTCMonth() + 1).padStart(2, "0")}-${String(slotDate.getUTCDate()).padStart(2, "0")}`;
-      return slotDateStr === dateStr;
-    });
-  }, [selectedDate, teamSlots, dateStr]);
+const slotsForDate = useMemo(() => {
+  if (!selectedDate) return [];
+  return teamSlots.filter(slot => {
+    const slotDate = new Date(slot.startDateTime);
+    // Use local time for filtering to match dateStr
+    const slotDateStr = `${slotDate.getFullYear()}-${String(slotDate.getMonth() + 1).padStart(2, "0")}-${String(slotDate.getDate()).padStart(2, "0")}`;
+    return slotDateStr === dateStr;
+  });
+}, [selectedDate, teamSlots, dateStr]);
 
   const selectedSlot = slotsData.find(s => s.id === selectedSlotId);
   const isBookedByOther = selectedSlot && !selectedSlot.isAvailable && selectedSlot.reservedBy?.studentId !== "currentUser";
@@ -244,28 +291,28 @@ useEffect(() => {
     handleFinalizeBookingAutomatic();
   };
 
-  const handleCancel = async (slotId: string) => {
-    try {
-      await api.post(`/ushering/${USHERING_ID}/teams/${selectedTeamId}/slots/${slotId}/cancel`,{});
+const handleCancel = async (slotId: string) => {
+  try {
+    await api.post(`/ushering/${USHERING_ID}/teams/${selectedTeamId}/slots/${slotId}/cancel`,{});
 
-      setSlotsData(prev =>
-        prev.map(slot =>
-          slot.id === slotId
-            ? { ...slot, isAvailable: true, reservedBy: null, studentId: null, studentEmail: null }
-            : slot
-        )
-      );
+    setSlotsData(prev =>
+      prev.map(slot =>
+        slot.id === slotId
+          ? { ...slot, isAvailable: true, reservedBy: null, studentId: null, studentEmail: null }
+          : slot
+      )
+    );
 
-      setConfirmedSlotId(null);
-      setBookingDetails(null);
-      setSelectedSlotId(null);
-      setSelectedDate(undefined);
+    setConfirmedSlotId(null);
+    setBookingDetails(null);
+    setSelectedSlotId(null);
+    setSelectedDate(undefined);
 
-    } catch (error: any) {
-      console.error("Cancel Error:", error);
-      setSlotsError(error.message || "An unknown error occurred during cancellation.");
-    }
-  };
+  } catch (error: any) {
+    console.error("Cancel Error:", error);
+    setSlotsError(error.message || "An unknown error occurred during cancellation.");
+  }
+};
 
   const handleTeamSelect = useCallback((teamId: string) => {
     setSelectedTeamId(teamId);
@@ -288,21 +335,44 @@ useEffect(() => {
     );
   }
 
+      if (teamsError) {
+      return (
+        <ContentWrapper title="Booking Error" description="Failed to load necessary data.">
+          <Box sx={{ p: 4 }}>
+            <Alert severity="error">{teamsError}</Alert>
+          </Box>
+        </ContentWrapper>
+      );
+    }
+
+  // ✅ Add early return if booking is not available
+  if (!show) {
+    return (
+      <ContentWrapper title="Booking Unavailable" description="Interview slot booking is currently unavailable.">
+        <Box sx={{ p: 4 }}>
+          <Alert severity="info">Interview slot booking is not available at this time. Please check back later.</Alert>
+        </Box>
+      </ContentWrapper>
+    );
+  }
+
   return (
-    <ContentWrapper title="Book Your Interview Slot" description="You can reserve your interview slot here.">
+      <ContentWrapper title="Book Your Interview Slot" description="You can reserve your interview slot here.">
       <Box sx={{ minHeight: "100vh", py: 4, px: 4 }}>
         <Box sx={{ maxWidth: 1000, mx: "auto" }}>
-          <Paper sx={{ p: 3, mb: 3 }}>
-            {teamsLoading ? (
-              <CircularProgress size={24} />
-            ) : (
-              <TeamSelector
-                teams={teams}
-                selectedTeamId={selectedTeamId}
-                onTeamSelect={!isTeamSelectorDisabled ? handleTeamSelect : () => {}}
-              />
-            )}
-          </Paper>
+          {!bookingDetails && (
+            <Paper sx={{ p: 3, mb: 3 }}>
+              {teamsLoading ? (
+                <CircularProgress size={24} />
+              ) : (
+                <TeamSelector
+                  teams={teams}
+                  selectedTeamId={selectedTeamId}
+                  onTeamSelect={!isTeamSelectorDisabled ? handleTeamSelect : () => {}}
+                />
+              )}
+            </Paper>
+          )}
 
           {slotsError && <Alert severity="error" sx={{ mb: 3 }}>{slotsError}</Alert>}
 
@@ -379,6 +449,7 @@ useEffect(() => {
           </Box>
         </Box>
       </Box>
-    </ContentWrapper>
+    </ContentWrapper> 
+    
   );
 }
