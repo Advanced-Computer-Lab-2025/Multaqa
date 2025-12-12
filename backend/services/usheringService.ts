@@ -17,20 +17,20 @@ export class UsheringService {
 		return newUshering;
 	}
 
-	async setPostTime(postTime: Date, id: string): Promise<IUshering | null> {
+	async setPostTime(postTime: { startDateTime: string | Date, endDateTime: string | Date }, id: string): Promise<IUshering | null> {
 		const usheringToUpdate = await this.usheringRepo.findById(id);
 		if (!usheringToUpdate) {
 			throw new Error('Ushering event not found');
 		}
-		if (postTime < new Date()) {
+		if (new Date(postTime.startDateTime) < new Date()) {
 			throw createError(400, 'Post time cannot be in the past');
 		}
-		usheringToUpdate.postTime = postTime;
+		usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
 		await usheringToUpdate.save();
 		return usheringToUpdate;
 	}
 
-	async getPostTime(id: string): Promise<Date | null> {
+	async getPostTime(id: string): Promise<{ startDateTime: Date, endDateTime: Date } | null> {
 		const ushering = await this.usheringRepo.findById(id);
 		if (!ushering) {
 			throw new Error('Ushering event not found');
@@ -38,12 +38,13 @@ export class UsheringService {
 		return ushering.postTime || null;
 	}
 
+	//send notification when teams are edited
 	async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
 			throw createError(404, 'Ushering event not found');
 		}
-		if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
+		if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime.startDateTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
 			throw createError(400, 'Cannot edit teams within 2 days before the interview posting date.');
 		}
 
@@ -95,7 +96,7 @@ export class UsheringService {
 		if (!ushering) {
 			throw createError(404, 'Ushering event not found');
 		}
-		if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
+		if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime.startDateTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
 			throw createError(400, 'Cannot delete teams within 2 days before the interview posting date.');
 		}
 		const teamIndex = ushering.teams.findIndex(t => t._id?.toString() === teamId);
@@ -117,11 +118,6 @@ export class UsheringService {
 			createdAt: new Date(),
 		} as Notification);
 		return ushering;
-	}
-
-	async getAllTeams(): Promise<IUshering[]> {
-		const usheringEvents = await this.usheringRepo.findAll();
-		return usheringEvents;
 	}
 
 	async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
@@ -147,7 +143,6 @@ export class UsheringService {
 				const newEnd = new Date(slot.EndDateTime!).getTime();
 				const existingStart = new Date(existingSlot.StartDateTime).getTime();
 				const existingEnd = new Date(existingSlot.EndDateTime).getTime();
-
 				// Check for any overlap: new slot starts before existing ends AND new slot ends after existing starts
 				return newStart < existingEnd && newEnd > existingStart;
 			});
@@ -166,7 +161,7 @@ export class UsheringService {
 
 		// Only notify students if we're past the post time and slots were actually added
 		const postTime = await this.getPostTime(usheringId);
-		if (postTime && new Date() >= postTime && addedSlotsCount > 0) {
+		if (postTime && new Date() >= postTime.startDateTime && addedSlotsCount > 0) {
 			await NotificationService.sendNotification({
 				role: [UserRole.STUDENT],
 				type: "USHERING_SLOTS_ADDED",
@@ -196,6 +191,9 @@ export class UsheringService {
 		team.slots.splice(slotIndex, 1);
 		await ushering.save();
 	}
+
+
+
 
 	// send an email a day before the booked slot
 	// send a notification to all ushering accounts
