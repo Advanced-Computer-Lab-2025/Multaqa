@@ -250,6 +250,9 @@ eventBus.on("notification:ushering:broadcastAll", (notification, saveToDatabase)
 // Broadcast message to interview applicants only
 eventBus.on("notification:ushering:broadcastApplicants", (notification, saveToDatabase) => {
   sendSocketNotification("notification:ushering:broadcastApplicants", notification, saveToDatabase);
+});
+
+ /* -------------------------------
  * Comment Moderation Notifications
  * -------------------------------
  */
