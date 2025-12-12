@@ -27,6 +27,7 @@ import {
 import { AuthenticatedRequest } from "../middleware/verifyJWT.middleware";
 import { userInfo } from "os";
 import { GetAllFlaggedCommentsResponse } from "../interfaces/responses/GetAllFlaggedCommentsResponse";
+import { MarkCommentAsNotToxicResponse } from "../interfaces/responses/MarkCommentAsNotToxicResponse";
 
 const eventsService = new EventsService();
 
@@ -373,7 +374,34 @@ async function getAllFlaggedComments(req: Request, res: Response<GetAllFlaggedCo
   }
 }
 
+// Mark a comment as not toxic (admin override for false positives)
+async function markCommentAsNotToxic(
+  req: Request,
+  res: Response<MarkCommentAsNotToxicResponse>
+) {
+  try {
+    const { eventId, userId } = req.params;
+    if (!eventId || !userId) {
+      throw createError(400, "eventId and userId are required");
+    }
 
+    const updatedReview = await eventsService.markCommentAsNotToxic(
+      eventId,
+      userId
+    );
+
+    res.json({
+      success: true,
+      data: updatedReview,
+      message: "Comment marked as not toxic successfully",
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || "Failed to mark comment as not toxic"
+    );
+  }
+}
 
 const router = Router();
 
@@ -428,6 +456,14 @@ router.get(
   getAllFlaggedComments
 );
 
+router.patch(
+  "/:eventId/reviews/:userId/not-toxic",
+  authorizeRoles({
+    userRoles: [UserRole.ADMINISTRATION],
+    adminRoles: [AdministrationRoleType.ADMIN],
+  }),
+  markCommentAsNotToxic
+);
 
 router.delete(
   "/:eventId/reviews/:userId",
@@ -532,6 +568,5 @@ router.get(
   }),
   exportEventUsers
 );
-
 
 export default router;
