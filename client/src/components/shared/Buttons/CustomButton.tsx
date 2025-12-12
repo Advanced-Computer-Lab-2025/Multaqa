@@ -13,6 +13,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   className,
   sx,
   createButtonStyle = false,
+  fitContent = false,
   ...props
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -24,6 +25,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   const handleMouseLeave = () => {
     setIsExpanded(false);
   };
+
+  // Styles for fitContent prop to prevent text wrapping
+  const fitContentStyles = fitContent
+    ? {
+        width: "fit-content",
+        minWidth: "fit-content",
+        whiteSpace: "nowrap" as const,
+        flexShrink: 0,
+      }
+    : {};
 
   if (createButtonStyle) {
     return (
@@ -81,7 +92,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     <StyledButton
       {...props}
       className={className}
-      sx={{ width: width, height: height, ...sx }}
+      sx={{ width: width, height: height, ...fitContentStyles, ...sx }}
       loadingPosition="start"
     >
       {label || children}
