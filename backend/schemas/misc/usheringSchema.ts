@@ -4,7 +4,10 @@ import { IUshering } from "../../interfaces/models/ushering.interface";
 
 
 const UsheringSchema = new Schema<IUshering>({
-  postTime: { type: Date, required: false },
+  postTime: {  
+    type: Schema.Types.Mixed,  
+    required: false
+  },
   teams: [{
     title: { type: String, required: true },
     description: { type: String, required: true },
