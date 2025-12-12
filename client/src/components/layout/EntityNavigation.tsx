@@ -143,7 +143,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "overview", label: "Overview" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
       { id: "teams-description", label: "Teams Description" },
-      { id: "interview-slots", label: "Interview Slots" },
+      { id: "interview-reservation", label: "Interview Reservation" },
     ],
     sections: [
       {
@@ -163,7 +163,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Calendar,
         tabs: [
           { id: "teams-description", label: "Teams Description" },
-          { id: "interview-slots", label: "Interview Slots" },
+          { id: "interview-reservation", label: "Interview Reservation" },
         ],
       },
       {

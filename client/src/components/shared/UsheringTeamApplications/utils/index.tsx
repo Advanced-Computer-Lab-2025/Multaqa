@@ -327,10 +327,8 @@ export const fetchTeams = async (
 ): Promise<UsheringTeam[]> => {
     setLoading(true);
     try {
-        // TODO: Remove mock data and uncomment API call for integration
-        // ----------------------------------------------------------------
+        // API call for integration
         const response = await api.get('/ushering');
-        
         const usheringArray = response.data.data;
         
         // Extract teams from the nested structure
@@ -353,11 +351,6 @@ export const fetchTeams = async (
         }
         
         return allTeams;
-        // ----------------------------------------------------------------
-
-        // MOCK DATA - Remove for integration
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return MOCK_TEAMS;
 
     } catch (err: unknown) {
         const error = err as { response?: { data?: { error?: string; message?: string } }; message?: string };
