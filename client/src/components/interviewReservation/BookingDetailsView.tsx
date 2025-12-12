@@ -1,187 +1,90 @@
-// ./BookingDetailsView.tsx
-
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Button, Fade } from '@mui/material'; // Added Fade for smooth transition
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { InterviewSlot } from './types'; 
-
-const CUSTOM_BLUE = '#2563EB'; 
-const SUCCESS_GREEN = '#4CAF50'; 
-const SUCCESS_LIGHT_GREEN = 'rgba(76, 175, 80, 0.1)'; 
+import React from "react";
+import { Box, Typography, Paper, Button, Divider } from "@mui/material";
+import { InterviewSlot } from "./types";
 
 interface BookingDetailsViewProps {
-    booking: InterviewSlot;
-    onCancel: () => void;
+  booking: InterviewSlot;
+  onCancel: () => void;
 }
 
-export default function BookingDetailsView({ booking, onCancel }: BookingDetailsViewProps) {
-    // NEW STATE: Controls whether to show the animation or the details
-    const [showDetails, setShowDetails] = useState(false); 
-    
-    // Hook to manage the transition timing
-    useEffect(() => {
-        // Start timer to transition to details after 2.5 seconds
-        const timer = setTimeout(() => {
-            setShowDetails(true);
-        }, 2500); // 2.5 seconds for animation display
+const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCancel }) => {
+  const start = new Date(booking.startDateTime).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const end = new Date(booking.endDateTime).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+  const dateStr = new Date(booking.startDateTime).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 
-        return () => clearTimeout(timer); // Cleanup timer on unmount
-    }, []);
+  return (
+    <Paper
+      elevation={3}
+      sx={{
+        p: 4,
+        borderRadius: 2,
+        textAlign: "center",
+        backgroundColor: "#f9fafb",
+        border: "1px solid #cbd5e1",
+        maxWidth: 400,
+        mx: "auto",
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 3, color: "#2563eb", fontWeight: 600 }}>
+        Interview Slot Details
+      </Typography>
 
+      <Box sx={{ textAlign: "left", mb: 3 }}>
+        <Typography variant="subtitle2" color="textSecondary">
+          Date:
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2, fontWeight: 500, color: "#1e293b" }}>
+          {dateStr}
+        </Typography>
 
-    const interviewDate = new Date(booking.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-    const interviewTime = `${booking.start} - ${booking.end}`;
+        <Divider sx={{ mb: 2 }} />
 
-    return (
-        <Box 
-            sx={{ 
-                flexGrow: 1, 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                textAlign: 'center',
-                fontFamily: 'Poppins, sans-serif',
-                p: 3, 
-                // Ensure the Box takes up the full panel height for the effect
-                minHeight: '400px' 
-            }}
-        >
-            {/* SUCCESS ANIMATION PHASE (Full Panel) */}
-            <Fade in={!showDetails} timeout={500}>
-                {/* Use a wrapper Box that is conditionally rendered to hide the animation content */}
-                <Box sx={{ 
-                    // Ensures the animation phase content is centered vertically and horizontally
-                    display: showDetails ? 'none' : 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    flexGrow: 1, 
-                    width: '100%',
-                    py: 10 // Add vertical padding to fill the space
-                }}>
-                    <Box sx={{ position: 'relative', width: 150, height: 150, mb: 4 }}>
-                        {/* Rings Mockup */}
-                        {[1, 2, 3].map((i) => (
-                            <Box
-                                key={i}
-                                sx={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    width: 50 + i * 30,
-                                    height: 50 + i * 30,
-                                    borderRadius: '50%',
-                                    backgroundColor: SUCCESS_LIGHT_GREEN,
-                                    opacity: 0.8 - i * 0.2,
-                                    zIndex: 0
-                                }}
-                            />
-                        ))}
+        <Typography variant="subtitle2" color="textSecondary">
+          Time:
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2, fontWeight: 500, color: "#1e293b" }}>
+          {start} - {end}
+        </Typography>
 
-                        {/* Checkmark Icon (Center) */}
-                        <Box sx={{ 
-                            position: 'absolute', 
-                            top: '50%', 
-                            left: '50%', 
-                            transform: 'translate(-50%, -50%)',
-                            width: 60,
-                            height: 60,
-                            borderRadius: '50%',
-                            backgroundColor: SUCCESS_GREEN,
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            zIndex: 1
-                        }}>
-                            <CheckCircleIcon sx={{ fontSize: 40, color: 'white' }} />
-                        </Box>
-                    </Box>
+        <Divider sx={{ mb: 2 }} />
 
-                    {/* Animation Text */}
-                    <Typography variant="h5" sx={{ mb: 1, fontWeight: 700, color: 'text.primary' }}>
-                        Booking Successful!
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Your interview slot has been confirmed.
-                    </Typography>
-                </Box>
-            </Fade>
+        <Typography variant="subtitle2" color="textSecondary">
+          Location:
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 2, fontWeight: 500, color: "#1e293b" }}>
+          {booking.location || "TBD"}
+        </Typography>
 
-            {/* DETAILS PHASE (Fades in after animation) */}
-            <Fade in={showDetails} timeout={1000}>
-                <Box sx={{ 
-                    // Hide details until state is updated, ensuring the Box doesn't take space
-                    display: showDetails ? 'flex' : 'none', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    width: '100%' 
-                }}>
-                    <Typography variant="h6" color={CUSTOM_BLUE} sx={{ mb: 4, fontWeight: 700 }}>
-                        Interview Slot Details
-                    </Typography>
-                    
-                    <Paper 
-                        variant="outlined" 
-                        sx={{ p: 3, width: '100%', maxWidth: 450, borderColor: CUSTOM_BLUE, mb: 4, textAlign: 'left' }}
-                    >
-                        {/* Date Information */}
-                        <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            Date:
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5 }}>
-                            {interviewDate}
-                        </Typography>
-                        
-                        {/* Time Information */}
-                        <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            Time:
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            {interviewTime}
-                        </Typography>
+        <Divider sx={{ mb: 2 }} />
 
-                        <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '16px 0' }} />
-                        
-                        {/* Student Details */}
-                        <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            Your Details:
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary">
-                            Email: {booking.studentEmail}
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            Student ID: {booking.studentId}
-                        </Typography>
+        <Typography variant="caption" sx={{ color: "red", fontWeight: 500 }}>
+          *You must cancel this slot before reserving another.
+        </Typography>
+      </Box>
 
-                        <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '16px 0' }} />
+      <Button
+        variant="contained"
+        color="error"
+        fullWidth
+        onClick={onCancel}
+        sx={{ py: 1.5, fontWeight: 600, fontSize: "1rem", borderRadius: 2,  width:"100%" }}
+      >
+        CANCEL SLOT
+      </Button>
+    </Paper>
+  );
+};
 
-                        {/* Contact Details */}
-                        <Typography variant="body1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            Contact Email:
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                            {booking.contactEmail}
-                        </Typography>
-                        
-                        <Typography variant="caption" display="block" color="error" sx={{ mt: 2 }}>
-                            *You must cancel this slot before reserving another.
-                        </Typography>
-                    </Paper>
-
-                    <Box sx={{ maxWidth: 240, mx: 'auto', width: '100%' }}>
-                        <Button
-                            variant="contained" 
-                            color="error" 
-                            fullWidth
-                            onClick={onCancel}
-                            sx={{ py: '14px', fontWeight: 600, fontSize: '1.1rem', borderRadius: '8px', whiteSpace: 'nowrap' }}
-                        >
-                            Cancel Slot
-                        </Button>
-                    </Box>
-                </Box>
-            </Fade>
-        </Box>
-    );
-}
+export default BookingDetailsView;

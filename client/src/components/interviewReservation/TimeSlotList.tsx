@@ -8,7 +8,8 @@ interface TimeSlotListProps {
   onSelectSlot: (slotId: string) => void;
 }
 
-const CURRENT_USER_ID = "S1234567"; // Replace with actual session/context user ID
+// TODO: Replace with actual logged-in user ID
+const CURRENT_USER_ID = "S1234567";
 
 const TimeSlotList: React.FC<TimeSlotListProps> = ({
   date,
@@ -16,7 +17,6 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
   selectedSlotId,
   onSelectSlot,
 }) => {
-  // Slots are already filtered by parent component using UTC dates
   if (slots.length === 0) {
     return (
       <p className="text-center text-gray-500 mt-4">
@@ -47,14 +47,17 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
         let buttonClasses = "";
         let isDisabled = false;
 
-        const baseClasses = `w-full py-3.5 rounded-lg border font-semibold text-lg tracking-wide transition duration-150 ease-in-out flex justify-center items-center`;
+        const baseClasses = `w-full py-3.5 rounded-lg border font-semibold text-lg tracking-wide transition 
+                             duration-150 ease-in-out flex justify-center items-center`;
 
         if (isReservedByCurrentUser) {
           buttonClasses =
             "bg-green-100 text-green-700 border-green-400 shadow-md cursor-default";
           isDisabled = true;
         } else if (isBooked) {
-          buttonClasses = "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed";
+          // ❗ BOOKED, BUT WE REMOVED THE “(Booked)” TAG
+          buttonClasses =
+            "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed";
           isDisabled = true;
         } else if (isSelected) {
           buttonClasses =
@@ -74,12 +77,7 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
             }`}
           >
             {start} - {end}
-            {isReservedByCurrentUser && (
-              <span className="ml-2 text-xs font-bold">(Mine)</span>
-            )}
-            {isBooked && !isReservedByCurrentUser && (
-              <span className="ml-2 text-xs font-bold">(Booked)</span>
-            )}
+
           </button>
         );
       })}
