@@ -90,7 +90,8 @@ export const NotificationProvider = ({
       setIsLoading(true);
       console.log("📥 Fetching notifications from API...");
 
-      const response = await api.get("/users/notifications");
+      if (user?.role !== "usherAdmin"){
+        const response = await api.get("/users/notifications");
 
       if (response.data.success) {
         const fetchedNotifications = response.data.data || [];
@@ -103,7 +104,7 @@ export const NotificationProvider = ({
         );
 
         setNotifications(sortedNotifications);
-      }
+      }}
     } catch (error) {
       console.error("❌ Error fetching notifications:", error);
     } finally {
