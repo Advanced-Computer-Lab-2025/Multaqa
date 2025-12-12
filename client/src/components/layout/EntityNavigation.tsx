@@ -20,6 +20,7 @@ import {
   QrCode,
   Award,
   Wallet,
+  MessageSquareWarning,
   Bug,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -499,6 +500,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "attendee-reports", label: "Attendee Reports" },
           { id: "sales-reports", label: "Sales Reports" },
         ],
+      },
+
+      {
+        key: "flagged-comments",
+        label: "Flagged Comments",
+        icon: MessageSquareWarning,
+        tabs: [{ id: "overview", label: "Overview" }],
       },
        {
         key: "bug-reporting",

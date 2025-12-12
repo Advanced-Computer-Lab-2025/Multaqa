@@ -206,6 +206,16 @@ eventBus.on("notification:vendor:pendingRequest", (notification, saveToDatabase)
 
 /**
  * -------------------------------
+ * Comment Moderation Notifications
+ * -------------------------------
+ */
+// Flagged comments -> notify Admins
+eventBus.on("notification:comment:flagged", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:comment:flagged", notification, saveToDatabase);
+});
+
+/**
+ * -------------------------------
  * Generic notification events
  * -------------------------------
  */

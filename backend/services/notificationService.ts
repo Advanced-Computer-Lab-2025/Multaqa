@@ -44,6 +44,9 @@ export class NotificationService {
       case "VENDOR_PENDING_REQUEST":
         eventBus.emit("notification:vendor:pendingRequest", notification, saveToDatabase);
         break;
+      case "COMMENT_FLAGGED":
+        eventBus.emit("notification:comment:flagged", notification, saveToDatabase);
+        break;
       default:
         console.warn(`No event bus handler for notification type: ${notification.type}`);
         // Fallback for new generic notifications
