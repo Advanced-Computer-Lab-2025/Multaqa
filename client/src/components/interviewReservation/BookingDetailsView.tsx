@@ -1,13 +1,22 @@
 import React from "react";
 import { Box, Typography, Paper, Button, Divider } from "@mui/material";
 import { InterviewSlot } from "./types";
+import AddToCalendarButton from "../Event/helpers/AddToCalendarButton";
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 
 interface BookingDetailsViewProps {
   booking: InterviewSlot;
+  teamTitle?: string;
   onCancel: () => void;
 }
 
-const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCancel }) => {
+const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({
+  booking,
+  teamTitle = "Team Interview",
+  onCancel
+}) => {
+  const { removeEventFromCalendar } = useGoogleCalendar();
+
   const start = new Date(booking.startDateTime).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -24,6 +33,18 @@ const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCanc
     day: "numeric",
   });
 
+  // Format dates for AddToCalendarButton
+  const startDate = booking.startDateTime.split('T')[0];
+  const endDate = booking.endDateTime.split('T')[0];
+  const startTime = new Date(booking.startDateTime).toTimeString().slice(0, 5);
+  const endTime = new Date(booking.endDateTime).toTimeString().slice(0, 5);
+
+  const handleCancel = async () => {
+    // Remove from calendar before cancelling (silent fail if not in calendar)
+    await removeEventFromCalendar(booking.id);
+    onCancel();
+  };
+
   return (
     <Paper
       elevation={3}
@@ -37,9 +58,24 @@ const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCanc
         mx: "auto",
       }}
     >
-      <Typography variant="h6" sx={{ mb: 3, color: "#2563eb", fontWeight: 600 }}>
-        Interview Slot Details
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography variant="h6" sx={{ color: "#2563eb", fontWeight: 600 }}>
+          Interview Slot Details
+        </Typography>
+        <AddToCalendarButton
+          eventId={booking.id}
+          eventDetails={{
+            name: `GUC Interview - ${teamTitle}`,
+            startDate: startDate,
+            endDate: endDate,
+            startTime: startTime,
+            endTime: endTime,
+            description: `Interview slot for ${teamTitle}. Location: ${booking.location || 'TBD'}`,
+            location: booking.location,
+          }}
+          color="#2563eb"
+        />
+      </Box>
 
       <Box sx={{ textAlign: "left", mb: 3 }}>
         <Typography variant="subtitle2" color="textSecondary">
@@ -58,7 +94,7 @@ const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCanc
           {start} - {end}
         </Typography>
 
-         <Divider sx={{ mb: 2 }} />
+        <Divider sx={{ mb: 2 }} />
 
         <Typography variant="subtitle2" color="textSecondary">
           Your Details:
@@ -76,8 +112,8 @@ const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCanc
         variant="contained"
         color="error"
         fullWidth
-        onClick={onCancel}
-        sx={{ py: 1.5, fontWeight: 600, fontSize: "1rem", borderRadius: 2,  width:"100%" }}
+        onClick={handleCancel}
+        sx={{ py: 1.5, fontWeight: 600, fontSize: "1rem", borderRadius: 2, width: "100%" }}
       >
         CANCEL SLOT
       </Button>

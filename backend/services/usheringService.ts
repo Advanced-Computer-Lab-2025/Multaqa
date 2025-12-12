@@ -8,15 +8,18 @@ import { UserRole } from "../constants/user.constants";
 import { sendInterviewBookingConfirmationEmail } from "./emailService";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { IUser } from "../interfaces/models/user.interface";
+import { CalendarService } from "./calendarService";
 
 export class UsheringService {
     private usheringRepo: GenericRepository<IUshering>;
     private userRepo: GenericRepository<IUser>;
+    private calendarService: CalendarService;
     constructor() {
         this.usheringRepo = new GenericRepository<IUshering>(ushering);
         this.userRepo = new GenericRepository<IUser>(User);
+        this.calendarService = new CalendarService();
     }
-
+    
 	async createUshering(usheringData: Partial<IUshering>): Promise<IUshering> {
 		const newUshering = await this.usheringRepo.create(usheringData);
 		return newUshering;
@@ -152,7 +155,7 @@ export class UsheringService {
 	async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot add slots before creating teams');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -204,7 +207,7 @@ export class UsheringService {
 	async deleteSlot(usheringId: string, teamId: string, slotId: string): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot delete slots before creating teams');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -254,7 +257,7 @@ export class UsheringService {
 		// If null, the update didn't match — determine why and throw a clear error.
 		if (!result) {
 			const usheringDoc = await this.usheringRepo.findById(usheringId);
-			if (!usheringDoc) throw createError(404, 'Ushering event not found');
+			if (!usheringDoc) throw createError(404, 'Cannot book slots before teams are created');
 
 			// Has the student already booked anywhere?
 			const hasExistingBooking = usheringDoc.teams.some(team =>
@@ -318,7 +321,7 @@ export class UsheringService {
 	async cancelBooking(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot cancel booking before  teams are created');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -350,6 +353,13 @@ export class UsheringService {
 			createdAt: new Date(),
 		} as Notification);
 
+		// Remove calendar event for the cancelled slot (silent fail if not in calendar)
+		try {
+			await this.calendarService.removeEvent(studentId, slotId);
+		} catch (calendarError) {
+			console.log('Calendar event removal skipped (may not be in calendar):', calendarError);
+		}
+
 		await ushering.save();
 	}
 
@@ -361,7 +371,7 @@ export class UsheringService {
 			}] as any
 		});
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot view slots before teams are created');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -385,7 +395,7 @@ export class UsheringService {
 		});
 
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot get registered slot before teams are created');
 		}
 
 		// Loop through teams to find the user's registration
