@@ -32,6 +32,7 @@ export type BazarViewProps = BasicProps & {
   description: string;
   registrationDeadline?: any;
   vendorStatus?: string;
+  calendarButton?: React.ReactNode;
   waitlist?: WaitlistEntry[];
   isFull?: boolean;
 };
@@ -40,12 +41,13 @@ export type BazarViewProps = BasicProps & {
 export type BoothViewProps = BasicProps & {
   company: string;
   people?: { name: string; email: string }[];
-  description: string;
-  details: Record<string, string>;
+  description: string,
+  details: Record<string, string>,
   payButton?: React.ReactNode;
   vendorStatus?: string;
-  isRequested?: boolean;
-};
+  isRequested?:boolean;
+  calendarButton?: React.ReactNode;
+}
 
 //create conferences by adding the  start and end dates and times, full agenda, conference website link, required budget, source of funding (extrernal or GUC), extra required resources
 

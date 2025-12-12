@@ -170,6 +170,10 @@ function transformEvent(event: any, attendedEvents?: string[]) {
         people: event.RequestData.boothAttendees,
         description: event.description,
         details: {
+          "Start Date": cleanDateString(startDate),
+          "End Date": cleanDateString(endDate),
+          "Start Time": event.eventStartTime,
+          "End Time": event.eventEndTime,
           "Setup Duration": `${event.RequestData.boothSetupDuration}`,
           Location: event.RequestData.boothLocation,
           "Booth Size": event.RequestData.boothSize,

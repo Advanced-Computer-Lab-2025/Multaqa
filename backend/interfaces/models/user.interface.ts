@@ -1,7 +1,8 @@
-import { Document } from "mongoose";
+import { Document, Schema } from "mongoose";
 import { UserRole } from "../../constants/user.constants";
 import { UserStatus } from "../../constants/user.constants";
 import { NotificationType } from "../../constants/user.constants";
+import { IEvent } from "./event.interface";
 
 export interface INotification extends Document {
   type: NotificationType;
@@ -27,4 +28,15 @@ export interface IUser extends Document {
     promoCode: string;
     termsAndConditions: string;
   };
+  googleCalendar?: {
+    access_token: string;
+    refresh_token: string;
+    scope?: string;
+    token_type?: string;
+    expiry_date?: number;
+  };
+  calendarEvents?: Array<{
+    eventId: IEvent | Schema.Types.ObjectId;
+    googleCalendarEventId: string;
+  }>; // Event IDs with their Google Calendar event IDs
 }

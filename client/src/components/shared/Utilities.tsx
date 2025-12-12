@@ -2,6 +2,17 @@ import React from "react";
 import { IconButton, Stack, Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { Trash2 , Ban, Archive} from "lucide-react";
+import AddToCalendarButton from "@/components/Event/helpers/AddToCalendarButton";
+
+interface CalendarEventDetails {
+  name: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  description?: string;
+  location?: string;
+}
 
 interface EditDeleteIconsProps {
   onEdit?: () => void;
@@ -12,6 +23,10 @@ interface EditDeleteIconsProps {
   color?: string; // optional custom color (default gray)
   event:string;
   renderEdit?:boolean;
+  // Calendar button props
+  showCalendarButton?: boolean;
+  eventId?: string;
+  calendarEventDetails?: CalendarEventDetails;
 }
 
 const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
@@ -22,7 +37,10 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
   archived,
   color = "#6b7280",
   renderEdit=true,
-  event
+  event,
+  showCalendarButton,
+  eventId,
+  calendarEventDetails,
 }) => {
   const editText = event?`Edit ${event}`:"Edit";
   const deleteText = event?`Delete ${event}`:"Delete";
@@ -30,6 +48,14 @@ const EditDeleteIcons: React.FC<EditDeleteIconsProps> = ({
   const archiveText = event?`Archive ${event}`:"Archive";
   return (
     <Stack direction="row" spacing={1}>
+      {/* Calendar Button - First for registered users */}
+      {showCalendarButton && eventId && calendarEventDetails && (
+        <AddToCalendarButton
+          eventId={eventId}
+          eventDetails={calendarEventDetails}
+          color={color}
+        />
+      )}
       {/* Safe/Moderate Actions First */}
       {renderEdit &&
       <Tooltip title={editText}>

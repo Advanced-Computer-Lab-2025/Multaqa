@@ -34,8 +34,8 @@ import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
 import EditWorkshop from "../tempPages/EditWorkshop/EditWorkshop";
-import Utilities from "../shared/Utilities";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import AddToCalendarButton from "./helpers/AddToCalendarButton";
 import JoinWaitlistModal from "./Modals/JoinWaitlistModal";
 import LeaveWaitlistModal from "./Modals/LeaveWaitlistModal";
 
@@ -245,19 +245,31 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 </IconButton>
               </Tooltip>
             </Stack>
-          ) : user === "professor" &&
-            !(
-              details["Status"] === "approved" ||
-              details["Status"] === "rejected"
-            ) ? (
+          ): (user === "professor" && !(details["Status"] === "approved" || details["Status"] === "rejected"))? (
+          <Stack direction="row" spacing={1}>
+            {(registered || isRegisteredEvent) && !datePassed && (
+              <AddToCalendarButton
+                eventId={id}
+                eventDetails={{
+                  name: name,
+                  startDate: details["Start Date"],
+                  endDate: details["End Date"],
+                  startTime: details["Start Time"],
+                  endTime: details["End Time"],
+                  description: description,
+                  location: details["Location"],
+                }}
+                color={background}
+              />
+            )}
             <Tooltip title="Edit Workshop">
               <IconButton
                 size="medium"
                 onClick={() => setEdit(true)}
                 sx={{
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  border: "1px solid",
-                  borderColor: "divider",
+                  border: '1px solid',
+                  borderColor: 'divider',
                   borderRadius: 2,
                   "&:hover": {
                     backgroundColor: `${background}15`,
@@ -269,8 +281,23 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-          ) : null
-        }
+          </Stack>
+        ) : (user === "staff" || user === "student" || user === "ta" || user === "professor") && (registered || isRegisteredEvent) && !datePassed ? (
+          <AddToCalendarButton
+            eventId={id}
+            eventDetails={{
+              name: name,
+              startDate: details["Start Date"],
+              endDate: details["End Date"],
+              startTime: details["Start Time"],
+              endTime: details["End Time"],
+              description: description,
+              location: details["Location"],
+            }}
+            color={background}
+          />
+        ) : null
+       }
         commentButton={commentButton}
         registerButton={
           (user == "staff" ||

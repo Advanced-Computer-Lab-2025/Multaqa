@@ -12,12 +12,12 @@ import Utilities from "../shared/Utilities";
 import RegisterEventModal from "./Modals/RegisterModal";
 import EditTrip from "../tempPages/EditTrip/EditTrip";
 import EventCard from "../shared/cards/EventCard";
-import BazarFormModalWrapper from "./helpers/BazarFormModalWrapper";
 import EventDetails from "./Modals/EventDetails";
 import CancelRegistration from "./Modals/CancelRegistration";
 import PaymentDrawer from "./helpers/PaymentDrawer";
 import RestrictUsers from "./Modals/RestrictUsers";
 import ArchiveEvent from "./Modals/ArchiveEvent";
+import AddToCalendarButton from "./helpers/AddToCalendarButton";
 import JoinWaitlistModal from "./Modals/JoinWaitlistModal";
 import LeaveWaitlistModal from "./Modals/LeaveWaitlistModal";
 
@@ -159,18 +159,22 @@ const TripView: React.FC<BazarViewProps> = ({
                 <Trash2 size={18} />
               </IconButton>
             </Tooltip>
-          ) : user === "events-office" || user === "events-only" ? (
-            <Utilities
-              renderEdit={!datePassed}
-              archived={archived}
-              onRestrict={() => setRestrictUsers(true)}
-              onArchive={() => setArchive(true)}
-              onEdit={() => setEdit(true)}
-              onDelete={handleOpenDeleteModal}
-              event={"Trip"}
-              color={background}
-            />
-          ) : null
+          ) : (user === "events-office" || user === "events-only" ? <Utilities  renderEdit={!datePassed} archived={archived} onRestrict={() => setRestrictUsers(true)} onArchive={() => setArchive(true)} onEdit={() => setEdit(true)} onDelete={handleOpenDeleteModal} event={"Trip"} color={background} /> : 
+            (user === "staff" || user === "student" || user === "ta" || user === "professor") && (registered || isRegisteredEvent) && !datePassed ? (
+              <AddToCalendarButton
+                eventId={id}
+                eventDetails={{
+                  name: name,
+                  startDate: details["Start Date"],
+                  endDate: details["End Date"],
+                  startTime: details["Start Time"],
+                  endTime: details["End Time"],
+                  description: description,
+                  location: details["Location"],
+                }}
+                color={background}
+              />
+            ) : null)
         }
         registerButton={
           (user == "staff" ||
