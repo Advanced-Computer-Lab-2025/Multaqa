@@ -268,7 +268,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ user }) => {
                       <Edit size={16} />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Delete Team">
+                  {/* <Tooltip title="Delete Team">
                     <IconButton
                       size="small"
                       onClick={() => handleDeleteClick(team._id)}
@@ -286,7 +286,7 @@ const TeamsDescription: React.FC<TeamsDescriptionProps> = ({ user }) => {
                     >
                       <Trash2 size={16} />
                     </IconButton>
-                  </Tooltip>
+                  </Tooltip> */}
                 </Box>
                 }
                 <Box

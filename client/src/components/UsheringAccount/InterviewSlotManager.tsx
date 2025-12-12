@@ -181,6 +181,11 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
           });
 
           setTeamSlots(slotsPerTeam);
+
+          // Extract postTime if available
+          if (usheringData.postTime) {
+            setPostTime(usheringData.postTime);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch ushering data:', error);
@@ -493,69 +498,107 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container maxWidth="xl" sx={mainContainerStyles}>
-        {/* Header */}
-        <Box sx={{ ...headerStyles, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Box>
-            <Typography variant="h4" sx={headerTitleStyles}>
-              Interview Slots
-            </Typography>
-            <Typography sx={headerSubtitleStyles}>
-              {isAdmin
-                ? 'Create and manage interview slots for each team'
-                : 'View available interview slots for each team'}
-            </Typography>
-          </Box>
+        {/* Row 1: Header */}
+        <Box sx={headerStyles}>
+          <Typography variant="h4" sx={headerTitleStyles}>
+            Interview Slots
+          </Typography>
+          <Typography sx={headerSubtitleStyles}>
+            {isAdmin
+              ? 'Create and manage interview slots for each team'
+              : 'View available interview slots for each team'}
+          </Typography>
+        </Box>
 
-          {/* Post Management Section */}
-          {isAdmin && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1,
-                p: 2,
-                borderRadius: 2,
-                border: `1px solid ${alpha(theme.palette.tertiary.main, 0.3)}`,
-                backgroundColor: alpha(theme.palette.tertiary.main, 0.03),
-              }}
-            >
+        {/* Row 2: Post Management Section */}
+        {isAdmin && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 2,
+              p: 2,
+              mb: 2,
+              borderRadius: 2,
+              border: `1px solid ${alpha(theme.palette.tertiary.main, 0.3)}`,
+              backgroundColor: alpha(theme.palette.tertiary.main, 0.03),
+            }}
+          >
+            {/* Left side: Post Management label + current schedule */}
+            <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap">
               <Typography variant="caption" sx={{ color: theme.palette.tertiary.main, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 Post Management
               </Typography>
-              <Stack direction="row" spacing={1.5}>
-                <Tooltip
-                  title={
-                    <Box sx={{ p: 1 }}>
-                      <Typography variant="body2" fontWeight={600} mb={0.5}>Schedule Interview Posts</Typography>
-                      <Typography variant="caption">
-                        Set when interview slots will be automatically posted for applicants to book,
-                        and when they will be removed after the interview period ends.
+
+              {/* Display current schedule if postTime is set */}
+              {postTime && (
+                <Box
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    borderRadius: 1.5,
+                    backgroundColor: alpha(theme.palette.tertiary.main, 0.08),
+                    border: `1px dashed ${alpha(theme.palette.tertiary.main, 0.3)}`,
+                  }}
+                >
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontSize: '0.65rem' }}>
+                        Start
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.tertiary.main }}>
+                        {format(new Date(postTime.startDateTime), 'MMM dd, yyyy h:mm a')}
                       </Typography>
                     </Box>
-                  }
-                  arrow
-                  placement="bottom"
-                >
-                  <CustomButton
-                    variant="outlined"
-                    startIcon={<CalendarClock size={18} />}
-                    sx={{
-                      borderColor: theme.palette.tertiary.main,
-                      color: theme.palette.tertiary.main,
-                      '&:hover': {
-                        borderColor: theme.palette.tertiary.main,
-                        backgroundColor: alpha(theme.palette.tertiary.main, 0.08),
-                      },
-                    }}
-                    onClick={() => setIsScheduleModalOpen(true)}
-                  >
-                    Schedule
-                  </CustomButton>
-                </Tooltip>
-              </Stack>
-            </Box>
-          )}
-        </Box>
+                    <Typography variant="body2" sx={{ color: 'text.primary' }}>→</Typography>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: 'text.primary', fontSize: '0.65rem' }}>
+                        End
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.tertiary.main }}>
+                        {format(new Date(postTime.endDateTime), 'MMM dd, yyyy h:mm a')}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+              )}
+            </Stack>
+
+            {/* Right side: Schedule button */}
+            <Tooltip
+              title={
+                <Box sx={{ p: 1 }}>
+                  <Typography variant="body2" fontWeight={600} mb={0.5}>Schedule Interview Posts</Typography>
+                  <Typography variant="caption">
+                    Set when interview slots will be automatically posted for applicants to book,
+                    and when they will be removed after the interview period ends.
+                  </Typography>
+                </Box>
+              }
+              arrow
+              placement="bottom"
+            >
+              <CustomButton
+                variant="outlined"
+                startIcon={<CalendarClock size={18} />}
+                sx={{
+                  borderColor: theme.palette.tertiary.main,
+                  color: theme.palette.tertiary.main,
+                  '&:hover': {
+                    borderColor: theme.palette.tertiary.main,
+                    backgroundColor: alpha(theme.palette.tertiary.main, 0.08),
+                  },
+                }}
+                onClick={() => setIsScheduleModalOpen(true)}
+              >
+                Schedule
+              </CustomButton>
+            </Tooltip>
+          </Box>
+        )}
 
         {/* Team Selector */}
         <TeamSelector

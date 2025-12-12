@@ -121,7 +121,10 @@ export const cardsGridStyles: SxProps<Theme> = {
     gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(2, 1fr)' },
     gap: 2,
     alignContent: 'start',
-    width:"100%"
+    width: "100%",
+    maxHeight: '400px',
+    overflowY: 'auto',
+    pr: 1, // padding right for scrollbar
 };
 
 // Empty state container styles.
@@ -138,6 +141,7 @@ export const emptyStateStyles: SxProps<Theme> = {
 // Header styles.
 export const headerStyles: SxProps<Theme> = {
     mb: 4,
+    
 };
 
 // Header title styles.

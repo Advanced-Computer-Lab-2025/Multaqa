@@ -26,7 +26,7 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
   }
 
   return (
-    <div className="space-y-3 max-w-60 mx-auto">
+    <div className="space-y-3 max-w-60 mx-auto max-h-[300px] overflow-y-auto pr-2">
       {slots.map((slot) => {
         const start = new Date(slot.startDateTime).toLocaleTimeString("en-US", {
           hour: "2-digit",
@@ -72,9 +72,8 @@ const TimeSlotList: React.FC<TimeSlotListProps> = ({
             key={slot.id}
             onClick={() => !isBooked && onSelectSlot(slot.id)}
             disabled={isDisabled}
-            className={`${baseClasses} ${buttonClasses} ${
-              isSelected ? "ring-2 ring-offset-2 ring-blue-500" : ""
-            }`}
+            className={`${baseClasses} ${buttonClasses} ${isSelected ? "ring-2 ring-offset-2 ring-blue-500" : ""
+              }`}
           >
             {start} - {end}
 
