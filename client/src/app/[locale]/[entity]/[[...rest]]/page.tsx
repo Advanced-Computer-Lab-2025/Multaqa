@@ -355,6 +355,9 @@ export default function EntityCatchAllPage() {
         if (section === "teams-description") {
           return <TeamsDescription user="usher-admin" />;
         }
+        if(section=="interview-management"){
+          return <InterviewSlotManager />
+        }
         if (section === "applications") {
           return <UsheringApplications />;
         }
@@ -560,11 +563,6 @@ export default function EntityCatchAllPage() {
     if (entity === "student" && tab === "graduation") {
       if (section === "teams-description") {
         return <TeamsDescription user="student" />;
-      }
-      if (section === "interview-slots") {
-        return (
-         <InterviewSlotManager />
-        );
       }
     }
 

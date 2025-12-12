@@ -5,11 +5,11 @@ export const teamSelectorChipStyles = (
     isSelected: boolean,
     teamColor: string
 ): SxProps<Theme> => ({
-    px: 2.5,
-    py: 1,
+    px: 1.5,
+    py: 0.5,
     borderRadius: 3,
     fontWeight: isSelected ? 600 : 500,
-    fontSize: '0.875rem',
+    fontSize: '0.8rem',
     cursor: 'pointer',
     transition: 'all 0.2s ease-in-out',
     border: '2px solid',
@@ -52,6 +52,7 @@ export const calendarContainerStyles = (teamColor: string): SxProps<Theme> => ({
     '& .MuiPickersDay-root:focus.Mui-selected': {
         backgroundColor: teamColor,
     },
+    height: "300px"
 });
 
 // Applicant Card Styles

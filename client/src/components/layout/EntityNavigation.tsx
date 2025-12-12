@@ -577,7 +577,6 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "teams-description", label: "Teams' Description" },
           { id: "interview-management", label: "Interview Management" },
           { id: "applications", label: "Applications" },
-          { id: "student-list", label: "Student List" },
         ],
       },
     ],
