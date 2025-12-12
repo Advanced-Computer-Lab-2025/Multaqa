@@ -74,7 +74,7 @@ const JoinWaitlistModal = ({
       modalType='info'
       borderColor={color}
       buttonOption1={{
-        label: loading ? "Joining..." : "Join Waitlist",
+        label: loading ? "Joining..." : "Join",
         variant: "contained",
         color: "primary",
         onClick: loading ? undefined : handleJoinWaitlist,

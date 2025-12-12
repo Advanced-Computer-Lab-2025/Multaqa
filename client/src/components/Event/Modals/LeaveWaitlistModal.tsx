@@ -72,7 +72,7 @@ const LeaveWaitlistModal = ({
       modalType='warning'
       borderColor={theme.palette.warning.main}
       buttonOption1={{
-        label: loading ? "Leaving..." : "Leave Waitlist",
+        label: loading ? "Leaving..." : "Leave",
         variant: "contained",
         color: "warning",
         onClick: loading ? undefined : handleLeaveWaitlist,
