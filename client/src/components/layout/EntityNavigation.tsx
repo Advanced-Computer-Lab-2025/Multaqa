@@ -20,6 +20,7 @@ import {
   QrCode,
   Award,
   Wallet,
+  Bug,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { UserRoleKey } from "@/types";
@@ -179,6 +180,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
+      },
     ],
   },
   staff: {
@@ -228,6 +235,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
+       {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
+      },
     ],
   },
   ta: {
@@ -274,6 +287,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Loyalty Program",
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
+       {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -327,6 +346,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Loyalty Program",
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
+      },
+       {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -388,6 +413,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "sessions-management", label: "Sessions Management" },
           { id: "browse-sessions", label: "Browse Sessions" },
         ],
+      },
+       {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },
@@ -455,6 +486,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "attendee-reports", label: "Attendee Reports" },
           { id: "sales-reports", label: "Sales Reports" },
         ],
+      },
+       {
+        key: "bug-reporting",
+        label: "Bug Reports",
+        icon: Bug,
+        tabs: [{ id: "bug-reports", label: "Bug Reports" }],
       },
     ],
   },

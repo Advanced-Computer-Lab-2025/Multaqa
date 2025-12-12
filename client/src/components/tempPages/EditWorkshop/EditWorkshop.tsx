@@ -16,8 +16,11 @@ import CustomButton from '@/components/shared/Buttons/CustomButton';
 import { CustomModalLayout } from '@/components/shared/modals';
 import { workshopSchema } from "../CreateWorkshop/schemas/workshop";
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { toast } from 'react-toastify';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+
+dayjs.extend(utc);
 
 interface ProfessorOption {
     label: string;
@@ -341,8 +344,8 @@ const EditWorkshop = ({
             type: "workshop",
             eventName: values.workshopName,
             location: values.location,
-            eventStartDate: values.startDate.format("YYYY-MM-DD"),
-            eventEndDate: values.endDate.format("YYYY-MM-DD"),
+            eventStartDate: values.startDate.utc().format("YYYY-MM-DD"),
+            eventEndDate: values.endDate.utc().format("YYYY-MM-DD"),
             description: values.description,
             fullAgenda: values.agenda,
             associatedFaculty: values.faculty,
@@ -350,9 +353,9 @@ const EditWorkshop = ({
             requiredBudget: values.budget,
             extraRequiredResources: values.extraResources,
             capacity: values.capacity,
-            registrationDeadline: values.registrationDeadline ? values.registrationDeadline.toISOString() : null,
-            eventStartTime: values.startDate.format("HH:mm"),
-            eventEndTime: values.endDate.format("HH:mm"),
+            registrationDeadline: values.registrationDeadline ? values.registrationDeadline.utc() : null,
+            eventStartTime: values.startDate.utc().format("HH:mm"),
+            eventEndTime: values.endDate.utc().format("HH:mm"),
             fundingSource: values.fundingSource,
             price: values.price,
         };
