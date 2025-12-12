@@ -6,6 +6,8 @@ import {
   CardGiftcard,
   Business,
   CheckCircle,
+  HourglassEmpty,
+  EventAvailable,
 } from "@mui/icons-material";
 
 /**
@@ -69,6 +71,10 @@ export const getNotificationIcon = (type: NotificationType): React.ElementType =
       return CardGiftcard;
     case NotificationType.VENDOR_PENDING_REQUEST:
       return Business;
+    case NotificationType.WAITLIST_PROMOTED:
+      return EventAvailable;
+    case NotificationType.WAITLIST_EXPIRED:
+      return HourglassEmpty;
     default:
       return Notifications;
   }
@@ -91,6 +97,10 @@ export const getNotificationColor = (type: NotificationType): string => {
       return "#9c27b0"; // Purple
     case NotificationType.VENDOR_PENDING_REQUEST:
       return "#2196f3"; // Blue
+    case NotificationType.WAITLIST_PROMOTED:
+      return "#4caf50"; // Success green
+    case NotificationType.WAITLIST_EXPIRED:
+      return "#ff9800"; // Warning orange
     default:
       return "#6299d0";
   }

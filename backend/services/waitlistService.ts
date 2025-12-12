@@ -9,6 +9,7 @@ import { Trip } from "../schemas/event-schemas/tripSchema";
 import { Workshop } from "../schemas/event-schemas/workshopEventSchema";
 import createError from "http-errors";
 import { EVENT_TYPES } from "../constants/events.constants";
+import { NotificationType } from "../constants/user.constants";
 import { UserService } from "./userService";
 import {
   sendWaitlistJoinedEmail,
@@ -17,6 +18,8 @@ import {
   sendWaitlistDeadlineExpiredEmail,
 } from "./emailService";
 import mongoose from "mongoose";
+import { NotificationService } from "./notificationService";
+import { Notification } from "./notificationService";
 
 const { Types } = require("mongoose");
 
@@ -466,6 +469,21 @@ export class WaitlistService {
           } catch (emailError) {
             console.error("Error sending promotion email:", emailError);
           }
+
+          // Send notification for waitlist promotion
+          await NotificationService.sendNotification({
+            userId: user._id!.toString(),
+            type: "WAITLIST_PROMOTED",
+            title: "Waitlist Promotion",
+            message: `You've been promoted from the waitlist for ${event.eventName}. ${
+              isFreeEvent
+                ? "You have been automatically registered!"
+                : `Please complete your payment by ${paymentDeadline.toLocaleString()}.`
+            }`,
+            read: false,
+            delivered: false,
+            createdAt: new Date(),
+          } as Notification);
         }
       }
     }
@@ -532,6 +550,17 @@ export class WaitlistService {
         event.eventStartDate,
         event.location
       );
+
+      // Send notification for auto-registration
+      await NotificationService.sendNotification({
+        userId: user._id!.toString(),
+        type: "WAITLIST_PROMOTED",
+        title: "Auto-Registered from Waitlist",
+        message: `Great news! You've been automatically registered for ${event.eventName} as a free event. See you there!`,
+        read: false,
+        delivered: false,
+        createdAt: new Date(),
+      } as Notification);
     }
     // Note: No need to call promoteFromWaitlist here - the caller (promoteFromWaitlist)
     // already handles promoting multiple users iteratively, avoiding recursion
@@ -580,6 +609,15 @@ export class WaitlistService {
             : user.email,
           event.eventName
         );
+
+        // Send notification for waitlist expiration
+        await NotificationService.sendNotification({
+          userId: user._id!.toString(),
+          type: "WAITLIST_EXPIRED",
+          title: "Waitlist Slot Expired",
+          message: `Your waitlist slot for ${event.eventName} has expired due to missed payment deadline. You have been removed from the waitlist.`,
+          createdAt: new Date(),
+        } as Notification);
       }
     }
 

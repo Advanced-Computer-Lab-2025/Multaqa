@@ -276,6 +276,19 @@ eventBus.on("notification:bugReport:resolved", (notification, saveToDatabase) =>
   sendSocketNotification("notification:bugReport:resolved", notification, saveToDatabase);
 });
 
+
+/**
+ * -------------------------------
+ * Waitlist Notifications
+ */
+eventBus.on("notification:waitlist:promoted", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:waitlist:promoted", notification, saveToDatabase); 
+});
+
+eventBus.on("notification:waitlist:expired", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:waitlist:expired", notification, saveToDatabase); 
+});
+
 /**
  * -------------------------------
  * Generic notification events
