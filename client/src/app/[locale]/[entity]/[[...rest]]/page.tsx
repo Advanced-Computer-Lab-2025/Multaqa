@@ -38,6 +38,10 @@ import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from "../../../../components/shared/Report/reportTable";
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
 import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
+import BugReportForms from "@/components/Bugs/BugReportForms";
+import BugReports from "@/components/Bugs/BugReports";
+import UsheringApplications from "@/components/shared/UsheringTeamApplications/UsheringApplications";
+import InterviewSlotManager from "@/components/UsheringAccount/InterviewSlotManager";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -347,8 +351,16 @@ export default function EntityCatchAllPage() {
     }
 
     if (entity === "usher-admin") {
-      if (tab === "team-description") {
-        return <TeamsDescription user="usher-admin" />;
+      if (tab === "graduation") {
+        if (section === "teams-description") {
+          return <TeamsDescription user="usher-admin" />;
+        }
+        if(section=="interview-management"){
+          return <InterviewSlotManager />
+        }
+        if (section === "applications") {
+          return <UsheringApplications />;
+        }
       }
     }
 
@@ -439,6 +451,24 @@ export default function EntityCatchAllPage() {
       }
       if (section === "my-sessions") {
         return <MyRegisteredSessions />;
+      }
+    }
+
+    if (
+      ["student", "staff", "ta", "professor", "events-office"].includes(entity) &&
+      tab === "bug-reporting"
+    ) {
+      if (section === "bug-reporting" || section === "") {
+        return <BugReportForms />;
+      }
+    }
+
+    if (
+      ["admin"].includes(entity) &&
+      tab === "bug-reporting"
+    ) {
+      if (section === "bug-reports" || section === "") {
+        return <BugReports />;
       }
     }
 

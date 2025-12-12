@@ -96,7 +96,7 @@ export const getRedirectPath = (role: string) => {
     professor: "/professor/workshops/overview",
     eventsOffice: "/events-office/events/all-events",
     vendor: "/vendor/opportunities/bazaars",
-    usherAdmin: "/usher-admin/graduation",
+    usherAdmin: "/usher-admin/graduation/teams-description",
   };
 
   return roleRedirects[role] || "/student/events/browse-events";
