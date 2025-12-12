@@ -42,6 +42,8 @@ import BugReportForms from "@/components/Bugs/BugReportForms";
 import BugReports from "@/components/Bugs/BugReports";
 import UsheringApplications from "@/components/shared/UsheringTeamApplications/UsheringApplications";
 import InterviewSlotManager from "@/components/UsheringAccount/InterviewSlotManager";
+import Guidelines from "@/components/UsheringAccount/Guidelines";
+import NotificationHub from "@/components/UsheringAccount/NotificationHub";
 import InterviewBookingPage from "@/components/interviewReservation/InterviewBookingPage";
 
 // Helper: Maps backend user object to URL entity segment
@@ -362,6 +364,12 @@ export default function EntityCatchAllPage() {
         if (section === "applications") {
           return <UsheringApplications />;
         }
+        if (section === "guidelines") {
+          return <Guidelines/>;
+        }
+        if(section ==="notification-service"){
+          return <NotificationHub />
+        }
       }
     }
 
@@ -456,7 +464,7 @@ export default function EntityCatchAllPage() {
     }
 
     if (
-      ["student", "staff", "ta", "professor", "events-office"].includes(entity) &&
+      ["student", "staff", "ta", "professor", "events-office", "usher-admin"].includes(entity) &&
       tab === "bug-reporting"
     ) {
       if (section === "bug-reporting" || section === "") {

@@ -100,8 +100,11 @@ export const timeSlotBadgeStyles = (teamColor: string): SxProps<Theme> => ({
 export const mainContainerStyles: SxProps<Theme> = {
     py: 4,
     px: 3,
-    minHeight: '100vh',
+    minHeight: '100%',
     backgroundColor: '#ffffff',
+    maxWidth: '100%',
+    overflowX: 'hidden',
+    boxSizing: 'border-box',
 };
 
 // Content grid styles.
@@ -115,9 +118,10 @@ export const contentGridStyles: SxProps<Theme> = {
 // Cards grid styles.
 export const cardsGridStyles: SxProps<Theme> = {
     display: 'grid',
-    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(2, 1fr)' },
     gap: 2,
     alignContent: 'start',
+    width:"100%"
 };
 
 // Empty state container styles.

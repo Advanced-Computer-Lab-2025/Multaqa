@@ -275,11 +275,11 @@ export const fetchTeamApplications = async (
         // TODO: Remove mock data and uncomment API call for integration
         // ----------------------------------------------------------------
         // import { api } from '../../../../api';
-        // 
+        
         // const response = await api.get(`/ushering/teams/${teamId}/applications`, {
         //   params: { date }
         // });
-        // 
+        
         // return response.data.data;
         // ----------------------------------------------------------------
 
@@ -326,7 +326,6 @@ export const fetchTeams = async (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
 ): Promise<UsheringTeam[]> => {
     setLoading(true);
-
     try {
         // API call for integration
         const response = await api.get('/ushering');

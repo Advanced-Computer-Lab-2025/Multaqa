@@ -1035,3 +1035,56 @@ export const getWaitlistAutoRegisteredTemplate = (
     </div>
   `;
 };
+
+// Interview Slot Reminder Email Template
+export const getInterviewReminderTemplate = (
+  username: string,
+  teamName: string,
+  interviewDate: Date,
+  location: string
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.header}">
+          <h2 style="margin: 0; font-size: 22px;">🗓️ Interview Reminder</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            This is a friendly reminder that your interview is scheduled for <strong>tomorrow</strong>!
+          </p>
+          <div style="${baseStyles.infoBox}">
+            <strong style="color: #2563eb;">Interview Details:</strong><br>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              🏢 <strong>Team:</strong> ${teamName}<br>
+              📅 <strong>Date:</strong> ${interviewDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}<br>
+              ⏰ <strong>Time:</strong> ${interviewDate.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}<br>
+              📍 <strong>Location:</strong> ${location || "To be announced"}
+            </p>
+          </div>
+          <div style="${baseStyles.warningBox}">
+            <strong style="color: #ea580c;">⚠️ Important:</strong>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              Please arrive at least 10 minutes early. If you need to cancel, please do so as soon as possible to allow others to book.
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            Good luck with your interview! We're rooting for you! 🌟
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};

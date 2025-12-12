@@ -574,10 +574,18 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "GUC Graduation",
         icon: LayoutDashboard,
         tabs: [
+          { id: "guidelines", label: "Guidelines" },
           { id: "teams-description", label: "Teams' Description" },
           { id: "interview-management", label: "Interview Management" },
           { id: "applications", label: "Applications" },
+          { id: "notification-service", label: "Notification Broadcast" },
         ],
+      },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
       },
     ],
   },

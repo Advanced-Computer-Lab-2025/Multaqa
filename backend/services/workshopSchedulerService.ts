@@ -15,3 +15,6 @@ export class WorkshopScheduler {
     console.log("Workshop certificate scheduler started");
   }
 }
+
+// Create and export a singleton instance
+export const workshopScheduler = new WorkshopScheduler();
