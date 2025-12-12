@@ -22,6 +22,7 @@ import BugReportDetails from './BugReportDetails';
 import { toast } from 'react-toastify';
 import { jsPDF } from 'jspdf';
 import EmailDevForm from './EmailDevForm';
+import { api } from "../../api";
 
 // TypeScript interface for Bug Report
 export interface BugReport {
@@ -37,15 +38,20 @@ export interface BugReport {
 }
 
 interface BugReportProps {
+  id: string;
   bug: BugReport;
   accentColor: string;
-  onResolve?: (bugId: string) => Promise<void>;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const BugReportCard: React.FC<BugReportProps> = ({ bug, accentColor, onResolve }) => {
+const BugReportCard: React.FC<BugReportProps> = ({ id, bug, accentColor, setRefresh }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [resolving, setResolving] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<any>(null);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -222,25 +228,53 @@ const BugReportCard: React.FC<BugReportProps> = ({ bug, accentColor, onResolve }
     }
   };
 
+  const handleCallApi = async (payload: any) => {
+      setLoading(true);
+      setError(null);
+      setResponse([]);
+      try {
+        console.log("payload in call");
+        console.log(payload);
+        const res = await api.patch("/bugreports/" + bug.id, payload);
+        setResponse(res.data);
+        toast.success("Bug report edited successfully", {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+        return res.data;
+      } catch (err: any) {
+        setError(err?.message || "API call failed");
+        toast.error(
+          err.response.data.error || "Failed to edit bug report. Please try again.",
+          {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          }
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
   const handleMarkResolved = async () => {
     setResolving(true);
-    
-    if (onResolve) {
-      await onResolve(bug.id);
-    } else {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success('Bug marked as resolved successfully', {
-        position: 'bottom-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'colored',
-      });
+
+    await handleCallApi({ status: 'resolved' });
+    if (setRefresh) {
+      setRefresh((prev) => !prev);
     }
-    
     setResolving(false);
   };
 
@@ -420,6 +454,7 @@ const BugReportCard: React.FC<BugReportProps> = ({ bug, accentColor, onResolve }
         accentColor={accentColor}
       />
       <EmailDevForm
+        bugreportId={id}
         open={emailModalOpen}
         onClose={() => setEmailModalOpen(false)}
         color={accentColor}

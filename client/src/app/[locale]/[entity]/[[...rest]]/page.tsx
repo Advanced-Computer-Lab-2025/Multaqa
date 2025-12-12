@@ -455,7 +455,7 @@ export default function EntityCatchAllPage() {
     }
 
     if (
-      ["student", "staff", "ta", "professor", "events-office"].includes(entity) &&
+      ["student", "staff", "ta", "professor", "events-office", "usher-admin"].includes(entity) &&
       tab === "bug-reporting"
     ) {
       if (section === "bug-reporting" || section === "") {
