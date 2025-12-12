@@ -1088,3 +1088,77 @@ export const getInterviewReminderTemplate = (
     </div>
   `;
 };
+
+// Interview Booking Confirmation Email Template
+export const getInterviewBookingConfirmationTemplate = (
+  username: string,
+  teamName: string,
+  interviewDate: Date,
+  location: string
+): string => {
+  return `
+    <div style="${baseStyles.container}">
+      <div style="${baseStyles.card}">
+        <div style="${baseStyles.headerSuccess}">
+          <h2 style="margin: 0; font-size: 22px;">✅ Interview Slot Booked!</h2>
+        </div>
+        <div style="${baseStyles.content}">
+          <p style="font-size: 16px; color: #333;">
+            Hi ${username} 👋,<br><br>
+            Great news! Your interview slot has been successfully booked. Here are the details:
+          </p>
+          <div style="${baseStyles.successBox}">
+            <h3 style="margin: 0 0 15px 0; color: #16a34a;">🎉 Booking Confirmed</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Team:</td>
+                <td style="padding: 8px 0; color: #333;">${teamName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Date:</td>
+                <td style="padding: 8px 0; color: #333;">${interviewDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Time:</td>
+                <td style="padding: 8px 0; color: #333;">${interviewDate.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #555; font-weight: bold;">Location:</td>
+                <td style="padding: 8px 0; color: #333;">${location || "To be announced"}</td>
+              </tr>
+            </table>
+          </div>
+          <div style="${baseStyles.infoBox}">
+            <strong style="color: #2563eb;">📝 What's Next?</strong>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              • You'll receive a reminder email one day before your interview<br>
+              • Please arrive at least 10 minutes early<br>
+              • Bring your student ID card<br>
+              • If you need to cancel, please do so at least 24 hours in advance
+            </p>
+          </div>
+          <div style="${baseStyles.warningBox}">
+            <strong style="color: #ea580c;">⚠️ Need to Cancel?</strong>
+            <p style="margin: 10px 0 0 0; color: #333;">
+              You can cancel your booking from the Multaqa app. Please cancel early to allow other students to book this slot.
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #555;">
+            We're excited to meet you! Good luck with your interview! 🌟
+          </p>
+        </div>
+        <div style="${baseStyles.footer}">
+          © ${new Date().getFullYear()} Multaqa. All rights reserved.
+        </div>
+      </div>
+    </div>
+  `;
+};
