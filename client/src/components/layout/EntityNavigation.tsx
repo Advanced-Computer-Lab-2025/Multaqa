@@ -157,7 +157,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "polls", label: "Polls" },
         ],
       },
-       {
+      {
         key: "graduation",
         label: "Guc Graduation",
         icon: Calendar,
@@ -248,7 +248,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -301,7 +301,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -360,7 +360,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         icon: Store,
         tabs: [{ id: "loyalty-partners", label: "Loyalty Program Partners" }],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -427,7 +427,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "browse-sessions", label: "Browse Sessions" },
         ],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reporting",
         icon: Bug,
@@ -500,7 +500,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "sales-reports", label: "Sales Reports" },
         ],
       },
-       {
+      {
         key: "bug-reporting",
         label: "Bug Reports",
         icon: Bug,
@@ -562,11 +562,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
     icon: <Store size={32} className="text-[#6299d0]" />,
     defaultTab: "teams-description",
     defaultSection: "graduation",
-     tabs: [
-          { id: "teams-description", label: "Teams' Description" },
-          { id: "interview-management", label: "Interview Management" },
-          { id: "student-list", label: "Student List" },
-        ],
+    tabs: [
+      { id: "teams-description", label: "Teams' Description" },
+      { id: "interview-management", label: "Interview Management" },
+      { id: "applications", label: "Applications" },
+      { id: "student-list", label: "Student List" },
+    ],
     sections: [
       {
         key: "graduation",
@@ -575,6 +576,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         tabs: [
           { id: "teams-description", label: "Teams' Description" },
           { id: "interview-management", label: "Interview Management" },
+          { id: "applications", label: "Applications" },
           { id: "student-list", label: "Student List" },
         ],
       },
