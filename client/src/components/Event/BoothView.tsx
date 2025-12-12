@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { Box, Typography, Avatar, IconButton, Tooltip, Stack } from "@mui/material";
-import ActionCard from "../shared/cards/ActionCard";
 import { BoothViewProps } from "./types";
 import theme from "@/themes/lightTheme";
 import CustomButton from "../shared/Buttons/CustomButton";
@@ -31,7 +30,8 @@ const BoothView: React.FC<BoothViewProps> = ({
   payButton,
   vendorStatus, 
   isRequested = false,
-  datePassed
+  datePassed,
+  calendarButton,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<boolean>(false);
@@ -61,8 +61,9 @@ const BoothView: React.FC<BoothViewProps> = ({
 
   return (
     <>
-    <EventCard eventId={id}       payButton={payButton}
-        vendorStatus={vendorStatus} isUpcoming={!datePassed} isFavorite={isFavorited} title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)}  utilities={
+    <EventCard eventId={id}       
+      payButton={payButton}
+        vendorStatus={vendorStatus} isUpcoming={!datePassed} isFavorite={isFavorited} title={company} attended={attended} startDate={details["Start Date"]} endDate={details["End Date"]} startTime={details["Start Time"]} endTime={details["End Time"]} duration={details["Setup Duration"]} location={details["Location"]} color={background} leftIcon={<IconComponent />} eventType={"Booth"} onOpenDetails={() => setDetailsModalOpen(true)} utilities={
          (user === "events-office" ||   user === "admin")? (
          <Stack direction="row" spacing={1}>
           {(user === "events-office" && !archived)?
@@ -127,7 +128,7 @@ const BoothView: React.FC<BoothViewProps> = ({
                   </IconButton>
                 </Tooltip>
             </Stack>    
-          ) : null
+          ) : (user === "vendor" && vendorStatus === "approved" && !datePassed) ? calendarButton : null
         }
           registerButton={
           !registered &&

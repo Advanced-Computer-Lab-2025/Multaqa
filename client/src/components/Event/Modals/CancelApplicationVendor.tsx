@@ -4,6 +4,7 @@ import theme from "@/themes/lightTheme";
 import {api} from "../../../api";
 import React , {useState}from 'react'
 import { toast } from "react-toastify";
+import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 
 interface CancelEventApplicationVendorProps {
     eventId?: string;
@@ -15,6 +16,7 @@ interface CancelEventApplicationVendorProps {
 const CancelApplicationVendor = ({eventId = "", open, onClose, setRefresh}: CancelEventApplicationVendorProps) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { removeEventFromCalendar } = useGoogleCalendar();
 
     console.log(eventId);
 
@@ -24,6 +26,10 @@ const CancelApplicationVendor = ({eventId = "", open, onClose, setRefresh}: Canc
         try {
           // TODO: Replace with your API route
           const res = await api.delete("/vendorEvents/" + eventId + "/cancel");
+          
+          // Remove event from calendar tracking
+          await removeEventFromCalendar(eventId);
+          
           // Success case
           toast.success("You have cancelled your application successfully!", {
             position: "bottom-right",

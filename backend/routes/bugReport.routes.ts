@@ -117,6 +117,7 @@ router.post('/', authorizeRoles({
           UserRole.ADMINISTRATION,
           UserRole.STAFF_MEMBER,
           UserRole.STUDENT,
+          UserRole.USHER_ADMIN
         ],
         adminRoles: [
           AdministrationRoleType.EVENTS_OFFICE,
@@ -128,6 +129,7 @@ router.post('/', authorizeRoles({
         ],
       }),
   createBugReport);
+
 router.get('/' ,authorizeRoles({ 
         userRoles: [
           UserRole.ADMINISTRATION,
@@ -137,6 +139,7 @@ router.get('/' ,authorizeRoles({
         ],
       }),
      getAllBugReports);
+
 router.patch('/:bugReportId',authorizeRoles({ 
         userRoles: [
           UserRole.ADMINISTRATION,
@@ -145,6 +148,7 @@ router.patch('/:bugReportId',authorizeRoles({
           AdministrationRoleType.ADMIN
         ],
       }), updateBugReportStatus);
+
 router.post('/send-email/:bugReportId',authorizeRoles({ 
         userRoles: [
           UserRole.ADMINISTRATION,
@@ -153,6 +157,7 @@ router.post('/send-email/:bugReportId',authorizeRoles({
           AdministrationRoleType.ADMIN
         ],
       }), sendBugReportEmail);
+
 router.get('/export' ,authorizeRoles({ 
         userRoles: [
           UserRole.ADMINISTRATION,
@@ -161,8 +166,5 @@ router.get('/export' ,authorizeRoles({
           AdministrationRoleType.ADMIN
         ],
       }),exportBugReports);
+
 export default router;
-
-
-
-

@@ -14,7 +14,7 @@ import EventCard from "../shared/cards/EventCard";
 import EventDetails from "./Modals/EventDetails";
 import RestrictUsers from "./Modals/RestrictUsers";
 import ArchiveEvent from "./Modals/ArchiveEvent";
-import { capitalizeNamePart } from "../BrowseEvents/utils";
+import AddToCalendarButton from "./helpers/AddToCalendarButton";
 
 const ConferenceView: React.FC<ConferenceViewProps> = ({
   id,

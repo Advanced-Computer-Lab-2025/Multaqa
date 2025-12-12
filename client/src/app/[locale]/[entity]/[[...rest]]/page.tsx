@@ -37,6 +37,7 @@ import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
 import ReportTable from "../../../../components/shared/Report/reportTable";
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
+import FlaggedComments from "@/components/shared/Comments/FlaggedComments";
 import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
 import BugReportForms from "@/components/Bugs/BugReportForms";
 import BugReports from "@/components/Bugs/BugReports";
@@ -572,6 +573,11 @@ export default function EntityCatchAllPage() {
       if (section === "teams-description") {
         return <TeamsDescription user="student" />;
       }
+    }
+
+    // Admin - Flagged Comments
+    if (entity === "admin" && tab === "flagged-comments") {
+      return <FlaggedComments />;
     }
 
     if (entity === "events-office" || entity === "admin") {

@@ -348,6 +348,15 @@ export const NotificationProvider = ({
     );
     socketService.on(
       "notification:ushering:broadcastApplicants",
+      "notification:comment:flagged",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:bugReport:submitted",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:bugReport:resolved",
       handleNewNotification
     );
 
@@ -373,6 +382,9 @@ export const NotificationProvider = ({
       socketService.off("notification:ushering:postTimeUpdated");
       socketService.off("notification:ushering:broadcastAll");
       socketService.off("notification:ushering:broadcastApplicants");
+      socketService.off("notification:comment:flagged");
+      socketService.off("notification:bugReport:submitted");
+      socketService.off("notification:bugReport:resolved");
       socketService.off("notification:read");
       socketService.off("notification:unread");
       socketService.off("notification:delete");
