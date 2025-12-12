@@ -87,8 +87,9 @@ export class CalendarService {
       }
 
       // Check if eventId exists in calendarEvents array
-      return user.calendarEvents.some((event: any) => {
-        return event.toString() === eventId.toString();
+      return user.calendarEvents.some((entry: any) => {
+        const id = entry.eventId?.toString();
+        return id === eventId.toString();
       });
     } catch (error: any) {
       throw createError(
@@ -120,11 +121,68 @@ export class CalendarService {
       },
     });
 
-    // Add event ID to user's calendarEvents array
+    // Store both our event ID and Google Calendar's event ID
     await this.userRepo.update(userId, {
-      $addToSet: { calendarEvents: eventId }
+      $push: { 
+        calendarEvents: {
+          eventId: eventId,
+          googleCalendarEventId: event.data.id
+        }
+      }
     } as any);
 
     return event.data;
+  }
+
+  async removeEvent(
+    userId: string,
+    eventId: string
+  ): Promise<boolean> {
+    try {
+      // Get user with calendar tokens and events
+      const user = await this.userRepo.findById(userId, {
+        select: 'googleCalendar calendarEvents'
+      });
+
+      if (!user) {
+        throw createError(404, 'User not found');
+      }
+
+      // Find all calendar event entries for this eventId (in case of duplicates)
+      const calendarEvents = user.calendarEvents?.filter((entry: any) => {
+        const id = entry.eventId?.toString() || entry.eventId;
+        return id === eventId.toString();
+      }) || [];
+
+      if (calendarEvents.length > 0 && user.googleCalendar) {
+        // Delete all instances from Google Calendar
+        this.oauth2Client.setCredentials(user.googleCalendar);
+        const calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+        
+        for (const calendarEvent of calendarEvents) {
+          try {
+            await calendar.events.delete({
+              calendarId: 'primary',
+              eventId: calendarEvent.googleCalendarEventId,
+            });
+          } catch (calendarError: any) {
+            // If event doesn't exist in Google Calendar anymore, that's fine
+            console.log('Event may already be deleted from Google Calendar:', calendarError.message);
+          }
+        }
+      }
+
+      // Remove from our tracking array
+      await this.userRepo.update(userId, {
+        $pull: { calendarEvents: { eventId: eventId } }
+      } as any);
+
+      return true;
+    } catch (error: any) {
+      throw createError(
+        error.status || 500,
+        error.message || 'Failed to remove event from calendar'
+      );
+    }
   }
 }

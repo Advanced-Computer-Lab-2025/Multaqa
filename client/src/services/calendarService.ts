@@ -28,6 +28,16 @@ export const calendarService = {
   },
 
   /**
+   * Remove an event from the user's calendar tracking
+   */
+  async removeEvent(eventId: string): Promise<any> {
+    const response = await api.delete("/calendar/remove-event", {
+      data: { eventId }
+    });
+    return response.data;
+  },
+
+  /**
    * Check if user has connected their Google Calendar
    */
   isCalendarConnected(user: any): boolean {

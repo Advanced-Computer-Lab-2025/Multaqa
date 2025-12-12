@@ -217,6 +217,34 @@ async function addEvent(req: AuthenticatedRequest, res: Response<AddEventRespons
   }
 }
 
+async function removeEvent(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw createError(401, 'User not authenticated');
+    }
+
+    const { eventId } = req.body;
+
+    if (!eventId) {
+      throw createError(400, 'Missing required field: eventId');
+    }
+
+    await calendarService.removeEvent(userId, eventId);
+
+    res.json({
+      success: true,
+      message: 'Event removed from calendar tracking'
+    });
+  } catch (error: any) {
+    throw createError(
+      error.status || 500,
+      error.message || 'Failed to remove event from calendar'
+    );
+  }
+}
+
 router.get('/auth/google/url', verifyJWT, 
   authorizeRoles({
   userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.VENDOR],
@@ -238,5 +266,15 @@ router.post('/add-event', verifyJWT,
     StaffPosition.STAFF,
   ],
 }), addEvent);
+
+router.delete('/remove-event', verifyJWT, 
+  authorizeRoles({
+  userRoles: [UserRole.STUDENT, UserRole.STAFF_MEMBER, UserRole.VENDOR],
+  staffPositions: [
+    StaffPosition.PROFESSOR,
+    StaffPosition.TA,
+    StaffPosition.STAFF,
+  ],
+}), removeEvent);
 
 export default router;

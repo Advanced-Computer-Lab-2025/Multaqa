@@ -74,11 +74,25 @@ export const useGoogleCalendar = () => {
     return true;
   }, [isConnected, connectCalendar]);
 
+  const removeEventFromCalendar = useCallback(
+    async (eventId: string) => {
+      try {
+        await calendarService.removeEvent(eventId);
+        console.log("Event removed from calendar tracking:", eventId);
+      } catch (error: any) {
+        console.error("Failed to remove event from calendar:", error);
+        // Silent fail - don't show error to user as this is a background operation
+      }
+    },
+    []
+  );
+
   return {
     isConnected,
     isConnecting,
     connectCalendar,
     addEventToCalendar,
     ensureCalendarConnected,
+    removeEventFromCalendar,
   };
 };

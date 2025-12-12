@@ -35,5 +35,8 @@ export interface IUser extends Document {
     token_type?: string;
     expiry_date?: number;
   };
-  calendarEvents?: IEvent[] | Schema.Types.ObjectId[]; // Event IDs that have been added to Google Calendar
+  calendarEvents?: Array<{
+    eventId: IEvent | Schema.Types.ObjectId;
+    googleCalendarEventId: string;
+  }>; // Event IDs with their Google Calendar event IDs
 }

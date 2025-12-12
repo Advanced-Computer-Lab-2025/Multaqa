@@ -38,8 +38,11 @@ const userSchema = new Schema<IUser>(
       expiry_date: { type: Number }
     },
     calendarEvents: [
-      { type: Schema.Types.ObjectId, ref: "Event", default: [] },
-    ] // Array of event IDs added to Google Calendar
+      {
+        eventId: { type: Schema.Types.ObjectId, ref: "Event" },
+        googleCalendarEventId: { type: String }
+      }
+    ] // Array of event IDs with their Google Calendar event IDs
   },
   { discriminatorKey: "role", collection: "users" }
 );
