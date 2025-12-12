@@ -8,15 +8,18 @@ import { UserRole } from "../constants/user.constants";
 import { sendInterviewBookingConfirmationEmail } from "./emailService";
 import { User } from "../schemas/stakeholder-schemas/userSchema";
 import { IUser } from "../interfaces/models/user.interface";
+import { CalendarService } from "./calendarService";
 
 export class UsheringService {
     private usheringRepo: GenericRepository<IUshering>;
     private userRepo: GenericRepository<IUser>;
+    private calendarService: CalendarService;
     constructor() {
         this.usheringRepo = new GenericRepository<IUshering>(ushering);
         this.userRepo = new GenericRepository<IUser>(User);
+        this.calendarService = new CalendarService();
     }
-
+    
 	async createUshering(usheringData: Partial<IUshering>): Promise<IUshering> {
 		const newUshering = await this.usheringRepo.create(usheringData);
 		return newUshering;
@@ -349,6 +352,13 @@ export class UsheringService {
 			delivered: false,
 			createdAt: new Date(),
 		} as Notification);
+
+		// Remove calendar event for the cancelled slot (silent fail if not in calendar)
+		try {
+			await this.calendarService.removeEvent(studentId, slotId);
+		} catch (calendarError) {
+			console.log('Calendar event removal skipped (may not be in calendar):', calendarError);
+		}
 
 		await ushering.save();
 	}

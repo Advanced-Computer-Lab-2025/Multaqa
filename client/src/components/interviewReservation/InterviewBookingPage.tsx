@@ -5,8 +5,8 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 import { UsheringTeam } from '../shared/UsheringTeamApplications/types';
-import { fetchTeams } from '../shared/UsheringTeamApplications/utils'; 
-import TeamSelector from "../shared/UsheringTeamApplications/TeamSelector"; 
+import { fetchTeams } from '../shared/UsheringTeamApplications/utils';
+import TeamSelector from "../shared/UsheringTeamApplications/TeamSelector";
 import TimeSlotList from "./TimeSlotList";
 import BookingDetailsView from "./BookingDetailsView";
 import { InterviewSlot } from "./types";
@@ -78,7 +78,7 @@ export default function InterviewBookingPage() {
   const [teamsLoading, setTeamsLoading] = useState<boolean>(true);
   const [teamsError, setTeamsError] = useState<string | null>(null);
 
-  const [selectedTeamId, setSelectedTeamId] = useState<string>(''); 
+  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
 
@@ -88,6 +88,7 @@ export default function InterviewBookingPage() {
 
   const [confirmedSlotId, setConfirmedSlotId] = useState<string | null>(null);
   const [bookingDetails, setBookingDetails] = useState<InterviewSlot | null>(null);
+  const [bookedTeamTitle, setBookedTeamTitle] = useState<string>("");
 
   // Fetch teams on mount
   useEffect(() => {
@@ -106,26 +107,27 @@ export default function InterviewBookingPage() {
   }, []);
 
   // Fetch student booking on mount
-useEffect(() => {
-  const fetchStudentBooking = async () => {
-    try {
-      console.log("[DEBUG] Fetching student booking...");
-      const response = await api.get(`/ushering/${USHERING_ID}/studentSlots`);
-      console.log("[DEBUG] /studentSlots response:", response.data);
+  useEffect(() => {
+    const fetchStudentBooking = async () => {
+      try {
+        console.log("[DEBUG] Fetching student booking...");
+        const response = await api.get(`/ushering/${USHERING_ID}/studentSlots`);
+        console.log("[DEBUG] /studentSlots response:", response.data);
 
-      const slotData = response.data?.data?.slot;
-      if (slotData) {
-        const mappedSlot: InterviewSlot = {
-          id: slotData.id || slotData._id,
-          teamId: "", // optional if needed
-          startDateTime: slotData.StartDateTime,
-          endDateTime: slotData.EndDateTime,
-          isAvailable: slotData.isAvailable,
-          reservedBy: slotData.reservedBy,
-          studentId: slotData.reservedBy?.studentId?._id || null,
-          studentEmail: slotData.reservedBy?.studentId?.email || null,
-          location: slotData.location || "TBD",
-        };
+        const slotData = response.data?.data?.slot;
+        const teamData = response.data?.data?.team;
+        if (slotData) {
+          const mappedSlot: InterviewSlot = {
+            id: slotData.id || slotData._id,
+            teamId: "", // optional if needed
+            startDateTime: slotData.StartDateTime,
+            endDateTime: slotData.EndDateTime,
+            isAvailable: slotData.isAvailable,
+            reservedBy: slotData.reservedBy,
+            studentId: slotData.reservedBy?.studentId?._id || null,
+            studentEmail: slotData.reservedBy?.studentId?.email || null,
+            location: slotData.location || "TBD",
+          };
 
         setConfirmedSlotId(mappedSlot.id);
         setBookingDetails(mappedSlot);
@@ -249,7 +251,7 @@ useEffect(() => {
 
   const handleCancel = async (slotId: string) => {
     try {
-      await api.post(`/ushering/${USHERING_ID}/teams/${selectedTeamId}/slots/${slotId}/cancel`,{});
+      await api.post(`/ushering/${USHERING_ID}/teams/${selectedTeamId}/slots/${slotId}/cancel`, {});
 
       setSlotsData(prev =>
         prev.map(slot =>
@@ -302,7 +304,7 @@ useEffect(() => {
               <TeamSelector
                 teams={teams}
                 selectedTeamId={selectedTeamId}
-                onTeamSelect={!isTeamSelectorDisabled ? handleTeamSelect : () => {}}
+                onTeamSelect={!isTeamSelectorDisabled ? handleTeamSelect : () => { }}
               />
             )}
           </Paper>
@@ -333,6 +335,7 @@ useEffect(() => {
                 {bookingDetails ? (
                   <BookingDetailsView
                     booking={bookingDetails}
+                    teamTitle={bookedTeamTitle || teams.find(t => t.id === selectedTeamId)?.title || "Team Interview"}
                     onCancel={() => handleCancel(bookingDetails.id)}
                   />
                 ) : (
@@ -368,9 +371,9 @@ useEffect(() => {
                       <Button
                         variant="contained"
                         fullWidth
-                        onClick={handleReserve} 
+                        onClick={handleReserve}
                         disabled={!selectedSlotId || isBookedByOther}
-                        sx={{ py: "14px", fontWeight: 600, fontSize: "1.1rem", borderRadius: "8px" , width: '100%', backgroundColor: '#2563EB', '&:hover': { backgroundColor: '#1d4ed8' } }}
+                        sx={{ py: "14px", fontWeight: 600, fontSize: "1.1rem", borderRadius: "8px", width: '100%', backgroundColor: '#2563EB', '&:hover': { backgroundColor: '#1d4ed8' } }}
                       >
                         Reserve Slot
                       </Button>
