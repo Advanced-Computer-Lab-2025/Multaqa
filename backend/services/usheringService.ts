@@ -120,6 +120,11 @@ export class UsheringService {
 		return ushering;
 	}
 
+	async getAllTeams(): Promise<IUshering[]> {
+		const usheringEvents = await this.usheringRepo.findAll();
+		return usheringEvents;
+	}
+
 	async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
