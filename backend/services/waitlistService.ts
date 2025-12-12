@@ -292,10 +292,8 @@ export class WaitlistService {
 
     // Count users with reserved slots (waitlist or pending_payment)
     const reservedSlotsCount =
-      event.waitlist?.filter(
-        (entry) =>
-          entry.status === "pending_payment"
-      ).length || 0;
+      event.waitlist?.filter((entry) => entry.status === "pending_payment")
+        .length || 0;
 
     // If there are people on the waitlist and available slots <= reserved slots, block registration
     if (
@@ -470,16 +468,15 @@ export class WaitlistService {
             console.error("Error sending promotion email:", emailError);
           }
 
-          // Send notification for waitlist promotion
+          // Send notification for paid event promotion
+          // Note: Free events handled by autoRegisterFreeEvent with different notification
           await NotificationService.sendNotification({
             userId: user._id!.toString(),
             type: "WAITLIST_PROMOTED",
             title: "Waitlist Promotion",
-            message: `You've been promoted from the waitlist for ${event.eventName}. ${
-              isFreeEvent
-                ? "You have been automatically registered!"
-                : `Please complete your payment by ${paymentDeadline.toLocaleString()}.`
-            }`,
+            message: `You've been promoted from the waitlist for ${
+              event.eventName
+            }. Please complete your payment by ${paymentDeadline.toLocaleString()}.`,
             read: false,
             delivered: false,
             createdAt: new Date(),
