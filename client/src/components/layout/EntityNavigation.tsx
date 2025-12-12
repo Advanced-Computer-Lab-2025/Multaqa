@@ -143,7 +143,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "overview", label: "Overview" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
       { id: "teams-description", label: "Teams Description" },
-      { id: "interview-slots", label: "Interview Slots" },
+      { id: "interview-reservation", label: "Interview Reservation" },
     ],
     sections: [
       {
@@ -198,6 +198,12 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
         label: "Bug Reporting",
         icon: Bug,
         tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
+      },
+      {
+        key: "graduation",
+        label: "Graduation Ushering Program",
+        icon: Store,
+        tabs: [{ id: "interview-reservation", label: "Interview Reservation" }],
       },
     ],
   },
