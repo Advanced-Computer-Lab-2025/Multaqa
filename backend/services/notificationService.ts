@@ -47,6 +47,9 @@ export class NotificationService {
       case "BUG_REPORT_SUBMITTED":
         eventBus.emit("notification:bugReport:submitted", notification, saveToDatabase);
         break;
+      case "BUG_RESOLVED":
+        eventBus.emit("notification:bugReport:resolved", notification, saveToDatabase);
+        break;
       case "COMMENT_FLAGGED":
         eventBus.emit("notification:comment:flagged", notification, saveToDatabase);
         break;

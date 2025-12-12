@@ -227,6 +227,11 @@ eventBus.on("notification:bugReport:submitted", (notification, saveToDatabase) =
   sendSocketNotification("notification:bugReport:submitted", notification, saveToDatabase);
 });
 
+// Bug report resolved -> notify the reporter
+eventBus.on("notification:bugReport:resolved", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:bugReport:resolved", notification, saveToDatabase);
+});
+
 /**
  * -------------------------------
  * Generic notification events
