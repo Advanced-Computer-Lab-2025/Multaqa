@@ -131,6 +131,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
       try {
         const res = await api.get('/ushering');
         const data: BackendUsheringData[] = res.data.data;
+        console.log(data);
 
         if (data && data.length > 0 && data[0].teams) {
           const usheringData = data[0];
