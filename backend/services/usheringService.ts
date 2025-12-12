@@ -15,36 +15,36 @@ export class UsheringService {
 		return newUshering;
 	}
 
-	async setPostTime(postTime: Date, id: string): Promise<IUshering | null> {
-		const usheringToUpdate = await this.usheringRepo.findById(id);
-		if (!usheringToUpdate) {
-			throw new Error('Ushering event not found');
-		}
-		if (postTime < new Date()) {
-			throw createError(400, 'Post time cannot be in the past');
-		}
-		usheringToUpdate.postTime = postTime;
-		await usheringToUpdate.save();
-		return usheringToUpdate;
-	}
+    async setPostTime(postTime: { startDateTime: string | Date, endDateTime: string | Date }, id: string): Promise<IUshering | null> {
+        const usheringToUpdate = await this.usheringRepo.findById(id);
+        if (!usheringToUpdate) {
+            throw new Error('Ushering event not found');
+        }
+        if(new Date(postTime.startDateTime) < new Date()){
+            throw createError(400, 'Post time cannot be in the past');
+        }
+        usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
+        await usheringToUpdate.save();
+        return usheringToUpdate;
+    }
 
-	async getPostTime(id: string): Promise<Date | null> {
-		const ushering = await this.usheringRepo.findById(id);
-		if (!ushering) {
-			throw new Error('Ushering event not found');
-		}
-		return ushering.postTime || null;
-	}
+    async getPostTime(id: string): Promise<{startDateTime: Date, endDateTime: Date} | null> {
+        const ushering = await this.usheringRepo.findById(id);
+        if (!ushering) {
+            throw new Error('Ushering event not found');
+        }
+        return ushering.postTime || null;
+    }
 
-	//send notification when teams are edited
-	async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {
-		const ushering = await this.usheringRepo.findById(usheringId);
-		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
-		}
-		if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
-			throw createError(400, 'Cannot edit teams within 2 days before the interview posting date.');
-		}
+    //send notification when teams are edited
+    async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime.startDateTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
+            throw createError(400, 'Cannot edit teams within 2 days before the interview posting date.');
+        }
 
 		const teamIndex = ushering.teams.findIndex(t => t._id?.toString() === teamId);
 		if (teamIndex === -1) {
@@ -65,27 +65,28 @@ export class UsheringService {
 		return ushering;
 	}
 
-	async deleteTeam(usheringId: string, teamId: string): Promise<IUshering | null> {
-		const ushering = await this.usheringRepo.findById(usheringId);
-		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
-		}
-		if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
-			throw createError(400, 'Cannot delete teams within 2 days before the interview posting date.');
-		}
-		const teamIndex = ushering.teams.findIndex(t => t._id?.toString() === teamId);
-		if (teamIndex === -1) {
-			throw createError(404, 'Team not found');
-		}
-		ushering.teams.splice(teamIndex, 1);
-		await ushering.save();
-		return ushering;
-	}
+    async deleteTeam(usheringId: string, teamId: string): Promise<IUshering | null> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        if (ushering.postTime && new Date(Date.now()) >= new Date(new Date(ushering.postTime.startDateTime).getTime() - 2 * 24 * 60 * 60 * 1000)) {
+            throw createError(400, 'Cannot delete teams within 2 days before the interview posting date.');
+        }
+        const teamIndex = ushering.teams.findIndex(t => t._id?.toString() === teamId);
+        if (teamIndex === -1) {
+            throw createError(404, 'Team not found');
+        }
+        ushering.teams.splice(teamIndex, 1);
+        await ushering.save();
+        return ushering;
+    }
+    async getAllTeams(): Promise<IUshering[]> {
+        const usheringEvents = await this.usheringRepo.findAll();
+        return usheringEvents;
+    }
 
-	async getAllTeams(): Promise<IUshering[]> {
-		const usheringEvents = await this.usheringRepo.findAll();
-		return usheringEvents;
-	}
+	
 
 	async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
@@ -107,8 +108,7 @@ export class UsheringService {
 				const newEnd = new Date(slot.EndDateTime!).getTime();
 				const existingStart = new Date(existingSlot.StartDateTime).getTime();
 				const existingEnd = new Date(existingSlot.EndDateTime).getTime();
-
-				// Check for any overlap: new slot starts before existing ends AND new slot ends after existing starts
+                	// Check for any overlap: new slot starts before existing ends AND new slot ends after existing starts
 				return newStart < existingEnd && newEnd > existingStart;
 			});
 
@@ -122,27 +122,30 @@ export class UsheringService {
 			}
 		});
 		await ushering.save();
+    
 	}
+    async deleteSlot(usheringId: string, teamId: string, slotId: string): Promise<void> {
+        const ushering = await this.usheringRepo.findById(usheringId);
+        if (!ushering) {
+            throw createError(404, 'Ushering event not found');
+        }
+        const team = ushering.teams.find(t => t._id?.toString() === teamId);
+        if (!team) {
+            throw createError(404, 'Team not found');
+        }
+        const slotIndex = team.slots.findIndex(s => s._id?.toString() === slotId);
+        if (slotIndex === -1) {
+            throw createError(404, 'Slot not found');
+        }
+        if (!team.slots[slotIndex].isAvailable) {
+            throw createError(400, 'Cannot delete a reserved slot');
+        }
+        team.slots.splice(slotIndex, 1);
+        await ushering.save();
+    }
 
-	async deleteSlot(usheringId: string, teamId: string, slotId: string): Promise<void> {
-		const ushering = await this.usheringRepo.findById(usheringId);
-		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
-		}
-		const team = ushering.teams.find(t => t._id?.toString() === teamId);
-		if (!team) {
-			throw createError(404, 'Team not found');
-		}
-		const slotIndex = team.slots.findIndex(s => s._id?.toString() === slotId);
-		if (slotIndex === -1) {
-			throw createError(404, 'Slot not found');
-		}
-		if (!team.slots[slotIndex].isAvailable) {
-			throw createError(400, 'Cannot delete a reserved slot');
-		}
-		team.slots.splice(slotIndex, 1);
-		await ushering.save();
-	}
+		
+
 
 	// send an email a day before the booked slot
 	async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {

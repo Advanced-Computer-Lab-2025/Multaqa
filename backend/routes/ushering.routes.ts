@@ -32,7 +32,11 @@ async function setUsheringPostTime(req: Request, res: Response<UsheringResponse>
   try {
     const { id } = req.params;
     const { postTime } = req.body;
-    const updatedUshering = await usheringService.setPostTime(new Date(postTime), id);
+
+    if (!postTime.startDateTime || !postTime.endDateTime) {
+      throw createError(400, "Post time must include startDateTime and endDateTime");
+    }
+    const updatedUshering = await usheringService.setPostTime(postTime, id);
     res.json({
       success: true,
       data: updatedUshering,

@@ -31,7 +31,10 @@ export interface IReservedSlot {
 }
 
 export interface IUshering extends Document {
-postTime?: Date;
+postTime?: {
+  startDateTime: Date;
+  endDateTime: Date;
+}
   teams: ITeam[]; 
 }
 

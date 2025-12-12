@@ -25,6 +25,6 @@ export interface StudentBookedSlotsResponse {
 
 export interface UsheringPostTimeResponse {
     success: boolean;
-    data: Date | null;
+    data: {startDateTime: Date, endDateTime: Date} | null;
     message: string;
 }
