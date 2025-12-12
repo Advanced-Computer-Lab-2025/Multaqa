@@ -18,17 +18,35 @@ export class UsheringService {
 	}
 
 	async setPostTime(postTime: { startDateTime: string | Date, endDateTime: string | Date }, id: string): Promise<IUshering | null> {
-		const usheringToUpdate = await this.usheringRepo.findById(id);
-		if (!usheringToUpdate) {
-			throw new Error('Ushering event not found');
-		}
-		if (new Date(postTime.startDateTime) < new Date()) {
-			throw createError(400, 'Post time cannot be in the past');
-		}
-		usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
-		await usheringToUpdate.save();
-		return usheringToUpdate;
-	}
+        const usheringToUpdate = await this.usheringRepo.findById(id);
+        if (!usheringToUpdate) {
+            throw new Error('Ushering event not found');
+        }
+        if (new Date(postTime.startDateTime) < new Date()) {
+            throw createError(400, 'Post time cannot be in the past');
+        }
+        usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
+        await usheringToUpdate.save();
+
+        // Notify students about the updated post time
+        const formattedStartDate = new Date(postTime.startDateTime).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+        const formattedEndDate = new Date(postTime.endDateTime).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+        await NotificationService.sendNotification({
+            role: [UserRole.STUDENT],
+            type: "USHERING_POST_TIME_UPDATED",
+            title: "Interview Slots Update",
+            message: `Interview slots will be available from ${formattedStartDate} to ${formattedEndDate}. Mark your calendar!`,
+            createdAt: new Date()
+        } as Notification);
+
+        return usheringToUpdate;
+    }
 
 	async getPostTime(id: string): Promise<{ startDateTime: Date, endDateTime: Date } | null> {
 		const ushering = await this.usheringRepo.findById(id);

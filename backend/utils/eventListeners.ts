@@ -237,6 +237,11 @@ eventBus.on("notification:ushering:slotBooked", (notification, saveToDatabase) =
   sendSocketNotification("notification:ushering:slotBooked", notification, saveToDatabase);
 });
 
+// When post time is updated -> notify students
+eventBus.on("notification:ushering:postTimeUpdated", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:postTimeUpdated", notification, saveToDatabase);
+});
+
 /**
  * -------------------------------
  * Generic notification events
