@@ -132,7 +132,7 @@ export class UsheringSchedulerService {
 
 				// Calculate time difference in minutes
 				console.log("Post time:", postTime.toISOString());
-				console.log("Five minutes from now:",  new Date(now.toISOString()));
+				console.log("Five minutes from now:", new Date(now.toISOString()));
 
 				const timeDiff = new Date(postTime.toISOString()).getTime() - new Date(now.toISOString()).getTime();
 				const minutesDiff = Math.floor(timeDiff / (60 * 1000));
@@ -141,8 +141,20 @@ export class UsheringSchedulerService {
 				if (minutesDiff === 5 || minutesDiff === 4) {
 					try {
 
+						// Send notification to all students
+						await NotificationService.sendNotification({
+							role: [UserRole.STUDENT],
+							type: "USHERING_SLOTS_OPENING",
+							title: "⏰ Interview Slots Opening Soon!",
+							message: `Interview slots will be available for booking in 5 minutes at ${postTime.toLocaleTimeString("en-US", {
+								hour: "2-digit",
+								minute: "2-digit",
+							})}. Get ready to book your preferred time!`,
+							createdAt: new Date(),
+						} as Notification);
+
 						// Get all students and send them emails
-					const allStudents = await this.userService.getAllStudents();
+						const allStudents = await this.userService.getAllStudents();
 						for (const student of allStudents) {
 							try {
 								await sendSlotOpeningReminderEmail(
@@ -181,4 +193,4 @@ export class UsheringSchedulerService {
 	}
 }
 
-export const usheringScheduler = new UsheringSchedulerService();
+export const usheringScheduler = new UsheringSchedulerService(); y

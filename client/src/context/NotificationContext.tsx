@@ -350,7 +350,11 @@ export const NotificationProvider = ({
       "notification:ushering:broadcastApplicants",
       handleNewNotification
     );
-    socketService.on( 
+    socketService.on(
+      "notification:ushering:slotsOpening",
+      handleNewNotification
+    );
+    socketService.on(
       "notification:comment:flagged",
       handleNewNotification
     );
@@ -363,11 +367,11 @@ export const NotificationProvider = ({
       handleNewNotification
     );
     socketService.on(
-      "notification:waitlist:promoted", 
+      "notification:waitlist:promoted",
       handleNewNotification
     );
     socketService.on(
-      "notification:waitlist:expired", 
+      "notification:waitlist:expired",
       handleNewNotification
     );
 
@@ -393,6 +397,7 @@ export const NotificationProvider = ({
       socketService.off("notification:ushering:postTimeUpdated");
       socketService.off("notification:ushering:broadcastAll");
       socketService.off("notification:ushering:broadcastApplicants");
+      socketService.off("notification:ushering:slotsOpening");  
       socketService.off("notification:comment:flagged");
       socketService.off("notification:bugReport:submitted");
       socketService.off("notification:bugReport:resolved");

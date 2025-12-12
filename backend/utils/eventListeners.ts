@@ -252,6 +252,11 @@ eventBus.on("notification:ushering:broadcastApplicants", (notification, saveToDa
   sendSocketNotification("notification:ushering:broadcastApplicants", notification, saveToDatabase);
 });
 
+// Notify students when ushering slots are opening soon
+eventBus.on("notification:ushering:slotsOpening", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:slotsOpening", notification, saveToDatabase);
+});
+
  /* -------------------------------
  * Comment Moderation Notifications
  * -------------------------------
