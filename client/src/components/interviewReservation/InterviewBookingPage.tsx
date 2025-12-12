@@ -6,6 +6,7 @@ import "react-day-picker/dist/style.css";
 
 import { UsheringTeam } from '../shared/UsheringTeamApplications/types';
 import { getTeamColor, getTeamIcon } from '../shared/UsheringTeamApplications/utils';
+import BookingSkeleton from "./BookingSkeleton";
 import TeamSelector from "../shared/UsheringTeamApplications/TeamSelector";
 import TimeSlotList from "./TimeSlotList";
 import BookingDetailsView from "./BookingDetailsView";
@@ -14,6 +15,7 @@ import { InterviewSlot } from "./types";
 import { Box, Typography, Paper, Button, Alert, CircularProgress } from "@mui/material";
 import ContentWrapper from "../shared/containers/ContentWrapper";
 import { api } from "@/api";
+import { toast } from "react-toastify";
 
 // Team name mapping based on index (backend doesn't have title)
 const TEAM_NAMES = [
@@ -157,11 +159,14 @@ export default function InterviewBookingPage() {
   const [confirmedSlotId, setConfirmedSlotId] = useState<string | null>(null);
   const [bookingDetails, setBookingDetails] = useState<InterviewSlot | null>(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   // UNIFIED API CALL: Fetch all ushering data on mount
   useEffect(() => {
     const fetchUsheringData = async () => {
       setTeamsLoading(true);
       setTeamsError(null);
+      setLoading(true);
 
       try {
         const response = await api.get('/ushering/');
@@ -198,6 +203,7 @@ export default function InterviewBookingPage() {
         setTeamsError("Failed to load ushering data. Please try again.");
       } finally {
         setTeamsLoading(false);
+        setLoading(false);
       }
     };
 
@@ -207,6 +213,7 @@ export default function InterviewBookingPage() {
   // Fetch student booking after usheringId is available
   useEffect(() => {
     if (!usheringId || backendTeams.length === 0) return;
+    setLoading(true);
 
     const fetchStudentBooking = async () => {
       try {
@@ -243,6 +250,9 @@ export default function InterviewBookingPage() {
         }
       } catch (error: any) {
         console.error("[DEBUG] Failed to fetch student booking:", error);
+      }
+      finally {
+        setLoading(false);
       }
     };
 
@@ -321,6 +331,16 @@ export default function InterviewBookingPage() {
 
     try {
       await api.post(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${selectedSlotId}/book`);
+      toast.success("Interview Slot Booked Successfully", {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              });
 
       const updatedSlot = {
         ...slotToBook,
@@ -341,6 +361,20 @@ export default function InterviewBookingPage() {
     } catch (error: any) {
       console.error("Booking Error:", error);
       setSlotsError(error.message || "An unknown error occurred during booking.");
+      toast.error(
+        error.response.data.error ||
+          "Failed to book interview slot . Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     }
   };
 
@@ -354,7 +388,16 @@ export default function InterviewBookingPage() {
 
     try {
       await api.post(`/ushering/${usheringId}/teams/${selectedTeamId}/slots/${slotId}/cancel`, {});
-
+      toast.success("Your reservation was successfully cancelled", {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+              });
       setSlotsData(prev =>
         prev.map(slot =>
           slot.id === slotId
@@ -371,6 +414,20 @@ export default function InterviewBookingPage() {
     } catch (error: any) {
       console.error("Cancel Error:", error);
       setSlotsError(error.message || "An unknown error occurred during cancellation.");
+            toast.error(
+        error.response.data.error ||
+          "Failed to cancel reservation. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     }
   };
 
@@ -384,6 +441,10 @@ export default function InterviewBookingPage() {
 
   const isLeftPanelDisabled = !!confirmedSlotId || slotsLoading;
   const isTeamSelectorDisabled = !!confirmedSlotId;
+
+  if (loading) {
+        return <BookingSkeleton />;
+    }
 
   if (teamsError) {
     return (
