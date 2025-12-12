@@ -112,159 +112,82 @@ export const getTodayISO = (): string => {
     return `${year}-${month}-${day}`;
 };
 
-// ============================================================================
-// Mock Data
-// ============================================================================
-
 /**
- * Mock teams data.
- * TODO: Remove when integrating with real API.
+ * Extract time in HH:mm format from ISO datetime string (using local time).
+ * @param isoDateTime - ISO datetime string
+ * @returns Time string in HH:mm format (local time)
  */
-export const MOCK_TEAMS: UsheringTeam[] = [
-    {
-        _id: 'team-1',
-        id: 'graduates',
-        title: 'Graduates',
-        description: 'Handle graduate coordination and seating',
-        color: getTeamColor('Graduates'),
-        icon: getTeamIcon('Graduates'),
-    },
-    {
-        _id: 'team-2',
-        id: 'parents',
-        title: 'Parents',
-        description: 'Manage parent seating and guidance',
-        color: getTeamColor('Parents'),
-        icon: getTeamIcon('Parents'),
-    },
-    {
-        _id: 'team-3',
-        id: 'caps-gowns',
-        title: 'Caps & Gowns',
-        description: 'Distribute caps and gowns to graduates',
-        color: getTeamColor('Caps & Gowns'),
-        icon: getTeamIcon('Caps & Gowns'),
-    },
-    {
-        _id: 'team-4',
-        id: 'flow',
-        title: 'Flow',
-        description: 'Manage crowd flow and directions',
-        color: getTeamColor('Flow'),
-        icon: getTeamIcon('Flow'),
-    },
-    {
-        _id: 'team-5',
-        id: 'vip',
-        title: 'VIP',
-        description: 'Handle VIP guests and special arrangements',
-        color: getTeamColor('VIP'),
-        icon: getTeamIcon('VIP'),
-    },
-    {
-        _id: 'team-6',
-        id: 'hr',
-        title: 'HR',
-        description: 'Handle human resources and usher management',
-        color: getTeamColor('HR'),
-        icon: getTeamIcon('HR'),
-    },
-    {
-        _id: 'team-7',
-        id: 'stage',
-        title: 'Stage',
-        description: 'Manage stage operations and coordination',
-        color: getTeamColor('Stage'),
-        icon: getTeamIcon('Stage'),
-    },
-];
-
-/**
- * Generate mock applicants.
- */
-const generateMockApplicant = (id: number): Applicant => {
-    const firstNames = ['Ahmed', 'Sara', 'Omar', 'Fatma', 'Youssef', 'Nour', 'Ali', 'Mariam'];
-    const lastNames = ['Hassan', 'Mohamed', 'Ibrahim', 'Mahmoud', 'Khalil', 'Salem', 'Nasser'];
-
-    const firstName = firstNames[id % firstNames.length];
-    const lastName = lastNames[id % lastNames.length];
-
-    return {
-        _id: `applicant-${id}`,
-        firstName,
-        lastName,
-        email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@student.guc.edu.eg`,
-        studentId: `49-${10000 + id}`,
-    };
+export const extractTimeFromISO = (isoDateTime: string): string => {
+    const date = new Date(isoDateTime);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
 };
 
 /**
- * Generate mock booked slots.
+ * Extract date in YYYY-MM-DD format from ISO datetime string (using local time).
+ * This matches how the calendar displays dates in the user's local timezone.
+ * @param isoDateTime - ISO datetime string
+ * @returns Date string in YYYY-MM-DD format (local time)
  */
-const generateMockBookedSlots = (teamId: string, date: string, count: number): BookedSlot[] => {
-    const timeSlots = [
-        { start: '09:00', end: '09:30' },
-        { start: '09:30', end: '10:00' },
-        { start: '10:00', end: '10:30' },
-        { start: '10:30', end: '11:00' },
-        { start: '11:00', end: '11:30' },
-        { start: '11:30', end: '12:00' },
-    ];
-
-    return Array.from({ length: Math.min(count, timeSlots.length) }, (_, i) => ({
-        _id: `slot-${teamId}-${date}-${i}`,
-        teamId,
-        date,
-        timeSlot: timeSlots[i],
-        applicant: generateMockApplicant(i + parseInt(teamId.split('-')[1] || '1') * 10),
-        status: 'confirmed' as const,
-        createdAt: new Date().toISOString(),
-    }));
-};
-
-/**
- * Mock booked slots data organized by teamId and date.
- * TODO: Remove when integrating with real API.
- */
-export const MOCK_BOOKED_SLOTS: Record<string, Record<string, BookedSlot[]>> = {
-    'team-1': {
-        [getTodayISO()]: generateMockBookedSlots('team-1', getTodayISO(), 4),
-    },
-    'team-2': {
-        [getTodayISO()]: generateMockBookedSlots('team-2', getTodayISO(), 3),
-    },
-    'team-3': {
-        [getTodayISO()]: generateMockBookedSlots('team-3', getTodayISO(), 5),
-    },
-    'team-4': {
-        [getTodayISO()]: generateMockBookedSlots('team-4', getTodayISO(), 2),
-    },
-    'team-5': {
-        [getTodayISO()]: generateMockBookedSlots('team-5', getTodayISO(), 6),
-    },
-    'team-6': {
-        [getTodayISO()]: generateMockBookedSlots('team-6', getTodayISO(), 4),
-    },
-    'team-7': {
-        [getTodayISO()]: generateMockBookedSlots('team-7', getTodayISO(), 3),
-    },
+export const extractDateFromISO = (isoDateTime: string): string => {
+    const date = new Date(isoDateTime);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 // ============================================================================
-// API Functions (Ready for Integration)
+// API Functions
 // ============================================================================
 
 /**
- * Fetch team applications for a specific team and date.
+ * Fetch user data by their ID.
+ * 
+ * @param userId - The user's ID to fetch
+ * @returns Promise resolving to Applicant data or null if not found
+ */
+export const fetchUserById = async (userId: string): Promise<Applicant | null> => {
+    try {
+        const response = await api.get(`/users/${userId}`);
+        const userData = response.data.data;
+
+        // Handle different name formats from API
+        let firstName = userData.firstName || '';
+        let lastName = userData.lastName || '';
+
+        // If only 'name' field is available, split it
+        if (!firstName && !lastName && userData.name) {
+            const nameParts = userData.name.split(' ');
+            firstName = nameParts[0] || '';
+            lastName = nameParts.slice(1).join(' ') || '';
+        }
+
+        return {
+            _id: userData._id,
+            firstName,
+            lastName,
+            email: userData.email || '',
+            // Use gucId (e.g., "58-2147") instead of studentId or _id
+            studentId: userData.gucId || userData.studentId || userData._id,
+        };
+    } catch (error) {
+        console.error(`Failed to fetch user ${userId}:`, error);
+        return null;
+    }
+};
+
+/**
+ * Fetch ushering applications - gets all reserved slots (where isAvailable: false)
+ * and enriches them with user data.
  * 
  * @param teamId - The team ID to fetch applications for
  * @param date - The date in YYYY-MM-DD format
  * @param setLoading - Loading state setter
  * @returns Promise resolving to array of booked slots
- * 
- * TODO: For integration, uncomment the API call and remove mock data.
  */
-export const fetchTeamApplications = async (
+export const fetchUsheringApplications = async (
     teamId: string,
     date: string,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
@@ -272,22 +195,60 @@ export const fetchTeamApplications = async (
     setLoading(true);
 
     try {
-        // TODO: Remove mock data and uncomment API call for integration
-        // ----------------------------------------------------------------
-        // import { api } from '../../../../api';
-        
-        // const response = await api.get(`/ushering/teams/${teamId}/applications`, {
-        //   params: { date }
-        // });
-        
-        // return response.data.data;
-        // ----------------------------------------------------------------
+        // Fetch ushering data
+        const response = await api.get('/ushering');
+        const usheringData = response.data.data;
 
-        // MOCK DATA - Remove for integration
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 300));
+        const bookedSlots: BookedSlot[] = [];
 
-        return MOCK_BOOKED_SLOTS[teamId]?.[date] ?? [];
+        if (usheringData && Array.isArray(usheringData)) {
+            for (const entry of usheringData) {
+                if (entry.teams && Array.isArray(entry.teams)) {
+                    for (const team of entry.teams) {
+                        // Filter by team ID
+                        if (team._id !== teamId) continue;
+
+                        if (team.slots && Array.isArray(team.slots)) {
+                            // Get only reserved slots (isAvailable: false)
+                            const reservedSlots = team.slots.filter(
+                                (slot: { isAvailable: boolean; reservedBy?: { studentId: string } }) =>
+                                    !slot.isAvailable && slot.reservedBy?.studentId
+                            );
+
+                            for (const slot of reservedSlots) {
+                                // Filter by date
+                                const slotDate = extractDateFromISO(slot.StartDateTime);
+                                if (slotDate !== date) continue;
+
+                                // Fetch user data for this reservation
+                                const applicant = await fetchUserById(slot.reservedBy.studentId);
+
+                                if (applicant) {
+                                    bookedSlots.push({
+                                        _id: slot._id,
+                                        teamId: team._id,
+                                        teamTitle: team.title,
+                                        date: slotDate,
+                                        timeSlot: {
+                                            start: extractTimeFromISO(slot.StartDateTime),
+                                            end: extractTimeFromISO(slot.EndDateTime),
+                                        },
+                                        applicant,
+                                        status: 'confirmed',
+                                        createdAt: slot.reservedBy.reservedAt,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sort by time slot
+        bookedSlots.sort((a, b) => a.timeSlot.start.localeCompare(b.timeSlot.start));
+
+        return bookedSlots;
 
     } catch (err: unknown) {
         const error = err as { response?: { data?: { error?: string; message?: string } }; message?: string };
@@ -315,49 +276,59 @@ export const fetchTeamApplications = async (
 };
 
 /**
+ * Fetch team applications for a specific team and date.
+ * 
+ * @param teamId - The team ID to fetch applications for
+ * @param date - The date in YYYY-MM-DD format
+ * @param setLoading - Loading state setter
+ * @returns Promise resolving to array of booked slots
+ * 
+ * @deprecated Use fetchUsheringApplications instead
+ */
+export const fetchTeamApplications = async (
+    teamId: string,
+    date: string,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>
+): Promise<BookedSlot[]> => {
+    // Redirect to the new implementation
+    return fetchUsheringApplications(teamId, date, setLoading);
+};
+
+/**
  * Fetch all teams.
  * 
  * @param setLoading - Loading state setter
  * @returns Promise resolving to array of teams
- * 
- * TODO: For integration, uncomment the API call and remove mock data.
  */
 export const fetchTeams = async (
     setLoading: React.Dispatch<React.SetStateAction<boolean>>
 ): Promise<UsheringTeam[]> => {
     setLoading(true);
     try {
-        // TODO: Remove mock data and uncomment API call for integration
-        // ----------------------------------------------------------------
         const response = await api.get('/ushering');
-        
+
         const usheringArray = response.data.data;
-        
+
         // Extract teams from the nested structure
         const allTeams: UsheringTeam[] = [];
         if (usheringArray && Array.isArray(usheringArray)) {
-          for (const entry of usheringArray) {
-            if (entry.teams && Array.isArray(entry.teams)) {
-              for (const team of entry.teams) {
-                allTeams.push({
-                  _id: team._id,
-                  id: team.id,
-                  title: team.title,
-                  description: team.description,
-                  color: team.color || getTeamColor(team.title),
-                  icon: getTeamIcon(team.title),
-                });
-              }
+            for (const entry of usheringArray) {
+                if (entry.teams && Array.isArray(entry.teams)) {
+                    for (const team of entry.teams) {
+                        allTeams.push({
+                            _id: team._id,
+                            id: team.id,
+                            title: team.title,
+                            description: team.description,
+                            color: team.color || getTeamColor(team.title),
+                            icon: getTeamIcon(team.title),
+                        });
+                    }
+                }
             }
-          }
         }
-        
-        return allTeams;
-        // ----------------------------------------------------------------
 
-        // MOCK DATA - Remove for integration
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return MOCK_TEAMS;
+        return allTeams;
 
     } catch (err: unknown) {
         const error = err as { response?: { data?: { error?: string; message?: string } }; message?: string };
@@ -381,5 +352,47 @@ export const fetchTeams = async (
         return [];
     } finally {
         setLoading(false);
+    }
+};
+
+/**
+ * Fetch all dates that have reserved slots for a specific team.
+ * Used to show dots on calendar days with reservations.
+ * 
+ * @param teamId - The team ID to fetch reserved dates for
+ * @returns Promise resolving to array of date strings (YYYY-MM-DD format, UTC)
+ */
+export const fetchReservedDatesForTeam = async (teamId: string): Promise<string[]> => {
+    try {
+        const response = await api.get('/ushering');
+        const usheringData = response.data.data;
+
+        const reservedDates = new Set<string>();
+
+        if (usheringData && Array.isArray(usheringData)) {
+            for (const entry of usheringData) {
+                if (entry.teams && Array.isArray(entry.teams)) {
+                    for (const team of entry.teams) {
+                        // Filter by team ID
+                        if (team._id !== teamId) continue;
+
+                        if (team.slots && Array.isArray(team.slots)) {
+                            // Get only reserved slots (isAvailable: false)
+                            for (const slot of team.slots) {
+                                if (!slot.isAvailable && slot.reservedBy?.studentId) {
+                                    const slotDate = extractDateFromISO(slot.StartDateTime);
+                                    reservedDates.add(slotDate);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return Array.from(reservedDates);
+    } catch (error) {
+        console.error('Failed to fetch reserved dates:', error);
+        return [];
     }
 };
