@@ -1,6 +1,6 @@
 import { Router,Request,Response } from 'express';
 import { UsheringService } from '../services/usheringService';
-import { StudentBookedSlotsResponse, UsheringResponse, UsheringSlotResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
+import { StudentBookedSlotsResponse, UsheringPostTimeResponse, UsheringResponse, UsheringSlotResponse, UsheringTeamsResponse } from '../interfaces/responses/usheringResponse';
 import createError from 'http-errors';
 import { authorizeRoles } from '../middleware/authorizeRoles.middleware';
 import { UserRole } from '../constants/user.constants';
@@ -42,6 +42,23 @@ async function setUsheringPostTime(req: Request, res: Response<UsheringResponse>
          throw createError(
               error.status || 500,
                 error.message || "Error setting ushering post time"
+            );
+    }
+}
+
+async function getPostTime(req: Request, res: Response<UsheringPostTimeResponse>) {
+    try {
+        const { id } = req.params;
+        const postTime = await usheringService.getPostTime(id);
+        res.json({
+            success: true,
+            data: postTime,
+            message: 'Ushering post time retrieved successfully'
+        });
+    } catch (error: any) {
+         throw createError(
+              error.status || 500,
+                error.message || "Error retrieving ushering post time"
             );
     }
 }
@@ -220,6 +237,9 @@ router.get('/', authorizeRoles({
 router.patch('/:id/postTime', authorizeRoles({
     userRoles: [UserRole.USHER_ADMIN], 
   }), setUsheringPostTime);
+router.get('/:id/postTime', authorizeRoles({
+    userRoles: [UserRole.USHER_ADMIN, UserRole.STUDENT], 
+  }), getPostTime);
 router.get('/:usheringId/studentSlots', authorizeRoles({
     userRoles: [UserRole.STUDENT], 
   }), getStudentUsheringSlot);

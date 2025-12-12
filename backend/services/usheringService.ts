@@ -31,6 +31,13 @@ export class UsheringService {
         return usheringToUpdate;
     }
 
+    async getPostTime(id: string): Promise<Date | null> {
+        const ushering = await this.usheringRepo.findById(id);
+        if (!ushering) {
+            throw new Error('Ushering event not found');
+        }
+        return ushering.postTime || null;
+    }
 
 
     async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {

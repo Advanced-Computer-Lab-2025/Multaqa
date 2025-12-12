@@ -22,3 +22,9 @@ export interface StudentBookedSlotsResponse {
     data: IReservedSlot | null
     message: string;
 }
+
+export interface UsheringPostTimeResponse {
+    success: boolean;
+    data: Date | null;
+    message: string;
+}
