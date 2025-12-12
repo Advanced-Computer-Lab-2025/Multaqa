@@ -7,112 +7,158 @@ import { FlaggedComment, FlaggedCommentsResponse } from "../types";
  * Fetch all flagged comments from the API
  */
 export const fetchFlaggedComments = async (): Promise<FlaggedComment[]> => {
-    try {
-        const response = await api.get<FlaggedCommentsResponse>("/events/flagged-comments");
+  try {
+    const response = await api.get<FlaggedCommentsResponse>(
+      "/events/flagged-comments"
+    );
 
-        if (response.data.success) {
-            return response.data.data;
-        }
-
-        throw new Error(response.data.message || "Failed to fetch flagged comments");
-    } catch (err: any) {
-        const errorMessage =
-            err?.response?.data?.message ||
-            err?.response?.data?.error ||
-            err?.message ||
-            "Failed to fetch flagged comments. Please try again.";
-
-        toast.error(errorMessage, {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "colored",
-        });
-
-        throw err;
+    if (response.data.success) {
+      return response.data.data;
     }
+
+    throw new Error(
+      response.data.message || "Failed to fetch flagged comments"
+    );
+  } catch (err: any) {
+    const errorMessage =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.message ||
+      "Failed to fetch flagged comments. Please try again.";
+
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+
+    throw err;
+  }
 };
 
 /**
  * Delete a comment from an event
  */
 export const deleteComment = async (
-    eventId: string,
-    userId: string
+  eventId: string,
+  userId: string
 ): Promise<boolean> => {
-    try {
-        await api.delete(`/events/${eventId}/reviews/${userId}`);
+  try {
+    await api.delete(`/events/${eventId}/reviews/${userId}`);
 
-        toast.success("Comment deleted successfully!", {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "colored",
-        });
+    toast.success("Comment deleted successfully!", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
 
-        return true;
-    } catch (err: any) {
-        const errorMessage =
-            err?.response?.data?.message ||
-            err?.response?.data?.error ||
-            err?.message ||
-            "Failed to delete comment. Please try again.";
+    return true;
+  } catch (err: any) {
+    const errorMessage =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.message ||
+      "Failed to delete comment. Please try again.";
 
-        toast.error(errorMessage, {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "colored",
-        });
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
 
-        return false;
-    }
+    return false;
+  }
 };
 
 /**
  * Block a user
  */
 export const blockUser = async (userId: string): Promise<boolean> => {
-    try {
-        await api.post(`/users/${userId}/block`);
+  try {
+    await api.post(`/users/${userId}/block`);
 
-        toast.success("User blocked successfully!", {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "colored",
-        });
+    toast.success("User blocked successfully!", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
 
-        return true;
-    } catch (err: any) {
-        const errorMessage =
-            err?.response?.data?.message ||
-            err?.response?.data?.error ||
-            err?.message ||
-            "Failed to block user. Please try again.";
+    return true;
+  } catch (err: any) {
+    const errorMessage =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.message ||
+      "Failed to block user. Please try again.";
 
-        toast.error(errorMessage, {
-            position: "bottom-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            theme: "colored",
-        });
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
 
-        return false;
-    }
+    return false;
+  }
+};
+
+/**
+ * Flag a comment as safe (not toxic)
+ */
+export const flagAsSafe = async (
+  eventId: string,
+  userId: string
+): Promise<boolean> => {
+  try {
+    await api.patch(`/events/${eventId}/reviews/${userId}/not-toxic`);
+
+    toast.success("Comment flagged as safe successfully!", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+
+    return true;
+  } catch (err: any) {
+    const errorMessage =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      err?.message ||
+      "Failed to flag comment as safe. Please try again.";
+
+    toast.error(errorMessage, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+    });
+
+    return false;
+  }
 };
