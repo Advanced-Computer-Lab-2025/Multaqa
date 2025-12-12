@@ -35,9 +35,10 @@ import NotificationsPageContent from "@/components/notifications/NotificationsPa
 import PollsManagement from "@/components/EventsOffice/Polls/PollsManagement";
 import PollList from "@/components/Polls/PollList";
 import VendorsList from "@/components/shared/Vendor/vendorLayout";
-import ReportTable from '../../../../components/shared/Report/reportTable';
+import ReportTable from "../../../../components/shared/Report/reportTable";
 import AllVendorsList from "@/components/EventsOffice/AllVendors/AllVendorsList";
 import FlaggedComments from "@/components/shared/Comments/FlaggedComments";
+import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
 import BugReportForms from "@/components/Bugs/BugReportForms";
 import BugReports from "@/components/Bugs/BugReports";
 
@@ -59,6 +60,9 @@ const getUserEntitySegment = (user: any): string => {
     if (user.position === "staff") return "staff";
     return "staff"; // default fallback
   }
+
+  // Backend: role: "usherAdmin" (top-level role)
+  if (user.role === "usherAdmin") return "usher-admin";
 
   // Backend: role: "administration" with roleType sub-role
   if (user.role === "administration") {
@@ -189,6 +193,7 @@ export default function EntityCatchAllPage() {
     professor: { tab: "workshops", section: "overview" },
     "events-office": { tab: "events", section: "all-events" },
     admin: { tab: "users", section: "all-users" },
+    "usher-admin": { tab: "graduation", section: "" },
   };
 
   const handleGoToLogin = useCallback(() => {
@@ -222,6 +227,8 @@ export default function EntityCatchAllPage() {
     } else if (user.role === "administration") {
       if ("roleType" in user && user.roleType === "eventsOffice")
         roleKey = "events-office";
+      else if ("roleType" in user && user.roleType === "usherAdmin")
+        roleKey = "usher-admin";
       else roleKey = "admin";
     }
     return roleMap[roleKey] || roleMap["student"];
@@ -289,7 +296,14 @@ export default function EntityCatchAllPage() {
       setRedirecting(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, entityFromUrl, correctEntitySegment, router, restSegments]);
+  }, [
+    user,
+    isLoading,
+    entityFromUrl,
+    correctEntitySegment,
+    router,
+    restSegments,
+  ]);
 
   // Show loading state for initial load only
   if (isLoading) {
@@ -335,6 +349,14 @@ export default function EntityCatchAllPage() {
       );
     }
 
+    if (entity === "usher-admin") {
+      if (tab === "graduation") {
+        if (section === "teams-description") {
+          return <TeamsDescription user="usher-admin" />;
+        }
+    }
+  }
+
     // Vendor - Bazaars & Booths tab
     if (entity === "vendor" && tab === "opportunities") {
       if (section === "available") {
@@ -362,8 +384,18 @@ export default function EntityCatchAllPage() {
       }
     }
 
-    if (["student", "staff", "professor", "ta", "events-office", "admin"].includes(entity) && section === "loyalty-partners") {
-      return <VendorsList />
+    if (
+      [
+        "student",
+        "staff",
+        "professor",
+        "ta",
+        "events-office",
+        "admin",
+      ].includes(entity) &&
+      section === "loyalty-partners"
+    ) {
+      return <VendorsList />;
     }
     // Vendor - Loyalty Program
     if (entity === "vendor" && tab === "loyalty") {
@@ -482,9 +514,7 @@ export default function EntityCatchAllPage() {
         return <VendorParticipationRequests />;
       }
       if (section === "all-vendors") {
-        return (
-          <AllVendorsList />
-        );
+        return <AllVendorsList />;
       }
       if (section === "loyalty-partners") {
         return (
@@ -523,11 +553,10 @@ export default function EntityCatchAllPage() {
       }
     }
 
-    if (entity === "events-office" || entity === "admin") {
-      if (section === "attendee-reports")
-        return <ReportTable reportType="attendees" />
-      else if (section === "sales-reports")
-        return <ReportTable reportType="sales" />
+    if (entity === "student" && tab === "graduation") {
+      if (section === "teams-description") {
+        return <TeamsDescription user="student" />;
+      }
     }
 
     // Admin - Flagged Comments
@@ -535,6 +564,12 @@ export default function EntityCatchAllPage() {
       return <FlaggedComments />;
     }
 
+    if (entity === "events-office" || entity === "admin") {
+      if (section === "attendee-reports")
+        return <ReportTable reportType="attendees" />;
+      else if (section === "sales-reports")
+        return <ReportTable reportType="sales" />;
+    }
 
     if (entity === "admin" && tab === "users") {
       if (section === "all-users") {
@@ -555,9 +590,7 @@ export default function EntityCatchAllPage() {
       }
 
       if (section === "all-vendors") {
-        return (
-          <AllVendorsList />
-        );
+        return <AllVendorsList />;
       }
 
       if (section === "loyalty-partners") {

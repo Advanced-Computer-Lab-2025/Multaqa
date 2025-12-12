@@ -89,16 +89,19 @@ export default function ClientProviders({
     return () => clearTimeout(timer);
   }, [loadingStartTime]);
 
-  // Show loading screen
-  if (isLoading) {
-    return <LoadingBlocks />;
-  }
-
   return (
     <AuthProvider>
       <NotificationProvider>
-        {/* ✅ Only wrap in ProtectedRoute when route is NOT public */}
-        {isPublic ? children : <ProtectedRoute>{children}</ProtectedRoute>}
+        {isLoading ? (
+          <LoadingBlocks />
+        ) : (
+          /* ✅ Only wrap in ProtectedRoute when route is NOT public */
+          isPublic ? (
+            children
+          ) : (
+            <ProtectedRoute>{children}</ProtectedRoute>
+          )
+        )}
 
         {/* Toast Container for notifications */}
         <ToastContainer
