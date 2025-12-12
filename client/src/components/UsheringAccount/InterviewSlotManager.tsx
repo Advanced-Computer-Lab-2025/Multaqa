@@ -59,6 +59,10 @@ interface BackendTeam {
 interface BackendUsheringData {
   id: string;
   teams: BackendTeam[];
+  postTime?: {
+    startDateTime: string;
+    endDateTime: string;
+  };
 }
 
 interface TeamSlot {
@@ -117,6 +121,9 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
 
   // Manual post confirmation modal state
   const [isManualPostModalOpen, setIsManualPostModalOpen] = useState(false);
+
+  // Post time schedule from backend
+  const [postTime, setPostTime] = useState<{ startDateTime: string; endDateTime: string } | null>(null);
 
   // Per-team slot storage
   const [teamSlots, setTeamSlots] = useState<Record<string, TeamSlot[]>>({});
@@ -545,36 +552,6 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
                     Schedule
                   </CustomButton>
                 </Tooltip>
-
-                <Tooltip
-                  title={
-                    <Box sx={{ p: 1 }}>
-                      <Typography variant="body2" fontWeight={600} mb={0.5}>Manual Post</Typography>
-                      <Typography variant="caption">
-                        Manually post interview slots now. Use this if automatic scheduling
-                        didn't work or you need to post immediately.
-                      </Typography>
-                    </Box>
-                  }
-                  arrow
-                  placement="bottom"
-                >
-                  <CustomButton
-                    variant="contained"
-                    startIcon={<Send size={18} />}
-                    sx={{
-                      backgroundColor: theme.palette.tertiary.main,
-                      borderColor: 'transparent',
-                      '&:hover': {
-                        backgroundColor: theme.palette.tertiary.main,
-                        filter: 'brightness(0.9)',
-                      },
-                    }}
-                    onClick={() => setIsManualPostModalOpen(true)}
-                  >
-                    Post Now
-                  </CustomButton>
-                </Tooltip>
               </Stack>
             </Box>
           )}
@@ -865,11 +842,11 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
           onClose={() => setIsManualPostModalOpen(false)}
           title="Post Interview Slots Now?"
           description="Are you sure you want to post all interview slots immediately? Students will be able to see and book these slots right away."
-          borderColor={theme.palette.tertiary.main}
+          borderColor={theme.palette.warning.dark}
           buttonOption1={{
             label: "Post Now",
             variant: "contained",
-            color: "primary",
+            color: "warning",
             onClick: () => {
               // TODO: Handle manual post API call
               console.log('Manual post confirmed');
@@ -884,7 +861,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
           buttonOption2={{
             label: "Cancel",
             variant: "outlined",
-            color: "primary",
+            color: "warning",
             onClick: () => setIsManualPostModalOpen(false),
           }} modalType={'warning'} />
       </Container>

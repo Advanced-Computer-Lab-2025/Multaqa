@@ -59,6 +59,23 @@ export class NotificationService {
       case "USHERING_SLOTS_ADDED":
         eventBus.emit("notification:ushering:slotsAdded", notification, saveToDatabase);
         break;
+      case "USHERING_POST_TIME_UPDATED":
+        eventBus.emit("notification:ushering:postTimeUpdated", notification, saveToDatabase);
+        break;
+      case "USHERING_BROADCAST_ALL":
+        eventBus.emit("notification:ushering:broadcastAll", notification, saveToDatabase);
+        break;
+      case "USHERING_BROADCAST_APPLICANTS":
+        eventBus.emit("notification:ushering:broadcastApplicants", notification, saveToDatabase);
+      case "BUG_REPORT_SUBMITTED":
+        eventBus.emit("notification:bugReport:submitted", notification, saveToDatabase);
+        break;
+      case "BUG_RESOLVED":
+        eventBus.emit("notification:bugReport:resolved", notification, saveToDatabase);
+        break;
+      case "COMMENT_FLAGGED":
+        eventBus.emit("notification:comment:flagged", notification, saveToDatabase);
+        break;
       default:
         console.warn(`No event bus handler for notification type: ${notification.type}`);
         // Fallback for new generic notifications

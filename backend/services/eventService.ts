@@ -816,7 +816,10 @@ export class EventsService {
 
         // Notify admins about flagged comment
         await NotificationService.sendNotification({
-          adminRole: [AdministrationRoleType.ADMIN],
+          role: [UserRole.ADMINISTRATION], // Notify Admins
+          adminRole: [
+            AdministrationRoleType.ADMIN,
+          ],  
           type: "COMMENT_FLAGGED",
           title: "⚠️ Toxic Comment Flagged",
           message: `A comment on "${
@@ -824,9 +827,7 @@ export class EventsService {
           }" has been flagged for toxicity (${(
             toxicityResult.score * 100
           ).toFixed(0)}% toxic). Review required.`,
-          createdAt: new Date(),
-          read: false,
-          delivered: false,
+          createdAt: new Date()
         } as Notification);
       }
     }

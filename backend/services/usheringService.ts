@@ -5,30 +5,56 @@ import { ushering } from "../schemas/misc/usheringSchema";
 import { Types } from "mongoose";
 import { NotificationService, Notification } from "./notificationService";
 import { UserRole } from "../constants/user.constants";
+import { sendInterviewBookingConfirmationEmail } from "./emailService";
+import { User } from "../schemas/stakeholder-schemas/userSchema";
+import { IUser } from "../interfaces/models/user.interface";
+import { CalendarService } from "./calendarService";
 
 export class UsheringService {
-	private usheringRepo: GenericRepository<IUshering>;
-	constructor() {
-		this.usheringRepo = new GenericRepository<IUshering>(ushering);
-	}
-
+    private usheringRepo: GenericRepository<IUshering>;
+    private userRepo: GenericRepository<IUser>;
+    private calendarService: CalendarService;
+    constructor() {
+        this.usheringRepo = new GenericRepository<IUshering>(ushering);
+        this.userRepo = new GenericRepository<IUser>(User);
+        this.calendarService = new CalendarService();
+    }
+    
 	async createUshering(usheringData: Partial<IUshering>): Promise<IUshering> {
 		const newUshering = await this.usheringRepo.create(usheringData);
 		return newUshering;
 	}
 
 	async setPostTime(postTime: { startDateTime: string | Date, endDateTime: string | Date }, id: string): Promise<IUshering | null> {
-		const usheringToUpdate = await this.usheringRepo.findById(id);
-		if (!usheringToUpdate) {
-			throw new Error('Ushering event not found');
-		}
-		if (new Date(postTime.startDateTime) < new Date()) {
-			throw createError(400, 'Post time cannot be in the past');
-		}
-		usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
-		await usheringToUpdate.save();
-		return usheringToUpdate;
-	}
+        const usheringToUpdate = await this.usheringRepo.findById(id);
+        if (!usheringToUpdate) {
+            throw new Error('Ushering event not found');
+        }
+        if (new Date(postTime.startDateTime) < new Date()) {
+            throw createError(400, 'Post time cannot be in the past');
+        }
+        usheringToUpdate.postTime = { startDateTime: new Date(postTime.startDateTime), endDateTime: new Date(postTime.endDateTime) };
+        await usheringToUpdate.save();
+
+        // Notify students about the updated post time
+        const formattedStartDate = new Date(postTime.startDateTime).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+        const formattedEndDate = new Date(postTime.endDateTime).toLocaleString('en-US', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+        await NotificationService.sendNotification({
+            role: [UserRole.STUDENT],
+            type: "USHERING_POST_TIME_UPDATED",
+            title: "Interview Slots Update",
+            message: `Interview slots will be available from ${formattedStartDate} to ${formattedEndDate}. Mark your calendar!`,
+            createdAt: new Date()
+        } as Notification);
+
+        return usheringToUpdate;
+    }
 
 	async getPostTime(id: string): Promise<{ startDateTime: Date, endDateTime: Date } | null> {
 		const ushering = await this.usheringRepo.findById(id);
@@ -129,7 +155,7 @@ export class UsheringService {
 	async addTeamReservationSlots(usheringId: string, teamId: string, slots: any[]): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot add slots before creating teams');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -181,7 +207,7 @@ export class UsheringService {
 	async deleteSlot(usheringId: string, teamId: string, slotId: string): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot delete slots before creating teams');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -231,7 +257,7 @@ export class UsheringService {
 		// If null, the update didn't match — determine why and throw a clear error.
 		if (!result) {
 			const usheringDoc = await this.usheringRepo.findById(usheringId);
-			if (!usheringDoc) throw createError(404, 'Ushering event not found');
+			if (!usheringDoc) throw createError(404, 'Cannot book slots before teams are created');
 
 			// Has the student already booked anywhere?
 			const hasExistingBooking = usheringDoc.teams.some(team =>
@@ -273,13 +299,29 @@ export class UsheringService {
 			} as Notification);
 
 			// Note: Interview reminder emails are handled by the UsheringSchedulerService cron job
+
+            // Send confirmation email to the student
+            try {
+                const student = await this.userRepo.findById(studentId);
+                if (student && student.email) {
+                    await sendInterviewBookingConfirmationEmail(
+                        student.email,
+                        (student as any).firstName || 'Student',
+                        team.title,
+                        new Date(slot.StartDateTime),
+                        slot.location || 'To be announced'
+                    );
+                }
+            } catch (emailError) {
+                console.error('Failed to send booking confirmation email:', emailError);
+            }
 		}
 	}
 
 	async cancelBooking(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot cancel booking before  teams are created');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -311,6 +353,13 @@ export class UsheringService {
 			createdAt: new Date(),
 		} as Notification);
 
+		// Remove calendar event for the cancelled slot (silent fail if not in calendar)
+		try {
+			await this.calendarService.removeEvent(studentId, slotId);
+		} catch (calendarError) {
+			console.log('Calendar event removal skipped (may not be in calendar):', calendarError);
+		}
+
 		await ushering.save();
 	}
 
@@ -322,7 +371,7 @@ export class UsheringService {
 			}] as any
 		});
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot view slots before teams are created');
 		}
 		const team = ushering.teams.find(t => t._id?.toString() === teamId);
 		if (!team) {
@@ -346,7 +395,7 @@ export class UsheringService {
 		});
 
 		if (!ushering) {
-			throw createError(404, 'Ushering event not found');
+			throw createError(404, 'Cannot get registered slot before teams are created');
 		}
 
 		// Loop through teams to find the user's registration
@@ -387,4 +436,64 @@ export class UsheringService {
 			location: frontendSlot.location,
 		};
 	}
+
+
+    /**
+     * Broadcast notification to all students
+     */
+	async broadcastToAllStudents(message: string): Promise<void> {
+		if (!message || message.trim().length === 0) {
+			throw createError(400, 'Message cannot be empty');
+		}
+
+		await NotificationService.sendNotification({
+			role: [UserRole.STUDENT],
+			type: "USHERING_BROADCAST_ALL",
+			title: "📢 Ushering Announcement",
+			message: message.trim(),
+			createdAt: new Date(),
+        } as Notification);
+    }
+
+    /**
+     * Broadcast notification to interview applicants only (students who have booked slots)
+     */
+    async broadcastToApplicants(usheringId: string, message: string): Promise<void> {
+        if (!message || message.trim().length === 0) {
+            throw createError(400, 'Message cannot be empty');
+        }
+
+        const usheringDoc = await this.usheringRepo.findById(usheringId);
+        if (!usheringDoc) {
+            throw createError(404, 'Ushering event not found');
+        }
+
+        // Collect all student IDs who have booked slots
+        const applicantIds: string[] = [];
+        for (const team of usheringDoc.teams) {
+            for (const slot of team.slots) {
+                if (slot.reservedBy?.studentId) {
+                    const studentId = slot.reservedBy.studentId.toString();
+                    if (!applicantIds.includes(studentId)) {
+                        applicantIds.push(studentId);
+                    }
+                }
+            }
+        }
+
+        if (applicantIds.length === 0) {
+            throw createError(400, 'No interview applicants found to notify');
+        }
+
+        // Send notification to each applicant
+        for (const studentId of applicantIds) {
+            await NotificationService.sendNotification({
+                userId: studentId,
+                type: "USHERING_BROADCAST_APPLICANTS",
+                title: "📢 Interview Update",
+                message: message.trim(),
+                createdAt: new Date(),
+            } as Notification);
+        }
+    }
 }

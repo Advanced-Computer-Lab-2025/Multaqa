@@ -156,7 +156,7 @@ const PaymentDrawer: React.FC<PaymentDrawerProps> = ({
       
       setTimeout(()=>{
         // Show toast notification after the drawer closes with a delay of 1000ms
-        toast.success('Enjoy your event!', {
+        toast.success('Enjoy your event! Add it to your Google Calendar to make sure you don\'t miss it.', {
           position: "bottom-right",
           autoClose: 5000,
           hideProgressBar: false,

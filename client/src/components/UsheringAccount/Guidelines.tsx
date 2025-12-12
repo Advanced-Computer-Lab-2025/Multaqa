@@ -52,18 +52,6 @@ const usheringGuidelines: GuidelineItem[] = [
   },
   {
     id: '3',
-    title: 'Manual Slot Posting',
-    description: 'Use the manual post button to control when interview slots become visible to students. This is for safety reasons.',
-    icon: <Upload size={24} />,
-    color: '#9C27B0',
-    tips: [
-      'Slots are not auto-published by default',
-      'Review before making visible',
-      'Students get notified on publish'
-    ]
-  },
-  {
-    id: '4',
     title: 'Automatic Slot Posting',
     description: 'Configure automatic posting by setting when the interview post cycle starts and ends. Slots will be posted automatically within this window.',
     icon: <Clock size={24} />,
@@ -75,7 +63,7 @@ const usheringGuidelines: GuidelineItem[] = [
     ]
   },
   {
-    id: '5',
+    id: '4',
     title: 'Notification Center',
     description: 'Send notifications to students about new posts, interview locations, and important updates. Notify them when content is posted.',
     icon: <Bell size={24} />,
@@ -87,7 +75,7 @@ const usheringGuidelines: GuidelineItem[] = [
     ]
   },
   {
-    id: '6',
+    id: '5',
     title: 'View All Applicants',
     description: 'View all applicants for each team including their interview slots, names, GUC IDs, and email addresses.',
     icon: <Users size={24} />,

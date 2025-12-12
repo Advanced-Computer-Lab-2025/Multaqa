@@ -561,7 +561,7 @@ router.delete(
 router.get(
   "/:id",
   authorizeRoles({
-    userRoles: [UserRole.ADMINISTRATION],
+    userRoles: [UserRole.ADMINISTRATION, UserRole.USHER_ADMIN],
     adminRoles: [AdministrationRoleType.ADMIN],
   }),
   getUserById

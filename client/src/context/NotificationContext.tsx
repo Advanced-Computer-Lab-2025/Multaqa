@@ -338,6 +338,30 @@ export const NotificationProvider = ({
       "notification:ushering:slotBooked",
       handleNewNotification
     );
+    socketService.on(
+      "notification:ushering:postTimeUpdated",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:broadcastAll",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:broadcastApplicants",
+      handleNewNotification
+    );
+    socketService.on( 
+      "notification:comment:flagged",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:bugReport:submitted",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:bugReport:resolved",
+      handleNewNotification
+    );
 
     // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
@@ -358,6 +382,12 @@ export const NotificationProvider = ({
       socketService.off("notification:ushering:slotCancelled");
       socketService.off("notification:ushering:slotsAdded");
       socketService.off("notification:ushering:slotBooked");
+      socketService.off("notification:ushering:postTimeUpdated");
+      socketService.off("notification:ushering:broadcastAll");
+      socketService.off("notification:ushering:broadcastApplicants");
+      socketService.off("notification:comment:flagged");
+      socketService.off("notification:bugReport:submitted");
+      socketService.off("notification:bugReport:resolved");
       socketService.off("notification:read");
       socketService.off("notification:unread");
       socketService.off("notification:delete");

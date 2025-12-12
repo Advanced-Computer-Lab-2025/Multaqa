@@ -20,6 +20,7 @@ import {
   QrCode,
   Award,
   Wallet,
+  MessageSquareWarning,
   Bug,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -500,7 +501,14 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "sales-reports", label: "Sales Reports" },
         ],
       },
+
       {
+        key: "flagged-comments",
+        label: "Flagged Comments",
+        icon: MessageSquareWarning,
+        tabs: [{ id: "overview", label: "Overview" }],
+      },
+       {
         key: "bug-reporting",
         label: "Bug Reports",
         icon: Bug,
@@ -560,7 +568,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   "usher-admin": {
     headerTitle: "Usher Admin Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "teams-description",
+    defaultTab: "guidelines",
     defaultSection: "graduation",
     tabs: [
       { id: "teams-description", label: "Teams' Description" },

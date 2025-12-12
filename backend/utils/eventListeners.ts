@@ -237,6 +237,45 @@ eventBus.on("notification:ushering:slotBooked", (notification, saveToDatabase) =
   sendSocketNotification("notification:ushering:slotBooked", notification, saveToDatabase);
 });
 
+// When post time is updated -> notify students
+eventBus.on("notification:ushering:postTimeUpdated", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:postTimeUpdated", notification, saveToDatabase);
+});
+
+// Broadcast message to all students
+eventBus.on("notification:ushering:broadcastAll", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:broadcastAll", notification, saveToDatabase);
+});
+
+// Broadcast message to interview applicants only
+eventBus.on("notification:ushering:broadcastApplicants", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:broadcastApplicants", notification, saveToDatabase);
+});
+
+ /* -------------------------------
+ * Comment Moderation Notifications
+ * -------------------------------
+ */
+// Flagged comments -> notify Admins
+eventBus.on("notification:comment:flagged", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:comment:flagged", notification, saveToDatabase);
+});
+
+/**
+ * -------------------------------
+ * Bug Report Notifications
+ * -------------------------------
+ */
+// Bug report submitted -> notify Admins
+eventBus.on("notification:bugReport:submitted", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:bugReport:submitted", notification, saveToDatabase);
+});
+
+// Bug report resolved -> notify the reporter
+eventBus.on("notification:bugReport:resolved", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:bugReport:resolved", notification, saveToDatabase);
+});
+
 /**
  * -------------------------------
  * Generic notification events

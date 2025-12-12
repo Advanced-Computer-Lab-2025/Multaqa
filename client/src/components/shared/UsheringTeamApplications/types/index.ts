@@ -10,7 +10,7 @@ export interface UsheringTeam {
     icon: React.ReactNode;
 }
 
-// Applicant Types
+// Applicant Types (from /users/:id API)
 export interface Applicant {
     _id: string;
     firstName: string;
@@ -28,6 +28,7 @@ export interface TimeSlot {
 export interface BookedSlot {
     _id: string;
     teamId: string;
+    teamTitle: string;
     date: string;      // YYYY-MM-DD format
     timeSlot: TimeSlot;
     applicant: Applicant;
@@ -37,7 +38,65 @@ export interface BookedSlot {
 
 export type BookedSlotStatus = 'pending' | 'confirmed' | 'cancelled';
 
-// API Response Types
+// ============================================================================
+// API Response Types (matching /ushering endpoint)
+// ============================================================================
+
+// Reserved slot info from API
+export interface ReservedBy {
+    studentId: string;
+    reservedAt: string;
+}
+
+// Slot as returned from the API
+export interface ApiSlot {
+    _id: string;
+    id: string;
+    StartDateTime: string;  // ISO date string
+    EndDateTime: string;    // ISO date string
+    isAvailable: boolean;
+    location: string;
+    reservedBy?: ReservedBy;
+}
+
+// Team as returned from the API
+export interface ApiTeam {
+    _id: string;
+    id: string;
+    title: string;
+    description: string;
+    slots: ApiSlot[];
+}
+
+// Ushering entry from the API
+export interface ApiUsheringEntry {
+    _id: string;
+    id: string;
+    teams: ApiTeam[];
+    __v: number;
+}
+
+// Full API response from /ushering
+export interface UsheringApiResponse {
+    success: boolean;
+    data: ApiUsheringEntry[];
+    message: string;
+}
+
+// User API response from /users/:id
+export interface UserApiResponse {
+    success: boolean;
+    data: {
+        _id: string;
+        firstName?: string;
+        lastName?: string;
+        name?: string;
+        email: string;
+        studentId?: string;
+    };
+    message?: string;
+}
+
 export interface TeamApplicationsResponse {
     success: boolean;
     data: BookedSlot[];

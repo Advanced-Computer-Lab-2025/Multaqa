@@ -4,6 +4,9 @@
 // Role detection hook
 export * from './useUserRole';
 
+// Google Calendar hook
+export * from './useGoogleCalendar';
+
 // Example exports (uncomment when needed):
 // export * from './useApi';
 // export * from './useAuth';
