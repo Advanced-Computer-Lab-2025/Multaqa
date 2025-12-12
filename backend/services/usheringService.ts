@@ -38,7 +38,6 @@ export class UsheringService {
 		return ushering.postTime || null;
 	}
 
-	//send notification when teams are edited
 	async editTeam(usheringId: string, teamId: string, teamData: Partial<ITeam>): Promise<IUshering | null> {
 		const ushering = await this.usheringRepo.findById(usheringId);
 		if (!ushering) {
@@ -59,12 +58,14 @@ export class UsheringService {
 		const changes: string[] = [];
 
 		if (teamData.title !== undefined && teamData.title !== null) {
+			if(teamData.title !== ushering.teams[teamIndex].title)
+				changes.push(`title changed from "${ushering.teams[teamIndex].title}" to "${teamData.title}"`);
 			ushering.teams[teamIndex].title = teamData.title;
-			changes.push("title");
 		}
 		if (teamData.description !== undefined && teamData.description !== null) {
+			if(teamData.description !== ushering.teams[teamIndex].description)
+				changes.push(`description`);
 			ushering.teams[teamIndex].description = teamData.description;
-			changes.push("description");
 		}
 		if (teamData.slots !== undefined && teamData.slots !== null) {
 			ushering.teams[teamIndex].slots = teamData.slots;
@@ -197,8 +198,6 @@ export class UsheringService {
 		await ushering.save();
 	}
 
-	// send an email a day before the booked slot
-	// send a notification to all ushering accounts
 	async bookSlot(usheringId: string, teamId: string, slotId: string, studentId: string): Promise<void> {
 		// Perform an atomic update in the database to avoid race conditions.
 		// The query ensures the slot is still available and the student hasn't
