@@ -297,7 +297,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
         progress: undefined,
         theme: "colored",
       });
-    } catch (error:any) {
+    } catch (error: any) {
       toast.error(error?.response?.data?.error || error?.response?.data?.message,
         {
           position: "bottom-right",
@@ -332,7 +332,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
         >
           <Stack
             direction="row"
-            spacing={1.2}
+            spacing={0}
             alignItems="center"
             justifyContent="space-between"
             sx={{ width: '100%' }}
@@ -488,11 +488,13 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
             </Stack>
 
             {/* Slots Content */}
-            {loading
-              ? renderSkeleton()
-              : slotsForSelectedDate.length > 0
-                ? renderSlotCards()
-                : renderEmptyState()}
+            <React.Fragment key={loading ? 'loading' : slotsForSelectedDate.length > 0 ? 'slots' : 'empty'}>
+              {loading
+                ? renderSkeleton()
+                : slotsForSelectedDate.length > 0
+                  ? renderSlotCards()
+                  : renderEmptyState()}
+            </React.Fragment>
           </Box>
         </Box>
 
