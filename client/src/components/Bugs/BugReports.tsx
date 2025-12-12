@@ -9,6 +9,8 @@ import { grey } from '@mui/material/colors';
 import BugReportCard, { BugReport } from './BugReport';
 import ExportReportsButton from './ExportReportsButton';
 import { api } from "../../api";
+import ContentWrapper from "@/components/shared/containers/ContentWrapper";
+import { Bug } from "lucide-react";
 
 const BugReports = () => {
   const [loading, setLoading] = useState(true);
@@ -156,11 +158,12 @@ const BugReports = () => {
   // Loading skeleton
   if (loading) {
     return (
-      <Box sx={{ p: 4, maxWidth: '1400px', margin: '0 auto' }}>
-        <Stack spacing={2} sx={{ mb: 4 }}>
-          <Skeleton variant="text" width="300px" height={48} />
-          <Skeleton variant="text" width="500px" height={24} />
-        </Stack>
+      <ContentWrapper
+        title="View Bug Reports"
+        description="View bug reports and mark as resolved when the issue has been solved"
+        icon={<Bug size={28} />}
+        padding={{ xs: 2, md: 4 }}
+      >
         <Stack spacing={2.5}>
           {[1, 2, 3].map((i) => (
             <Box
@@ -190,27 +193,24 @@ const BugReports = () => {
             </Box>
           ))}
         </Stack>
-      </Box>
+      </ContentWrapper>
     );
   }
 
   // Empty state - no bug reports at all
   if (bugReports.length === 0) {
     return (
-      <Box sx={{ p: 4, maxWidth: '1400px', margin: '0 auto' }}>
-        <Stack spacing={1} sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: accentColor }}>
-            View Bug Reports
-          </Typography>
-          <Typography variant="body1" sx={{ color: grey[600] }}>
-            View bug reports and mark as resolved when the issue has been solved
-          </Typography>
-        </Stack>
+      <ContentWrapper
+        title="View Bug Reports"
+        description="View bug reports and mark as resolved when the issue has been solved"
+        icon={<Bug size={28} />}
+        padding={{ xs: 2, md: 4 }}
+      >
         <EmptyState
           title="No bug reports found"
           description="There are no bug reports to display at the moment."
         />
-      </Box>
+      </ContentWrapper>
     );
   }
 
@@ -218,17 +218,12 @@ const BugReports = () => {
   const hasFilteredResults = filteredBugReports.length === 0 && bugReports.length > 0;
 
   return (
-    <Box sx={{ p: 4, maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Header */}
-      <Stack spacing={1} sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: accentColor }}>
-          View Bug Reports
-        </Typography>
-        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-          View bug reports and mark as resolved when the issue has been solved
-        </Typography>
-      </Stack>
-
+    <ContentWrapper
+      title="View Bug Reports"
+      description="View bug reports and mark as resolved when the issue has been solved"
+      icon={<Bug size={28} />}
+      padding={{ xs: 2, md: 4 }}
+    >
       {/* Status Filter Chips and Export Button */}
       <Stack 
         direction="row" 
@@ -300,7 +295,7 @@ const BugReports = () => {
           ))}
         </Stack>
       )}
-    </Box>
+    </ContentWrapper>
   );
 };
 

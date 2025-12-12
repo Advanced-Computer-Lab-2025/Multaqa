@@ -13,6 +13,7 @@ import {
 } from "./utils";
 import { CustomModal } from "../modals";
 import CustomButton from "../Buttons/CustomButton";
+import ContentWrapper from "../containers/ContentWrapper";
 
 export default function FlaggedComments() {
   const [comments, setComments] = useState<FlaggedComment[]>([]);
@@ -167,75 +168,63 @@ export default function FlaggedComments() {
   // Loading state
   if (isLoading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 3,
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-          }}
-        >
-          <MessageSquareWarning size={24} />
-          Flagged Comments
-        </Typography>
+      <ContentWrapper
+        title="Flagged Comments"
+        icon={<MessageSquareWarning size={24} />}
+        padding={{ xs: 2, md: 3 }}
+        headerMarginBottom={3}
+      >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {[1, 2, 3].map((i) => (
             <CommentCardSkeleton key={i} />
           ))}
         </Box>
-      </Box>
+      </ContentWrapper>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <Box
-        sx={{
-          p: 3,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 2,
-        }}
+      <ContentWrapper
+        title="Flagged Comments"
+        icon={<MessageSquareWarning size={24} />}
+        padding={{ xs: 2, md: 3 }}
+        headerMarginBottom={3}
       >
-        <Typography color="error" variant="h6">
-          {error}
-        </Typography>
-        <CustomButton
-          variant="outlined"
-          color="primary"
-          onClick={loadComments}
-          startIcon={<RefreshCw size={18} />}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+          }}
         >
-          Try Again
-        </CustomButton>
-      </Box>
+          <Typography color="error" variant="h6">
+            {error}
+          </Typography>
+          <CustomButton
+            variant="outlined"
+            color="primary"
+            onClick={loadComments}
+            startIcon={<RefreshCw size={18} />}
+          >
+            Try Again
+          </CustomButton>
+        </Box>
+      </ContentWrapper>
     );
   }
 
   // Empty state
   if (comments.length === 0) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 3,
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-          }}
-        >
-          <MessageSquareWarning size={24} />
-          Flagged Comments
-        </Typography>
+      <ContentWrapper
+        title="Flagged Comments"
+        icon={<MessageSquareWarning size={24} />}
+        padding={{ xs: 2, md: 3 }}
+        headerMarginBottom={3}
+      >
         <Box
           sx={{
             textAlign: "center",
@@ -266,49 +255,19 @@ export default function FlaggedComments() {
             All comments are currently safe. Check back later.
           </Typography>
         </Box>
-      </Box>
+      </ContentWrapper>
     );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            fontFamily: "var(--font-jost), system-ui, sans-serif",
-          }}
-        >
-          <MessageSquareWarning size={24} />
-          Flagged Comments
-          <Box
-            component="span"
-            sx={{
-              backgroundColor: "error.main",
-              color: "white",
-              fontSize: "12px",
-              fontWeight: 600,
-              padding: "2px 10px",
-              borderRadius: "12px",
-              ml: 1,
-            }}
-          >
-            {comments.length}
-          </Box>
-        </Typography>
-      </Box>
-
+    <ContentWrapper
+      title="Flagged Comments"
+      icon={<MessageSquareWarning size={24} />}
+      badgeCount={comments.length}
+      badgeColor="error.main"
+      padding={{ xs: 2, md: 3 }}
+      headerMarginBottom={3}
+    >
       {/* Comments list */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {comments.map((comment) => (
@@ -395,6 +354,6 @@ export default function FlaggedComments() {
           onClick: handleCloseModal,
         }}
       />
-    </Box>
+    </ContentWrapper>
   );
 }

@@ -11,6 +11,9 @@ interface ContentWrapperProps {
   padding?: { xs?: number; md?: number };
   horizontalPadding?: { xs?: number; md?: number };
   headerMarginBottom?: number;
+  icon?: React.ReactNode;
+  badgeCount?: number;
+  badgeColor?: string;
 }
 
 /**
@@ -24,6 +27,9 @@ export default function ContentWrapper({
   padding = { xs: 2, md: 4 },
   horizontalPadding,
   headerMarginBottom = 4,
+  icon,
+  badgeCount,
+  badgeColor = "error.main",
 }: ContentWrapperProps) {
   const theme = useTheme();
 
@@ -46,9 +52,29 @@ export default function ContentWrapper({
             fontWeight: 700,
             color: theme.palette.tertiary.dark,
             mb: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
           }}
         >
+          {icon}
           {title}
+          {badgeCount !== undefined && badgeCount > 0 && (
+            <Box
+              component="span"
+              sx={{
+                backgroundColor: badgeColor,
+                color: "white",
+                fontSize: "12px",
+                fontWeight: 600,
+                padding: "2px 10px",
+                borderRadius: "12px",
+                ml: 0.5,
+              }}
+            >
+              {badgeCount}
+            </Box>
+          )}
         </Typography>
         {description && (
           <Typography
