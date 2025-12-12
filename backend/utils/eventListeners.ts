@@ -242,6 +242,16 @@ eventBus.on("notification:ushering:postTimeUpdated", (notification, saveToDataba
   sendSocketNotification("notification:ushering:postTimeUpdated", notification, saveToDatabase);
 });
 
+// Broadcast message to all students
+eventBus.on("notification:ushering:broadcastAll", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:broadcastAll", notification, saveToDatabase);
+});
+
+// Broadcast message to interview applicants only
+eventBus.on("notification:ushering:broadcastApplicants", (notification, saveToDatabase) => {
+  sendSocketNotification("notification:ushering:broadcastApplicants", notification, saveToDatabase);
+});
+
 /**
  * -------------------------------
  * Generic notification events

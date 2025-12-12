@@ -342,6 +342,14 @@ export const NotificationProvider = ({
       "notification:ushering:postTimeUpdated",
       handleNewNotification
     );
+    socketService.on(
+      "notification:ushering:broadcastAll",
+      handleNewNotification
+    );
+    socketService.on(
+      "notification:ushering:broadcastApplicants",
+      handleNewNotification
+    );
 
     // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
@@ -363,6 +371,8 @@ export const NotificationProvider = ({
       socketService.off("notification:ushering:slotsAdded");
       socketService.off("notification:ushering:slotBooked");
       socketService.off("notification:ushering:postTimeUpdated");
+      socketService.off("notification:ushering:broadcastAll");
+      socketService.off("notification:ushering:broadcastApplicants");
       socketService.off("notification:read");
       socketService.off("notification:unread");
       socketService.off("notification:delete");

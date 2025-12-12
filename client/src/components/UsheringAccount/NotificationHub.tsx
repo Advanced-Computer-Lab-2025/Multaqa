@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -18,6 +18,7 @@ import { Bell, Send, Users, AlertCircle, MapPin, Clock, Info, UserCheck } from '
 import CustomButton from '../shared/Buttons/CustomButton';
 import CustomTextField from '../shared/input-fields/CustomTextField';
 import { toast } from 'react-toastify';
+import { api } from '@/api';
 
 // Quick message templates
 const quickTemplates = [
@@ -34,25 +35,40 @@ const NotificationHub: React.FC = () => {
   const [message, setMessage] = useState('');
   const [recipients, setRecipients] = useState<RecipientType>('all');
   const [isSending, setIsSending] = useState(false);
+  const [usheringId, setUsheringId] = useState<string | null>(null);
 
-  // Send notification to ALL students
-  const sendNotificationToAllStudents = (notificationMessage: string) => {
-    console.log('Sending to ALL students:', notificationMessage );
+  // Fetch ushering ID on mount
+  useEffect(() => {
+    const fetchUsheringId = async () => {
+      try {
+        const response = await api.get('/ushering');
+        if (response.data.success && response.data.data?.length > 0) {
+          setUsheringId(response.data.data[0]._id);
+        }
+      } catch (error) {
+        console.error('Error fetching ushering data:', error);
+      }
+    };
+    fetchUsheringId();
+  }, []);
 
-  };
+  const handleSendNotification = async () => {
+    if (!message.trim()) {
+      toast.error('Please enter a message');
+      return;
+    }
 
-  // Send notification to INTERVIEW APPLICANTS only
-  const sendNotificationToApplicants = (notificationMessage: string) => {
-    console.log('Sending to INTERVIEW APPLICANTS:', notificationMessage );
-  };
-
-  const handleSendNotification = () => {
     setIsSending(true);
-      // Call the appropriate function based on selected recipients
+    try {
       if (recipients === 'all') {
-       sendNotificationToAllStudents(message);
+        await api.post('/ushering/broadcast/all', { message: message.trim() });
       } else {
-       sendNotificationToApplicants(message);
+        if (!usheringId) {
+          toast.error('No ushering event found');
+          setIsSending(false);
+          return;
+        }
+        await api.post(`/ushering/${usheringId}/broadcast/applicants`, { message: message.trim() });
       }
 
       const recipientLabel = recipients === 'all' ? 'all students' : 'interview applicants';
@@ -64,7 +80,16 @@ const NotificationHub: React.FC = () => {
 
       // Clear form
       setMessage('');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to send notification';
+      toast.error(errorMessage, {
+        position: 'bottom-right',
+        autoClose: 3000,
+        theme: 'colored',
+      });
+    } finally {
       setIsSending(false);
+    }
   };
 
   const applyTemplate = (prefix: string) => {

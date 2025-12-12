@@ -405,4 +405,64 @@ export class UsheringService {
 			location: frontendSlot.location,
 		};
 	}
+
+
+    /**
+     * Broadcast notification to all students
+     */
+	async broadcastToAllStudents(message: string): Promise<void> {
+		if (!message || message.trim().length === 0) {
+			throw createError(400, 'Message cannot be empty');
+		}
+
+		await NotificationService.sendNotification({
+			role: [UserRole.STUDENT],
+			type: "USHERING_BROADCAST_ALL",
+			title: "📢 Ushering Announcement",
+			message: message.trim(),
+			createdAt: new Date(),
+        } as Notification);
+    }
+
+    /**
+     * Broadcast notification to interview applicants only (students who have booked slots)
+     */
+    async broadcastToApplicants(usheringId: string, message: string): Promise<void> {
+        if (!message || message.trim().length === 0) {
+            throw createError(400, 'Message cannot be empty');
+        }
+
+        const usheringDoc = await this.usheringRepo.findById(usheringId);
+        if (!usheringDoc) {
+            throw createError(404, 'Ushering event not found');
+        }
+
+        // Collect all student IDs who have booked slots
+        const applicantIds: string[] = [];
+        for (const team of usheringDoc.teams) {
+            for (const slot of team.slots) {
+                if (slot.reservedBy?.studentId) {
+                    const studentId = slot.reservedBy.studentId.toString();
+                    if (!applicantIds.includes(studentId)) {
+                        applicantIds.push(studentId);
+                    }
+                }
+            }
+        }
+
+        if (applicantIds.length === 0) {
+            throw createError(400, 'No interview applicants found to notify');
+        }
+
+        // Send notification to each applicant
+        for (const studentId of applicantIds) {
+            await NotificationService.sendNotification({
+                userId: studentId,
+                type: "USHERING_BROADCAST_APPLICANTS",
+                title: "📢 Interview Update",
+                message: message.trim(),
+                createdAt: new Date(),
+            } as Notification);
+        }
+    }
 }
