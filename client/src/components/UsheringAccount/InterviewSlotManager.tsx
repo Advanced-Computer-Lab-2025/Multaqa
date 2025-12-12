@@ -824,7 +824,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
                     };
                     console.log(payload);
 
-                    // await api.patch(`/ushering/${usheringId}/postTime`, payload);
+                    await api.patch(`/ushering/${usheringId}/postTime`, payload);
 
                     toast.success('Post schedule saved successfully', {
                       position: 'bottom-right',
