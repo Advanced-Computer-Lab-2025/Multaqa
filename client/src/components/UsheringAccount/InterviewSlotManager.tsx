@@ -865,11 +865,11 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
           onClose={() => setIsManualPostModalOpen(false)}
           title="Post Interview Slots Now?"
           description="Are you sure you want to post all interview slots immediately? Students will be able to see and book these slots right away."
-          borderColor={theme.palette.tertiary.main}
+          borderColor={theme.palette.warning}
           buttonOption1={{
             label: "Post Now",
             variant: "contained",
-            color: "primary",
+            color: "warning",
             onClick: () => {
               // TODO: Handle manual post API call
               console.log('Manual post confirmed');
@@ -884,7 +884,7 @@ const InterviewSlotManager: React.FC<InterviewSlotManagerProps> = ({
           buttonOption2={{
             label: "Cancel",
             variant: "outlined",
-            color: "primary",
+            color: "warning",
             onClick: () => setIsManualPostModalOpen(false),
           }} modalType={'warning'} />
       </Container>
