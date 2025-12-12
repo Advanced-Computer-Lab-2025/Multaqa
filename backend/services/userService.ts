@@ -141,7 +141,7 @@ export class UserService {
 
     return user.notifications || [];
   }
-  
+
   async addEventToUser(id: string, eventId: Types.ObjectId): Promise<IUser> {
     const user = (await this.userRepo.findById(id)) as IStaffMember | IStudent;
     if (!user) {
@@ -335,6 +335,17 @@ export class UserService {
     );
 
     return students.map((student) => student.toObject());
+  }
+
+  async getAllUsherAdmins(): Promise<IUser[]> {
+    const usherAdmins = await this.userRepo.findAll(
+      { role: "usherAdmin", isVerified: true },
+      {
+        select: "firstName lastName name email role status",
+      }
+    );
+
+    return usherAdmins.map((admin) => admin.toObject());
   }
 
   async getAllAdmins(): Promise<IAdministration[]> {

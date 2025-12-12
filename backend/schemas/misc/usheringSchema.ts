@@ -20,7 +20,6 @@ const UsheringSchema = new Schema<IUshering>({
         studentId: { type: Schema.Types.ObjectId,   ref: 'User'},
         reservedAt: Date
       },
-    
     }]
   }]
 }) ;

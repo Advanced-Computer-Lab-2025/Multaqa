@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Stack, Skeleton, Chip, Divider } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import theme from '@/themes/lightTheme';
@@ -8,72 +8,118 @@ import EmptyState from '@/components/shared/states/EmptyState';
 import { grey } from '@mui/material/colors';
 import BugReportCard, { BugReport } from './BugReport';
 import ExportReportsButton from './ExportReportsButton';
-
-// Dummy data
-const dummyBugReports: BugReport[] = [
-  {
-    id: '1',
-    title: 'Login form validation not working on mobile',
-    stepsToReproduce: '1. Open the app on mobile browser (Chrome/Safari)\n2. Navigate to login page\n3. Try to submit form with empty fields\n4. No validation errors appear',
-    expectedResult: 'Form should show validation errors when required fields are empty',
-    actualResult: 'Form submits without validation, causing server error',
-    environment: 'Mobile Chrome 118, iOS 17.1, iPhone 14 Pro',
-    status: 'pending',
-    submittedAt: '2024-12-05T10:30:00Z',
-    reportedBy: 'John Doe',
-  },
-  {
-    id: '2',
-    title: 'Event card images not loading on slow connections',
-    stepsToReproduce: '1. Throttle network to Slow 3G in DevTools\n2. Navigate to events page\n3. Scroll through event cards\n4. Images fail to load or take very long',
-    expectedResult: 'Images should load with progressive enhancement or show placeholder',
-    actualResult: 'Broken image icons appear, cards look incomplete',
-    environment: 'Desktop Chrome 119, Windows 11, Slow 3G network',
-    status: 'resolved',
-    submittedAt: '2024-12-04T14:20:00Z',
-    reportedBy: 'Sarah Smith',
-  },
-  {
-    id: '3',
-    title: 'Workshop registration deadline shows wrong timezone',
-    stepsToReproduce: '1. View workshop details\n2. Check registration deadline\n3. Compare with server time\n4. Timezone is not converted to user local time',
-    expectedResult: 'Deadline should display in user\'s local timezone',
-    actualResult: 'Shows UTC time causing confusion for users',
-    environment: 'Firefox 120, macOS Sonoma 14.1',
-    status: 'pending',
-    submittedAt: '2024-12-03T09:15:00Z',
-    reportedBy: 'Mike Johnson',
-  },
-  {
-    id: '4',
-    title: 'Filter panel state not persisting after page navigation',
-    stepsToReproduce: '1. Apply filters on events page\n2. Click on an event to view details\n3. Navigate back to events page\n4. All filters are reset to default',
-    expectedResult: 'Filter selections should be preserved when navigating back',
-    actualResult: 'User has to reapply all filters every time',
-    environment: 'Safari 17, iPad Pro, iPadOS 17',
-    status: 'pending',
-    submittedAt: '2024-12-02T16:45:00Z',
-    reportedBy: 'Emily Chen',
-  },
-  {
-    id: '5',
-    title: 'Toast notifications overlapping with bottom navigation',
-    stepsToReproduce: '1. Trigger success/error toast on mobile\n2. Toast appears at bottom-right\n3. Bottom navigation bar covers part of the toast',
-    expectedResult: 'Toast should appear above bottom navigation with proper spacing',
-    actualResult: 'Toast is partially hidden behind navigation bar',
-    environment: 'Chrome 118, Android 14, Samsung Galaxy S23',
-    status: 'resolved',
-    submittedAt: '2024-12-01T11:30:00Z',
-    reportedBy: 'Alex Rivera',
-  },
-];
+import { api } from "../../api";
 
 const BugReports = () => {
-  const [loading, setLoading] = useState(false);
-  const [bugReports] = useState<BugReport[]>(dummyBugReports);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [bugReports, setBugReports] = useState<BugReport[]>([]);
+  const [refresh, setRefresh] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'resolved'>('all');
 
   const accentColor = theme.palette.tertiary.main;
+
+  // Map API response to BugReport interface
+  const mapApiBugReportToComponent = (apiBug: any): BugReport => {
+    // Format the reportedBy field from the populated user object
+    const formatReportedBy = (createdBy: any): string => {
+      if (!createdBy) return 'Unknown';
+      if (typeof createdBy === 'string') return createdBy;
+      if (createdBy.firstName && createdBy.lastName) {
+        return `${createdBy.firstName} ${createdBy.lastName}`;
+      }
+      return createdBy.name || createdBy.email || 'Unknown';
+    };
+
+    return {
+      id: apiBug._id,
+      title: apiBug.title,
+      stepsToReproduce: apiBug.stepsToReproduce,
+      expectedResult: apiBug.expectedBehavior,
+      actualResult: apiBug.actualBehavior,
+      environment: apiBug.environment,
+      status: apiBug.status,
+      submittedAt: apiBug.date,
+      reportedBy: formatReportedBy(apiBug.createdBy),
+    };
+  };
+
+  const handleLoadBugs = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.get("/bugreports");
+      // Extract bug reports from the API response structure { success, data, message }
+      const bugsData = res.data?.data || [];
+      const mappedBugs = bugsData.map(mapApiBugReportToComponent);
+      setBugReports(mappedBugs);
+    } catch (err: any) {
+      setError(err.response.data.error || "Failed to load bug reports");
+      toast.error(err.response.data.error || "Failed to load bug reports", {
+        position: 'bottom-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.get("/bugreports/export", {
+        responseType: 'blob', // Important: tell axios to expect a binary response
+      });
+      
+      // Create a blob URL and trigger download
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Generate filename with current date
+      const date = new Date().toISOString().split('T')[0];
+      link.download = `unresolved-bug-reports-${date}.xlsx`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("Reports exported successfully!", {
+        position: "bottom-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Failed to export bug reports");
+      toast.error(err.response?.data?.error || "Failed to export bug reports", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };  
+
+  // Load bug reports on component mount
+  useEffect(() => {
+    handleLoadBugs();
+  }, [refresh]);
 
   // Filter colors
   const filterColors = {
@@ -104,33 +150,9 @@ const BugReports = () => {
       return 0;
     });
 
-  const handleResolve = async (bugId: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    toast.success('Bug marked as resolved successfully', {
-      position: 'bottom-right',
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'colored',
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
+  const handleReportExport = async () => {
+    await handleExport();
+  };  
   // Loading skeleton
   if (loading) {
     return (
@@ -254,7 +276,7 @@ const BugReports = () => {
           })}
         </Stack>
         
-        <ExportReportsButton onClick={() => { /* Add export logic here */ }} isLoading={loading}/>
+        <ExportReportsButton onClick={() => handleReportExport()} isLoading={loading}/>
       </Stack>
 
       <Divider sx={{ mb: 2 }} />
@@ -269,10 +291,11 @@ const BugReports = () => {
         <Stack spacing={2.5}>
           {filteredBugReports.map((bug) => (
             <BugReportCard
+              id={bug.id}
               key={bug.id}
               bug={bug}
               accentColor={accentColor}
-              onResolve={handleResolve}
+              setRefresh={setRefresh}
             />
           ))}
         </Stack>

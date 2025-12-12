@@ -20,3 +20,6 @@ export class EventScheduler {
     console.log("Event reminder scheduler started");
   }
 }
+
+// Create and export a singleton instance
+export const eventScheduler = new EventScheduler();
