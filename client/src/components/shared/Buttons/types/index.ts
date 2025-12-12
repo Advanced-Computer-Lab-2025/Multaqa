@@ -6,4 +6,5 @@ export interface CustomButtonProps extends ButtonProps {
   width?: string;
   height?: string;
   createButtonStyle?: boolean; // Expandable create button with + icon
+  fitContent?: boolean; // Forces width: fit-content to prevent text wrapping
 }

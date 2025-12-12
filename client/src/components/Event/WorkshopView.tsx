@@ -242,6 +242,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                 <CustomButton
                   size="small"
                   variant="outlined"
+                  fitContent
                 sx={{
                                   borderRadius: 999,
                                   backgroundColor: `${theme.palette.error.main}`,
@@ -267,6 +268,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
+                    fitContent
                     sx={{
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.success.main}`,
@@ -289,6 +291,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
+                    fitContent
                     sx={{
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.warning.main}`,
@@ -313,6 +316,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
+                    fitContent
                     sx={{
                       borderRadius: 999,
                       border: `1px solid ${theme.palette.info.main}`,
@@ -337,6 +341,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
+                    fitContent
                        sx={{
                       borderRadius: 999,
                       border: `1px solid ${background}`,
@@ -482,6 +487,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                             <CustomButton
                               size="small"
                               variant="outlined"
+                              fitContent
                              sx={{
                                   borderRadius: 999,
                                   backgroundColor: `${theme.palette.error.main}`,
@@ -506,6 +512,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                               <CustomButton
                                 size="small"
                                 variant="contained"
+                                fitContent
                                 sx={{
                                   borderRadius: 999,
                                   backgroundColor: `${theme.palette.success.main}`,
@@ -527,6 +534,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                               <CustomButton
                                 size="small"
                                 variant="contained"
+                                fitContent
                                 sx={{
                                   borderRadius: 999,
                                   backgroundColor: `${theme.palette.warning.main}`,
@@ -550,6 +558,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                               <CustomButton
                                 size="small"
                                 variant="contained"
+                                fitContent
                                 sx={{
                                   borderRadius: 999,
                                   backgroundColor: `${theme.palette.info.main}`,
@@ -574,6 +583,7 @@ const WorkshopView: React.FC<WorkshopViewProps> = ({
                               <CustomButton
                                 size="small"
                                 variant="contained"
+                                fitContent
                                 sx={{ 
                                   borderRadius: 999,
                                   backgroundColor: `${background}40`,

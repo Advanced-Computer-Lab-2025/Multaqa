@@ -158,6 +158,7 @@ const TripView: React.FC<BazarViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="contained"
+                    fitContent
                     sx={{
                       borderRadius: 999,
                       backgroundColor: `${theme.palette.error.main}`,
@@ -183,6 +184,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         border: `1px solid ${theme.palette.success.main}`,
@@ -205,6 +207,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         border: `1px solid ${theme.palette.warning.main}`,
@@ -229,6 +232,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         border: `1px solid ${theme.palette.info.main}`,
@@ -253,6 +257,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                       borderRadius: 999,
                       border: `1px solid ${background}`,
@@ -367,6 +372,7 @@ const TripView: React.FC<BazarViewProps> = ({
                   <CustomButton
                     size="small"
                     variant="outlined"
+                    fitContent
                      sx={{
                         borderRadius: 999,
                         backgroundColor: `${theme.palette.error.main}`,
@@ -391,6 +397,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         backgroundColor: `${theme.palette.success.main}`,
@@ -412,6 +419,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         backgroundColor: `${theme.palette.warning.main}`,
@@ -435,6 +443,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         backgroundColor: `${theme.palette.info.main}`,
@@ -458,6 +467,7 @@ const TripView: React.FC<BazarViewProps> = ({
                     <CustomButton
                       size="small"
                       variant="contained"
+                      fitContent
                       sx={{
                         borderRadius: 999,
                         backgroundColor: `${background}40`,
