@@ -289,8 +289,8 @@ const InterviewSlots: React.FC<InterviewSlotsProps> = ({
                     border: `1px solid ${alpha(teamColor, 0.2)}`,
                   }}
                 >
-                  <Typography variant="caption" sx={{ color: teamColor }}>
-                    💡 Slots will be generated for each day in the range, from start time to end time.
+                  <Typography variant="caption" sx={{ color: teamColor, lineHeight: 1.5 }}>
+                    ⚠️ <strong>Important:</strong> The <strong>time</strong> you select will be applied to <strong>every day</strong> in the date range. For example, if you select Dec 12 at 9:00 AM → Dec 14 at 5:00 PM, slots will be created from 9:00 AM to 5:00 PM on Dec 12, Dec 13, and Dec 14.
                   </Typography>
                 </Box>
                 <Grid container spacing={3}>
