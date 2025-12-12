@@ -6,6 +6,7 @@ export enum NotificationType {
   EVENT_REMINDER = "EVENT_REMINDER",
   LOYALTY_NEW_PARTNER = "LOYALTY_NEW_PARTNER",
   VENDOR_PENDING_REQUEST = "VENDOR_PENDING_REQUEST",
+  COMMENT_FLAGGED = "COMMENT_FLAGGED",
 }
 
 // Notification interface matching backend structure

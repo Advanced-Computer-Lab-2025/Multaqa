@@ -20,6 +20,7 @@ import {
   QrCode,
   Award,
   Wallet,
+  MessageSquareWarning,
   Bug,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -86,6 +87,8 @@ const getUserRoleKey = (user: any): string => {
     return "admin";
   }
 
+  if (user.role === "usherAdmin") return "usher-admin";
+
   return "student";
 };
 
@@ -140,6 +143,8 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       { id: "my-sessions", label: "My Registered Sessions" },
       { id: "overview", label: "Overview" },
       { id: "loyalty-partners", label: "Loyalty Program Partners" },
+      { id: "teams-description", label: "Teams Description" },
+      { id: "interview-slots", label: "Interview Slots" },
     ],
     sections: [
       {
@@ -151,6 +156,15 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "my-registered", label: "My Registered Events" },
           { id: "favorites", label: "My Favorites" },
           { id: "polls", label: "Polls" },
+        ],
+      },
+       {
+        key: "graduation",
+        label: "Guc Graduation",
+        icon: Calendar,
+        tabs: [
+          { id: "teams-description", label: "Teams Description" },
+          { id: "interview-slots", label: "Interview Slots" },
         ],
       },
       {
@@ -487,6 +501,13 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
           { id: "sales-reports", label: "Sales Reports" },
         ],
       },
+
+      {
+        key: "flagged-comments",
+        label: "Flagged Comments",
+        icon: MessageSquareWarning,
+        tabs: [{ id: "overview", label: "Overview" }],
+      },
        {
         key: "bug-reporting",
         label: "Bug Reports",
@@ -544,7 +565,37 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
       },
     ],
   },
+  "usher-admin": {
+    headerTitle: "Usher Admin Portal",
+    icon: <Store size={32} className="text-[#6299d0]" />,
+    defaultTab: "teams-description",
+    defaultSection: "graduation",
+     tabs: [
+          { id: "teams-description", label: "Teams' Description" },
+          { id: "interview-management", label: "Interview Management" },
+          { id: "student-list", label: "Student List" },
+        ],
+    sections: [
+      {
+        key: "graduation",
+        label: "GUC Graduation",
+        icon: LayoutDashboard,
+        tabs: [
+          { id: "teams-description", label: "Teams' Description" },
+          { id: "interview-management", label: "Interview Management" },
+          { id: "student-list", label: "Student List" },
+        ],
+      },
+      {
+        key: "bug-reporting",
+        label: "Bug Reporting",
+        icon: Bug,
+        tabs: [{ id: "bug-reporting", label: "Bug Reporting" }],
+      },
+    ],
+  },
 };
+
 
 // Mock data for different user types
 // const getMockUserData = (role: string) => {

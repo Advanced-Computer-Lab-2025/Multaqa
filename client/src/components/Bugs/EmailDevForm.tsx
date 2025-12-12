@@ -10,6 +10,7 @@ import { capitalizeName } from "@/components/shared/input-fields/utils";
 import { toast } from "react-toastify";
 
 interface EmailDevProps {
+  bugreportId?: string;
   open: boolean;
   onClose: () => void;
   color:string;
@@ -21,7 +22,7 @@ const validationSchema = Yup.object({
     .required("Email is required"),
 });
 
-const EmailDevForm = ({open, onClose, color}: EmailDevProps) => {
+const EmailDevForm = ({bugreportId, open, onClose, color}: EmailDevProps) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);  
@@ -35,10 +36,10 @@ const EmailDevForm = ({open, onClose, color}: EmailDevProps) => {
         setLoading(true);
         console.log("Payload being sent:", payload); 
         
-        const res = await api.post(`/users/register/`, payload);
+        const res = await api.post(`/bugreports/send-email/` + bugreportId, payload);
         
         // Success case
-        toast.success("You have registered for this event successfully!", {
+        toast.success("Email sent successfully!", {
           position: "bottom-right",
           autoClose: 1500,
           hideProgressBar: false,
@@ -53,10 +54,8 @@ const EmailDevForm = ({open, onClose, color}: EmailDevProps) => {
         
       } catch (err: any) {
         console.log("Registration error:", err);
-        
-        // Handle 409 Conflict (Already registered)
-        if (err.response?.status === 409) {
-          toast.error("You have already registered for this event!",
+        toast.error(
+            err.response?.data?.error || "Failed to send email. Please try again.",
             {
               position: "bottom-right",
               autoClose: 5000,
@@ -67,26 +66,7 @@ const EmailDevForm = ({open, onClose, color}: EmailDevProps) => {
               progress: undefined,
               theme: "colored",
             }
-          );
-        } else {
-          // Handle other errors
-          toast.error(
-            err.response?.data?.error || "Registration failed. Please try again.",
-            {
-              position: "bottom-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "colored",
-            }
-          );
-        }
-        
-        throw err; // Re-throw to handle in onSubmit
-        
+        );        
       } finally {
         setLoading(false);
       }
@@ -94,9 +74,9 @@ const EmailDevForm = ({open, onClose, color}: EmailDevProps) => {
 
     const onSubmit = async (values: any, actions: any) => {
         const payload = {
-          email: values.email,
+          recipientEmail: values.email,
         };
-        //await handleCallApi(payload);
+        await handleCallApi(payload);
         actions.resetForm();
         onClose();
       };

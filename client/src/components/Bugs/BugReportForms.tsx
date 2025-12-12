@@ -97,7 +97,7 @@ const BugReportForms = () => {
     setLoading(true);
     try {
       // TODO: Replace with your actual bug report API endpoint
-      const res = await api.post('/bugs', payload);
+      const res = await api.post('/bugreports', payload);
       toast.success('Bug report submitted successfully', {
         position: 'bottom-right',
         autoClose: 5000,
@@ -128,16 +128,20 @@ const BugReportForms = () => {
     }
   };
 
+  console.log('Submitting bug report with values:', new Date().toUTCString());
+
   const onSubmit = async (values: any, actions: any) => {
     const payload = {
       title: values.title,
       stepsToReproduce: values.stepsToReproduce,
-      expectedResult: values.expectedResult,
-      actualResult: values.actualResult,
+      expectedBehavior: values.expectedResult,
+      actualBehavior: values.actualResult,
       environment: values.environment,
+      date: new Date(new Date().toUTCString()).toISOString(),
+      status: "pending",
     };
-    // handleCallApi(payload);
-    window.alert(JSON.stringify(payload, null, 2));
+    await handleCallApi(payload);
+    actions.resetForm();
   };
 
   const {
