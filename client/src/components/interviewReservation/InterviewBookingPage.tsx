@@ -174,25 +174,28 @@ useEffect(() => {
     const dates = new Set<string>();
     teamSlots.forEach(slot => {
       const slotDate = new Date(slot.startDateTime);
-      const dateStr = `${slotDate.getUTCFullYear()}-${String(slotDate.getUTCMonth() + 1).padStart(2, "0")}-${String(slotDate.getUTCDate()).padStart(2, "0")}`;
+      // Use local time for date extraction to match calendar display
+      const dateStr = `${slotDate.getFullYear()}-${String(slotDate.getMonth() + 1).padStart(2, "0")}-${String(slotDate.getDate()).padStart(2, "0")}`;
       if (slot.isAvailable) dates.add(dateStr);
     });
     return Array.from(dates).map(d => {
       const [year, month, day] = d.split("-").map(Number);
-      return new Date(Date.UTC(year, month - 1, day));
+      return new Date(year, month - 1, day); // Use local date, not UTC
     });
   }, [teamSlots]);
 
   const dateStr = useMemo(() => {
     if (!selectedDate) return "";
-    return `${selectedDate.getUTCFullYear()}-${String(selectedDate.getUTCMonth() + 1).padStart(2, "0")}-${String(selectedDate.getUTCDate()).padStart(2, "0")}`;
+    // Use local time for consistency with calendar selection
+    return `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
   }, [selectedDate]);
 
   const slotsForDate = useMemo(() => {
     if (!selectedDate) return [];
     return teamSlots.filter(slot => {
       const slotDate = new Date(slot.startDateTime);
-      const slotDateStr = `${slotDate.getUTCFullYear()}-${String(slotDate.getUTCMonth() + 1).padStart(2, "0")}-${String(slotDate.getUTCDate()).padStart(2, "0")}`;
+      // Use local time for filtering to match dateStr
+      const slotDateStr = `${slotDate.getFullYear()}-${String(slotDate.getMonth() + 1).padStart(2, "0")}-${String(slotDate.getDate()).padStart(2, "0")}`;
       return slotDateStr === dateStr;
     });
   }, [selectedDate, teamSlots, dateStr]);

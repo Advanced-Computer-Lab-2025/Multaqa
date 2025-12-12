@@ -113,15 +113,18 @@ export const getTodayISO = (): string => {
 };
 
 /**
- * Extract time in HH:mm format from ISO datetime string (using local time).
+ * Extract time in 12-hour format from ISO datetime string (using local time).
  * @param isoDateTime - ISO datetime string
- * @returns Time string in HH:mm format (local time)
+ * @returns Time string in h:mm AM/PM format (local time)
  */
 export const extractTimeFromISO = (isoDateTime: string): string => {
     const date = new Date(isoDateTime);
-    const hours = String(date.getHours()).padStart(2, '0');
+    let hours = date.getHours();
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 becomes 12
+    return `${hours}:${minutes} ${ampm}`;
 };
 
 /**
