@@ -400,3 +400,25 @@ export const sendInterviewReminderEmail = async (
     html,
   });
 };
+
+// Send interview booking confirmation email
+export const sendInterviewBookingConfirmationEmail = async (
+  userEmail: string,
+  username: string,
+  teamName: string,
+  interviewDate: Date,
+  location: string
+) => {
+  const { getInterviewBookingConfirmationTemplate } = await import("../utils/emailTemplates");
+  const html = getInterviewBookingConfirmationTemplate(
+    username,
+    teamName,
+    interviewDate,
+    location
+  );
+  await sendEmail({
+    to: userEmail,
+    subject: `✅ Interview Booked: ${teamName} - Multaqa`,
+    html,
+  });
+};

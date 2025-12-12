@@ -1,19 +1,21 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Container, Typography, Skeleton, Stack } from '@mui/material';
+import { Box, Container, Typography, Skeleton, Stack, Badge } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import dayjs, { Dayjs } from 'dayjs';
-import { Users } from 'lucide-react';
+import utc from 'dayjs/plugin/utc';
 
 import TeamSelector from './TeamSelector';
 import ApplicantCard from './ApplicantCard';
 import { UsheringTeam, BookedSlot } from './types';
 import {
     fetchTeams,
-    fetchTeamApplications,
+    fetchUsheringApplications,
+    fetchReservedDatesForTeam,
     getTodayISO,
     formatDateLabel,
 } from './utils';
@@ -29,6 +31,42 @@ import {
 } from './styles';
 import EmptyState from '../states/EmptyState';
 
+// Extend dayjs with UTC plugin
+dayjs.extend(utc);
+
+/**
+ * Custom Day Component with dot indicator for reserved dates
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ServerDay(props: any) {
+    const { reservedDates = [], teamColor = '#1a1a1a', day, outsideCurrentMonth, ...other } = props;
+
+    // Check if this day has reservations
+    // reservedDates are in UTC format (YYYY-MM-DD), compare with local date
+    const dayString = day.format('YYYY-MM-DD');
+    const hasReservation = !outsideCurrentMonth && reservedDates.includes(dayString);
+
+    return (
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <PickersDay outsideCurrentMonth={outsideCurrentMonth} day={day} {...other} />
+            {hasReservation && (
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 2,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        backgroundColor: teamColor,
+                    }}
+                />
+            )}
+        </Box>
+    );
+}
+
 /**
  * UsheringApplications Component
  * 
@@ -43,6 +81,7 @@ const UsheringApplications: React.FC = () => {
     const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
     const [teamsLoading, setTeamsLoading] = useState<boolean>(true);
     const [slotsLoading, setSlotsLoading] = useState<boolean>(false);
+    const [reservedDates, setReservedDates] = useState<string[]>([]);
 
     // Get selected team
     const selectedTeam = teams.find((t) => t._id === selectedTeamId);
@@ -62,12 +101,24 @@ const UsheringApplications: React.FC = () => {
         loadTeams();
     }, []);
 
+    // Fetch reserved dates when team changes
+    useEffect(() => {
+        const loadReservedDates = async () => {
+            if (!selectedTeamId) return;
+            const dates = await fetchReservedDatesForTeam(selectedTeamId);
+            setReservedDates(dates);
+        };
+
+        loadReservedDates();
+    }, [selectedTeamId]);
+
     // Fetch applications when team or date changes
     const loadApplications = useCallback(async () => {
         if (!selectedTeamId) return;
 
+        // Use local date format for consistency with calendar
         const dateISO = selectedDate.format('YYYY-MM-DD');
-        const slots = await fetchTeamApplications(selectedTeamId, dateISO, setSlotsLoading);
+        const slots = await fetchUsheringApplications(selectedTeamId, dateISO, setSlotsLoading);
         setBookedSlots(slots);
     }, [selectedTeamId, selectedDate]);
 
@@ -177,6 +228,15 @@ const UsheringApplications: React.FC = () => {
                         <DateCalendar
                             value={selectedDate}
                             onChange={handleDateChange}
+                            slots={{
+                                day: ServerDay,
+                            }}
+                            slotProps={{
+                                day: {
+                                    reservedDates,
+                                    teamColor: selectedTeam?.color || '#1a1a1a',
+                                } as any,
+                            }}
                             sx={{
                                 width: '100%',
                                 '& .MuiPickersCalendarHeader-root': {
