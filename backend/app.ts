@@ -26,9 +26,6 @@ import uploadsRouter from "./routes/upload.routes";
 import usheringRouter from "./routes/ushering.routes";
 import bugReportRouter from "./routes/bugReport.routes";
 import waitlistRouter from "./routes/waitlist.routes";
-import bugReportRouter from "./routes/bugReport.routes";
-import usheringRouter from "./routes/ushering.routes";
-
 // Import base schemas first
 import "./schemas/stakeholder-schemas/userSchema";
 
