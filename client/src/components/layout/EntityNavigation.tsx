@@ -560,7 +560,7 @@ const roleNavigationConfig: Record<string, RoleConfig> = {
   "usher-admin": {
     headerTitle: "Usher Admin Portal",
     icon: <Store size={32} className="text-[#6299d0]" />,
-    defaultTab: "teams-description",
+    defaultTab: "guidelines",
     defaultSection: "graduation",
     tabs: [
       { id: "teams-description", label: "Teams' Description" },
