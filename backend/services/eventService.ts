@@ -1177,6 +1177,7 @@ export class EventsService {
 
   async checkUpcomingEvents() {
     const now = new Date();
+    console.log(now);
     now.setSeconds(0, 0);
 
     // Get all upcoming events (events that haven't started yet)
@@ -1194,16 +1195,18 @@ export class EventsService {
 
       if (event.eventStartTime) {
         const [hours, minutes] = event.eventStartTime.split(":").map(Number);
-        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+        eventDate.setUTCHours(hours || 0, minutes || 0, 0, 0);
       }
-
+      
       // Check for 1-day reminder
       if (eventDate.getTime() - now.getTime() == 24 * 60 * 60 * 1000) {
+        console.log(`Event ${event.eventName} is 1 day away.`);
         oneDayEvents.push(event);
       }
 
       // Check for 1-hour reminder
       if (eventDate.getTime() - now.getTime() == 60 * 60 * 1000) {
+        console.log(`Event ${event.eventName} is 1 hour away.`);
         oneHourEvents.push(event);
       }
     }
@@ -1219,29 +1222,35 @@ export class EventsService {
       await this.sendReminderToAttendees(event, "1 hour");
       console.log(`Sent 1-hour reminder for event: ${event.eventName}`);
     }
-
-    // Clear waitlists for events that have started
-    await this.clearWaitlistsForStartedEvents(allEvents, now);
   }
 
   /**
    * Clears waitlists for events that have already started
    */
-  private async clearWaitlistsForStartedEvents(
-    allEvents: IEvent[],
-    now: Date
-  ): Promise<void> {
-    const startedEvents = allEvents.filter((event) => {
+  async clearWaitlistsForStartedEvents(): Promise<void> {
+    const now = new Date();
+    now.setSeconds(0, 0);
+    
+    // Get all events that might have started today or before 
+    const allEvents = await this.eventRepo.findAll({
+      eventStartDate: { $lte: new Date().setHours(23, 59, 59, 999) },
+    });
+
+    const startedEvents: IEvent[] = [];
+
+    for (const event of allEvents) {
       const eventDate = new Date(event.eventStartDate);
 
       if (event.eventStartTime) {
         const [hours, minutes] = event.eventStartTime.split(":").map(Number);
-        eventDate.setHours(hours || 0, minutes || 0, 0, 0);
+        eventDate.setUTCHours(hours || 0, minutes || 0, 0, 0);
       }
 
       // Event has started if current time is past event start time
-      return eventDate.getTime() <= now.getTime();
-    });
+      if (eventDate.getTime() <= now.getTime()) {
+        startedEvents.push(event);
+      }
+    }
 
     for (const event of startedEvents) {
       // Only trips and workshops have waitlists
