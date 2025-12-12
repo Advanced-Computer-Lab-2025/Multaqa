@@ -41,6 +41,7 @@ import TeamsDescription from "@/components/UsheringAccount/TeamsDescription";
 import BugReportForms from "@/components/Bugs/BugReportForms";
 import BugReports from "@/components/Bugs/BugReports";
 import UsheringApplications from "@/components/shared/UsheringTeamApplications/UsheringApplications";
+import InterviewSlotManager from "@/components/UsheringAccount/InterviewSlotManager";
 
 // Helper: Maps backend user object to URL entity segment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -559,6 +560,11 @@ export default function EntityCatchAllPage() {
     if (entity === "student" && tab === "graduation") {
       if (section === "teams-description") {
         return <TeamsDescription user="student" />;
+      }
+      if (section === "interview-slots") {
+        return (
+         <InterviewSlotManager />
+        );
       }
     }
 
