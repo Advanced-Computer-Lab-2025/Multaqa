@@ -318,6 +318,10 @@ export const NotificationProvider = ({
       "notification:vendor:pendingRequest",
       handleNewNotification
     );
+    socketService.on(
+      "notification:comment:flagged",
+      handleNewNotification
+    );
 
     // Listen to read/unread/delete events for cross-tab sync
     socketService.on("notification:read", handleNotificationRead);
@@ -333,6 +337,7 @@ export const NotificationProvider = ({
       socketService.off("notification:event:reminder");
       socketService.off("notification:loyalty:newPartner");
       socketService.off("notification:vendor:pendingRequest");
+      socketService.off("notification:comment:flagged");
       socketService.off("notification:read");
       socketService.off("notification:unread");
       socketService.off("notification:delete");
