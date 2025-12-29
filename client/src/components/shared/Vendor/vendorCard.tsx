@@ -57,6 +57,7 @@ const VendorCard: React.FC<VendorCardProps> = ({ vendor }) => {
         border: '1.5px solid',
         borderColor: 'grey.300',
         padding: 3,
+        minWidth:300,
         maxWidth: 300,
         pt: 6,
         boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
