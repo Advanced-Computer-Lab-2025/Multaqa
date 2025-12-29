@@ -1,6 +1,7 @@
 import React from "react";
 import { Calendar, Clock, Mail, AlertCircle } from "lucide-react";
 import { InterviewSlot } from "./types";
+import AddToCalendarButton from "../Event/helpers/AddToCalendarButton";
 
 interface BookingDetailsViewProps {
   booking: InterviewSlot;
@@ -29,10 +30,23 @@ const BookingDetailsView: React.FC<BookingDetailsViewProps> = ({ booking, onCanc
       {/* Main Card */}
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-6" style={{ backgroundColor: '#3a4f99' }}>
-          <h1 className="text-2xl font-bold text-white text-center">
+        <div className="px-6 py-6 flex items-center justify-between" style={{ backgroundColor: '#3a4f99' }}>
+          <h1 className="text-2xl font-bold text-white">
             Interview Slot Details
           </h1>
+          <AddToCalendarButton
+            eventId={booking.id || booking.startDateTime}
+            eventDetails={{
+              name: "Interview Slot",
+              startDate: new Date(booking.startDateTime).toISOString().split("T")[0],
+              endDate: new Date(booking.endDateTime).toISOString().split("T")[0],
+              startTime: new Date(booking.startDateTime).toTimeString().slice(0, 5),
+              endTime: new Date(booking.endDateTime).toTimeString().slice(0, 5),
+              description: `Interview slot booked for ${booking.studentEmail || "student"}`,
+              location: booking.location || undefined,
+            }}
+            color="#ffffff"
+          />
         </div>
 
         {/* Content */}
