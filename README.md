@@ -5,1137 +5,682 @@
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-green)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
-![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)
-![Express](https://img.shields.io/badge/Express-5.1.0-lightgrey)
-![MongoDB](https://img.shields.io/badge/MongoDB-6.20.0-green)
-![Redis](https://img.shields.io/badge/Redis-5.8.3-red)
-![MUI](https://img.shields.io/badge/MUI-7.3.2-007FFF)
+
+## 🛠 Tech Stack
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![MUI](https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=mui&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+![Stripe](https://img.shields.io/badge/Stripe-008CDD?style=for-the-badge&logo=stripe&logoColor=white)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)
+![Storybook](https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
+![Gmail](https://img.shields.io/badge/Gmail_API-EA4335?style=for-the-badge&logo=gmail&logoColor=white)
+
+---
 
 ## 📋 Table of Contents
 
 - [Project Overview](#-project-overview)
-- [Quick Start](#-quick-start)
-- [Tech Stack](#-tech-stack)
-- [Features](#-features)
-- [Installation & Setup](#-installation--setup)
+- [Motivation](#-motivation)
+- [Backend Features & Architecture](#-backend-features--architecture)
+- [Extra Features](#-extra-features-our-innovations)
+- [User Roles & Capabilities](#-user-roles--capabilities)
+- [API Routes](#-api-routes)
 - [Environment Configuration](#-environment-configuration)
-- [Running the Application](#-running-the-application)
-- [Troubleshooting](#-troubleshooting)
-- [API Reference](#-api-reference)
+- [Setup & Installation](#-setup--installation)
 - [Project Structure](#-project-structure)
-- [User Roles & Permissions](#-user-roles--permissions)
-- [Event Types](#-event-types)
-- [Development Workflow](#-development-workflow)
 - [Testing](#-testing)
-- [Deployment](#-deployment)
+- [Agile Development](#agile-development)
+- [Team Members](#team-members)
 - [Contributing](#-contributing)
-- [FAQ](#-frequently-asked-questions-faq)
-- [Credits](#-credits)
 - [License](#-license)
+
+---
 
 ## 🎯 Project Overview
 
-**Multaqa** (Arabic: "meeting place") is a comprehensive university event management platform designed specifically for the German University in Cairo (GUC). The platform enables students, staff, professors, and external companies to discover, register for, and manage various campus events including bazaars, trips, competitions, workshops, and conferences.
+**Multaqa** (ملتقى - Arabic for "meeting place") is a full-stack university event management platform built for the German University in Cairo (GUC). It connects students, staff, professors, TAs, and external vendors through a unified system for discovering, registering, and managing campus events, from academic workshops and conferences to trips, bazaars, vendor booths, gym sessions, court reservations, and ushering interviews.
 
 ### Project Details
 
-- **Course:** Advanced Computer Lab (CSEN 704 / DMET 706)
+- **Course:** Advanced Computer Lab (CSEN 704)
 - **Semester:** Winter 2025
 - **Institution:** German University in Cairo
 - **Instructor:** Assoc. Prof. Mervat Abuelkheir
-- **Platform:** Full-stack web application with role-based access control
+
+---
 
 ## 💡 Motivation
 
-The motivation behind developing Multaqa stems from the need for a centralized, efficient, and user-friendly platform to manage the diverse range of events at GUC. Traditional event management often involves scattered communication, manual registration processes, and limited accessibility. Multaqa addresses these challenges by providing centralized event discovery, streamlined registration, role-based access, real-time updates, and comprehensive analytics for event organizers.
+Managing university events at GUC traditionally involved scattered communication channels, manual registration via spreadsheets and emails, and limited visibility into upcoming activities. Students often missed events they would have loved to attend, while organizers struggled with capacity management, payment collection, and attendee tracking.
 
-## 🚀 Quick Start
+Multaqa was built to solve these challenges by providing a **centralized hub** where the entire campus community can discover, register for, and manage events seamlessly. The platform brings together students, professors, TAs, staff, external vendors, and administrators under one unified system with:
 
-### Prerequisites
+- **Streamlined Registration** — One-click signup with integrated wallet and card payments
+- **Real-time Notifications** — Instant updates on event changes, waitlist promotions, and reminders
+- **Role-based Access Control** — Tailored experiences for different user types
+- **Comprehensive Analytics** — Data-driven insights for organizers to improve future events
+- **Automated Workflows** — waitlist promotions, certificate generation, and refund processing
 
-Ensure you have the following installed on your system:
+---
 
-| Requirement | Version | Verification Command | Expected Output |
-|------------|---------|---------------------|-----------------|
-| **Node.js** | >= 18.0.0 | `node --version` | `v18.x.x` or higher |
-| **npm** | >= 8.0.0 | `npm --version` | `8.x.x` or higher |
-| **MongoDB** | Atlas or local | - | MongoDB Atlas account or local instance |
-| **Redis** | Latest | `docker --version` | Docker installed for Redis |
-| **Git** | Latest | `git --version` | `git version 2.x.x` |
-| **Docker** | Latest | `docker --version` | `Docker version 20.x.x` or higher |
+## 🛠️ Backend Features & Architecture
 
-> **💡 Tip:** For Windows users, all commands should be executed in **WSL (Windows Subsystem for Linux)** terminal, not CMD or PowerShell.
+### 🔐 Authentication & Security
 
-#### Quick Verification
+- **JWT Authentication**: Secure access and refresh tokens with automatic renewal
+- **Email Verification**: 24-hour token expiry with automated verification emails
+- **Role-Based Authorization**: 6-tier permission system with middleware protection
+- **Password Security**: Bcrypt hashing with salt rounds
+- **Redis Session Management**: Distributed session storage for scalability
 
-Run these commands to verify your setup:
+### 🔔 Real-time Notifications System
 
-```bash
-# Verify Node.js and npm
-node --version  # Should show v18.0.0 or higher
-npm --version   # Should show 8.0.0 or higher
+- **Socket.IO Integration**: WebSocket connections for instant push notifications
+- **Cross-Tab Synchronization**: Notifications sync across all open browser tabs
+- **20+ Notification Types**: Event reminders, waitlist updates, workshop status, ushering alerts
+- **Persistent Storage**: MongoDB persistence ensures no missed notifications
+- **Background Schedulers**: Automated reminders and deadline notifications
 
-# Verify Git
-git --version
+### 💳 Payment Processing Engine
 
-# Verify Docker (required for Redis)
-docker --version
-docker ps  # Should run without errors
-```
+- **Digital Wallet**: Built-in wallet for students and staff with balance tracking
+- **Stripe Integration**: Secure checkout sessions for paid events
+- **Hybrid Payments**: Combine wallet balance with card payments
+- **Automatic Refunds**: Smart refund system to wallet when removed from events
+- **Transaction History**: Complete payment and refund tracking
 
-If any command fails, please install the missing prerequisite before continuing.
+### 📧 Email Automation System
 
-### 60-Second Setup
+- **Gmail API Integration**: Professional email delivery with OAuth2 authentication and refresh token management
+- **15+ Email Templates**: Comprehensive coverage for all user interactions and edge cases
+- **Multi-Scenario Coverage**: 
+  - **Authentication Flow**: Email verification, role assignments, account status changes
+  - **Event Management**: Registration confirmations, waitlist notifications, payment receipts, certificate delivery
+  - **Moderation & Safety**: Comment deletion warnings, account suspension notifications
+  - **Vendor Operations**: Application status updates, QR code delivery for external visitors
+  - **Interview System**: Booking confirmations, slot opening reminders, interview reminders
+  - **Facility Bookings**: Gym session changes, court reservation confirmations
+  - **Bug Reporting**: Developer notifications, status updates, resolution confirmments
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/Multaqa.git
-cd Multaqa
+### ☁️ Document Storage & Management
 
-# 2. Create environment files (see Environment Configuration section)
-cp backend/.env.example backend/.env
+- **Cloudinary Integration**: Secure cloud storage with automatic optimization and transformation
+- **Document Types Supported**:
+  - **Vendor Documentation**: Tax cards, business licenses, company logos
+  - **Event Media**: Event banners, promotional images, workshop materials
+  - **User Assets**: Profile pictures, uploaded attachments
+  - **Generated Content**: QR codes, certificates, system-generated graphics
+- **Automatic Optimization**: Image compression, format conversion, and responsive delivery
+- **Secure Access Control**: Direct upload capabilities with validation and access restrictions
 
-# 3. Install backend dependencies
-cd backend
-npm install
+### 📊 QR Code Generation Engine
 
-# 4. Install frontend dependencies
-cd ../client
-npm install
-cd ..
+- **QRCode Library Integration**: Dynamic QR code generation for multiple use cases
+- **Generated QR Types**:
+  - **External Visitor Access**: Unique QR codes for bazaar and career fair attendees
+  - **Event Check-ins**: Quick registration verification and attendance tracking
+  - **Vendor Operations**: Booth access codes and customer interaction tracking
+- **Automatic Distribution**: QR codes embedded in email templates and delivered to recipients
+- **Format Support**: PNG generation with customizable size and error correction levels
 
-# 5. Start Redis (see Redis Setup section below)
-docker run --name redis -p 6379:6379 -d redis
-docker update --restart always redis
+### 📄 PDF Document Generation
 
-# 6. Start development servers
-# Terminal 1 - Backend
-cd backend && npm run dev
+- **PDFKit Integration**: Professional PDF creation for certificates and reports
+- **Generated Documents**:
+  - **Certificates of Attendance**: Automated workshop completion certificates with participant details
+  - **Bug Reports**: Formatted technical reports with reproduction steps and environment details
+  - **Event Summaries**: Comprehensive event documentation for administrators
+- **Dynamic Content**: Template-based generation with variable data injection
+- **Professional Formatting**: Consistent styling, logos, signatures, and layout structure
 
-# Terminal 2 - Frontend
-cd client && npm run dev
+### 📈 Excel Export System
 
-# 7. Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:4000
-```
+- **ExcelJS Integration**: Comprehensive spreadsheet generation for data analysis
+- **Export Categories**:
+  - **Event Analytics**: Attendee lists with registration details, payment status, and demographics
+  - **Bug Report Analytics**: Complete bug tracking data with status, severity, and resolution metrics
+  - **Financial Reports**: Payment transactions, refund tracking, and revenue analysis
+  - **User Management**: User lists with roles, status, and activity metrics
+  - **Vendor Reports**: Application status, participation history, and performance data
+- **Advanced Formatting**: Headers, filters, conditional formatting, and data validation
+- **Real-time Generation**: On-demand export with current data snapshots
 
-## 🛠 Tech Stack
+### ⚡ Smart Conflict Detection System
 
-### Frontend (Client)
+- **Gym Session Management**: 
+  - **Time Slot Validation**: Prevents double-booking of gym facilities and trainers
+  - **Capacity Monitoring**: Real-time tracking prevents over-enrollment in fitness classes
+- **Vendor Booth Conflicts**: 
+  - **Collision Detection Engine**: Automatic identification of overlapping booth requests
+  - **Fair Resolution Process**: Democratic vendor selection through automated polling system
+- **Court Reservation Logic**: 
+  - **Multi-Sport Scheduling**: Prevents conflicts between tennis, basketball, and football court bookings
 
-```json
-{
-  "framework": "Next.js 15.5.4",
-  "language": "TypeScript 5+",
-  "ui": "Material-UI (MUI) 7.3.2",
-  "styling": "Tailwind CSS 3.4.18",
-  "state": "Redux Toolkit 2.9.0",
-  "forms": "Formik 2.4.6 + Yup 1.7.1",
-  "animations": "Framer Motion 12.23.24",
-  "charts": "Recharts 3.2.1",
-  "i18n": "next-intl 4.3.9",
-  "realtime": "Socket.io Client 4.8.1",
-  "http": "Axios 1.12.2",
-  "dates": "Day.js 1.11.18",
-  "dnd": "@dnd-kit/core 6.3.1"
-}
-```
+---
 
-### Backend (Server)
 
-```json
-{
-  "runtime": "Node.js",
-  "framework": "Express.js 5.1.0",
-  "language": "TypeScript 5.9.3",
-  "database": "MongoDB 6.20.0 + Mongoose 8.18.3",
-  "cache": "Redis 5.8.3",
-  "auth": "JWT (jsonwebtoken 9.0.2) + bcrypt 6.0.0",
-  "validation": "Joi 18.0.1",
-  "email": "Gmail API (googleapis 165.0.0)",
-  "realtime": "Socket.io 4.8.1",
-  "payments": "Stripe 19.3.0",
-  "storage": "Cloudinary 1.41.3",
-  "pdf": "PDFKit 0.17.2",
-  "qr": "QRCode 1.5.4",
-  "excel": "ExcelJS 4.4.0"
-}
-```
+## 🌟 Extra Features (Our Innovations)
 
-### Development Tools
+These 5 features were designed and implemented from scratch by our team:
 
-- **Testing**: Vitest 3.2.4, Playwright 1.55.1
-- **Storybook**: 9.1.10 for component development
-- **Linting**: ESLint 9
-- **Package Manager**: npm
+### 📅 Google Calendar Integration
+- OAuth2 authentication with Google Calendar API
+- One-click sync of registered events to personal calendar
+- Automatic removal when unregistering from events
 
-## ✨ Features
+### ⏳ Waitlist & Auto-Promotion System
+- FIFO (First-In-First-Out) waitlist queue
+- **Free events**: Instant auto-registration when slot opens
+- **Paid events**: Configurable payment deadline with email reminders
+- Background scheduler running every minute for promotions
 
-### 🎪 Event Management
+### 🤖 AI Comment Analyzer & Toxicity Detector
+- Powered by Google Gemini 2.0 Flash
+- Detects: Insults, Threats, Profanity, Hate Speech
+- Multi-language support: English, Arabic, Franco-Arabic (Arabizi)
+- Automatic admin flagging with score threshold (>0.7)
+- Admin review workflow with false-positive marking
 
-- **Browse Events**: Advanced filtering and search capabilities
-- **Event Registration**: Seamless registration with automatic confirmation
-- **Event Creation**: Role-based event creation and management
-- **Event Analytics**: Visual charts and statistics using Recharts
-- **Real-time Updates**: Live Updates & Notifications via Socket.IO
-- **🔔 Notification System**: Instant alerts for status changes, requests, and reminders
+### 🎫 Ushering & Interview System
+- Team-based structure with customizable interview slots
+- One booking per student across all teams (atomic booking)
+- Configurable post time windows for slot availability
+- 24-hour and 5-minute automated reminders
+- Admin broadcast messaging to all students or applicants
 
-### 👥 User Management
+### 🐛 Bug Reporting System
+- Comprehensive report submission (steps, expected/actual behavior, environment)
+- Status tracking: Pending → Resolved
+- PDF report generation and email to developers
+- Excel export of all bug reports
+- Two-way notifications (user ↔ admin)
 
-- **Multi-Role Support**: Students, Staff, Doctors, Events Office, Vendors, Admins
-- **Authentication**: JWT-based secure authentication with refresh tokens
-- **Profile Management**: Comprehensive user profiles with role-specific fields
-- **Email Verification**: Automated email verification system
+---
 
-### 🏛️ Facility Management
+## 👥 User Roles & Capabilities
 
-- **Court Booking**: Sports court reservation system
-- **Gym Sessions**: Fitness session scheduling and management
-- **Resource Allocation**: Efficient resource booking and management
+### 🎓 Student
 
-### 🌐 Internationalization (Coming Soon)
+- **Account Management**: Sign up with GUC email, receive verification emails, login/logout securely
+- **Event Discovery**: Browse, search by name/type, filter by location/date/professor, sort by date
+- **Event Registration**: Register for workshops/trips/conferences using student ID
+- **Payment Processing**: Pay via Stripe (credit/debit card), digital wallet, or both combined, receive email receipts
+- **Digital Wallet**: Top up balance, view transaction history, receive automatic refunds
+- **Event Management**: View registered events (upcoming/past), cancel with 2-week notice for refunds
+- **Reviews & Feedback**: Rate and comment on attended events, receive warnings for inappropriate content
+- **Favorites System**: Add events to favorites list, view and manage favorites
+- **Facility Booking**: Reserve tennis, basketball, football courts with time slots
+- **Fitness Classes**: View monthly gym schedules, register for sessions (Yoga, Pilates, Zumba, etc.)
+- **Certificates**: Receive automatic certificates of attendance via email upon workshop completion
+- **Vendor Interaction**: Vote in vendor booth selection polls, view GUC loyalty program partners with discounts
+- **Calendar Sync**: Connect Google Calendar for automatic event synchronization
+- **Bug Reporting**: Submit detailed bug reports with reproduction steps and environment details
+- **Ushering Applications**: Apply for interview slots across available teams
+- **Waitlist Management**: Join waitlists and receive auto-promotion notifications
 
-- **Multi-language Support**: English, Arabic, and German
-- **RTL Support**: Right-to-left text support for Arabic
-- **Localized Content**: Region-specific event and content management
+### 👨‍🏫 Staff Member (Professor/TA/Staff)
 
-## 📦 Installation & Setup
+- **All Student Capabilities**: Complete access to student features and functionality
+- **Role Assignment Process**: Admin assigns specific roles (Staff/TA/Professor) after registration, then verification emails are sent
+- **Workshop Creation** (Professor): Create and submit workshops for approval
+- **Workshop Management** (Professor): Edit workshop details, view participant lists and remaining spots
+- **Workshop Status Tracking** (Professor): View submission status, requested edits, and approval notifications
 
-### Prerequisites Installation
+### 🏪 External Vendor
 
-#### Windows Users (WSL Required)
+- **Account Setup**: Sign up with company email, upload tax card and logo for validity verification
+- **Bazaar Applications**: Apply for bazaar participation with attendee details (max 5 people), booth size (2x2/4x4)
+- **Platform Booth Applications**: Apply for platform booths (1-4 weeks duration) using interactive map, specify booth size and attendee details
+- **Documentation Management**: Upload IDs of all attending individuals for entire event duration
+- **Payment Processing**: Pay participation fees upon acceptance (location/duration-based), receive email receipts
+- **Application Tracking**: View upcoming participations (accepted), monitor pending/rejected requests
+- **Booth Operations**: Receive QR codes for registered visitors, manage booth logistics
+- **GUC Loyalty Program**: Apply with discount rates, promo codes, terms & conditions; cancel participation
+- **Cancellation Rights**: Cancel participation requests before payment deadline (3 days post-acceptance)
 
-```bash
-# All commands should be executed in WSL terminal (Ubuntu on WSL)
-# Do NOT use Windows CMD or PowerShell
-```
+### 🏢 Events Office
 
-#### Install Docker
+- **Event Creation & Management**:
+  - **Bazaars**: Create with name, dates, location, description, registration deadline
+  - **Trips**: Create with location, price, dates, description, capacity, deadline
+  - **Conferences**: Create with agenda, website link, budget, funding source, resources
+- **Event Operations**: Edit event details (before start date), archive past events, delete events (if no registrations)
+- **Workshop Workflow**: Receive notifications for submissions, approve/reject/request edits, publish approved workshops
+- **Vendor Management**:
+  - View/download vendor documents and application details
+  - Accept/reject vendor participation requests with notifications
+  - Create vendor polls for booth location conflicts with automated collision detection
+- **Attendee Management**: Export registration lists to Excel, restrict events to specific user types
+- **External Access**: Generate QR codes for external visitors to bazaars and career fairs
+- **Gym Operations**: Create sessions (date, time, type, capacity), cancel/edit sessions with participant notifications
+- **Analytics & Reporting**: View attendance reports, sales revenue, filter by event type/date, sort by revenue
 
-```bash
-# Linux (Ubuntu/Debian)
-sudo apt update
-sudo apt install docker.io -y
-sudo systemctl enable docker
-sudo systemctl start docker
+### 👑 Admin
 
-# macOS
-# Download and install Docker Desktop from https://www.docker.com/products/docker-desktop
-# Ensure Docker Desktop is running before proceeding
-```
+- **User Management**: 
+  - View all users with details and status (active/blocked)
+  - Block/unblock users with notification system
+  - Assign correct roles for Staff/TA/Professor registrations
+- **Account Administration**: Create/delete admin and Events Office accounts with credentials
+- **Content Moderation**: Review AI-flagged toxic comments, delete inappropriate content
+- **Event Oversight**: Delete any event (if no registrations), access all event management features
+- **Vendor Operations**: Process vendor applications, view documents, accept/reject requests
+- **System Management**: Bug report tracking, send bug reports to developers, and mark bugs as resolved
+- **Analytics & Reporting**: View attendance reports, sales revenue, filter by event type/date, sort by revenue
 
-#### Verify Docker Installation
+### 🎫 Usher Admin
 
-```bash
-docker --version
-```
+- **Team Structure Management**: Create, organize, and manage ushering teams
+- **Interview Coordination**: Configure time slots, locations, and availability windows
+- **Communication Hub**: Send targeted broadcasts to students and applicant groups
+- **Booking Oversight**: Monitor interview appointments across all managed teams
+- **Timeline Control**: Set post times and manage application deadlines
 
-### Clone and Setup Repository
+---
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/Multaqa.git
-cd Multaqa
+## 🔌 API Routes
 
-# 2. Install backend dependencies
-cd backend
-npm install
+Base URL: `http://localhost:4000`
 
-# 3. Install frontend dependencies
-cd ../client
-npm install
+### 🔐 Authentication (`/auth`)
 
-# Return to root directory
-cd ..
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/signup` | Register new user (Student/Staff/Vendor) |
+| POST | `/auth/login` | Login and receive tokens |
+| POST | `/auth/logout` | Logout and clear refresh token |
+| POST | `/auth/refresh` | Refresh access token |
+| GET | `/auth/me` | Get current authenticated user |
+| GET | `/auth/verify` | Verify email with token |
 
-### Redis Setup (Required for Session Management)
+### 👥 Users (`/users`)
 
-```bash
-# Start Redis container
-docker run --name redis -p 6379:6379 -d redis
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users` | Get all users |
+| GET | `/users/:id` | Get user by ID |
+| GET | `/users/notifications` | Get user notifications |
+| PUT | `/users/:id/block` | Block a user |
+| PUT | `/users/:id/unblock` | Unblock a user |
+| PUT | `/users/:id/assign-role` | Assign staff role (TA/Professor/Staff) |
+| POST | `/users/:eventId/register` | Register for an event |
+| DELETE | `/users/:eventId/unregister` | Unregister from an event |
+| POST | `/users/favorites/:eventId` | Add event to favorites |
+| DELETE | `/users/favorites/:eventId` | Remove from favorites |
+| GET | `/users/favorites` | Get user's favorite events |
 
-# Ensure Redis restarts automatically
-docker update --restart always redis
+### 🎪 Events (`/events`)
 
-# Verify Redis is running
-docker ps | grep redis
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/events` | Get all events (with filters) |
+| GET | `/events/:id` | Get event by ID |
+| POST | `/events` | Create event (Bazaar/Trip/Conference) |
+| PUT | `/events/:id` | Update event |
+| DELETE | `/events/:id` | Delete event |
+| PUT | `/events/:id/archive` | Archive event |
+| GET | `/events/:id/reviews` | Get event reviews |
+| POST | `/events/:id/reviews` | Add review to event |
+| PUT | `/events/:id/reviews/:reviewId` | Update review |
+| DELETE | `/events/:id/reviews/:reviewId` | Delete review |
+| GET | `/events/flagged-comments` | Get AI-flagged toxic comments |
+| PUT | `/events/comments/:commentId/mark-safe` | Mark comment as not toxic |
 
-If you need to stop Redis later:
+### 📚 Workshops (`/workshops`)
 
-```bash
-docker stop redis
-docker start redis  # To restart it
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/workshops` | Get all workshops |
+| POST | `/workshops` | Create workshop |
+| PUT | `/workshops/:workshopId` | Update workshop |
+| PUT | `/workshops/:workshopId/status` | Approve/Reject workshop |
+| POST | `/workshops/:workshopId/certificates` | Send certificates to attendees |
 
-## 🔧 Environment Configuration
+### 🏪 Vendor Events (`/vendorEvents`)
 
-### Backend Environment File
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/vendorEvents/upcoming` | Get vendor's upcoming events |
+| POST | `/vendorEvents/apply/booth` | Apply for platform booth |
+| POST | `/vendorEvents/apply/bazaar/:bazaarId` | Apply for bazaar booth |
+| GET | `/vendorEvents/requests` | Get all vendor requests |
+| GET | `/vendorEvents/requests/:requestId` | Get request details |
+| PUT | `/vendorEvents/requests/:requestId` | Respond to vendor request |
+| POST | `/vendorEvents/loyalty-program` | Create loyalty program |
 
-Create a `.env` file in the `/backend` directory with the following structure:
+### 💳 Payments (`/payments`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/payments/checkout/:eventId` | Create Stripe checkout session |
+| POST | `/payments/wallet/:eventId` | Pay with wallet balance |
+| POST | `/payments/refund/:eventId` | Request refund |
+
+### ⏳ Waitlist (`/waitlist`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/waitlist/:eventId/join` | Join event waitlist |
+| DELETE | `/waitlist/:eventId/leave` | Leave event waitlist |
+| GET | `/waitlist/:eventId/position` | Get position in waitlist |
+
+### 🏀 Courts (`/courts`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/courts/all` | Get all courts availability |
+| GET | `/courts/:courtId/available-slots` | Get available slots for a court |
+| POST | `/courts/:courtId/reserve` | Reserve a court slot |
+
+### 🏋️ Gym Sessions (`/gymsessions`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/gymsessions` | Get all gym sessions |
+| POST | `/gymsessions` | Create gym session |
+| PUT | `/gymsessions/:sessionId` | Edit gym session |
+| DELETE | `/gymsessions/:sessionId` | Cancel gym session |
+| POST | `/gymsessions/:sessionId/register` | Register for gym session |
+| DELETE | `/gymsessions/:sessionId/unregister` | Unregister from gym session |
+
+### 🎫 Ushering (`/ushering`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/ushering` | Create ushering teams |
+| GET | `/ushering/:id/teams` | Get all teams |
+| PUT | `/ushering/:usheringId/teams/:teamId` | Edit team |
+| DELETE | `/ushering/:usheringId/teams/:teamId` | Delete team |
+| POST | `/ushering/:id/post-time` | Set interview post time |
+| GET | `/ushering/:id/post-time` | Get interview post time |
+| POST | `/ushering/:usheringId/teams/:teamId/slots/:slotId/book` | Book interview slot |
+| DELETE | `/ushering/bookings/:bookingId` | Cancel booking |
+| POST | `/ushering/:id/broadcast` | Send broadcast message |
+
+### 📅 Calendar (`/calendar`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/calendar/auth/google` | Get Google OAuth URL |
+| GET | `/calendar/auth/google/callback` | OAuth callback |
+| POST | `/calendar/events/:eventId/add` | Add event to Google Calendar |
+| DELETE | `/calendar/events/:eventId/remove` | Remove event from Google Calendar |
+| GET | `/calendar/status` | Check calendar connection status |
+
+### 👑 Admin (`/admins`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admins` | Get all admin accounts |
+| POST | `/admins` | Create admin/Events Office account |
+| DELETE | `/admins/:adminId` | Delete admin account |
+
+### 🐛 Bug Reports (`/bugreports`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/bugreports` | Get all bug reports |
+| POST | `/bugreports` | Create bug report |
+| PUT | `/bugreports/:bugReportId/status` | Update bug report status |
+| POST | `/bugreports/:bugReportId/email` | Send bug report to developers |
+| GET | `/bugreports/export` | Export bug reports to Excel |
+
+### 📤 Uploads (`/uploads`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/uploads/tax-card` | Upload vendor tax card |
+| POST | `/uploads/logo` | Upload vendor logo |
+| POST | `/uploads/event-image` | Upload event image |
+| DELETE | `/uploads/:publicId` | Delete uploaded file |
+
+### 🔔 Webhooks (`/webhooks`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/webhooks/stripe` | Stripe payment webhook |
+
+---
+
+## 📧 Environment Configuration
+
+Create a `.env` file in the `/backend` directory:
 
 ```env
-# Database Configuration
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/MultaqaDB
-FRONTEND_PORT=3000
-PORT=4000
+# Database
+MONGO_URI=your_mongodb_connection_string
 
-# Authentication
-ACCESS_TOKEN_SECRET=your_super_secure_access_token_secret
-REFRESH_TOKEN_SECRET=your_super_secure_refresh_token_secret
-VERIFICATION_TOKEN_SECRET=your_super_secure_verification_token_secret
-ACCESS_TOKEN_EXPIRES=15m
+# Server
+PORT=4000
+FRONTEND_PORT=3000
+
+# JWT Authentication
+ACCESS_TOKEN_SECRET=your_access_token_secret
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+VERIFICATION_TOKEN_SECRET=your_verification_token_secret
+ACCESS_TOKEN_EXPIRES=5m
 REFRESH_TOKEN_EXPIRES=7d
 VERIFICATION_TOKEN_EXPIRES=1d
 
-# Redis Configuration (must match Docker setup)
+# Redis
 REDIS_URL=redis://localhost:6379
+
+# Google OAuth (Email)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=https://developers.google.com/oauthplayground
+GOOGLE_REFRESH_TOKEN=your_google_refresh_token
+GMAIL_USER=your_gmail_address
+
+# Stripe
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+# Gemini AI
+GEMINI_API_KEY=your_gemini_api_key
+
+# Google Calendar
+GOOGLE_CALENDAR_CLIENT_ID=your_google_calendar_client_id
+GOOGLE_CALENDAR_CLIENT_SECRET=your_google_calendar_client_secret
+GOOGLE_CALENDAR_REDIRECT_URI=http://localhost:4000/calendar/auth/google/callback
 ```
 
-### Environment Variables Reference
+---
 
-| Variable                | Description                            | Required | Default                               |
-| ----------------------- | -------------------------------------- | -------- | ------------------------------------- |
-| `MONGO_URI`             | MongoDB connection string              | ✅       | `mongodb://localhost:27017/MultaqaDB` |
-| `PORT`                  | Backend server port                    | ✅       | `4000`                                |
-| `ACCESS_TOKEN_SECRET`   | JWT access token secret                | ✅       | -                                     |
-| `REFRESH_TOKEN_SECRET`  | JWT refresh token secret               | ✅       | -                                     |
-| `ACCESS_TOKEN_EXPIRES`  | JWT access token expiration            | ✅       | `15m`                                 |
-| `REFRESH_TOKEN_EXPIRES` | JWT refresh token expiration           | ✅       | `7d`                                  |
-| `REDIS_URL`             | Redis connection URL                   | ✅       | `redis://localhost:6379`              |
-| `EMAIL_HOST`            | SMTP server host                       | ❌       | -                                     |
-| `EMAIL_PORT`            | SMTP server port                       | ❌       | -                                     |
-| `EMAIL_USER`            | SMTP username                          | ❌       | -                                     |
-| `EMAIL_PASS`            | SMTP password or app-specific password | ❌       | -                                     |
+## 📦 Setup & Installation
 
-### MongoDB Setup
+> ⚠️ **Before starting**, make sure you've created the `.env` file as described in the [Environment Configuration](#-environment-configuration) section above.
 
-For development, use MongoDB Atlas (free tier available):
+### 1. Clone & Install Dependencies
 
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a free account
-3. Create a new cluster
-4. Get your connection string
-5. Replace `username:password` with your credentials
-6. Add the cluster URL to `MONGO_URI` in your `.env` file
+```bash
+# Clone the repository
+git clone https://github.com/Advanced-Computer-Lab-2025/Multaqa.git
+cd Multaqa
 
-## 🚀 Running the Application
+# Install backend dependencies
+cd backend && npm install
 
-### Backend Server
+# Install frontend dependencies
+cd ../client && npm install
+```
+
+### 2. Redis Setup (WSL)
+
+Run in WSL terminal:
+
+```bash
+docker run --name redis -p 6379:6379 -d redis
+docker update --restart always redis
+```
+
+### 3. Stripe Webhook (Bash)
+
+Run in a separate bash terminal:
 
 ```bash
 cd backend
-
-# Install dependencies (if not already done)
-npm install
-
-# Start development server with hot-reload
-npm run dev
-
-# Expected output:
-# Backend Initialized!
-# Server running on http://localhost:4000
+npm run stripe:webhook
 ```
 
-### Frontend Server
+### 4. Run Backend
+
+```bash
+cd backend
+npm run dev
+# Server runs on http://localhost:4000
+```
+
+### 5. Run Frontend
 
 ```bash
 cd client
-
-# Install dependencies (if not already done)
-npm install
-
-# Start development server
 npm run dev
-
-# Expected output:
-# ▲ Next.js 15.5.4
-# Local: http://localhost:3000
+# App runs on http://localhost:3000
 ```
-
-### Full Stack Startup
-
-```bash
-# Terminal 1 - Start Redis
-docker start redis
-
-# Terminal 2 - Start Backend
-cd backend && npm run dev
-
-# Terminal 3 - Start Frontend
-cd client && npm run dev
-
-# Open browser
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:4000
-```
-
-### Verify Everything is Working
-
-1. **Backend**: Open `http://localhost:4000` - should display "Backend Initialized!"
-2. **Frontend**: Open `http://localhost:3000` - should load the Multaqa application
-3. **Redis**: Run `docker ps | grep redis` - should show the redis container running
 
 ---
-
-## 🔧 Troubleshooting
-
-### Common Issues and Solutions
-
-#### ❌ Redis Connection Error
-
-**Problem:** `Error: connect ECONNREFUSED 127.0.0.1:6379`
-
-**Solutions:**
-```bash
-# Check if Redis container is running
-docker ps | grep redis
-
-# If not running, start it
-docker start redis
-
-# If container doesn't exist, create it
-docker run --name redis -p 6379:6379 -d redis
-docker update --restart always redis
-
-# Verify Redis is accessible
-docker exec -it redis redis-cli ping  # Should return "PONG"
-```
-
-#### ❌ MongoDB Connection Error
-
-**Problem:** `MongooseServerSelectionError: connect ECONNREFUSED`
-
-**Solutions:**
-```bash
-# 1. Check your MONGO_URI in backend/.env
-# 2. Verify MongoDB Atlas IP whitelist (add 0.0.0.0/0 for development)
-# 3. Ensure username/password are correct and URL-encoded
-# 4. Check network connectivity
-
-# Test connection string format:
-# mongodb+srv://username:password@cluster.mongodb.net/MultaqaDB
-```
-
-#### ❌ Port Already in Use
-
-**Problem:** `Error: listen EADDRINUSE: address already in use :::4000`
-
-**Solutions:**
-```bash
-# Find and kill the process using the port
-# macOS/Linux:
-lsof -ti:4000 | xargs kill -9
-lsof -ti:3000 | xargs kill -9
-
-# Or use the built-in kill script
-cd backend && npm run kill-port
-
-# Then restart the server
-npm run dev
-```
-
-#### ❌ CORS Error in Browser
-
-**Problem:** `Access to XMLHttpRequest blocked by CORS policy`
-
-**Solutions:**
-1. Verify backend is running on `http://localhost:4000`
-2. Verify frontend is running on `http://localhost:3000`
-3. Check `backend/app.ts` has correct CORS configuration:
-   ```typescript
-   app.use(cors({ origin: "http://localhost:3000", credentials: true }))
-   ```
-4. Clear browser cache and cookies
-5. Try in incognito/private browsing mode
-
-#### ❌ Docker Not Running
-
-**Problem:** `Cannot connect to the Docker daemon`
-
-**Solutions:**
-```bash
-# macOS: Start Docker Desktop application
-# Linux: Start Docker service
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Verify Docker is running
-docker --version
-docker ps
-```
-
-#### ❌ Environment Variables Not Loading
-
-**Problem:** Application can't find environment variables
-
-**Solutions:**
-1. Ensure `.env` file exists in `/backend` directory
-2. Verify `.env` file has no syntax errors
-3. Restart the backend server after changing `.env`
-4. Check for typos in variable names
-5. Ensure no spaces around `=` in `.env` file
-
-```env
-# ✅ Correct
-PORT=4000
-
-# ❌ Incorrect
-PORT = 4000
-```
-
-#### ❌ Module Not Found Errors
-
-**Problem:** `Error: Cannot find module 'xyz'`
-
-**Solutions:**
-```bash
-# Delete node_modules and reinstall
-cd backend
-rm -rf node_modules package-lock.json
-npm install
-
-cd ../client
-rm -rf node_modules package-lock.json
-npm install
-```
-
-#### ⚠️ Backend Server Crashing After Changes (macOS)
-
-**Problem:** Backend server crashes or fails to start after modifying code or adding new environment variables, especially on macOS
-
-**Solutions:**
-```bash
-# This is particularly common on macOS when:
-# - Backend code has been modified
-# - New environment variables are introduced
-# - Dependencies have been updated
-
-# Solution: Delete and recreate the virtual environment
-cd backend
-
-# 1. Stop the backend server (Ctrl+C)
-
-# 2. Remove node_modules and lock file
-rm -rf node_modules package-lock.json
-
-# 3. Clear npm cache (optional but recommended)
-npm cache clean --force
-
-# 4. Reinstall dependencies
-npm install
-
-# 5. Restart the backend server
-npm run dev
-
-# 6. Remove .env and recreate it
-rm .env
-```
-
-> [!TIP]
-> If you're still experiencing issues after reinstalling dependencies, try:
-> - Restarting your terminal session
-> - Checking for any running Node processes: `ps aux | grep node`
-> - Killing any orphaned processes: `killall node`
-
-#### ⚠️ Gmail API Not Sending Emails
-
-**Problem:** Emails not being sent
-
-**Solutions:**
-1. Verify Gmail API credentials in backend `.env`
-2. Check Google Cloud Console for API enablement
-3. Verify service account permissions
-4. Check backend logs for specific error messages
-
----
-
-## 📚 API Reference
-
-### Authentication Endpoints
-
-```typescript
-POST /auth/register
-POST /auth/login
-POST /auth/logout
-POST /auth/refresh
-GET  /auth/verify/:token
-```
-
-### Event Management
-
-```typescript
-GET    /events                    # Get all events
-GET    /events/:id               # Get specific event
-POST   /events                   # Create new event (authorized)
-PUT    /events/:id               # Update event (authorized)
-DELETE /events/:id               # Delete event (authorized)
-POST   /events/:id/register      # Register for event
-```
-
-### User Management
-
-```typescript
-GET    /users/profile            # Get user profile
-PUT    /users/profile            # Update user profile
-GET    /users/events             # Get user's registered events
-DELETE /users/events/:id         # Cancel event registration
-```
-
-### Court Booking
-
-```typescript
-GET    /courts                   # Get available courts
-POST   /courts/book              # Book a court
-GET    /courts/bookings          # Get user's bookings
-PUT    /courts/bookings/:id      # Modify booking
-DELETE /courts/bookings/:id      # Cancel booking
-```
-
-### Admin Endpoints
-
-```typescript
-GET    /admins/users             # Get all users
-PUT    /admins/users/:id/verify  # Verify user account
-DELETE /admins/users/:id         # Delete user
-GET    /admins/analytics         # Get system analytics
-```
 
 ## 📁 Project Structure
 
 ```
 Multaqa/
 ├── 📁 backend/                     # Express.js API server
-│   ├── 📁 auth/                    # Authentication middleware
-│   ├── 📁 config/                  # Configuration files
+│   ├── 📁 __tests__/               # Jest test files
+│   ├── 📁 config/                  # Configuration (Redis, Cloudinary, Email)
 │   ├── 📁 constants/               # Application constants
 │   ├── 📁 interfaces/              # TypeScript interfaces
-│   ├── 📁 middleware/              # Express middleware
+│   │   ├── 📁 errors/              # Error interfaces
+│   │   ├── 📁 models/              # Model interfaces
+│   │   └── 📁 responses/           # Response interfaces
+│   ├── 📁 middleware/              # Express middleware (auth, upload, roles)
 │   ├── 📁 repos/                   # Data access layer
 │   ├── 📁 routes/                  # API route handlers
 │   ├── 📁 schemas/                 # MongoDB schemas
-│   ├── 📁 services/                # Business logic
-│   ├── 📁 utils/                   # Utility functions
-│   ├── 📁 validation/              # Input validation
-│   ├── 📄 app.ts                   # Express application setup
-│   ├── 📄 .env                     # Environment variables (create this)
+│   │   ├── 📁 court-schema/        # Court booking schemas
+│   │   ├── 📁 event-schemas/       # Event-related schemas
+│   │   ├── 📁 misc/                # Miscellaneous schemas
+│   │   └── 📁 stakeholder-schemas/ # User schemas
+│   ├── 📁 scripts/                 # Utility scripts (kill-port, stripe)
+│   ├── 📁 services/                # Business logic services
+│   ├── 📁 utils/                   # Utility functions (PDF, QR, email templates, eventBus, eventListeners)
+│   │   └── 📁 llms/                # LLM integrations
+│   ├── 📁 validation/              # Input validation schemas
+│   ├── 📄 app.ts                   # Express application entry
 │   └── 📄 package.json             # Backend dependencies
 │
 ├── 📁 client/                      # Next.js frontend application
+│   ├── 📁 .storybook/              # Storybook configuration
+│   ├── 📁 docs/                    # Documentation files
+│   ├── 📁 locales/                 # i18n translations (en, ar, de)
 │   ├── 📁 public/                  # Static assets
-│   ├── 📁 src/
-│   │   ├── 📁 app/                 # Next.js App Router
-│   │   │   └── 📁 [locale]/        # Internationalized routes
-│   │   ├── 📁 components/          # Reusable React components
-│   │   │   ├── 📁 admin/           # Admin-specific components
-│   │   │   ├── 📁 layout/          # Layout components
-│   │   │   ├── 📁 shared/          # Shared UI components
-│   │   │   └── 📁 vendor/          # Vendor-specific components
-│   │   ├── 📁 constants/           # Application constants
-│   │   ├── 📁 hooks/               # Custom React hooks
-│   │   ├── 📁 lib/                 # Utility libraries
-│   │   ├── 📁 types/               # TypeScript type definitions
-│   │   ├── 📁 utils/               # Helper functions
-│   │   └── 📁 stories/             # Storybook stories
-│   ├── 📁 locales/                 # Internationalization files
-│   │   ├── 📄 en.json              # English translations
-│   │   ├── 📄 ar.json              # Arabic translations
-│   │   └── 📄 de.json              # German translations
-│   ├── 📄 next.config.ts           # Next.js configuration
-│   ├── 📄 tailwind.config.js       # Tailwind CSS configuration
-│   └── 📄 package.json             # Frontend dependencies
+│   └── 📁 src/
+│       ├── 📁 app/                 # Next.js App Router
+│       │   └── 📁 [locale]/        # Internationalized routes
+│       ├── 📁 components/          # React components
+│       │   ├── 📁 admin/           # Admin dashboard components
+│       │   ├── 📁 BrowseEvents/    # Event browsing components
+│       │   ├── 📁 CourtBooking/    # Court reservation components
+│       │   ├── 📁 Event/           # Event detail components
+│       │   ├── 📁 EventsOffice/    # Events office components
+│       │   ├── 📁 gym/             # Gym session components
+│       │   ├── 📁 layout/          # Layout components
+│       │   ├── 📁 notifications/   # Notification components
+│       │   ├── 📁 shared/          # Shared UI components
+│       │   ├── 📁 vendor/          # Vendor-specific components
+│       │   └── 📁 Wallet/          # Wallet/payment components
+│       ├── 📁 context/             # React contexts (Auth, Notifications)
+│       ├── 📁 hooks/               # Custom React hooks
+│       ├── 📁 i18n/                # Internationalization config
+│       ├── 📁 lib/                 # Utility libraries
+│       ├── 📁 providers/           # React providers
+│       ├── 📁 services/            # API service functions
+│       ├── 📁 stories/             # Storybook stories
+│       ├── 📁 themes/              # MUI theme configuration
+│       ├── 📁 types/               # TypeScript type definitions
+│       └── 📁 utils/               # Helper functions
 │
 ├── 📄 README.md                    # This file
-├── 📄 package.json                 # Root package.json
-└── 📄 .gitignore                   # Git ignore rules
+└── 📄 LICENSE                      # MIT License
 ```
 
-## 👥 User Roles & Permissions
-
-### 🎓 Student
-
-- **Browse Events**: View all available events
-- **Register for Events**: Join events with available capacity
-- **View Profile**: Access personal information and event history
-- **Court Booking**: Reserve sports courts
-- **Gym Sessions**: Book fitness sessions
-
-### 👨‍🏫 Staff Member
-
-- **All Student Features**: Inherits all student capabilities
-- **Event Participation**: Enhanced participation in staff events
-- **Profile Management**: Extended profile with staff-specific information
-
-### 👨‍⚕️ Doctor/Professor
-
-- **All Staff Features**: Inherits all staff capabilities
-- **Workshop Creation**: Propose and create academic workshops
-- **Conference Management**: Organize academic conferences
-- **Student Oversight**: Monitor student participation in academic events
-
-### 🏢 Events Office
-
-- **Full Event Management**: Create, edit, and delete events
-- **Event Analytics**: Access comprehensive event statistics
-- **User Management**: Verify and manage user accounts
-- **Resource Allocation**: Manage court and gym session bookings
-- **System Administration**: Access admin-level features
-
-### 🏪 External Vendor
-
-- **Bazaar Registration**: Register for campus bazaars and fairs
-- **Booth Management**: Manage booth assignments and details
-- **Event Participation**: Participate in vendor-specific events
-- **Limited Profile**: Basic profile management
-
-### 👑 Admin
-
-- **System Administration**: Full system access and control
-- **User Verification**: Approve and verify all user accounts
-- **Role Management**: Assign and modify user roles
-- **System Analytics**: Access comprehensive system statistics
-- **Content Moderation**: Moderate events and user content
-
-## 🎪 Event Types
-
-### 📚 Academic Events
-
-- **Conferences**: Academic and professional conferences
-- **Workshops**: Skill-building and educational sessions
-- **Seminars**: Specialized topic presentations
-- **Lectures**: Guest speaker events
-
-### 🎨 Cultural Events
-
-- **Bazaars**: Campus marketplaces and fairs
-- **Exhibitions**: Art and cultural displays
-- **Performances**: Music, theater, and dance events
-- **Festivals**: Seasonal and cultural celebrations
-
-### 🏃‍♂️ Sports & Recreation
-
-- **Competitions**: Athletic competitions and tournaments
-- **Fitness Sessions**: Group fitness and wellness programs
-- **Court Bookings**: Individual and group sports activities
-- **Recreation Events**: Fun and social activities
-
-### 🌍 Educational Trips
-
-- **Cairo Tours**: Local cultural and historical excursions
-- **Berlin Trips**: International educational experiences
-- **Field Trips**: Academic and professional site visits
-- **Cultural Exchanges**: International student programs
-
-## 🔄 Development Workflow
-
-### Code Style & Standards
-
-We follow these coding standards to ensure code quality and maintainability: TypeScript strict mode for type safety, ESLint for code quality and consistency, Prettier for automated code formatting, conventional commits for standardized commit messages, and atomic design principles for component architecture.
-
-### Git Workflow
-
-```bash
-# Feature development
-git checkout -b feature/event-registration
-git add .
-git commit -m "feat: add event registration functionality"
-git push origin feature/event-registration
-
-# Create pull request for review
-# After approval, merge to main branch
-```
-
-### Available Scripts
-
-#### Backend Scripts
-
-```bash
-npm run dev          # Start development server with nodemon
-npm run start        # Start production server
-npm run build        # Build TypeScript to JavaScript
-npm test             # Run test suite
-```
-
-#### Frontend Scripts
-
-```bash
-npm run dev          # Start Next.js development server
-npm run build        # Build production application
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run storybook    # Start Storybook development server
-npm run test         # Run test suite
-npm run test:e2e     # Run end-to-end tests
-```
+---
 
 ## 🧪 Testing
 
-### Testing Strategy
-
-We implement comprehensive testing across multiple levels: unit tests for component and utility function testing with Vitest, integration tests for API endpoint testing, end-to-end tests with Playwright for complete user workflows, and component testing with Storybook for isolated component development.
-
-### Running Tests
+### Backend Tests
 
 ```bash
-### Running Tests
-
-```bash
-# Backend tests (Jest)
 cd backend
 npm test
-
-# Watch mode
-npm run test:watch
-
-# Coverage
-npm run test:coverage
-
-
-# Frontend tests (Coming Soon)
-cd client
-npm run test
-
-# E2E tests (Coming Soon)
-npm run test:e2e
-
-# Test coverage (Coming Soon)
-npm run test:coverage
 ```
 
-### Component Testing (Storybook)
-
-We use **Storybook** for isolated component development and testing. Component stories are implemented in `client/src/stories/` and allow you to:
-- View components in isolation
-- Test different component states and props
-- Interact with components without running the full application
-- Document component usage and variations
-
-#### Running Storybook
+### Frontend Storybook Tests
 
 ```bash
 cd client
 npm run storybook
-
-# Expected output:
-# ╭─────────────────────────────────────────────────╮
-# │                                                 │
-# │   Storybook 8.x.x for react-vite started        │
-# │   X.X s for preview                             │
-# │                                                 │
-# │    Local:            http://localhost:6006/     │
-# │    On your network:  http://192.168.x.x:6006/   │
-# │                                                 │
-# ╰─────────────────────────────────────────────────╯
+# Opens at http://localhost:6006
 ```
-
-Once running, open `http://localhost:6006` in your browser to access the Storybook interface.
-
-#### Available Stories
-
-Current component stories include:
-- **UI Components**: Buttons, inputs, cards, and other reusable components
-- **Layout Components**: Navigation, headers, footers
-- **Feature Components**: Event cards, user profiles, registration forms
-
-Explore the stories in the Storybook sidebar to see all available components and their variations.
-
-#### Creating New Stories
-
-To add a new component story:
-
-```typescript
-// client/src/stories/YourComponent.stories.tsx
-import type { Meta, StoryObj } from '@storybook/react';
-import { YourComponent } from '../components/YourComponent';
-
-const meta: Meta<typeof YourComponent> = {
-  title: 'Components/YourComponent',
-  component: YourComponent,
-  tags: ['autodocs'],
-};
-
-export default meta;
-type Story = StoryObj<typeof YourComponent>;
-
-export const Default: Story = {
-  args: {
-    // Your component props
-  },
-};
-```
-
-Additional unit, integration, and E2E tests are coming soon.
-
-### Test Structure
-
-```
-tests/
-├── unit/              # Unit tests (Coming Soon)
-├── integration/       # Integration tests (Coming Soon)
-├── e2e/              # End-to-end tests (Coming Soon)
-└── fixtures/         # Test data and mocks
-backend/__tests__/     # Backend API tests (Implemented)
-client/src/stories/    # Storybook component tests (Implemented)
-```
-
-## 🚀 Deployment
-
-### Production Build
-
-```bash
-# Build backend
-cd backend
-npm run build
-
-# Build frontend
-cd client
-npm run build
-```
-
-### Environment Setup
-
-1. **Database**: Set up MongoDB Atlas cluster
-2. **Redis**: Configure Redis instance (Redis Cloud recommended)
-3. **Environment Variables**: Set production environment variables
-4. **Domain**: Configure custom domain and SSL certificates
-5. **Monitoring**: Set up application monitoring and logging
-
-### Deployment Platforms
-
-- **Frontend**: Vercel (recommended for Next.js)
-- **Backend**: Railway, Heroku, or DigitalOcean
-- **Database**: MongoDB Atlas
-- **Cache**: Redis Cloud
-
-## 🤝 Contributing
-
-**Note**: This is a closed university project for CSEN 704 / DMET 706 course at the German University in Cairo. Contributions are limited to the project team members only.
-
-### Team Members
-
-| #   | Name              | Student ID | Role                   |
-| --- | ----------------- | ---------- | ---------------------- |
-| 1   | Mohammed Sultan   | 58-2621    | Backend & Scrum Master |
-| 2   | Esraa Tarek       | 58-4701    | Backend                |
-| 3   | Yasmeen Tarek     | 58-22672   | Backend                |
-| 4   | Youssef Yasser    | 58-3187    | Backend                |
-| 5   | Mahmoud Elkabbany | 58-1567    | Frontend               |
-| 6   | Mai Hazem         | 58-21524   | Frontend               |
-| 7   | Layla Khaled      | 58-1959    | Frontend               |
-| 8   | Salma Tarek       | 58-5727    | Frontend               |
-| 9   | Abdelrahman Wael  | 58-10142   | Frontend               |
-| 10  | Hatem Yasser      | 58-6188    | Frontend               |
-
-### Development Workflow for Team Members
-
-```bash
-# Clone the repository
-git clone https://github.com/Advanced-Computer-Lab-2025/Multaqa
-cd Multaqa
-
-# Install dependencies
-cd backend && npm install
-cd ../client && npm install
-
-# Start development servers
-npm run dev
-
-# To clear cache always
-npm run dev --clear
-
-# To start production server
-npm run build
-npm run start
-```
-
-### Code Review Process
-
-1. **Automated Checks**: CI/CD pipeline runs tests and linting
-2. **Peer Review**: At least one team member reviews the code
-3. **Testing**: Manual testing of new features
-4. **Documentation**: Update relevant documentation
-
-### Sprint Task Boards
-
-You can view the detailed breakdown of tasks, assignments, and progress for each sprint:
-
-- **Sprint 1 (Jira)**: [View Sprint 1 Board](https://new-guc-scad.atlassian.net/jira/software/projects/SCAD/boards/1/backlog?selectedIssue=SCAD-24)
-- **Sprint 2 (Excel)**: [View Sprint 2 Board](https://1drv.ms/x/c/cfee3a69d7cca41e/EfILJosU9TRDhJYiWVs--qEBpFFKvRReVI_MvAltaDXHBQ?e=VdgNZr)
-
-### Issue Reporting
-
-When reporting issues, please include a clear description of the problem, detailed steps to recreate it, what you expected to happen versus what actually happened, your environment details (browser, OS, Node.js version), and relevant screenshots.
-
-## 👥 Credits
-
-### Development Team
-
-- **Course**: CSEN 704 / DMET 706 - Advanced Computer Lab
-- **Institution**: German University in Cairo
-- **Instructor**: Assoc. Prof. Mervat Abuelkheir
-- **Semester**: Winter 2025
-
-### Technologies & Libraries
-
-- **Next.js**: [Next.js Documentation](https://nextjs.org/docs)
-- **Material-UI**: [MUI Documentation](https://mui.com/)
-- **Express.js**: [Express.js Guide](https://expressjs.com/)
-- **MongoDB**: [MongoDB Documentation](https://docs.mongodb.com/)
-- **TypeScript**: [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-
-### Inspiration
-
-- **GUC Campus Life**: Inspired by the vibrant campus community at GUC
-- **Modern Web Standards**: Following current best practices in web development
-- **User Experience**: Focus on intuitive and accessible design
 
 ---
 
-## ❓ Frequently Asked Questions (FAQ)
 
-### General Setup
+## Agile Development
 
-**Q: Do I need to use MongoDB Atlas or can I use a local MongoDB instance?**
+We followed **Agile/Scrum methodology** throughout the project:
 
-A: You can use either! For local MongoDB:
-```bash
-# Install MongoDB locally
-brew install mongodb-community  # macOS
-sudo apt install mongodb         # Linux
+- **Sprint-based development**: 2-week sprints with defined goals and deliverables
+- **Daily meetings**: Regular team sync meetings for progress updates
+- **Sprint planning**: Backlog refinement and task estimation
+- **Sprint retrospectives**: Continuous improvement after each sprint
+- **Task tracking**: [Sprint 1 (Jira)](https://new-guc-scad.atlassian.net/jira/software/projects/SCAD/boards/1/backlog?selectedIssue=SCAD-24) | [Sprint 2 (Excel)](https://1drv.ms/x/c/cfee3a69d7cca41e/EfILJosU9TRDhJYiWVs--qEBpFFKvRReVI_MvAltaDXHBQ?e=VdgNZr)
 
-# Update backend/.env
-MONGO_URI=mongodb://localhost:27017/MultaqaDB
-```
+---
 
-**Q: How do I reset my database?**
 
-A: To reset your MongoDB database:
-```bash
-# Option 1: Drop database via MongoDB shell
-mongosh "your-connection-string"
-> use MultaqaDB
-> db.dropDatabase()
+## Team Members
 
-# Option 2: Delete and recreate in MongoDB Atlas dashboard
-```
 
-**Q: How do I stop/restart Redis?**
+| #   | Name              | Role                   |
+| --- | ----------------- | ---------------------- |
+| 1   | <img src="https://github.com/sultann-301.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Mohammed Sultan](https://github.com/sultann-301) | Backend & Scrum Master |
+| 2   | <img src="https://github.com/EsraaTarek382.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Esraa Tarek](https://github.com/EsraaTarek382) | Backend                |
+| 3   | <img src="https://github.com/YasmeenTarek1.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Yasmeen Tarek](https://github.com/YasmeenTarek1) | Backend                |
+| 4   | <img src="https://github.com/Chainingrobin.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Youssef Yasser](https://github.com/Chainingrobin) | Backend                |
+| 5   | <img src="https://github.com/MahmoudEl-kabbany.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Mahmoud Elkabbany](https://github.com/MahmoudEl-kabbany) | Frontend               |
+| 6   | <img src="https://github.com/maihazem607.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Mai Hazem](https://github.com/maihazem607) | Frontend               |
+| 7   | <img src="https://github.com/layla2206.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Layla Khaled](https://github.com/layla2206) | Frontend               |
+| 8   | <img src="https://github.com/sal-tarek.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Salma Tarek](https://github.com/sal-tarek) | Frontend               |
+| 9   | <img src="https://github.com/AbdelrahmanWaelH.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Abdelrahman Wael](https://github.com/AbdelrahmanWaelH) | Frontend               |
+| 10  | <img src="https://github.com/CodeNKoffee.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Hatem Yasser](https://github.com/CodeNKoffee) | Frontend               |
 
-A:
-```bash
-# Stop Redis
-docker stop redis
+---
 
-# Start Redis
-docker start redis
 
-# Restart Redis
-docker restart redis
+## 🤝 Contributing
 
-# Check Redis status
-docker ps | grep redis
-```
-
-### Development Issues
-
-**Q: What if port 3000 or 4000 is already in use?**
-
-A: You have two options:
-
-1. **Kill the process using the port:**
-```bash
-# macOS/Linux
-lsof -ti:4000 | xargs kill -9
-lsof -ti:3000 | xargs kill -9
-
-# Or use the backend script
-cd backend && npm run kill-port
-```
-
-2. **Change the port:**
-```bash
-# Backend: Update backend/.env
-PORT=5000
-
-# Frontend: Next.js will automatically use 3001 if 3000 is busy
-# Or specify: npm run dev -- -p 3001
-```
-
-**Q: How do I add a new admin user?**
-
-A: You can create an admin user through the registration endpoint with admin role, or update an existing user in MongoDB:
-```javascript
-// In MongoDB shell or Compass
-db.users.updateOne(
-  { email: "user@example.com" },
-  { $set: { role: "ADMIN", verified: true } }
-)
-```
-
-**Q: Why am I getting CORS errors?**
-
-A: Ensure:
-1. Backend runs on `http://localhost:4000`
-2. Frontend runs on `http://localhost:3000`
-3. Both servers are running simultaneously
-4. Check `backend/app.ts` CORS configuration matches these URLs
-
-### Deployment
-
-**Q: How do I deploy this application?**
-
-A: Recommended deployment setup:
-- **Frontend**: Vercel (optimized for Next.js)
-- **Backend**: Railway, Render, or DigitalOcean
-- **Database**: MongoDB Atlas (already cloud-based)
-- **Redis**: Redis Cloud or Upstash
-
-See the [Deployment](#-deployment) section for detailed instructions.
-
-**Q: Do I need to configure anything for production?**
-
-A: Yes, update these for production:
-1. Change `MONGO_URI` to production database
-2. Update `REDIS_URL` to production Redis instance
-3. Set strong `ACCESS_TOKEN_SECRET` and `REFRESH_TOKEN_SECRET`
-4. Update CORS origin to your production frontend URL
-5. Configure Gmail API credentials for production
-6. Set up environment variables on your hosting platform
-
-### Features
-
-**Q: How do I enable email notifications?**
-
-A: Configure Gmail API in your backend `.env`:
-1. Create a Google Cloud project
-2. Enable Gmail API
-3. Create service account credentials
-4. Add credentials to `.env` file
-5. Restart backend server
-
-**Q: Can I add more event types?**
-
-A: Yes! The system is designed to be extensible. You can add new event types by:
-1. Creating a new schema in `backend/schemas/event-schemas/`
-2. Adding routes in `backend/routes/`
-3. Creating frontend components in `client/src/components/`
-
-**Q: Why does my backend server crash after making changes (especially on macOS)?**
-
-A: This is a common issue on macOS when backend code is modified or new environment variables are introduced. The solution is to delete and recreate the environment:
-
-```bash
-cd backend
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
-npm run dev
-```
-
-See the [Backend Server Crashing After Changes (macOS)](#️-backend-server-crashing-after-changes-macos) troubleshooting section for more details.
+We welcome contributions! Feel free to submit pull requests, report bugs, suggest features, or improve documentation.
 
 ---
 
@@ -1145,22 +690,11 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 📞 Support & Contact
-
-- **Course**: CSEN 704 / DMET 706 - Advanced Computer Lab
-- **Institution**: German University in Cairo
-- **Instructor**: Assoc. Prof. Mervat Abuelkheir
-
----
 
 <div align="center">
 
-**Made with ❤️ by the CSEN 704 Team at German University in Cairo**
+**Made with ❤️ by Multaqa Team**
 
 _Bringing the campus community together, one event at a time_ 🎓✨
-
----
-
-**📅 Last Updated:** December 2025 | **Version:** 1.0.0
 
 </div>
