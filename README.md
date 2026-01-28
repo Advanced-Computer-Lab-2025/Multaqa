@@ -86,7 +86,7 @@ Multaqa was built to solve these challenges by providing a **centralized hub** w
 - **Email Verification**: 24-hour token expiry with automated verification emails
 - **Role-Based Authorization**: 6-tier permission system with middleware protection
 - **Password Security**: Bcrypt hashing with salt rounds
-- **Redis Session Management**: Distributed session storage for scalability
+- **Redis Token Whitelist**: Fast shared storage for valid refresh tokens with revocation capability for enhanced security
 
 ### 🔔 Real-time Notifications System
 
