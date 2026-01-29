@@ -119,24 +119,26 @@ Multaqa was built to solve these challenges by providing a **centralized hub** w
 
 ### ☁️ Document Storage & Management
 
-- **Cloudinary Integration**: Secure cloud storage with automatic optimization and transformation
-- **Document Types Supported**:
-  - **Vendor Documentation**: Tax cards, business licenses, company logos
-  - **Event Media**: Event banners, promotional images, workshop materials
-  - **User Assets**: Profile pictures, uploaded attachments
-  - **Generated Content**: QR codes, certificates, system-generated graphics
-- **Automatic Optimization**: Image compression, format conversion, and responsive delivery
-- **Secure Access Control**: Direct upload capabilities with validation and access restrictions
+* **Cloudinary Integration**: Secure cloud storage with automatic optimization and transformation
+* **Document Types Supported**:
+   * **Company Verification** (during vendor signup):
+      - Tax cards
+      - Company logos
+   * **Booth/Bazaar Participant IDs** (when applying to bazaars or booths):
+      - IDs of individuals attending (max 5 individuals)
+* **Document Access**:
+   * Events Office and Admin can view/download all uploaded documents
+   * Vendors can upload their own documentation
+* **Storage Features**:
+   - Secure file upload with validation
+   - Support for document and image formats
 
 ### 📊 QR Code Generation Engine
 
-- **QRCode Library Integration**: Dynamic QR code generation for multiple use cases
-- **Generated QR Types**:
-  - **External Visitor Access**: Unique QR codes for bazaar and career fair attendees
-  - **Event Check-ins**: Quick registration verification and attendance tracking
-  - **Vendor Operations**: Booth access codes and customer interaction tracking
-- **Automatic Distribution**: QR codes embedded in email templates and delivered to recipients
-- **Format Support**: PNG generation with customizable size and error correction levels
+* **QRCode Library Integration**: Dynamic QR code generation for event access
+* **Generated QR Types**:
+  * **Booth Representative Access**: QR codes for registered booth representatives attending bazaars/booths 
+* **Automatic Distribution**: QR codes delivered via email to vendors
 
 ### 📄 PDF Document Generation
 
@@ -144,32 +146,27 @@ Multaqa was built to solve these challenges by providing a **centralized hub** w
 - **Generated Documents**:
   - **Certificates of Attendance**: Automated workshop completion certificates with participant details
   - **Bug Reports**: Formatted technical reports with reproduction steps and environment details
-  - **Event Summaries**: Comprehensive event documentation for administrators
 - **Dynamic Content**: Template-based generation with variable data injection
 - **Professional Formatting**: Consistent styling, logos, signatures, and layout structure
 
 ### 📈 Excel Export System
 
-- **ExcelJS Integration**: Comprehensive spreadsheet generation for data analysis
-- **Export Categories**:
-  - **Event Analytics**: Attendee lists with registration details, payment status, and demographics
-  - **Bug Report Analytics**: Complete bug tracking data with status, severity, and resolution metrics
-  - **Financial Reports**: Payment transactions, refund tracking, and revenue analysis
-  - **User Management**: User lists with roles, status, and activity metrics
-  - **Vendor Reports**: Application status, participation history, and performance data
-- **Advanced Formatting**: Headers, filters, conditional formatting, and data validation
-- **Real-time Generation**: On-demand export with current data snapshots
+* **ExcelJS Integration**: Spreadsheet generation for event management
+* **Export Capabilities**:
+   * **Event Registration Lists**: Export names of registered participants for any event (except conferences) in .xlsx format
+   * **Bug Reports**: Export bug report data for tracking and analysis in .xlsx format
+* **Access**: Available to Events Office for participant management
 
 ### ⚡ Smart Conflict Detection System
 
 - **Gym Session Management**: 
-  - **Time Slot Validation**: Prevents double-booking of gym facilities and trainers
+  - **Time Slot Validation**: Prevents users from booking overlapping gym sessions
   - **Capacity Monitoring**: Real-time tracking prevents over-enrollment in fitness classes
 - **Vendor Booth Conflicts**: 
   - **Collision Detection Engine**: Automatic identification of overlapping booth requests
   - **Fair Resolution Process**: Democratic vendor selection through automated polling system
 - **Court Reservation Logic**: 
-  - **Multi-Sport Scheduling**: Prevents conflicts between tennis, basketball, and football court bookings
+  - **Multi-Sport Scheduling**: Prevents conflicting bookings for the same court time slot
 
 ---
 
