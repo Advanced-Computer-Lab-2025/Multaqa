@@ -661,7 +661,7 @@ We followed **Agile/Scrum methodology** throughout the project:
 
 | #   | Name              | Role                   |
 | --- | ----------------- | ---------------------- |
-| 1   | <img src="https://github.com/sultann-301.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Mohammed Sultan](https://github.com/sultann-301) | Backend & Scrum Master |
+| 1   | <img src="https://github.com/sultann-301.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Mohamed Sultan](https://github.com/sultann-301) | Backend & Scrum Master |
 | 2   | <img src="https://github.com/EsraaTarek382.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Esraa Tarek](https://github.com/EsraaTarek382) | Backend                |
 | 3   | <img src="https://github.com/YasmeenTarek1.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Yasmeen Tarek](https://github.com/YasmeenTarek1) | Backend                |
 | 4   | <img src="https://github.com/Chainingrobin.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Youssef Yasser](https://github.com/Chainingrobin) | Backend                |
@@ -673,7 +673,6 @@ We followed **Agile/Scrum methodology** throughout the project:
 | 10  | <img src="https://github.com/CodeNKoffee.png" width="20" height="20" style="border-radius:50%; vertical-align:middle"> [Hatem Yasser](https://github.com/CodeNKoffee) | Frontend               |
 
 ---
-
 
 ## 🤝 Contributing
 
