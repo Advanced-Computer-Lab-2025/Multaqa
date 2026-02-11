@@ -151,21 +151,21 @@ export default function RoleAssignmentContent() {
       setPendingAssignment(null);
     } catch (err: any) {
       const errorMessage =
-          err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          err.message||
-          "Failed to assign role";
-    
-        toast.error(errorMessage, {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to assign role";
+
+      toast.error(errorMessage, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
       // The revert has already been handled in handleAssignRole
       setModalOpen(false);
       setPendingAssignment(null);
@@ -198,6 +198,9 @@ export default function RoleAssignmentContent() {
 
     const draggedId = String(active.id);
     const targetRole = String(over.id);
+
+    console.log("Dragged ID:", draggedId); // Debug: check what ID you're getting
+    console.log("Target Role:", targetRole);
 
     // Check if the target is a valid role
     if (!roleKeys.includes(targetRole as (typeof roleKeys)[number])) return;
@@ -518,7 +521,7 @@ export default function RoleAssignmentContent() {
         {activeId && activeDraggedUser ? (
           <RegisterBox
             name={activeDraggedUser.name}
-            id={activeDraggedUser.id}
+            id={activeDraggedUser.gucId}
             email={activeDraggedUser.email}
             registrationDate={activeDraggedUser.registrationDate}
             role="N/A"
